@@ -9,13 +9,13 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                bat "dotnet restore ${PROJECT_PATH}"
-                bat "dotnet build ${PROJECT_PATH}"
+                bat 'dotnet restore ${PROJECT_PATH}'
+                bat 'dotnet build ${PROJECT_PATH}'
             }
         }
         stage('Run Tests') {
             steps {
-                bat "dotnet test ${TEST_PROJECT_PATH}"
+                bat 'dotnet test ${TEST_PROJECT_PATH}'
             }
         }
     }
