@@ -9,15 +9,20 @@ pipeline {
     }
 
     stages {
+        stage('Start Minikube') {
+            steps {
+                bat 'minikube start'
+            }
+        }
         stage('Minikube reinstall namespace') {
             steps {
-                bat 'kubectl delete ns ${NAMESPACE}'
-                bat 'kubectl create ns ${NAMESPACE}'
+                bat "kubectl delete ns ${NAMESPACE}"
+                bat "kubectl create ns ${NAMESPACE}"
             }
         }
         stage('Helm install') {
             steps {
-                bat 'helm install ${HELM_NAME} ${HELM_CHART_PATH} -f ${HELM_CHART_PATH}/values.yaml -f ${HELM_IMAGE_TAGS_PATH} -n ${NAMESPACE}'
+                bat "helm install ${HELM_NAME} ${HELM_CHART_PATH} -f ${HELM_CHART_PATH}/values.yaml -f ${HELM_IMAGE_TAGS_PATH} -n ${NAMESPACE}"
             }
         }
     }

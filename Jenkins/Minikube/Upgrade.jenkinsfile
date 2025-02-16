@@ -9,14 +9,19 @@ pipeline {
     }
 
     stages {
+        stage('Start Minikube') {
+            steps {
+                bat 'minikube start'
+            }
+        }
         stage('Helm upgrade') {
             steps {
-                bat 'helm upgrade ${HELM_NAME} ${HELM_CHART_PATH} -f ${HELM_CHART_PATH}/values.yaml -f ${HELM_IMAGE_TAGS_PATH} -n ${NAMESPACE}'
+                bat "helm upgrade ${HELM_NAME} ${HELM_CHART_PATH} -f ${HELM_CHART_PATH}/values.yaml -f ${HELM_IMAGE_TAGS_PATH} -n ${NAMESPACE}"
             }
         }
         stage('Restart Kubernetes services') {
             steps {
-                bat 'kubectl rollout restart deploy -n ${NAMESPACE}'
+                bat "kubectl rollout restart deploy -n ${NAMESPACE}"
             }
         }
     }

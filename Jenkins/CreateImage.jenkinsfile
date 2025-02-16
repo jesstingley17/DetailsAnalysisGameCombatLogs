@@ -29,14 +29,14 @@ pipeline {
         }
         stage('Docker image build') {
             steps {
-                bat 'docker build -t ${DOCKER_HUB_LOGIN}/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION} -f ${PROJECT_DOCKER_PATH} .'
+                bat "docker build -t ${DOCKER_HUB_LOGIN}/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION} -f ${PROJECT_DOCKER_PATH} ."
             }
         }
         stage('Docker image push') {
             steps {
                 withCredentials([string(credentialsId: 'docker-hub', variable: 'dockerhubpwd')]) {
-                    bat 'docker login -u ${DOCKER_HUB_LOGIN} -p ${dockerhubpwd}'
-                    bat 'docker push ${DOCKER_HUB_LOGIN}/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION}'
+                    bat "docker login -u ${DOCKER_HUB_LOGIN} -p ${dockerhubpwd}"
+                    bat "docker push ${DOCKER_HUB_LOGIN}/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION}"
                 }
             }
         }
