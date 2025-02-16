@@ -9,11 +9,6 @@ pipeline {
     }
 
     stages {
-        stage('Start Minikube') {
-            steps {
-                bat 'minikube start'
-            }
-        }
         stage('Minikube create namespace') {
             steps {
                 bat "kubectl create ns ${NAMESPACE}"

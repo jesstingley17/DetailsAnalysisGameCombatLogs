@@ -9,11 +9,6 @@ pipeline {
     }
 
     stages {
-        stage('Start Minikube') {
-            steps {
-                bat 'minikube start'
-            }
-        }
         stage('Minikube reinstall namespace') {
             steps {
                 bat "kubectl delete ns ${NAMESPACE}"
