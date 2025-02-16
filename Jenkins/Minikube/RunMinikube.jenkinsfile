@@ -1,0 +1,12 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Run Minikube') {
+            steps {
+                bat 'minikube start'
+                bat 'minikube tunnel'
+            }
+        }
+    }
+}
