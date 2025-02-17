@@ -1,79 +1,99 @@
-﻿//using CombatAnalysis.CombatParser.Entities;
-//using CombatAnalysis.CombatParser.Extensions;
-//using CombatAnalysis.CombatParser.Details;
-//using Microsoft.Extensions.Logging;
-//using Moq;
+﻿using CombatAnalysis.CombatParser.Details;
+using CombatAnalysis.CombatParser.Entities;
+using CombatAnalysis.CombatParser.Extensions;
+using Microsoft.Extensions.Logging;
+using Moq;
 
-//namespace CombatAnalysis.Parser.Tests.CombatParser;
+namespace CombatAnalysis.Parser.Tests.CombatParser;
 
-//[TestFixture]
-//internal class CombatDetailsExtensionTests
-//{
-//    [Test]
-//    public void CombatDetailsExtension_GetDamageDoneGeneral_Must_Return_Damage_Done_General_Collection()
-//    {
-//        var damageDone = new DamageDone
-//        {
-//            FromPlayer = "Test player",
-//            ToEnemy = "Test enemy",
-//            IsCrit = true,
-//            SpellOrItem = "TestSpell",
-//            Value = 2604,
-//            Time = TimeSpan.Zero
-//        };
-//        var damageDone1 = new DamageDone
-//        {
-//            FromPlayer = "Test player1",
-//            ToEnemy = "Test enemy1",
-//            IsDodge = true,
-//            SpellOrItem = "TestSpell",
-//            Value = 3354,
-//            Time = TimeSpan.Zero
-//        };
-//        var damageDone2 = new DamageDone
-//        {
-//            FromPlayer = "Test player2",
-//            ToEnemy = "Test enemy2",
-//            IsCrit = true,
-//            IsMiss = true,
-//            SpellOrItem = "TestSpell",
-//            Value = 1622,
-//            Time = TimeSpan.Zero
-//        };
+[TestFixture]
+internal class CombatDetailsExtensionTests
+{
+    private Mock<ILogger> _loggerMock;
+    private CombatDetails _combatDetails;
 
-//        var damageDones = new List<DamageDone> { damageDone, damageDone1, damageDone2 };
+    [SetUp]
+    public void SetUp()
+    {
+        _loggerMock = new Mock<ILogger>();
+        _combatDetails = new CombatDetails(_loggerMock.Object);
+    }
 
-//        var combat = new Combat
-//        {
-//            Name = "Test combat 665r",
-//            StartDate = new DateTimeOffset(2022, 06, 05, 20, 15, 05, TimeSpan.Zero),
-//            FinishDate = new DateTimeOffset(2022, 06, 05, 20, 17, 58, TimeSpan.Zero),
-//        };
+    [Test]
+    public void CalculateGeneralData_ShouldNotAddNewItems_WhenPlayersIdIsNull()
+    {
+        _combatDetails.CalculateGeneralData(null, "00:10:00");
 
-//        var mockLogger = new Mock<ILogger>();
-//        var combatDetails = new CombatDetails(mockLogger.Object);
-//        var damageDoneGenerals = combatDetails.GetDamageDoneGeneral(damageDones, combat);
-//        Assert.IsNotNull(damageDoneGenerals);
+        Assert.Multiple(() =>
+        {
+            Assert.That(_combatDetails.DamageDoneGeneral.Count, Is.Zero);
+            Assert.That(_combatDetails.HealDoneGeneral.Count, Is.Zero);
+            Assert.That(_combatDetails.DamageTakenGeneral.Count, Is.Zero);
+            Assert.That(_combatDetails.ResourcesRecoveryGeneral.Count, Is.Zero);
+        });
+    }
 
-//        var firstDamageDoneGeneral = damageDoneGenerals[0];
+    [Test]
+    public void CalculateGeneralData_ShouldNotAddNewItems_WhenPlayersIdIsEmpty()
+    {
+        _combatDetails.CalculateGeneralData([], "00:10:00");
 
-//        var expectedDamageDoneGeneral = new DamageDoneGeneral
-//        {
-//            Value = 7580,
-//            AverageValue = 2526.7,
-//            CastNumber = 3,
-//            DamagePerSecond = 43.8,
-//            MaxValue = 3354,
-//            MinValue = 1622,
-//            SpellOrItem = "TestSpell"
-//        };
+        Assert.Multiple(() =>
+        {
+            Assert.That(_combatDetails.DamageDoneGeneral.Count, Is.Zero);
+            Assert.That(_combatDetails.HealDoneGeneral.Count, Is.Zero);
+            Assert.That(_combatDetails.DamageTakenGeneral.Count, Is.Zero);
+            Assert.That(_combatDetails.ResourcesRecoveryGeneral.Count, Is.Zero);
+        });
+    }
 
-//        Assert.AreEqual(expectedDamageDoneGeneral.Value, firstDamageDoneGeneral.Value, "Damage done general value has not expected elements.");
-//        Assert.AreEqual(expectedDamageDoneGeneral.AverageValue, Math.Round(firstDamageDoneGeneral.AverageValue, 1), "Damage done general average value has not expected elements.");
-//        Assert.AreEqual(expectedDamageDoneGeneral.CastNumber, firstDamageDoneGeneral.CastNumber, "Damage done general cast number has not expected elements.");
-//        Assert.AreEqual(expectedDamageDoneGeneral.DamagePerSecond, Math.Round(firstDamageDoneGeneral.DamagePerSecond, 1), "Damage done general damage per second has not expected elements.");
-//        Assert.AreEqual(expectedDamageDoneGeneral.MaxValue, firstDamageDoneGeneral.MaxValue, "Damage done general max value has not expected elements.");
-//        Assert.AreEqual(expectedDamageDoneGeneral.MinValue, firstDamageDoneGeneral.MinValue, "Damage done general min value has not expected elements.");
-//        Assert.AreEqual(expectedDamageDoneGeneral.SpellOrItem, firstDamageDoneGeneral.SpellOrItem, "Damage done general spell or item has not expected elements.");
-//    }
-//}
+    [Test]
+    public void CalculateGeneralData_ShouldNotAddNewItems_WhenDurationIsNull()
+    {
+        _combatDetails.CalculateGeneralData(["player1"], null);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(_combatDetails.DamageDoneGeneral.Count, Is.Zero);
+            Assert.That(_combatDetails.HealDoneGeneral.Count, Is.Zero);
+            Assert.That(_combatDetails.DamageTakenGeneral.Count, Is.Zero);
+            Assert.That(_combatDetails.ResourcesRecoveryGeneral.Count, Is.Zero);
+        });
+    }
+
+    [Test]
+    public void CalculateGeneralData_ShouldNotAddNewItems_WhenDurationIsEmpty()
+    {
+        _combatDetails.CalculateGeneralData(["player1"], "");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(_combatDetails.DamageDoneGeneral.Count, Is.Zero);
+            Assert.That(_combatDetails.HealDoneGeneral.Count, Is.Zero);
+            Assert.That(_combatDetails.DamageTakenGeneral.Count, Is.Zero);
+            Assert.That(_combatDetails.ResourcesRecoveryGeneral.Count, Is.Zero);
+        });
+    }
+
+    [Test]
+    public void CalculateGeneralData_ShouldCalculateData_WhenInputsAreValid()
+    {
+        var playersId = new List<string> { "player1" };
+        var duration = "00:10:00";
+
+        _combatDetails.DamageDone.TryAdd("player1", [new DamageDone { Spell = "Spell1", Value = 100 }]);
+        _combatDetails.HealDone.TryAdd("player1", [new HealDone { Spell = "Spell1", Value = 100 }]);
+        _combatDetails.DamageTaken.TryAdd("player1", [new DamageTaken { Spell = "Spell1", Value = 100 }]);
+        _combatDetails.ResourcesRecovery.TryAdd("player1", [new ResourceRecovery { Spell = "Spell1", Value = 100 }]);
+
+        _combatDetails.CalculateGeneralData(playersId, duration);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(_combatDetails.DamageDoneGeneral, Is.Not.Empty);
+            Assert.That(_combatDetails.HealDoneGeneral, Is.Not.Empty);
+            Assert.That(_combatDetails.DamageTakenGeneral, Is.Not.Empty);
+            Assert.That(_combatDetails.ResourcesRecoveryGeneral, Is.Not.Empty);
+        });
+    }
+}

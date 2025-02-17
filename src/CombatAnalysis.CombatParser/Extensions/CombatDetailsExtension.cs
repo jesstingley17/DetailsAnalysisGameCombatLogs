@@ -7,7 +7,7 @@ namespace CombatAnalysis.CombatParser.Extensions;
 
 public static class CombatDetailsExtension
 {
-    public static void CalculateGeneralData(this CombatDetails combatDetails, List<string> playersId, string duration)
+    public static void CalculateGeneralData(this CombatDetails combatDetails, List<string>? playersId, string? duration)
     {
         try
         {
