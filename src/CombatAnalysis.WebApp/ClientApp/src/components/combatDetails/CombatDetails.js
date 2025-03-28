@@ -71,7 +71,7 @@ const CombatDetails = () => {
         }
     }
 
-    if (combatPlayerId <= 0) {
+    if (combatPlayerId <= 0 || !combatPlayer) {
         return <div>Loading...</div>;
     }
 
@@ -112,7 +112,7 @@ const CombatDetails = () => {
             </div>
             {tabIndex === 0
                 ? <CombatGeneralDetails
-                    combatPlayerId={combatPlayerId}
+                    combatPlayer={combatPlayer}
                     detailsType={detailsType}
                 />
                 : <CombatMoreDetails

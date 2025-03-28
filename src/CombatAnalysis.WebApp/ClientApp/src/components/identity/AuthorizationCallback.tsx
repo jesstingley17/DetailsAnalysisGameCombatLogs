@@ -8,7 +8,7 @@ import { useLazyAuthorizationCodeExchangeQuery } from '../../store/api/user/Iden
 
 import '../../styles/identity/authorizationCallback.scss';
 
-const unauthorizedTimeoutLimit = 40000;
+const unauthorizedTimeoutLimit = 4000;
 
 const AuthorizationCallback: React.FC = () => {
     const { t } = useTranslation("identity/authorizationCallback");
@@ -17,7 +17,7 @@ const AuthorizationCallback: React.FC = () => {
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
 
-    const { checkAuth } = useAuth();
+    const { checkAuthAsync } = useAuth();
 
     const [stateIsValid, setStateIsValid] = useState(true);
     const [accessRestored, setAcessRestored] = useState(false);
@@ -32,11 +32,13 @@ const AuthorizationCallback: React.FC = () => {
 
         const verified: any = queryParams.get("verified");
         setVerified(verified);
-    }, []);
 
-    useEffect(() => {
         const code: any = queryParams.get("code");
         const state: any = queryParams.get("state");
+
+        if (!code && !state && !accessRestored && !verified) {
+            navigate("/");
+        }
 
         const validateState = async () => {
             await validateStateAsync(state, code);
@@ -63,7 +65,7 @@ const AuthorizationCallback: React.FC = () => {
     const navigateToTokenAsync = async (authorizationCode: string) => {
         const response: any = await authorizationCodeExchange(authorizationCode);
         if (response?.data !== undefined) {
-            await checkAuth();
+            await checkAuthAsync();
 
             navigate("/");
         }
@@ -101,7 +103,7 @@ const AuthorizationCallback: React.FC = () => {
     return (
         <div className="authorization-callback">
             {stateIsValid
-                ? <div className="successful21">{t("Authorization")}</div>
+                ? <div className="successful">{t("Authorization")}</div>
                 : <div className="failed">{t("Unauthorized")}</div>
             }
         </div>

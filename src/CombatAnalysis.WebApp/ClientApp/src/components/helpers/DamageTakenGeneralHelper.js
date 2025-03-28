@@ -1,11 +1,11 @@
 ﻿import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-const fixedNumberUntil = 2;
+const DamageTakenGeneralHelper = ({ generalData, getProcentage, combatPlayer, getValueShortName, getSpellValueProcentage }) => {
+    const fixedNumberUntil = 2;
 
-const DamageTakenGeneralHelper = ({ generalData, getProcentage }) => {
     const { t } = useTranslation("helpers/combatDetailsHelper");
     const [hideColumns, setHideColumns] = useState([]);
 
@@ -56,12 +56,26 @@ const DamageTakenGeneralHelper = ({ generalData, getProcentage }) => {
                             />
                         </li>
                     }
-                    <li>
-                        {t("Crit")}, %
-                    </li>
-                    <li>
-                        {t("Miss")}, %
-                    </li>
+                    {!hideColumns.includes("Crit") &&
+                        <li className="allow-hide-column">
+                            {t("Crit")}, %
+                            <FontAwesomeIcon
+                                icon={faXmark}
+                                title={t("Hide")}
+                                onClick={() => handleAddToHideColumns("Crit")}
+                            />
+                        </li>
+                    }
+                    {!hideColumns.includes("Miss") &&
+                        <li className="allow-hide-column">
+                            {t("Miss")}, %
+                            <FontAwesomeIcon
+                                icon={faXmark}
+                                title={t("Hide")}
+                                onClick={() => handleAddToHideColumns("Miss")}
+                            />
+                        </li>
+                    }
                     {!hideColumns.includes("Max") &&
                         <li className="allow-hide-column">
                             {t("Max")}
@@ -89,40 +103,24 @@ const DamageTakenGeneralHelper = ({ generalData, getProcentage }) => {
 
     const hiddenColumns = () => {
         return (
-            <li className="hidden-columns" key="-1">
-                <ul>
-                    {hideColumns.includes("Average") &&
-                        <li className="allow-hide-column" onClick={() => handleRemoveFromHideColumns("Average")}>
-                            {t("Average")}
-                        </li>
-                    }
-                    {hideColumns.includes("Count") &&
-                        <li className="allow-hide-column" onClick={() => handleRemoveFromHideColumns("Count")}>
-                            {t("Count")}
-                        </li>
-                    }
-                    {hideColumns.includes("Max") &&
-                        <li className="allow-hide-column" onClick={() => handleRemoveFromHideColumns("Max")}>
-                            {t("Max")}
-                        </li>
-                    }
-                    {hideColumns.includes("Min") &&
-                        <li className="allow-hide-column" onClick={() => handleRemoveFromHideColumns("Min")}>
-                            {t("Min")}
-                        </li>
-                    }
-                </ul>
-            </li>
+            <ul className="hidden-columns">
+                {hideColumns.map((column, index) => (
+                    <li key={index} className="allow-hide-column" onClick={() => handleRemoveFromHideColumns(column)}>
+                        {t(column)}
+                    </li>
+                ))}
+            </ul>
         );
     }
 
     return (
         <>
-            {hideColumns.length > 0 &&
-                <li className="player-general-data-details__inherit">
-                    {hiddenColumns()}
-                </li>
-            }
+            <li className="player-general-data-details__inherit">
+                <div>
+                    {t("Total")}: {getValueShortName(combatPlayer.damageTaken)}
+                </div>
+                {hideColumns.length > 0 && hiddenColumns()}
+            </li>
             {tableTitle()}
             {generalData?.map((item) => (
                 <li className="player-general-data-details__item" key={item.id}>
@@ -130,12 +128,13 @@ const DamageTakenGeneralHelper = ({ generalData, getProcentage }) => {
                         <li>
                             {item.spell}
                         </li>
-                        <li>
-                            {item.value}
+                        <li className="amount">
+                            <span>{getValueShortName(item.value)}</span>
+                            <span className="procentage">{getSpellValueProcentage(item, combatPlayer.healDone)}%</span>
                         </li>
                         {!hideColumns.includes("Average") &&
                             <li>
-                                {item.averageValue.toFixed(fixedNumberUntil)}
+                                {getValueShortName(item.averageValue)}
                             </li>
                         }
                         <li>
@@ -146,20 +145,24 @@ const DamageTakenGeneralHelper = ({ generalData, getProcentage }) => {
                                 {item.castNumber}
                             </li>
                         }
-                        <li>
-                            {getProcentage(item.critNumber, item.castNumber)}%
-                        </li>
-                        <li>
-                            {getProcentage(item.missNumber, item.castNumber)}%
-                        </li>
+                        {!hideColumns.includes("Crit") &&
+                            <li>
+                                {getProcentage(item.critNumber, item.castNumber)}%
+                            </li>
+                        }
+                        {!hideColumns.includes("Miss") &&
+                            <li>
+                                {getProcentage(item.missNumber, item.castNumber)}%
+                            </li>
+                        }
                         {!hideColumns.includes("Max") &&
                             <li>
-                                {item.maxValue}
+                                {getValueShortName(item.maxValue)}
                             </li>
                         }
                         {!hideColumns.includes("Min") &&
                             <li>
-                                {item.minValue}
+                                {getValueShortName(item.minValue)}
                             </li>
                         }
                     </ul>

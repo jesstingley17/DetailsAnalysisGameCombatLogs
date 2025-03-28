@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Brush, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import useCombatGeneralData from '../../hooks/useCombatGeneralData';
 
-const CombatGeneralDetails = ({ combatPlayerId, detailsType }) => {
+const CombatGeneralDetails = ({ combatPlayer, detailsType }) => {
     const { t } = useTranslation("combatDetails/combatGeneralDetails");
 
     const [spells, setSpells] = useState([]);
@@ -16,11 +16,11 @@ const CombatGeneralDetails = ({ combatPlayerId, detailsType }) => {
         height: window.innerHeight
     };
 
-    const [getGeneralListAsync, getPlayerGeneralDetailsAsync] = useCombatGeneralData(combatPlayerId, detailsType);
+    const [getGeneralListAsync, getPlayerGeneralDetailsAsync] = useCombatGeneralData(combatPlayer, detailsType);
 
     useEffect(() => {
         const getGeneralDetails = async () => {
-            await getDetailsAsync(combatPlayerId);
+            await getDetailsAsync(combatPlayer.id);
         }
 
         getGeneralDetails();

@@ -1,8 +1,10 @@
 ﻿import { faBolt, faBookOpenReader, faKhanda, faPlusCircle, faShieldHalved, faUser } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { memo } from 'react';
+import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+
+const fixedNumberUntil = 2;
 
 const CommonPlayerInform = ({ player, combatId, combatLogId, combatName }) => {
     const { t } = useTranslation("childs/playerInformation");
@@ -15,6 +17,20 @@ const CommonPlayerInform = ({ player, combatId, combatLogId, combatName }) => {
         navigate(`/combat-details?id=${player.id}&detailsType=${detailsType}&combatId=${combatId}&combatLogId=${combatLogId}&name=${combatName}&tab=${1}`);
     }
 
+    const getValueShortName = (value) => {
+        const thousands = value / 1000;
+        const millions = value / 1000000;
+
+        if (millions >= 1) {
+            return `${millions.toFixed(fixedNumberUntil)} M`;
+        }
+        else if (thousands >= 1) {
+            return `${thousands.toFixed(fixedNumberUntil)} K`;
+        }
+
+        return value;
+    }
+
     return (
         <ul className="player-information">
             <li className="list-group-item">
@@ -23,7 +39,7 @@ const CommonPlayerInform = ({ player, combatId, combatLogId, combatName }) => {
                     className="list-group-item__player-statistic-item"
                     title={t("Damage")}
                 />
-                <div>{player.damageDone}</div>
+                <div>{getValueShortName(player.damageDone)}</div>
                 {player.damageDone > 0 &&
                     <div className="btn-shadow"
                         onClick={() => navigateToDetails(detailsTypes[0])}
@@ -41,7 +57,7 @@ const CommonPlayerInform = ({ player, combatId, combatLogId, combatName }) => {
                     className="list-group-item__player-statistic-item"
                     title={t("Healing")}
                 />
-                <div>{player.healDone}</div>
+                <div>{getValueShortName(player.healDone)}</div>
                 {player.healDone > 0 &&
                     <div className="btn-shadow"
                         onClick={() => navigateToDetails(detailsTypes[1])}
@@ -59,7 +75,7 @@ const CommonPlayerInform = ({ player, combatId, combatLogId, combatName }) => {
                     className="list-group-item__player-statistic-item"
                     title={t("DamageTaken")}
                 />
-                <div>{player.damageTaken}</div>
+                <div>{getValueShortName(player.damageTaken)}</div>
                 {player.damageTaken > 0 &&
                     <div className="btn-shadow"
                         onClick={() => navigateToDetails(detailsTypes[2])}
@@ -77,7 +93,7 @@ const CommonPlayerInform = ({ player, combatId, combatLogId, combatName }) => {
                     className="list-group-item__player-statistic-item"
                     title={t("ResourcesRecovery")}
                 />
-                <div>{player.resourcesRecovery}</div>
+                <div>{getValueShortName(player.resourcesRecovery)}</div>
                 {player.resourcesRecovery > 0 &&
                     <div className="btn-shadow"
                         onClick={() => navigateToDetails(detailsTypes[3])}

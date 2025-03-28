@@ -36,6 +36,19 @@
             gap: 25px;
             width: 100%;
 
+            .amount {
+                display: flex;
+                justify-content: space-between;
+
+                .procentage {
+                    font-size: 0.7em;
+                    border-radius: 5px;
+                    border: 1px solid green;
+                    padding: 3px;
+                }
+            }
+
+
             .value-equal-zero {
                 color: orange;
             }

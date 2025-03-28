@@ -1,11 +1,11 @@
 ﻿import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-const fixedNumberUntil = 2;
+const DamageDoneGeneralHelper = ({ generalData, getProcentage, combatPlayer, getValueShortName, getSpellValueProcentage }) => {
+    const fixedNumberUntil = 2;
 
-const DamageDoneGeneralHelper = ({ generalData, getProcentage }) => {
     const { t } = useTranslation("helpers/combatDetailsHelper");
 
     const [showPets, setShowPets] = useState(true);
@@ -64,12 +64,26 @@ const DamageDoneGeneralHelper = ({ generalData, getProcentage }) => {
                             />
                         </li>
                     }
-                    <li>
-                        {t("Crit")}, %
-                    </li>
-                    <li>
-                        {t("Miss")}, %
-                    </li>
+                    {!hideColumns.includes("Crit") &&
+                        <li className="allow-hide-column">
+                            {t("Crit")}, %
+                            <FontAwesomeIcon
+                                icon={faXmark}
+                                title={t("Hide")}
+                                onClick={() => handleAddToHideColumns("Crit")}
+                            />
+                        </li>
+                    }
+                    {!hideColumns.includes("Miss") &&
+                        <li className="allow-hide-column">
+                            {t("Miss")}, %
+                            <FontAwesomeIcon
+                                icon={faXmark}
+                                title={t("Hide")}
+                                onClick={() => handleAddToHideColumns("Miss")}
+                            />
+                        </li>
+                    }
                     {!hideColumns.includes("Max") &&
                         <li className="allow-hide-column">
                             {t("Max")}
@@ -116,6 +130,9 @@ const DamageDoneGeneralHelper = ({ generalData, getProcentage }) => {
                         <label className="form-check-label" htmlFor="flexSwitchCheckChecked">{t("ShowPets")}</label>
                     </div>
                 </div>
+                <div>
+                    {t("Total")}: {getValueShortName(combatPlayer.damageDone)}
+                </div>
                 {hideColumns.length > 0 && hiddenColumns()}
             </li>
             {tableTitle()}
@@ -125,12 +142,13 @@ const DamageDoneGeneralHelper = ({ generalData, getProcentage }) => {
                         <li>
                             {item.spell}
                         </li>
-                        <li>
-                            {item.value}
+                        <li className="amount">
+                            <span>{getValueShortName(item.value)}</span>
+                            <span className="procentage">{getSpellValueProcentage(item, combatPlayer.damageDone)}%</span>
                         </li>
                         {!hideColumns.includes("Average") &&
                             <li>
-                                {item.averageValue.toFixed(fixedNumberUntil)}
+                                {getValueShortName(item.averageValue)}
                             </li>
                         }
                         <li>
@@ -141,20 +159,24 @@ const DamageDoneGeneralHelper = ({ generalData, getProcentage }) => {
                                 {item.castNumber}
                             </li>
                         }
-                        <li>
-                            {getProcentage(item.critNumber, item.castNumber)}%
-                        </li>
-                        <li>
-                            {getProcentage(item.missNumber, item.castNumber)}%
-                        </li>
+                        {!hideColumns.includes("Crit") &&
+                            <li>
+                                {getProcentage(item.critNumber, item.castNumber)}%
+                            </li>
+                        }
+                        {!hideColumns.includes("Miss") &&
+                            <li>
+                                {getProcentage(item.missNumber, item.castNumber)}%
+                            </li>
+                        }
                         {!hideColumns.includes("Max") &&
                             <li>
-                                {item.maxValue}
+                                {getValueShortName(item.maxValue)}
                             </li>
                         }
                         {!hideColumns.includes("Min") &&
                             <li>
-                                {item.minValue}
+                                {getValueShortName(item.minValue)}
                             </li>
                         }
                     </ul>
