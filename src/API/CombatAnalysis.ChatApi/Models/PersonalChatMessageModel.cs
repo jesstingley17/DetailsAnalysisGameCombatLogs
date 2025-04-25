@@ -14,6 +14,8 @@ public class PersonalChatMessageModel
 
     public int Type { get; set; }
 
+    public bool IsEdited { get; set; }
+
     public int ChatId { get; set; }
 
     public string AppUserId { get; set; }

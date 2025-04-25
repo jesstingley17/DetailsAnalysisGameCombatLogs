@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CombatAnalysis.ChatDAL.Migrations
 {
     [DbContext(typeof(ChatSQLContext))]
-    [Migration("20250122135024_InitialCreate")]
+    [Migration("20250425143809_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -60,6 +60,9 @@ namespace CombatAnalysis.ChatDAL.Migrations
                     b.Property<string>("GroupChatUserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsEdited")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Message")
                         .IsRequired()
@@ -190,6 +193,9 @@ namespace CombatAnalysis.ChatDAL.Migrations
 
                     b.Property<int>("ChatId")
                         .HasColumnType("int");
+
+                    b.Property<bool>("IsEdited")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Message")
                         .IsRequired()

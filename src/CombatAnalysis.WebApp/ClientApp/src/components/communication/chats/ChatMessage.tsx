@@ -11,7 +11,7 @@ const messageType = {
     log: 2
 };
 
-const ChatMessage: React.FC<ChatMessageProps> = ({ me, meInChatId, reviewerId, messageOwnerId, message, updateMessageAsync, deleteMessageAsync, chatMessagesHubConnection, subscribeToMessageHasBeenRead }) => {
+const ChatMessage: React.FC<ChatMessageProps> = ({ me, meInChatId, reviewerId, messageOwnerId, message, updateMessageAsync, chatMessagesHubConnection, subscribeToMessageHasBeenRead }) => {
     return (
         <>
             {message.type === messageType["default"]
@@ -22,7 +22,6 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ me, meInChatId, reviewerId, m
                     messageOwnerId={messageOwnerId}
                     message={message}
                     updateMessageAsync={updateMessageAsync}
-                    deleteMessageAsync={deleteMessageAsync}
                     chatMessagesHubConnection={chatMessagesHubConnection}
                     subscribeToMessageHasBeenRead={subscribeToMessageHasBeenRead}
                 />

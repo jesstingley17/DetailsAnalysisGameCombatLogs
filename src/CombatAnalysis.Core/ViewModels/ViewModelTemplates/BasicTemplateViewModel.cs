@@ -43,11 +43,6 @@ public class BasicTemplateViewModel : MvxViewModel, IImprovedMvxViewModel, IVMDa
 
     public BasicTemplateViewModel(IMvxNavigationService mvvmNavigation, IMemoryCache memoryCache, IHttpClientHelper httpClient, ILogger logger)
     {
-        BasicViewModel.Template = this;
-        Parent = this;
-        SavedViewModel = this;
-        Handler = new VMHandler<BasicTemplateViewModel>();
-
         _securityStorage = new SecurityStorage(memoryCache, httpClient, logger);
 
         _mvvmNavigation = mvvmNavigation;
@@ -73,7 +68,7 @@ public class BasicTemplateViewModel : MvxViewModel, IImprovedMvxViewModel, IVMDa
         DamageTakenDetailsCommand = new MvxAsyncCommand(DamageTakenDetailsAsync);
         ResourceDetailsCommand = new MvxAsyncCommand(ResourceDetailsAsync);
 
-        Task.Run(async () => await _mvvmNavigation.Navigate<HomeViewModel, bool>(IsAuth));
+        Task.Run(InitializationAsync);
     }
 
     public event AuthorizationWindowEventHandler? OpenAuthorizationWindow;
@@ -442,6 +437,16 @@ public class BasicTemplateViewModel : MvxViewModel, IImprovedMvxViewModel, IVMDa
         CloseAuthorizationWindow = null;
         OpenRegistrationWindow = null;
         CloseRegistrationWindow = null;
+    }
+
+    private async Task InitializationAsync()
+    {
+        BasicViewModel.Template = this;
+        Parent = this;
+        SavedViewModel = this;
+        Handler = new VMHandler<BasicTemplateViewModel>();
+
+        await _mvvmNavigation.Navigate<HomeViewModel, bool>(IsAuth);
     }
 
     private void CloseWindow()

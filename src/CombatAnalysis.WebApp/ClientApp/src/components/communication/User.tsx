@@ -2,7 +2,6 @@ import { faCircleXmark, faUser } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
 import { useGetUserByIdQuery } from '../../store/api/user/Account.api';
 import { useRemoveFriendAsyncMutation } from '../../store/api/user/Friend.api';
 import { UserProps } from '../../types/components/communication/UserProps';
@@ -12,8 +11,6 @@ import "../../styles/communication/user.scss";
 
 const User: React.FC<UserProps> = ({ me, targetUserId, setUserInformation, friendId = 0 }) => {
     const { t } = useTranslation("communication/myEnvironment/friends");
-
-    const navigate = useNavigate();
 
     const { data: targetUser, isLoading } = useGetUserByIdQuery(targetUserId);
 
@@ -47,12 +44,6 @@ const User: React.FC<UserProps> = ({ me, targetUserId, setUserInformation, frien
         setUserInformation(null);
     }
 
-    const goToUser = () => {
-        navigate(`/user?id=${targetUserId}`);
-
-        window.location.reload();
-    }
-
     if (isLoading) {
         return (<div className="special-user__another">Loading...</div>);
     }
@@ -67,8 +58,7 @@ const User: React.FC<UserProps> = ({ me, targetUserId, setUserInformation, frien
                 className={`details${userActive}`}
                 onClick={openUserInformation}
             />
-            <div className="username" title={targetUser?.username}
-                onClick={goToUser}>{targetUser?.username}</div>
+            <div className="username" title={targetUser?.username}>{targetUser?.username}</div>
             {friendId > 0 &&
                 <FontAwesomeIcon
                     icon={faCircleXmark}

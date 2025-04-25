@@ -1,25 +1,22 @@
-﻿import { faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
+﻿import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'react-i18next';
 import { ChatMessageMenuProps } from '../../../types/components/communication/chats/ChatMessageMenuProps';
 
-const ChatMessageMenu: React.FC<ChatMessageMenuProps> = ({ editModeIsOn, setEditModeIsOn, deleteMessageAsync, message }) => {
+const ChatMessageMenu: React.FC<ChatMessageMenuProps> = ({ setEditModeIsOn, setOpenMessageMenu }) => {
     const { t } = useTranslation("communication/chats/chatMessage");
 
     return (
         <div className="message-menu">
             <FontAwesomeIcon
-                icon={faPen}
-                title={t("Edit") || ""}
-                className={`message-menu__handler${editModeIsOn && "_active"} edit`}
-                onClick={() => setEditModeIsOn((item) => !item)}
+                icon={faXmark}
+                onClick={() => setOpenMessageMenu(false)}
             />
-            <FontAwesomeIcon
-                icon={faTrash}
-                title={t("Delete") || ""}
-                className="message-menu__handler delete"
-                onClick={async () => await deleteMessageAsync(message?.id)}
-            />
+            <ul className="message-menu__items">
+                <li onClick={() => setEditModeIsOn((item) => !item)}>Edit</li>
+                <li>Mark as "Not relevant"</li>
+                <li>Mark as "With emotions"</li>
+            </ul>
         </div>
     );
 }

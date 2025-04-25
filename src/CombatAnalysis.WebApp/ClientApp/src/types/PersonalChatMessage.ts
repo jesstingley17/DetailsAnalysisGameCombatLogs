@@ -5,6 +5,7 @@ export interface PersonalChatMessage {
     time: string;
     status: number;
     type: number;
+    isEdited: boolean;
     chatId: number;
     appUserId: string;
 }

@@ -2,9 +2,8 @@ import { useState } from 'react';
 import { useGetUserByIdQuery } from '../../../store/api/user/Account.api';
 import { ChatMessageTitleProps } from '../../../types/components/communication/chats/ChatMessageTitleProps';
 import User from '../User';
-import ChatMessageMenu from './ChatMessageMenu';
 
-const ChatMessageTitle: React.FC<ChatMessageTitleProps> = ({ me, itIsMe, message, setEditModeIsOn, openMessageMenu, editModeIsOn, deleteMessageAsync, meInChatId }) => {
+const ChatMessageTitle: React.FC<ChatMessageTitleProps> = ({ me, itIsMe, message, meInChatId }) => {
     const [userInformation, setUserInformation] = useState(null);
 
     const { data: user, isLoading } = useGetUserByIdQuery(meInChatId);
@@ -23,25 +22,19 @@ const ChatMessageTitle: React.FC<ChatMessageTitleProps> = ({ me, itIsMe, message
     return (
         <>
             <div className={`message-title ${itIsMe ? 'me' : 'another'}`}>
-                {openMessageMenu &&
-                    <ChatMessageMenu
-                        editModeIsOn={editModeIsOn}
-                        setEditModeIsOn={setEditModeIsOn}
-                        deleteMessageAsync={deleteMessageAsync}
-                        message={message}
+                <div className="content">
+                    <div className="message-time">
+                        <div>{getMessageTime()}</div>
+                    </div>
+                    <User
+                        me={me}
+                        targetUserId={user?.id}
+                        setUserInformation={setUserInformation}
                     />
-                }
-                <div className="message-time">
-                    <div>{getMessageTime()}</div>
                 </div>
-                <User
-                    me={me}
-                    targetUserId={user?.id}
-                    setUserInformation={setUserInformation}
-                />
-            </div>
-            <div className="chat-user-information">
-                {userInformation}
+                <div className="chat-user-information">
+                    {userInformation}
+                </div>
             </div>
         </>
     );

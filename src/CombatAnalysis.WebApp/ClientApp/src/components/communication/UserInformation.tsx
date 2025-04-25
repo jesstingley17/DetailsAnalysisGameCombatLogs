@@ -105,7 +105,7 @@ const UserInformation: React.FC<UserInformationProps> = ({ me, person, closeUser
     }
 
     if (isLoading) {
-        return <div>Loading...</div>;
+        return (<></>);
     }
 
     return (

@@ -19,6 +19,8 @@ public class GroupChatMessage : IChatEntity
 
     public int Type { get; set; }
 
+    public bool IsEdited { get; set; }
+
     [ForeignKey(nameof(GroupChat))]
     public int ChatId { get; set; }
 

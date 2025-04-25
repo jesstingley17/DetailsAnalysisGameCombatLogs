@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DefaultChatMessageProps } from '../../../types/components/communication/chats/DefaultChatMessageProps';
 import ChatMessageTitle from './ChatMessageTitle';
+import ChatMessageMenu from './ChatMessageMenu';
 
 import '../../../styles/communication/chats/chatMessage.scss';
 
@@ -13,7 +14,7 @@ const chatStatus = {
     read: 2
 };
 
-const DefaultChatMessage: React.FC<DefaultChatMessageProps> = ({ me, meInChatId, reviewerId, messageOwnerId, message, updateMessageAsync, deleteMessageAsync, chatMessagesHubConnection, subscribeToMessageHasBeenRead }) => {
+const DefaultChatMessage: React.FC<DefaultChatMessageProps> = ({ me, meInChatId, reviewerId, messageOwnerId, message, updateMessageAsync, chatMessagesHubConnection, subscribeToMessageHasBeenRead }) => {
     const { t } = useTranslation("communication/chats/chatMessage");
 
     const [targetMessage, setTargetMessage] = useState(message);
@@ -26,9 +27,16 @@ const DefaultChatMessage: React.FC<DefaultChatMessageProps> = ({ me, meInChatId,
         subscribeToMessageHasBeenRead(message.chatId, reviewerId);
     }, []);
 
+    useEffect(() => {
+        if (!openMessageMenu) {
+            setEditModeIsOn(false);
+        }
+    }, [openMessageMenu]);
+
     const handleUpdateMessageAsync = async () => {
         const updateForMessage = Object.assign({}, message);
         updateForMessage.message = editMessageInput.current?.value || "";
+        updateForMessage.isEdited = true;
 
         await updateMessageAsync(updateForMessage);
 
@@ -90,10 +98,6 @@ const DefaultChatMessage: React.FC<DefaultChatMessageProps> = ({ me, meInChatId,
             <ChatMessageTitle
                 me={me}
                 itIsMe={reviewerId !== messageOwnerId}
-                deleteMessageAsync={deleteMessageAsync}
-                setEditModeIsOn={setEditModeIsOn}
-                openMessageMenu={openMessageMenu}
-                editModeIsOn={editModeIsOn}
                 message={message}
                 meInChatId={meInChatId}
             />
@@ -118,12 +122,21 @@ const DefaultChatMessage: React.FC<DefaultChatMessageProps> = ({ me, meInChatId,
                         />
                     }
                     {message?.message.startsWith("http")
-                        ? <a className="text-of-message link" href={message?.message} target="_blank"
+                        ? <a className={`text-of-message link ${openMessageMenu ? 'editing' : ''}`} href={message?.message} target="_blank"
                             rel="noreferrer" onMouseOver={updateMessageStatusAsync}>{message?.message}</a>
-                        : <div className={`text-of-message${targetMessage.status !== chatStatus["read"] ? "__unread" : "__read"}`}
+                        : <div className={`text-of-message${targetMessage.status !== chatStatus["read"] ? "__unread" : "__read"} ${openMessageMenu ? 'editing' : ''}`}
                             onMouseOver={updateMessageStatusAsync}>{message?.message}</div>
                     }
                 </div>
+            }
+            {message?.isEdited &&
+                <div className="chat-messages__edited">Edited</div>
+            }
+            {openMessageMenu &&
+                <ChatMessageMenu
+                    setEditModeIsOn={setEditModeIsOn}
+                    setOpenMessageMenu={setOpenMessageMenu}
+                />
             }
         </div>
     );

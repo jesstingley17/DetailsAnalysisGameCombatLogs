@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { useChatHub } from '../../../context/ChatHubProvider';
 import {
     useGetPersonalChatMessageCountByChatIdQuery,
-    useRemovePersonalChatMessageAsyncMutation,
     useUpdatePersonalChatMessageAsyncMutation
 } from '../../../store/api/chat/PersonalChatMessage.api';
 import { useGetMessagesByPersonalChatIdQuery, useLazyGetMoreMessagesByPersonalChatIdQuery } from '../../../store/api/core/Chat.api';
@@ -39,7 +38,6 @@ const PersonalChat: React.FC<PersonalChatProps> = ({ me, chat, setSelectedChat, 
     const [getMoreMessagesByPersonalChatIdAsync] = useLazyGetMoreMessagesByPersonalChatIdQuery();
 
     const { data: companion, isLoading: companionIsLoading } = useGetUserByIdQuery(companionId);
-    const [removePersonalChatMessageAsync] = useRemovePersonalChatMessageAsyncMutation();
     const [updateChatMessage] = useUpdatePersonalChatMessageAsyncMutation();
 
     useEffect(() => {
@@ -114,10 +112,6 @@ const PersonalChat: React.FC<PersonalChatProps> = ({ me, chat, setSelectedChat, 
         await updateChatMessage(message);
     }
 
-    const deleteMessageAsync = async (messageId: number) => {
-        await removePersonalChatMessageAsync(messageId);
-    }
-
     const saveScrollState = () => {
         const chatContainer: any = chatContainerRef.current;
         const previousScrollHeight = chatContainer?.scrollHeight;
@@ -190,7 +184,6 @@ const PersonalChat: React.FC<PersonalChatProps> = ({ me, chat, setSelectedChat, 
                                     messageOwnerId={message.appUserId}
                                     message={message}
                                     updateMessageAsync={updateMessageAsync}
-                                    deleteMessageAsync={deleteMessageAsync}
                                     chatMessagesHubConnection={personalChatMessagesHubConnection}
                                     subscribeToMessageHasBeenRead={subscribeToPersonalMessageHasBeenRead}
                                 />

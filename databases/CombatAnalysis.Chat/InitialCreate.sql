@@ -24,6 +24,7 @@ CREATE TABLE [GroupChatMessage] (
     [Time] datetimeoffset NOT NULL,
     [Status] int NOT NULL,
     [Type] int NOT NULL,
+    [IsEdited] bit NOT NULL,
     [ChatId] int NOT NULL,
     [GroupChatUserId] nvarchar(max) NOT NULL,
     CONSTRAINT [PK_GroupChatMessage] PRIMARY KEY ([Id])
@@ -74,6 +75,7 @@ CREATE TABLE [PersonalChatMessage] (
     [Time] datetimeoffset NOT NULL,
     [Status] int NOT NULL,
     [Type] int NOT NULL,
+    [IsEdited] bit NOT NULL,
     [ChatId] int NOT NULL,
     [AppUserId] nvarchar(max) NOT NULL,
     CONSTRAINT [PK_PersonalChatMessage] PRIMARY KEY ([Id])

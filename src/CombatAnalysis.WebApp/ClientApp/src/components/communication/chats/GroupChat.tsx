@@ -2,10 +2,7 @@
 import { useTranslation } from 'react-i18next';
 import { useChatHub } from '../../../context/ChatHubProvider';
 import useGroupChatData from '../../../hooks/useGroupChatData';
-import {
-    useRemoveGroupChatMessageAsyncMutation,
-    useUpdateGroupChatMessageAsyncMutation
-} from '../../../store/api/chat/GroupChatMessage.api';
+import { useUpdateGroupChatMessageAsyncMutation } from '../../../store/api/chat/GroupChatMessage.api';
 import { GroupChatMessage as GroupChatMessageModel } from '../../../types/GroupChatMessage';
 import { PersonalChatMessage } from '../../../types/PersonalChatMessage';
 import { GroupChatProps } from '../../../types/components/communication/chats/GroupChatProps';
@@ -38,7 +35,6 @@ const GroupChat: React.FC<GroupChatProps> = ({ me, chat, setSelectedChat }) => {
     const { groupChatData, getMoreMessagesAsync } = useGroupChatData(chat.id, me.id, pageSizeRef);
 
     const [updateGroupChatMessage] = useUpdateGroupChatMessageAsyncMutation();
-    const [removeGroupChatMessage] = useRemoveGroupChatMessageAsyncMutation();
 
     useEffect(() => {
         const connectToGroupChatMessages = async () => {
@@ -128,10 +124,6 @@ const GroupChat: React.FC<GroupChatProps> = ({ me, chat, setSelectedChat }) => {
         await updateGroupChatMessage(message);
     }
 
-    const removeGroupChatMessageAsync = async (messageId: number) => {
-        await removeGroupChatMessage(messageId);
-    }
-
     const saveScrollState = () => {
         const chatContainer: any = chatContainerRef.current;
         const previousScrollHeight = chatContainer.scrollHeight;
@@ -189,7 +181,6 @@ const GroupChat: React.FC<GroupChatProps> = ({ me, chat, setSelectedChat }) => {
                                 messageOwnerId={message.groupChatUserId}
                                 message={message}
                                 updateMessageAsync={updateMessageAsync}
-                                deleteMessageAsync={removeGroupChatMessageAsync}
                                 chatMessagesHubConnection={groupChatMessagesHubConnection}
                                 subscribeToMessageHasBeenRead={subscribeToGroupMessageHasBeenRead}
                             />

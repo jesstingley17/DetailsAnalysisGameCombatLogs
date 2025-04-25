@@ -2,7 +2,7 @@
 import { GroupChatMessageProps } from '../../../types/components/communication/chats/GroupChatMessageProps';
 import ChatMessage from './ChatMessage';
 
-const GroupChatMessage: React.FC<GroupChatMessageProps> = ({ me, reviewerId, messageOwnerId, message, updateMessageAsync, deleteMessageAsync, chatMessagesHubConnection, subscribeToMessageHasBeenRead }) => {
+const GroupChatMessage: React.FC<GroupChatMessageProps> = ({ me, reviewerId, messageOwnerId, message, updateMessageAsync, chatMessagesHubConnection, subscribeToMessageHasBeenRead }) => {
     const { data: groupChatUser, isLoading } = useGetGroupChatUserByIdQuery(messageOwnerId);
 
     if (isLoading) {
@@ -17,7 +17,6 @@ const GroupChatMessage: React.FC<GroupChatMessageProps> = ({ me, reviewerId, mes
             messageOwnerId={messageOwnerId}
             message={message}
             updateMessageAsync={updateMessageAsync}
-            deleteMessageAsync={deleteMessageAsync}
             chatMessagesHubConnection={chatMessagesHubConnection}
             subscribeToMessageHasBeenRead={subscribeToMessageHasBeenRead}
         />

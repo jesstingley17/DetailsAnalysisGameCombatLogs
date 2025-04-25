@@ -1,4 +1,4 @@
-﻿using CombatAnalysis.ChatDAL.Helpers;
+﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -36,6 +36,7 @@ namespace CombatAnalysis.ChatDAL.Migrations
                     Time = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     Type = table.Column<int>(type: "int", nullable: false),
+                    IsEdited = table.Column<bool>(type: "bit", nullable: false),
                     ChatId = table.Column<int>(type: "int", nullable: false),
                     GroupChatUserId = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
@@ -115,6 +116,7 @@ namespace CombatAnalysis.ChatDAL.Migrations
                     Time = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     Type = table.Column<int>(type: "int", nullable: false),
+                    IsEdited = table.Column<bool>(type: "bit", nullable: false),
                     ChatId = table.Column<int>(type: "int", nullable: false),
                     AppUserId = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
@@ -163,8 +165,6 @@ namespace CombatAnalysis.ChatDAL.Migrations
                 {
                     table.PrimaryKey("PK_VoiceChat", x => x.Id);
                 });
-
-            MigrationHelper.CreateProcedures(migrationBuilder);
         }
 
         /// <inheritdoc />
@@ -199,8 +199,6 @@ namespace CombatAnalysis.ChatDAL.Migrations
 
             migrationBuilder.DropTable(
                 name: "VoiceChat");
-
-            MigrationHelper.DropProcedures(migrationBuilder);
         }
     }
 }

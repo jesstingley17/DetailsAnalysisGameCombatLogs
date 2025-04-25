@@ -26,20 +26,20 @@ const SelectedUser: React.FC = () => {
     const [getUserPosts] = useLazyGetUserPostsByUserIdQuery();
     const [getUserById] = useLazyGetUserByIdQuery();
 
-    const [personId, setPersonId] = useState<number>(0);
+    const [personId, setPersonId] = useState<string>("0");
     const [person, setPerson] = useState<AppUser | null>(null);
     const [currentMenuItem, setMenuItem] = useState(0);
     const [allPosts, setAllPosts] = useState<UserPostModel[]>([]);
 
     useEffect(() => {
         const queryParams = new URLSearchParams(location.search);
-        const id: number = parseInt(queryParams.get("id") || "0");
+        const id: string = queryParams.get("id") || "0";
 
         setPersonId(id);
     }, [])
 
     useEffect(() => {
-        if (personId === 0) {
+        if (personId === "0") {
             return;
         }
 
