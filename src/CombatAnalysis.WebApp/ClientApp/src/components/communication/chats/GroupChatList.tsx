@@ -33,7 +33,7 @@ const GroupChatList: React.FC<GroupChatListProps> = ({ meId, t, selectedChat, se
     }, [data]);
 
     if (isLoading) {
-        return (<></>);
+        return (<div>Loading...</div>);
     }
 
     return (

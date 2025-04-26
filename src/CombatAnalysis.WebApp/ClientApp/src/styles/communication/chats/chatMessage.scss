@@ -29,12 +29,6 @@
             margin: 10px 0;
             z-index: 1000;
 
-            svg {
-                border: 1px solid gray;
-                border-radius: 10px;
-                padding: 1px 2px;
-            }
-
             &__items {
                 display: flex;
                 flex-direction: column;
@@ -86,8 +80,12 @@
         .message {
             display: flex;
             align-items: center;
+            gap: 10px;
 
             .text-of-message {
+                display: flex;
+                text-decoration: none;
+
                 &__unread, &__read {
                     padding: 5px 10px;
                     max-width: 90%;
@@ -101,7 +99,6 @@
 
                 &__unread {
                     box-shadow: 2px 2px white;
-                    opacity: 0.75;
                 }
             }
 
@@ -109,16 +106,52 @@
                 background: rgb(239, 243, 253);
             }
 
-            .text-of-message__read.editing, .text-of-message__unread.editing {
+            .text-of-message__read.menu, .text-of-message__unread.menu {
                 box-shadow: 2px 2px yellow;
             }
 
-            .link:hover {
-                cursor: pointer;
+            .text-of-message__unread.not-relevant, .text-of-message__read.not-relevant {
+                box-shadow: 1px 1px 1px 1px red;
+                opacity: 0.65;
+                text-decoration: line-through;
+            }
+
+            .text-of-message__unread.with-emotions, .text-of-message__read.with-emotions {
+                box-shadow: 2px 2px 2px 2px gray;
+                font-family: 'Comic Sans MS';
+                opacity: 0.65;
+            }
+
+            .not-relevant {
+                color: orange;
+                opacity: 0.8;
+                cursor: default;
+            }
+
+            .emotions {
+                color: dimgray;
+                opacity: 0.8;
+                cursor: default;
+            }
+
+            .link {
+                display: flex;
+                justify-content: flex-end;
+                align-items: center;
+                color: white;
+
+                .content {
+                    padding: 0 10px;
+                }
+
+                .open-link {
+                    position: absolute;
+                    top: 30px;
+                    color: greenyellow;
+                }
             }
 
             .status {
-                margin-right: 5px;
                 cursor: default;
                 font-size: 10px;
             }

@@ -14,6 +14,8 @@ public class GroupChatMessageDto
 
     public int Type { get; set; }
 
+    public int MarkedType { get; set; }
+
     public bool IsEdited { get; set; }
 
     public int ChatId { get; set; }

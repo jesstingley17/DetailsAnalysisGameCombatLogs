@@ -19,6 +19,8 @@ public class PersonalChatMessage : IChatEntity
 
     public int Type { get; set; }
 
+    public int MarkedType { get; set; }
+
     public bool IsEdited { get; set; }
 
     [ForeignKey(nameof(PersonalChat))]

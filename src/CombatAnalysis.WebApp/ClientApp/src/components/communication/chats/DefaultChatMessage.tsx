@@ -1,10 +1,10 @@
-import { faCircle, faCircleUp, faClock, faCloudArrowUp, faEye } from '@fortawesome/free-solid-svg-icons';
+import { faCircle, faCircleUp, faClock, faCloudArrowUp, faEye, faFaceMeh, faUpRightFromSquare, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DefaultChatMessageProps } from '../../../types/components/communication/chats/DefaultChatMessageProps';
-import ChatMessageTitle from './ChatMessageTitle';
 import ChatMessageMenu from './ChatMessageMenu';
+import ChatMessageTitle from './ChatMessageTitle';
 
 import '../../../styles/communication/chats/chatMessage.scss';
 
@@ -42,6 +42,13 @@ const DefaultChatMessage: React.FC<DefaultChatMessageProps> = ({ me, meInChatId,
 
         setEditModeIsOn(false);
         setOpenMessageMenu(false);
+    }
+
+    const updateMessageMarkedTypeAsync = async (type: number) => {
+        const updateForMessage = Object.assign({}, message);
+        updateForMessage.markedType = type;
+
+        await updateMessageAsync(updateForMessage);
     }
 
     const updateMessageStatusAsync = async () => {
@@ -93,6 +100,10 @@ const DefaultChatMessage: React.FC<DefaultChatMessageProps> = ({ me, meInChatId,
         }
     }
 
+    const openLink = (url: string) => {
+        window.open(url, "_blink");
+    }
+
     return (
         <div className={`chat-messages__content${reviewerId === messageOwnerId ? ' my-message' : ''}`}>
             <ChatMessageTitle
@@ -110,8 +121,7 @@ const DefaultChatMessage: React.FC<DefaultChatMessageProps> = ({ me, meInChatId,
                         onClick={handleUpdateMessageAsync}
                     />
                 </div>
-                : <div className="message"
-                    onClick={handleOpenMessageMenu}>
+                : <div className="message">
                     {reviewerId === messageOwnerId
                         ? getMessageStatus()
                         : targetMessage.status === chatStatus["delivered"] &&
@@ -121,21 +131,45 @@ const DefaultChatMessage: React.FC<DefaultChatMessageProps> = ({ me, meInChatId,
                             title={t("Delivered") || ""}
                         />
                     }
-                    {message?.message.startsWith("http")
-                        ? <a className={`text-of-message link ${openMessageMenu ? 'editing' : ''}`} href={message?.message} target="_blank"
-                            rel="noreferrer" onMouseOver={updateMessageStatusAsync}>{message?.message}</a>
-                        : <div className={`text-of-message${targetMessage.status !== chatStatus["read"] ? "__unread" : "__read"} ${openMessageMenu ? 'editing' : ''}`}
-                            onMouseOver={updateMessageStatusAsync}>{message?.message}</div>
+                    <div className={`text-of-message${targetMessage.status !== chatStatus["read"] ? "__unread" : "__read"} link 
+                            ${message.markedType === 1 ? 'not-relevant' : message.markedType === 2 ? 'with-emotions' : ''}
+                            ${openMessageMenu ? 'menu' : ''} `}
+                            onMouseOver={updateMessageStatusAsync}>
+                        <div className="content" onClick={handleOpenMessageMenu}>{message?.message}</div>
+                        {message?.message.startsWith("http") &&
+                            <FontAwesomeIcon
+                                icon={faUpRightFromSquare}
+                                className="open-link"
+                                onClick={() => openLink(message?.message)}
+                                title={t("OpenLink") || ""}
+                            />
+                        }
+                    </div>
+                    {message.markedType === 1 &&
+                        <FontAwesomeIcon
+                            icon={faXmark}
+                            className="not-relevant"
+                            title={t("NotRelevant") || ""}
+                        />
+                    }
+                    {message.markedType === 2 &&
+                        <FontAwesomeIcon
+                            icon={faFaceMeh}
+                            className="emotions"
+                            title={t("WithEmotions") || ""}
+                        />
                     }
                 </div>
             }
             {message?.isEdited &&
-                <div className="chat-messages__edited">Edited</div>
+                <div className="chat-messages__edited">{t("Edited") || ""}</div>
             }
             {openMessageMenu &&
                 <ChatMessageMenu
+                    message={message}
                     setEditModeIsOn={setEditModeIsOn}
                     setOpenMessageMenu={setOpenMessageMenu}
+                    updateMessageMarkedTypeAsync={updateMessageMarkedTypeAsync}
                 />
             }
         </div>

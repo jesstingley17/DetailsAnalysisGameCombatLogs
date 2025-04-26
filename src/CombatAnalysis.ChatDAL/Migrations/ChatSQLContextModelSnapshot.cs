@@ -61,6 +61,9 @@ namespace CombatAnalysis.ChatDAL.Migrations
                     b.Property<bool>("IsEdited")
                         .HasColumnType("bit");
 
+                    b.Property<int>("MarkedType")
+                        .HasColumnType("int");
+
                     b.Property<string>("Message")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -193,6 +196,9 @@ namespace CombatAnalysis.ChatDAL.Migrations
 
                     b.Property<bool>("IsEdited")
                         .HasColumnType("bit");
+
+                    b.Property<int>("MarkedType")
+                        .HasColumnType("int");
 
                     b.Property<string>("Message")
                         .IsRequired()

@@ -33,7 +33,7 @@ const PersonalChatList: React.FC<PersonalChatListProps> = ({ meId, t, selectedCh
     }, [personalChats]);
 
     if (isLoading) {
-        return (<></>);
+        return (<div>Loading...</div>);
     }
 
     return (

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CombatAnalysis.ChatDAL.Migrations
 {
     [DbContext(typeof(ChatSQLContext))]
-    [Migration("20250425143809_InitialCreate")]
+    [Migration("20250426114600_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -63,6 +63,9 @@ namespace CombatAnalysis.ChatDAL.Migrations
 
                     b.Property<bool>("IsEdited")
                         .HasColumnType("bit");
+
+                    b.Property<int>("MarkedType")
+                        .HasColumnType("int");
 
                     b.Property<string>("Message")
                         .IsRequired()
@@ -196,6 +199,9 @@ namespace CombatAnalysis.ChatDAL.Migrations
 
                     b.Property<bool>("IsEdited")
                         .HasColumnType("bit");
+
+                    b.Property<int>("MarkedType")
+                        .HasColumnType("int");
 
                     b.Property<string>("Message")
                         .IsRequired()
