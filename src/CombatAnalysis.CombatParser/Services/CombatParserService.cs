@@ -67,6 +67,29 @@ public class CombatParserService : ICombatParserService
         }
     }
 
+    public async Task ParseAsync(List<string> combatLogPaths, CancellationToken cancellationToken)
+    {
+        var newCombatFromLogs = new StringBuilder();
+        var petsId = new Dictionary<string, List<string>>();
+        var bossCombatStarted = false;
+
+        try
+        {
+            Clear();
+
+            foreach (var item in combatLogPaths)
+            {
+                var lines = await File.ReadAllLinesAsync(item, cancellationToken);
+                ProcessCombatLogLines(lines, petsId, ref bossCombatStarted, newCombatFromLogs);
+            }
+        }
+        catch (Exception ex)
+        {
+            var message = $"Error reading file: {ex.Message}";
+            _logger.LogError(message);
+        }
+    }
+
     public void Clear()
     {
         Combats.Clear();
@@ -400,10 +423,10 @@ public class CombatParserService : ICombatParserService
         var splitEquipementsInformation = equipmentsInformation.Split("))");
 
         var ilvl = new List<int>();
-        for (var i = 0; i < splitEquipementsInformation.Length - 1; i++)
+        for (var i = 0; i < splitEquipementsInformation.Length - 2; i++)
         {
-            var equipmentIlvlInformation = splitEquipementsInformation[i].Split(',')[1];
-            if (int.TryParse(equipmentIlvlInformation, out var equipmentIlvl) && equipmentIlvl > 0)
+            var equipmentIlvlInformation = splitEquipementsInformation[i].Trim(',').Split(',')[1];
+            if (int.TryParse(equipmentIlvlInformation, out var equipmentIlvl) && equipmentIlvl > 1)
             {
                 ilvl.Add(equipmentIlvl);
             }

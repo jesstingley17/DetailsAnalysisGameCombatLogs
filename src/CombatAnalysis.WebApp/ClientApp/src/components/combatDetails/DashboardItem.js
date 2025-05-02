@@ -4,10 +4,10 @@ import DashboardMinDetails from "./DashboardMinDetails";
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-const minCount = 4;
-const timeout = 1000;
+const DashboardItem = ({ name, array, detailsType, calculation, goToCombatGeneralDetails, resourcesSum, closedItems, setClosedItems, getValueShortName }) => {
+    const minCount = 4;
+    const timeout = 1000;
 
-const DashboardItem = ({ name, array, detailsType, calculation, goToCombatGeneralDetails, resourcesSum, closedItems, setClosedItems }) => {
     const { t } = useTranslation("combatDetails/dashboard");
 
     const [itemCount, setItemCount] = useState(minCount);
@@ -48,8 +48,9 @@ const DashboardItem = ({ name, array, detailsType, calculation, goToCombatGenera
 
     const getDetailsValue = (player) => {
         const detailsMapping = ["damageDone", "healDone", "damageTaken", "resourcesRecovery"];
+        const shortValue = getValueShortName(player[detailsMapping[detailsType]]) || 0;
 
-        return player[detailsMapping[detailsType]] || 0;
+        return shortValue;
     }
 
     const closeItem = () => {
@@ -87,6 +88,7 @@ const DashboardItem = ({ name, array, detailsType, calculation, goToCombatGenera
                                 combatPlayerId={player.id}
                                 closeHandle={closeMinDetailsHandle}
                                 detailsType={detailsType}
+                                getValueShortName={getValueShortName}
                             />
                         }
                         <div className="title">

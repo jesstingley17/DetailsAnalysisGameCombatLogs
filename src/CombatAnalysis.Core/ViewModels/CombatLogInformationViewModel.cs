@@ -26,13 +26,13 @@ public class CombatLogInformationViewModel : ParentTemplate, CombatParser.Interf
     private readonly ICombatParserAPIService _combatParserAPIService;
     private readonly IMemoryCache _memoryCache;
 
-    private string? _combatLog;
+    private ObservableCollection<string> _combatLogNames = [];
     private string? _dungeonName;
     private string? _combatName;
-    private string? _combatLogPath;
+    private ObservableCollection<string> _combatLogPaths = [];
     private bool _isNeedSave;
-    private ObservableCollection<CombatLogModel> _combatLogs = new();
-    private ObservableCollection<CombatLogModel> _combatLogsForTargetUser = new();
+    private ObservableCollection<CombatLogModel> _combatLogs = [];
+    private ObservableCollection<CombatLogModel> _combatLogsForTargetUser = [];
     private bool _isAllowSaveLogs = true;
     private CancellationTokenSource _cancellationTokenSource = new();
 
@@ -50,6 +50,7 @@ public class CombatLogInformationViewModel : ParentTemplate, CombatParser.Interf
     private bool _uploadingLogs;
     private bool _noCombatsUploaded;
     private bool _processAborted;
+    private bool _showConnectMore;
 
     public CombatLogInformationViewModel(IMapper mapper, IMvxNavigationService mvvmNavigation, ICombatParserService parser,
         IMemoryCache memoryCache, ICacheService cacheService, ICombatParserAPIService combatParserAPIService)
@@ -148,22 +149,22 @@ public class CombatLogInformationViewModel : ParentTemplate, CombatParser.Interf
         }
     }
 
-    public string? CombatLog
+    public ObservableCollection<string> CombatLogNames
     {
-        get { return _combatLog; }
+        get { return _combatLogNames; }
         set
         {
-            SetProperty(ref _combatLog, value);
+            SetProperty(ref _combatLogNames, value);
         }
     }
 
-    public string? CombatLogPath
+    public ObservableCollection<string> CombatLogPaths
     {
-        get { return _combatLogPath; }
+        get { return _combatLogPaths; }
         set
         {
-            SetProperty(ref _combatLogPath, value);
-            GetCombatLog();
+            SetProperty(ref _combatLogPaths, value);
+
         }
     }
 
@@ -298,6 +299,15 @@ public class CombatLogInformationViewModel : ParentTemplate, CombatParser.Interf
         }
     }
 
+    public bool ShowConnectMore
+    {
+        get { return _showConnectMore; }
+        set
+        {
+            SetProperty(ref _showConnectMore, value);
+        }
+    }
+
     #endregion
 
     public void AuthUpdate(bool isAuth)
@@ -325,7 +335,11 @@ public class CombatLogInformationViewModel : ParentTemplate, CombatParser.Interf
 
     public override void Prepare()
     {
-        CombatLogPath = AppStaticData.SelectedCombatLogFilePath;
+        CombatLogPaths = [.. AppStaticData.SelectedCombatLogFilePaths];
+        CombatLogPaths.CollectionChanged += CombatLogPaths_CollectionChanged;
+
+        ShowConnectMore = CombatLogPaths.Count > 0;
+        GetCombatLogNames();
 
         base.Prepare();
     }
@@ -347,20 +361,32 @@ public class CombatLogInformationViewModel : ParentTemplate, CombatParser.Interf
 
     #endregion
 
+    private void CombatLogPaths_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+    {
+        GetCombatLogNames();
+
+        ShowConnectMore = CombatLogPaths.Count > 0;
+    }
+
     private void GetLogType(int logType)
     {
         LogType = (LogType)logType;
     }
 
-    private void GetCombatLog()
+    private void GetCombatLogNames()
     {
-        if (string.IsNullOrEmpty(CombatLogPath))
+        if (CombatLogPaths.Count == 0)
         {
             return;
         }
 
-        var split = CombatLogPath.Split(@"\");
-        CombatLog = split[^1];
+        CombatLogNames.Clear();
+
+        foreach (var item in CombatLogPaths)
+        {
+            var split = item.Split(@"\");
+            CombatLogNames.Add(split[^1]);
+        }
     }
 
     private async Task OpenPlayerAnalysisAsync()
@@ -368,7 +394,7 @@ public class CombatLogInformationViewModel : ParentTemplate, CombatParser.Interf
         CombatLogUploadingFailed = false;
         Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.ResponseStatus), LoadingStatus.None);
 
-        await CombatLogFileValidateAsync(CombatLogPath ?? string.Empty);
+        await CombatLogFileValidateAsync(CombatLogPaths.ToList() ?? []);
     }
 
     private async Task LoadCombatsAsync(ObservableCollection<CombatLogModel> combatCollection)
@@ -436,21 +462,22 @@ public class CombatLogInformationViewModel : ParentTemplate, CombatParser.Interf
         IsAuth = user != null;
     }
 
-    private async Task CombatLogFileValidateAsync(string combatLog)
+    private async Task CombatLogFileValidateAsync(List<string> combatLogPaths)
     {
-        FileIsCorrect = await _parser.FileCheckAsync(combatLog);
-
-        if (FileIsCorrect)
+        foreach (var item in combatLogPaths)
         {
-            IsParsing = true;
-
-            await PrepareCombatDataAsync(combatLog);
-
-            IsParsing = false;
+            FileIsCorrect = await _parser.FileCheckAsync(item);
+            if (!FileIsCorrect) return;
         }
+
+        IsParsing = true;
+
+        await PrepareCombatDataAsync(combatLogPaths);
+
+        IsParsing = false;
     }
 
-    private async Task PrepareCombatDataAsync(string combatLogData)
+    private async Task PrepareCombatDataAsync(List<string> combatLogPaths)
     {
         _cancellationTokenSource = new CancellationTokenSource();
 
@@ -458,7 +485,7 @@ public class CombatLogInformationViewModel : ParentTemplate, CombatParser.Interf
         Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.PetsId), new Dictionary<string, List<string>>());
         Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.AllowStep), 0);
 
-        await _parser.ParseAsync(combatLogData, _cancellationTokenSource.Token);
+        await _parser.ParseAsync(combatLogPaths, _cancellationTokenSource.Token);
 
         ClearCache();
 
@@ -535,7 +562,7 @@ public class CombatLogInformationViewModel : ParentTemplate, CombatParser.Interf
         Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.UploadedCombatsCount), 0);
 
         var createdCombatLog = await _combatParserAPIService.SaveCombatLogAsync(combatList, LogType, CancellationToken.None);
-        if (createdCombatLog == null)
+        if (createdCombatLog.AppUserId == null)
         {
             Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.ResponseStatus), LoadingStatus.Failed);
 

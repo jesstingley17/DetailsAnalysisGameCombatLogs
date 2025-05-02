@@ -4,9 +4,7 @@ import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
-const fixedNumberUntil = 2;
-
-const CommonPlayerInform = ({ player, combatId, combatLogId, combatName }) => {
+const CommonPlayerInform = ({ player, combatId, combatLogId, combatName, getValueShortName }) => {
     const { t } = useTranslation("childs/playerInformation");
 
     const navigate = useNavigate();
@@ -15,20 +13,6 @@ const CommonPlayerInform = ({ player, combatId, combatLogId, combatName }) => {
 
     const navigateToDetails = (detailsType) => {
         navigate(`/combat-details?id=${player.id}&detailsType=${detailsType}&combatId=${combatId}&combatLogId=${combatLogId}&name=${combatName}&tab=${1}`);
-    }
-
-    const getValueShortName = (value) => {
-        const thousands = value / 1000;
-        const millions = value / 1000000;
-
-        if (millions >= 1) {
-            return `${millions.toFixed(fixedNumberUntil)} M`;
-        }
-        else if (thousands >= 1) {
-            return `${thousands.toFixed(fixedNumberUntil)} K`;
-        }
-
-        return value;
     }
 
     return (

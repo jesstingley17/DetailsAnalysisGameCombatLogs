@@ -32,10 +32,9 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="0.25*"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="0.6*"/>
-            <RowDefinition Height="0.1*"/>
+            <RowDefinition Height="0.4*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
 
         <ContentControl Grid.RowSpan="4" Grid.ColumnSpan="4" Content="{Binding Basic}">
@@ -108,7 +107,7 @@
                                         IsEnabled="{Binding CombatListSelectedIndex, Converter={StaticResource IntToXAMLBool}, ConverterParameter='-1:>'}"/>
                                 <ScrollViewer MaxHeight="200" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
                                     <ListBox Style="{DynamicResource ListBoxStyle1}" ItemsSource="{Binding CombatLogs}" SelectedIndex="{Binding CombatListSelectedIndex}"
-                                    Visibility="{Binding CombatLogs.Count, Converter={StaticResource IntToVisibility}, ConverterParameter='true:0:>'}">
+                                        Visibility="{Binding CombatLogs.Count, Converter={StaticResource IntToVisibility}, ConverterParameter='true:0:>'}">
                                         <ListBox.ItemTemplate>
                                             <DataTemplate>
                                                 <StackPanel HorizontalAlignment="Center" Width="300" Margin="10">
@@ -166,7 +165,7 @@
                                             IsEnabled="{Binding CombatListSelectedIndex, Converter={StaticResource IntToXAMLBool}, ConverterParameter='-1:>'}"
                                             Margin="10,10" Style="{StaticResource showButton}" HorizontalAlignment="Center"/>
                                     <Icon:PackIconMaterial Kind="Delete" Foreground="Orange" Style="{StaticResource menuButtonIcon}" IsEnabled="False"
-                                                           Visibility="{Binding CombatLogsForTargetUser.Count, Converter={StaticResource IntToVisibility}, ConverterParameter='true:0:>'}" mvx:Bi.nd="Command DeleteCombatCommand"
+                                                           Visibility="{Binding CombatLogsForTargetUser.Count, Converter={StaticResource IntToVisibility}, ConverterParameter='true:0:>'}"
                                                            HorizontalAlignment="Center" ToolTip="{loc:Loc RemovePrivateLog}">
                                         <Icon:PackIconMaterial.InputBindings>
                                             <MouseBinding Command="{Binding DeleteCombatCommand}" Gesture="LeftClick"/>
@@ -212,23 +211,46 @@
         </Grid>
         
         <Grid Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            
-            <StackPanel IsEnabled="{Binding IsParsing, Converter={StaticResource BoolToXAMLBool}, ConverterParameter=true}" Grid.Row="0"
+
+            <StackPanel Grid.Row="0" IsEnabled="{Binding IsParsing, Converter={StaticResource BoolToXAMLBool}, ConverterParameter=true}"
                     HorizontalAlignment="Center" VerticalAlignment="Top" MinWidth="375">
                 <TextBlock HorizontalAlignment="Center" Text="{loc:Loc UploadFile}" Margin="0 20" FontSize="16" Foreground="White" />
-                <Button Click="SelectCmbatLogFile" Content="{loc:Loc SelectFile}" Width="125" FontSize="16"
+                <Button Click="SelectCmbatLogFiles" Content="{loc:Loc SelectFile}" Width="125" FontSize="16"
                         Margin="15 0" Style="{StaticResource showButton}" />
-                <StackPanel Orientation="Horizontal" Margin="20">
-                    <TextBlock Text="{loc:Loc File}" FontSize="16" Foreground="White" />
-                    <TextBlock Text="{Binding CombatLog, Mode=TwoWay}" Foreground="White" FontWeight="Bold" Margin="20 0" FontSize="14" />
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="20" 
+                            Visibility="{Binding CombatLogNames.Count, Converter={StaticResource IntToVisibility}, ConverterParameter=true:0:>}">
+                    <ScrollViewer MaxHeight="150" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                        <ListBox Style="{DynamicResource ListBoxStyle1}" ItemsSource="{Binding CombatLogNames}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding}" FontWeight="Bold" Margin="0 5" />
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </ScrollViewer>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" 
+                            Visibility="{Binding ShowConnectMore, Converter={StaticResource BoolToVisibility}}">
+                    <Button Click="SelectMoreCmbatLogFiles" Style="{StaticResource showButton}">
+                        <Button.Content>
+                            <StackPanel Orientation="Horizontal">
+                                <Icon:PackIconMaterial Kind="Plus" Foreground="Green" Style="{StaticResource menuButtonIcon}"
+                                           ToolTip="{loc:Loc RemovePrivateLog}" Height="15" Margin="5 0" />
+                                <TextBlock Text="Connect more" FontSize="12" Foreground="White" Margin="10 0" />
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
                 </StackPanel>
             </StackPanel>
             <StackPanel Grid.Row="1" IsEnabled="{Binding IsAuth, Converter={StaticResource BoolToXAMLBool}}" MaxWidth="500" HorizontalAlignment="Center">
-                <TextBlock Text="{loc:Loc TypeOfLogs}" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="White"/>
+                <TextBlock Text="{loc:Loc TypeOfLogs}" Margin="0 10" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="White"/>
                 <StackPanel Orientation="Horizontal" Margin="20">
                     <RadioButton Style="{DynamicResource RadioButtonStyle1}" Content="{loc:Loc Public}" Width="140" mvx:Bi.nd="Command GetLogTypeCommand, CommandParameter=0"
                                  IsChecked="{Binding LogType, Converter={StaticResource IntToXAMLBool}, ConverterParameter=0}" Margin="20" />
@@ -238,35 +260,33 @@
             </StackPanel>
         </Grid>
 
-        <StackPanel Grid.Row="2" Grid.RowSpan="2" Grid.Column="2" Grid.ColumnSpan="2"
-                    VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0 -25 0 0">
-            <StackPanel IsEnabled="{Binding CombatLog, Converter={StaticResource ToXAMLBool}}">
-                <Button Name="combatLogFileAnalysis" Content="{loc:Loc Analysing}" Width="100" FontSize="16" Margin="0 10"
+        <StackPanel Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2"
+                    VerticalAlignment="Center" HorizontalAlignment="Center">
+            <StackPanel Margin="30" IsEnabled="{Binding CombatLogNames.Count, Converter={StaticResource IntToXAMLBool}, ConverterParameter=0:>}">
+                <Button Name="combatLogFileAnalysis" Width="150" Margin="0 10" Content="{loc:Loc Analysing}" FontSize="16"
                         mvx:Bi.nd="Command OpenPlayerAnalysisCommand" Style="{StaticResource showButton}" />
-                <StackPanel HorizontalAlignment="Center" IsEnabled="{Binding IsAllowSaveLogs, Converter={StaticResource BoolToXAMLBool}, ConverterParameter=false}"
-                            Margin="10 0">
-                    <CheckBox Style="{DynamicResource CheckBoxStyle1}" Name="isSaveCombatLog" VerticalAlignment="Center" VerticalContentAlignment="Center" 
-                              Content="{loc:Loc SaveData}" Margin="5"
-                              IsChecked="{Binding IsNeedSave}" FontSize="16" Width="100"
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" IsEnabled="{Binding IsAllowSaveLogs, Converter={StaticResource BoolToXAMLBool}, ConverterParameter=false}">
+                    <CheckBox Style="{DynamicResource CheckBoxStyle1}" Name="isSaveCombatLog" Width="150"
+                              VerticalAlignment="Center" VerticalContentAlignment="Center"
+                              Content="{loc:Loc SaveData}" IsChecked="{Binding IsNeedSave}" FontSize="14"
                               IsEnabled="{Binding IsAuth, Converter={StaticResource BoolToXAMLBool}, ConverterParameter=false}" />
                     <TextBlock Text="{loc:Loc ToSaveYouShouldBeLogin}" TextAlignment="Center" Opacity="0.5" Foreground="White"
                             Visibility="{Binding IsAuth, Converter={StaticResource BoolToVisibility}, ConverterParameter=false:true}"/>
                 </StackPanel>
             </StackPanel>
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal" Margin="0 15"
-                        Visibility="{Binding IsParsing, Converter={StaticResource BoolToVisibility}}">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal" Margin="0 20"
+                        Visibility="{Binding IsParsing, Converter={StaticResource BoolToVisibility}, ConverterParameter=true}">
                 <TextBlock Width="175" Text="{loc:Loc Processing}" FontSize="16" TextAlignment="Center" Foreground="White" Margin="10" />
                 <Button Content="{loc:Loc Cancel}" FontSize="11" Width="70" Style="{StaticResource showButton}" mvx:Bi.nd="Command CancelParsingCommand" />
             </StackPanel>
-            <TextBlock Width="250" TextWrapping="Wrap" Text="{loc:Loc ProcessingFailed}" FontSize="16" TextAlignment="Center" Foreground="Orange"
-                       Margin="10" HorizontalAlignment="Center" VerticalAlignment="Center"
-                       Visibility="{Binding FileIsCorrect, Converter={StaticResource BoolToVisibility}, ConverterParameter=false:true}" />
-        </StackPanel>
-        
-        <StackPanel Visibility="{Binding CombatLogUploadingFailed, Converter={StaticResource BoolToVisibility}}"  Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2" VerticalAlignment="Bottom">
-            <TextBlock Text="{loc:Loc CombatLogUploadingFailed}" FontSize="16" TextAlignment="Center" TextWrapping="Wrap"
-                       Margin="0" VerticalAlignment="Center" Height="60" MaxWidth="650" Foreground="Red" />
-            <Button Content="{loc:Loc Repeat}" FontSize="14" Width="100" Style="{StaticResource showButton}" mvx:Bi.nd="Command OpenPlayerAnalysisCommand" />
+            <TextBlock Margin="0 20" TextWrapping="Wrap" Text="{loc:Loc ProcessingFailed}"
+                       Visibility="{Binding FileIsCorrect, Converter={StaticResource BoolToVisibility}, ConverterParameter=true:true}"
+                       FontSize="16" TextAlignment="Center" Foreground="Orange" />
+            <StackPanel HorizontalAlignment="Center" Visibility="{Binding CombatLogUploadingFailed, Converter={StaticResource BoolToVisibility}, ConverterParameter=true}">
+                <TextBlock Text="{loc:Loc CombatLogUploadingFailed}" FontSize="14" TextAlignment="Center" TextWrapping="Wrap"
+                       VerticalAlignment="Center" MaxWidth="650" Foreground="Red" />
+                <Button Content="{loc:Loc Repeat}" Margin="20" FontSize="14" Width="100" Style="{StaticResource showButton}" mvx:Bi.nd="Command OpenPlayerAnalysisCommand" />
+            </StackPanel>
         </StackPanel>
     </Grid>
 </views:MvxWpfView>

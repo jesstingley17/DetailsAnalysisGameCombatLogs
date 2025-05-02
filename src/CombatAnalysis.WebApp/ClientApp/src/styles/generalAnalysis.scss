@@ -108,6 +108,7 @@ $mobile-max-width: 425px;
 
                 &__range, &__lasts {
                     display: flex;
+                    align-items: center;
                     gap: 20px;
                     padding: 10px;
                     border-radius: 20px;

@@ -7,7 +7,7 @@ import DashboardItem from "./DashboardItem";
 
 import "../../styles/dashboard.scss";
 
-const Dashboard = ({ players, combatId, combatLogId, combatName, playersDeath }) => {
+const Dashboard = ({ players, combatId, combatLogId, combatName, playersDeath, getValueShortName }) => {
     const { t } = useTranslation("combatDetails/dashboard");
 
     const [damageSum, setDamageSum] = useState(0);
@@ -111,6 +111,7 @@ const Dashboard = ({ players, combatId, combatLogId, combatName, playersDeath })
                     resourcesSum={damageSum}
                     closedItems={closedItems}
                     setClosedItems={setClosedItems}
+                    getValueShortName={getValueShortName}
                 />
                 <DashboardItem
                     name={t("Healing")}
@@ -121,6 +122,7 @@ const Dashboard = ({ players, combatId, combatLogId, combatName, playersDeath })
                     resourcesSum={healingSum}
                     closedItems={closedItems}
                     setClosedItems={setClosedItems}
+                    getValueShortName={getValueShortName}
                 />
                 <DashboardItem
                     name={t("DamageTaken")}
@@ -131,6 +133,7 @@ const Dashboard = ({ players, combatId, combatLogId, combatName, playersDeath })
                     resourcesSum={damageTakenSum}
                     closedItems={closedItems}
                     setClosedItems={setClosedItems}
+                    getValueShortName={getValueShortName}
                 />
                 <DashboardItem
                     name={t("ResourcesRecovery")}
@@ -141,6 +144,7 @@ const Dashboard = ({ players, combatId, combatLogId, combatName, playersDeath })
                     resourcesSum={resourcesRecoverySum}
                     closedItems={closedItems}
                     setClosedItems={setClosedItems}
+                    getValueShortName={getValueShortName}
                 />
                 <DashboardDeathItem
                     playersDeath={playersDeath}

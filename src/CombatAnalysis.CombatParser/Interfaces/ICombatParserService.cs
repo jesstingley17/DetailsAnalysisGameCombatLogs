@@ -13,5 +13,7 @@ public interface ICombatParserService
 
     Task ParseAsync(string combatLogPath, CancellationToken cancellationToken);
 
+    Task ParseAsync(List<string> combatLogPaths, CancellationToken cancellationToken);
+
     void Clear();
 }

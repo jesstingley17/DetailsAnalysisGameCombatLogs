@@ -9,7 +9,7 @@ import { useLazyGetResourceRecoveryGeneralByCombatPlayerIdQuery } from '../../st
 
 const itemsMinCount = 5;
 
-const DashboardMinDetails = ({ combatPlayerId, closeHandle, detailsType }) => {
+const DashboardMinDetails = ({ combatPlayerId, closeHandle, detailsType, getValueShortName }) => {
     const { t } = useTranslation("combatDetails/dashboard");
 
     const detailsTypeFunctions = [
@@ -46,7 +46,7 @@ const DashboardMinDetails = ({ combatPlayerId, closeHandle, detailsType }) => {
     }, [combatPlayerId, getDetailsFunction]);
 
     if (data.length === 0) {
-        return <div>Loading...</div>;
+        return (<></>);
     }
 
     return (
@@ -64,7 +64,7 @@ const DashboardMinDetails = ({ combatPlayerId, closeHandle, detailsType }) => {
                         <div className="min-details__spells-items">
                             <div>{damage.spell}</div>
                             <div className="value">
-                                <div>{damage.value}</div>
+                                <div>{getValueShortName(damage.value)}</div>
                             </div>
                         </div>
                     </li>

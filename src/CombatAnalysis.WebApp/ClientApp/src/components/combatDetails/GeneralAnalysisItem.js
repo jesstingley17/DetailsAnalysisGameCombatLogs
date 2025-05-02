@@ -1,14 +1,14 @@
 import { faBolt, faCheck, faCircleNodes, faClock, faDatabase, faGraduationCap, faHourglassStart, faKhanda, faPlusCircle, faShieldHalved, faSkull } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { format } from 'date-fns';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
 const formatDate = (dateString) => format(new Date(dateString), 'HH:mm');
 const getCombatDuration = (duration) => duration.substring(3);
 
-const GeneralAnalysisItem = ({ uniqueCombats, combatLogId }) => {
+const GeneralAnalysisItem = ({ uniqueCombats, combatLogId, getValueShortName }) => {
     const { t } = useTranslation("combatDetails/generalAnalysis");
 
     const navigate = useNavigate();
@@ -89,11 +89,6 @@ const GeneralAnalysisItem = ({ uniqueCombats, combatLogId }) => {
                             title={t("NotReady")}
                         />
                     }
-                    {/*<FontAwesomeIcon*/}
-                    {/*    icon={faGlobe}*/}
-                    {/*    title={t("PlayerMovements")}*/}
-                    {/*    onClick={() => navigate(`/player-movements?combatId=${selectedCombat.id}`)}*/}
-                    {/*/>*/}
                 </div>
                 <div className="combat-time">
                     <div className="combat-time__range">
@@ -126,7 +121,7 @@ const GeneralAnalysisItem = ({ uniqueCombats, combatLogId }) => {
                         className="list-group-item__player-statistic-item"
                         title={t("Damage")}
                     />
-                    <div>{uniqueCombats[selectedCombatIndex].damageDone}</div>
+                    <div>{getValueShortName(uniqueCombats[selectedCombatIndex].damageDone)}</div>
                 </li>
                 <li className="list-group-item">
                     <FontAwesomeIcon
@@ -134,7 +129,7 @@ const GeneralAnalysisItem = ({ uniqueCombats, combatLogId }) => {
                         className="list-group-item__player-statistic-item"
                         title={t("Healing")}
                     />
-                    <div>{uniqueCombats[selectedCombatIndex].healDone}</div>
+                    <div>{getValueShortName(uniqueCombats[selectedCombatIndex].healDone)}</div>
                 </li>
                 <li className="list-group-item">
                     <FontAwesomeIcon
@@ -142,7 +137,7 @@ const GeneralAnalysisItem = ({ uniqueCombats, combatLogId }) => {
                         className="list-group-item__player-statistic-item"
                         title={t("DamageTaken")}
                     />
-                    <div>{uniqueCombats[selectedCombatIndex].damageTaken}</div>
+                    <div>{getValueShortName(uniqueCombats[selectedCombatIndex].damageTaken)}</div>
                 </li>
                 <li className="list-group-item">
                     <FontAwesomeIcon
@@ -150,7 +145,7 @@ const GeneralAnalysisItem = ({ uniqueCombats, combatLogId }) => {
                         className="list-group-item__player-statistic-item"
                         title={t("EnergyRecovery")}
                     />
-                    <div>{uniqueCombats[selectedCombatIndex].energyRecovery}</div>
+                    <div>{getValueShortName(uniqueCombats[selectedCombatIndex].energyRecovery)}</div>
                 </li>
                 <li className="list-group-item">
                     <FontAwesomeIcon

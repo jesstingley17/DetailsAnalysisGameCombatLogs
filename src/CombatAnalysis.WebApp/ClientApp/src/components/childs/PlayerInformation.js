@@ -1,7 +1,7 @@
-﻿import React, { memo } from "react";
+﻿import { memo } from "react";
 import CommonPlayerInform from './CommonPlayerInform';
 
-const PlayerInformation = ({ combatPlayers, combatId, combatLogId, combatName }) => {
+const PlayerInformation = ({ combatPlayers, combatId, combatLogId, combatName, getValueShortName }) => {
     return (
         <ul>
             {combatPlayers?.map((player) => (
@@ -14,6 +14,7 @@ const PlayerInformation = ({ combatPlayers, combatId, combatLogId, combatName })
                             combatId={combatId}
                             combatLogId={combatLogId}
                             combatName={combatName}
+                            getValueShortName={getValueShortName}
                         />
                     </li>
                 ))}

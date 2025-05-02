@@ -15,7 +15,7 @@ public class IntToVisibilityConverter : MvxValueConverter<int, Visibility>
         var stringParam = (string)parameter;
         var sign = string.Empty;
 
-        if (stringParam != null)
+        if (!string.IsNullOrWhiteSpace(stringParam))
         {
             var parse = stringParam.Split(':');
             if (parse.Length > 2)

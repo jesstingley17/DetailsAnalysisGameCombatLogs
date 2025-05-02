@@ -187,6 +187,7 @@ $mobile-max-width: 425px;
             .title {
                 display: flex;
                 justify-content: space-between;
+                gap: 25px;
 
                 .value {
                     font-size: 14px;

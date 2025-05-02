@@ -1,6 +1,6 @@
 ﻿import { faDeleteLeft } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useLazyGetCombatsByCombatLogIdQuery } from '../../store/api/core/CombatParser.api';
@@ -10,6 +10,8 @@ import GeneralAnalysisItem from './GeneralAnalysisItem';
 import "../../styles/generalAnalysis.scss";
 
 const GeneralAnalysis = () => {
+    const fixedNumberUntil = 2;
+    
     const { t } = useTranslation("combatDetails/generalAnalysis");
     const navigate = useNavigate();
 
@@ -61,6 +63,20 @@ const GeneralAnalysis = () => {
         setUniqueCombats(uniqueCombatList);
     }
 
+    const getValueShortName = (value) => {
+        const thousands = value / 1000;
+        const millions = value / 1000000;
+
+        if (millions >= 1) {
+            return `${millions.toFixed(fixedNumberUntil)} M`;
+        }
+        else if (thousands >= 1) {
+            return `${thousands.toFixed(fixedNumberUntil)} K`;
+        }
+
+        return value;
+    }
+
     if (combatLogId === 0) {
         return (<Loading />);
     }
@@ -82,6 +98,7 @@ const GeneralAnalysis = () => {
                             <GeneralAnalysisItem
                                 uniqueCombats={uniqueCombats}
                                 combatLogId={combatLogId}
+                                getValueShortName={getValueShortName}
                             />
                         </li>
                     ))

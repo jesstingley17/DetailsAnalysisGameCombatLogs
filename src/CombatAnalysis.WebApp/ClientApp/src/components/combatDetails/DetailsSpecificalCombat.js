@@ -1,6 +1,6 @@
 ﻿import { faDeleteLeft, faMagnifyingGlassMinus, faMagnifyingGlassPlus, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useLazyGetCombatPlayersByCombatIdQuery, useLazyGetPlayersDeathByPlayerIdQuery } from '../../store/api/core/CombatParser.api';
@@ -12,6 +12,8 @@ import GeneralDetailsChart from './GeneralDetailsChart';
 import "../../styles/detailsSpecificalCombat.scss";
 
 const DetailsSpecificalCombat = () => {
+    const fixedNumberUntil = 2;
+
     const { t } = useTranslation("combatDetails/detailsSpecificalCombat");
 
     const navigate = useNavigate();
@@ -87,6 +89,20 @@ const DetailsSpecificalCombat = () => {
         setSearchCombatPlayers(combatPlayers);
     }
 
+    const getValueShortName = (value) => {
+        const thousands = value / 1000;
+        const millions = value / 1000000;
+
+        if (millions >= 1) {
+            return `${millions.toFixed(fixedNumberUntil)} M`;
+        }
+        else if (thousands >= 1) {
+            return `${thousands.toFixed(fixedNumberUntil)} K`;
+        }
+
+        return value;
+    }
+
     return (
         <div className="details-specifical-combat__container">
             <div className="details-specifical-combat__navigate">
@@ -136,12 +152,25 @@ const DetailsSpecificalCombat = () => {
                     {
                         id: 0,
                         header: t("Dashboard"),
-                        content: <Dashboard combatId={combatDetails.combatId} combatLogId={combatDetails.combatLogId} players={searchCombatPlayers} combatName={combatDetails.combatName} playersDeath={playersDeath} />
+                        content: <Dashboard
+                            combatId={combatDetails.combatId}
+                            combatLogId={combatDetails.combatLogId}
+                            players={searchCombatPlayers}
+                            combatName={combatDetails.combatName}
+                            playersDeath={playersDeath}
+                            getValueShortName={getValueShortName}
+                        />
                     },
                     {
                         id: 1,
                         header: t("Details"),
-                        content: <PlayerInformation combatPlayers={searchCombatPlayers} combatId={combatDetails.combatId} combatLogId={combatDetails.combatLogId} combatName={combatDetails.combatName} />
+                        content: <PlayerInformation
+                            combatPlayers={searchCombatPlayers}
+                            combatId={combatDetails.combatId}
+                            combatLogId={combatDetails.combatLogId}
+                            combatName={combatDetails.combatName}
+                            getValueShortName={getValueShortName}
+                        />
                     }
                 ]}
             />

@@ -16,7 +16,7 @@ public partial class CombatLogInformationView : MvxWpfView
         InitializeComponent();
     }
 
-    private void SelectCmbatLogFile(object sender, System.Windows.RoutedEventArgs e)
+    private void SelectCmbatLogFiles(object sender, System.Windows.RoutedEventArgs e)
     {
         var viewModel = (CombatLogInformationViewModel)ViewModel;
 
@@ -28,11 +28,32 @@ public partial class CombatLogInformationView : MvxWpfView
         };
         fileDialog.ShowDialog();
 
-        if (string.IsNullOrEmpty(viewModel.CombatLogPath) || 
-            (!string.IsNullOrEmpty(viewModel.CombatLogPath) && !string.IsNullOrEmpty(fileDialog.FileName)))
+        if (viewModel != null && !string.IsNullOrEmpty(fileDialog.FileName))
         {
-            viewModel.CombatLogPath = fileDialog.FileName;
-            AppStaticData.SelectedCombatLogFilePath = fileDialog.FileName;
+            viewModel.CombatLogPaths.Clear();
+            viewModel.CombatLogNames.Clear();
+
+            viewModel.CombatLogPaths.Add(fileDialog.FileName);
+            AppStaticData.SelectedCombatLogFilePaths = [.. viewModel.CombatLogPaths];
+        }
+    }
+
+    private void SelectMoreCmbatLogFiles(object sender, System.Windows.RoutedEventArgs e)
+    {
+        var viewModel = (CombatLogInformationViewModel)ViewModel;
+
+        var userSettings = ReadUserSettings("user.json");
+
+        var fileDialog = new OpenFileDialog
+        {
+            InitialDirectory = userSettings?.Location
+        };
+        fileDialog.ShowDialog();
+
+        if (viewModel != null && !string.IsNullOrEmpty(fileDialog.FileName))
+        {
+            viewModel.CombatLogPaths.Add(fileDialog.FileName);
+            AppStaticData.SelectedCombatLogFilePaths = [.. viewModel.CombatLogPaths];
         }
     }
 
