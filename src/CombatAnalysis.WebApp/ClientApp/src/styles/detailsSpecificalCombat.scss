@@ -139,7 +139,7 @@
             }
 
             to {
-                width: 150px;
+                width: 160px;
             }
         }
 
@@ -169,6 +169,13 @@
         display: flex;
         align-items: center;
         gap: 25px;
+
+        .combat-number {
+            border-radius: 20px;
+            padding: 5px 15px;
+            box-shadow: 2px 2px 2px 2px gray;
+            cursor: default;
+        }
 
         button {
             font-size: 13px;

@@ -60,6 +60,28 @@
     flex-direction: column;
     gap: 10px;
 
+    .select-combat {
+        width: 40px;
+        overflow: hidden;
+        white-space: nowrap;
+
+        &:hover {
+            animation-name: select-combat;
+            animation-duration: 0.5s;
+            animation-fill-mode: forwards;
+        }
+    }
+
+    @keyframes select-combat {
+        from {
+            width: 40px;
+        }
+
+        to {
+            width: 160px;
+        }
+    }
+
     .form-control {
         width: 275px;
     }

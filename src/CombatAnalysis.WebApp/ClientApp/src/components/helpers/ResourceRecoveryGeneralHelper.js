@@ -111,7 +111,7 @@ const ResourceRecoveryGeneralHelper = ({ generalData, combatPlayer, getValueShor
                         </li>
                         <li className="amount">
                             <span>{getValueShortName(item.value)}</span>
-                            <span className="procentage">{getSpellValueProcentage(item, combatPlayer.healDone)}%</span>
+                            <span className="procentage">{getSpellValueProcentage(item, combatPlayer.resourcesRecovery)}%</span>
                         </li>
                         {!hideColumns.includes("Average") &&
                             <li>

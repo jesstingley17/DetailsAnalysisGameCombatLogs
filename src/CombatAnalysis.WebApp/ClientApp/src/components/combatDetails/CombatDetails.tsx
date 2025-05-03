@@ -1,63 +1,78 @@
 ﻿import { faCalendarDay, faDeleteLeft, faSitemap } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useLazyGetCombatPlayerByIdQuery } from '../../store/api/core/CombatParser.api';
+import { CombatDetailsType } from '../../types/components/combatDetails/CombatDetailsType';
+import { CombatPlayerType } from '../../types/components/combatDetails/CombatPlayerType';
 import CombatGeneralDetails from './CombatGeneralDetails';
 import CombatMoreDetails from './CombatMoreDetails';
 
 import "../../styles/combatGeneralDetails.scss";
 
-const CombatDetails = () => {
+const CombatDetails: React.FC = () => {
     const { t } = useTranslation("combatDetails/combatGeneralDetails");
 
     const navigate = useNavigate();
 
-    const [combatPlayerId, setCombatPlayerId] = useState(0);
-    const [combatPlayer, setCombatPlayer] = useState(null);
-    const [detailsType, setDetailsType] = useState("");
-    const [combatName, setCombatName] = useState("");
-    const [tab, setTab] = useState(0);
-    const [combatId, setCombatId] = useState(0);
-    const [combatLogId, setCombatLogId] = useState(0);
-    const [tabIndex, setTabIndex] = useState(0);
+    const [combatPlayer, setCombatPlayer] = useState<CombatPlayerType | null>(null);
+    const [tabIndex, setTabIndex] = useState<number>(0);
+    const [details, setDetails] = useState<CombatDetailsType>({
+        id: 0,
+        combatId: 0,
+        detailsType: '',
+        combatLogId: 0,
+        name: '',
+        tab: 0,
+        number: 0,
+    });
 
     const [getCombatPlayerById] = useLazyGetCombatPlayerByIdQuery();
 
     useEffect(() => {
         const queryParams = new URLSearchParams(window.location.search);
-        const combatId = +queryParams.get("combatId");
 
-        setCombatPlayerId(+queryParams.get("id"));
-        setDetailsType(queryParams.get("detailsType"));
-        setCombatId(combatId);
-        setCombatLogId(+queryParams.get("combatLogId"));
-        setCombatName(queryParams.get("name"));
-        setTab(+queryParams.get("tab"));
+        const id: number = parseInt(queryParams.get("id") || '0');
+        const combatId: number = parseInt(queryParams.get("combatId") || '0');
+        const detailsType: string = queryParams.get("detailsType") || '';
+        const combatLogId: number = parseInt(queryParams.get("combatLogId") || '0');
+        const name: string = queryParams.get("name") || '';
+        const tab: number = parseInt(queryParams.get("tab") || '0');
+        const number: number = parseInt(queryParams.get("number") || '0');
+
+        setDetails({
+            id,
+            combatId,
+            detailsType,
+            combatLogId,
+            name,
+            tab,
+            number,
+        });
     }, [])
 
     useEffect(() => {
-        if (combatPlayerId <= 0) {
+        if (details.id <= 0) {
             return;
         }
 
         const getGeneralDetails = async () => {
-            await getCombatPlayerByIdAsync(combatPlayerId);
+            await getCombatPlayerByIdAsync(details.id);
         }
 
         getGeneralDetails();
-    }, [combatPlayerId])
+    }, [details.id])
 
-    const getCombatPlayerByIdAsync = async (combatPlayerId) => {
-        const combatPlayer = await getCombatPlayerById(combatPlayerId);
+    const getCombatPlayerByIdAsync = async (id: number) => {
+        const combatPlayer = await getCombatPlayerById(id);
         if (combatPlayer.data !== undefined) {
             setCombatPlayer(combatPlayer.data);
         }
     }
 
     const getDetailsTypeName = () => {
-        switch (detailsType) {
+        switch (details.detailsType) {
             case "DamageDone":
                 return t("Damage");
             case "HealDone":
@@ -71,7 +86,7 @@ const CombatDetails = () => {
         }
     }
 
-    if (combatPlayerId <= 0 || !combatPlayer) {
+    if (details.id <= 0 || !combatPlayer) {
         return <div>Loading...</div>;
     }
 
@@ -80,7 +95,7 @@ const CombatDetails = () => {
             <div className="general-details__navigate">
                 <div className="player">
                     <div className="btn-shadow select-another-player"
-                        onClick={() => navigate(`/details-specifical-combat?id=${combatId}&combatLogId=${combatLogId}&name=${combatName}&tab=${tab}`)}>
+                        onClick={() => navigate(`/details-specifical-combat?id=${details.combatId}&combatLogId=${details.combatLogId}&name=${details.name}&tab=${details.tab}&number=${details.number}`)}>
                         <FontAwesomeIcon
                             icon={faDeleteLeft}
                         />
@@ -113,11 +128,11 @@ const CombatDetails = () => {
             {tabIndex === 0
                 ? <CombatGeneralDetails
                     combatPlayer={combatPlayer}
-                    detailsType={detailsType}
+                    detailsType={details.detailsType}
                 />
                 : <CombatMoreDetails
-                    combatPlayerId={combatPlayerId}
-                    detailsType={detailsType}
+                    combatPlayerId={details.id}
+                    detailsType={details.detailsType}
                 />
             }
         </div>

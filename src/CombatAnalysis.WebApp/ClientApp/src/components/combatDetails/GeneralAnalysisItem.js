@@ -64,31 +64,12 @@ const GeneralAnalysisItem = ({ uniqueCombats, combatLogId, getValueShortName }) 
                             <h5 className="card-title">{selectedCombat.name}</h5>
                             <p className="card-text">{selectedCombat.dungeonName}</p>
                         </div>
-                        {selectedCombat?.isWin
-                            ? <FontAwesomeIcon
-                                icon={faGraduationCap}
-                                className="win"
-                                title={t("Win")}
-                            />
-                            : <FontAwesomeIcon
-                                icon={faSkull}
-                                className="lose"
-                                title={t("Lose")}
-                            />
-                        }
                     </div>
-                    {selectedCombat.isReady
-                        ? <FontAwesomeIcon
-                            icon={faCheck}
-                            className="list-group-item__player-statistic-item"
-                            title={t("Ready")}
-                        />
-                        : <FontAwesomeIcon
-                            icon={faClock}
-                            className="list-group-item__player-statistic-item"
-                            title={t("NotReady")}
-                        />
-                    }
+                    <FontAwesomeIcon
+                        icon={selectedCombat.isReady ? faCheck : faClock}
+                        className="list-group-item__player-statistic-item"
+                        title={selectedCombat.isReady ? t("Ready") : t("NotReady")}
+                    />
                 </div>
                 <div className="combat-time">
                     <div className="combat-time__range">
@@ -158,7 +139,7 @@ const GeneralAnalysisItem = ({ uniqueCombats, combatLogId, getValueShortName }) 
             </ul>
             <div className="card-body details">
                 {uniqueCombats[selectedCombatIndex].isReady
-                    ? <div className="btn-shadow" onClick={() => navigate(`/details-specifical-combat?id=${uniqueCombats[selectedCombatIndex].id}&combatLogId=${combatLogId}&name=${uniqueCombats[selectedCombatIndex].name}`)}>
+                    ? <div className="btn-shadow" onClick={() => navigate(`/details-specifical-combat?id=${uniqueCombats[selectedCombatIndex].id}&combatLogId=${combatLogId}&name=${uniqueCombats[selectedCombatIndex].name}&number=${selectedCombatIndex + 1}`)}>
                         <FontAwesomeIcon
                             icon={faDatabase}
                         />

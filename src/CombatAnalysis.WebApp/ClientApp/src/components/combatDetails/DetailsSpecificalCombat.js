@@ -18,7 +18,7 @@ const DetailsSpecificalCombat = () => {
 
     const navigate = useNavigate();
 
-    const [combatDetails, setCombatDetails] = useState({ combatId: 0, combatLogId: 0, combatName: "", tab: 0 });
+    const [combatDetails, setCombatDetails] = useState({ combatId: 0, combatLogId: 0, combatName: "", tab: 0, number: 0 });
     const [combatPlayers, setCombatPlayers] = useState([]);
     const [playersDeath, setPlayersDeath] = useState([]);
     const [searchCombatPlayers, setSearchCombatPlayers] = useState([]);
@@ -42,7 +42,8 @@ const DetailsSpecificalCombat = () => {
             combatId: +queryParams.get("id"),
             combatLogId: +queryParams.get("combatLogId"),
             combatName: queryParams.get("name"),
-            tab: +queryParams.get("tab")
+            tab: +queryParams.get("tab"),
+            number: +queryParams.get("number"),
         });
     }, []);
 
@@ -120,6 +121,7 @@ const DetailsSpecificalCombat = () => {
                     <div>{t("Search")}</div>
                 </div>
                 <div>{combatDetails.combatName}</div>
+                <div className="combat-number">{combatDetails.number}</div>
             </div>
             {showSearch &&
                 <div className="mb-3 search-people">
@@ -166,9 +168,7 @@ const DetailsSpecificalCombat = () => {
                         header: t("Details"),
                         content: <PlayerInformation
                             combatPlayers={searchCombatPlayers}
-                            combatId={combatDetails.combatId}
-                            combatLogId={combatDetails.combatLogId}
-                            combatName={combatDetails.combatName}
+                            combatDetails={combatDetails}
                             getValueShortName={getValueShortName}
                         />
                     }
