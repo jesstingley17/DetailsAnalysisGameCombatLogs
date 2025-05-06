@@ -6,4 +6,5 @@ export interface CombatDetailsType {
     name: string,
     tab: number,
     number: number,
+    isWin: boolean,
 }

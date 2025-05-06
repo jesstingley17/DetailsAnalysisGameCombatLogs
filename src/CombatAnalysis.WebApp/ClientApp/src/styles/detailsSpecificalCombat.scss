@@ -170,18 +170,25 @@
         align-items: center;
         gap: 25px;
 
-        .combat-number {
-            border-radius: 20px;
-            padding: 5px 15px;
-            cursor: default;
-        }
+        .boss {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            font-size: 0.9em;
 
-        .combat-number.win {
-            box-shadow: 2px 2px 2px 2px green;
-        }
+            .combat-number {
+                border-radius: 20px;
+                padding: 5px 15px;
+                cursor: default;
+            }
 
-        .combat-number.lose {
-            box-shadow: 2px 2px 2px 2px red;
+            .combat-number.win {
+                box-shadow: 2px 2px 2px 2px green;
+            }
+
+            .combat-number.lose {
+                box-shadow: 2px 2px 2px 2px red;
+            }
         }
 
         button {

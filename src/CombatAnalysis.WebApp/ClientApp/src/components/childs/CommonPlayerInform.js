@@ -4,7 +4,7 @@ import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
-const CommonPlayerInform = ({ player, combatDetails, getValueShortName }) => {
+const CommonPlayerInform = ({ player, details, getValueShortName }) => {
     const { t } = useTranslation("childs/playerInformation");
 
     const navigate = useNavigate();
@@ -12,7 +12,7 @@ const CommonPlayerInform = ({ player, combatDetails, getValueShortName }) => {
     const detailsTypes = ["DamageDone", "HealDone", "DamageTaken", "ResourceRecovery"];
 
     const navigateToDetails = (detailsType) => {
-        navigate(`/combat-details?id=${player.id}&detailsType=${detailsType}&combatId=${combatDetails.combatId}&combatLogId=${combatDetails.combatLogId}&name=${combatDetails.combatName}&tab=${1}&number=${combatDetails.number}`);
+        navigate(`/combat-details?id=${player.id}&detailsType=${detailsType}&combatId=${details.combatId}&combatLogId=${details.combatLogId}&name=${details.name}&tab=${1}&number=${details.number}&isWin=${details.isWin}`);
     }
 
     return (

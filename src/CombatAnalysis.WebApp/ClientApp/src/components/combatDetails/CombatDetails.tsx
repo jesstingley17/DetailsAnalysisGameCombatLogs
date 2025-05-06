@@ -26,6 +26,7 @@ const CombatDetails: React.FC = () => {
         name: '',
         tab: 0,
         number: 0,
+        isWin: false
     });
 
     const [getCombatPlayerById] = useLazyGetCombatPlayerByIdQuery();
@@ -40,6 +41,7 @@ const CombatDetails: React.FC = () => {
         const name: string = queryParams.get("name") || '';
         const tab: number = parseInt(queryParams.get("tab") || '0');
         const number: number = parseInt(queryParams.get("number") || '0');
+        const isWin: boolean = queryParams.get("isWin") === 'true';
 
         setDetails({
             id,
@@ -49,8 +51,9 @@ const CombatDetails: React.FC = () => {
             name,
             tab,
             number,
+            isWin,
         });
-    }, [])
+    }, []);
 
     useEffect(() => {
         if (details.id <= 0) {
@@ -62,7 +65,7 @@ const CombatDetails: React.FC = () => {
         }
 
         getGeneralDetails();
-    }, [details.id])
+    }, [details.id]);
 
     const getCombatPlayerByIdAsync = async (id: number) => {
         const combatPlayer = await getCombatPlayerById(id);
@@ -95,7 +98,7 @@ const CombatDetails: React.FC = () => {
             <div className="general-details__navigate">
                 <div className="player">
                     <div className="btn-shadow select-another-player"
-                        onClick={() => navigate(`/details-specifical-combat?id=${details.combatId}&combatLogId=${details.combatLogId}&name=${details.name}&tab=${details.tab}&number=${details.number}`)}>
+                        onClick={() => navigate(`/details-specifical-combat?id=${details.combatId}&combatLogId=${details.combatLogId}&name=${details.name}&tab=${details.tab}&number=${details.number}&isWin=${details.isWin}`)}>
                         <FontAwesomeIcon
                             icon={faDeleteLeft}
                         />
@@ -104,6 +107,10 @@ const CombatDetails: React.FC = () => {
                     <div className="btn-shadow username">
                         <div>{combatPlayer?.username}</div>
                     </div>
+                </div>
+                <div className="boss">
+                    <div>{details.name}</div>
+                    <div className={`combat-number ${details.isWin ? 'win' : 'lose'}`}>{details.number}</div>
                 </div>
                 <div className="details-type">{getDetailsTypeName()}</div>
                 <ul className="types">
