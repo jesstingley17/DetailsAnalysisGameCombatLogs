@@ -18,7 +18,7 @@ const DetailsSpecificalCombat = () => {
 
     const navigate = useNavigate();
 
-    const [combatDetails, setCombatDetails] = useState({ combatId: 0, combatLogId: 0, combatName: "", tab: 0, number: 0 });
+    const [combatDetails, setCombatDetails] = useState({ combatId: 0, combatLogId: 0, combatName: "", tab: 0, number: 0, isWin: false });
     const [combatPlayers, setCombatPlayers] = useState([]);
     const [playersDeath, setPlayersDeath] = useState([]);
     const [searchCombatPlayers, setSearchCombatPlayers] = useState([]);
@@ -44,6 +44,7 @@ const DetailsSpecificalCombat = () => {
             combatName: queryParams.get("name"),
             tab: +queryParams.get("tab"),
             number: +queryParams.get("number"),
+            isWin: queryParams.get("isWin") === 'true',
         });
     }, []);
 
@@ -55,7 +56,7 @@ const DetailsSpecificalCombat = () => {
         const fetchData = async () => {
             const combatPlayersData = await getCombatPlayersAsync();
             await getPlayersDeathAsync(combatPlayersData);
-        };
+        }
 
         fetchData();
     }, [combatDetails.combatId])
@@ -121,7 +122,7 @@ const DetailsSpecificalCombat = () => {
                     <div>{t("Search")}</div>
                 </div>
                 <div>{combatDetails.combatName}</div>
-                <div className="combat-number">{combatDetails.number}</div>
+                <div className={`combat-number ${combatDetails.isWin ? 'win' : 'lose'}`}>{combatDetails.number}</div>
             </div>
             {showSearch &&
                 <div className="mb-3 search-people">

@@ -173,8 +173,15 @@
         .combat-number {
             border-radius: 20px;
             padding: 5px 15px;
-            box-shadow: 2px 2px 2px 2px gray;
             cursor: default;
+        }
+
+        .combat-number.win {
+            box-shadow: 2px 2px 2px 2px green;
+        }
+
+        .combat-number.lose {
+            box-shadow: 2px 2px 2px 2px red;
         }
 
         button {

@@ -11,10 +11,15 @@ const DamageDoneGeneralHelper = ({ generalData, getProcentage, combatPlayer, get
     const [showPets, setShowPets] = useState(true);
     const [hideColumns, setHideColumns] = useState([]);
     const [data, setData] = useState(generalData);
+    const [totalDamage, setTotalDamage] = useState(combatPlayer.damageDone);
 
     useEffect(() => {
         const filteredData = showPets ? generalData : generalData.filter(x => !x.isPet);
         setData(filteredData);
+
+        const filteredTotalDamage = filteredData.map(x => x.value);
+        const sum = filteredTotalDamage.reduce((a, b) => a + b, 0);
+        setTotalDamage(sum);
     }, [showPets]);
 
     const handleAddToHideColumns = (columnName) => {
@@ -131,7 +136,7 @@ const DamageDoneGeneralHelper = ({ generalData, getProcentage, combatPlayer, get
                     </div>
                 </div>
                 <div>
-                    {t("Total")}: {getValueShortName(combatPlayer.damageDone)}
+                    {t("Total")}: {getValueShortName(totalDamage)}
                 </div>
                 {hideColumns.length > 0 && hiddenColumns()}
             </li>

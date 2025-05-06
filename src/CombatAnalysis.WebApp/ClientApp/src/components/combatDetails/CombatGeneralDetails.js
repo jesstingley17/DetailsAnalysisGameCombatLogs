@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Brush, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import useCombatGeneralData from '../../hooks/useCombatGeneralData';
+import CustomTooltip from './CustomTooltip';
 
 const CombatGeneralDetails = ({ combatPlayer, detailsType }) => {
     const { t } = useTranslation("combatDetails/combatGeneralDetails");
@@ -42,11 +43,9 @@ const CombatGeneralDetails = ({ combatPlayer, detailsType }) => {
         const spellsRadialChartData = new Array(combatGeneralDetailsData.length);
 
         for (let i = 0; i < combatGeneralDetailsData.length; i++) {
-            const color = '#' + (Math.random().toString(16) + '000000').substring(2, 8).toUpperCase();
             const spellsData = {
                 name: combatGeneralDetailsData[i].spell,
-                uv: combatGeneralDetailsData[i].value,
-                fill: color === "#fff" ? '#' + (Math.random().toString(16) + '00000  0').substring(2, 8).toUpperCase() : color
+                value: combatGeneralDetailsData[i].value,
             };
 
             spellsRadialChartData[i] = spellsData;
@@ -78,12 +77,10 @@ const CombatGeneralDetails = ({ combatPlayer, detailsType }) => {
                                 bottom: 0,
                             }}
                         >
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="name" />
-                            <YAxis />
-                            <Tooltip />
-                            <Line type="monotone" dataKey="uv" stroke="#58A399" fill="#6196A6" />
-                            <Brush />
+                            <XAxis dataKey="name" stroke="#FFFFFF" style={{ fontSize: "0.9em", overflow: "auto" }} />
+                            <YAxis dataKey="value" stroke="#FFFFFF" />
+                            <Tooltip fill="red" content={<CustomTooltip payload={spells} t={t} />} />
+                            <Line type="monotone" dataKey="value" stroke="#58A399" fill="#6196A6" />
                         </LineChart>
                     </ResponsiveContainer>
                 </div>

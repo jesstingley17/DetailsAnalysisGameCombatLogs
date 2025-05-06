@@ -1,11 +1,9 @@
-import { faBolt, faCheck, faCircleNodes, faClock, faDatabase, faGraduationCap, faHourglassStart, faKhanda, faPlusCircle, faShieldHalved, faSkull } from '@fortawesome/free-solid-svg-icons';
+import { faBolt, faCheck, faCircleNodes, faClock, faDatabase, faHourglassStart, faKhanda, faPlusCircle, faShieldHalved } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { format } from 'date-fns';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
-const formatDate = (dateString) => format(new Date(dateString), 'HH:mm');
 const getCombatDuration = (duration) => duration.substring(3);
 
 const GeneralAnalysisItem = ({ uniqueCombats, combatLogId, getValueShortName }) => {
@@ -20,6 +18,13 @@ const GeneralAnalysisItem = ({ uniqueCombats, combatLogId, getValueShortName }) 
         setSelectedCombat(uniqueCombats[selectedCombatIndex]);
     }, [selectedCombatIndex]);
 
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        const hoursMins = `${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()}`;
+
+        return hoursMins;
+    }
+
     if (selectedCombat === null) {
         return (<div>Loading...</div>);
     }
@@ -33,15 +38,11 @@ const GeneralAnalysisItem = ({ uniqueCombats, combatLogId, getValueShortName }) 
                         <div className="combat-time">
                             <div className="combat-time__range">
                                 <div>
-                                    <div>
-                                        <div>{formatDate(new Date(combat.startDate), 'HH:mm')}</div>
-                                    </div>
+                                    <div>{formatDate(combat.startDate)}</div>
                                 </div>
                                 <div>-</div>
                                 <div>
-                                    <div>
-                                        <div>{formatDate(new Date(combat.finishDate), 'HH:mm')}</div>
-                                    </div>
+                                    <div>{formatDate(combat.finishDate)}</div>
                                 </div>
                             </div>
                             <div className="combat-time__lasts">
@@ -75,13 +76,13 @@ const GeneralAnalysisItem = ({ uniqueCombats, combatLogId, getValueShortName }) 
                     <div className="combat-time__range">
                         <div className="list-group-item">
                             <div>
-                                <div>{format(new Date(selectedCombat?.startDate), 'HH:mm')}</div>
+                                <div>{formatDate(selectedCombat?.startDate)}</div>
                             </div>
                         </div>
                         <div>-</div>
                         <div className="list-group-item">
                             <div>
-                                <div>{format(new Date(selectedCombat?.finishDate), 'HH:mm')}</div>
+                                <div>{formatDate(selectedCombat?.finishDate)}</div>
                             </div>
                         </div>
                     </div>
@@ -139,7 +140,7 @@ const GeneralAnalysisItem = ({ uniqueCombats, combatLogId, getValueShortName }) 
             </ul>
             <div className="card-body details">
                 {uniqueCombats[selectedCombatIndex].isReady
-                    ? <div className="btn-shadow" onClick={() => navigate(`/details-specifical-combat?id=${uniqueCombats[selectedCombatIndex].id}&combatLogId=${combatLogId}&name=${uniqueCombats[selectedCombatIndex].name}&number=${selectedCombatIndex + 1}`)}>
+                    ? <div className="btn-shadow" onClick={() => navigate(`/details-specifical-combat?id=${uniqueCombats[selectedCombatIndex].id}&combatLogId=${combatLogId}&name=${uniqueCombats[selectedCombatIndex].name}&number=${selectedCombatIndex + 1}&isWin=${selectedCombat.isWin}`)}>
                         <FontAwesomeIcon
                             icon={faDatabase}
                         />
