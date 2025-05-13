@@ -18,9 +18,9 @@ const CombatDetails: React.FC = () => {
 
     const [combatPlayer, setCombatPlayer] = useState<CombatPlayerType | null>(null);
     const [tabIndex, setTabIndex] = useState<number>(0);
+    const [playerId, setPlayerId] = useState<number>(0);
     const [details, setDetails] = useState<CombatDetailsType>({
         id: 0,
-        combatId: 0,
         detailsType: '',
         combatLogId: 0,
         name: '',
@@ -35,7 +35,6 @@ const CombatDetails: React.FC = () => {
         const queryParams = new URLSearchParams(window.location.search);
 
         const id: number = parseInt(queryParams.get("id") || '0');
-        const combatId: number = parseInt(queryParams.get("combatId") || '0');
         const detailsType: string = queryParams.get("detailsType") || '';
         const combatLogId: number = parseInt(queryParams.get("combatLogId") || '0');
         const name: string = queryParams.get("name") || '';
@@ -43,9 +42,11 @@ const CombatDetails: React.FC = () => {
         const number: number = parseInt(queryParams.get("number") || '0');
         const isWin: boolean = queryParams.get("isWin") === 'true';
 
+        const playerId: number = parseInt(queryParams.get("playerId") || '0');
+        setPlayerId(playerId);
+
         setDetails({
             id,
-            combatId,
             detailsType,
             combatLogId,
             name,
@@ -56,16 +57,16 @@ const CombatDetails: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        if (details.id <= 0) {
+        if (playerId <= 0) {
             return;
         }
 
         const getGeneralDetails = async () => {
-            await getCombatPlayerByIdAsync(details.id);
+            await getCombatPlayerByIdAsync(playerId);
         }
 
         getGeneralDetails();
-    }, [details.id]);
+    }, [playerId]);
 
     const getCombatPlayerByIdAsync = async (id: number) => {
         const combatPlayer = await getCombatPlayerById(id);
@@ -98,7 +99,7 @@ const CombatDetails: React.FC = () => {
             <div className="general-details__navigate">
                 <div className="player">
                     <div className="btn-shadow select-another-player"
-                        onClick={() => navigate(`/details-specifical-combat?id=${details.combatId}&combatLogId=${details.combatLogId}&name=${details.name}&tab=${details.tab}&number=${details.number}&isWin=${details.isWin}`)}>
+                        onClick={() => navigate(`/details-specifical-combat?id=${details.id}&combatLogId=${details.combatLogId}&name=${details.name}&tab=${details.tab}&number=${details.number}&isWin=${details.isWin}`)}>
                         <FontAwesomeIcon
                             icon={faDeleteLeft}
                         />

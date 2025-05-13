@@ -12,7 +12,7 @@ const CommonPlayerInform = ({ player, details, getValueShortName }) => {
     const detailsTypes = ["DamageDone", "HealDone", "DamageTaken", "ResourceRecovery"];
 
     const navigateToDetails = (detailsType) => {
-        navigate(`/combat-details?id=${player.id}&detailsType=${detailsType}&combatId=${details.combatId}&combatLogId=${details.combatLogId}&name=${details.name}&tab=${1}&number=${details.number}&isWin=${details.isWin}`);
+        navigate(`/combat-details?id=${details.id}&playerId=${player.id}&detailsType=${detailsType}&combatLogId=${details.combatLogId}&name=${details.name}&tab=${1}&number=${details.number}&isWin=${details.isWin}`);
     }
 
     return (

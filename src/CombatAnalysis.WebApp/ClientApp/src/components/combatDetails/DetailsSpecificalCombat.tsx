@@ -4,24 +4,35 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useLazyGetCombatPlayersByCombatIdQuery, useLazyGetPlayersDeathByPlayerIdQuery } from '../../store/api/core/CombatParser.api';
+import { CombatDetailsType } from '../../types/components/combatDetails/CombatDetailsType';
+import { CombatPlayerType } from '../../types/components/combatDetails/CombatPlayerType';
+import { PlayerDeathType } from '../../types/components/combatDetails/PlayerDeathType';
 import PlayerInformation from '../childs/PlayerInformation';
 import PersonalTabs from '../common/PersonalTabs';
-import Dashboard from './Dashboard';
+import DashboardProject from './dashboard/DashboardProject';
 import GeneralDetailsChart from './GeneralDetailsChart';
 
 import "../../styles/detailsSpecificalCombat.scss";
 
-const DetailsSpecificalCombat = () => {
+const DetailsSpecificalCombat: React.FC = () => {
     const fixedNumberUntil = 2;
 
     const { t } = useTranslation("combatDetails/detailsSpecificalCombat");
 
     const navigate = useNavigate();
 
-    const [details, setDetails] = useState({ combatId: 0, combatLogId: 0, name: "", tab: 0, number: 0, isWin: false });
-    const [combatPlayers, setCombatPlayers] = useState([]);
-    const [playersDeath, setPlayersDeath] = useState([]);
-    const [searchCombatPlayers, setSearchCombatPlayers] = useState([]);
+    const [details, setDetails] = useState<CombatDetailsType>({
+        id: 0,
+        detailsType: '',
+        combatLogId: 0,
+        name: '',
+        tab: 0,
+        number: 0,
+        isWin: false
+    });
+    const [combatPlayers, setCombatPlayers] = useState<CombatPlayerType[]>([]);
+    const [playersDeath, setPlayersDeath] = useState<PlayerDeathType[]>([]);
+    const [selectedPlayers, setSelectedPlayers] = useState<CombatPlayerType[]>([]);
     const [showCommonDetails, setShowCommonDetails] = useState(false);
     const [showSearch, setShowSearch] = useState(false);
 
@@ -34,22 +45,32 @@ const DetailsSpecificalCombat = () => {
     const [getCombatPlayersByCombatIdAsync] = useLazyGetCombatPlayersByCombatIdQuery();
     const [getPlayersDeathByCombatIdAsync] = useLazyGetPlayersDeathByPlayerIdQuery();
 
-    const filterContent = useRef(null);
+    const filterContent = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         const queryParams = new URLSearchParams(window.location.search);
+
+        const id: number = parseInt(queryParams.get("id") || '0');
+        const detailsType: string = queryParams.get("detailsType") || '';
+        const combatLogId: number = parseInt(queryParams.get("combatLogId") || '0');
+        const name: string = queryParams.get("name") || '';
+        const tab: number = parseInt(queryParams.get("tab") || '0');
+        const number: number = parseInt(queryParams.get("number") || '0');
+        const isWin: boolean = queryParams.get("isWin") === 'true';
+
         setDetails({
-            combatId: +queryParams.get("id"),
-            combatLogId: +queryParams.get("combatLogId"),
-            name: queryParams.get("name"),
-            tab: +queryParams.get("tab"),
-            number: +queryParams.get("number"),
-            isWin: queryParams.get("isWin") === 'true',
+            id,
+            detailsType,
+            combatLogId,
+            name,
+            tab,
+            number,
+            isWin,
         });
     }, []);
 
     useEffect(() => {
-        if (details.combatId <= 0) {
+        if (details.id <= 0) {
             return;
         }
 
@@ -59,18 +80,18 @@ const DetailsSpecificalCombat = () => {
         }
 
         fetchData();
-    }, [details.combatId]);
+    }, [details.id]);
 
-    const handlerSearch = (e) => {
-        const filteredPeople = combatPlayers.filter((item) => item.username.toLowerCase().startsWith(e.target.value.toLowerCase()));
-        setSearchCombatPlayers(filteredPeople);
+    const handlerSearch = (e: any) => {
+        const foundPlayers = combatPlayers.filter((item) => item.username.toLowerCase().startsWith(e.target.value.toLowerCase()));
+        setSelectedPlayers(foundPlayers);
     }
 
     const getCombatPlayersAsync = async () => {
-        const combatPlayersResult = await getCombatPlayersByCombatIdAsync(details.combatId);
+        const combatPlayersResult = await getCombatPlayersByCombatIdAsync(details.id);
         if (combatPlayersResult.data !== undefined) {
             setCombatPlayers(combatPlayersResult.data);
-            setSearchCombatPlayers(combatPlayersResult.data);
+            setSelectedPlayers(combatPlayersResult.data);
 
             return combatPlayersResult.data;
         }
@@ -78,20 +99,23 @@ const DetailsSpecificalCombat = () => {
         return [];
     }
 
-    const getPlayersDeathAsync = async (players) => {
+    const getPlayersDeathAsync = async (players: CombatPlayerType[]) => {
         const deathsPromises = players.map(player => getPlayersDeathByCombatIdAsync(player.id));
-        const deathsResults = await Promise.all(deathsPromises);
-        const deaths = deathsResults.filter(result => result.data && result.data.length > 0).map(result => result.data[0]);
+        const deathsResults: any[] = await Promise.all(deathsPromises);
+        const deaths: PlayerDeathType[] = deathsResults.filter(result => result.data && result.data.length > 0).map(result => result.data[0]);
+
         setPlayersDeath(deaths);
     };
 
     const cleanSearch = () => {
-        filterContent.current.value = "";
+        if (filterContent.current) {
+            filterContent.current.value = "";
+        }
 
-        setSearchCombatPlayers(combatPlayers);
+        setSelectedPlayers(combatPlayers);
     }
 
-    const getValueShortName = (value) => {
+    const getValueShortName = (value: number): string => {
         const thousands = value / 1000;
         const millions = value / 1000000;
 
@@ -102,7 +126,7 @@ const DetailsSpecificalCombat = () => {
             return `${thousands.toFixed(fixedNumberUntil)} K`;
         }
 
-        return value;
+        return `${value}`;
     }
 
     return (
@@ -130,11 +154,11 @@ const DetailsSpecificalCombat = () => {
                 <div className="mb-3 search-people">
                     <label htmlFor="inputUsername" className="form-label">{t("SearchPlayer")}</label>
                     <div className="add-new-people__search-input">
-                        <input type="text" className="form-control" placeholder={t("TypeUsername")} id="inputUsername"
+                        <input type="text" className="form-control" placeholder={t("TypeUsername") || ""} id="inputUsername"
                             ref={filterContent} onChange={handlerSearch} />
                         <FontAwesomeIcon
                             icon={faXmark}
-                            title={t("Clean")}
+                            title={t("Clean") || ""}
                             onClick={cleanSearch}
                         />
                     </div>
@@ -148,7 +172,7 @@ const DetailsSpecificalCombat = () => {
             }
             {showCommonDetails &&
                 <GeneralDetailsChart
-                    combatPlayers={searchCombatPlayers}
+                    combatPlayers={selectedPlayers}
                 />
             }
             <PersonalTabs
@@ -157,11 +181,9 @@ const DetailsSpecificalCombat = () => {
                     {
                         id: 0,
                         header: t("Dashboard"),
-                        content: <Dashboard
-                            combatId={details.combatId}
-                            combatLogId={details.combatLogId}
-                            players={searchCombatPlayers}
-                            combatName={details.name}
+                        content: <DashboardProject
+                            details={details}
+                            combatPlayers={combatPlayers}
                             playersDeath={playersDeath}
                             getValueShortName={getValueShortName}
                         />
@@ -170,7 +192,7 @@ const DetailsSpecificalCombat = () => {
                         id: 1,
                         header: t("Details"),
                         content: <PlayerInformation
-                            combatPlayers={searchCombatPlayers}
+                            combatPlayers={selectedPlayers}
                             details={details}
                             getValueShortName={getValueShortName}
                         />

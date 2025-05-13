@@ -1,14 +1,14 @@
-import { faArrowDown, faArrowUp, faCircleXmark, faMagnifyingGlassChart, faTriangleExclamation, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { faArrowDown, faArrowUp, faCircleXmark, faMagnifyingGlassChart, faSpinner, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { format } from 'date-fns';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useLazyFindGroupChatUserByUserIdQuery } from '../../store/api/chat/GroupChatUser.api';
 import { useLazyGetByUserIdAsyncQuery } from '../../store/api/chat/PersonalChat.api';
-import CombatLogItemDiscussion from './CombatLogItemDiscussion';
 import CombatLogGroupChatList from './CombatLogGroupChatList';
+import CombatLogItemDiscussion from './CombatLogItemDiscussion';
 import PersonalChatList from './PersonalChatList';
 
 const CombatLogItem = ({ log, isAuth }) => {
@@ -99,18 +99,11 @@ const CombatLogItem = ({ log, isAuth }) => {
                     <div className="chat-list__chats">
                         <div className="title">
                             <div className="name">{t("GroupChats")}</div>
-                            {showGroupChats
-                                ? <FontAwesomeIcon
-                                    icon={faArrowUp}
-                                    onClick={() => setShowGroupChats(false)}
-                                    title={t("HideChats")}
-                                />
-                                : <FontAwesomeIcon
-                                    icon={faArrowDown}
-                                    onClick={() => setShowGroupChats(true)}
-                                    title={t("ShowChats")}
-                                />
-                            }
+                            <FontAwesomeIcon
+                                icon={showGroupChats ? faArrowUp : faArrowDown}
+                                onClick={() => setShowGroupChats(!showGroupChats)}
+                                title={showGroupChats ? t("HideChats") : t("ShowChats")}
+                            />
                         </div>
                         {showGroupChats &&
                             <ul>
@@ -127,18 +120,11 @@ const CombatLogItem = ({ log, isAuth }) => {
                         }
                         <div className="title">
                             <div className="name">{t("PersonalChats")}</div>
-                            {showPersonalChats
-                                ? <FontAwesomeIcon
-                                    icon={faArrowUp}
-                                    onClick={() => setShowPersonalChats(false)}
-                                    title={t("HideChats")}
-                                />
-                                : <FontAwesomeIcon
-                                    icon={faArrowDown}
-                                    onClick={() => setShowPersonalChats(true)}
-                                    title={t("ShowChats")}
-                                />
-                            }
+                            <FontAwesomeIcon
+                                icon={showPersonalChats ? faArrowUp : faArrowDown}
+                                onClick={() => setShowPersonalChats(!showPersonalChats)}
+                                title={showPersonalChats ? t("HideChats") : t("ShowChats")}
+                            />
                         </div>
                         {showPersonalChats &&
                             <ul>

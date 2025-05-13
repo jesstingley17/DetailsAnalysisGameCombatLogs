@@ -23,15 +23,15 @@ const DashboardDeathItem = ({ playersDeath, players }) => {
 
     if (playersDeath.length === 0) {
         return (
-            <div className="dashboard__statistics">
+            <>
                 <div>{t("PlayersDied")}</div>
                 <div>{t("Empty")}</div>
-            </div>
+            </>
         );
     }
 
     return (
-        <div className="dashboard__statistics">
+        <>
             <div>{t("PlayersDied")}</div>
             <ul className="death-info">
                 {playersDeath?.slice(0, itemCount).map((death, index) => (
@@ -45,7 +45,7 @@ const DashboardDeathItem = ({ playersDeath, players }) => {
             <div className="extend" onClick={() => setItemCount(itemCount === minCount ? playersDeath.length : minCount)}>
                 {itemCount === minCount ? t("More") : t("Less")}
             </div>
-        </div>
+        </>
     );
 }
 
