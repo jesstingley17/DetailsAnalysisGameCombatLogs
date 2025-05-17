@@ -9,8 +9,6 @@ const CommonPlayerInform = ({ player, details, getValueShortName }) => {
 
     const navigate = useNavigate();
 
-    const detailsTypes = ["DamageDone", "HealDone", "DamageTaken", "ResourceRecovery"];
-
     const navigateToDetails = (detailsType) => {
         navigate(`/combat-details?id=${details.id}&playerId=${player.id}&detailsType=${detailsType}&combatLogId=${details.combatLogId}&name=${details.name}&tab=${1}&number=${details.number}&isWin=${details.isWin}`);
     }
@@ -26,7 +24,7 @@ const CommonPlayerInform = ({ player, details, getValueShortName }) => {
                 <div>{getValueShortName(player.damageDone)}</div>
                 {player.damageDone > 0 &&
                     <div className="btn-shadow"
-                        onClick={() => navigateToDetails(detailsTypes[0])}
+                        onClick={() => navigateToDetails(0)}
                         title={t("OpenDamageAnalyzing")}>
                         <FontAwesomeIcon
                             icon={faBookOpenReader}
@@ -44,7 +42,7 @@ const CommonPlayerInform = ({ player, details, getValueShortName }) => {
                 <div>{getValueShortName(player.healDone)}</div>
                 {player.healDone > 0 &&
                     <div className="btn-shadow"
-                        onClick={() => navigateToDetails(detailsTypes[1])}
+                        onClick={() => navigateToDetails(1)}
                         title={t("OpenHealingAnalyzing")}>
                         <FontAwesomeIcon
                             icon={faBookOpenReader}
@@ -62,7 +60,7 @@ const CommonPlayerInform = ({ player, details, getValueShortName }) => {
                 <div>{getValueShortName(player.damageTaken)}</div>
                 {player.damageTaken > 0 &&
                     <div className="btn-shadow"
-                        onClick={() => navigateToDetails(detailsTypes[2])}
+                        onClick={() => navigateToDetails(2)}
                         title={t("OpenDamageTakenAnalyzing")}>
                         <FontAwesomeIcon
                             icon={faBookOpenReader}
@@ -80,7 +78,7 @@ const CommonPlayerInform = ({ player, details, getValueShortName }) => {
                 <div>{getValueShortName(player.resourcesRecovery)}</div>
                 {player.resourcesRecovery > 0 &&
                     <div className="btn-shadow"
-                        onClick={() => navigateToDetails(detailsTypes[3])}
+                        onClick={() => navigateToDetails(3)}
                         title={t("OpenResourcesRecoveryAnalyzing")}>
                         <FontAwesomeIcon
                             icon={faBookOpenReader}

@@ -9,8 +9,8 @@ import { CombatPlayerType } from '../../types/components/combatDetails/CombatPla
 import { PlayerDeathType } from '../../types/components/combatDetails/PlayerDeathType';
 import PlayerInformation from '../childs/PlayerInformation';
 import PersonalTabs from '../common/PersonalTabs';
-import DashboardProject from './dashboard/DashboardProject';
 import GeneralDetailsChart from './GeneralDetailsChart';
+import Dashboard from './dashboard/Dashboard';
 
 import "../../styles/detailsSpecificalCombat.scss";
 
@@ -31,7 +31,7 @@ const DetailsSpecificalCombat: React.FC = () => {
         isWin: false
     });
     const [combatPlayers, setCombatPlayers] = useState<CombatPlayerType[]>([]);
-    const [playersDeath, setPlayersDeath] = useState<PlayerDeathType[]>([]);
+    const [playersDeath, setPlayersDeath] = useState<PlayerDeathType[] | null>(null);
     const [selectedPlayers, setSelectedPlayers] = useState<CombatPlayerType[]>([]);
     const [showCommonDetails, setShowCommonDetails] = useState(false);
     const [showSearch, setShowSearch] = useState(false);
@@ -105,7 +105,7 @@ const DetailsSpecificalCombat: React.FC = () => {
         const deaths: PlayerDeathType[] = deathsResults.filter(result => result.data && result.data.length > 0).map(result => result.data[0]);
 
         setPlayersDeath(deaths);
-    };
+    }
 
     const cleanSearch = () => {
         if (filterContent.current) {
@@ -149,6 +149,11 @@ const DetailsSpecificalCombat: React.FC = () => {
                     <div>{details.name}</div>
                     <div className={`combat-number ${details.isWin ? 'win' : 'lose'}`}>{details.number}</div>
                 </div>
+                {playersDeath?.length === 0 &&
+                    <div className="no-deaths">
+                        <span>{t("ZeroDeaths")}</span>
+                    </div>
+                }
             </div>
             {showSearch &&
                 <div className="mb-3 search-people">
@@ -181,10 +186,10 @@ const DetailsSpecificalCombat: React.FC = () => {
                     {
                         id: 0,
                         header: t("Dashboard"),
-                        content: <DashboardProject
+                        content: <Dashboard
                             details={details}
                             combatPlayers={combatPlayers}
-                            playersDeath={playersDeath}
+                            playersDeath={playersDeath ? playersDeath : []}
                             getValueShortName={getValueShortName}
                         />
                     },

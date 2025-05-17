@@ -163,6 +163,17 @@
                 width: 110px;
             }
         }
+
+        .no-deaths {
+            display: flex;
+            align-items: center;
+
+            span {
+                padding: 5px 10px;
+                border-radius: 20px;
+                box-shadow: 2px 2px 2px 2px orange;
+            }
+        }
     }
 
     &__navigate {

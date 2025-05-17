@@ -25,7 +25,7 @@ const CombatGeneralDetails = ({ combatPlayer, detailsType }) => {
         }
 
         getGeneralDetails();
-    }, [])
+    }, []);
 
     const getDetailsAsync = async (combatPlayerId) => {
         const dataRender = await getGeneralListAsync(combatPlayerId, detailsType);

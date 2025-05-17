@@ -4,25 +4,26 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useLazyGetCombatsByCombatLogIdQuery } from '../../store/api/core/CombatParser.api';
+import { CombatType } from '../../types/components/combatDetails/CombatType';
 import Loading from '../Loading';
 import GeneralAnalysisItem from './GeneralAnalysisItem';
 
 import "../../styles/generalAnalysis.scss";
 
-const GeneralAnalysis = () => {
+const GeneralAnalysis: React.FC = () => {
     const fixedNumberUntil = 2;
     
     const { t } = useTranslation("combatDetails/generalAnalysis");
     const navigate = useNavigate();
 
-    const [combatLogId, setCombatLogId] = useState(0);
-    const [allUniqueCombats, setUniqueCombats] = useState([]);
+    const [combatLogId, setCombatLogId] = useState<number>(0);
+    const [allUniqueCombats, setUniqueCombats] = useState<Array<CombatType[]>>([]);
 
     const [getCombatsByCombatLogId] = useLazyGetCombatsByCombatLogIdQuery();
 
     useEffect(() => {
         const queryParams = new URLSearchParams(window.location.search);
-        const id = +queryParams.get("id");
+        const id: number = parseInt(queryParams.get("id") || '0');
         setCombatLogId(id);
 
         const getCombats = async () => {
@@ -34,7 +35,7 @@ const GeneralAnalysis = () => {
         }
     }, []);
 
-    const getCombatsAsync = async (id) => {
+    const getCombatsAsync = async (id: number) => {
         try {
             const combats = await getCombatsByCombatLogId(id);
             if (combats.data !== undefined) {
@@ -45,17 +46,17 @@ const GeneralAnalysis = () => {
         }
     }
 
-    const createListOfSimilarCombats = (combats) => {
-        const uniqueCombatList = [];
+    const createListOfSimilarCombats = (combats: CombatType[]) => {
+        let uniqueCombatList: Array<CombatType[]> = [];
         const uniqueNames = new Set();
 
         const umblockedCombatsArray = Object.assign([], combats);
-        const sortedCombats = umblockedCombatsArray.sort((a, b) => a.startDate.localeCompare(b.startDate));
+        const sortedCombats: CombatType[] = umblockedCombatsArray.sort((a: CombatType, b: CombatType) => a.startDate.localeCompare(b.startDate));
 
-        sortedCombats.forEach(combat => {
+        sortedCombats.forEach((combat: CombatType) => {
             if (!uniqueNames.has(combat.name)) {
                 uniqueNames.add(combat.name);
-                const foundCombats = sortedCombats.filter(x => x.name === combat.name);
+                const foundCombats: CombatType[] = sortedCombats.filter(x => x.name === combat.name);
                 uniqueCombatList.push(foundCombats);
             }
         });
@@ -63,7 +64,7 @@ const GeneralAnalysis = () => {
         setUniqueCombats(uniqueCombatList);
     }
 
-    const getValueShortName = (value) => {
+    const getValueShortName = (value: number) => {
         const thousands = value / 1000;
         const millions = value / 1000000;
 

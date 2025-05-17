@@ -76,14 +76,14 @@ const CombatDetails: React.FC = () => {
     }
 
     const getDetailsTypeName = () => {
-        switch (details.detailsType) {
-            case "DamageDone":
+        switch (+details.detailsType) {
+            case 0:
                 return t("Damage");
-            case "HealDone":
+            case 1:
                 return t("Healing");
-            case "DamageTaken":
+            case 2:
                 return t("DamageTaken");
-            case "ResourceRecovery":
+            case 3:
                 return t("ResourcesRecovery");
             default:
                 return "";

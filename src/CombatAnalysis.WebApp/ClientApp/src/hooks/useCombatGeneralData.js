@@ -46,8 +46,8 @@ const useCombatGeneralData = (combatPlayer, detailsType) => {
     const getGeneralListAsync = async () => {
         const data = await getPlayerGeneralDetailsAsync();
 
-        switch (detailsType) {
-            case "DamageDone":
+        switch (+detailsType) {
+            case 0:
                 return <DamageDoneGeneralHelper
                     generalData={data}
                     getProcentage={getProcentage}
@@ -55,7 +55,7 @@ const useCombatGeneralData = (combatPlayer, detailsType) => {
                     getValueShortName={getValueShortName}
                     getSpellValueProcentage={getSpellValueProcentage}
                 />
-            case "HealDone":
+            case 1:
                 return <HealDoneGeneralHelper
                     generalData={data}
                     getProcentage={getProcentage}
@@ -63,7 +63,7 @@ const useCombatGeneralData = (combatPlayer, detailsType) => {
                     getValueShortName={getValueShortName}
                     getSpellValueProcentage={getSpellValueProcentage}
                 />
-            case "DamageTaken":
+            case 2:
                 return <DamageTakenGeneralHelper
                     generalData={data}
                     getProcentage={getProcentage}
@@ -71,7 +71,7 @@ const useCombatGeneralData = (combatPlayer, detailsType) => {
                     getValueShortName={getValueShortName}
                     getSpellValueProcentage={getSpellValueProcentage}
                 />
-            case "ResourceRecovery":
+            case 3:
                 return <ResourceRecoveryGeneralHelper
                     generalData={data}
                     combatPlayer={combatPlayer}
@@ -91,17 +91,17 @@ const useCombatGeneralData = (combatPlayer, detailsType) => {
 
     const getPlayerGeneralDetailsAsync = async () => {
         let detailsResult = null;
-        switch (detailsType) {
-            case "DamageDone":
+        switch (+detailsType) {
+            case 0:
                 detailsResult = await getDamageDoneGeneralByCombatPlayerIdAsync(combatPlayer.id);
                 break;
-            case "HealDone":
+            case 1:
                 detailsResult = await getHealDoneGeneralByCombatPlayerIdAsync(combatPlayer.id);
                 break;
-            case "DamageTaken":
+            case 2:
                 detailsResult = await getDamageTakenGeneralByCombatPlayerIdAsync(combatPlayer.id);
                 break;
-            case "ResourceRecovery":
+            case 3:
                 detailsResult = await getResourceRecoveryGeneralByCombatPlayerIdAsync(combatPlayer.id);
                 break;
             default:

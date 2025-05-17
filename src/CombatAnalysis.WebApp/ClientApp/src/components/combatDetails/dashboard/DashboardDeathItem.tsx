@@ -1,10 +1,11 @@
 ﻿import { useEffect, useState } from "react";
 import { useTranslation } from 'react-i18next';
-import { useLazyGetDamageTakenByCombatPlayerIdQuery } from '../../store/api/combatParser/DamageTaken.api';
+import { useLazyGetDamageTakenByCombatPlayerIdQuery } from '../../../store/api/combatParser/DamageTaken.api';
+import { DashboardDeathItemProps } from "../../../types/components/combatDetails/dashboard/DashboardDeathItemProps";
 
-const minCount = 4;
+const minCount = 3;
 
-const DashboardDeathItem = ({ playersDeath, players }) => {
+const DashboardDeathItem: React.FC<DashboardDeathItemProps> = ({ playersDeath, combatPlayers }) => {
     const { t } = useTranslation("combatDetails/dashboard");
 
     const [getDamageTakenByCombatPlayerId] = useLazyGetDamageTakenByCombatPlayerIdQuery();
@@ -15,19 +16,10 @@ const DashboardDeathItem = ({ playersDeath, players }) => {
         if (!playersDeath || playersDeath.length === 0) {
             return;
         }
-    }, [playersDeath, players, getDamageTakenByCombatPlayerId]);
+    }, [playersDeath, combatPlayers, getDamageTakenByCombatPlayerId]);
 
     if (playersDeath === undefined) {
         return (<div>Loading...</div>);
-    }
-
-    if (playersDeath.length === 0) {
-        return (
-            <>
-                <div>{t("PlayersDied")}</div>
-                <div>{t("Empty")}</div>
-            </>
-        );
     }
 
     return (
@@ -37,7 +29,7 @@ const DashboardDeathItem = ({ playersDeath, players }) => {
                 {playersDeath?.slice(0, itemCount).map((death, index) => (
                     <li key={index} className="death-info__details">
                         <div>{death?.username}</div>
-                        <div>{death?.lastHitSpellOrItme}</div>
+                        <div>{death?.lastHitSpellOrItem}</div>
                         <div>{death?.lastHitValue}</div>
                     </li>
                 ))}
