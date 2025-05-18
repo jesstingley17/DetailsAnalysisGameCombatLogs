@@ -1,14 +1,17 @@
 import { memo, useEffect, useState } from "react";
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { CombatPlayerType } from "../../../types/components/combatDetails/CombatPlayerType";
 import { DashboardItemProps } from "../../../types/components/combatDetails/dashboard/DashboardItemProps";
 import DashboardMinDetails from './DashboardMinDetails';
 import TopPlayers from './TopPlayers';
 
-const DashboardItem: React.FC<DashboardItemProps> = ({ name, duration, details, combatPlayers, detailsType, getValueShortName }) => {
+const DashboardItem: React.FC<DashboardItemProps> = ({ name, details, duration, combatPlayers, detailsType, getValueShortName }) => {
     const minCount = 4;
 
     const { t } = useTranslation("combatDetails/dashboard");
+
+    const navigate = useNavigate();
 
     const [sum, setSum] = useState(0);
     const [itemCount, setItemCount] = useState(minCount);
@@ -68,6 +71,10 @@ const DashboardItem: React.FC<DashboardItemProps> = ({ name, duration, details, 
         return shortValue;
     }
 
+    const goToCombatGeneralDetails = (playerId: number): void => {
+        navigate(`/combat-details?id=${details.id}&playerId=${playerId}&detailsType=${detailsType}&combatLogId=${details.combatLogId}&name=${details.name}&tab=${0}&number=${details.number}&isWin=${details.isWin}`);
+    }
+
     return (
         <>
             <div className="title">
@@ -76,6 +83,7 @@ const DashboardItem: React.FC<DashboardItemProps> = ({ name, duration, details, 
             <TopPlayers
                 calculation={calculation}
                 calculationValuePerTime={calculationValuePerTime}
+                goToCombatGeneralDetails={goToCombatGeneralDetails}
                 getDetailsValue={getDetailsValue}
                 sortedPlayerData={sortedPlayerData}
                 detailsType={detailsType}
@@ -84,9 +92,10 @@ const DashboardItem: React.FC<DashboardItemProps> = ({ name, duration, details, 
                 <DashboardMinDetails
                     name={name}
                     calculation={calculation}
+                    calculationValuePerTime={calculationValuePerTime}
+                    goToCombatGeneralDetails={goToCombatGeneralDetails}
                     getDetailsValue={getDetailsValue}
                     sortedPlayerData={sortedPlayerData}
-                    details={details}
                     detailsType={detailsType}
                     itemCount={itemCount}
                     setItemCount={setItemCount}

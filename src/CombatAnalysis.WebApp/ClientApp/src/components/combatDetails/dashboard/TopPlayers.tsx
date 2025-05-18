@@ -1,11 +1,11 @@
 import { faStar } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { memo } from "react";
+import { useTranslation } from 'react-i18next';
 import { CombatPlayerType } from "../../../types/components/combatDetails/CombatPlayerType";
 import { TopPlayersProps } from '../../../types/components/combatDetails/dashboard/TopPlayersProps';
-import { useTranslation } from 'react-i18next';
 
-const TopPlayers: React.FC<TopPlayersProps> = ({ calculation, calculationValuePerTime, getDetailsValue, sortedPlayerData, detailsType }) => {
+const TopPlayers: React.FC<TopPlayersProps> = ({ calculation, calculationValuePerTime, goToCombatGeneralDetails, getDetailsValue, sortedPlayerData, detailsType }) => {
     const { t } = useTranslation("helpers/combatDetailsHelper");
 
     const dashboardDetailsType: any = {
@@ -61,7 +61,7 @@ const TopPlayers: React.FC<TopPlayersProps> = ({ calculation, calculationValuePe
                             />
                         }
                     </div>
-                    <div>{player.username.split('-')[0]}</div>
+                    <div className="username" onClick={() => goToCombatGeneralDetails(player.id)}>{player.username.split('-')[0]}</div>
                     <div className="top-players__values">
                         <div className="actual-value">{getDetailsValue(player)}</div>
                         <div className="player-contribution">{calculation(player, dashboardDetailsType[detailsType])}%</div>

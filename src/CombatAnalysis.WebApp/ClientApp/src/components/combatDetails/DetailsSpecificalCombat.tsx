@@ -33,7 +33,7 @@ const DetailsSpecificalCombat: React.FC = () => {
     const [combatPlayers, setCombatPlayers] = useState<CombatPlayerType[]>([]);
     const [playersDeath, setPlayersDeath] = useState<PlayerDeathType[] | null>(null);
     const [selectedPlayers, setSelectedPlayers] = useState<CombatPlayerType[]>([]);
-    const [showCommonDetails, setShowCommonDetails] = useState(false);
+    const [showCommonStatistics, setShowCommonStatistics] = useState(false);
     const [showSearch, setShowSearch] = useState(false);
 
     const maxWidth = 425;
@@ -120,10 +120,10 @@ const DetailsSpecificalCombat: React.FC = () => {
         const millions = value / 1000000;
 
         if (millions >= 1) {
-            return `${millions.toFixed(fixedNumberUntil)} M`;
+            return `${millions.toFixed(fixedNumberUntil)}M`;
         }
         else if (thousands >= 1) {
-            return `${thousands.toFixed(fixedNumberUntil)} K`;
+            return `${thousands.toFixed(fixedNumberUntil)}K`;
         }
 
         return `${value}`;
@@ -171,11 +171,11 @@ const DetailsSpecificalCombat: React.FC = () => {
             }
             {(combatPlayers.length > 0 && screenSize.width > maxWidth) &&
                 <div className="form-check form-switch">
-                    <input className="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" onChange={() => setShowCommonDetails((item) => !item)} />
-                    <label className="form-check-label" htmlFor="flexSwitchCheckChecked">{t("ShowCommonStatistics")}</label>
+                    <input className="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" onChange={() => setShowCommonStatistics((item) => !item)} />
+                    <label className="form-check-label" htmlFor="flexSwitchCheckChecked">{showCommonStatistics ? t("HideCommonStatistics") : t("ShowCommonStatistics")}</label>
                 </div>
             }
-            {showCommonDetails &&
+            {showCommonStatistics &&
                 <GeneralDetailsChart
                     combatPlayers={selectedPlayers}
                 />

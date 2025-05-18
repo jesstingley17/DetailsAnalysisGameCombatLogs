@@ -3,8 +3,8 @@ import { CombatPlayerType } from "../CombatPlayerType";
 
 export interface DashboardItemProps {
     name: string;
-    duration: number;
     details: CombatDetailsType;
+    duration: number;
     combatPlayers: CombatPlayerType[];
     detailsType: number;
     getValueShortName: (value: number) => string;

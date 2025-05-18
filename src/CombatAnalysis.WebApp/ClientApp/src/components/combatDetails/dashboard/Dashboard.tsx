@@ -65,8 +65,8 @@ const Dashboard: React.FC<DashboardProps> = ({ details, combatPlayers, playersDe
                     <li key={index} className="dashboard__statistics">
                         <DashboardItem
                             name={name}
-                            duration={duration}
                             details={details}
+                            duration={duration}
                             combatPlayers={combatPlayers}
                             detailsType={index}
                             getValueShortName={getValueShortName}
