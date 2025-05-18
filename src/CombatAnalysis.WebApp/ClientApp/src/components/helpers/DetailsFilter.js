@@ -1,13 +1,12 @@
 ﻿import { faRotate } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React from 'react';
 
 const DetailsFilter = ({ combatPlayerId, setSelectedFilter, selectedFilter, filter, filterName, useGetUniqueFilterValuesQuery, t }) => {
     const defaultFilter = { filter: "None", value: -1 };
 
     const { data: uniqueFilterValues, isLoading } = useGetUniqueFilterValuesQuery({ combatPlayerId, filter });
 
-    const handleSelecteFilter = (e) => {
+    const handleSelectedFilter = (e) => {
         if (e.target.value === "All") {
             setSelectedFilter(defaultFilter);
         }
@@ -30,7 +29,7 @@ const DetailsFilter = ({ combatPlayerId, setSelectedFilter, selectedFilter, filt
                     title={t("FiltersReset")}
                 />
             </div>
-            <select className="form-control" value={selectedFilter.value} onChange={handleSelecteFilter}>
+            <select className="form-control" value={selectedFilter.value} onChange={handleSelectedFilter}>
                 <option key="-1" value="All">{t("All")}</option>
                 {uniqueFilterValues?.map((target, index) => (
                     <option key={index} value={target}>{target}</option>

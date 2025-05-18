@@ -3,29 +3,30 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { DetailsItemProps } from '../../../types/components/combatDetails/details/DetailsItemProps';
 
-const CommonPlayerInform = ({ player, details, getValueShortName }) => {
+const DetailsItem: React.FC<DetailsItemProps> = ({ player, details, getValueShortName }) => {
     const { t } = useTranslation("childs/playerInformation");
 
     const navigate = useNavigate();
 
-    const navigateToDetails = (detailsType) => {
+    const navigateToDetails = (detailsType: number) => {
         navigate(`/combat-details?id=${details.id}&playerId=${player.id}&detailsType=${detailsType}&combatLogId=${details.combatLogId}&name=${details.name}&tab=${1}&number=${details.number}&isWin=${details.isWin}`);
     }
 
     return (
-        <ul className="player-information">
+        <ul className="details__item">
             <li className="list-group-item">
                 <FontAwesomeIcon
                     icon={faKhanda}
                     className="list-group-item__player-statistic-item"
-                    title={t("Damage")}
+                    title={t("Damage") || ""}
                 />
                 <div>{getValueShortName(player.damageDone)}</div>
                 {player.damageDone > 0 &&
                     <div className="btn-shadow"
                         onClick={() => navigateToDetails(0)}
-                        title={t("OpenDamageAnalyzing")}>
+                        title={t("OpenDamageAnalyzing") || ""}>
                         <FontAwesomeIcon
                             icon={faBookOpenReader}
                         />
@@ -37,13 +38,13 @@ const CommonPlayerInform = ({ player, details, getValueShortName }) => {
                 <FontAwesomeIcon
                     icon={faPlusCircle}
                     className="list-group-item__player-statistic-item"
-                    title={t("Healing")}
+                    title={t("Healing") || ""}
                 />
                 <div>{getValueShortName(player.healDone)}</div>
                 {player.healDone > 0 &&
                     <div className="btn-shadow"
                         onClick={() => navigateToDetails(1)}
-                        title={t("OpenHealingAnalyzing")}>
+                        title={t("OpenHealingAnalyzing") || ""}>
                         <FontAwesomeIcon
                             icon={faBookOpenReader}
                         />
@@ -55,13 +56,13 @@ const CommonPlayerInform = ({ player, details, getValueShortName }) => {
                 <FontAwesomeIcon
                     icon={faShieldHalved}
                     className="list-group-item__player-statistic-item"
-                    title={t("DamageTaken")}
+                    title={t("DamageTaken") || ""}
                 />
                 <div>{getValueShortName(player.damageTaken)}</div>
                 {player.damageTaken > 0 &&
                     <div className="btn-shadow"
                         onClick={() => navigateToDetails(2)}
-                        title={t("OpenDamageTakenAnalyzing")}>
+                        title={t("OpenDamageTakenAnalyzing") || ""}>
                         <FontAwesomeIcon
                             icon={faBookOpenReader}
                         />
@@ -73,13 +74,13 @@ const CommonPlayerInform = ({ player, details, getValueShortName }) => {
                 <FontAwesomeIcon
                     icon={faBolt}
                     className="list-group-item__player-statistic-item"
-                    title={t("ResourcesRecovery")}
+                    title={t("ResourcesRecovery") || ""}
                 />
                 <div>{getValueShortName(player.resourcesRecovery)}</div>
                 {player.resourcesRecovery > 0 &&
                     <div className="btn-shadow"
                         onClick={() => navigateToDetails(3)}
-                        title={t("OpenResourcesRecoveryAnalyzing")}>
+                        title={t("OpenResourcesRecoveryAnalyzing") || ""}>
                         <FontAwesomeIcon
                             icon={faBookOpenReader}
                         />
@@ -91,7 +92,7 @@ const CommonPlayerInform = ({ player, details, getValueShortName }) => {
                 <FontAwesomeIcon
                     icon={faUser}
                     className="list-group-item__player-statistic-item"
-                    title={t("AverageItemLevel")}
+                    title={t("AverageItemLevel") || ""}
                 />
                 <div>{player.averageItemLevel}</div>
             </li>
@@ -99,4 +100,4 @@ const CommonPlayerInform = ({ player, details, getValueShortName }) => {
     );
 }
 
-export default memo(CommonPlayerInform);
+export default memo(DetailsItem);

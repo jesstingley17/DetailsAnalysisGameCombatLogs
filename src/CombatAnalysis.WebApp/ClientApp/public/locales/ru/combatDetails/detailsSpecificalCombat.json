@@ -2,6 +2,7 @@
   "Damage": "Урон",
   "Healing": "Исцеление",
   "DamageTaken": "Полученный урон",
+  "ResourcesRecovery": "Восстановлено ресурсов",
   "Players": "Игроки",
   "SelectCombat": "Выбрать бой",
   "ShowCommonStatistics": "Показать общую статистику",
@@ -12,5 +13,7 @@
   "Search": "Поиск",
   "Dashboard": "Обзор",
   "Details": "Подробнее",
-  "ZeroDeaths": "0 смертей"
+  "ZeroDeaths": "0 смертей",
+  "Username": "Никнейм",
+  "Filter": "Фильтр"
 }

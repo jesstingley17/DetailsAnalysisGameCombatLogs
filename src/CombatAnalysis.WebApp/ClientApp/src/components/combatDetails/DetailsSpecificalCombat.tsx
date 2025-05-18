@@ -7,9 +7,9 @@ import { useLazyGetCombatPlayersByCombatIdQuery, useLazyGetPlayersDeathByPlayerI
 import { CombatDetailsType } from '../../types/components/combatDetails/CombatDetailsType';
 import { CombatPlayerType } from '../../types/components/combatDetails/CombatPlayerType';
 import { PlayerDeathType } from '../../types/components/combatDetails/PlayerDeathType';
-import PlayerInformation from '../childs/PlayerInformation';
+import Details from './details/Details';
 import PersonalTabs from '../common/PersonalTabs';
-import GeneralDetailsChart from './GeneralDetailsChart';
+import DetailsSpecificalCombatChart from './DetailsSpecificalCombatChart';
 import Dashboard from './dashboard/Dashboard';
 
 import "../../styles/detailsSpecificalCombat.scss";
@@ -176,7 +176,7 @@ const DetailsSpecificalCombat: React.FC = () => {
                 </div>
             }
             {showCommonStatistics &&
-                <GeneralDetailsChart
+                <DetailsSpecificalCombatChart
                     combatPlayers={selectedPlayers}
                 />
             }
@@ -196,10 +196,11 @@ const DetailsSpecificalCombat: React.FC = () => {
                     {
                         id: 1,
                         header: t("Details"),
-                        content: <PlayerInformation
+                        content: <Details
                             combatPlayers={selectedPlayers}
                             details={details}
                             getValueShortName={getValueShortName}
+                            t={t}
                         />
                     }
                 ]}

@@ -1,4 +1,4 @@
-﻿import React, { memo, useEffect, useState } from 'react';
+﻿import { memo, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useCombatDetailsData from '../../hooks/useCombatDetailsData';
 

@@ -1,9 +1,10 @@
 ﻿import { faCopy, faFire, faFlask, faHands, faPooStorm, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import useTime from '../../hooks/useTime';
 import {
-    useGetDamageDoneCountByFilterQuery, useGetDamageDoneByFilterQuery,
+    useGetDamageDoneByFilterQuery,
+    useGetDamageDoneCountByFilterQuery,
     useGetDamageDoneUniqueFilterValuesQuery
 } from '../../store/api/combatParser/DamageDone.api';
 import DetailsFilter from './DetailsFilter';

@@ -2,6 +2,7 @@
   "Damage": "Damage",
   "Healing": "Healing",
   "DamageTaken": "Damage taken",
+  "ResourcesRecovery": "Resources recovery",
   "Players": "Players",
   "SelectCombat": "Select combat",
   "ShowCommonStatistics": "Show common statistics",
@@ -12,5 +13,7 @@
   "Search": "Search",
   "Dashboard": "Dashboard",
   "Details": "Details",
-  "ZeroDeaths": "0 deaths"
+  "ZeroDeaths": "0 deaths",
+  "Username": "Username",
+  "Filter": "Filter"
 }
