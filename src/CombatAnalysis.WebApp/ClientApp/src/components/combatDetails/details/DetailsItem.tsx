@@ -11,7 +11,7 @@ const DetailsItem: React.FC<DetailsItemProps> = ({ player, details, getValueShor
     const navigate = useNavigate();
 
     const navigateToDetails = (detailsType: number) => {
-        navigate(`/combat-details?id=${details.id}&playerId=${player.id}&detailsType=${detailsType}&combatLogId=${details.combatLogId}&name=${details.name}&tab=${1}&number=${details.number}&isWin=${details.isWin}`);
+        navigate(`/combat-details?id=${details.id}&playerId=${player.id}&detailsType=${detailsType}&combatLogId=${details.combatLogId}&name=${details.name}&number=${details.number}&isWin=${details.isWin}`);
     }
 
     return (

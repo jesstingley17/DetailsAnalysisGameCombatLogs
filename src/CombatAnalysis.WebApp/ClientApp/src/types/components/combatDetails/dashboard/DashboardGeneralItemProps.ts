@@ -1,7 +1,7 @@
 import { CombatDetailsType } from "../CombatDetailsType";
 import { CombatPlayerType } from "../CombatPlayerType";
 
-export interface DashboardItemProps {
+export interface DashboardGeneralItemProps {
     name: string;
     details: CombatDetailsType;
     duration: number;

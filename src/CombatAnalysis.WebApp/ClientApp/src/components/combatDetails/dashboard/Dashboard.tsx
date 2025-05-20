@@ -1,10 +1,15 @@
 import { memo, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import {
+    useLazyGetDamageDoneDamgeByEachTargetQuery
+} from '../../../store/api/combatParser/DamageDone.api';
 import { useLazyGetCombatByIdQuery } from '../../../store/api/core/CombatParser.api';
 import { CombatType } from "../../../types/components/combatDetails/CombatType";
+import { CombatTargetType } from '../../../types/components/combatDetails/dashboard/CombatTargetType';
 import { DashboardProps } from "../../../types/components/combatDetails/dashboard/DashboardProps";
 import DashboardDeathItem from "./DashboardDeathItem";
-import DashboardItem from "./DashboardItem";
+import DashboardGeneralItem from "./DashboardGeneralItem";
+import DashboardTargetItem from "./DashboardTargetItem";
 
 import "../../../styles/dashboard.scss";
 
@@ -15,6 +20,9 @@ const Dashboard: React.FC<DashboardProps> = ({ details, combatPlayers, playersDe
 
     const [combat, setCombat] = useState<CombatType | null>(null);
     const [duration, setDuration] = useState<number>(1);
+    const [targets, setTargets] = useState<Array<CombatTargetType[]>>([]);
+
+    const [getDamageDoneDamgeByEachTarget] = useLazyGetDamageDoneDamgeByEachTargetQuery();
 
     const [getCombatById] = useLazyGetCombatByIdQuery();
 
@@ -42,6 +50,16 @@ const Dashboard: React.FC<DashboardProps> = ({ details, combatPlayers, playersDe
         }
     }, [combat]);
 
+    useEffect(() => {
+        if (combatPlayers.length > 0) {
+            const getByTarget = async () => {
+                await getByTargetAsync();
+            }
+
+            getByTarget();
+        }
+    }, [combatPlayers]);
+
     const getCombatDurationSeconds = (): number => {
         const duration = combat?.duration.split(':') || [];
 
@@ -54,6 +72,13 @@ const Dashboard: React.FC<DashboardProps> = ({ details, combatPlayers, playersDe
         return totalSeconds;
     }
 
+    const getByTargetAsync = async () => {
+        const response = await getDamageDoneDamgeByEachTarget(details.id);
+        if (response.data !== undefined) {
+            setTargets(response.data);
+        }
+    }
+
     if (!combat || combatPlayers.length === 0) {
         return (<></>);
     }
@@ -63,7 +88,7 @@ const Dashboard: React.FC<DashboardProps> = ({ details, combatPlayers, playersDe
             <ul className="items">
                 {dashboardDetailsType.map((name, index) => (
                     <li key={index} className="dashboard__statistics">
-                        <DashboardItem
+                        <DashboardGeneralItem
                             name={name}
                             details={details}
                             duration={duration}
@@ -81,6 +106,20 @@ const Dashboard: React.FC<DashboardProps> = ({ details, combatPlayers, playersDe
                         />
                     </li>
                 }
+            </ul>
+            <ul className="items">
+                {targets?.map((combatTarget, index) => (
+                    <li key={index} className="dashboard__statistics">
+                        <DashboardTargetItem
+                            combatTarget={combatTarget}
+                            details={details}
+                            duration={duration}
+                            combatPlayers={combatPlayers}
+                            detailsType={index}
+                            getValueShortName={getValueShortName}
+                        />
+                    </li>
+                ))}
             </ul>
         </div>
     );

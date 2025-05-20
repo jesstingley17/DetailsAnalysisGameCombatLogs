@@ -17,9 +17,15 @@ $mobile-max-width: 425px;
     align-items: center;
     flex-direction: $direction;
 }
+@mixin flex-start($direction: row) {
+    display: flex;
+    justify-content: center;
+    align-items: start;
+    flex-direction: $direction;
+}
 
 .dashboard {
-    @include flex-center(row);
+    @include flex-start(column);
 
     .closed-items {
         @include flex-center;
@@ -48,6 +54,7 @@ $mobile-max-width: 425px;
         display: flex;
         justify-content: flex-start;
         gap: 50px 10px;
+        width: 85vw;
         overflow: auto;
     }
 

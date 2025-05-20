@@ -82,6 +82,23 @@ public class DamageDoneController : ControllerBase
         }
     }
 
+    [HttpGet("getDamageByEachTarget/{combatId}")]
+    public async Task<IActionResult> GetDamageByEachTarget(int combatId)
+    {
+        try
+        {
+            var damageByEachTarget = await _filterService.GetDamageByEachTargetAsync(combatId);
+
+            return Ok(damageByEachTarget);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error find targts: {Message}", ex.Message);
+
+            return BadRequest();
+        }
+    }
+
     [HttpGet("getByTarget")]
     public async Task<IActionResult> GetByTarget(int combatPlayerId, string target, int page, int pageSize)
     {
@@ -90,6 +107,23 @@ public class DamageDoneController : ControllerBase
             var damageDones = await _filterService.GetTargetByCombatPlayerIdAsync(combatPlayerId, target, page, pageSize);
 
             return Ok(damageDones);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error find damage done by target: {Message}", ex.Message);
+
+            return BadRequest();
+        }
+    }
+
+    [HttpGet("getValueByTarget")]
+    public async Task<IActionResult> GetValueByTarget(int combatPlayerId, string target)
+    {
+        try
+        {
+            var valueByTarget = await _filterService.GetTargetValueByCombatPlayerIdAsync(combatPlayerId, target);
+
+            return Ok(valueByTarget);
         }
         catch (Exception ex)
         {

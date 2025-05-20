@@ -26,7 +26,6 @@ const DetailsSpecificalCombat: React.FC = () => {
         detailsType: '',
         combatLogId: 0,
         name: '',
-        tab: 0,
         number: 0,
         isWin: false
     });
@@ -54,7 +53,6 @@ const DetailsSpecificalCombat: React.FC = () => {
         const detailsType: string = queryParams.get("detailsType") || '';
         const combatLogId: number = parseInt(queryParams.get("combatLogId") || '0');
         const name: string = queryParams.get("name") || '';
-        const tab: number = parseInt(queryParams.get("tab") || '0');
         const number: number = parseInt(queryParams.get("number") || '0');
         const isWin: boolean = queryParams.get("isWin") === 'true';
 
@@ -63,7 +61,6 @@ const DetailsSpecificalCombat: React.FC = () => {
             detailsType,
             combatLogId,
             name,
-            tab,
             number,
             isWin,
         });
@@ -181,7 +178,7 @@ const DetailsSpecificalCombat: React.FC = () => {
                 />
             }
             <PersonalTabs
-                tab={details.tab}
+                tab={0}
                 tabs={[
                     {
                         id: 0,

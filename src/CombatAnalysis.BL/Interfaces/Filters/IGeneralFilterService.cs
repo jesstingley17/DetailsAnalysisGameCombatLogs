@@ -1,4 +1,5 @@
-﻿using CombatAnalysis.DAL.Interfaces.Entities;
+﻿using CombatAnalysis.BL.DTO;
+using CombatAnalysis.DAL.Interfaces.Entities;
 
 namespace CombatAnalysis.BL.Interfaces.Filters;
 
@@ -10,6 +11,10 @@ public interface IGeneralFilterService<TModel>
     Task<int> CountTargetsByCombatPlayerIdAsync(int combatPlayerId, string target);
 
     Task<IEnumerable<TModel>> GetTargetByCombatPlayerIdAsync(int combatPlayerId, string target, int page, int pageSize);
+
+    Task<IEnumerable<List<CombatTargetDto>>> GetDamageByEachTargetAsync(int combatId);
+
+    Task<int> GetTargetValueByCombatPlayerIdAsync(int combatPlayerId, string target);
 
     Task<IEnumerable<string>> GetCreatorNamesByCombatPlayerIdAsync(int combatPlayerId);
 

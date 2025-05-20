@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CombatAnalysis.BL.DTO;
 using CombatAnalysis.BL.Interfaces.Filters;
 using CombatAnalysis.DAL.Interfaces.Entities;
 using CombatAnalysis.DAL.Interfaces.Filters;
@@ -38,6 +39,21 @@ internal class GeneralFilterService<TModel, TModelMap> : IGeneralFilterService<T
         var resultMap = _mapper.Map<IEnumerable<TModel>>(result);
 
         return resultMap;
+    }
+
+    public async Task<IEnumerable<List<CombatTargetDto>>> GetDamageByEachTargetAsync(int combatId)
+    {
+        var damageByEachTarget = await _repository.GetDamageByEachTargetAsync(combatId);
+        var damageByEachTargetMap = _mapper.Map<IEnumerable<List<CombatTargetDto>>>(damageByEachTarget);
+
+        return damageByEachTargetMap;
+    }
+
+    public async Task<int> GetTargetValueByCombatPlayerIdAsync(int combatPlayerId, string target)
+    {
+        var result = await _repository.GetTargetValueByCombatPlayerIdAsync(combatPlayerId, target);
+
+        return result;
     }
 
     public async Task<IEnumerable<string>> GetCreatorNamesByCombatPlayerIdAsync(int combatPlayerId)

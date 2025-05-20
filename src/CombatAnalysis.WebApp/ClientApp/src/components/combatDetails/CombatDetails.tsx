@@ -24,7 +24,6 @@ const CombatDetails: React.FC = () => {
         detailsType: '',
         combatLogId: 0,
         name: '',
-        tab: 0,
         number: 0,
         isWin: false
     });
@@ -38,7 +37,6 @@ const CombatDetails: React.FC = () => {
         const detailsType: string = queryParams.get("detailsType") || '';
         const combatLogId: number = parseInt(queryParams.get("combatLogId") || '0');
         const name: string = queryParams.get("name") || '';
-        const tab: number = parseInt(queryParams.get("tab") || '0');
         const number: number = parseInt(queryParams.get("number") || '0');
         const isWin: boolean = queryParams.get("isWin") === 'true';
 
@@ -50,7 +48,6 @@ const CombatDetails: React.FC = () => {
             detailsType,
             combatLogId,
             name,
-            tab,
             number,
             isWin,
         });
@@ -99,7 +96,7 @@ const CombatDetails: React.FC = () => {
             <div className="general-details__navigate">
                 <div className="player">
                     <div className="btn-shadow select-another-player"
-                        onClick={() => navigate(`/details-specifical-combat?id=${details.id}&combatLogId=${details.combatLogId}&name=${details.name}&tab=${details.tab}&number=${details.number}&isWin=${details.isWin}`)}>
+                        onClick={() => navigate(`/details-specifical-combat?id=${details.id}&combatLogId=${details.combatLogId}&name=${details.name}&number=${details.number}&isWin=${details.isWin}`)}>
                         <FontAwesomeIcon
                             icon={faDeleteLeft}
                         />
@@ -139,7 +136,7 @@ const CombatDetails: React.FC = () => {
                     detailsType={details.detailsType}
                 />
                 : <CombatMoreDetails
-                    combatPlayerId={details.id}
+                    combatPlayerId={combatPlayer.id}
                     detailsType={details.detailsType}
                 />
             }

@@ -16,10 +16,6 @@ const Details: React.FC<DetailsProps> = ({ combatPlayers, details, getValueShort
 
     useEffect(() => {
         filter();
-    }, []);
-
-    useEffect(() => {
-        filter();
     }, [filterValue]);
 
     const compare = (playerA: any, playerB: any) => {

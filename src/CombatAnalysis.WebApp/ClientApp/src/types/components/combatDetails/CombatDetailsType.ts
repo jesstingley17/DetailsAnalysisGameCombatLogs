@@ -3,7 +3,6 @@ export interface CombatDetailsType {
     detailsType: string;
     combatLogId: number;
     name: string;
-    tab: number;
     number: number;
     isWin: boolean;
 }

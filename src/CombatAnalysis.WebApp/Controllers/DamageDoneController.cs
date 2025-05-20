@@ -113,6 +113,32 @@ public class DamageDoneController : ControllerBase
         }
     }
 
+    [HttpGet("getDamageByEachTarget/{combatId}")]
+    public async Task<IActionResult> GetDamageByEachTarget(int combatId)
+    {
+        try
+        {
+            var response = await _httpClient.GetAsync($"DamageDone/getDamageByEachTarget/{combatId}");
+            response.EnsureSuccessStatusCode();
+
+            var damageByEachTarget = await response.Content.ReadFromJsonAsync<IEnumerable<List<CombatTargetModel>>>();
+
+            return Ok(damageByEachTarget);
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "HTTP request error: {Message}", ex.Message);
+
+            return BadRequest();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An unexpected error occurred: {Message}", ex.Message);
+
+            return BadRequest();
+        }
+    }
+
     [HttpGet("getByFilter")]
     public async Task<IActionResult> GetByFilter(int combatPlayerId, DetailsFilterType filter, string filterValue, int page, int pageSize)
     {
@@ -142,6 +168,32 @@ public class DamageDoneController : ControllerBase
             var damageDones = await response.Content.ReadFromJsonAsync<IEnumerable<DamageDoneModel>>();
 
             return Ok(damageDones);
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "HTTP request error: {Message}", ex.Message);
+
+            return BadRequest();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An unexpected error occurred: {Message}", ex.Message);
+
+            return BadRequest();
+        }
+    }
+
+    [HttpGet("getValueByTarget")]
+    public async Task<IActionResult> GetValueByTarget(int combatPlayerId, string target)
+    {
+        try
+        {
+            var response = await _httpClient.GetAsync($"DamageDone/getValueByTarget?combatPlayerId={combatPlayerId}&target={target}");
+            response.EnsureSuccessStatusCode();
+
+            var valueByTarget = await response.Content.ReadAsStringAsync();
+
+            return Ok(valueByTarget);
         }
         catch (HttpRequestException ex)
         {

@@ -2,11 +2,10 @@ import { memo, useEffect, useState } from "react";
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { CombatPlayerType } from "../../../types/components/combatDetails/CombatPlayerType";
-import { DashboardItemProps } from "../../../types/components/combatDetails/dashboard/DashboardItemProps";
+import { DashboardTargetItemProps } from "../../../types/components/combatDetails/dashboard/DashboardTargetItemProps";
 import DashboardMinDetails from './DashboardMinDetails';
-import TopPlayers from './TopPlayers';
 
-const DashboardItem: React.FC<DashboardItemProps> = ({ name, details, duration, combatPlayers, detailsType, getValueShortName }) => {
+const DashboardTargetItem: React.FC<DashboardTargetItemProps> = ({ combatTarget, details, duration, combatPlayers, detailsType, getValueShortName }) => {
     const minCount = 4;
 
     const { t } = useTranslation("combatDetails/dashboard");
@@ -78,19 +77,19 @@ const DashboardItem: React.FC<DashboardItemProps> = ({ name, details, duration, 
     return (
         <>
             <div className="title">
-                <div>{name}</div>
+                <div>{combatTarget[0].target}</div>
             </div>
-            <TopPlayers
-                calculation={calculation}
-                calculationValuePerTime={calculationValuePerTime}
-                goToCombatGeneralDetails={goToCombatGeneralDetails}
-                getDetailsValue={getDetailsValue}
-                sortedPlayerData={sortedPlayerData}
-                detailsType={detailsType}
-            />
+            <ul>
+                {combatTarget.map(item => (
+                    <li>
+                        <div>{item.username}</div>
+                        <div>{item.sum}</div>
+                    </li>
+                ))}
+            </ul>
             {itemCount !== minCount &&
                 <DashboardMinDetails
-                    name={name}
+                    name={combatTarget[0].target}
                     calculation={calculation}
                     calculationValuePerTime={calculationValuePerTime}
                     goToCombatGeneralDetails={goToCombatGeneralDetails}
@@ -109,4 +108,4 @@ const DashboardItem: React.FC<DashboardItemProps> = ({ name, details, duration, 
     );
 }
 
-export default memo(DashboardItem);
+export default memo(DashboardTargetItem);
