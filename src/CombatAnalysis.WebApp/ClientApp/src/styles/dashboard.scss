@@ -205,6 +205,7 @@ $mobile-max-width: 425px;
 
         .top-players {
             display: flex;
+            justify-content: center;
             gap: 10px;
             width: 100%;
 
@@ -219,7 +220,7 @@ $mobile-max-width: 425px;
                 cursor: default;
                 animation-name: top-players;
                 animation-duration: 2s;
-                width: 100%;
+                min-width: 33%;
 
                 .stars {
                     display: flex;

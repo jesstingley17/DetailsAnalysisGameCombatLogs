@@ -46,25 +46,7 @@ internal class GeneralFilterRepositroy<TModel>(CombatParserSQLContext context) :
     public async Task<IEnumerable<List<CombatTarget>>> GetDamageByEachTargetAsync(int combatId)
     {
         var damageByEachTarget = new List<List<CombatTarget>>();
-        var targets = await _context.Set<Combat>()
-                        .Where(x => x.Id == combatId)
-                        .Join(_context.Set<CombatPlayer>(),
-                            x => x.Id,
-                            u => u.CombatId,
-                            (x, u) => new
-                            {
-                                u.Id,
-                            })
-                        .Join(_context.Set<DamageDone>(),
-                            x => x.Id,
-                            u => u.CombatPlayerId,
-                            (x, u) => new
-                            {
-                                u.Target
-                            })
-                        .Distinct()
-                        .Select(x => x.Target)
-                        .ToListAsync();
+        var targets = await GetCombatTargetsAsync(combatId);
 
         foreach (var item in targets)
         {
@@ -90,6 +72,7 @@ internal class GeneralFilterRepositroy<TModel>(CombatParserSQLContext context) :
                         .Where(x => x.Target == item)
                         .GroupBy(x => x.Username)
                         .Select(x => new CombatTarget { Username = x.Key, Target = item, Sum = x.Sum(y => y.Value) })
+                        .OrderByDescending(x => x.Sum)
                         .ToListAsync();
 
             damageByEachTarget.Add(sum);
@@ -170,5 +153,30 @@ internal class GeneralFilterRepositroy<TModel>(CombatParserSQLContext context) :
                      .ToListAsync();
 
         return values;
+    }
+
+    private async Task<List<string>> GetCombatTargetsAsync(int combatId)
+    {
+        var targets = await _context.Set<Combat>()
+                .Where(x => x.Id == combatId)
+                .Join(_context.Set<CombatPlayer>(),
+                    x => x.Id,
+                    u => u.CombatId,
+                    (x, u) => new
+                    {
+                        u.Id,
+                    })
+                .Join(_context.Set<DamageDone>(),
+                    x => x.Id,
+                    u => u.CombatPlayerId,
+                    (x, u) => new
+                    {
+                        u.Target
+                    })
+                .Distinct()
+                .Select(x => x.Target)
+                .ToListAsync();
+
+        return targets;
     }
 }

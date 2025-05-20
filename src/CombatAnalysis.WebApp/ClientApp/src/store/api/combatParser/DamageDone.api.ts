@@ -36,7 +36,7 @@ export const DamageDoneApi = CombatParserApi.injectEndpoints({
                 url: `/DamageDone/getValueByTarget?combatPlayerId=${combatPlayerId}&target=${target}`,
             }),
         }),
-        getDamageDoneDamgeByEachTarget: builder.query<Array<CombatTargetType[]>, number>({
+        getDamageDoneDamageByEachTarget: builder.query<Array<CombatTargetType[]>, number>({
             query: (combatId) => ({
                 url: `/DamageDone/getDamageByEachTarget/${combatId}`,
             }),
@@ -62,7 +62,7 @@ export const {
     useGetDamageDoneValueByTargetQuery,
     useLazyGetDamageDoneValueByTargetQuery,
     useGetDamageDoneByFilterQuery,
-    useLazyGetDamageDoneDamgeByEachTargetQuery,
+    useLazyGetDamageDoneDamageByEachTargetQuery,
     useGetDamageDoneCountByFilterQuery,
     useGetDamageDoneGeneralByCombatPlayerIdQuery,
     useLazyGetDamageDoneGeneralByCombatPlayerIdQuery,

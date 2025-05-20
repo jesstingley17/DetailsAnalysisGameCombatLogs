@@ -93,7 +93,7 @@ public class DamageDoneController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error find targts: {Message}", ex.Message);
+            _logger.LogError(ex, "Error find damage done by targets: {Message}", ex.Message);
 
             return BadRequest();
         }

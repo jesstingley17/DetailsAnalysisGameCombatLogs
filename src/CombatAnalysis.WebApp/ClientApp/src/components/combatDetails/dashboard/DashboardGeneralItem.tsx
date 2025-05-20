@@ -53,9 +53,9 @@ const DashboardGeneralItem: React.FC<DashboardGeneralItemProps> = ({ name, detai
     }
 
     const calculateSum = (key: string): number => {
-        const reducedPlayers = combatPlayers.reduce((acc, player: any) => acc + player[key], 0);
+        const sum = combatPlayers.reduce((acc, player: any) => acc + player[key], 0);
 
-        return reducedPlayers;
+        return sum;
     }
 
     const sortByKey = (players: CombatPlayerType[], key: string): CombatPlayerType[] => {

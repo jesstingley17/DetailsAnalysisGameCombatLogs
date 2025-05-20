@@ -6,18 +6,12 @@ using CombatAnalysis.DAL.Interfaces.Filters;
 
 namespace CombatAnalysis.BL.Services.Filters;
 
-internal class GeneralFilterService<TModel, TModelMap> : IGeneralFilterService<TModel>
+internal class GeneralFilterService<TModel, TModelMap>(IGeneralFilter<TModelMap> repository, IMapper mapper) : IGeneralFilterService<TModel>
     where TModel : class, IGeneralFilterEntity
     where TModelMap : class, IGeneralFilterEntity
 {
-    private readonly IMapper _mapper;
-    private readonly IGeneralFilter<TModelMap> _repository;
-
-    public GeneralFilterService(IGeneralFilter<TModelMap> repository, IMapper mapper)
-    {
-        _repository = repository;
-        _mapper = mapper;
-    }
+    private readonly IMapper _mapper = mapper;
+    private readonly IGeneralFilter<TModelMap> _repository = repository;
 
     public async Task<IEnumerable<string>> GetTargetNamesByCombatPlayerIdAsync(int combatPlayerId)
     {

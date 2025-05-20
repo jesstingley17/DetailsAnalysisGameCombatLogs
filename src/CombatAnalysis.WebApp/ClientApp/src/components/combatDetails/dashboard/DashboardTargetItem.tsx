@@ -1,12 +1,13 @@
 import { memo, useEffect, useState } from "react";
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { CombatPlayerType } from "../../../types/components/combatDetails/CombatPlayerType";
+import { CombatTargetType } from "../../../types/components/combatDetails/dashboard/CombatTargetType";
 import { DashboardTargetItemProps } from "../../../types/components/combatDetails/dashboard/DashboardTargetItemProps";
-import DashboardMinDetails from './DashboardMinDetails';
+import TopPlayersByTarget from "./TopPlayersByTarget";
 
-const DashboardTargetItem: React.FC<DashboardTargetItemProps> = ({ combatTarget, details, duration, combatPlayers, detailsType, getValueShortName }) => {
+const DashboardTargetItem: React.FC<DashboardTargetItemProps> = ({ combatTarget, details, duration, detailsType, getValueShortName }) => {
     const minCount = 4;
+    const topPlayersCount = 3;
 
     const { t } = useTranslation("combatDetails/dashboard");
 
@@ -14,60 +15,30 @@ const DashboardTargetItem: React.FC<DashboardTargetItemProps> = ({ combatTarget,
 
     const [sum, setSum] = useState(0);
     const [itemCount, setItemCount] = useState(minCount);
-    const [sortedPlayerData, setSortedPlayerData] = useState<CombatPlayerType[]>([]);
-
-    const dashboardDetailsType: any = {
-        0: "damageDone",
-        1: "healDone",
-        2: "damageTaken",
-        3: "resourcesRecovery"
-    };
 
     useEffect(() => {
-        const sum = calculateSum(dashboardDetailsType[detailsType]);
+        const sum = calculateSum(combatTarget);
         setSum(sum);
-
-        const data = sortByKey(combatPlayers, dashboardDetailsType[detailsType]);
-        setSortedPlayerData(data);
     }, []);
 
-    const calculation = (player: any, typeOfResource: string): string => {
-        const typeOfResourceValue = player[typeOfResource];
-
-        if (!typeOfResourceValue) {
-            return '0';
-        }
-
-        const playerContribution: number = typeOfResourceValue / sum;
+    const calculation = (combatTargetPlayerSum: number): string => {
+        const playerContribution: number = combatTargetPlayerSum / sum;
         const playerContributionFixed: string = (playerContribution * 100).toFixed(2);
 
         return playerContributionFixed;
     }
 
-    const calculationValuePerTime = (player: any, typeOfResource: string): string => {
-        const valuePerTime = +player[typeOfResource] / duration;
+    const calculationDamagePerTimeByTarget = (damage: number): string => {
+        const valuePerTime = damage / duration;
         const shortValue = getValueShortName(parseInt(valuePerTime.toFixed(2)));
 
         return shortValue;
     }
 
-    const calculateSum = (key: string): number => {
-        const reducedPlayers = combatPlayers.reduce((acc, player: any) => acc + player[key], 0);
+    const calculateSum = (targetPlayers: CombatTargetType[]): number => {
+        const sum = targetPlayers.reduce((acc, player: any) => acc + player.sum, 0);
 
-        return reducedPlayers;
-    }
-
-    const sortByKey = (players: CombatPlayerType[], key: string): CombatPlayerType[] => {
-        const sortedPlayers = [...players].sort((playerA: any, playerB: any) => playerB[key] - playerA[key]);
-
-        return sortedPlayers;
-    }
-
-    const getDetailsValue = (player: any): string => {
-        const detailsMapping = ["damageDone", "healDone", "damageTaken", "resourcesRecovery"];
-        const shortValue = getValueShortName(player[detailsMapping[detailsType]]) || '0';
-
-        return shortValue;
+        return sum;
     }
 
     const goToCombatGeneralDetails = (playerId: number): void => {
@@ -79,29 +50,15 @@ const DashboardTargetItem: React.FC<DashboardTargetItemProps> = ({ combatTarget,
             <div className="title">
                 <div>{combatTarget[0].target}</div>
             </div>
-            <ul>
-                {combatTarget.map(item => (
-                    <li>
-                        <div>{item.username}</div>
-                        <div>{item.sum}</div>
-                    </li>
-                ))}
-            </ul>
-            {itemCount !== minCount &&
-                <DashboardMinDetails
-                    name={combatTarget[0].target}
-                    calculation={calculation}
-                    calculationValuePerTime={calculationValuePerTime}
-                    goToCombatGeneralDetails={goToCombatGeneralDetails}
-                    getDetailsValue={getDetailsValue}
-                    sortedPlayerData={sortedPlayerData}
-                    detailsType={detailsType}
-                    itemCount={itemCount}
-                    setItemCount={setItemCount}
-                />
-            }
+            <TopPlayersByTarget
+                calculation={calculation}
+                calculationDamagePerTimeByTarget={calculationDamagePerTimeByTarget}
+                goToCombatGeneralDetails={goToCombatGeneralDetails}
+                getValueShortName={getValueShortName}
+                targetTopPlayers={combatTarget.slice(0, topPlayersCount)}
+            />
             {itemCount === minCount
-                ? <div className="extend" onClick={() => setItemCount(sortedPlayerData.length)}>{t("More")}</div>
+                ? <div className="extend" onClick={() => setItemCount(combatTarget.length)}>{t("More")}</div>
                 : <div className="extend" onClick={() => setItemCount(minCount)}>{t("Less")}</div>
             }
         </>

@@ -1,7 +1,7 @@
 import { memo, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-    useLazyGetDamageDoneDamgeByEachTargetQuery
+    useLazyGetDamageDoneDamageByEachTargetQuery
 } from '../../../store/api/combatParser/DamageDone.api';
 import { useLazyGetCombatByIdQuery } from '../../../store/api/core/CombatParser.api';
 import { CombatType } from "../../../types/components/combatDetails/CombatType";
@@ -22,7 +22,7 @@ const Dashboard: React.FC<DashboardProps> = ({ details, combatPlayers, playersDe
     const [duration, setDuration] = useState<number>(1);
     const [targets, setTargets] = useState<Array<CombatTargetType[]>>([]);
 
-    const [getDamageDoneDamgeByEachTarget] = useLazyGetDamageDoneDamgeByEachTargetQuery();
+    const [getDamageDoneDamageByEachTarget] = useLazyGetDamageDoneDamageByEachTargetQuery();
 
     const [getCombatById] = useLazyGetCombatByIdQuery();
 
@@ -53,7 +53,7 @@ const Dashboard: React.FC<DashboardProps> = ({ details, combatPlayers, playersDe
     useEffect(() => {
         if (combatPlayers.length > 0) {
             const getByTarget = async () => {
-                await getByTargetAsync();
+                await getTopDamageByTargetAsync();
             }
 
             getByTarget();
@@ -72,8 +72,8 @@ const Dashboard: React.FC<DashboardProps> = ({ details, combatPlayers, playersDe
         return totalSeconds;
     }
 
-    const getByTargetAsync = async () => {
-        const response = await getDamageDoneDamgeByEachTarget(details.id);
+    const getTopDamageByTargetAsync = async () => {
+        const response = await getDamageDoneDamageByEachTarget(details.id);
         if (response.data !== undefined) {
             setTargets(response.data);
         }
@@ -81,6 +81,38 @@ const Dashboard: React.FC<DashboardProps> = ({ details, combatPlayers, playersDe
 
     if (!combat || combatPlayers.length === 0) {
         return (<></>);
+    }
+
+    if (targets.length === 0) {
+        return (
+            <div className="dashboard">
+                <ul className="items">
+                    {dashboardDetailsType.map((name, index) => (
+                        <li key={index} className="dashboard__statistics">
+                            <DashboardGeneralItem
+                                name={name}
+                                details={details}
+                                duration={duration}
+                                combatPlayers={combatPlayers}
+                                detailsType={index}
+                                getValueShortName={getValueShortName}
+                            />
+                        </li>
+                    ))}
+                    {playersDeath.length > 0 &&
+                        <li key={dashboardDetailsType.length} className="dashboard__statistics">
+                            <DashboardDeathItem
+                                playersDeath={playersDeath}
+                                combatPlayers={combatPlayers}
+                            />
+                        </li>
+                    }
+                </ul>
+                <ul className="items">
+                    <li>Loading...</li>
+                </ul>
+            </div>
+        );
     }
 
     return (
@@ -114,7 +146,6 @@ const Dashboard: React.FC<DashboardProps> = ({ details, combatPlayers, playersDe
                             combatTarget={combatTarget}
                             details={details}
                             duration={duration}
-                            combatPlayers={combatPlayers}
                             detailsType={index}
                             getValueShortName={getValueShortName}
                         />
