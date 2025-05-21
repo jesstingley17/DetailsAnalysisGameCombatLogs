@@ -1,7 +1,7 @@
 
 export interface CombatTargetType {
-    id: number,
-    username: string,
-    target: string,
-    sum: number,
+    id: number;
+    username: string;
+    target: string;
+    sum: number;
 }

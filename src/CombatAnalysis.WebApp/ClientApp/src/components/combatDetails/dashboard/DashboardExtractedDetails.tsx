@@ -3,9 +3,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { memo } from "react";
 import { useTranslation } from 'react-i18next';
 import { CombatPlayerType } from "../../../types/components/combatDetails/CombatPlayerType";
-import { DashboardMinDetailsProps } from '../../../types/components/combatDetails/dashboard/DashboardMinDetailsProps';
+import { DashboardExtractedDetailsProps } from '../../../types/components/combatDetails/dashboard/DashboardExtractedDetailsProps';
 
-const DashboardMinDetails: React.FC<DashboardMinDetailsProps> = ({ name, calculation, calculationValuePerTime, goToCombatGeneralDetails, getDetailsValue, sortedPlayerData, detailsType, itemCount, setItemCount }) => {
+const DashboardExtractedDetails: React.FC<DashboardExtractedDetailsProps> = ({ name, calculation, calculationValuePerTime, goToCombatGeneralDetails, getDetailsValue, combatPlayers, detailsType, itemCount, setItemCount }) => {
     const minCount = 4;
 
     const { t } = useTranslation("helpers/combatDetailsHelper");
@@ -44,7 +44,7 @@ const DashboardMinDetails: React.FC<DashboardMinDetailsProps> = ({ name, calcula
                 <div>{name}</div>
             </div>
             <ul>
-                {sortedPlayerData?.slice(0, itemCount).map((player: CombatPlayerType) => (
+                {combatPlayers?.slice(0, itemCount).map((player: CombatPlayerType) => (
                     <li key={player.id}>
                         <div className="min-details__title">
                             <div className="username">{player.username.split('-')[0]}</div>
@@ -68,4 +68,4 @@ const DashboardMinDetails: React.FC<DashboardMinDetailsProps> = ({ name, calcula
     );
 }
 
-export default memo(DashboardMinDetails);
+export default memo(DashboardExtractedDetails);

@@ -5,6 +5,6 @@ export interface TopPlayersProps {
     calculationValuePerTime: (player: any, typeOfResource: string) => string;
     goToCombatGeneralDetails: (playerId: number) => void;
     getDetailsValue: (player: any) => any;
-    sortedPlayerData: CombatPlayerType[];
+    topPlayers: CombatPlayerType[];
     detailsType: number;
 }

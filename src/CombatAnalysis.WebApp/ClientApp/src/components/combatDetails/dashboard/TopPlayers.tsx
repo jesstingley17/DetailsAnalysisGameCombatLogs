@@ -2,10 +2,9 @@ import { faStar } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { memo } from "react";
 import { useTranslation } from 'react-i18next';
-import { CombatPlayerType } from "../../../types/components/combatDetails/CombatPlayerType";
 import { TopPlayersProps } from '../../../types/components/combatDetails/dashboard/TopPlayersProps';
 
-const TopPlayers: React.FC<TopPlayersProps> = ({ calculation, calculationValuePerTime, goToCombatGeneralDetails, getDetailsValue, sortedPlayerData, detailsType }) => {
+const TopPlayers: React.FC<TopPlayersProps> = ({ calculation, calculationValuePerTime, goToCombatGeneralDetails, getDetailsValue, topPlayers, detailsType }) => {
     const { t } = useTranslation("helpers/combatDetailsHelper");
 
     const dashboardDetailsType: any = {
@@ -14,12 +13,6 @@ const TopPlayers: React.FC<TopPlayersProps> = ({ calculation, calculationValuePe
         2: "damageTaken",
         3: "resourcesRecovery"
     };
-
-    const topPlayers = (): CombatPlayerType[] => {
-        const top = sortedPlayerData.slice(0, 3);
-
-        return top;
-    }
 
     const getValuePerTimeType = (): string => {
         switch (detailsType) {
@@ -38,7 +31,7 @@ const TopPlayers: React.FC<TopPlayersProps> = ({ calculation, calculationValuePe
 
     return (
         <ul className="top-players">
-            {topPlayers().map((player, index) => (
+            {topPlayers.map((player, index) => (
                 <li key={index} className="player">
                     <div className="value-per-time">{calculationValuePerTime(player, dashboardDetailsType[detailsType])} {getValuePerTimeType()}</div>
                     <div className="stars">

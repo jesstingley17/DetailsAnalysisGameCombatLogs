@@ -3,22 +3,23 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { GeneralAnalysisItemProps } from '../../types/components/combatDetails/GeneralAnalysisItemProps';
 
-const getCombatDuration = (duration) => duration.substring(3);
+const getCombatDuration = (duration: string) => duration.substring(3);
 
-const GeneralAnalysisItem = ({ uniqueCombats, combatLogId, getValueShortName }) => {
+const GeneralAnalysisItem: React.FC<GeneralAnalysisItemProps> = ({ uniqueCombats, combatLogId, getValueShortName }) => {
     const { t } = useTranslation("combatDetails/generalAnalysis");
 
     const navigate = useNavigate();
 
-    const [selectedCombatIndex, setSelectedCombatIndex] = useState(0);
+    const [selectedCombatIndex, setSelectedCombatIndex] = useState<number>(uniqueCombats.length - 1);
     const [selectedCombat, setSelectedCombat] = useState(uniqueCombats[selectedCombatIndex]);
 
     useEffect(() => {
         setSelectedCombat(uniqueCombats[selectedCombatIndex]);
     }, [selectedCombatIndex]);
 
-    const formatDate = (dateString) => {
+    const formatDate = (dateString: string) => {
         const date = new Date(dateString);
         const hoursMins = `${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()}`;
 
@@ -32,7 +33,7 @@ const GeneralAnalysisItem = ({ uniqueCombats, combatLogId, getValueShortName }) 
     return (
         <div className="card">
             <ul className="unique-combats__all">
-                {uniqueCombats?.map((combat, index) => (
+                {uniqueCombats.map((combat, index) => (
                     <li key={combat.id + 2} className={`unique-combats__${combat.isWin ? 'win' : 'lose'}`} onClick={() => setSelectedCombatIndex(index)}>
                         <div className="combat-number">{index + 1}</div>
                         <div className="combat-time">
@@ -50,7 +51,7 @@ const GeneralAnalysisItem = ({ uniqueCombats, combatLogId, getValueShortName }) 
                                 <FontAwesomeIcon
                                     icon={faHourglassStart}
                                     className="list-group-item__duration"
-                                    title={t("Duration")}
+                                    title={t("Duration") || ""}
                                 />
                             </div>
                         </div>
@@ -69,7 +70,7 @@ const GeneralAnalysisItem = ({ uniqueCombats, combatLogId, getValueShortName }) 
                     <FontAwesomeIcon
                         icon={selectedCombat.isReady ? faCheck : faClock}
                         className="list-group-item__player-statistic-item"
-                        title={selectedCombat.isReady ? t("Ready") : t("NotReady")}
+                        title={(selectedCombat.isReady ? t("Ready") : t("NotReady")) || ""}
                     />
                 </div>
                 <div className="combat-time">
@@ -91,7 +92,7 @@ const GeneralAnalysisItem = ({ uniqueCombats, combatLogId, getValueShortName }) 
                         <FontAwesomeIcon
                             icon={faHourglassStart}
                             className="list-group-item__player-statistic-item"
-                            title={t("Duration")}
+                            title={t("Duration") || ""}
                         />
                     </div>
                 </div>
@@ -101,7 +102,7 @@ const GeneralAnalysisItem = ({ uniqueCombats, combatLogId, getValueShortName }) 
                     <FontAwesomeIcon
                         icon={faKhanda}
                         className="list-group-item__player-statistic-item"
-                        title={t("Damage")}
+                        title={t("Damage") || ""}
                     />
                     <div>{getValueShortName(uniqueCombats[selectedCombatIndex].damageDone)}</div>
                 </li>
@@ -109,7 +110,7 @@ const GeneralAnalysisItem = ({ uniqueCombats, combatLogId, getValueShortName }) 
                     <FontAwesomeIcon
                         icon={faPlusCircle}
                         className="list-group-item__player-statistic-item"
-                        title={t("Healing")}
+                        title={t("Healing") || ""}
                     />
                     <div>{getValueShortName(uniqueCombats[selectedCombatIndex].healDone)}</div>
                 </li>
@@ -117,7 +118,7 @@ const GeneralAnalysisItem = ({ uniqueCombats, combatLogId, getValueShortName }) 
                     <FontAwesomeIcon
                         icon={faShieldHalved}
                         className="list-group-item__player-statistic-item"
-                        title={t("DamageTaken")}
+                        title={t("DamageTaken") || ""}
                     />
                     <div>{getValueShortName(uniqueCombats[selectedCombatIndex].damageTaken)}</div>
                 </li>
@@ -125,7 +126,7 @@ const GeneralAnalysisItem = ({ uniqueCombats, combatLogId, getValueShortName }) 
                     <FontAwesomeIcon
                         icon={faBolt}
                         className="list-group-item__player-statistic-item"
-                        title={t("EnergyRecovery")}
+                        title={t("EnergyRecovery") || ""}
                     />
                     <div>{getValueShortName(uniqueCombats[selectedCombatIndex].energyRecovery)}</div>
                 </li>
@@ -133,7 +134,7 @@ const GeneralAnalysisItem = ({ uniqueCombats, combatLogId, getValueShortName }) 
                     <FontAwesomeIcon
                         icon={faCircleNodes}
                         className="list-group-item__player-statistic-item"
-                        title={t("Buffs")}
+                        title={t("Buffs") || ""}
                     />
                     <div className="auras-details" onClick={() => navigate(`/general-analysis/auras?combat=${selectedCombat.id}&combatLog=${combatLogId}`)}>More...</div>
                 </li>

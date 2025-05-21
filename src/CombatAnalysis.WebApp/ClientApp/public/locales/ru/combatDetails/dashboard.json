@@ -7,5 +7,8 @@
   "Less": "Меньше",
   "PlayersDied": "Смерти игроков",
   "Empty": "Пусто",
-  "ClosedItems":  "Скрытые элементы"
+  "ClosedItems": "Скрытые элементы",
+  "General": "Общее",
+  "Targets": "Цели",
+  "DamageToAlliances": "Урон по союзникам"
 }

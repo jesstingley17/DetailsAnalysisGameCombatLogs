@@ -64,7 +64,7 @@ const GeneralAnalysis: React.FC = () => {
         setUniqueCombats(uniqueCombatList);
     }
 
-    const getValueShortName = (value: number) => {
+    const getValueShortName = (value: number): string => {
         const thousands = value / 1000;
         const millions = value / 1000000;
 
@@ -75,7 +75,7 @@ const GeneralAnalysis: React.FC = () => {
             return `${thousands.toFixed(fixedNumberUntil)} K`;
         }
 
-        return value;
+        return `${value}`;
     }
 
     if (combatLogId === 0) {
@@ -94,7 +94,7 @@ const GeneralAnalysis: React.FC = () => {
                 <h5>{t("Combats")}</h5>
             </div>
             <ul className="combats__container">
-                {allUniqueCombats?.map((uniqueCombats, index) => (
+                {allUniqueCombats.map((uniqueCombats, index) => (
                         <li key={index}>
                             <GeneralAnalysisItem
                                 uniqueCombats={uniqueCombats}

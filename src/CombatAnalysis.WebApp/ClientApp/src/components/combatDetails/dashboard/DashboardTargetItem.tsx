@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { CombatTargetType } from "../../../types/components/combatDetails/dashboard/CombatTargetType";
 import { DashboardTargetItemProps } from "../../../types/components/combatDetails/dashboard/DashboardTargetItemProps";
+import DashboardTargetsExtractedDetails from "./DashboardTargetsExtractedDetails";
 import TopPlayersByTarget from "./TopPlayersByTarget";
 
 const DashboardTargetItem: React.FC<DashboardTargetItemProps> = ({ combatTarget, details, duration, detailsType, getValueShortName }) => {
@@ -57,6 +58,18 @@ const DashboardTargetItem: React.FC<DashboardTargetItemProps> = ({ combatTarget,
                 getValueShortName={getValueShortName}
                 targetTopPlayers={combatTarget.slice(0, topPlayersCount)}
             />
+            {itemCount !== minCount &&
+                <DashboardTargetsExtractedDetails
+                    name={combatTarget[0].target}
+                    calculation={calculation}
+                    calculationDamagePerTimeByTarget={calculationDamagePerTimeByTarget}
+                    goToCombatGeneralDetails={goToCombatGeneralDetails}
+                    getValueShortName={getValueShortName}
+                    targets={combatTarget}
+                    itemCount={itemCount}
+                    setItemCount={setItemCount}
+                />
+            }
             {itemCount === minCount
                 ? <div className="extend" onClick={() => setItemCount(combatTarget.length)}>{t("More")}</div>
                 : <div className="extend" onClick={() => setItemCount(minCount)}>{t("Less")}</div>

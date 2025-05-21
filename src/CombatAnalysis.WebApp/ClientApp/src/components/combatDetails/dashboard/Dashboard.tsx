@@ -1,3 +1,5 @@
+import { faArrowDownWideShort, faArrowUpWideShort } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { memo, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -21,6 +23,9 @@ const Dashboard: React.FC<DashboardProps> = ({ details, combatPlayers, playersDe
     const [combat, setCombat] = useState<CombatType | null>(null);
     const [duration, setDuration] = useState<number>(1);
     const [targets, setTargets] = useState<Array<CombatTargetType[]>>([]);
+    const [showGeneral, setShowGeneral] = useState<boolean>(true);
+    const [showTargets, setShowTaregts] = useState<boolean>(false);
+    const [showTargetsToAlliances, setShowTargetsToAlliances] = useState<boolean>(true);
 
     const [getDamageDoneDamageByEachTarget] = useLazyGetDamageDoneDamageByEachTargetQuery();
 
@@ -79,14 +84,77 @@ const Dashboard: React.FC<DashboardProps> = ({ details, combatPlayers, playersDe
         }
     }
 
+    const damageToAlliencesHandle = (e: any) => {
+        const show: boolean = e.target.checked;
+        setShowTargetsToAlliances(show);
+    }
+
+    const getTargets = () => {
+        if (showTargetsToAlliances) {
+            return (<ul className="dashboard__items">
+                {targets.map((combatTarget, index) => (
+                    <li key={index} className="dashboard__statistics">
+                        <DashboardTargetItem
+                            combatTarget={combatTarget}
+                            details={details}
+                            duration={duration}
+                            detailsType={index}
+                            getValueShortName={getValueShortName}
+                        />
+                    </li>
+                ))}
+            </ul>);
+        }
+
+        return (<ul className="dashboard__items">
+            {targets.filter(x => combatPlayers.filter(u => u.username === x[0].target).length === 0).map((combatTarget, index) => (
+                <li key={index} className="dashboard__statistics">
+                    <DashboardTargetItem
+                        combatTarget={combatTarget}
+                        details={details}
+                        duration={duration}
+                        detailsType={index}
+                        getValueShortName={getValueShortName}
+                    />
+                </li>
+            ))}
+        </ul>);
+    }
+
+    const targetsHandle = () => {
+        if (!showTargets) {
+            return (<></>);
+        }
+        else if (targets.length === 0) {
+            return (<ul className="dashboard__items">
+                <li>Loading...</li>
+            </ul>);
+        }
+        else {
+            return (<>
+                <div className="mb-3 form-check">
+                    <input type="checkbox" className="form-check-input" id="exampleCheck1" defaultChecked={showTargetsToAlliances} onChange={damageToAlliencesHandle} />
+                    <label className="form-check-label" htmlFor="exampleCheck1">{t("DamageToAlliances")}</label>
+                </div>
+                {getTargets()}
+            </>);
+        }
+    }
+
     if (!combat || combatPlayers.length === 0) {
         return (<></>);
     }
 
-    if (targets.length === 0) {
-        return (
-            <div className="dashboard">
-                <ul className="items">
+    return (
+        <div className="dashboard">
+            <div className="dashboard__items-title" onClick={() => setShowGeneral(item => !item)}>
+                <div>{t("General")}:</div>
+                <FontAwesomeIcon
+                    icon={showGeneral ? faArrowDownWideShort : faArrowUpWideShort}
+                />
+            </div>
+            {showGeneral &&
+                <ul className="dashboard__items">
                     {dashboardDetailsType.map((name, index) => (
                         <li key={index} className="dashboard__statistics">
                             <DashboardGeneralItem
@@ -108,50 +176,14 @@ const Dashboard: React.FC<DashboardProps> = ({ details, combatPlayers, playersDe
                         </li>
                     }
                 </ul>
-                <ul className="items">
-                    <li>Loading...</li>
-                </ul>
+            }
+            <div className="dashboard__items-title" onClick={() => setShowTaregts(item => !item)}>
+                <div>{t("Targets")}:</div>
+                <FontAwesomeIcon
+                    icon={showTargets ? faArrowDownWideShort : faArrowUpWideShort}
+                />
             </div>
-        );
-    }
-
-    return (
-        <div className="dashboard">
-            <ul className="items">
-                {dashboardDetailsType.map((name, index) => (
-                    <li key={index} className="dashboard__statistics">
-                        <DashboardGeneralItem
-                            name={name}
-                            details={details}
-                            duration={duration}
-                            combatPlayers={combatPlayers}
-                            detailsType={index}
-                            getValueShortName={getValueShortName}
-                        />
-                    </li>
-                ))}
-                {playersDeath.length > 0 &&
-                    <li key={dashboardDetailsType.length} className="dashboard__statistics">
-                        <DashboardDeathItem
-                            playersDeath={playersDeath}
-                            combatPlayers={combatPlayers}
-                        />
-                    </li>
-                }
-            </ul>
-            <ul className="items">
-                {targets?.map((combatTarget, index) => (
-                    <li key={index} className="dashboard__statistics">
-                        <DashboardTargetItem
-                            combatTarget={combatTarget}
-                            details={details}
-                            duration={duration}
-                            detailsType={index}
-                            getValueShortName={getValueShortName}
-                        />
-                    </li>
-                ))}
-            </ul>
+            {targetsHandle()}
         </div>
     );
 }

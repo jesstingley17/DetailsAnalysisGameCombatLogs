@@ -3,11 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { CombatPlayerType } from "../../../types/components/combatDetails/CombatPlayerType";
 import { DashboardGeneralItemProps } from "../../../types/components/combatDetails/dashboard/DashboardGeneralItemProps";
-import DashboardMinDetails from './DashboardMinDetails';
+import DashboardExtractedDetails from './DashboardExtractedDetails';
 import TopPlayers from './TopPlayers';
 
 const DashboardGeneralItem: React.FC<DashboardGeneralItemProps> = ({ name, details, duration, combatPlayers, detailsType, getValueShortName }) => {
     const minCount = 4;
+    const topPlayersCount = 3;
 
     const { t } = useTranslation("combatDetails/dashboard");
 
@@ -71,6 +72,15 @@ const DashboardGeneralItem: React.FC<DashboardGeneralItemProps> = ({ name, detai
         return shortValue;
     }
 
+    const getValue = () => {
+        const combatPlayerProperty: string = dashboardDetailsType[detailsType];
+        const combatPlayer: any = sortedPlayerData[0];
+
+        const value = combatPlayer[combatPlayerProperty];
+
+        return value;
+    }
+
     const goToCombatGeneralDetails = (playerId: number): void => {
         navigate(`/combat-details?id=${details.id}&playerId=${playerId}&detailsType=${detailsType}&combatLogId=${details.combatLogId}&name=${details.name}&tab=${0}&number=${details.number}&isWin=${details.isWin}`);
     }
@@ -85,17 +95,17 @@ const DashboardGeneralItem: React.FC<DashboardGeneralItemProps> = ({ name, detai
                 calculationValuePerTime={calculationValuePerTime}
                 goToCombatGeneralDetails={goToCombatGeneralDetails}
                 getDetailsValue={getDetailsValue}
-                sortedPlayerData={sortedPlayerData}
+                topPlayers={sortedPlayerData.slice(0, topPlayersCount)}
                 detailsType={detailsType}
             />
             {itemCount !== minCount &&
-                <DashboardMinDetails
+                <DashboardExtractedDetails
                     name={name}
                     calculation={calculation}
                     calculationValuePerTime={calculationValuePerTime}
                     goToCombatGeneralDetails={goToCombatGeneralDetails}
                     getDetailsValue={getDetailsValue}
-                    sortedPlayerData={sortedPlayerData}
+                    combatPlayers={sortedPlayerData}
                     detailsType={detailsType}
                     itemCount={itemCount}
                     setItemCount={setItemCount}
