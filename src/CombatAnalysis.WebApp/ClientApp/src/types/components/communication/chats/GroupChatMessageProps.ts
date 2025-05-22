@@ -7,7 +7,7 @@ export interface GroupChatMessageProps {
     reviewerId: string;
     messageOwnerId: string;
     message: PersonalChatMessage | GroupChatMessage;
-    updateMessageAsync: (message: PersonalChatMessage | GroupChatMessage) => Promise<void>;
+    updateMessageAsync(message: PersonalChatMessage | GroupChatMessage): Promise<void>;
     chatMessagesHubConnection: any;
     subscribeToMessageHasBeenRead: any;
 }

@@ -6,6 +6,6 @@ export interface GroupChatMembersItemProps {
     me: AppUser;
     groupChatUser: GroupChatUser;
     usersToRemove: GroupChatUser[];
-    setUsersToRemove: (value: SetStateAction<GroupChatUser[]>) => void;
+    setUsersToRemove(value: SetStateAction<GroupChatUser[]>): void;
     showRemoveUser: boolean;
 }

@@ -9,7 +9,7 @@ export interface UseFetchUsersPostsResult {
     count: number;
     communityCount: number;
     isLoading: boolean;
-    getMoreUserPostsAsync: (currentPostsSize: number) => Promise<UserPost[]>;
-    getMoreCommunityPostsAsync: (currentPostsSize: number) => Promise<CommunityPost[]>;
+    getMoreUserPostsAsync(currentPostsSize: number): Promise<UserPost[]>;
+    getMoreCommunityPostsAsync(currentPostsSize: number): Promise<CommunityPost[]>;
     currentDateRef: React.MutableRefObject<string>;
 }

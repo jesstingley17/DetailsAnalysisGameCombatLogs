@@ -5,10 +5,10 @@ import { SelectedChat } from "../SelectedChat";
 
 export interface GroupChatMenuProps {
     me: any;
-    setSelectedChat: (value: SetStateAction<SelectedChat>) => void;
-    setShowAddPeople: (value: SetStateAction<boolean>) => void;
+    setSelectedChat(value: SetStateAction<SelectedChat>): void;
+    setShowAddPeople(value: SetStateAction<boolean>): void;
     groupChatUsers: GroupChatUser[];
     meInChat: GroupChatUser;
     chat: GroupChat;
-    t: (key: string) => string;
+    t(key: string): string;
 }

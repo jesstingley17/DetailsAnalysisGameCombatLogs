@@ -14,7 +14,7 @@ export const DamageDoneApi = CombatParserApi.injectEndpoints({
                     ? [...result.map(({ id }) => ({ type: 'DamageDone' as const, id })), 'DamageDone']
                     : ['DamageDone'],
         }),
-        getDamageDoneCountByCombatPlayerId: builder.query<DamageDoneType[], number>({
+        getDamageDoneCountByCombatPlayerId: builder.query<number, number>({
             query: (combatPlayerId) => `/DamageDone/count/${combatPlayerId}`,
         }),
         getDamageDoneUniqueFilterValues: builder.query<string[], { combatPlayerId: number, filter: number }>({
@@ -41,7 +41,7 @@ export const DamageDoneApi = CombatParserApi.injectEndpoints({
                 url: `/DamageDone/getDamageByEachTarget/${combatId}`,
             }),
         }),
-        getDamageDoneCountByFilter: builder.query<DamageDoneType[], { combatPlayerId: number, filter: number, filterValue: number }>({
+        getDamageDoneCountByFilter: builder.query<number[], { combatPlayerId: number, filter: number, filterValue: number }>({
             query: ({ combatPlayerId, filter, filterValue }) => `/DamageDone/countByFilter?combatPlayerId=${combatPlayerId}&filter=${filter}&filterValue=${filterValue}`,
         }),
         getDamageDoneGeneralByCombatPlayerId: builder.query<DamageDoneGeneralType[], number>({

@@ -6,5 +6,5 @@ import { SelectedChat } from "../SelectedChat";
 export interface GroupChatProps {
     me: AppUser;
     chat: GroupChat;
-    setSelectedChat: (value: SetStateAction<SelectedChat>) => void;
+    setSelectedChat(value: SetStateAction<SelectedChat>): void;
 }

@@ -6,5 +6,5 @@ export interface DashboardTargetItemProps {
     details: CombatDetailsType;
     duration: number;
     detailsType: number;
-    getValueShortName: (value: number) => string;
+    getValueShortName(value: number): string;
 }

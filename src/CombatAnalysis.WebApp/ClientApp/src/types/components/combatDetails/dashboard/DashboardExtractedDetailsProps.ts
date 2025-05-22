@@ -3,12 +3,12 @@ import { CombatPlayerType } from "../CombatPlayerType";
 
 export interface DashboardExtractedDetailsProps {
     name: string;
-    calculation: (player: any, typeOfResource: string) => string;
-    calculationValuePerTime: (player: any, typeOfResource: string) => string;
-    goToCombatGeneralDetails: (playerId: number) => void;
-    getDetailsValue: (player: any) => any;
+    calculation(player: any, typeOfResource: string): string;
+    calculationValuePerTime(player: any, typeOfResource: string): string;
+    goToCombatGeneralDetails(playerId: number): void;
+    getDetailsValue(player: any): any;
     combatPlayers: CombatPlayerType[];
     detailsType: number;
     itemCount: number;
-    setItemCount: (value: SetStateAction<number>) => void;
+    setItemCount(value: SetStateAction<number>): void;
 }

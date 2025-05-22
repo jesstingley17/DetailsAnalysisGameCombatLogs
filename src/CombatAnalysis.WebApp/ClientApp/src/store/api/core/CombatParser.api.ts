@@ -19,6 +19,8 @@ export const CombatParserApi = createApi({
         'CombatAura',
         'DamageDone',
         'DamageDoneGeneral',
+        'DamageTaken',
+        'DamageTakenGeneral',
     ],
     baseQuery: fetchBaseQuery({
         baseUrl: apiURL

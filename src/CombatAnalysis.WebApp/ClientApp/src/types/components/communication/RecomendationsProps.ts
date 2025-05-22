@@ -1,3 +1,3 @@
 export interface RecomendationsProps {
-    t: (key: string) => string;
+    t(key: string): string;
 }

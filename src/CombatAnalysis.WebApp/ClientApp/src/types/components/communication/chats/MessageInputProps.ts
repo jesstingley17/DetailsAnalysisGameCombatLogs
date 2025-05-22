@@ -7,7 +7,7 @@ import { PersonalChat } from "../../../PersonalChat";
 export interface MessageInputProps {
     chat: PersonalChat | GroupChat;
     meInChat: GroupChatUser | AppUser;
-    setAreLoadingOldMessages: (value: SetStateAction<boolean>) => void;
+    setAreLoadingOldMessages(value: SetStateAction<boolean>): void;
     targetChatType: number;
-    t: (key: string) => string;
+    t(key: string): string;
 }

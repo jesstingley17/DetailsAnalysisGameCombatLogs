@@ -5,5 +5,5 @@ export interface DetailsProps {
     combatPlayers: CombatPlayerType[];
     details: CombatDetailsType;
     getValueShortName(value: number): string;
-    t: (key: string) => string;
+    t(key: string): string;
 }

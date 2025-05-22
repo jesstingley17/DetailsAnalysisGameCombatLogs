@@ -95,9 +95,9 @@ public class DamageTakenController : ControllerBase
             var response = await _httpClient.GetAsync($"DamageTaken/{filterActionName}/{combatPlayerId}");
             response.EnsureSuccessStatusCode();
 
-            var uniqueFilterValues = await response.Content.ReadFromJsonAsync<IEnumerable<string>>();
+            var result = await response.Content.ReadFromJsonAsync<IEnumerable<string>>();
 
-            return Ok(uniqueFilterValues);
+            return Ok(result);
         }
         catch (HttpRequestException ex)
         {

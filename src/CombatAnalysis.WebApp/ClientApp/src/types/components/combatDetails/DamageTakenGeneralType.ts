@@ -1,14 +1,14 @@
-export interface DamageDoneGeneralType {
+export interface DamageTakenGeneralType {
     id: number;
     spell: string;
-    damagePerSecond: number;
     value: number;
+    actualValue: number;
+    damageTakenPerSecond: number;
     critNumber: number;
     missNumber: number;
     castNumber: number;
     minValue: number;
     maxValue: number;
     averageValue: number;
-    isPet: boolean;
     combatPlayerId: number;
 }

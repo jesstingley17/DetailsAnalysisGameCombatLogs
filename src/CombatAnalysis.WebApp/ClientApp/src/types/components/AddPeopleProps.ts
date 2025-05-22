@@ -5,5 +5,5 @@ export interface AddPeopleProps {
     user: AppUser;
     communityUsersId: string[];
     peopleToJoin: AppUser[];
-    setPeopleToJoin: (value: SetStateAction<AppUser[]>) => void;
+    setPeopleToJoin(value: SetStateAction<AppUser[]>): void;
 }

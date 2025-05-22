@@ -7,5 +7,5 @@ export interface DashboardGeneralItemProps {
     duration: number;
     combatPlayers: CombatPlayerType[];
     detailsType: number;
-    getValueShortName: (value: number) => string;
+    getValueShortName(value: number): string;
 }

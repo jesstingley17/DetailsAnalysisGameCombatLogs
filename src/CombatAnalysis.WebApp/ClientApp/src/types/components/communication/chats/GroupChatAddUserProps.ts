@@ -5,6 +5,6 @@ export interface GroupChatAddUserProps {
     me: AppUser;
     chatId: number;
     groupChatUsersId: string[];
-    setShowAddPeople: (value: SetStateAction<boolean>) => void;
-    t: (key: string) => string;
+    setShowAddPeople(value: SetStateAction<boolean>): void;
+    t(key: string): string;
 }

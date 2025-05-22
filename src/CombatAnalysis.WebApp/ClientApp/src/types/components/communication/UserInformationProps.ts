@@ -1,5 +1,5 @@
 export interface UserInformationProps {
     me: any;
     person: any;
-    closeUserInformation: () => void;
+    closeUserInformation(): void;
 }

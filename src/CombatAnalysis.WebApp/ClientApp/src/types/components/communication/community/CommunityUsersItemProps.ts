@@ -6,6 +6,6 @@ export interface CommunityUsersItemProps {
     me: AppUser;
     communityUser: CommunityUser;
     usersToRemove: CommunityUser[];
-    setUsersToRemove: (value: SetStateAction<CommunityUser[]>) => void;
+    setUsersToRemove(value: SetStateAction<CommunityUser[]>): void;
     showRemoveUser: boolean;
 }

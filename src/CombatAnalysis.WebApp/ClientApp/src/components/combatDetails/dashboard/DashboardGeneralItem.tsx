@@ -72,15 +72,6 @@ const DashboardGeneralItem: React.FC<DashboardGeneralItemProps> = ({ name, detai
         return shortValue;
     }
 
-    const getValue = () => {
-        const combatPlayerProperty: string = dashboardDetailsType[detailsType];
-        const combatPlayer: any = sortedPlayerData[0];
-
-        const value = combatPlayer[combatPlayerProperty];
-
-        return value;
-    }
-
     const goToCombatGeneralDetails = (playerId: number): void => {
         navigate(`/combat-details?id=${details.id}&playerId=${playerId}&detailsType=${detailsType}&combatLogId=${details.combatLogId}&name=${details.name}&tab=${0}&number=${details.number}&isWin=${details.isWin}`);
     }

@@ -5,5 +5,5 @@ import { Community } from "../../../Community";
 export interface CommunityMembersProps {
     community: Community;
     user: AppUser;
-    setIsCommunityMember: (value: SetStateAction<boolean>) => void;
+    setIsCommunityMember(value: SetStateAction<boolean>): void;
 }

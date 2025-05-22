@@ -7,18 +7,19 @@ import Loading from '../Loading';
 import CombatLogItem from './CombatLogItem';
 
 import "../../styles/mainInformation.scss";
+import { CombatLogType } from '../../types/components/combatDetails/CombatLogType';
 
-const MainInformation = () => {
+const MainInformation: React.FC = () => {
     const { t } = useTranslation("combatDetails/mainInformation");
 
-    const user = useSelector((state) => state.user.value);
+    const user = useSelector((state: any) => state.user.value);
 
     const { data: combatLogs, isLoading } = useGetCombatLogsQuery();
     const [getAuthAsync] = useLazyAuthenticationQuery();
 
     const [isAuth, setIsAuth] = useState(false);
     const [selectedLogType, setSelectedLogType] = useState(0);
-    const [publicCombatLogs, setPublicCombatLogs] = useState([]);
+    const [publicCombatLogs, setPublicCombatLogs] = useState<CombatLogType[]>([]);
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -34,7 +35,7 @@ const MainInformation = () => {
             return;
         }
 
-        let filteredCombatLogs = [];
+        let filteredCombatLogs: CombatLogType[] = [];
         switch (selectedLogType) {
             case 0:
                 filteredCombatLogs = combatLogs.filter(log => log.isReady && log.logType === 0);
@@ -59,7 +60,7 @@ const MainInformation = () => {
                 <div>{t("Logs")}</div>
                 <div className="log-types">
                     <div className={`log-types__item${selectedLogType === 0 ? '_selected' : ''}`} onClick={() => setSelectedLogType(0)}>{t("Public")}</div>
-                    <div className={`log-types__item${selectedLogType === 1 ? '_selected' : ''} ${user === null ? 'not-allowed' : ''}`} onClick={user === null ? null : () => setSelectedLogType(1)}>{t("Personal")}</div>
+                    <div className={`log-types__item${selectedLogType === 1 ? '_selected' : ''} ${user === null ? 'not-allowed' : ''}`} onClick={user === null ? () => { } : () => setSelectedLogType(1)}>{t("Personal")}</div>
                 </div>
             </div>
             <div className="main-information__container">
