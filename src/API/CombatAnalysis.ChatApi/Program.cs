@@ -2,7 +2,9 @@ using AutoMapper;
 using CombatAnalysis.ChatApi.Consts;
 using CombatAnalysis.ChatApi.Enums;
 using CombatAnalysis.ChatApi.Helpers;
+using CombatAnalysis.ChatApi.Interfaces;
 using CombatAnalysis.ChatApi.Mapping;
+using CombatAnalysis.ChatApi.Services;
 using CombatAnalysis.ChatBL.Extensions;
 using CombatAnalysis.ChatBL.Mapping;
 using Microsoft.IdentityModel.Tokens;
@@ -62,6 +64,9 @@ builder.Services.AddAuthorization(options =>
     });
 });
 
+builder.Services.AddSingleton<IKafkaProducerService<string, string>, KafkaProducerService<string, string>>();
+builder.Services.AddHostedService<PersonalChatConsumerService>();
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -103,6 +108,8 @@ builder.Services.AddSwaggerGen(options =>
             }
         });
 });
+
+
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Debug()

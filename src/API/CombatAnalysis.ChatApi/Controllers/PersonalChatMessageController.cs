@@ -1,9 +1,12 @@
 ﻿using AutoMapper;
+using CombatAnalysis.ChatApi.Interfaces;
 using CombatAnalysis.ChatApi.Models;
+using CombatAnalysis.ChatApi.Models.Kafka;
 using CombatAnalysis.ChatBL.DTO;
 using CombatAnalysis.ChatBL.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace CombatAnalysis.ChatApi.Controllers;
 
@@ -12,22 +15,24 @@ namespace CombatAnalysis.ChatApi.Controllers;
 [Authorize]
 public class PersonalChatMessageController : ControllerBase
 {
+    private const string MessageCreatedTopic = "personal-chat";
+
     private readonly IService<PersonalChatDto, int> _chatService;
     private readonly IChatMessageService<PersonalChatMessageDto, int> _chatMessageService;
-    private readonly IService<PersonalChatMessageCountDto, int> _chatMessageCountService;
     private readonly IMapper _mapper;
     private readonly ILogger<PersonalChatMessageController> _logger;
     private readonly IChatTransactionService _chatTransactionService;
+    private readonly IKafkaProducerService<string, string> _kafkaProducer;
 
-    public PersonalChatMessageController(IService<PersonalChatDto, int> chatService, IChatMessageService<PersonalChatMessageDto, int> chatMessageService, IService<PersonalChatMessageCountDto, int> chatMessageCountService, 
-        IMapper mapper, ILogger<PersonalChatMessageController> logger, IChatTransactionService chatTransactionService)
+    public PersonalChatMessageController(IService<PersonalChatDto, int> chatService, IChatMessageService<PersonalChatMessageDto, int> chatMessageService, 
+        IMapper mapper, ILogger<PersonalChatMessageController> logger, IChatTransactionService chatTransactionService, IKafkaProducerService<string, string> kafkaProducer)
     {
         _chatService = chatService;
         _chatMessageService = chatMessageService;
-        _chatMessageCountService = chatMessageCountService;
         _mapper = mapper;
         _logger = logger;
         _chatTransactionService = chatTransactionService;
+        _kafkaProducer = kafkaProducer;
     }
 
     [HttpGet("count/{chatId}")]
@@ -77,34 +82,20 @@ public class PersonalChatMessageController : ControllerBase
     {
         try
         {
-            if (personalChatMessageModel == null)
-            {
-                throw new ArgumentNullException(nameof(personalChatMessageModel));
-            }
-
-            await _chatTransactionService.BeginTransactionAsync();
+            ArgumentNullException.ThrowIfNull(personalChatMessageModel);
 
             var map = _mapper.Map<PersonalChatMessageDto>(personalChatMessageModel);
             var createdPersonalChatMessage = await _chatMessageService.CreateAsync(map);
 
+
             var chat = await _chatService.GetByIdAsync(createdPersonalChatMessage.ChatId);
 
-            var companionId = personalChatMessageModel.AppUserId == chat.CompanionId 
+            var companionId = personalChatMessageModel.AppUserId == chat.CompanionId
                 ? chat.InitiatorId
                 : chat.CompanionId;
 
-            var messagesCount = await _chatMessageCountService.GetByParamAsync(nameof(PersonalChatMessageCountModel.ChatId), createdPersonalChatMessage.ChatId);
-            var companionMessageCount = messagesCount.FirstOrDefault(x => x.AppUserId == companionId);
-            if (companionMessageCount == null)
-            {
-                throw new ArgumentNullException(nameof(companionMessageCount));
-            }
-
-            companionMessageCount.Count++;
-
-            await _chatMessageCountService.UpdateAsync(companionMessageCount);
-
-            await _chatTransactionService.CommitTransactionAsync();
+            var userCreatedEvent = JsonSerializer.Serialize(new MessageCreatedModel { ChatId = personalChatMessageModel.ChatId, AppUserId = personalChatMessageModel.AppUserId, CompanionId = companionId });
+            await _kafkaProducer.ProduceAsync(MessageCreatedTopic, createdPersonalChatMessage.Id.ToString(), userCreatedEvent);
 
             return Ok(createdPersonalChatMessage);
         }

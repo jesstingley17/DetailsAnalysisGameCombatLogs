@@ -38,10 +38,10 @@ const MainInformation: React.FC = () => {
         let filteredCombatLogs: CombatLogType[] = [];
         switch (selectedLogType) {
             case 0:
-                filteredCombatLogs = combatLogs.filter(log => log.isReady && log.logType === 0);
+                filteredCombatLogs = combatLogs?.filter(log => log.isReady && log.logType === 0);
                 break;
             case 1:
-                filteredCombatLogs = combatLogs.filter(log => log.appUserId === user?.id);
+                filteredCombatLogs = combatLogs?.filter(log => log.appUserId === user?.id);
                 break;
             default:
                 filteredCombatLogs = [];
