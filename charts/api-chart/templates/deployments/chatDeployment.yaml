@@ -40,6 +40,12 @@ spec:
                secretKeyRef:
                 name: chat-db-connection-strings
                 key: firebase
+           - name: Kafka__BootstrapServers
+             value: "kafka-service.msg-broker-1.svc.cluster.local:9092"
+           - name: Kafka__Consumer__GroupId
+             value: "combatParser"
+           - name: Kafka__Consumer__AutoOffsetReset
+             value: "Earliest"
            - name: API_Identity
              value: "https://identity.analysis.com/"
            - name: Authentication_Issuer

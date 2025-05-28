@@ -1,5 +1,7 @@
-﻿using CombatAnalysis.ChatApi.Interfaces;
+﻿using CombatAnalysis.ChatApi.Consts;
+using CombatAnalysis.ChatApi.Interfaces;
 using Confluent.Kafka;
+using Microsoft.Extensions.Options;
 
 namespace CombatAnalysis.ChatApi.Services;
 
@@ -8,10 +10,10 @@ internal class KafkaProducerService<TKey, TValue> : IKafkaProducerService<TKey, 
     private readonly IProducer<TKey, TValue> _producer;
     private readonly ILogger<KafkaProducerService<TKey, TValue>> _logger;
 
-    public KafkaProducerService(IConfiguration configuration, ILogger<KafkaProducerService<TKey, TValue>> logger)
+    public KafkaProducerService(IOptions<KafkaSettings> kafkaSettings, ILogger<KafkaProducerService<TKey, TValue>> logger)
     {
-        var producerConfig = configuration.GetSection("Kafka:Producer").Get<ProducerConfig>() ?? new ProducerConfig();
-        producerConfig.BootstrapServers ??= configuration.GetSection("Kafka:BootstrapServers").Value;
+        var producerConfig = kafkaSettings.Value.Producer ?? new ProducerConfig();
+        producerConfig.BootstrapServers ??= kafkaSettings.Value.BootstrapServers;
 
         if (string.IsNullOrEmpty(producerConfig.BootstrapServers))
         {

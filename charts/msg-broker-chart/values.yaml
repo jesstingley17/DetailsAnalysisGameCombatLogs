@@ -1,0 +1,31 @@
+env: Production
+replicas: 2
+resources:
+    cpu: 80
+    memory: 80
+autoscaling: 
+    enabled: true
+    min: 2
+    max: 6
+kafka:
+    name: kafka
+    container:
+        name: kafka
+        image: doughgle/kafka-kraft
+        port: 9092
+    service:
+        port: 9092
+        targetPort: 9092
+    ingress:
+        host: solinx.kafka.com
+zookeeper:
+    name: zookeeper
+    container:
+        name: zookeeper
+        image: confluentinc/cp-zookeeper
+        port: 2181
+    service:
+        port: 2181
+        targetPort: 2181
+    ingress:
+        host: solinx.zookeeper.com

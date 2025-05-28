@@ -15,6 +15,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 var envName = builder.Environment.EnvironmentName;
 
+builder.Services.Configure<KafkaSettings>(builder.Configuration.GetSection("Kafka"));
 if (string.Equals(envName, "Development", StringComparison.OrdinalIgnoreCase))
 {
     CreateEnvironmentHelper.UseAppsettings(builder.Configuration);

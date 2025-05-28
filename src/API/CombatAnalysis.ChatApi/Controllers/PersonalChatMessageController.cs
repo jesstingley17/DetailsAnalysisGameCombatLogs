@@ -12,7 +12,7 @@ namespace CombatAnalysis.ChatApi.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-[Authorize]
+//[Authorize]
 public class PersonalChatMessageController : ControllerBase
 {
     private const string MessageCreatedTopic = "personal-chat";
@@ -86,7 +86,6 @@ public class PersonalChatMessageController : ControllerBase
 
             var map = _mapper.Map<PersonalChatMessageDto>(personalChatMessageModel);
             var createdPersonalChatMessage = await _chatMessageService.CreateAsync(map);
-
 
             var chat = await _chatService.GetByIdAsync(createdPersonalChatMessage.ChatId);
 

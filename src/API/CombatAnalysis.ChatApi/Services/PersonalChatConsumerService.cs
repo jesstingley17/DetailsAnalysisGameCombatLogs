@@ -1,7 +1,9 @@
-﻿using CombatAnalysis.ChatApi.Models.Kafka;
+﻿using CombatAnalysis.ChatApi.Consts;
+using CombatAnalysis.ChatApi.Models.Kafka;
 using CombatAnalysis.ChatBL.DTO;
 using CombatAnalysis.ChatBL.Interfaces;
 using Confluent.Kafka;
+using Microsoft.Extensions.Options;
 using System.Text.Json;
 
 namespace CombatAnalysis.ChatApi.Services;
@@ -11,8 +13,8 @@ public class PersonalChatConsumerService : KafkaConsumerServiceBase
     private readonly ILogger<PersonalChatConsumerService> _logger;
     private readonly IServiceScopeFactory _serviceScopeFactory;
 
-    public PersonalChatConsumerService(IConfiguration configuration, ILogger<PersonalChatConsumerService> logger, IServiceScopeFactory serviceScopeFactory)
-        : base(configuration, "personal-chat", logger)
+    public PersonalChatConsumerService(IOptions<KafkaSettings> kafkaSettings, ILogger<PersonalChatConsumerService> logger, IServiceScopeFactory serviceScopeFactory)
+        : base(kafkaSettings, "personal-chat", logger)
     {
         _logger = logger;
         _serviceScopeFactory = serviceScopeFactory;

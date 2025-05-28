@@ -1,0 +1,6 @@
+apiVersion: v2
+name: MsgBrokerHelmChart
+description: Helm Chart for Message broker
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

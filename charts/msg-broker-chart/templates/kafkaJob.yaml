@@ -1,0 +1,22 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kafka-create-topic
+spec:
+  template:
+    spec:
+      containers:
+        - name: kafka
+          image: bitnami/kafka:latest
+          command:
+            - /bin/bash
+            - -c
+            - |
+              kafka-topics.sh \
+                --create \
+                --topic personal-chat \
+                --bootstrap-server kafka-service.msg-broker-1.svc.cluster.local:9092 \
+                --partitions 3 \
+                --replication-factor 1
+      restartPolicy: Never
+  backoffLimit: 4
