@@ -1,7 +1,6 @@
 using AutoMapper;
 using CombatAnalysis.ChatApi.Consts;
 using CombatAnalysis.ChatApi.Enums;
-using CombatAnalysis.ChatApi.Helpers;
 using CombatAnalysis.ChatApi.Interfaces;
 using CombatAnalysis.ChatApi.Mapping;
 using CombatAnalysis.ChatApi.Services;
@@ -16,19 +15,14 @@ var builder = WebApplication.CreateBuilder(args);
 var envName = builder.Environment.EnvironmentName;
 
 builder.Services.Configure<KafkaSettings>(builder.Configuration.GetSection("Kafka"));
-if (string.Equals(envName, "Development", StringComparison.OrdinalIgnoreCase))
-{
-    CreateEnvironmentHelper.UseAppsettings(builder.Configuration);
-}
-else
-{
-    CreateEnvironmentHelper.UseEnvVariables();
-}
 
-var connection = DatabaseProps.Name == nameof(DatabaseType.MSSQL)
-    ? DatabaseProps.MSSQLConnectionString
-    : DatabaseProps.FirebaseConnectionString;
-builder.Services.ChatBLDependencies(DatabaseProps.Name, DatabaseProps.DataProcessingType, connection);
+var databasePropsOptions = new DatabaseProps();
+builder.Configuration.Bind("Database", databasePropsOptions);
+
+var connectionString = databasePropsOptions.Name == nameof(DatabaseType.MSSQL)
+    ? databasePropsOptions.DefaultConnection
+    : databasePropsOptions.FirebaseConnection;
+builder.Services.ChatBLDependencies(databasePropsOptions.Name, connectionString);
 
 var mappingConfig = new MapperConfiguration(mc =>
 {
@@ -36,20 +30,27 @@ var mappingConfig = new MapperConfiguration(mc =>
     mc.AddProfile(new ChatBLMapper());
 });
 
+var authenticationOptions = new Authentication();
+builder.Configuration.Bind("Authentication", authenticationOptions);
+var authenticationClientOptions = new AuthenticationClient();
+builder.Configuration.Bind("Authentication:Client", authenticationClientOptions);
+var apiOptions = new API();
+builder.Configuration.Bind("API", apiOptions);
+
 var mapper = mappingConfig.CreateMapper();
 builder.Services.AddSingleton(mapper);
 builder.Services.AddAuthentication("Bearer")
     .AddJwtBearer(options =>
     {
-        options.Authority = Authentication.Authority;
+        options.Authority = authenticationOptions.Authority;
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Authentication.IssuerSigningKey),
+            IssuerSigningKey = new SymmetricSecurityKey(authenticationOptions.IssuerSigningKey),
             ValidateIssuer = true,
-            ValidIssuer = Authentication.Issuer,
+            ValidIssuer = authenticationOptions.Issuer,
             ValidateAudience = true,
-            ValidAudiences = [AuthenticationClient.WebClientId, AuthenticationClient.DesktopClientId],
+            ValidAudiences = [authenticationClientOptions.WebClientId, authenticationClientOptions.DesktopClientId],
             ClockSkew = TimeSpan.Zero
         };
         // Skip checking HTTPS (should be HTTPS in production)
@@ -61,12 +62,12 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("ApiScope", builder =>
     {
         builder.RequireAuthenticatedUser();
-        builder.RequireClaim("scope", AuthenticationClient.Scope);
+        builder.RequireClaim("scope", authenticationClientOptions.Scope);
     });
 });
 
 builder.Services.AddSingleton<IKafkaProducerService<string, string>, KafkaProducerService<string, string>>();
-builder.Services.AddHostedService<PersonalChatConsumerService>();
+builder.Services.AddHostedService<PersonalChatMessageCountConsumerService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -85,10 +86,10 @@ builder.Services.AddSwaggerGen(options =>
         {
             ClientCredentials = new OpenApiOAuthFlow
             {
-                TokenUrl = new Uri($"{API.Identity}connect/token"),
+                TokenUrl = new Uri($"{apiOptions.Identity}connect/token"),
                 Scopes = new Dictionary<string, string>
                 {
-                    { AuthenticationClient.Scope, "Request API #1" }
+                    { authenticationClientOptions.Scope, "Request API #1" }
                 }
             }
         }
@@ -105,7 +106,7 @@ builder.Services.AddSwaggerGen(options =>
                         Id = "oauth2"
                     },
                 },
-                new[] { AuthenticationClient.Scope }
+                new[] { authenticationClientOptions.Scope }
             }
         });
 });
@@ -131,8 +132,8 @@ app.UseSwaggerUI(options =>
 {
     options.SwaggerEndpoint("/swagger/v1/swagger.json", "Chat API v1");
     options.InjectStylesheet("/swagger-ui/swaggerDark.css");
-    options.OAuthClientId(AuthenticationClient.WebClientId);
-    options.OAuthScopes(AuthenticationClient.Scope);
+    options.OAuthClientId(authenticationClientOptions.WebClientId);
+    options.OAuthScopes(authenticationClientOptions.Scope);
 });
 
 app.UseStaticFiles();

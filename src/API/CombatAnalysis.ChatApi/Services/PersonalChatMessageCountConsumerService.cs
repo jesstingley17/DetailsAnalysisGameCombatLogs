@@ -8,12 +8,12 @@ using System.Text.Json;
 
 namespace CombatAnalysis.ChatApi.Services;
 
-public class PersonalChatConsumerService : KafkaConsumerServiceBase
+public class PersonalChatMessageCountConsumerService : KafkaConsumerServiceBase
 {
-    private readonly ILogger<PersonalChatConsumerService> _logger;
+    private readonly ILogger<PersonalChatMessageCountConsumerService> _logger;
     private readonly IServiceScopeFactory _serviceScopeFactory;
 
-    public PersonalChatConsumerService(IOptions<KafkaSettings> kafkaSettings, ILogger<PersonalChatConsumerService> logger, IServiceScopeFactory serviceScopeFactory)
+    public PersonalChatMessageCountConsumerService(IOptions<KafkaSettings> kafkaSettings, ILogger<PersonalChatMessageCountConsumerService> logger, IServiceScopeFactory serviceScopeFactory)
         : base(kafkaSettings, "personal-chat", logger)
     {
         _logger = logger;
@@ -29,10 +29,10 @@ public class PersonalChatConsumerService : KafkaConsumerServiceBase
 
             ArgumentNullException.ThrowIfNull(chatMessageCountService);
 
-            var messageCreatedModel = result.Message.Value.Deserialize<MessageCreatedModel>();
+            var messageCreatedModel = result.Message.Value.Deserialize<PersonalChatMessageAction>();
             ArgumentNullException.ThrowIfNull(messageCreatedModel);
 
-            var messagesCount = await chatMessageCountService.GetByParamAsync(nameof(MessageCreatedModel.ChatId), messageCreatedModel.ChatId);
+            var messagesCount = await chatMessageCountService.GetByParamAsync(nameof(PersonalChatMessageAction.ChatId), messageCreatedModel.ChatId);
             var companionMessageCount = messagesCount.FirstOrDefault(x => x.AppUserId == messageCreatedModel.CompanionId);
             ArgumentNullException.ThrowIfNull(companionMessageCount);
 

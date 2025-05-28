@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CombatAnalysis.ChatApi.Enums;
 using CombatAnalysis.ChatApi.Interfaces;
 using CombatAnalysis.ChatApi.Models;
 using CombatAnalysis.ChatApi.Models.Kafka;
@@ -93,7 +94,14 @@ public class PersonalChatMessageController : ControllerBase
                 ? chat.InitiatorId
                 : chat.CompanionId;
 
-            var userCreatedEvent = JsonSerializer.Serialize(new MessageCreatedModel { ChatId = personalChatMessageModel.ChatId, AppUserId = personalChatMessageModel.AppUserId, CompanionId = companionId });
+            var userCreatedEvent = JsonSerializer.Serialize(new PersonalChatMessageAction 
+            {
+                ChatId = personalChatMessageModel.ChatId, 
+                AppUserId = personalChatMessageModel.AppUserId, 
+                CompanionId = companionId,
+                State = (int)KafkaActionState.Created,
+                When = DateTime.UtcNow.ToString(),
+            });
             await _kafkaProducer.ProduceAsync(MessageCreatedTopic, createdPersonalChatMessage.Id.ToString(), userCreatedEvent);
 
             return Ok(createdPersonalChatMessage);

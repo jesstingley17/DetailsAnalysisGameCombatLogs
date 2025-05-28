@@ -13,7 +13,7 @@ namespace CombatAnalysis.ChatDAL.Extensions;
 
 public static class DataCollectionExtensions
 {
-    public static void RegisterDependenciesForDAL(this IServiceCollection services, string databaseName, string dataProcessingType, string connectionString)
+    public static void RegisterDependenciesForDAL(this IServiceCollection services, string databaseName, string connectionString)
     {
         switch (databaseName)
         {
