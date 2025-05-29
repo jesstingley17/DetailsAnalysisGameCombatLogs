@@ -1,44 +1,42 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-{{ .Values.communication.name }}-deployment
+  name: {{ .Release.Name }}-{{ .Values.user.name }}
   labels:
     app: {{ .Release.Name }}
     env: {{ .Values.env }}
     owner: OlegFedosov
 spec:
-  {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.communication.replicas }}
-  {{- end }}
+  replicas: {{ .Values.autoscaling.min }}
   selector:
     matchLabels:
-      app: {{ .Release.Name }}-{{ .Values.communication.name }}
+      app: {{ .Release.Name }}-{{ .Values.user.name }}
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}-{{ .Values.communication.name }}
+        app: {{ .Release.Name }}-{{ .Values.user.name }}
     spec:
       containers:
-        - name: {{ .Values.communication.container.name }}
-          image: {{ .Values.communication.container.image }}:{{ .Values.imageTags.api.communication }}
+        - name: {{ .Values.user.container.name }}
+          image: {{ .Values.user.container.image }}:{{ .Values.imageTags.api.user }}
           ports:
-            - containerPort: {{ .Values.communication.container.port }}
+            - containerPort: {{ .Values.user.container.port }}
           env:
            - name: ASPNETCORE_ENVIRONMENT
              value: {{ .Values.env }}
            - name: Database_Name
              value: "MSSQL"
            - name: Database_DataProcessingType
-             value: "StoredProcedure"
+             value: "Default"
            - name: ConnectionStrings_DefaultConnection
              valueFrom:
                secretKeyRef:
-                name: communication-db-connection-strings
+                name: user-db-connection-strings
                 key: defaultConnection
            - name: ConnectionStrings_Firebase
              valueFrom:
                secretKeyRef:
-                name: communication-db-connection-strings
+                name: user-db-connection-strings
                 key: firebase
            - name: API_Identity
              value: "https://identity.analysis.com/"

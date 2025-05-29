@@ -5,13 +5,12 @@ resources:
 service:
     port: 80
     targetPort: 8080
-autoscaling: 
-    enabled: true
-    min: 2
+autoscaling:
+    min: 3
     max: 6
 user:
     name: user
-    replicas: 2
+    replicas: 3
     container:
         name: user
         image: solinx/combatanalysisuserapi
@@ -23,11 +22,7 @@ user:
         host: api.user.analysis.com
 communication:
     name: communication
-    replicas: 2
-    autoscaling: 
-        enabled: false
-        min: 2
-        max: 6
+    replicas: 3
     container:
         name: communication
         image: solinx/combatanalysiscommunicationapi
@@ -39,11 +34,7 @@ communication:
         host: api.communication.analysis.com
 chat:
     name: chat
-    replicas: 2
-    autoscaling: 
-        enabled: false
-        min: 2
-        max: 6
+    replicas: 3
     container:
         name: chat
         image: solinx/combatanalysischatapi
@@ -53,13 +44,12 @@ chat:
         targetPort: 8080
     ingress:
         host: api.chat.analysis.com
+    serviceAccount:
+        name: chat-sa
+        role: chat-role
 parser:
     name: combat-parser
-    replicas: 2
-    autoscaling: 
-        enabled: false
-        min: 2
-        max: 6
+    replicas: 3
     container:
         name: combat-parser
         image: solinx/combatanalysiscombatparserapi
@@ -71,11 +61,7 @@ parser:
         host: api.parser.analysis.com
 health:
     name: health
-    replicas: 2
-    autoscaling: 
-        enabled: false
-        min: 2
-        max: 6
+    replicas: 3
     container:
         name: health
         image: solinx/healthapi

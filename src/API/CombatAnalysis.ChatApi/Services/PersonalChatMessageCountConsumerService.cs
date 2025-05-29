@@ -14,7 +14,7 @@ public class PersonalChatMessageCountConsumerService : KafkaConsumerServiceBase
     private readonly IServiceScopeFactory _serviceScopeFactory;
 
     public PersonalChatMessageCountConsumerService(IOptions<KafkaSettings> kafkaSettings, ILogger<PersonalChatMessageCountConsumerService> logger, IServiceScopeFactory serviceScopeFactory)
-        : base(kafkaSettings, "personal-chat", logger)
+        : base(kafkaSettings, KafkaTopics.PersonalChat, logger)
     {
         _logger = logger;
         _serviceScopeFactory = serviceScopeFactory;

@@ -1,47 +1,34 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-{{ .Values.user.name }}-deployment
+  name: {{ .Release.Name }}-{{ .Values.health.name }}
   labels:
     app: {{ .Release.Name }}
     env: {{ .Values.env }}
     owner: OlegFedosov
 spec:
-  {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.user.replicas }}
-  {{- end }}
+  replicas: {{ .Values.health.replicas }}
   selector:
     matchLabels:
-      app: {{ .Release.Name }}-{{ .Values.user.name }}
+      app: {{ .Release.Name }}-{{ .Values.health.name }}
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}-{{ .Values.user.name }}
+        app: {{ .Release.Name }}-{{ .Values.health.name }}
     spec:
       containers:
-        - name: {{ .Values.user.container.name }}
-          image: {{ .Values.user.container.image }}:{{ .Values.imageTags.api.user }}
+        - name: {{ .Values.health.container.name }}
+          image: {{ .Values.health.container.image }}:{{ .Values.imageTags.api.health }}
           ports:
-            - containerPort: {{ .Values.user.container.port }}
+            - containerPort: {{ .Values.health.container.port }}
           env:
            - name: ASPNETCORE_ENVIRONMENT
              value: {{ .Values.env }}
-           - name: Database_Name
-             value: "MSSQL"
-           - name: Database_DataProcessingType
-             value: "Default"
            - name: ConnectionStrings_DefaultConnection
              valueFrom:
                secretKeyRef:
-                name: user-db-connection-strings
+                name: identity-db-connection-strings
                 key: defaultConnection
-           - name: ConnectionStrings_Firebase
-             valueFrom:
-               secretKeyRef:
-                name: user-db-connection-strings
-                key: firebase
-           - name: API_Identity
-             value: "https://identity.analysis.com/"
            - name: Authentication_Issuer
              valueFrom:
                secretKeyRef:
@@ -57,16 +44,11 @@ spec:
                secretKeyRef:
                 name: authentication
                 key: authority
-           - name: Authentication_Client_WebClientId
+           - name: Authentication_Client_ClientId
              valueFrom:
                secretKeyRef:
                 name: client
                 key: webClientId
-           - name: Authentication_Client_DesktopClientId
-             valueFrom:
-               secretKeyRef:
-                name: client
-                key: desktopClientId
            - name: Authentication_Client_Scope
              valueFrom:
                secretKeyRef:

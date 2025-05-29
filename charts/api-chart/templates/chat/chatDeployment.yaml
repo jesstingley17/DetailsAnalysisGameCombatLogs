@@ -1,33 +1,52 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-{{ .Values.chat.name }}-deployment
+  name: {{ .Release.Name }}-{{ .Values.chat.name }}
   labels:
     app: {{ .Release.Name }}
     env: {{ .Values.env }}
     owner: OlegFedosov
 spec:
-  {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.chat.replicas }}
-  {{- end }}
+  replicas: {{ .Values.autoscaling.min }}
   selector:
     matchLabels:
       app: {{ .Release.Name }}-{{ .Values.chat.name }}
   template:
     metadata:
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/role: "{{ .Values.chat.serviceAccount.role }}"
+        vault.hashicorp.com/agent-inject-secret-kafka: "api/Kafka/BootstrapServers"
+        vault.hashicorp.com/agent-inject-template-kafka: |
+          {{ "{{" }} with secret "api/Kafka/BootstrapServers" {{ "}}" }}
+          export Kafka__BootstrapServers="{{ "{{" }} .Data.data.BootstrapServers {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+        vault.hashicorp.com/agent-inject-secret-api: "api/API/Identity"
+        vault.hashicorp.com/agent-inject-template-api: |
+          {{ "{{" }} with secret "api/API/Identity" {{ "}}" }}
+          export API__Identity="{{ "{{" }} .Data.data.Identity {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+        vault.hashicorp.com/agent-inject-secret-db: "api/DB/Name"
+        vault.hashicorp.com/agent-inject-template-db: |
+          {{ "{{" }} with secret "api/DB/Name" {{ "}}" }}
+          export Database__Name="{{ "{{" }} .Data.data.Name {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
       labels:
         app: {{ .Release.Name }}-{{ .Values.chat.name }}
     spec:
+      serviceAccountName: {{ .Values.chat.serviceAccount.name }}
       containers:
         - name: {{ .Values.chat.container.name }}
           image: {{ .Values.chat.container.image }}:{{ .Values.imageTags.api.chat }}
+          command:
+            ['sh', '-c']
+          args:
+            ['. /vault/secrets/kafka && . /vault/secrets/api && . /vault/secrets/db && dotnet CombatAnalysis.ChatApi.dll']
           ports:
             - containerPort: {{ .Values.chat.container.port }}
           env:
            - name: ASPNETCORE_ENVIRONMENT
              value: {{ .Values.env }}
-           - name: Database__Name
-             value: "MSSQL"
            - name: ConnectionStrings__DefaultConnection
              valueFrom:
                secretKeyRef:
@@ -38,14 +57,10 @@ spec:
                secretKeyRef:
                 name: chat-db-connection-strings
                 key: firebase
-           - name: Kafka__BootstrapServers
-             value: "kafka-service.msg-broker-1.svc.cluster.local:9092"
            - name: Kafka__Consumer__GroupId
              value: "combatParser"
            - name: Kafka__Consumer__AutoOffsetReset
              value: "Earliest"
-           - name: API__Identity
-             value: "https://identity.analysis.com/"
            - name: Authentication__Issuer
              valueFrom:
                secretKeyRef:
