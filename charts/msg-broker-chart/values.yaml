@@ -11,7 +11,7 @@ kafka:
     name: kafka
     container:
         name: kafka
-        image: doughgle/kafka-kraft
+        image: bitnami/kafka
         port: 9092
     service:
         port: 9092

@@ -19,8 +19,8 @@ spec:
         app: {{ .Values.kafka.name }}
     spec:
       containers:
-        - name: kafka
-          image: bitnami/kafka:latest
+        - name: {{ .Values.kafka.container.name }}
+          image: {{ .Values.kafka.container.image }}:{{ .Values.imageTags.msgBroker.kafka }}
           ports:
             - containerPort: 9092
           env:
