@@ -1,30 +1,22 @@
 using CombatAnalysis.Identity.Interfaces;
 using CombatAnalysis.Identity.Security;
-using CombatAnalysisIdentity.Consts;
 using CombatAnalysisIdentity.Interfaces;
 using CombatAnalysisIdentity.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Options;
 
 namespace CombatAnalysisIdentity.Pages;
 
-public class NewPasswordModel : PageModel
+public class NewPasswordModel(IOptions<Authentication> authentication, IUserAuthorizationService authorizationService, IUserVerification userVerification) : PageModel
 {
-    private readonly IUserAuthorizationService _authorizationService;
-    private readonly IUserVerification _userVerification;
-
-    public NewPasswordModel(IUserAuthorizationService authorizationService, IUserVerification userVerification)
-    {
-        _authorizationService = authorizationService;
-        _userVerification = userVerification;
-    }
-
-    public string AppUrl { get; } = API.Identity;
+    private readonly IUserAuthorizationService _authorizationService = authorizationService;
+    private readonly IUserVerification _userVerification = userVerification;
 
     [BindProperty]
     public PasswordResetModel PasswordReset{ get; set; }
 
-    public string Protocol { get; } = Authentication.Protocol;
+    public string Protocol { get; } = authentication.Value.Protocol;
 
     public IActionResult OnGet(string token)
     {
@@ -56,7 +48,7 @@ public class NewPasswordModel : PageModel
         var wasReseted = await _userVerification.ResetPasswordAsync(PasswordReset.Token, PasswordReset.Password);
         if (wasReseted)
         {
-            var redirectUri = $"{Authentication.Protocol}://{Request.Query["redirectUri"]}?accessRestored=true";
+            var redirectUri = $"{Protocol}://{Request.Query["redirectUri"]}?accessRestored=true";
 
             return Redirect(redirectUri);
         }

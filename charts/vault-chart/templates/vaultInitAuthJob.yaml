@@ -1,0 +1,49 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: vault-init-auth
+spec:
+  template:
+    spec:
+      serviceAccountName: vault-init
+      containers:
+        - name: vault-init
+          image: hashicorp/vault:1.15.4
+          command:
+            - /bin/sh
+            - -c
+            - |
+              vault login $Token
+
+              # Enable Kubernetes auth
+              vault auth enable kubernetes
+
+              vault policy write api-policy -<<EOF
+              path "api/*" {
+                capabilities = ["read"]
+              }
+              EOF
+
+              # Write auth Kubernetes role for chat api
+              vault write auth/kubernetes/role/chat-role \
+                bound_service_account_names=chat-sa \
+                bound_service_account_namespaces=api \
+                policies=api-policy \
+                ttl=24h
+              
+              # Write auth Kubernetes role for communication api
+              vault write auth/kubernetes/role/communication-role \
+                bound_service_account_names=communication-sa \
+                bound_service_account_namespaces=api \
+                policies=api-policy \
+                ttl=24h
+
+              # Write auth Kubernetes config
+              # vault write auth/kubernetes/config \
+              #   token_reviewer_jwt="$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" \
+              #   kubernetes_host="https://$KUBERNETES_PORT_443_TCP_ADDR:443" \
+              #   kubernetes_ca_cert=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+          envFrom:
+            - secretRef:
+                name: vault-init-secret
+      restartPolicy: OnFailure

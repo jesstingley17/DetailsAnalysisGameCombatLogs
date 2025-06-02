@@ -32,6 +32,9 @@ communication:
     targetPort: 8080
   ingress:
     host: api.communication.analysis.com
+  vault:
+    serviceAccountName: communication-sa
+    role: communication-role
 chat:
   name: chat
   replicas: 3
@@ -44,8 +47,8 @@ chat:
     targetPort: 8080
   ingress:
     host: api.chat.analysis.com
-  serviceAccount:
-    name: chat-sa
+  vault:
+    serviceAccountName: chat-sa
     role: chat-role
 parser:
   name: combat-parser

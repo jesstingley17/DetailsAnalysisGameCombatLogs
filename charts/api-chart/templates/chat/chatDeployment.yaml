@@ -13,81 +13,69 @@ spec:
       app: {{ .Release.Name }}-{{ .Values.chat.name }}
   template:
     metadata:
+      labels:
+        app: {{ .Release.Name }}-{{ .Values.chat.name }}
       annotations:
         vault.hashicorp.com/agent-inject: "true"
-        vault.hashicorp.com/role: "{{ .Values.chat.serviceAccount.role }}"
-        vault.hashicorp.com/agent-inject-secret-kafka: "api/Kafka/BootstrapServers"
+        vault.hashicorp.com/role: "{{ .Values.chat.vault.role }}"
+        vault.hashicorp.com/agent-inject-secret-kafka: "api/Kafka"
         vault.hashicorp.com/agent-inject-template-kafka: |
           {{ "{{" }} with secret "api/Kafka/BootstrapServers" {{ "}}" }}
           export Kafka__BootstrapServers="{{ "{{" }} .Data.data.BootstrapServers {{ "}}" }}"
           {{ "{{" }} end{{ "}}" }}
-        vault.hashicorp.com/agent-inject-secret-api: "api/API/Identity"
+          {{ "{{" }} with secret "api/Kafka/Consumer/GroupId" {{ "}}" }}
+          export Kafka__Consumer__GroupId="{{ "{{" }} .Data.data.GroupId {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "api/Kafka/Consumer/AutoOffsetReset" {{ "}}" }}
+          export Kafka__Consumer__AutoOffsetReset="{{ "{{" }} .Data.data.AutoOffsetReset {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+        vault.hashicorp.com/agent-inject-secret-api: "api/API"
         vault.hashicorp.com/agent-inject-template-api: |
           {{ "{{" }} with secret "api/API/Identity" {{ "}}" }}
           export API__Identity="{{ "{{" }} .Data.data.Identity {{ "}}" }}"
           {{ "{{" }} end{{ "}}" }}
-        vault.hashicorp.com/agent-inject-secret-db: "api/DB/Name"
+        vault.hashicorp.com/agent-inject-secret-db: "api/DB"
         vault.hashicorp.com/agent-inject-template-db: |
-          {{ "{{" }} with secret "api/DB/Name" {{ "}}" }}
+          {{ "{{" }} with secret "api/DB/Chat/DefaultConnection " {{ "}}" }}
+          export Database__DefaultConnection="{{ "{{" }} .Data.data.DefaultConnection {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "api/DB/Chat/FirebaseConnection  " {{ "}}" }}
+          export Database__FirebaseConnection="{{ "{{" }} .Data.data.FirebaseConnection  {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "api/DB/Chat/Name" {{ "}}" }}
           export Database__Name="{{ "{{" }} .Data.data.Name {{ "}}" }}"
           {{ "{{" }} end{{ "}}" }}
-      labels:
-        app: {{ .Release.Name }}-{{ .Values.chat.name }}
+        vault.hashicorp.com/agent-inject-secret-authentication: "api/Authentication"
+        vault.hashicorp.com/agent-inject-template-authentication: |
+          {{ "{{" }} with secret "api/Authentication/Authority" {{ "}}" }}
+          export Authentication__Authority="{{ "{{" }} .Data.data.Authority {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "api/Authentication/Issuer  " {{ "}}" }}
+          export Authentication__Issuer="{{ "{{" }} .Data.data.Issuer {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "api/Authentication/IssuerSigningKey" {{ "}}" }}
+          export Authentication__IssuerSigningKey="{{ "{{" }} .Data.data.IssuerSigningKey {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "api/Authentication/Client/DesktopClientId" {{ "}}" }}
+          export Authentication__Client__DesktopClientId="{{ "{{" }} .Data.data.DesktopClientId {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "api/Authentication/Client/WebClientId   " {{ "}}" }}
+          export Authentication__Client__WebClientId="{{ "{{" }} .Data.data.WebClientId  {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "api/Authentication/Client/Scope " {{ "}}" }}
+          export Authentication__Client__Scope="{{ "{{" }} .Data.data.Scope  {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
     spec:
-      serviceAccountName: {{ .Values.chat.serviceAccount.name }}
+      serviceAccountName: {{ .Values.chat.vault.serviceAccountName }}
       containers:
         - name: {{ .Values.chat.container.name }}
           image: {{ .Values.chat.container.image }}:{{ .Values.imageTags.api.chat }}
           command:
             ['sh', '-c']
           args:
-            ['. /vault/secrets/kafka && . /vault/secrets/api && . /vault/secrets/db && dotnet CombatAnalysis.ChatApi.dll']
+            ['. /vault/secrets/kafka && . /vault/secrets/api && . /vault/secrets/db && . /vault/secrets/authentication && dotnet CombatAnalysis.ChatApi.dll']
           ports:
             - containerPort: {{ .Values.chat.container.port }}
           env:
            - name: ASPNETCORE_ENVIRONMENT
              value: {{ .Values.env }}
-           - name: ConnectionStrings__DefaultConnection
-             valueFrom:
-               secretKeyRef:
-                name: chat-db-connection-strings
-                key: defaultConnection
-           - name: ConnectionStrings__FirebaseConnection
-             valueFrom:
-               secretKeyRef:
-                name: chat-db-connection-strings
-                key: firebase
-           - name: Kafka__Consumer__GroupId
-             value: "combatParser"
-           - name: Kafka__Consumer__AutoOffsetReset
-             value: "Earliest"
-           - name: Authentication__Issuer
-             valueFrom:
-               secretKeyRef:
-                name: authentication
-                key: issuer
-           - name: Authentication__IssuerSigningKey
-             valueFrom:
-               secretKeyRef:
-                name: authentication
-                key: issuerSigningKey
-           - name: Authentication__Authority
-             valueFrom:
-               secretKeyRef:
-                name: authentication
-                key: authority
-           - name: Authentication__Client__WebClientId
-             valueFrom:
-               secretKeyRef:
-                name: client
-                key: webClientId
-           - name: Authentication__Client__DesktopClientId
-             valueFrom:
-               secretKeyRef:
-                name: client
-                key: desktopClientId
-           - name: Authentication__Client__Scope
-             valueFrom:
-               secretKeyRef:
-                name: client
-                key: scope

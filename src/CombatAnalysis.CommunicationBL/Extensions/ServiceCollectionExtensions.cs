@@ -11,9 +11,9 @@ namespace CombatAnalysis.CommunicationBL.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static void CommunicationBLDependencies(this IServiceCollection services, string databaseName, string dataProcessingType, string connectionString)
+    public static void CommunicationBLDependencies(this IServiceCollection services, string databaseName, string connectionString)
     {
-        services.RegisterDependenciesForDAL(databaseName, dataProcessingType, connectionString);
+        services.RegisterDependenciesForDAL(databaseName, connectionString);
 
         services.AddScoped<ISqlContextService, SqlContextService>();
 

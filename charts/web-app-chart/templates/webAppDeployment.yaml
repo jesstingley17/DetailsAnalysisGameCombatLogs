@@ -27,13 +27,13 @@ spec:
            - name: ASPNETCORE_ENVIRONMENT
              value: {{ .Values.env }}
            - name: Cluster_CombatParser
-             value: "http://api-combat-parser-service.api.svc.cluster.local/"
+             value: "http://api-combat-parser.api.svc.cluster.local/"
            - name: Cluster_User
-             value: "http://api-user-service.api.svc.cluster.local/"
+             value: "http://api-user.api.svc.cluster.local/"
            - name: Cluster_Chat
-             value: "http://api-chat-service.api.svc.cluster.local/"
+             value: "http://api-chat.api.svc.cluster.local/"
            - name: Cluster_Communication
-             value: "http://api-communication-service.api.svc.cluster.local/"
+             value: "http://api-communication.api.svc.cluster.local/"
            - name: Cluster_Identity
              value: "http://identity-service.identity.svc.cluster.local/"
            - name: Servers_Identity

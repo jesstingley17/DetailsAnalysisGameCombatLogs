@@ -4,18 +4,19 @@ using CombatAnalysisIdentity.Interfaces;
 using CombatAnalysisIdentity.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Options;
 
 namespace CombatAnalysisIdentity.Pages;
 
-public class AuthorizationModel(IUserAuthorizationService authorizationService) : PageModel
+public class AuthorizationModel(IOptions<API> api, IOptions<Authentication> authentication, IUserAuthorizationService authorizationService) : PageModel
 {
     private readonly IUserAuthorizationService _authorizationService = authorizationService;
 
     public bool QueryIsValid { get; set; }
 
-    public string AppUrl { get; } = API.Identity;
+    public string AppUrl { get; } = api.Value.Identity;
 
-    public string Protocol { get; } = Authentication.Protocol;
+    public string Protocol { get; set; } = authentication.Value.Protocol;
 
     [BindProperty]
     public AuthorizationDataModel? Authorization { get; set; }

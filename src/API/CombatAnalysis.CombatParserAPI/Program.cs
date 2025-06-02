@@ -12,17 +12,6 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var envName = builder.Environment.EnvironmentName;
-
-if (string.Equals(envName, "Development", StringComparison.OrdinalIgnoreCase))
-{
-    CreateEnvironmentHelper.UseAppsettings(builder.Configuration);
-}
-else
-{
-    CreateEnvironmentHelper.UseEnvVariables();
-}
-
 var connection = DatabaseProps.Name == nameof(DatabaseType.MSSQL)
     ? DatabaseProps.MSSQLConnectionString
     : DatabaseProps.FirebaseConnectionString;

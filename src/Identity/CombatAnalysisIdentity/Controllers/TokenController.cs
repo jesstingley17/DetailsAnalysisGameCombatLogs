@@ -3,13 +3,16 @@ using CombatAnalysis.Identity.Interfaces;
 using CombatAnalysis.Identity.Security;
 using CombatAnalysisIdentity.Consts;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace CombatAnalysisIdentity.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-public class TokenController(IOAuthCodeFlowService oAuthCodeFlowService, ILogger<TokenController> logger) : ControllerBase
+public class TokenController(IOptions<AuthenticationGrantType> authenticationGrantType, IOptions<Authentication> authentication, IOAuthCodeFlowService oAuthCodeFlowService, ILogger<TokenController> logger) : ControllerBase
 {
+    private readonly AuthenticationGrantType _authenticationGrantType = authenticationGrantType.Value;
+    private readonly Authentication _authentication = authentication.Value;
     private readonly IOAuthCodeFlowService _oAuthCodeFlowService = oAuthCodeFlowService;
     private readonly ILogger<TokenController> _logger = logger;
 
@@ -27,7 +30,7 @@ public class TokenController(IOAuthCodeFlowService oAuthCodeFlowService, ILogger
                 return BadRequest();
             }
 
-            if (!grantType.Equals(AuthenticationGrantType.Authorization))
+            if (!grantType.Equals(_authenticationGrantType.Authorization))
             {
                 return BadRequest();
             }
@@ -39,7 +42,7 @@ public class TokenController(IOAuthCodeFlowService oAuthCodeFlowService, ILogger
                 return BadRequest();
             }
 
-            var (authorizationCode, userId) = _oAuthCodeFlowService.DecryptAuthorizationCode(decodedAuthorizationCode, Authentication.IssuerSigningKey);
+            var (authorizationCode, userId) = _oAuthCodeFlowService.DecryptAuthorizationCode(decodedAuthorizationCode, _authentication.IssuerSigningKey);
 
             var token = await GenerateTokenAsync(clientId, userId);
 
@@ -77,7 +80,7 @@ public class TokenController(IOAuthCodeFlowService oAuthCodeFlowService, ILogger
                 return BadRequest();
             }
 
-            if (!grantType.Equals(AuthenticationGrantType.RefreshToken))
+            if (!grantType.Equals(_authenticationGrantType.RefreshToken))
             {
                 return BadRequest();
             }
@@ -105,13 +108,13 @@ public class TokenController(IOAuthCodeFlowService oAuthCodeFlowService, ILogger
         var accessToken = _oAuthCodeFlowService.GenerateToken(clientId, userId);
         var refreshToken = _oAuthCodeFlowService.GenerateToken(clientId);
 
-        await _oAuthCodeFlowService.SaveRefreshTokenAsync(refreshToken, Authentication.RefreshTokenExpiresDays, clientId, userId);
+        await _oAuthCodeFlowService.SaveRefreshTokenAsync(refreshToken, _authentication.RefreshTokenExpiresDays, clientId, userId);
 
         var token = new AccessTokenDto
         {
             AccessToken = accessToken,
             TokenType = "Bearer",
-            Expires = DateTimeOffset.UtcNow.AddMinutes(Authentication.AccessTokenExpiresMins),
+            Expires = DateTimeOffset.UtcNow.AddMinutes(_authentication.AccessTokenExpiresMins),
             RefreshToken = refreshToken
         };
 
@@ -126,7 +129,7 @@ public class TokenController(IOAuthCodeFlowService oAuthCodeFlowService, ILogger
         {
             AccessToken = accessToken,
             TokenType = "Bearer",
-            Expires = DateTimeOffset.UtcNow.AddMinutes(Authentication.AccessTokenExpiresMins),
+            Expires = DateTimeOffset.UtcNow.AddMinutes(_authentication.AccessTokenExpiresMins),
             RefreshToken = refreshToken
         };
 

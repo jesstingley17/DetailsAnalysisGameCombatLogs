@@ -1,31 +1,23 @@
 using CombatAnalysis.Identity.Interfaces;
 using CombatAnalysis.Identity.Security;
-using CombatAnalysisIdentity.Consts;
 using CombatAnalysisIdentity.Interfaces;
 using CombatAnalysisIdentity.Models;
 using CombatAnalysisIdentity.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Options;
 using System.Net.Mail;
 
 namespace CombatAnalysisIdentity.Pages;
 
-public class RestoreModel : PageModel
+public class RestoreModel(IOptions<Authentication> authentication, EmailService emailService, IUserAuthorizationService authorizationService, IUserVerification userVerification, ILogger<RestoreModel> logger) : PageModel
 {
-    private readonly IUserAuthorizationService _authorizationService;
-    private readonly IUserVerification _userVerification;
-    private readonly ILogger<RestoreModel> _logger;
+    private readonly EmailService _emailService = emailService;
+    private readonly IUserAuthorizationService _authorizationService = authorizationService;
+    private readonly IUserVerification _userVerification = userVerification;
+    private readonly ILogger<RestoreModel> _logger = logger;
 
-    public RestoreModel(IUserAuthorizationService authorizationService, IUserVerification userVerification, ILogger<RestoreModel> logger)
-    {
-        _authorizationService = authorizationService;
-        _userVerification = userVerification;
-        _logger = logger;
-    }
-
-    public string AppUrl { get; } = API.Identity;
-
-    public string Protocol { get; } = Authentication.Protocol;
+    public string Protocol { get; } = authentication.Value.Protocol;
 
     public int SendEmailRespond { get; private set; }
 
@@ -71,11 +63,11 @@ public class RestoreModel : PageModel
         }
     }
 
-    private static async Task SendResetPasswordToEmailAsync(string email, string resetLink)
+    private async Task SendResetPasswordToEmailAsync(string email, string resetLink)
     {
         const string subject = "Password Reset";
         string body = $"<p>Click on <a href=\"{resetLink}\">Restore link</a> to reset your password.</p>";
 
-        await EmailService.SendResetPasswordEmailAsync(email, subject, body);
+        await _emailService.SendResetPasswordEmailAsync(email, subject, body);
     }
 }

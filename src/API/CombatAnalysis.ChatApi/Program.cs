@@ -12,8 +12,6 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var envName = builder.Environment.EnvironmentName;
-
 builder.Services.Configure<KafkaSettings>(builder.Configuration.GetSection("Kafka"));
 
 var databasePropsOptions = new DatabaseProps();
@@ -29,6 +27,8 @@ var mappingConfig = new MapperConfiguration(mc =>
     mc.AddProfile(new ChatMapper());
     mc.AddProfile(new ChatBLMapper());
 });
+var mapper = mappingConfig.CreateMapper();
+builder.Services.AddSingleton(mapper);
 
 var authenticationOptions = new Authentication();
 builder.Configuration.Bind("Authentication", authenticationOptions);
@@ -37,8 +37,6 @@ builder.Configuration.Bind("Authentication:Client", authenticationClientOptions)
 var apiOptions = new API();
 builder.Configuration.Bind("API", apiOptions);
 
-var mapper = mappingConfig.CreateMapper();
-builder.Services.AddSingleton(mapper);
 builder.Services.AddAuthentication("Bearer")
     .AddJwtBearer(options =>
     {

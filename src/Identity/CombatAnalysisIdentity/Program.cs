@@ -1,11 +1,11 @@
 using AutoMapper;
 using CombatAnalysis.Identity.Extensions;
 using CombatAnalysis.Identity.Mapping;
+using CombatAnalysis.Identity.Security;
 using CombatAnalysis.UserBL.Extensions;
 using CombatAnalysis.UserBL.Mapping;
 using CombatAnalysisIdentity.Consts;
 using CombatAnalysisIdentity.Core;
-using CombatAnalysisIdentity.Helpers;
 using CombatAnalysisIdentity.Interfaces;
 using CombatAnalysisIdentity.Mapping;
 using CombatAnalysisIdentity.Services;
@@ -14,19 +14,16 @@ using System.Security.Cryptography.X509Certificates;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var envName = builder.Environment.EnvironmentName;
+builder.Services.Configure<API>(builder.Configuration.GetSection("API"));
+builder.Services.Configure<Authentication>(builder.Configuration.GetSection("Authentication"));
+builder.Services.Configure<AuthenticationGrantType>(builder.Configuration.GetSection("Authentication:GrantType"));
+builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("Smtp"));
 
-if (string.Equals(envName, "Development", StringComparison.OrdinalIgnoreCase))
-{
-    CreateEnvironmentHelper.UseAppsettings(builder.Configuration);
-}
-else
-{
-    CreateEnvironmentHelper.UseEnvVariables();
-}
+var databasePropsOptions = new DatabaseProps();
+builder.Configuration.Bind("Database", databasePropsOptions);
 
-builder.Services.RegisterIdentityDependencies(DatabaseProps.DefaultConnectionString);
-builder.Services.UserBLDependencies("MSSQL", "Default", DatabaseProps.UserConnectionString);
+builder.Services.RegisterIdentityDependencies(databasePropsOptions.DefaultConnection);
+builder.Services.UserBLDependencies(databasePropsOptions.Name, databasePropsOptions.UserConnection);
 
 var mappingConfig = new MapperConfiguration(mc =>
 {
@@ -36,6 +33,7 @@ var mappingConfig = new MapperConfiguration(mc =>
 });
 var mapper = mappingConfig.CreateMapper();
 builder.Services.AddSingleton(mapper);
+
 builder.Services.AddTransient<IUserAuthorizationService, UserAuthorizationService>();
 
 builder.Services.AddRazorPages()
@@ -51,7 +49,10 @@ builder.Services.AddCors(options =>
     });
 });
 
-var certificate = new X509Certificate2(Certificate.PfxPath, Certificate.PWD);
+var certificateOptions = new Certificate();
+builder.Configuration.Bind("Certificate", certificateOptions);
+
+var certificate = new X509Certificate2(certificateOptions.PfxPath, certificateOptions.PWD);
 builder.Services.AddIdentityServer()
             .AddSigningCredential(certificate)
             .AddInMemoryApiResources(Config.GetApiResources())

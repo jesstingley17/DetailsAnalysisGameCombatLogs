@@ -1,7 +1,6 @@
 using AutoMapper;
 using CombatAnalysis.UserApi.Consts;
 using CombatAnalysis.UserApi.Enums;
-using CombatAnalysis.UserApi.Helpers;
 using CombatAnalysis.UserApi.Mapping;
 using CombatAnalysis.UserBL.Extensions;
 using CombatAnalysis.UserBL.Mapping;
@@ -11,42 +10,41 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var envName = builder.Environment.EnvironmentName;
+var databasePropsOptions = new DatabaseProps();
+builder.Configuration.Bind("Database", databasePropsOptions);
 
-if (string.Equals(envName, "Development", StringComparison.OrdinalIgnoreCase))
-{
-    CreateEnvironmentHelper.UseAppsettings(builder.Configuration);
-}
-else
-{
-    CreateEnvironmentHelper.UseEnvVariables();
-}
-
-var connection = DatabaseProps.Name == nameof(DatabaseType.MSSQL)
-    ? DatabaseProps.MSSQLConnectionString
-    : DatabaseProps.FirebaseConnectionString;
-builder.Services.UserBLDependencies(DatabaseProps.Name, DatabaseProps.DataProcessingType, connection);
+var connection = databasePropsOptions.Name == nameof(DatabaseType.MSSQL)
+    ? databasePropsOptions.DefaultConnection
+    : databasePropsOptions.FirebaseConnection;
+builder.Services.UserBLDependencies(databasePropsOptions.Name, connection);
 
 var mappingConfig = new MapperConfiguration(mc =>
 {
     mc.AddProfile(new UserApiMapper());
     mc.AddProfile(new CustomerBLMapper());
 });
-
 var mapper = mappingConfig.CreateMapper();
 builder.Services.AddSingleton(mapper);
+
+var authenticationOptions = new Authentication();
+builder.Configuration.Bind("Authentication", authenticationOptions);
+var authenticationClientOptions = new AuthenticationClient();
+builder.Configuration.Bind("Authentication:Client", authenticationClientOptions);
+var apiOptions = new API();
+builder.Configuration.Bind("API", apiOptions);
+
 builder.Services.AddAuthentication("Bearer")
         .AddJwtBearer(options =>
         {
-            options.Authority = Authentication.Authority;
+            options.Authority = authenticationOptions.Authority;
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Authentication.IssuerSigningKey),
+                IssuerSigningKey = new SymmetricSecurityKey(authenticationOptions.IssuerSigningKey),
                 ValidateIssuer = true,
-                ValidIssuer = Authentication.Issuer,
+                ValidIssuer = authenticationOptions.Issuer,
                 ValidateAudience = true,
-                ValidAudiences = [AuthenticationClient.WebClientId, AuthenticationClient.DesktopClientId],
+                ValidAudiences = [authenticationClientOptions.WebClientId, authenticationClientOptions.DesktopClientId],
                 ClockSkew = TimeSpan.Zero
             };
             // Skip checking HTTPS (should be HTTPS in production)
@@ -58,7 +56,7 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("ApiScope", policyBuilder =>
     {
         policyBuilder.RequireAuthenticatedUser();
-        policyBuilder.RequireClaim("scope", AuthenticationClient.Scope);
+        policyBuilder.RequireClaim("scope", authenticationClientOptions.Scope);
     });
 });
 
@@ -79,10 +77,10 @@ builder.Services.AddSwaggerGen(options =>
         {
             ClientCredentials = new OpenApiOAuthFlow
             {
-                TokenUrl = new Uri($"{API.Identity}connect/token"),
+                TokenUrl = new Uri($"{apiOptions.Identity}connect/token"),
                 Scopes = new Dictionary<string, string>
                 {
-                    { AuthenticationClient.Scope, "Request API #1" }
+                    { authenticationClientOptions.Scope, "Request API #1" }
                 }
             }
         }
@@ -99,7 +97,7 @@ builder.Services.AddSwaggerGen(options =>
                         Id = "oauth2"
                     },
                 },
-                new[] { AuthenticationClient.Scope }
+                new[] { authenticationClientOptions.Scope }
             }
         });
 });
@@ -123,8 +121,8 @@ app.UseSwaggerUI(options =>
 {
     options.SwaggerEndpoint("/swagger/v1/swagger.json", "User API v1");
     options.InjectStylesheet("/swagger-ui/swaggerDark.css");
-    options.OAuthClientId(AuthenticationClient.WebClientId);
-    options.OAuthScopes(AuthenticationClient.Scope);
+    options.OAuthClientId(authenticationClientOptions.WebClientId);
+    options.OAuthScopes(authenticationClientOptions.Scope);
 });
 
 app.UseStaticFiles();

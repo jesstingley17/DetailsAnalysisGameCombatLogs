@@ -6,16 +6,11 @@ using System.Net.Mail;
 
 namespace CombatAnalysisIdentity.Pages;
 
-public class InitVerificationModel : PageModel
+public class InitVerificationModel(EmailService emailService, IUserVerification userVerification, ILogger<InitVerificationModel> logger) : PageModel
 {
-    private readonly IUserVerification _userVerification;
-    private readonly ILogger<InitVerificationModel> _logger;
-
-    public InitVerificationModel(IUserVerification userVerification, ILogger<InitVerificationModel> logger)
-    {
-        _userVerification = userVerification;
-        _logger = logger;
-    }
+    private readonly IUserVerification _userVerification = userVerification;
+    private readonly EmailService _emailService = emailService;
+    private readonly ILogger<InitVerificationModel> _logger = logger;
 
     public async Task<IActionResult> OnGet(string email)
     {
@@ -41,11 +36,11 @@ public class InitVerificationModel : PageModel
         }
     }
 
-    private static async Task SendVerifyEmailToEmailAsync(string email, string verifyLink)
+    private async Task SendVerifyEmailToEmailAsync(string email, string verifyLink)
     {
         const string subject = "Email verification";
         string body = $"<p>Click on <a href=\"{verifyLink}\">Verify</a> for verification your email.</p>";
 
-        await EmailService.SendResetPasswordEmailAsync(email, subject, body);
+        await _emailService.SendResetPasswordEmailAsync(email, subject, body);
     }
 }

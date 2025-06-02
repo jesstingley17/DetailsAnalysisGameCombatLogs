@@ -1,13 +1,14 @@
 ﻿using AutoMapper;
-using CombatAnalysis.UserBL.DTO;
-using CombatAnalysis.UserBL.Interfaces;
 using CombatAnalysis.Identity.DTO;
 using CombatAnalysis.Identity.Interfaces;
 using CombatAnalysis.Identity.Security;
+using CombatAnalysis.UserBL.DTO;
+using CombatAnalysis.UserBL.Interfaces;
 using CombatAnalysisIdentity.Consts;
 using CombatAnalysisIdentity.Interfaces;
 using CombatAnalysisIdentity.Models;
 using CombatAnalysisIdentity.Security;
+using Microsoft.Extensions.Options;
 using System.Text.RegularExpressions;
 
 namespace CombatAnalysisIdentity.Services;
@@ -17,18 +18,23 @@ internal class UserAuthorizationService : IUserAuthorizationService
     private readonly IMapper _mapper;
     private readonly IOAuthCodeFlowService _oAuthCodeFlowService;
     private readonly IIdentityUserService _identityUserService;
+    private readonly Authentication _authentication;
+    private readonly API _api;
     private readonly IUserService<AppUserDto> _appUserService;
     private readonly IService<CustomerDto, string> _customerService;
     private readonly ICustomerTransactionService _userTransactionService;
     private readonly IIdentityTransactionService _identityTransactionService;
     private readonly ILogger<UserAuthorizationService> _logger;
-    private AuthorizationRequestModel _authorizationRequest = new AuthorizationRequestModel();
+    private readonly AuthorizationRequestModel _authorizationRequest = new();
 
-    public UserAuthorizationService(IMapper mapper, IOAuthCodeFlowService oAuthCodeFlowService, IIdentityUserService identityUserService, ILogger<UserAuthorizationService> logger,
+    public UserAuthorizationService(IMapper mapper, IOAuthCodeFlowService oAuthCodeFlowService, IOptions<Authentication> authentication, IOptions<API> api, 
+        IIdentityUserService identityUserService, ILogger<UserAuthorizationService> logger,
         IUserService<AppUserDto> appUserService, IService<CustomerDto, string> customerService, ICustomerTransactionService customerTransactionService, IIdentityTransactionService identityTransactionService)
     {
         _mapper = mapper;
         _oAuthCodeFlowService = oAuthCodeFlowService;
+        _authentication = authentication.Value;
+        _api = api.Value;
         _identityUserService = identityUserService;
         _appUserService = appUserService;
         _customerService = customerService;
@@ -56,7 +62,7 @@ internal class UserAuthorizationService : IUserAuthorizationService
         var authorizationCode = await _oAuthCodeFlowService.GenerateAuthorizationCodeAsync(user.Id, _authorizationRequest.ClientTd, _authorizationRequest.CodeChallenge, _authorizationRequest.CodeChallengeMethod, _authorizationRequest.RedirectUri);
 
         var encodedAuthorizationCode = Uri.EscapeDataString(authorizationCode);
-        var redirectUrl = $"{Authentication.Protocol}://{_authorizationRequest.RedirectUri}?code={encodedAuthorizationCode}&state={_authorizationRequest.State}";
+        var redirectUrl = $"{_authentication.Protocol}://{_authorizationRequest.RedirectUri}?code={encodedAuthorizationCode}&state={_authorizationRequest.State}";
 
         return redirectUrl;
     }
@@ -123,7 +129,7 @@ internal class UserAuthorizationService : IUserAuthorizationService
         try
         {
             var httpClient = new HttpClient();
-            var response = await httpClient.GetAsync($"{API.User}api/v1/Account/check/{username}");
+            var response = await httpClient.GetAsync($"{_api.User}api/v1/Account/check/{username}");
             response.EnsureSuccessStatusCode();
 
             var usernameAlreadyUsed = await response.Content.ReadFromJsonAsync<bool>();

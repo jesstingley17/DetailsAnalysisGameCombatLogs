@@ -1,8 +1,8 @@
 ﻿namespace CombatAnalysisIdentity.Consts;
 
-internal static class Certificate
+internal class Certificate
 {
-    public static string PfxPath { get; set; }
+    public string PfxPath { get; set; }
 
-    public static string PWD { get; set; }
+    public string PWD { get; set; }
 }

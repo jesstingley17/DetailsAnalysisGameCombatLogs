@@ -2,6 +2,7 @@
 using CombatAnalysis.Identity.Security;
 using CombatAnalysis.IdentityDAL.Entities;
 using CombatAnalysis.IdentityDAL.Interfaces;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -10,8 +11,9 @@ using System.Text;
 
 namespace CombatAnalysis.Identity.Services;
 
-internal class OAuthCodeFlowService(IPkeRepository pkeRepository, IClientRepository clientRepository, ITokenRepository tokenRepository) : IOAuthCodeFlowService
+internal class OAuthCodeFlowService(IOptions<Authentication> authentication, IPkeRepository pkeRepository, IClientRepository clientRepository, ITokenRepository tokenRepository) : IOAuthCodeFlowService
 {
+    private readonly Authentication _authentication = authentication.Value;
     private readonly IPkeRepository _pkeRepository = pkeRepository;
     private readonly IClientRepository _clientRepository = clientRepository;
     private readonly ITokenRepository _tokenRepository = tokenRepository;
@@ -20,7 +22,7 @@ internal class OAuthCodeFlowService(IPkeRepository pkeRepository, IClientReposit
     {
         var authorizationCode = GenerateAuthorizationCode();
 
-        var encryptedAuthorizationCode = EncryptAuthorizationCode(authorizationCode, userId, Authentication.IssuerSigningKey);
+        var encryptedAuthorizationCode = EncryptAuthorizationCode(authorizationCode, userId, _authentication.IssuerSigningKey);
 
         await _pkeRepository.CreateAsync(clientId, encryptedAuthorizationCode, codeChallenge, codeChallengeMethod, redirectUri);
 
@@ -140,7 +142,7 @@ internal class OAuthCodeFlowService(IPkeRepository pkeRepository, IClientReposit
 
     string IOAuthCodeFlowService.GenerateToken(string clientId, string userId = "")
     {
-        var key = new SymmetricSecurityKey(Authentication.IssuerSigningKey);
+        var key = new SymmetricSecurityKey(_authentication.IssuerSigningKey);
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var claims = new[]
@@ -150,10 +152,10 @@ internal class OAuthCodeFlowService(IPkeRepository pkeRepository, IClientReposit
         };
 
         var jwySecurityToken = new JwtSecurityToken(
-            issuer: Authentication.Issuer,
+            issuer: _authentication.Issuer,
             audience: clientId,
             claims: !string.IsNullOrEmpty(userId) ? claims : [],
-            expires: DateTime.Now.AddMinutes(Authentication.AccessTokenExpiresMins),
+            expires: DateTime.Now.AddMinutes(_authentication.AccessTokenExpiresMins),
             signingCredentials: creds
         );
 

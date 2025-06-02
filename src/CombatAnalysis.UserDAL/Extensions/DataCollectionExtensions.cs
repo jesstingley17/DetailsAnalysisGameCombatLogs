@@ -12,7 +12,7 @@ namespace CombatAnalysis.UserDAL.Extensions;
 
 public static class DataCollectionExtensions
 {
-    public static void UserDALDependencies(this IServiceCollection services, string databaseName, string dataProcessingType, string connectionString)
+    public static void UserDALDependencies(this IServiceCollection services, string databaseName, string connectionString)
     {
         switch (databaseName)
         {
