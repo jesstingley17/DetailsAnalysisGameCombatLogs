@@ -2,6 +2,7 @@
 using CombatAnalysis.WebApp.Interfaces;
 using CombatAnalysis.WebApp.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace CombatAnalysis.WebApp.Controllers;
 
@@ -12,11 +13,11 @@ public class HealDoneGeneralController : ControllerBase
     private readonly IHttpClientHelper _httpClient;
     private readonly ILogger<HealDoneGeneralController> _logger;
 
-    public HealDoneGeneralController(IHttpClientHelper httpClient, ILogger<HealDoneGeneralController> logger)
+    public HealDoneGeneralController(IOptions<Cluster> cluster, IHttpClientHelper httpClient, ILogger<HealDoneGeneralController> logger)
     {
         _httpClient = httpClient;
         _logger = logger;
-        _httpClient.APIUrl = Cluster.CombatParser;
+        _httpClient.APIUrl = cluster.Value.CombatParser;
     }
 
     [HttpGet("getByCombatPlayerId/{combatPlayerId:int:min(1)}")]

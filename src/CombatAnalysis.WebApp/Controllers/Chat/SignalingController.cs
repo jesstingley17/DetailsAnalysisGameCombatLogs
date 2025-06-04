@@ -2,6 +2,7 @@
 using CombatAnalysis.WebApp.Consts;
 using CombatAnalysis.WebApp.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace CombatAnalysis.WebApp.Controllers.Chat;
 
@@ -12,10 +13,10 @@ public class SignalingController : ControllerBase
 {
     private readonly IHttpClientHelper _httpClient;
 
-    public SignalingController(IHttpClientHelper httpClient)
+    public SignalingController(IOptions<Cluster> cluster, IHttpClientHelper httpClient)
     {
         _httpClient = httpClient;
-        _httpClient.APIUrl = Cluster.Chat;
+        _httpClient.APIUrl = cluster.Value.Chat;
     }
 
     [HttpGet("connected/{roomId}")]

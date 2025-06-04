@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ .Values.hubs.name }}-ingress
+  name: {{ .Values.hubs.name }}
 spec:
   tls:
   - hosts:
@@ -15,6 +15,6 @@ spec:
           pathType: Prefix
           backend:
             service:
-              name: {{ .Values.hubs.name }}-service
+              name: {{ .Values.hubs.name }}
               port:
                 number: {{ .Values.hubs.service.targetPort }}

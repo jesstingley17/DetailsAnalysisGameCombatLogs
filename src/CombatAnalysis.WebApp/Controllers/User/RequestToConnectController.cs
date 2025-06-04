@@ -3,6 +3,7 @@ using CombatAnalysis.WebApp.Consts;
 using CombatAnalysis.WebApp.Interfaces;
 using CombatAnalysis.WebApp.Models.User;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace CombatAnalysis.WebApp.Controllers.User;
 
@@ -13,10 +14,10 @@ public class RequestToConnectController : ControllerBase
 {
     private readonly IHttpClientHelper _httpClient;
 
-    public RequestToConnectController(IHttpClientHelper httpClient)
+    public RequestToConnectController(IOptions<Cluster> cluster, IHttpClientHelper httpClient)
     {
         _httpClient = httpClient;
-        _httpClient.APIUrl = Cluster.User;
+        _httpClient.APIUrl = cluster.Value.User;
     }
 
     [HttpGet("{id:int:min(1)}")]

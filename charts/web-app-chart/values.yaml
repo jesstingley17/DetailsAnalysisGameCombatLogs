@@ -1,32 +1,37 @@
 env: Production
 replicas: 2
 resources:
-    cpu: 80
-    memory: 80
-autoscaling: 
-    enabled: true
-    min: 2
-    max: 6
+  cpu: 80
+  memory: 80
+autoscaling:
+  min: 2
+  max: 6
 webApp:
-    name: web-app
-    container:
-        name: analysis-web-app
-        image: solinx/combatanalysiswebapp
-        port: 8080
-    service:
-        port: 80
-        targetPort: 8080
-        nodePort: 30201
-    ingress:
-        host: encounters.analysis.com
+  name: web-app
+  container:
+    name: analysis-web-app
+    image: solinx/combatanalysiswebapp
+    port: 8080
+  service:
+    port: 80
+    targetPort: 8080
+    nodePort: 30201
+  ingress:
+    host: encounters.analysis.com
+  vault:
+    serviceAccountName: web-sa
+    role: web-role
 hubs:
-    name: hubs
-    container:
-        name: analysis-hubs
-        image: solinx/combatanalysishubs
-        port: 8080
-    service:
-        port: 80
-        targetPort: 8080
-    ingress:
-        host: hubs.analysis.com
+  name: hubs
+  container:
+    name: analysis-hubs
+    image: solinx/combatanalysishubs
+    port: 8080
+  service:
+    port: 80
+    targetPort: 8080
+  ingress:
+    host: hubs.analysis.com
+  vault:
+    serviceAccountName: hubs-sa
+    role: hubs-role

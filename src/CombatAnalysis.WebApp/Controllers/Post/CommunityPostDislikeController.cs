@@ -3,6 +3,7 @@ using CombatAnalysis.WebApp.Consts;
 using CombatAnalysis.WebApp.Interfaces;
 using CombatAnalysis.WebApp.Models.Post;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace CombatAnalysis.WebApp.Controllers.Post;
 
@@ -13,10 +14,10 @@ public class CommunityPostDislikeController : ControllerBase
 {
     private readonly IHttpClientHelper _httpClient;
 
-    public CommunityPostDislikeController(IHttpClientHelper httpClient)
+    public CommunityPostDislikeController(IOptions<Cluster> cluster, IHttpClientHelper httpClient)
     {
         _httpClient = httpClient;
-        _httpClient.APIUrl = Cluster.Communication;
+        _httpClient.APIUrl = cluster.Value.Communication;
     }
 
     [HttpGet("{id:int:min(1)}")]

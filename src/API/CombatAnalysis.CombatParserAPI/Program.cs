@@ -12,10 +12,27 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connection = DatabaseProps.Name == nameof(DatabaseType.MSSQL)
-    ? DatabaseProps.MSSQLConnectionString
-    : DatabaseProps.FirebaseConnectionString;
-builder.Services.CombatParserBLDependencies(DatabaseProps.Name, DatabaseProps.DataProcessingType, connection, DBConfiguration.CommandTimeout);
+var envName = builder.Environment.EnvironmentName;
+
+if (string.Equals(envName, "Development", StringComparison.OrdinalIgnoreCase))
+{
+    CreateEnvironmentHelper.UseAppsettings(builder.Configuration);
+}
+else
+{
+    CreateEnvironmentHelper.UseEnvVariables();
+}
+
+var databasePropsOptions = new DatabaseProps();
+builder.Configuration.Bind("Database", databasePropsOptions);
+
+var databaseConfigsOptions = new DBConfiguration();
+builder.Configuration.Bind("DBConfiguration", databaseConfigsOptions);
+
+var connection = databasePropsOptions.Name == nameof(DatabaseType.MSSQL)
+    ? databasePropsOptions.DefaultConnection
+    : databasePropsOptions.FirebaseConnection;
+builder.Services.CombatParserBLDependencies(databasePropsOptions.Name, databasePropsOptions.DataProcessingType, connection, databaseConfigsOptions.CommandTimeout);
 
 var mappingConfig = new MapperConfiguration(mc =>
 {
@@ -33,7 +50,7 @@ builder.Services.AddScoped<IPlayerParseInfoHelper, PlayerParseInfoHelper>();
 
 builder.Services.Configure<KestrelServerOptions>(options =>
 {
-    options.Limits.MaxRequestBodySize = DBConfiguration.MaxRequestBodySize;
+    options.Limits.MaxRequestBodySize = databaseConfigsOptions.MaxRequestBodySize;
 });
 builder.Services.AddControllers();
 

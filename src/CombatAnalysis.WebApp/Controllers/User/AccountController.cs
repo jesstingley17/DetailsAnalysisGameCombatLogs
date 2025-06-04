@@ -4,6 +4,7 @@ using CombatAnalysis.WebApp.Enums;
 using CombatAnalysis.WebApp.Interfaces;
 using CombatAnalysis.WebApp.Models.User;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace CombatAnalysis.WebApp.Controllers.User;
 
@@ -11,12 +12,14 @@ namespace CombatAnalysis.WebApp.Controllers.User;
 [ApiController]
 public class AccountController : ControllerBase
 {
+    private readonly Authentication _authentication;
     private readonly IHttpClientHelper _httpClient;
 
-    public AccountController(IHttpClientHelper httpClient)
+    public AccountController(IOptions<Cluster> cluster, IOptions<Authentication> authentication, IHttpClientHelper httpClient)
     {
+        _authentication = authentication.Value;
         _httpClient = httpClient;
-        _httpClient.APIUrl = Cluster.User;
+        _httpClient.APIUrl = cluster.Value.User;
     }
 
     [ServiceFilter(typeof(RequireAccessTokenAttribute))]
@@ -99,7 +102,7 @@ public class AccountController : ControllerBase
     {
         HttpContext.Response.Cookies.Delete(nameof(AuthenticationCookie.RefreshToken), new CookieOptions
         {
-            Domain = Authentication.CookieDomain,
+            Domain = _authentication.CookieDomain,
             Path = "/",
             HttpOnly = true,
             Secure = true,
@@ -107,7 +110,7 @@ public class AccountController : ControllerBase
         });
         HttpContext.Response.Cookies.Delete(nameof(AuthenticationCookie.AccessToken), new CookieOptions
         {
-            Domain = Authentication.CookieDomain,
+            Domain = _authentication.CookieDomain,
             Path = "/",
             HttpOnly = true,
             Secure = true,

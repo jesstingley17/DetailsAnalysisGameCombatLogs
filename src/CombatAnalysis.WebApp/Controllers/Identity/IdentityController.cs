@@ -3,6 +3,7 @@ using CombatAnalysis.WebApp.Enums;
 using CombatAnalysis.WebApp.Interfaces;
 using CombatAnalysis.WebApp.Models.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace CombatAnalysis.WebApp.Controllers.Identity;
 
@@ -10,20 +11,26 @@ namespace CombatAnalysis.WebApp.Controllers.Identity;
 [ApiController]
 public class IdentityController : ControllerBase
 {
+    private readonly Authentication _authentication;
+    private readonly AuthenticationGrantType _authenticationGrantType;
+    private readonly AuthenticationClient _authenticationClient;
     private readonly IHttpClientHelper _httpClient;
     private readonly ILogger<IdentityController> _logger;
 
-    public IdentityController(IHttpClientHelper httpClient, ILogger<IdentityController> logger)
+    public IdentityController(IOptions<Cluster> cluster, IOptions<Authentication> authentication, IOptions<AuthenticationGrantType> authenticationGrantType,
+        IOptions<AuthenticationClient> authenticationClient, IHttpClientHelper httpClient, ILogger<IdentityController> logger)
     {
         _httpClient = httpClient;
+        _authentication = authentication.Value;
+        _authenticationGrantType = authenticationGrantType.Value;
+        _authenticationClient = authenticationClient.Value;
         _logger = logger;
-        _httpClient.APIUrl = Cluster.Identity;
+        _httpClient.APIUrl = cluster.Value.Identity;
     }
 
     [HttpGet]
     public async Task<IActionResult> AuthorizationCodeExchange(string authorizationCode)
     {
-        var url = string.Empty;
         try
         {
             if (!HttpContext.Request.Cookies.TryGetValue(nameof(AuthenticationCookie.CodeVerifier), out var codeVerifier))
@@ -33,7 +40,7 @@ public class IdentityController : ControllerBase
 
             HttpContext.Response.Cookies.Delete(nameof(AuthenticationCookie.CodeVerifier), new CookieOptions
             {
-                Domain = Authentication.CookieDomain,
+                Domain = _authentication.CookieDomain,
                 Path = "/",
                 HttpOnly = true,
                 Secure = true,
@@ -41,7 +48,7 @@ public class IdentityController : ControllerBase
             });
 
             var decodedAuthorizationCode = Uri.UnescapeDataString(authorizationCode);
-            url = $"Token?grantType={AuthenticationGrantType.Authorization}&clientId={AuthenticationClient.ClientId}&codeVerifier={codeVerifier}&code={decodedAuthorizationCode}&redirectUri={Authentication.RedirectUri}";
+            string? url = $"Token?grantType={_authenticationGrantType.Authorization}&clientId={_authenticationClient.ClientId}&codeVerifier={codeVerifier}&code={decodedAuthorizationCode}&redirectUri={_authentication.RedirectUri}";
 
             var response = await _httpClient.GetAsync(url);
             if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
@@ -61,7 +68,7 @@ public class IdentityController : ControllerBase
 
             HttpContext.Response.Cookies.Append(nameof(AuthenticationCookie.AccessToken), token.AccessToken, new CookieOptions
             {
-                Domain = Authentication.CookieDomain,
+                Domain = _authentication.CookieDomain,
                 HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.None,
@@ -69,11 +76,11 @@ public class IdentityController : ControllerBase
             });
             HttpContext.Response.Cookies.Append(nameof(AuthenticationCookie.RefreshToken), token.RefreshToken, new CookieOptions
             {
-                Domain = Authentication.CookieDomain,
+                Domain = _authentication.CookieDomain,
                 HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.None,
-                Expires = token.Expires.AddDays(Authentication.RefreshTokenExpiresDays)
+                Expires = token.Expires.AddDays(_authentication.RefreshTokenExpiresDays)
             });
 
             return Ok();

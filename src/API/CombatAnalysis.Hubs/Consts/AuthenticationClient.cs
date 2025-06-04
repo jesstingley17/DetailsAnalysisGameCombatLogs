@@ -1,11 +1,11 @@
 ﻿namespace CombatAnalysis.Hubs.Consts;
 
-internal static class AuthenticationClient
+internal class AuthenticationClient
 {
-    public static string WebClientId { get; set; }
+    public string WebClientId { get; set; }
 
-    public static string DesktopClientId { get; set; }
+    public string DesktopClientId { get; set; }
 
-    public static string Scope { get; set; }
+    public string Scope { get; set; }
 }
 

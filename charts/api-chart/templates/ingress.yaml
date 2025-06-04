@@ -2,13 +2,15 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ .Release.Name }}
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "150m"
 spec:
   tls:
   - hosts:
       - {{ .Values.user.ingress.host }}
       - {{ .Values.communication.ingress.host }}
       - {{ .Values.chat.ingress.host }}
-      - {{ .Values.health.ingress.host }}
+      - {{ .Values.parser.ingress.host }}
     secretName: tls-secret
   rules:
     - host: {{ .Values.user.ingress.host }}
@@ -18,7 +20,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: {{ .Release.Name }}-{{ .Values.user.name }}-service
+                name: {{ .Release.Name }}-{{ .Values.user.name }}
                 port:
                   number: {{ .Values.user.service.targetPort }}
     - host: {{ .Values.communication.ingress.host }}
@@ -28,7 +30,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: {{ .Release.Name }}-{{ .Values.communication.name }}-service
+                name: {{ .Release.Name }}-{{ .Values.communication.name }}
                 port:
                   number: {{ .Values.communication.service.targetPort }}
     - host: {{ .Values.chat.ingress.host }}
@@ -38,16 +40,16 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: {{ .Release.Name }}-{{ .Values.chat.name }}-service
+                name: {{ .Release.Name }}-{{ .Values.chat.name }}
                 port:
                   number: {{ .Values.chat.service.targetPort }}
-    - host: {{ .Values.health.ingress.host }}
+    - host: {{ .Values.parser.ingress.host }}
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: {{ .Release.Name }}-{{ .Values.health.name }}-service
+                name: {{ .Release.Name }}-{{ .Values.parser.name }}
                 port:
-                  number: {{ .Values.health.service.targetPort }}
+                  number: {{ .Values.parser.service.targetPort }}

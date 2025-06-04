@@ -1,15 +1,13 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-deployment
+  name: {{ .Release.Name }}
   labels:
     app: {{ .Release.Name }}
     env: {{ .Values.env }}
     owner: OlegFedosov
 spec:
-  {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicas }}
-  {{- end }}
+  replicas: {{ .Values.autoscaling.min }}
   selector:
     matchLabels:
       app: {{ .Release.Name }}
@@ -17,75 +15,98 @@ spec:
     metadata:
       labels:
         app: {{ .Release.Name }}
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/role: "{{ .Values.vault.role }}"
+        vault.hashicorp.com/agent-inject-secret-api: "api/API"
+        vault.hashicorp.com/agent-inject-template-api: |
+          {{ "{{" }} with secret "api/API/Identity" {{ "}}" }}
+          export API__Identity="{{ "{{" }} .Data.data.Identity {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "api/API/User" {{ "}}" }}
+          export API__User="{{ "{{" }} .Data.data.User {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+        vault.hashicorp.com/agent-inject-secret-db: "api/DB"
+        vault.hashicorp.com/agent-inject-template-db: |
+          {{ "{{" }} with secret "api/DB/Identity/DefaultConnection" {{ "}}" }}
+          export Database__DefaultConnection="{{ "{{" }} .Data.data.DefaultConnection {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "api/DB/User/DefaultConnection" {{ "}}" }}
+          export Database__UserConnection="{{ "{{" }} .Data.data.DefaultConnection  {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "api/DB/Identity/Name" {{ "}}" }}
+          export Database__Name="{{ "{{" }} .Data.data.Name {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+        vault.hashicorp.com/agent-inject-secret-authentication: "api/Authentication"
+        vault.hashicorp.com/agent-inject-template-authentication: |
+          {{ "{{" }} with secret "api/Authentication/Issuer" {{ "}}" }}
+          export Authentication__Issuer="{{ "{{" }} .Data.data.Issuer {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "api/Authentication/IssuerSigningKey" {{ "}}" }}
+          export Authentication__IssuerSigningKey="{{ "{{" }} .Data.data.IssuerSigningKey {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "api/Authentication/Protocol" {{ "}}" }}
+          export Authentication__Protocol="{{ "{{" }} .Data.data.Protocol {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "api/Authentication/AccessTokenExpiresMins" {{ "}}" }}
+          export Authentication__AccessTokenExpiresMins="{{ "{{" }} .Data.data.AccessTokenExpiresMins {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "api/Authentication/RefreshTokenExpiresDays" {{ "}}" }}
+          export Authentication__RefreshTokenExpiresDays="{{ "{{" }} .Data.data.RefreshTokenExpiresDays {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "api/Authentication/GrantType/Code" {{ "}}" }}
+          export Authentication__GrantType__Code="{{ "{{" }} .Data.data.Code {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "api/Authentication/GrantType/Authorization" {{ "}}" }}
+          export Authentication__GrantType__Authorization="{{ "{{" }} .Data.data.Authorization  {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "api/Authentication/GrantType/RefreshToken" {{ "}}" }}
+          export Authentication__GrantType__RefreshToken="{{ "{{" }} .Data.data.RefreshToken  {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+        vault.hashicorp.com/agent-inject-secret-smtp: "api/Smtp"
+        vault.hashicorp.com/agent-inject-template-smtp: |
+          {{ "{{" }} with secret "api/Smtp/Host" {{ "}}" }}
+          export Smtp__Host="{{ "{{" }} .Data.data.Host {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "api/Smtp/Port" {{ "}}" }}
+          export Smtp__Port="{{ "{{" }} .Data.data.Port {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "api/Smtp/EnableSsl" {{ "}}" }}
+          export Smtp__EnableSsl="{{ "{{" }} .Data.data.EnableSsl {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "api/Smtp/UseDefaultCredentials" {{ "}}" }}
+          export Smtp__UseDefaultCredentials="{{ "{{" }} .Data.data.UseDefaultCredentials {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "api/Smtp/DisplayName" {{ "}}" }}
+          export Smtp__DisplayName="{{ "{{" }} .Data.data.DisplayName {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "api/Smtp/Email" {{ "}}" }}
+          export Smtp__Email="{{ "{{" }} .Data.data.Email {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "api/Smtp/Password" {{ "}}" }}
+          export Smtp__Password="{{ "{{" }} .Data.data.Password  {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
     spec:
+      serviceAccountName: {{ .Values.vault.serviceAccountName }}
       containers:
         - name: {{ .Values.container.name }}
           image: {{ .Values.container.image }}:{{ .Values.imageTags.identity.identity }}
+          command:
+            ['sh', '-c']
+          args:
+            ['. /vault/secrets/api && . /vault/secrets/db && . /vault/secrets/authentication && . /vault/secrets/smtp && dotnet CombatAnalysisIdentity.dll']
           ports:
             - containerPort: {{ .Values.container.port }}
           env:
-           - name: ASPNETCORE_ENVIRONMENT
+           - name: ASPNETCORE__ENVIRONMENT
              value: {{ .Values.env }}
-           - name: ConnectionStrings_DefaultConnection
-             valueFrom:
-               secretKeyRef:
-                name: db-connection-strings
-                key: defaultConnection
-           - name: ConnectionStrings_UserConnection
-             valueFrom:
-               secretKeyRef:
-                name: db-connection-strings
-                key: userConnection
-           - name: API_User
-             value: "https://api.user.analysis.com/"
-           - name: API_Identity
-             value: "https://identity.analysis.com/"
-           - name: Authentication_GrantType_Code
-             value: "code"
-           - name: Authentication_GrantType_Authorization
-             value: "authorizationCode"
-           - name: Authentication_GrantType_RefreshToken
-             value: "refreshToken"
-           - name: Authentication_Issuer
-             valueFrom:
-               secretKeyRef:
-                name: authentication
-                key: issuer
-           - name: Authentication_IssuerSigningKey
-             valueFrom:
-               secretKeyRef:
-                name: authentication
-                key: issuerSigningKey
-           - name: Authentication_Protocol
-             value: "https"
-           - name: Authentication_AccessTokenExpiresMins
-             value: "60"
-           - name: Authentication_RefreshTokenExpiresDays
-             value: "7"
-           - name: Smtp_Host
-             value: "smtp.mail.ru"
-           - name: Smtp_DisplayName
-             value: "Combat Analysis"
-           - name: Smtp_Email
-             value: "yaneznau90@mail.ru"
-           - name: Smtp_Password
-             valueFrom:
-               secretKeyRef:
-                name: smtp-connection
-                key: appPassword
-           - name: Smtp_Port
-             value: "587"
-           - name: Smtp_EnableSsl
-             value: "true"
-           - name: Smtp_UseDefaultCredentials
-             value: "false"
-           - name: Certificate_PfxPath
+           - name: Certificate__PfxPath
              value: "/etc/certs/certificate.pfx"
-           - name: Certificate_PWD
+           - name: Certificate__PWD
              valueFrom:
                secretKeyRef:
                  name: certificate-secret
-                 key: password
+                 key: PASSWORD
           volumeMounts:
             - name: cert-volume
               mountPath: /etc/certs

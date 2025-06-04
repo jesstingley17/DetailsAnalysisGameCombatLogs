@@ -64,7 +64,7 @@ const AuthorizationCallback: React.FC = () => {
 
     const navigateToTokenAsync = async (authorizationCode: string) => {
         const response: any = await authorizationCodeExchange(authorizationCode);
-        if (response?.data !== undefined) {
+        if (response?.error === undefined) {
             await checkAuthAsync();
 
             navigate("/");

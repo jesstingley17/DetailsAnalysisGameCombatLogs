@@ -11,29 +11,25 @@ builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<IHttpClientHelper, HttpClientHelper>();
 
-var envName = builder.Environment.EnvironmentName;
+builder.Services.Configure<Cluster>(builder.Configuration.GetSection("Cluster"));
 
-if (string.Equals(envName, "Development", StringComparison.OrdinalIgnoreCase))
-{
-    CreateEnvironmentHelper.UseAppsettings(builder.Configuration);
-}
-else
-{
-    CreateEnvironmentHelper.UseEnvVariables();
-}
+var authenticationOptions = new Authentication();
+builder.Configuration.Bind("Authentication", authenticationOptions);
+var authenticationClientOptions = new AuthenticationClient();
+builder.Configuration.Bind("Authentication:Client", authenticationClientOptions);
 
 builder.Services.AddAuthentication("Bearer")
     .AddJwtBearer(options =>
     {
-        options.Authority = Authentication.Authority;
+        options.Authority = authenticationOptions.Authority;
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Authentication.IssuerSigningKey),
+            IssuerSigningKey = new SymmetricSecurityKey(authenticationOptions.IssuerSigningKey),
             ValidateIssuer = true,
-            ValidIssuer = Authentication.Issuer,
+            ValidIssuer = authenticationOptions.Issuer,
             ValidateAudience = true,
-            ValidAudiences = [AuthenticationClient.WebClientId, AuthenticationClient.DesktopClientId],
+            ValidAudiences = [authenticationClientOptions.WebClientId, authenticationClientOptions.DesktopClientId],
             ClockSkew = TimeSpan.Zero
         };
         // Skip checking HTTPS (should be HTTPS in production)
@@ -49,11 +45,14 @@ builder.Services.AddAuthorization(options =>
     });
 });
 
+var cors = new CORS();
+builder.Configuration.Bind("Cors", cors);
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy", builder =>
     {
-        builder.WithOrigins(CORS.WebApp)
+        builder.WithOrigins(cors.WebApp)
                .AllowAnyMethod()
                .AllowAnyHeader()
                .AllowCredentials();

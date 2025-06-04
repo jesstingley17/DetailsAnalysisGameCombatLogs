@@ -2,24 +2,15 @@ using AutoMapper;
 using CombatAnalysis.Identity.Extensions;
 using CombatAnalysis.Identity.Mapping;
 using HealthAPI.Consts;
-using HealthAPI.Helpers;
 using HealthAPI.Services;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var envName = builder.Environment.EnvironmentName;
+var databasePropsOptions = new DatabaseProps();
+builder.Configuration.Bind("Database", databasePropsOptions);
 
-if (string.Equals(envName, "Development", StringComparison.OrdinalIgnoreCase))
-{
-    CreateEnvironmentHelper.UseAppsettings(builder.Configuration);
-}
-else
-{
-    CreateEnvironmentHelper.UseEnvVariables();
-}
-
-builder.Services.RegisterIdentityDependencies(DatabaseProps.ConnectionString);
+builder.Services.RegisterIdentityDependencies(databasePropsOptions.DefaultConnection);
 
 var mappingConfig = new MapperConfiguration(mc =>
 {
@@ -28,17 +19,23 @@ var mappingConfig = new MapperConfiguration(mc =>
 
 var mapper = mappingConfig.CreateMapper();
 builder.Services.AddSingleton(mapper);
+
+var authenticationOptions = new Authentication();
+builder.Configuration.Bind("Authentication", authenticationOptions);
+var authenticationClientOptions = new AuthenticationClient();
+builder.Configuration.Bind("Authentication:Client", authenticationClientOptions);
+
 builder.Services.AddAuthentication("Bearer")
         .AddJwtBearer(options =>
         {
-            options.Authority = Authentication.Authority;
-            options.Audience = AuthenticationClient.ClientId;
+            options.Authority = authenticationOptions.Authority;
+            options.Audience = authenticationClientOptions.ClientId;
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Authentication.IssuerSigningKey),
+                IssuerSigningKey = new SymmetricSecurityKey(authenticationOptions.IssuerSigningKey),
                 ValidateIssuer = true,
-                ValidIssuer = Authentication.Issuer,
+                ValidIssuer = authenticationOptions.Issuer,
                 ValidateAudience = true,
                 ClockSkew = TimeSpan.Zero
             };
@@ -51,7 +48,7 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("ApiScope", policyBuilder =>
     {
         policyBuilder.RequireAuthenticatedUser();
-        policyBuilder.RequireClaim("scope", AuthenticationClient.Scope);
+        policyBuilder.RequireClaim("scope", authenticationClientOptions.Scope);
     });
 });
 
@@ -73,8 +70,8 @@ app.UseSwaggerUI(options =>
 {
     options.SwaggerEndpoint("/swagger/v1/swagger.json", "Health API v1");
     options.InjectStylesheet("/swagger-ui/swaggerDark.css");
-    options.OAuthClientId(AuthenticationClient.ClientId);
-    options.OAuthScopes(AuthenticationClient.Scope);
+    options.OAuthClientId(authenticationClientOptions.ClientId);
+    options.OAuthScopes(authenticationClientOptions.Scope);
 });
 
 app.UseStaticFiles();

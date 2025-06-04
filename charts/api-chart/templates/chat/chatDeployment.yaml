@@ -36,10 +36,10 @@ spec:
           {{ "{{" }} end{{ "}}" }}
         vault.hashicorp.com/agent-inject-secret-db: "api/DB"
         vault.hashicorp.com/agent-inject-template-db: |
-          {{ "{{" }} with secret "api/DB/Chat/DefaultConnection " {{ "}}" }}
+          {{ "{{" }} with secret "api/DB/Chat/DefaultConnection" {{ "}}" }}
           export Database__DefaultConnection="{{ "{{" }} .Data.data.DefaultConnection {{ "}}" }}"
           {{ "{{" }} end{{ "}}" }}
-          {{ "{{" }} with secret "api/DB/Chat/FirebaseConnection  " {{ "}}" }}
+          {{ "{{" }} with secret "api/DB/Chat/FirebaseConnection" {{ "}}" }}
           export Database__FirebaseConnection="{{ "{{" }} .Data.data.FirebaseConnection  {{ "}}" }}"
           {{ "{{" }} end{{ "}}" }}
           {{ "{{" }} with secret "api/DB/Chat/Name" {{ "}}" }}
@@ -50,7 +50,7 @@ spec:
           {{ "{{" }} with secret "api/Authentication/Authority" {{ "}}" }}
           export Authentication__Authority="{{ "{{" }} .Data.data.Authority {{ "}}" }}"
           {{ "{{" }} end{{ "}}" }}
-          {{ "{{" }} with secret "api/Authentication/Issuer  " {{ "}}" }}
+          {{ "{{" }} with secret "api/Authentication/Issuer" {{ "}}" }}
           export Authentication__Issuer="{{ "{{" }} .Data.data.Issuer {{ "}}" }}"
           {{ "{{" }} end{{ "}}" }}
           {{ "{{" }} with secret "api/Authentication/IssuerSigningKey" {{ "}}" }}
@@ -59,10 +59,10 @@ spec:
           {{ "{{" }} with secret "api/Authentication/Client/DesktopClientId" {{ "}}" }}
           export Authentication__Client__DesktopClientId="{{ "{{" }} .Data.data.DesktopClientId {{ "}}" }}"
           {{ "{{" }} end{{ "}}" }}
-          {{ "{{" }} with secret "api/Authentication/Client/WebClientId   " {{ "}}" }}
+          {{ "{{" }} with secret "api/Authentication/Client/WebClientId" {{ "}}" }}
           export Authentication__Client__WebClientId="{{ "{{" }} .Data.data.WebClientId  {{ "}}" }}"
           {{ "{{" }} end{{ "}}" }}
-          {{ "{{" }} with secret "api/Authentication/Client/Scope " {{ "}}" }}
+          {{ "{{" }} with secret "api/Authentication/Client/Scope" {{ "}}" }}
           export Authentication__Client__Scope="{{ "{{" }} .Data.data.Scope  {{ "}}" }}"
           {{ "{{" }} end{{ "}}" }}
     spec:
@@ -77,5 +77,5 @@ spec:
           ports:
             - containerPort: {{ .Values.chat.container.port }}
           env:
-           - name: ASPNETCORE_ENVIRONMENT
+           - name: ASPNETCORE__ENVIRONMENT
              value: {{ .Values.env }}

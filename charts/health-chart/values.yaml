@@ -1,0 +1,14 @@
+env: Production
+replicas: 2
+service:
+  port: 80
+  targetPort: 8080
+container:
+  name: health
+  image: solinx/healthapi
+  port: 8080
+ingress:
+  host: health.analysis.com
+vault:
+  serviceAccountName: health-sa
+  role: health-role

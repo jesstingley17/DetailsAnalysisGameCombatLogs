@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.kafka.name }}
+  name: {{ .Release.Name }}-{{ .Values.kafka.name }}
   labels:
-    app: {{ .Values.kafka.name }}
+    app: {{ .Release.Name }}
     env: {{ .Values.env }}
     owner: OlegFedosov
 spec:
@@ -12,11 +12,11 @@ spec:
   {{- end }}
   selector:
     matchLabels:
-      app: {{ .Values.kafka.name }}
+      app: {{ .Release.Name }}-{{ .Values.kafka.name }}
   template:
     metadata:
       labels:
-        app: {{ .Values.kafka.name }}
+        app: {{ .Release.Name }}-{{ .Values.kafka.name }}
     spec:
       containers:
         - name: {{ .Values.kafka.container.name }}

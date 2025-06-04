@@ -6,6 +6,7 @@ using CombatAnalysis.WebApp.Interfaces;
 using CombatAnalysis.WebApp.Models.Authentication;
 using CombatAnalysis.WebApp.Models.User;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace CombatAnalysis.WebApp.Controllers.Identity;
 
@@ -13,14 +14,26 @@ namespace CombatAnalysis.WebApp.Controllers.Identity;
 [ApiController]
 public class AuthenticationController : ControllerBase
 {
+    private readonly Cluster _cluster;
+    private readonly Authentication _authentication;
+    private readonly AuthenticationGrantType _authenticationGrantType;
+    private readonly AuthenticationClient _authenticationClient;
+    private readonly Server _server;
     private readonly IHttpClientHelper _httpClient;
     private readonly ILogger<AuthenticationController> _logger;
 
-    public AuthenticationController(IHttpClientHelper httpClient, ILogger<AuthenticationController> logger)
+    public AuthenticationController(IOptions<Cluster> cluster, IOptions<Authentication> authentication, IOptions<AuthenticationGrantType> authenticationGrantType,
+        IOptions<AuthenticationClient> authenticationClient, IOptions<Server> server, IHttpClientHelper httpClient,
+        ILogger<AuthenticationController> logger)
     {
+        _cluster = cluster.Value;
+        _authentication = authentication.Value;
+        _authenticationGrantType = authenticationGrantType.Value;
+        _authenticationClient = authenticationClient.Value;
+        _server = server.Value;
         _httpClient = httpClient;
         _logger = logger;
-        _httpClient.APIUrl = Cluster.User;
+        _httpClient.APIUrl = cluster.Value.User;
     }
 
     [ServiceFilter(typeof(RequireAccessTokenAttribute))]
@@ -68,9 +81,9 @@ public class AuthenticationController : ControllerBase
         var state = PKCEHelper.GenerateCodeVerifier();
         var codeChallenge = PKCEHelper.GenerateCodeChallenge(codeVerifier);
 
-        var uri = $"{Servers.Identity}{identityPath}?grantType={AuthenticationGrantType.Code}" +
-            $"&clientId={AuthenticationClient.ClientId}&redirectUri={Authentication.RedirectUri}" +
-            $"&scope={AuthenticationClient.Scope}&state={state}&codeChallengeMethod={Authentication.CodeChallengeMethod}" +
+        var uri = $"{_server.Identity}{identityPath}?grantType={_authenticationGrantType.Code}" +
+            $"&clientId={_authenticationClient.ClientId}&redirectUri={_authentication.RedirectUri}" +
+            $"&scope={_authenticationClient.Scope}&state={state}&codeChallengeMethod={_authentication.CodeChallengeMethod}" +
             $"&codeChallenge={codeChallenge}";
 
         var identityRedirect = new IdentityRedirect
@@ -80,14 +93,14 @@ public class AuthenticationController : ControllerBase
 
         HttpContext.Response.Cookies.Append(nameof(AuthenticationCookie.CodeVerifier), codeVerifier, new CookieOptions
         {
-            Domain = Authentication.CookieDomain,
+            Domain = _authentication.CookieDomain,
             HttpOnly = true,
             Secure = true,
             SameSite = SameSiteMode.None,
         });
         HttpContext.Response.Cookies.Append(nameof(AuthenticationCookie.State), state, new CookieOptions
         {
-            Domain = Authentication.CookieDomain,
+            Domain = _authentication.CookieDomain,
             HttpOnly = true,
             Secure = true,
             SameSite = SameSiteMode.None,
@@ -99,7 +112,7 @@ public class AuthenticationController : ControllerBase
     [HttpGet("verifyEmail")]
     public IActionResult VerifyEmail(string identityPath, string email)
     {
-        var uri = $"{Servers.Identity}{identityPath}?email={email}&redirectUri={Authentication.RedirectUri}";
+        var uri = $"{_server.Identity}{identityPath}?email={email}&redirectUri={_authentication.RedirectUri}";
 
         var identityRedirect = new IdentityRedirect
         {
@@ -119,7 +132,7 @@ public class AuthenticationController : ControllerBase
 
         HttpContext.Response.Cookies.Delete(nameof(AuthenticationCookie.State), new CookieOptions
         {
-            Domain = Authentication.CookieDomain,
+            Domain = _authentication.CookieDomain,
             Path = "/",
             HttpOnly = true,
             Secure = true,

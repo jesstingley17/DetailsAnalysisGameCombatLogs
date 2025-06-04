@@ -1,15 +1,13 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.webApp.name }}-deployment
+  name: {{ .Values.webApp.name }}
   labels:
     app: {{ .Release.Name }}
     env: {{ .Values.env }}
     owner: OlegFedosov
 spec:
-  {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicas }}
-  {{- end }}
+  replicas: {{ .Values.autoscaling.min }}
   selector:
     matchLabels:
       app: {{ .Values.webApp.name }}
@@ -17,52 +15,77 @@ spec:
     metadata:
       labels:
         app: {{ .Values.webApp.name }}
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/role: "{{ .Values.webApp.vault.role }}"
+        vault.hashicorp.com/agent-inject-secret-api: "api/API"
+        vault.hashicorp.com/agent-inject-template-api: |
+          {{ "{{" }} with secret "api/API/Identity" {{ "}}" }}
+          export Server__Identity="{{ "{{" }} .Data.data.Identity {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+        vault.hashicorp.com/agent-inject-secret-cluster: "app/Cluster"
+        vault.hashicorp.com/agent-inject-template-cluster: |
+          {{ "{{" }} with secret "app/Cluster/CombatParser" {{ "}}" }}
+          export Cluster__CombatParser="{{ "{{" }} .Data.data.CombatParser {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "app/Cluster/User" {{ "}}" }}
+          export Cluster__User="{{ "{{" }} .Data.data.User {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "app/Cluster/Chat" {{ "}}" }}
+          export Cluster__Chat="{{ "{{" }} .Data.data.Chat {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "app/Cluster/Communication" {{ "}}" }}
+          export Cluster__Communication="{{ "{{" }} .Data.data.Communication {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "app/Cluster/Identity" {{ "}}" }}
+          export Cluster__Identity="{{ "{{" }} .Data.data.Identity {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+        vault.hashicorp.com/agent-inject-secret-authentication: "app/Authentication"
+        vault.hashicorp.com/agent-inject-template-authentication: |
+          {{ "{{" }} with secret "app/Authentication/CookieDomain" {{ "}}" }}
+          export Authentication__CookieDomain="{{ "{{" }} .Data.data.CookieDomain {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "app/Authentication/RedirectUri" {{ "}}" }}
+          export Authentication__RedirectUri="{{ "{{" }} .Data.data.RedirectUri {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "app/Authentication/IdentityAuthPath" {{ "}}" }}
+          export Authentication__IdentityAuthPath="{{ "{{" }} .Data.data.IdentityAuthPath {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "app/Authentication/IdentityRegistryPath" {{ "}}" }}
+          export Authentication__IdentityRegistryPath="{{ "{{" }} .Data.data.IdentityRegistryPath {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "app/Authentication/CodeChallengeMethod" {{ "}}" }}
+          export Authentication__CodeChallengeMethod="{{ "{{" }} .Data.data.CodeChallengeMethod {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "app/Authentication/RefreshTokenExpiresDays" {{ "}}" }}
+          export Authentication__RefreshTokenExpiresDays="{{ "{{" }} .Data.data.RefreshTokenExpiresDays  {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "app/Authentication/GrantType/Code" {{ "}}" }}
+          export Authentication__GrantType__Code="{{ "{{" }} .Data.data.Code {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "app/Authentication/GrantType/Authorization" {{ "}}" }}
+          export Authentication__GrantType__Authorization="{{ "{{" }} .Data.data.Authorization  {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "app/Authentication/GrantType/RefreshToken " {{ "}}" }}
+          export Authentication__GrantType__RefreshToken="{{ "{{" }} .Data.data.RefreshToken  {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "app/Authentication/Client/ClientId" {{ "}}" }}
+          export Authentication__Client__ClientId="{{ "{{" }} .Data.data.ClientId  {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "app/Authentication/Client/Scope" {{ "}}" }}
+          export Authentication__Client__Scope="{{ "{{" }} .Data.data.Scope  {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
     spec:
+      serviceAccountName: {{ .Values.webApp.vault.serviceAccountName }}
       containers:
         - name: {{ .Values.webApp.container.name }}
           image: {{ .Values.webApp.container.image }}:{{ .Values.imageTags.webApp.webApp }}
+          command:
+            ['sh', '-c']
+          args:
+            ['. /vault/secrets/api && . /vault/secrets/cluster && . /vault/secrets/api && . /vault/secrets/authentication && dotnet CombatAnalysis.WebApp.dll']
           ports:
             - containerPort: {{ .Values.webApp.container.port }}
           env:
-           - name: ASPNETCORE_ENVIRONMENT
+           - name: ASPNETCORE__ENVIRONMENT
              value: {{ .Values.env }}
-           - name: Cluster_CombatParser
-             value: "http://api-combat-parser.api.svc.cluster.local/"
-           - name: Cluster_User
-             value: "http://api-user.api.svc.cluster.local/"
-           - name: Cluster_Chat
-             value: "http://api-chat.api.svc.cluster.local/"
-           - name: Cluster_Communication
-             value: "http://api-communication.api.svc.cluster.local/"
-           - name: Cluster_Identity
-             value: "http://identity-service.identity.svc.cluster.local/"
-           - name: Servers_Identity
-             value: "https://identity.analysis.com/"
-           - name: Authentication_CookieDomain
-             value: ".analysis.com"
-           - name: Authentication_RedirectUri
-             value: "encounters.analysis.com/callback"
-           - name: Authentication_IdentityAuthPath
-             value: "authorization"
-           - name: Authentication_IdentityRegistryPath
-             value: "registration"
-           - name: Authentication_CodeChallengeMethod
-             value: "SHA-256"
-           - name: Authentication_RefreshTokenExpiresDays
-             value: "7"
-           - name: Authentication_GrantType_Code
-             value: "code"
-           - name: Authentication_GrantType_Authorization
-             value: "authorizationCode"
-           - name: Authentication_GrantType_RefreshToken
-             value: "refreshToken"
-           - name: Authentication_Client_ClientId
-             valueFrom:
-               secretKeyRef:
-                name: web-client
-                key: webClientId
-           - name: Authentication_Client_Scope
-             valueFrom:
-               secretKeyRef:
-                name: web-client
-                key: scope

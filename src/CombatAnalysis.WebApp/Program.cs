@@ -1,4 +1,5 @@
 using CombatAnalysis.WebApp.Attributes;
+using CombatAnalysis.WebApp.Consts;
 using CombatAnalysis.WebApp.Helpers;
 using CombatAnalysis.WebApp.Interfaces;
 using CombatAnalysis.WebApp.Middlewares;
@@ -11,16 +12,11 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IHttpClientHelper, HttpClientHelper>();
 builder.Services.AddScoped<RequireAccessTokenAttribute>();
 
-var envName = builder.Environment.EnvironmentName;
-
-if (string.Equals(envName, "Development", StringComparison.OrdinalIgnoreCase))
-{
-    CreateEnvironmentHelper.UseAppsettings(builder.Configuration);
-}
-else
-{
-    CreateEnvironmentHelper.UseEnvVariables();
-}
+builder.Services.Configure<Cluster>(builder.Configuration.GetSection("Cluster"));
+builder.Services.Configure<Server>(builder.Configuration.GetSection("Server"));
+builder.Services.Configure<Authentication>(builder.Configuration.GetSection("Authentication"));
+builder.Services.Configure<AuthenticationGrantType>(builder.Configuration.GetSection("Authentication:GrantType"));
+builder.Services.Configure<AuthenticationClient>(builder.Configuration.GetSection("Authentication:Client"));
 
 builder.Services.AddControllersWithViews();
 

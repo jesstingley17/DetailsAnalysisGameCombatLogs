@@ -1,6 +1,6 @@
 ﻿namespace CombatAnalysis.Hubs.Consts;
 
-internal static class CORS
+internal class CORS
 {
-    public static string WebApp { get; set; }
+    public string WebApp { get; set; }
 }

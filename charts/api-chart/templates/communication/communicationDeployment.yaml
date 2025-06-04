@@ -66,5 +66,5 @@ spec:
           ports:
             - containerPort: {{ .Values.communication.container.port }}
           env:
-           - name: ASPNETCORE_ENVIRONMENT
+           - name: ASPNETCORE__ENVIRONMENT
              value: {{ .Values.env }}

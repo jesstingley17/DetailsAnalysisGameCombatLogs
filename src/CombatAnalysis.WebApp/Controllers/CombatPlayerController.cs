@@ -2,6 +2,7 @@
 using CombatAnalysis.WebApp.Interfaces;
 using CombatAnalysis.WebApp.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace CombatAnalysis.WebApp.Controllers;
 
@@ -11,10 +12,10 @@ public class CombatPlayerController : ControllerBase
 {
     private readonly IHttpClientHelper _httpClient;
 
-    public CombatPlayerController(IHttpClientHelper httpClient)
+    public CombatPlayerController(IOptions<Cluster> cluster, IHttpClientHelper httpClient)
     {
         _httpClient = httpClient;
-        _httpClient.APIUrl = Cluster.CombatParser;
+        _httpClient.APIUrl = cluster.Value.CombatParser;
     }
 
     [HttpGet("getByCombatId/{combatId:int:min(1)}")]

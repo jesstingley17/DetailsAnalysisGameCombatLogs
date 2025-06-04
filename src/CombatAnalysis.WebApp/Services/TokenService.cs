@@ -2,22 +2,28 @@
 using CombatAnalysis.WebApp.Helpers;
 using CombatAnalysis.WebApp.Interfaces;
 using CombatAnalysis.WebApp.Models.Identity;
+using Microsoft.Extensions.Options;
 
 namespace CombatAnalysis.WebApp.Services;
 
 internal class TokenService : ITokenService
 {
+    private readonly AuthenticationGrantType _authenticationGrantType;
+    private readonly AuthenticationClient _authenticationClient;
     private readonly IHttpClientHelper _httpClient;
 
-    public TokenService(IHttpClientHelper httpClient)
+    public TokenService(IOptions<Cluster> cluster, IOptions<AuthenticationGrantType> authenticationGrantType, IOptions<AuthenticationClient> authenticationClient, 
+        IHttpClientHelper httpClient)
     {
+        _authenticationGrantType = authenticationGrantType.Value;
+        _authenticationClient = authenticationClient.Value;
         _httpClient = httpClient;
-        _httpClient.APIUrl = Cluster.Identity;
+        _httpClient.APIUrl = cluster.Value.Identity;
     }
 
     public async Task<AccessTokenModel> RefreshAccessTokenAsync(string refreshToken)
     {
-        var response = await _httpClient.GetAsync($"Token/refresh?grantType={AuthenticationGrantType.RefreshToken}&refreshToken={refreshToken}&clientId={AuthenticationClient.ClientId}");
+        var response = await _httpClient.GetAsync($"Token/refresh?grantType={_authenticationGrantType.RefreshToken}&refreshToken={refreshToken}&clientId={_authenticationClient.ClientId}");
         if (response.IsSuccessStatusCode)
         {
             var token = await response.Content.ReadFromJsonAsync<AccessTokenModel>();

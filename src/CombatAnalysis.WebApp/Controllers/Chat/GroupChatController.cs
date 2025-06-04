@@ -4,6 +4,7 @@ using CombatAnalysis.WebApp.Interfaces;
 using CombatAnalysis.WebApp.Models.Chat;
 using CombatAnalysis.WebApp.Models.Containers;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace CombatAnalysis.WebApp.Controllers.Chat;
 
@@ -14,10 +15,10 @@ public class GroupChatController : ControllerBase
 {
     private readonly IHttpClientHelper _httpClient;
 
-    public GroupChatController(IHttpClientHelper httpClient)
+    public GroupChatController(IOptions<Cluster> cluster, IHttpClientHelper httpClient)
     {
         _httpClient = httpClient;
-        _httpClient.APIUrl = Cluster.Chat;
+        _httpClient.APIUrl = cluster.Value.Chat;
     }
 
     [HttpGet]

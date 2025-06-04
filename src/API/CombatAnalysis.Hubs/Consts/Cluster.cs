@@ -1,6 +1,6 @@
 ﻿namespace CombatAnalysis.Hubs.Consts;
 
-internal static class Cluster
+internal class Cluster
 {
-    public static string Chat { get; set; }
+    public string Chat { get; set; }
 }

@@ -2,6 +2,7 @@
 using CombatAnalysis.WebApp.Interfaces;
 using CombatAnalysis.WebApp.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace CombatAnalysis.WebApp.Controllers;
 
@@ -12,11 +13,11 @@ public class PlayerDeathController : ControllerBase
     private readonly IHttpClientHelper _httpClient;
     private readonly ILogger<PlayerDeathController> _logger;
 
-    public PlayerDeathController(IHttpClientHelper httpClient, ILogger<PlayerDeathController> logger)
+    public PlayerDeathController(IOptions<Cluster> cluster, IHttpClientHelper httpClient, ILogger<PlayerDeathController> logger)
     {
         _httpClient = httpClient;
         _logger = logger;
-        _httpClient.APIUrl = Cluster.CombatParser;
+        _httpClient.APIUrl = cluster.Value.CombatParser;
     }
 
     [HttpGet("getByCombatPlayerId/{combatPlayerId:int:min(1)}")]

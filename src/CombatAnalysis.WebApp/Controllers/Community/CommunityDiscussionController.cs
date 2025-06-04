@@ -3,6 +3,7 @@ using CombatAnalysis.WebApp.Consts;
 using CombatAnalysis.WebApp.Interfaces;
 using CombatAnalysis.WebApp.Models.Community;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace CombatAnalysis.WebApp.Controllers.Community;
 
@@ -13,10 +14,10 @@ public class CommunityDiscussionController : ControllerBase
 {
     private readonly IHttpClientHelper _httpClient;
 
-    public CommunityDiscussionController(IHttpClientHelper httpClient)
+    public CommunityDiscussionController(IOptions<Cluster> cluster, IHttpClientHelper httpClient)
     {
         _httpClient = httpClient;
-        _httpClient.APIUrl = Cluster.Communication;
+        _httpClient.APIUrl = cluster.Value.Communication;
     }
 
     [HttpGet]

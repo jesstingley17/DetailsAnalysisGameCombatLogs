@@ -1,15 +1,18 @@
 imageTags:
   api:
-    user: 0.3.6
+    user: 0.3.9
     communication: 0.3.6
     chat: 0.3.10
-    parser: 0.3.2
-    health: 0.2.3
+    parser: 0.3.3
+  identity:
+    identity: 0.3.24
+  health:
+    health: 0.2.4
   msgBroker:
     kafka: latest
     zookeeper: latest
   webApp:
-    webApp: 0.3.63
-    hubs: 0.1.33
+    webApp: 0.3.65
+    hubs: 0.1.34
   db:
     sqlServer: 2019-latest

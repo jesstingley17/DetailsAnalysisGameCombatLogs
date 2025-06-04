@@ -1,6 +1,7 @@
 ﻿using CombatAnalysis.Hubs.Consts;
 using CombatAnalysis.Hubs.Enums;
 using CombatAnalysis.Hubs.Interfaces;
+using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
 
 namespace CombatAnalysis.Hubs.Helpers;
@@ -12,12 +13,12 @@ internal class HttpClientHelper : IHttpClientHelper
     private readonly HttpClient _client;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public HttpClientHelper(IHttpContextAccessor httpContextAccessor)
+    public HttpClientHelper(IOptions<Cluster> cluster, IHttpContextAccessor httpContextAccessor)
     {
         _httpContextAccessor = httpContextAccessor;
 
         _client = new HttpClient {
-            BaseAddress = new Uri($"{Cluster.Chat}{_baseAddressApi}")
+            BaseAddress = new Uri($"{cluster.Value.Chat}{_baseAddressApi}")
         };
     }
 

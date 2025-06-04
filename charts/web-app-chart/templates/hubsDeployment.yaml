@@ -1,15 +1,13 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.hubs.name }}-deployment
+  name: {{ .Values.hubs.name }}
   labels:
     app: {{ .Release.Name }}
     env: {{ .Values.env }}
     owner: OlegFedosov
 spec:
-  {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicas }}
-  {{- end }}
+  replicas: {{ .Values.autoscaling.min }}
   selector:
     matchLabels:
       app: {{ .Values.hubs.name }}
@@ -17,46 +15,50 @@ spec:
     metadata:
       labels:
         app: {{ .Values.hubs.name }}
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/role: "{{ .Values.hubs.vault.role }}"
+        vault.hashicorp.com/agent-inject-secret-cors: "app/CORs"
+        vault.hashicorp.com/agent-inject-template-cors: |
+          {{ "{{" }} with secret "app/CORs/WebApp" {{ "}}" }}
+          export Cors__WebApp="{{ "{{" }} .Data.data.WebApp {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+        vault.hashicorp.com/agent-inject-secret-cluster: "app/Cluster"
+        vault.hashicorp.com/agent-inject-template-cluster: |
+          {{ "{{" }} with secret "app/Cluster/Chat" {{ "}}" }}
+          export Cluster__Chat="{{ "{{" }} .Data.data.Chat {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+        vault.hashicorp.com/agent-inject-secret-authentication: "api/Authentication"
+        vault.hashicorp.com/agent-inject-template-authentication: |
+          {{ "{{" }} with secret "api/Authentication/Authority" {{ "}}" }}
+          export Authentication__Authority="{{ "{{" }} .Data.data.Authority {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "api/Authentication/Issuer" {{ "}}" }}
+          export Authentication__Issuer="{{ "{{" }} .Data.data.Issuer {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "api/Authentication/IssuerSigningKey" {{ "}}" }}
+          export Authentication__IssuerSigningKey="{{ "{{" }} .Data.data.IssuerSigningKey {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "api/Authentication/Client/DesktopClientId" {{ "}}" }}
+          export Authentication__Client__DesktopClientId="{{ "{{" }} .Data.data.DesktopClientId {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "api/Authentication/Client/WebClientId" {{ "}}" }}
+          export Authentication__Client__WebClientId="{{ "{{" }} .Data.data.WebClientId  {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "api/Authentication/Client/Scope" {{ "}}" }}
+          export Authentication__Client__Scope="{{ "{{" }} .Data.data.Scope  {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
     spec:
+      serviceAccountName: {{ .Values.hubs.vault.serviceAccountName }}
       containers:
         - name: {{ .Values.hubs.container.name }}
           image: {{ .Values.hubs.container.image }}:{{ .Values.imageTags.webApp.hubs }}
+          command:
+            ['sh', '-c']
+          args:
+            ['. /vault/secrets/cors && . /vault/secrets/cluster && . /vault/secrets/authentication && dotnet CombatAnalysis.Hubs.dll']
           ports:
             - containerPort: {{ .Values.hubs.container.port }}
           env:
-           - name: ASPNETCORE_ENVIRONMENT
+           - name: ASPNETCORE__ENVIRONMENT
              value: {{ .Values.env }}
-           - name: Cors_WebApp
-             value: "https://encounters.analysis.com"
-           - name: Cluster_Chat
-             value: "http://api-chat-service.api.svc.cluster.local/"
-           - name: Authentication_Issuer
-             valueFrom:
-               secretKeyRef:
-                name: authentication
-                key: issuer
-           - name: Authentication_IssuerSigningKey
-             valueFrom:
-               secretKeyRef:
-                name: authentication
-                key: issuerSigningKey
-           - name: Authentication_Authority
-             valueFrom:
-               secretKeyRef:
-                name: authentication
-                key: authority
-           - name: Authentication_Client_WebClientId
-             valueFrom:
-               secretKeyRef:
-                name: web-client
-                key: webClientId
-           - name: Authentication_Client_DesktopClientId
-             valueFrom:
-               secretKeyRef:
-                name: web-client
-                key: desktopClientId
-           - name: Authentication_Client_Scope
-             valueFrom:
-               secretKeyRef:
-                name: web-client
-                key: scope

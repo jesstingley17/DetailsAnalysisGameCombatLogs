@@ -3,6 +3,7 @@ using CombatAnalysis.WebApp.Consts;
 using CombatAnalysis.WebApp.Interfaces;
 using CombatAnalysis.WebApp.Models.Post;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace CombatAnalysis.WebApp.Controllers.Post;
 
@@ -13,10 +14,10 @@ public class CommunityPostController : ControllerBase
 {
     private readonly IHttpClientHelper _httpClient;
 
-    public CommunityPostController(IHttpClientHelper httpClient)
+    public CommunityPostController(IOptions<Cluster> cluster, IHttpClientHelper httpClient)
     {
         _httpClient = httpClient;
-        _httpClient.APIUrl = Cluster.Communication;
+        _httpClient.APIUrl = cluster.Value.Communication;
     }
 
     [HttpGet("count/{communityId}")]

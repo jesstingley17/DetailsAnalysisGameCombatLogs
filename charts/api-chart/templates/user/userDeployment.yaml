@@ -15,58 +15,56 @@ spec:
     metadata:
       labels:
         app: {{ .Release.Name }}-{{ .Values.user.name }}
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/role: "{{ .Values.user.vault.role }}"
+        vault.hashicorp.com/agent-inject-secret-api: "api/API"
+        vault.hashicorp.com/agent-inject-template-api: |
+          {{ "{{" }} with secret "api/API/Identity" {{ "}}" }}
+          export API__Identity="{{ "{{" }} .Data.data.Identity {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+        vault.hashicorp.com/agent-inject-secret-db: "api/DB"
+        vault.hashicorp.com/agent-inject-template-db: |
+          {{ "{{" }} with secret "api/DB/User/DefaultConnection" {{ "}}" }}
+          export Database__DefaultConnection="{{ "{{" }} .Data.data.DefaultConnection {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "api/DB/User/FirebaseConnection" {{ "}}" }}
+          export Database__FirebaseConnection="{{ "{{" }} .Data.data.FirebaseConnection  {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "api/DB/User/Name" {{ "}}" }}
+          export Database__Name="{{ "{{" }} .Data.data.Name {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+        vault.hashicorp.com/agent-inject-secret-authentication: "api/Authentication"
+        vault.hashicorp.com/agent-inject-template-authentication: |
+          {{ "{{" }} with secret "api/Authentication/Authority" {{ "}}" }}
+          export Authentication__Authority="{{ "{{" }} .Data.data.Authority {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "api/Authentication/Issuer" {{ "}}" }}
+          export Authentication__Issuer="{{ "{{" }} .Data.data.Issuer {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "api/Authentication/IssuerSigningKey" {{ "}}" }}
+          export Authentication__IssuerSigningKey="{{ "{{" }} .Data.data.IssuerSigningKey {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "api/Authentication/Client/DesktopClientId" {{ "}}" }}
+          export Authentication__Client__DesktopClientId="{{ "{{" }} .Data.data.DesktopClientId {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "api/Authentication/Client/WebClientId" {{ "}}" }}
+          export Authentication__Client__WebClientId="{{ "{{" }} .Data.data.WebClientId  {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
+          {{ "{{" }} with secret "api/Authentication/Client/Scope" {{ "}}" }}
+          export Authentication__Client__Scope="{{ "{{" }} .Data.data.Scope  {{ "}}" }}"
+          {{ "{{" }} end{{ "}}" }}
     spec:
+      serviceAccountName: {{ .Values.user.vault.serviceAccountName }}
       containers:
         - name: {{ .Values.user.container.name }}
           image: {{ .Values.user.container.image }}:{{ .Values.imageTags.api.user }}
+          command:
+            ['sh', '-c']
+          args:
+            ['. /vault/secrets/api && . /vault/secrets/db && . /vault/secrets/authentication && dotnet CombatAnalysis.UserApi.dll']
           ports:
             - containerPort: {{ .Values.user.container.port }}
           env:
-           - name: ASPNETCORE_ENVIRONMENT
+           - name: ASPNETCORE__ENVIRONMENT
              value: {{ .Values.env }}
-           - name: Database_Name
-             value: "MSSQL"
-           - name: Database_DataProcessingType
-             value: "Default"
-           - name: ConnectionStrings_DefaultConnection
-             valueFrom:
-               secretKeyRef:
-                name: user-db-connection-strings
-                key: defaultConnection
-           - name: ConnectionStrings_Firebase
-             valueFrom:
-               secretKeyRef:
-                name: user-db-connection-strings
-                key: firebase
-           - name: API_Identity
-             value: "https://identity.analysis.com/"
-           - name: Authentication_Issuer
-             valueFrom:
-               secretKeyRef:
-                name: authentication
-                key: issuer
-           - name: Authentication_IssuerSigningKey
-             valueFrom:
-               secretKeyRef:
-                name: authentication
-                key: issuerSigningKey
-           - name: Authentication_Authority
-             valueFrom:
-               secretKeyRef:
-                name: authentication
-                key: authority
-           - name: Authentication_Client_WebClientId
-             valueFrom:
-               secretKeyRef:
-                name: client
-                key: webClientId
-           - name: Authentication_Client_DesktopClientId
-             valueFrom:
-               secretKeyRef:
-                name: client
-                key: desktopClientId
-           - name: Authentication_Client_Scope
-             valueFrom:
-               secretKeyRef:
-                name: client
-                key: scope

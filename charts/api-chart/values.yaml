@@ -2,9 +2,6 @@ env: Production
 resources:
   cpu: 80
   memory: 80
-service:
-  port: 80
-  targetPort: 8080
 autoscaling:
   min: 3
   max: 6
@@ -20,21 +17,9 @@ user:
     targetPort: 8080
   ingress:
     host: api.user.analysis.com
-communication:
-  name: communication
-  replicas: 3
-  container:
-    name: communication
-    image: solinx/combatanalysiscommunicationapi
-    port: 8080
-  service:
-    port: 80
-    targetPort: 8080
-  ingress:
-    host: api.communication.analysis.com
   vault:
-    serviceAccountName: communication-sa
-    role: communication-role
+    serviceAccountName: user-sa
+    role: user-role
 chat:
   name: chat
   replicas: 3
@@ -50,6 +35,21 @@ chat:
   vault:
     serviceAccountName: chat-sa
     role: chat-role
+communication:
+  name: communication
+  replicas: 3
+  container:
+    name: communication
+    image: solinx/combatanalysiscommunicationapi
+    port: 8080
+  service:
+    port: 80
+    targetPort: 8080
+  ingress:
+    host: api.communication.analysis.com
+  vault:
+    serviceAccountName: communication-sa
+    role: communication-role
 parser:
   name: combat-parser
   replicas: 3
@@ -62,15 +62,6 @@ parser:
     targetPort: 8080
   ingress:
     host: api.parser.analysis.com
-health:
-  name: health
-  replicas: 3
-  container:
-    name: health
-    image: solinx/healthapi
-    port: 8080
-  service:
-    port: 80
-    targetPort: 8080
-  ingress:
-    host: health.analysis.com
+  vault:
+    serviceAccountName: parser-sa
+    role: parser-role

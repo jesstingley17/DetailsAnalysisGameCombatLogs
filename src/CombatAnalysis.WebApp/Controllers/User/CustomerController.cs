@@ -3,6 +3,7 @@ using CombatAnalysis.WebApp.Consts;
 using CombatAnalysis.WebApp.Interfaces;
 using CombatAnalysis.WebApp.Models.User;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace CombatAnalysis.WebApp.Controllers.User;
 
@@ -12,10 +13,10 @@ public class CustomerController : ControllerBase
 {
     private readonly IHttpClientHelper _httpClient;
 
-    public CustomerController(IHttpClientHelper httpClient)
+    public CustomerController(IOptions<Cluster> cluster, IHttpClientHelper httpClient)
     {
         _httpClient = httpClient;
-        _httpClient.APIUrl = Cluster.User;
+        _httpClient.APIUrl = cluster.Value.User;
     }
 
     [ServiceFilter(typeof(RequireAccessTokenAttribute))]

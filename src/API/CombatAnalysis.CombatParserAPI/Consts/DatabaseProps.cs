@@ -1,12 +1,12 @@
 ﻿namespace CombatAnalysis.CombatParserAPI.Consts;
 
-internal static class DatabaseProps
+internal class DatabaseProps
 {
-    public static string Name { get; set; }
+    public string Name { get; set; }
 
-    public static string DataProcessingType { get; set; }
+    public string DataProcessingType { get; set; }
 
-    public static string MSSQLConnectionString { get; set; }
+    public string DefaultConnection { get; set; }
 
-    public static string FirebaseConnectionString { get; set; }
+    public string FirebaseConnection { get; set; }
 }

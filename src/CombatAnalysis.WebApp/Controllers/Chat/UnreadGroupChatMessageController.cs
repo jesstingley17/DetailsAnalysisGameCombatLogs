@@ -3,6 +3,7 @@ using CombatAnalysis.WebApp.Consts;
 using CombatAnalysis.WebApp.Interfaces;
 using CombatAnalysis.WebApp.Models.Chat;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace CombatAnalysis.WebApp.Controllers.Chat;
 
@@ -13,10 +14,10 @@ public class UnreadGroupChatMessageController : ControllerBase
 {
     private readonly IHttpClientHelper _httpClient;
 
-    public UnreadGroupChatMessageController(IHttpClientHelper httpClient)
+    public UnreadGroupChatMessageController(IOptions<Cluster> cluster, IHttpClientHelper httpClient)
     {
         _httpClient = httpClient;
-        _httpClient.APIUrl = Cluster.Chat;
+        _httpClient.APIUrl = cluster.Value.Chat;
     }
 
     [HttpGet("find")]

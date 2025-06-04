@@ -1,12 +1,14 @@
 ﻿using CombatAnalysis.WebApp.Consts;
 using CombatAnalysis.WebApp.Enums;
 using CombatAnalysis.WebApp.Interfaces;
+using Microsoft.Extensions.Options;
 
 namespace CombatAnalysis.WebApp.Middlewares;
 
-internal class AuthTokenMiddleware(RequestDelegate next)
+internal class AuthTokenMiddleware(RequestDelegate next, IOptions<Authentication> authentication)
 {
     private readonly RequestDelegate _next = next;
+    private readonly Authentication _authentication = authentication.Value;
 
     public async Task InvokeAsync(HttpContext context, ITokenService tokenService)
     {
@@ -47,15 +49,15 @@ internal class AuthTokenMiddleware(RequestDelegate next)
 
         context.Response.Cookies.Append(nameof(AuthenticationCookie.RefreshToken), token.RefreshToken, new CookieOptions
         {
-            Domain = Authentication.CookieDomain,
+            Domain = _authentication.CookieDomain,
             HttpOnly = true,
             Secure = true,
             SameSite = SameSiteMode.None,
-            Expires = token.Expires.AddDays(Authentication.RefreshTokenExpiresDays)
+            Expires = token.Expires.AddDays(_authentication.RefreshTokenExpiresDays)
         });
         context.Response.Cookies.Append(nameof(AuthenticationCookie.AccessToken), token.AccessToken, new CookieOptions
         {
-            Domain = Authentication.CookieDomain,
+            Domain = _authentication.CookieDomain,
             HttpOnly = true,
             Secure = true,
             SameSite = SameSiteMode.None,

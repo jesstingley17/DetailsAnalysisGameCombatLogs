@@ -38,11 +38,46 @@ spec:
                 policies=api-policy \
                 ttl=24h
 
-              # Write auth Kubernetes config
-              # vault write auth/kubernetes/config \
-              #   token_reviewer_jwt="$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" \
-              #   kubernetes_host="https://$KUBERNETES_PORT_443_TCP_ADDR:443" \
-              #   kubernetes_ca_cert=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+              # Write auth Kubernetes role for parser api
+              vault write auth/kubernetes/role/parser-role \
+                bound_service_account_names=parser-sa \
+                bound_service_account_namespaces=api \
+                policies=api-policy \
+                ttl=24h
+
+              # Write auth Kubernetes role for user api
+              vault write auth/kubernetes/role/user-role \
+                bound_service_account_names=user-sa \
+                bound_service_account_namespaces=api \
+                policies=api-policy \
+                ttl=24h
+
+              # Write auth Kubernetes role for identity
+              vault write auth/kubernetes/role/identity-role \
+                bound_service_account_names=identity-sa \
+                bound_service_account_namespaces=identity \
+                policies=api-policy \
+                ttl=24h
+
+              vault policy write app-policy -<<EOF
+              path "app/*" {
+                capabilities = ["read"]
+              }
+              EOF
+
+              # Write auth Kubernetes role for web
+              vault write auth/kubernetes/role/web-role \
+                bound_service_account_names=web-sa \
+                bound_service_account_namespaces=web-app \
+                policies=api-policy,app-policy \
+                ttl=24h
+              
+              # Write auth Kubernetes role for web
+              vault write auth/kubernetes/role/hubs-role \
+                bound_service_account_names=hubs-sa \
+                bound_service_account_namespaces=web-app \
+                policies=api-policy,app-policy \
+                ttl=24h
           envFrom:
             - secretRef:
                 name: vault-init-secret

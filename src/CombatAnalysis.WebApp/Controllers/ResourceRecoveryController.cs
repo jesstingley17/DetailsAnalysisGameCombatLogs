@@ -3,6 +3,7 @@ using CombatAnalysis.WebApp.Enums;
 using CombatAnalysis.WebApp.Interfaces;
 using CombatAnalysis.WebApp.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace CombatAnalysis.WebApp.Controllers;
 
@@ -13,11 +14,11 @@ public class ResourceRecoveryController : ControllerBase
     private readonly IHttpClientHelper _httpClient;
     private readonly ILogger<ResourceRecoveryController> _logger;
 
-    public ResourceRecoveryController(IHttpClientHelper httpClient, ILogger<ResourceRecoveryController> logger)
+    public ResourceRecoveryController(IOptions<Cluster> cluster, IHttpClientHelper httpClient, ILogger<ResourceRecoveryController> logger)
     {
         _httpClient = httpClient;
         _logger = logger;
-        _httpClient.APIUrl = Cluster.CombatParser;
+        _httpClient.APIUrl = cluster.Value.CombatParser;
     }
 
     [HttpGet("getByCombatPlayerId")]

@@ -1,13 +1,12 @@
-{{- if .Values.autoscaling.enabled }}
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ .Release.Name }}-deployment-autoscaling
+  name: {{ .Values.hubs.name }}
 spec:
   scaleTargetRef:
-    apiVersion: msg-broker/v1
+    apiVersion: web-app/v1
     kind: Deployment
-    name: {{ .Release.Name }}-deployment
+    name: {{ .Values.hubs.name }}
   minReplicas: {{ .Values.autoscaling.min }}
   maxReplicas:  {{ .Values.autoscaling.max }}
   metrics:
@@ -23,4 +22,3 @@ spec:
       target:
         type: Utilization
         averageUtilization: {{ .Values.resources.memory }}
-{{- end }}
