@@ -7,7 +7,6 @@ import { GroupChatMessage as GroupChatMessageModel } from '../../../types/GroupC
 import { PersonalChatMessage } from '../../../types/PersonalChatMessage';
 import { GroupChatProps } from '../../../types/components/communication/chats/GroupChatProps';
 import Loading from '../../Loading';
-import GroupChatAddUser from './GroupChatAddUser';
 import GroupChatMenu from './GroupChatMenu';
 import GroupChatMessage from './GroupChatMessage';
 import GroupChatTitle from './GroupChatTitle';
@@ -20,7 +19,6 @@ const GroupChat: React.FC<GroupChatProps> = ({ me, chat, setSelectedChat }) => {
 
     const { groupChatMessagesHubConnection, connectToGroupChatMessagesAsync, subscribeToGroupChatMessages, subscribeGroupChatUser, subscribeToGroupMessageHasBeenRead } = useChatHub();
 
-    const [showAddPeople, setShowAddPeople] = useState(false);
     const [settingsIsShow, setSettingsIsShow] = useState(false);
     const [groupChatUsersId, setGroupChatUsersId] = useState<string[]>([]);
 
@@ -194,22 +192,13 @@ const GroupChat: React.FC<GroupChatProps> = ({ me, chat, setSelectedChat }) => {
                     targetChatType={1}
                     t={t}
                 />
-                {showAddPeople &&
-                    <GroupChatAddUser
-                        me={me}
-                        chatId={chat?.id}
-                        groupChatUsersId={groupChatUsersId}
-                        setShowAddPeople={setShowAddPeople}
-                        t={t}
-                    />
-                }
             </div>
             {settingsIsShow &&
                 <GroupChatMenu
                     me={me}
                     setSelectedChat={setSelectedChat}
-                    setShowAddPeople={setShowAddPeople}
                     groupChatUsers={groupChatData.groupChatUsers}
+                    groupChatUsersId={groupChatUsersId}
                     meInChat={groupChatData.meInChat}
                     chat={chat}
                     t={t}

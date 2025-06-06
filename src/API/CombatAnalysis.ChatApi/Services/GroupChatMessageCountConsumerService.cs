@@ -8,13 +8,13 @@ using System.Text.Json;
 
 namespace CombatAnalysis.ChatApi.Services;
 
-public class PersonalChatMessageCountConsumerService : KafkaConsumerServiceBase
+public class GroupChatMessageCountConsumerService : KafkaConsumerServiceBase
 {
-    private readonly ILogger<PersonalChatMessageCountConsumerService> _logger;
+    private readonly ILogger<GroupChatMessageCountConsumerService> _logger;
     private readonly IServiceScopeFactory _serviceScopeFactory;
 
-    public PersonalChatMessageCountConsumerService(IOptions<KafkaSettings> kafkaSettings, ILogger<PersonalChatMessageCountConsumerService> logger, IServiceScopeFactory serviceScopeFactory)
-        : base(kafkaSettings, KafkaTopics.PersonalChat, logger)
+    public GroupChatMessageCountConsumerService(IOptions<KafkaSettings> kafkaSettings, ILogger<GroupChatMessageCountConsumerService> logger, IServiceScopeFactory serviceScopeFactory)
+        : base(kafkaSettings, KafkaTopics.GroupChat, logger)
     {
         _logger = logger;
         _serviceScopeFactory = serviceScopeFactory;
@@ -25,20 +25,22 @@ public class PersonalChatMessageCountConsumerService : KafkaConsumerServiceBase
         try
         {
             using var scope = _serviceScopeFactory.CreateScope();
-            var chatMessageCountService = scope.ServiceProvider.GetService<IService<PersonalChatMessageCountDto, int>>();
+            var chatMessageCountService = scope.ServiceProvider.GetService<IService<GroupChatMessageCountDto, int>>();
 
             ArgumentNullException.ThrowIfNull(chatMessageCountService);
 
-            var chatAction = result.Message.Value.Deserialize<PersonalChatMessageAction>();
+            var chatAction = result.Message.Value.Deserialize<GroupChatMessageAction>();
             ArgumentNullException.ThrowIfNull(chatAction);
 
-            var messagesCount = await chatMessageCountService.GetByParamAsync(nameof(PersonalChatMessageAction.ChatId), chatAction.ChatId);
-            var companionMessageCount = messagesCount.FirstOrDefault(x => x.AppUserId == chatAction.CompanionId);
-            ArgumentNullException.ThrowIfNull(companionMessageCount);
+            var messagesCount = await chatMessageCountService.GetByParamAsync(nameof(GroupChatMessageAction.ChatId), chatAction.ChatId);
+            var otherGroupCounts = messagesCount.Where(x => x.GroupChatUserId != chatAction.GroupChatUserId);
+            ArgumentNullException.ThrowIfNull(otherGroupCounts);
 
-            companionMessageCount.Count++;
-
-            await chatMessageCountService.UpdateAsync(companionMessageCount);
+            foreach (var groupCount in otherGroupCounts)
+            {
+                groupCount.Count++;
+                await chatMessageCountService.UpdateAsync(groupCount);
+            }
         }
         catch (ArgumentNullException ex)
         {

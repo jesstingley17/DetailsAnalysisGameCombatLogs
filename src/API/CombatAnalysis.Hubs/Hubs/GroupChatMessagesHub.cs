@@ -5,16 +5,10 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace CombatAnalysis.Hubs.Hubs;
 
-public class GroupChatMessagesHub : Hub
+public class GroupChatMessagesHub(IHttpClientHelper httpClient, ILogger<GroupChatMessagesHub> logger) : Hub
 {
-    private readonly IHttpClientHelper _httpClient;
-    private readonly ILogger<GroupChatMessagesHub> _logger;
-
-    public GroupChatMessagesHub(IHttpClientHelper httpClient, ILogger<GroupChatMessagesHub> logger)
-    {
-        _httpClient = httpClient;
-        _logger = logger;
-    }
+    private readonly IHttpClientHelper _httpClient = httpClient;
+    private readonly ILogger<GroupChatMessagesHub> _logger = logger;
 
     public async Task JoinRoom(int chatId)
     {
@@ -43,10 +37,7 @@ public class GroupChatMessagesHub : Hub
             response.EnsureSuccessStatusCode();
 
             var createdMessage = await response.Content.ReadFromJsonAsync<GroupChatMessageModel>();
-            if (createdMessage == null)
-            {
-                throw new ArgumentNullException(nameof(createdMessage));
-            }
+            ArgumentNullException.ThrowIfNull(createdMessage);
 
             await Clients.Caller.SendAsync("ReceiveMessageDelivered");
 

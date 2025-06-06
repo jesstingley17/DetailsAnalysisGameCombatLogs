@@ -13,7 +13,7 @@ import '../styles/addPeople.scss';
 
 const defaultMaxItems = 3;
 
-const AddPeople: React.FC<AddPeopleProps> = ({ user, communityUsersId, peopleToJoin, setPeopleToJoin }) => {
+const AddPeople: React.FC<AddPeopleProps> = ({ user, usersId, peopleToJoin, setPeopleToJoin }) => {
     const { t } = useTranslation("addPeople");
 
     const [maxPeopleItems, setMaxPeopleItems] = useState(defaultMaxItems);
@@ -21,12 +21,12 @@ const AddPeople: React.FC<AddPeopleProps> = ({ user, communityUsersId, peopleToJ
 
     const { friends, isLoading: friendsIsLoading } = useFriendSearchMyFriendsQuery(user?.id, {
         selectFromResult: ({ data }: { data: Friend[] }) => ({
-            friends: data?.filter((item) => !communityUsersId.includes(user?.id === item.whoFriendId ? item.forWhomId : item.whoFriendId))
+            friends: data?.filter((item) => !usersId.includes(user?.id === item.whoFriendId ? item.forWhomId : item.whoFriendId))
         }),
     });
     const { people, isLoading: peopleIsLoading } = useGetUsersQuery(undefined, {
         selectFromResult: ({ data }: { data: AppUser[] }) => ({
-            people: data?.filter((item) => !communityUsersId.includes(item.id))
+            people: data?.filter((item) => !usersId.includes(item.id))
         }),
     });
 
@@ -79,8 +79,8 @@ const AddPeople: React.FC<AddPeopleProps> = ({ user, communityUsersId, peopleToJ
                             <AddFriendItem
                                 friendUserId={item.whoFriendId === user.id ? item.forWhomId : item.whoFriendId}
                                 filterContent={filterContent.current?.value || ""}
-                                addUserIdToList={handleAddUserToJoin}
-                                removeUserIdToList={handleRemoveUserFromToJoin}
+                                addUserToList={handleAddUserToJoin}
+                                removeUserToList={handleRemoveUserFromToJoin}
                                 peopleIdToJoin={selectedPeopleToJoin}
                             />
                         </li>

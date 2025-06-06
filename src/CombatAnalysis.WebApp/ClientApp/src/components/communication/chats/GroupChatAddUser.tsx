@@ -29,7 +29,7 @@ const GroupChatAddUser: React.FC<GroupChatAddUserProps> = ({ me, chatId, groupCh
         <div className="add-people-to-chat box-shadow">
             <AddPeople
                 user={me}
-                communityUsersId={groupChatUsersId}
+                usersId={groupChatUsersId}
                 peopleToJoin={peopleToJoin}
                 setPeopleToJoin={setPeopleToJoin}
             />

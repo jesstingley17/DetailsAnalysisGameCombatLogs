@@ -3,7 +3,7 @@ import { AppUser } from "../AppUser";
 
 export interface AddPeopleProps {
     user: AppUser;
-    communityUsersId: string[];
+    usersId: string[];
     peopleToJoin: AppUser[];
     setPeopleToJoin(value: SetStateAction<AppUser[]>): void;
 }

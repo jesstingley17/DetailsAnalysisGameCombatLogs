@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useGetUserByIdQuery } from '../store/api/user/Account.api';
 import { AddFriendItemProps } from '../types/components/AddFriendItemProps';
 
-const AddFriendItem: React.FC<AddFriendItemProps> = ({ friendUserId, addUserIdToList, removeUserIdToList, filterContent, peopleIdToJoin }) => {
+const AddFriendItem: React.FC<AddFriendItemProps> = ({ friendUserId, addUserToList, removeUserToList, filterContent, peopleIdToJoin }) => {
     const { t } = useTranslation("addFriendItem");
 
     const { data: user, isLoading } = useGetUserByIdQuery(friendUserId);
@@ -17,16 +17,16 @@ const AddFriendItem: React.FC<AddFriendItemProps> = ({ friendUserId, addUserIdTo
         user?.username.toLowerCase().startsWith(filterContent.toLowerCase()) &&
         <>
             <div>{user?.username}</div>
-            {peopleIdToJoin.includes(user.id)
+            {peopleIdToJoin.filter(x => x.id === user.id).length > 0
                 ? <FontAwesomeIcon
                     icon={faUserPlus}
                     title={t("CancelRequest") || ""}
-                    onClick={() => removeUserIdToList(user?.id)}
+                    onClick={() => removeUserToList(user)}
                 />
                 : <FontAwesomeIcon
                     icon={faPlus}
                     title={t("SendInvite") || ""}
-                    onClick={() => addUserIdToList(user?.id)}
+                    onClick={() => addUserToList(user)}
                 />
             }
         </>

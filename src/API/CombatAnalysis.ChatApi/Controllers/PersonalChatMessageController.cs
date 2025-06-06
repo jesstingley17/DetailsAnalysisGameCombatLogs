@@ -13,7 +13,7 @@ namespace CombatAnalysis.ChatApi.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-//[Authorize]
+[Authorize]
 public class PersonalChatMessageController : ControllerBase
 {
     private const string MessageCreatedTopic = "personal-chat";
@@ -79,36 +79,36 @@ public class PersonalChatMessageController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(PersonalChatMessageModel personalChatMessageModel)
+    public async Task<IActionResult> Create(PersonalChatMessageModel chatMessage)
     {
         try
         {
-            ArgumentNullException.ThrowIfNull(personalChatMessageModel);
+            ArgumentNullException.ThrowIfNull(chatMessage);
 
-            var map = _mapper.Map<PersonalChatMessageDto>(personalChatMessageModel);
+            var map = _mapper.Map<PersonalChatMessageDto>(chatMessage);
             var createdPersonalChatMessage = await _chatMessageService.CreateAsync(map);
 
             var chat = await _chatService.GetByIdAsync(createdPersonalChatMessage.ChatId);
 
-            var companionId = personalChatMessageModel.AppUserId == chat.CompanionId
+            var companionId = chatMessage.AppUserId == chat.CompanionId
                 ? chat.InitiatorId
                 : chat.CompanionId;
 
-            var userCreatedEvent = JsonSerializer.Serialize(new PersonalChatMessageAction 
+            var chatAction = JsonSerializer.Serialize(new PersonalChatMessageAction 
             {
-                ChatId = personalChatMessageModel.ChatId, 
-                AppUserId = personalChatMessageModel.AppUserId, 
+                ChatId = chatMessage.ChatId, 
+                AppUserId = chatMessage.AppUserId, 
                 CompanionId = companionId,
                 State = (int)KafkaActionState.Created,
                 When = DateTime.UtcNow.ToString(),
             });
-            await _kafkaProducer.ProduceAsync(MessageCreatedTopic, createdPersonalChatMessage.Id.ToString(), userCreatedEvent);
+            await _kafkaProducer.ProduceAsync(MessageCreatedTopic, createdPersonalChatMessage.Id.ToString(), chatAction);
 
             return Ok(createdPersonalChatMessage);
         }
         catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, $"Create Personal Chat Message failed: ${ex.Message}", personalChatMessageModel);
+            _logger.LogError(ex, $"Create Personal Chat Message failed: ${ex.Message}", chatMessage);
 
             await _chatTransactionService.RollbackTransactionAsync();
 
@@ -116,7 +116,7 @@ public class PersonalChatMessageController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"Create Personal Chat Message failed: ${ex.Message}", personalChatMessageModel);
+            _logger.LogError(ex, $"Create Personal Chat Message failed: ${ex.Message}", chatMessage);
 
             await _chatTransactionService.RollbackTransactionAsync();
 

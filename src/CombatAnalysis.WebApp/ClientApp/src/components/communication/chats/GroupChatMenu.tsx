@@ -11,6 +11,7 @@ import { GroupChatMenuProps } from '../../../types/components/communication/chat
 import VerificationRestriction from '../../common/VerificationRestriction';
 import ChatRulesItem from '../create/ChatRulesItem';
 import GroupChatMembers from './GroupChatMembers';
+import GroupChatAddUser from './GroupChatAddUser';
 
 const rulesEnum = {
     "owner": 0,
@@ -24,7 +25,8 @@ const defaultPayload = {
     announcements: 1,
 };
 
-const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ me, setSelectedChat, setShowAddPeople, groupChatUsers, meInChat, chat, t }) => {
+const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ me, setSelectedChat, groupChatUsersId, groupChatUsers, meInChat, chat, t }) => {
+    const [showAddPeople, setShowAddPeople] = useState(false);
     const [peopleInspectionModeOn, setPeopleInspectionModeOn] = useState(false);
     const [rulesInspectionModeOn, setRulesInspectionModeOn] = useState(false);
     const [showRemoveChatAlert, setShowRemoveChatAlert] = useState(false);
@@ -144,7 +146,7 @@ const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ me, setSelectedChat, setS
             <div className="settings__content">
                 <div className="main-settings">
                     <div className="btn-border-shadow" onClick={() => setPeopleInspectionModeOn((item) => !item)}>{t("Members")}</div>
-                    {canInvitePeople()&&
+                    {canInvitePeople() &&
                         <div className="btn-border-shadow" onClick={() => setShowAddPeople((item) => !item)}>{t("Invite")}</div>
                     }
                     {chat.appUserId === me.id &&
@@ -165,6 +167,25 @@ const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ me, setSelectedChat, setS
                     }
                 </div>
             </div>
+            {showAddPeople &&
+                <GroupChatAddUser
+                    me={me}
+                    chatId={chat?.id}
+                    groupChatUsersId={groupChatUsersId}
+                    setShowAddPeople={setShowAddPeople}
+                    t={t}
+                />
+            }
+            {peopleInspectionModeOn &&
+                <GroupChatMembers
+                    me={me}
+                    groupChatUsers={groupChatUsers}
+                    removeUsersAsync={removeGroupChatUserAsync}
+                    setShowMembers={setPeopleInspectionModeOn}
+                    isPopup={true}
+                    canRemovePeople={canRemovePeople}
+                />
+            }
             {peopleInspectionModeOn &&
                 <GroupChatMembers
                     me={me}

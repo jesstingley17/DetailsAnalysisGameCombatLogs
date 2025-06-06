@@ -66,6 +66,7 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddSingleton<IKafkaProducerService<string, string>, KafkaProducerService<string, string>>();
 builder.Services.AddHostedService<PersonalChatMessageCountConsumerService>();
+builder.Services.AddHostedService<GroupChatMessageCountConsumerService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

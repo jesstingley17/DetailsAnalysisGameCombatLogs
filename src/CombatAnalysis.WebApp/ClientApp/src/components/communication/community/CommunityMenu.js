@@ -245,7 +245,7 @@ const CommunityMenu = ({ setShowMenu, customer, community, setCommunity }) => {
                             <>
                                 <AddPeople
                                     customer={customer}
-                                    communityUsersId={[customer?.id]}
+                                    usersId={[customer?.id]}
                                     peopleToJoin={peopleIdToJoin}
                                     setPeopleToJoin={setPeopleIdToJoin}
                                 />

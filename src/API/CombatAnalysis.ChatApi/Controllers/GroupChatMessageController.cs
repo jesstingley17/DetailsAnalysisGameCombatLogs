@@ -1,35 +1,28 @@
 ﻿using AutoMapper;
 using CombatAnalysis.ChatApi.Enums;
+using CombatAnalysis.ChatApi.Interfaces;
 using CombatAnalysis.ChatApi.Models;
+using CombatAnalysis.ChatApi.Models.Kafka;
 using CombatAnalysis.ChatBL.DTO;
 using CombatAnalysis.ChatBL.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace CombatAnalysis.ChatApi.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class GroupChatMessageController : ControllerBase
+public class GroupChatMessageController(IChatMessageService<GroupChatMessageDto, int> chatMessageService, IMapper mapper, ILogger<GroupChatMessageController> logger,
+    IKafkaProducerService<string, string> kafkaProducer) : ControllerBase
 {
-    private readonly IChatMessageService<GroupChatMessageDto, int> _chatMessageService;
-    private readonly IServiceTransaction<GroupChatUserDto, string> _chatUserService;
-    private readonly IService<GroupChatMessageCountDto, int> _chatMessageCountService;
-    private readonly IMapper _mapper;
-    private readonly ILogger<GroupChatMessageController> _logger;
-    private readonly IChatTransactionService _chatTransactionService;
+    private const string MessageCreatedTopic = "group-chat";
 
-    public GroupChatMessageController(IChatMessageService<GroupChatMessageDto, int> chatMessageService, IService<GroupChatMessageCountDto, int> chatMessageCountService, IServiceTransaction<GroupChatUserDto, string> chatUserService, 
-        IMapper mapper, ILogger<GroupChatMessageController> logger, IChatTransactionService chatTransactionService)
-    {
-        _chatMessageService = chatMessageService;
-        _chatMessageCountService = chatMessageCountService;
-        _chatUserService = chatUserService;
-        _mapper = mapper;
-        _logger = logger;
-        _chatTransactionService = chatTransactionService;
-    }
+    private readonly IChatMessageService<GroupChatMessageDto, int> _chatMessageService = chatMessageService;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<GroupChatMessageController> _logger = logger;
+    private readonly IKafkaProducerService<string, string> _kafkaProducer = kafkaProducer;
 
     [HttpGet("count/{chatId}")]
     public async Task<IActionResult> Count(int chatId)
@@ -78,22 +71,19 @@ public class GroupChatMessageController : ControllerBase
     {
         try
         {
-            if (chatMessage == null)
-            {
-                throw new ArgumentNullException(nameof(chatMessage));
-            }
-
-            await _chatTransactionService.BeginTransactionAsync();
+            ArgumentNullException.ThrowIfNull(chatMessage);
 
             var map = _mapper.Map<GroupChatMessageDto>(chatMessage);
             var createdGroupChatMessage = await _chatMessageService.CreateAsync(map);
 
-            if (chatMessage.Type == (int)MessageType.Default)
+            var chatAction = JsonSerializer.Serialize(new GroupChatMessageAction
             {
-                await UpdateMessagesCountAsync(chatMessage.ChatId, chatMessage.GroupChatUserId);
-            }
-
-            await _chatTransactionService.CommitTransactionAsync();
+                ChatId = chatMessage.ChatId,
+                GroupChatUserId = chatMessage.GroupChatUserId,
+                State = (int)KafkaActionState.Created,
+                When = DateTime.UtcNow.ToString(),
+            });
+            await _kafkaProducer.ProduceAsync(MessageCreatedTopic, createdGroupChatMessage.Id.ToString(), chatAction);
 
             return Ok(createdGroupChatMessage);
         }
@@ -101,15 +91,11 @@ public class GroupChatMessageController : ControllerBase
         {
             _logger.LogError(ex, $"Create Group Chat Message failed: ${ex.Message}", chatMessage);
 
-            await _chatTransactionService.RollbackTransactionAsync();
-
             return BadRequest();
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, $"Create Group Chat Message failed: ${ex.Message}", chatMessage);
-
-            await _chatTransactionService.RollbackTransactionAsync();
 
             return BadRequest();
         }
@@ -145,25 +131,5 @@ public class GroupChatMessageController : ControllerBase
         var affectedRows = await _chatMessageService.DeleteAsync(id);
 
         return Ok(affectedRows);
-    }
-
-    private async Task UpdateMessagesCountAsync(int chatId, string meInChatId) 
-    {
-        var chatUsers = await _chatUserService.GetByParamAsync(nameof(GroupChatUserDto.ChatId), chatId);
-        var chatUsersExcludeMe = chatUsers.Where(x => x.Id != meInChatId).ToList();
-
-        var messagesCount = await _chatMessageCountService.GetByParamAsync(nameof(GroupChatMessageCountModel.ChatId), chatId);
-        var groupChatMessagesCount = messagesCount.Where(x => chatUsersExcludeMe.Any(y => y.Id == x.GroupChatUserId)).ToList();
-        if (groupChatMessagesCount == null)
-        {
-            throw new ArgumentNullException(nameof(groupChatMessagesCount));
-        }
-
-        foreach (var messageCount in groupChatMessagesCount)
-        {
-            messageCount.Count++;
-
-            await _chatMessageCountService.UpdateAsync(messageCount);
-        }
     }
 }
