@@ -1,7 +1,7 @@
 ﻿import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { memo, useRef, useState } from 'react';
-import { GroupChatMessageInputProps } from '../../../types/components/communication/chats/GroupChatMessageInputProps';
+import { GroupChatMessageInputProps } from '../../../../types/components/communication/chats/GroupChatMessageInputProps';
 
 const GroupChatMessageInput: React.FC<GroupChatMessageInputProps> = ({ hubConnection, chat, meId, setAreLoadingOldMessages, t }) => {
     const messageInput = useRef<any>(null);

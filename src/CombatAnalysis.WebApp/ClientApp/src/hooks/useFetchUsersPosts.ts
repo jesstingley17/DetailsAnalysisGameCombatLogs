@@ -32,7 +32,7 @@ const useFetchUsersPosts = (meId: string): UseFetchUsersPostsResult => {
         selectFromResult: ({ data }: { data: Friend[] }) => ({ data }),
     });
     const { data: myCommunitiesUsers, isLoading: communitiesAreLoading } = useCommunityUserSearchByUserIdQuery(meId, {
-        selectFromResult: ({ data }: { data: CommunityUser[] }) => ({ data }),
+        selectFromResult: ({ data, isLoading }) => ({ data, isLoading }),
     });
     const { data: posts } = useGetUserPostByListOfUserIdsQuery({ appUserIds: appUserIdsRef.current, pageSize: pageSizeRef.current }, {
         selectFromResult: ({ data }: { data: UserPost[] }) => ({ data }),
@@ -97,7 +97,7 @@ const useFetchUsersPosts = (meId: string): UseFetchUsersPostsResult => {
         }
 
         const getCommunityPostByListOfCommunityIds = async () => {
-            const communityIds: string[] = myCommunitiesUsers
+            const communityIds: number[] = myCommunitiesUsers
                 ? myCommunitiesUsers.map((user: CommunityUser) => user.communityId)
                 : [];
 

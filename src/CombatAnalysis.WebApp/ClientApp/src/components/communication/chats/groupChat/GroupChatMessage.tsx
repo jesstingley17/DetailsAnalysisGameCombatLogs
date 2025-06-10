@@ -1,6 +1,6 @@
-﻿import { useGetGroupChatUserByIdQuery } from '../../../store/api/chat/GroupChatUser.api';
-import { GroupChatMessageProps } from '../../../types/components/communication/chats/GroupChatMessageProps';
-import ChatMessage from './ChatMessage';
+﻿import { useGetGroupChatUserByIdQuery } from '../../../../store/api/chat/GroupChatUser.api';
+import { GroupChatMessageProps } from '../../../../types/components/communication/chats/GroupChatMessageProps';
+import ChatMessage from '../ChatMessage';
 
 const GroupChatMessage: React.FC<GroupChatMessageProps> = ({ me, reviewerId, messageOwnerId, message, updateMessageAsync, chatMessagesHubConnection, subscribeToMessageHasBeenRead }) => {
     const { data: groupChatUser, isLoading } = useGetGroupChatUserByIdQuery(messageOwnerId);

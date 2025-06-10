@@ -1,10 +1,10 @@
 ﻿import { faArrowDown, faArrowUp } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useEffect, useState } from 'react';
-import { useChatHub } from '../../../context/ChatHubProvider';
-import { useFindGroupChatUserByUserIdQuery } from '../../../store/api/chat/GroupChatUser.api';
-import { GroupChatUser } from '../../../types/GroupChatUser';
-import { GroupChatListProps } from '../../../types/components/communication/chats/GroupChatListProps';
+import { useChatHub } from '../../../../context/ChatHubProvider';
+import { useFindGroupChatUserByUserIdQuery } from '../../../../store/api/chat/GroupChatUser.api';
+import { GroupChatUser } from '../../../../types/GroupChatUser';
+import { GroupChatListProps } from '../../../../types/components/communication/chats/GroupChatListProps';
 import GroupChatListItem from './GroupChatListItem';
 
 const GroupChatList: React.FC<GroupChatListProps> = ({ meId, t, selectedChat, setSelectedChat, chatsHidden, toggleChatsHidden, setShowCreateGroupChat }) => {

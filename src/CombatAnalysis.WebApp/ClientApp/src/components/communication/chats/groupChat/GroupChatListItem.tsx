@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useGetGroupChatByIdQuery } from '../../../store/api/chat/GroupChat.api';
-import { useFindGroupChatMessageCountQuery } from '../../../store/api/chat/GroupChatMessagCount.api';
-import { GroupChatListItemProps } from '../../../types/components/communication/chats/GroupChatListItemProps';
+import { useGetGroupChatByIdQuery } from '../../../../store/api/chat/GroupChat.api';
+import { useFindGroupChatMessageCountQuery } from '../../../../store/api/chat/GroupChatMessagCount.api';
+import { GroupChatListItemProps } from '../../../../types/components/communication/chats/GroupChatListItemProps';
 
 const GroupChatListItem: React.FC<GroupChatListItemProps> = ({ chatId, meInChatId, setSelectedGroupChat, subscribeToUnreadGroupMessagesUpdated }) => {
     const [unreadMessageCount, setUnreadMessageCount] = useState(-1);

@@ -1,35 +1,33 @@
-import { CommunityApi } from "../core/Community.api";
+import { CommunityUser } from '../../../types/CommunityUser';
+import { CommunityApi } from '../core/Community.api';
 
 export const CommunityUserApi = CommunityApi.injectEndpoints({
-    tagTyes: [
-        'CommunityUser',
-    ],
     endpoints: builder => ({
-        communityUserSearchByCommunityId: builder.query({
+        communityUserSearchByCommunityId: builder.query<CommunityUser[], number>({
             query: (communityId) => `/CommunityUser/searchByCommunityId/${communityId}`,
             providesTags: (result, error, arg) =>
                 result
-                    ? [...result.map(({ id }) => ({ type: 'CommunityUser', id })), { type: 'CommunityUser' }]
+                    ? [...result.map(({ id }) => ({ type: 'CommunityUser' as const, id })), { type: 'CommunityUser' }]
                     : [{ type: 'CommunityUser' }]
         }),
-        communityUserSearchByUserId: builder.query({
+        communityUserSearchByUserId: builder.query<CommunityUser[], string>({
             query: (userId) => `/CommunityUser/searchByUserId/${userId}`,
             providesTags: (result, error, id) => [{ type: 'CommunityUser', id }]
         }),
-        createCommunityUser: builder.mutation({
-            query: communityUser => ({
+        createCommunityUser: builder.mutation<CommunityUser, CommunityUser>({
+            query: (communityUser) => ({
                 body: communityUser,
                 url: '/CommunityUser',
                 method: 'POST'
             }),
-            invalidatesTags: (result, error, arg) => [{ type: 'CommunityUser', arg }]
+            invalidatesTags: (result, error, arg) => [{ type: 'CommunityUser', id: arg.id }]
         }),
-        removeCommunityUser: builder.mutation({
+        removeCommunityUser: builder.mutation<void, string>({
             query: id => ({
                 url: `/CommunityUser/${id}`,
                 method: 'DELETE'
             }),
-            invalidatesTags: (result, error, arg) => [{ type: 'CommunityUser', arg }]
+            invalidatesTags: (result, error, id) => [{ type: 'CommunityUser', id }]
         })
     })
 })

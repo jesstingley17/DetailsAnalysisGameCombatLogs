@@ -1,10 +1,10 @@
 ﻿import { faArrowDown, faArrowUp } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useState } from 'react';
-import { useChatHub } from '../../../context/ChatHubProvider';
-import { useGetByUserIdAsyncQuery } from '../../../store/api/chat/PersonalChat.api';
-import { PersonalChat } from '../../../types/PersonalChat';
-import { PersonalChatListProps } from '../../../types/components/communication/chats/PersonalChatListProps';
+import { useChatHub } from '../../../../context/ChatHubProvider';
+import { useGetByUserIdAsyncQuery } from '../../../../store/api/chat/PersonalChat.api';
+import { PersonalChat } from '../../../../types/PersonalChat';
+import { PersonalChatListProps } from '../../../../types/components/communication/chats/PersonalChatListProps';
 import PersonalChatListItem from './PersonalChatListItem';
 
 const PersonalChatList: React.FC<PersonalChatListProps> = ({ meId, t, selectedChat, setSelectedChat, chatsHidden, toggleChatsHidden }) => {

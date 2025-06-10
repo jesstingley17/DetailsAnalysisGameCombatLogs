@@ -1,13 +1,15 @@
-const CommunityRulesItem = ({ setPolicy, t }) => {
-    const handleTypeOfCommunityChange = (event) => {
-        setPolicy(event.target.value);
-    }
+import { CommunityRulesItemProps } from '../../../types/components/communication/create/CommunityRulesItemProps';
 
-    const handleInviteChange = (event) => {
+const CommunityRulesItem: React.FC<CommunityRulesItemProps> = ({ t }) => {
+    const handleTypeOfCommunityChange = (event: any) => {
 
     }
 
-    const handleRemoveChange = (event) => {
+    const handleInviteChange = (event: any) => {
+
+    }
+
+    const handleRemoveChange = (event: any) => {
 
     }
 

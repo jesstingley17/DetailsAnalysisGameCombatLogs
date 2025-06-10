@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
+import { CommonItemProps } from '../../../types/components/communication/create/CommonItemProps';
 
-const CommonItem = ({ connector, name, setName, description = "", setDescription = "", useDescription = false }) => {
+const CommonItem: React.FC<CommonItemProps> = ({ connector, name, setName, description = "", setDescription, useDescription = false }) => {
     const { t } = useTranslation("communication/create");
 
     return (

@@ -1,17 +1,17 @@
 import { useEffect, useState } from 'react';
-import { useRemoveGroupChatAsyncMutation } from '../../../store/api/chat/GroupChat.api';
-import { useCreateGroupChatMessageAsyncMutation } from '../../../store/api/chat/GroupChatMessage.api';
-import { useGetGroupChatRulesByIdQuery, useUpdateGroupChatRulesAsyncMutation } from '../../../store/api/chat/GroupChatRules.api';
+import { useRemoveGroupChatAsyncMutation } from '../../../../store/api/chat/GroupChat.api';
+import { useCreateGroupChatMessageAsyncMutation } from '../../../../store/api/chat/GroupChatMessage.api';
+import { useGetGroupChatRulesByIdQuery, useUpdateGroupChatRulesAsyncMutation } from '../../../../store/api/chat/GroupChatRules.api';
 import {
     useRemoveGroupChatUserAsyncMutation
-} from '../../../store/api/chat/GroupChatUser.api';
-import { useLazyGetUserByIdQuery } from '../../../store/api/user/Account.api';
-import { GroupChatUser } from '../../../types/GroupChatUser';
-import { GroupChatMenuProps } from '../../../types/components/communication/chats/GroupChatMenuProps';
-import VerificationRestriction from '../../common/VerificationRestriction';
-import ChatRulesItem from '../create/ChatRulesItem';
-import GroupChatMembers from './GroupChatMembers';
+} from '../../../../store/api/chat/GroupChatUser.api';
+import { useLazyGetUserByIdQuery } from '../../../../store/api/user/Account.api';
+import { GroupChatUser } from '../../../../types/GroupChatUser';
+import { GroupChatMenuProps } from '../../../../types/components/communication/chats/GroupChatMenuProps';
+import VerificationRestriction from '../../../common/VerificationRestriction';
+import ChatRulesItem from '../../create/ChatRulesItem';
 import GroupChatAddUser from './GroupChatAddUser';
+import GroupChatMembers from './GroupChatMembers';
 
 const rulesEnum = {
     "owner": 0,
@@ -179,7 +179,7 @@ const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ me, setSelectedChat, grou
             {peopleInspectionModeOn &&
                 <GroupChatMembers
                     me={me}
-                    groupChatUsers={groupChatUsers}
+                    communicationUsers={groupChatUsers}
                     removeUsersAsync={removeGroupChatUserAsync}
                     setShowMembers={setPeopleInspectionModeOn}
                     isPopup={true}
@@ -189,7 +189,7 @@ const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ me, setSelectedChat, grou
             {peopleInspectionModeOn &&
                 <GroupChatMembers
                     me={me}
-                    groupChatUsers={groupChatUsers}
+                    communicationUsers={groupChatUsers}
                     removeUsersAsync={removeGroupChatUserAsync}
                     setShowMembers={setPeopleInspectionModeOn}
                     isPopup={true}

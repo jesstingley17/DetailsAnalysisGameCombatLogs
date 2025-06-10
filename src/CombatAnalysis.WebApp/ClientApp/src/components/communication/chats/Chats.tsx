@@ -7,10 +7,10 @@ import { SelectedChat } from '../../../types/components/communication/SelectedCh
 import Loading from '../../Loading';
 import CommunicationMenu from '../CommunicationMenu';
 import CreateGroupChat from '../create/CreateGroupChat';
-import GroupChat from './GroupChat';
-import GroupChatList from './GroupChatList';
-import PersonalChat from './PersonalChat';
-import PersonalChatList from './PersonalChatList';
+import GroupChat from './groupChat/GroupChat';
+import GroupChatList from './groupChat/GroupChatList';
+import PersonalChat from './personalChat/PersonalChat';
+import PersonalChatList from './personalChat/PersonalChatList';
 
 import "../../../styles/communication/chats/chats.scss";
 

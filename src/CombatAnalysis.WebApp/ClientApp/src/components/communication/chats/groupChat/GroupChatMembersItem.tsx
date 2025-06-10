@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { GroupChatUser } from "../../../types/GroupChatUser";
-import { GroupChatMembersItemProps } from "../../../types/components/communication/chats/GroupChatMembersItemProps";
-import User from "../User";
+import { GroupChatUser } from "../../../../types/GroupChatUser";
+import { GroupChatMembersItemProps } from "../../../../types/components/communication/chats/GroupChatMembersItemProps";
+import User from "../../User";
 
 const GroupChatMembersItem: React.FC<GroupChatMembersItemProps> = ({ me, groupChatUser, usersToRemove, setUsersToRemove, showRemoveUser }) => {
     const [userInformation, setUserInformation] = useState(null);

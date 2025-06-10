@@ -20,19 +20,27 @@ const CommunityMembers: React.FC<CommunityMembersProps> = ({ community, user, se
 
     const [showAllPeople, setShowAllPeople] = useState(false);
     const [peopleToJoin, setPeopleToJoin] = useState<AppUser[]>([]);
-    const [allCommunityUsers, setAllCommunityUsers] = useState([]);
+    const [allCommunityUsers, setAllCommunityUsers] = useState<CommunityUser[]>([]);
     const [showAddPeople, setShowAddPeople] = useState(false);
 
     const [createInviteAsyncMut] = useCreateInviteAsyncMutation();
 
     const { communityUsers, isLoading } = useCommunityUserSearchByCommunityIdQuery(community.id, {
-        selectFromResult: ({ data }: { data: CommunityUser[] }) => {
-            for (let i = 0; i < data?.length; i++) {
+        selectFromResult: ({ data, isLoading }) => {
+            if (!data) {
+                return {
+                    communityUsers: [],
+                    isLoading
+                }
+            }
+
+            for (let i = 0; i < data.length; i++) {
                 communityUsersId.push(data[i].appUserId);
             }
 
             return {
-                communityUsers: data?.slice(0, defaultMaxPeople)
+                communityUsers: data?.slice(0, defaultMaxPeople),
+                isLoading
             }
         }
     });
@@ -100,10 +108,12 @@ const CommunityMembers: React.FC<CommunityMembersProps> = ({ community, user, se
     }
 
     const handleShowAllPeopleAsync = async () => {
-        const users = await getAllCommunityUsersAsync(community?.id);
-        if (users.data !== undefined) {
-            setAllCommunityUsers(users.data);
+        try {
+            const communityUsers = await getAllCommunityUsersAsync(community?.id).unwrap();
+            setAllCommunityUsers(communityUsers);
             setShowAllPeople(prev => !prev);
+        } catch (e) {
+            console.error('API call failed:', e);
         }
     }
 

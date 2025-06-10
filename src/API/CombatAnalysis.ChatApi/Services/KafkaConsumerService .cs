@@ -17,14 +17,8 @@ public abstract class KafkaConsumerServiceBase : BackgroundService
     {
         _config = kafkaSettings.Value.Consumer;
         _config.BootstrapServers = kafkaSettings.Value.BootstrapServers;
-
-        if (string.IsNullOrEmpty(_config.BootstrapServers) || string.IsNullOrEmpty(_config.GroupId))
-        {
-            throw new ArgumentException("Kafka BootstrapServers or GroupId configuration is missing or invalid.");
-        }
-
-        _topic = topic ?? throw new ArgumentNullException(nameof(topic));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _topic = topic;
+        _logger = logger;
     }
 
     protected abstract Task ConsumeMessageAsync(ConsumeResult<string, JsonDocument> result, CancellationToken stoppingToken);
@@ -48,29 +42,28 @@ public abstract class KafkaConsumerServiceBase : BackgroundService
             {
                 try
                 {
-                    var consumeResult = _consumer.Consume(TimeSpan.FromSeconds(5)); // Adjust timeout as needed
+                    var consumeResult = _consumer.Consume(TimeSpan.FromSeconds(10));
 
                     if (consumeResult?.Message != null)
                     {
                         _logger.LogDebug($"Received message from '{_topic}' - Partition: {consumeResult.Partition}, Offset: {consumeResult.Offset}");
+
                         await ConsumeMessageAsync(consumeResult, stoppingToken);
-                        // Optionally commit the offset manually if auto-commit is disabled
+
                         _consumer.Commit(consumeResult);
                     }
                 }
                 catch (ConsumeException ex)
                 {
                     _logger.LogError($"Consume error on topic '{_topic}': {ex.Error.Reason}");
-                    // Consider implementing retry or dead-letter queue logic
                 }
-                catch (OperationCanceledException)
+                catch (OperationCanceledException ex)
                 {
-                    // Expected when the service is stopping
+                    _logger.LogError(ex, ex.Message);
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError($"An unexpected error occurred while consuming from '{_topic}': {ex.Message}");
-                    // Handle other exceptions
                 }
             }
 

@@ -84,9 +84,9 @@ public class CommunityUserController : ControllerBase
         }
         else if (responseMessage.IsSuccessStatusCode)
         {
-            var post = await responseMessage.Content.ReadFromJsonAsync<CommunityUserModel>();
+            var communityUser = await responseMessage.Content.ReadFromJsonAsync<CommunityUserModel>();
 
-            return Ok(post);
+            return Ok(communityUser);
         }
 
         return BadRequest();

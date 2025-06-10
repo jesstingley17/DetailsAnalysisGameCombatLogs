@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useFindPersonalChatMessageCountQuery } from '../../../store/api/chat/PersonalChatMessagCount.api';
-import { useGetUserByIdQuery } from '../../../store/api/user/Account.api';
-import { PersonalChatListItemProps } from '../../../types/components/communication/chats/PersonalChatListItemProps';
+import { useFindPersonalChatMessageCountQuery } from '../../../../store/api/chat/PersonalChatMessagCount.api';
+import { useGetUserByIdQuery } from '../../../../store/api/user/Account.api';
+import { PersonalChatListItemProps } from '../../../../types/components/communication/chats/PersonalChatListItemProps';
 
 const PersonalChatListItem: React.FC<PersonalChatListItemProps> = ({ chat, setSelectedChat, companionId, meId, subscribeToUnreadPersonalMessagesUpdated }) => {
     const [unreadMessageCount, setUnreadMessageCount] = useState(-1);

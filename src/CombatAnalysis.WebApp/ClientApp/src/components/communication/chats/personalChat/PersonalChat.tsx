@@ -1,21 +1,21 @@
 ﻿import { memo, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useChatHub } from '../../../context/ChatHubProvider';
+import { useChatHub } from '../../../../context/ChatHubProvider';
+import { useGetMessagesByPersonalChatIdQuery, useLazyGetMoreMessagesByPersonalChatIdQuery } from '../../../../store/api/core/Chat.api';
+import { useGetUserByIdQuery } from '../../../../store/api/user/Account.api';
+import { GroupChatMessage } from '../../../../types/GroupChatMessage';
+import { PersonalChatMessage } from '../../../../types/PersonalChatMessage';
+import { PersonalChatProps } from '../../../../types/components/communication/chats/PersonalChatProps';
+import Loading from '../../../Loading';
 import {
     useGetPersonalChatMessageCountByChatIdQuery,
     useUpdatePersonalChatMessageAsyncMutation
-} from '../../../store/api/chat/PersonalChatMessage.api';
-import { useGetMessagesByPersonalChatIdQuery, useLazyGetMoreMessagesByPersonalChatIdQuery } from '../../../store/api/core/Chat.api';
-import { useGetUserByIdQuery } from '../../../store/api/user/Account.api';
-import { GroupChatMessage } from '../../../types/GroupChatMessage';
-import { PersonalChatMessage } from '../../../types/PersonalChatMessage';
-import { PersonalChatProps } from '../../../types/components/communication/chats/PersonalChatProps';
-import Loading from '../../Loading';
-import ChatMessage from './ChatMessage';
-import MessageInput from './MessageInput';
+} from '../../../../store/api/chat/PersonalChatMessage.api';
+import ChatMessage from '../ChatMessage';
+import MessageInput from '../MessageInput';
 import PersonalChatTitle from './PersonalChatTitle';
 
-import '../../../styles/communication/chats/personalChat.scss';
+import '../../../../styles/communication/chats/personalChat.scss';
 
 const PersonalChat: React.FC<PersonalChatProps> = ({ me, chat, setSelectedChat, companionId }) => {
     const { t } = useTranslation("communication/chats/personalChat");

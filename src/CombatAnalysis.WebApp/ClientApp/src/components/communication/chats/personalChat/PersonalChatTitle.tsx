@@ -1,8 +1,8 @@
 ﻿import { faUserXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState } from 'react';
-import { useRemovePersonalChatAsyncMutation } from '../../../store/api/chat/PersonalChat.api';
-import { PersonalChatTitleProps } from '../../../types/components/communication/chats/PersonalChatTitleProps';
+import { useRemovePersonalChatAsyncMutation } from '../../../../store/api/chat/PersonalChat.api';
+import { PersonalChatTitleProps } from '../../../../types/components/communication/chats/PersonalChatTitleProps';
 
 const PersonalChatTitle: React.FC<PersonalChatTitleProps> = ({ chat, companionUsername, setSelectedChat, haveMoreMessages, setHaveMoreMessage, loadMoreMessagesAsync, t }) => {
     const [removePersonalChatAsync] = useRemovePersonalChatAsyncMutation();

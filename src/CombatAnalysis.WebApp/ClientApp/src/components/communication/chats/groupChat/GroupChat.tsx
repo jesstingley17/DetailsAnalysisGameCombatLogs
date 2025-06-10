@@ -1,18 +1,18 @@
 ﻿import { memo, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useChatHub } from '../../../context/ChatHubProvider';
-import useGroupChatData from '../../../hooks/useGroupChatData';
-import { useUpdateGroupChatMessageAsyncMutation } from '../../../store/api/chat/GroupChatMessage.api';
-import { GroupChatMessage as GroupChatMessageModel } from '../../../types/GroupChatMessage';
-import { PersonalChatMessage } from '../../../types/PersonalChatMessage';
-import { GroupChatProps } from '../../../types/components/communication/chats/GroupChatProps';
-import Loading from '../../Loading';
+import { useChatHub } from '../../../../context/ChatHubProvider';
+import useGroupChatData from '../../../../hooks/useGroupChatData';
+import { useUpdateGroupChatMessageAsyncMutation } from '../../../../store/api/chat/GroupChatMessage.api';
+import { GroupChatMessage as GroupChatMessageModel } from '../../../../types/GroupChatMessage';
+import { PersonalChatMessage } from '../../../../types/PersonalChatMessage';
+import { GroupChatProps } from '../../../../types/components/communication/chats/GroupChatProps';
+import Loading from '../../../Loading';
+import MessageInput from '../MessageInput';
 import GroupChatMenu from './GroupChatMenu';
 import GroupChatMessage from './GroupChatMessage';
 import GroupChatTitle from './GroupChatTitle';
-import MessageInput from './MessageInput';
 
-import '../../../styles/communication/chats/groupChat.scss';
+import '../../../../styles/communication/chats/groupChat.scss';
 
 const GroupChat: React.FC<GroupChatProps> = ({ me, chat, setSelectedChat }) => {
     const { t } = useTranslation("communication/chats/groupChat");

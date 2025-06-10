@@ -26,9 +26,9 @@ export const InviteToCommunityApi = CommunityApi.injectEndpoints({
         }),
         inviteIsExist: builder.query({
             query: (arg) => {
-                const { peopleId, communityId } = arg;
+                const { appUserId, communityId } = arg;
                 return {
-                    url: `/InviteToCommunity/isExist?peopleId=${peopleId}&communityId=${communityId}`,
+                    url: `/InviteToCommunity/isExist?appUserId=${appUserId}&communityId=${communityId}`,
                 }
             },
             providesTags: (result, error, id) => [{ type: 'RequestToConnect', id }]

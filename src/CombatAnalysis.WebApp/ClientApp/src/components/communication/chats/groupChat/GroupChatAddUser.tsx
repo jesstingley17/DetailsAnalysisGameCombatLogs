@@ -1,8 +1,8 @@
 ﻿import { useState } from 'react';
-import { useChatHub } from '../../../context/ChatHubProvider';
-import { AppUser } from '../../../types/AppUser';
-import { GroupChatAddUserProps } from '../../../types/components/communication/chats/GroupChatAddUserProps';
-import AddPeople from '../../AddPeople';
+import { useChatHub } from '../../../../context/ChatHubProvider';
+import { AppUser } from '../../../../types/AppUser';
+import { GroupChatAddUserProps } from '../../../../types/components/communication/chats/GroupChatAddUserProps';
+import AddPeople from '../../../AddPeople';
 
 const GroupChatAddUser: React.FC<GroupChatAddUserProps> = ({ me, chatId, groupChatUsersId, setShowAddPeople, t }) => {
     const { groupChatHubConnection } = useChatHub();

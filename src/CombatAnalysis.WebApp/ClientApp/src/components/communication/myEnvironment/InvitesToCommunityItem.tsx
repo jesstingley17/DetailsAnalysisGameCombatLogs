@@ -6,6 +6,7 @@ import { useCreateCommunityUserMutation } from '../../../store/api/community/Com
 import { useRemoveCommunityInviteMutation } from '../../../store/api/community/InviteToCommunity.api';
 import { useGetCommunityByIdQuery } from '../../../store/api/core/Community.api';
 import { useGetUserByIdQuery } from '../../../store/api/user/Account.api';
+import { CommunityUser } from '../../../types/CommunityUser';
 import { InvitesToCommunityItemProps } from '../../../types/components/communication/myEnvironment/InvitesToCommunityItemProps';
 import User from '../User';
 
@@ -20,19 +21,20 @@ const InvitesToCommunityItem: React.FC<InvitesToCommunityItemProps>  = ({ user, 
     const [userInformation, setUserInformation] = useState(null);
 
     const acceptRequestAsync = async () => {
-        const newCommunityUser = {
-            id: " ",
-            username: user?.username,
-            communityId: community?.id,
-            appUserId: user?.id
-        };
+        try {
+            const newCommunityUser: CommunityUser = {
+                id: " ",
+                username: user?.username,
+                communityId: community?.id || 0,
+                appUserId: user?.id
+            };
 
-        const createdItem = await createCommunityUserAsyn(newCommunityUser);
-        if (createdItem.error !== undefined) {
-            return;
+            await createCommunityUserAsyn(newCommunityUser);
+
+            await removeInviteAsync(inviteToCommunity.id);
+        } catch (e) {
+            console.error(e);
         }
-
-        await removeInviteAsync(inviteToCommunity.id);
     }
 
     const rejectRequestAsync = async () => {
@@ -52,7 +54,7 @@ const InvitesToCommunityItem: React.FC<InvitesToCommunityItemProps>  = ({ user, 
                     setUserInformation={setUserInformation}
                 />
                 <div>{t("SentInvite")}</div>
-                <div className="community-name">{community.name}</div>
+                <div className="community-name">{community?.name}</div>
             </div>
             <div className="request-to-connect__answer">
                 <div className="accept"><FontAwesomeIcon icon={faCircleCheck} title={t("Accept") || ""}

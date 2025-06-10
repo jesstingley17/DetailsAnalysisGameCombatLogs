@@ -6,7 +6,7 @@ import { CommunityUser } from '../../../types/CommunityUser';
 import { CommunityUsersProps } from '../../../types/components/communication/community/CommunityUsersProps';
 import CommunityUsersItem from './CommunityUsersItem';
 
-import "../../../styles/communication/members.scss";
+import '../../../styles/communication/members.scss';
 
 const CommunityUsers: React.FC<CommunityUsersProps> = ({ me, communityUsers, removeUsersAsync, setShowMembers, isPopup, canRemovePeople }) => {
     const { t } = useTranslation("communication/members");

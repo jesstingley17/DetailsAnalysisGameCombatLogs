@@ -224,7 +224,7 @@ const SelectedCommunity = () => {
             {showMenu &&
                 <CommunityMenu
                     setShowMenu={setShowMenu}
-                    customer={user}
+                    user={user}
                     community={community}
                     setCommunity={setCommunity}
                 />

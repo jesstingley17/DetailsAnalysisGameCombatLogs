@@ -6,11 +6,13 @@ import { useNavigate } from 'react-router-dom';
 import { useCommunityUserSearchByCommunityIdQuery, useLazyCommunityUserSearchByUserIdQuery, useRemoveCommunityUserMutation } from '../../../store/api/community/CommunityUser.api';
 import { useCreateInviteAsyncMutation, useLazyInviteIsExistQuery } from '../../../store/api/community/InviteToCommunity.api';
 import { useRemoveCommunityAsyncMutation, useUpdateCommunityAsyncMutation } from '../../../store/api/core/Community.api';
+import { AppUser } from '../../../types/AppUser';
+import { CommunityUser } from '../../../types/CommunityUser';
+import { CommunityMenuProps } from '../../../types/components/communication/community/CommunityMenuProps';
 import AddPeople from '../../AddPeople';
 import Loading from '../../Loading';
-import GroupChatMembers from '../chats/GroupChatMembers';
-import CommonItem from "../create/CommonItem";
-import CommunityRulesItem from "../create/CommunityRulesItem";
+import CommonItem from '../create/CommonItem';
+import CommunityRulesItem from '../create/CommunityRulesItem';
 import ItemConnector from '../create/ItemConnector';
 
 import '../../../styles/communication/community/communityMenu.scss';
@@ -18,7 +20,7 @@ import '../../../styles/communication/community/communityMenu.scss';
 const successNotificationTimeout = 2000;
 const failedNotificationTimeout = 2000;
 
-const CommunityMenu = ({ setShowMenu, customer, community, setCommunity }) => {
+const CommunityMenu: React.FC<CommunityMenuProps> = ({ setShowMenu, user, community, setCommunity }) => {
     const { t } = useTranslation("communication/community/communityMenu");
 
     const navigate = useNavigate();
@@ -27,7 +29,7 @@ const CommunityMenu = ({ setShowMenu, customer, community, setCommunity }) => {
     const [communityName, setCommunityName] = useState(community?.name);
     const [communityDescription, setCommunityDescription] = useState(community?.description);
     const [showLeaveFromCommunity, setShowLeaveFromCommunity] = useState(false);
-    const [peopleIdToJoin, setPeopleIdToJoin] = useState([]);
+    const [peopleIdToJoin, setPeopleIdToJoin] = useState<AppUser[]>([]);
     const [showInvitesSuccess, setShowInvitesSuccess] = useState(false);
     const [showInvitesFailed, setShowInvitesFailed] = useState(false);
 
@@ -40,44 +42,53 @@ const CommunityMenu = ({ setShowMenu, customer, community, setCommunity }) => {
     const { data: communityUsers, isLoading } = useCommunityUserSearchByCommunityIdQuery(community?.id);
 
     const leaveFromCommunityAsync = async () => {
-        const myCommunityUserId = await searchByUserIdAsync(customer?.id);
+        const myCommunityUserId = await searchByUserIdAsync(user?.id);
         if (myCommunityUserId.error !== undefined) {
             return;
         }
 
-        const meInCommunity = myCommunityUserId.data.filter(x => x.communityId === community?.id)[0];
+        try {
+            const meInCommunity = myCommunityUserId.data?.filter(x => x.communityId === community?.id)[0];
+            if (!meInCommunity) {
+                throw new Error('Something wrong when tried leave from chat. Please, try one more time later');
+            }
 
-        const deletedItemCount = await removeCommunityUserAsync(meInCommunity.id);
-        if (deletedItemCount.data !== undefined) {
+            await removeCommunityUserAsync(meInCommunity.id).unwrap();
             navigate('/communities');
+        } catch (e) {
+            console.error(e);
         }
     }
 
     const ownerLeaveFromCommunityAsync = async () => {
-        const deletedItemCount = await removeCommunityAsync(community.id);
-        if (deletedItemCount.data !== undefined) {
+        try {
+            await removeCommunityAsync(community.id).unwrap();
             navigate('/communities');
+        } catch (e) {
+            console.error(e);
         }
     }
 
     const updateCommunityAsync = async () => {
-        const communityForUpdate = Object.assign({}, community);
-        communityForUpdate.name = communityName;
-        communityForUpdate.description = communityDescription;
+        try {
+            const communityForUpdate = Object.assign({}, community);
+            communityForUpdate.name = communityName;
+            communityForUpdate.description = communityDescription;
 
-        const updated = await updateCommunityAsyncMut(communityForUpdate);
-        if (updated.data !== undefined) {
+            await updateCommunityAsyncMut(communityForUpdate).unwrap();
             setCommunity(communityForUpdate);
+        } catch (e) {
+            console.error(e);
         }
     }
 
-    const changeMenuItem = (index) => {
+    const changeMenuItem = (index: number) => {
         seItemIndex(index);
     }
 
-    const checkIfRequestExistAsync = async (peopleId, communityId) => {
+    const checkIfRequestExistAsync = async (appUserId: string, communityId: number) => {
         const arg = {
-            peopleId: peopleId,
+            appUserId: appUserId,
             communityId: communityId
         };
 
@@ -91,7 +102,7 @@ const CommunityMenu = ({ setShowMenu, customer, community, setCommunity }) => {
 
     const createInviteAsync = async () => {
         for (let i = 0; i < peopleIdToJoin.length; i++) {
-            const isExist = await checkIfRequestExistAsync(peopleIdToJoin[i], community.id);
+            const isExist = await checkIfRequestExistAsync(peopleIdToJoin[i].id, community.id);
             if (isExist) {
                 continue;
             }
@@ -100,7 +111,7 @@ const CommunityMenu = ({ setShowMenu, customer, community, setCommunity }) => {
                 communityId: community.id,
                 toCustomerId: peopleIdToJoin[i].id,
                 when: new Date(),
-                customerId: customer?.id
+                customerId: user?.id
             }
 
             const createdInvite = await createInviteAsyncMut(newInviteToCommunity);
@@ -122,7 +133,7 @@ const CommunityMenu = ({ setShowMenu, customer, community, setCommunity }) => {
         }, successNotificationTimeout);
     }
 
-    const removeUsersAsync = async (peopleToRemove) => {
+    const removeUsersAsync = async (peopleToRemove: CommunityUser[]) => {
         for (let i = 0; i < peopleToRemove.length; i++) {
             await removeCommunityUserAsync(peopleToRemove[i].id);
         }
@@ -140,7 +151,7 @@ const CommunityMenu = ({ setShowMenu, customer, community, setCommunity }) => {
                     <div>
                         <div>{t("LeaveConfirm")}?</div>
                     </div>
-                    {customer.id === community.customerId
+                    {user.id === community.appUserId
                         ? <>
                             <div className="alert alert-danger" role="alert">
                                 {t("LeaveOwnerConfirm")}
@@ -195,7 +206,7 @@ const CommunityMenu = ({ setShowMenu, customer, community, setCommunity }) => {
                         }
                         <div>{t("Permisions")}</div>
                     </li>
-                    {community?.customerId === customer?.id &&
+                    {community?.appUserId === user?.id &&
                         <li className="menu-item" onClick={() => changeMenuItem(4)}>
                             {itemIndex === 4 &&
                                 <FontAwesomeIcon
@@ -230,22 +241,22 @@ const CommunityMenu = ({ setShowMenu, customer, community, setCommunity }) => {
                             </div>
                         </>
                     }
-                    {itemIndex === 1 &&
-                        <div className="members">
-                            <GroupChatMembers
-                                me={customer}
-                                groupChatUsers={communityUsers}
-                                communityItem={community}
-                                removeUsersAsync={removeUsersAsync}
-                            />
-                        </div>
-                    }
+                    {/*{itemIndex === 1 &&*/}
+                    {/*    <div className="members">*/}
+                    {/*        <GroupChatMembers*/}
+                    {/*            me={user}*/}
+                    {/*            communicationUsers={communityUsers}*/}
+                    {/*            communityItem={community}*/}
+                    {/*            removeUsersAsync={removeUsersAsync}*/}
+                    {/*        />*/}
+                    {/*    </div>*/}
+                    {/*}*/}
                     {itemIndex === 2 &&
                         <>
                             <>
                                 <AddPeople
-                                    customer={customer}
-                                    usersId={[customer?.id]}
+                                    user={user}
+                                    usersId={[user?.id]}
                                     peopleToJoin={peopleIdToJoin}
                                     setPeopleToJoin={setPeopleIdToJoin}
                                 />
@@ -271,11 +282,7 @@ const CommunityMenu = ({ setShowMenu, customer, community, setCommunity }) => {
                     {itemIndex === 4 &&
                         <>
                             <CommunityRulesItem
-                                connector={
-                                    <ItemConnector
-                                        connectorType={0}
-                                    />
-                                }
+                                t={t}    
                             />
                             <div className="actions">
                                 <div className="btn-shadow">{t("Update")}</div>
@@ -286,7 +293,7 @@ const CommunityMenu = ({ setShowMenu, customer, community, setCommunity }) => {
                 <div className="close">
                     <FontAwesomeIcon
                         icon={faCircleXmark}
-                        title={t("Close")}
+                        title={t("Close") || ""}
                         onClick={() => setShowMenu(false)}
                     />
                 </div>

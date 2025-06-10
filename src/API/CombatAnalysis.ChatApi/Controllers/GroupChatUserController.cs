@@ -83,10 +83,7 @@ public class GroupChatUserController : ControllerBase
     {
         try
         {
-            if (chatUser == null)
-            {
-                throw new ArgumentNullException(nameof(chatUser));
-            }
+            ArgumentNullException.ThrowIfNull(chatUser);
 
             await _chatTransactionService.BeginTransactionAsync();
 

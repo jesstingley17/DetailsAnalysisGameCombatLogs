@@ -93,7 +93,7 @@ public class InviteToCommunityController : ControllerBase
     }
 
     [HttpGet("isExist")]
-    public async Task<IActionResult> IsExist(string peopleId, int communityId)
+    public async Task<IActionResult> IsExist(string appUserId, int communityId)
     {
         var responseMessage = await _httpClient.GetAsync("InviteToCommunity");
         if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
@@ -106,7 +106,7 @@ public class InviteToCommunityController : ControllerBase
         }
 
         var allInvites = await responseMessage.Content.ReadFromJsonAsync<IEnumerable<InviteToCommunityModel>>();
-        var existedInvites = allInvites.Where(x => x.ToAppUserId == peopleId && x.CommunityId == communityId).ToList();
+        var existedInvites = allInvites.Where(x => x.ToAppUserId == appUserId && x.CommunityId == communityId).ToList();
         if (existedInvites.Any())
         {
             return Ok(true);
