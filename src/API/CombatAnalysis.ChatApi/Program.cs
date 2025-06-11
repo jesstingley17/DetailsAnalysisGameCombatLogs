@@ -2,8 +2,8 @@ using AutoMapper;
 using CombatAnalysis.ChatApi.Consts;
 using CombatAnalysis.ChatApi.Enums;
 using CombatAnalysis.ChatApi.Interfaces;
+using CombatAnalysis.ChatApi.Kafka;
 using CombatAnalysis.ChatApi.Mapping;
-using CombatAnalysis.ChatApi.Services;
 using CombatAnalysis.ChatBL.Extensions;
 using CombatAnalysis.ChatBL.Mapping;
 using Microsoft.IdentityModel.Tokens;
@@ -64,9 +64,10 @@ builder.Services.AddAuthorization(options =>
     });
 });
 
-builder.Services.AddSingleton<IKafkaProducerService<string, string>, KafkaProducerService<string, string>>();
-builder.Services.AddHostedService<PersonalChatMessageCountConsumerService>();
-builder.Services.AddHostedService<GroupChatMessageCountConsumerService>();
+builder.Services.AddSingleton<IKafkaProducerService<string, string>, KafkaProducer<string, string>>();
+builder.Services.AddHostedService<PersonalChatMessageConsumer>();
+builder.Services.AddHostedService<GroupChatConsumer>();
+builder.Services.AddHostedService<GroupChatMessageConsumer>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

@@ -1,4 +1,4 @@
-﻿namespace CombatAnalysis.ChatApi.Models.Kafka;
+﻿namespace CombatAnalysis.ChatApi.Kafka.Actions;
 
 public class GroupChatMessageAction
 {

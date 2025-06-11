@@ -4,16 +4,16 @@ using Confluent.Kafka;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
 
-namespace CombatAnalysis.ChatApi.Services;
+namespace CombatAnalysis.ChatApi.Kafka;
 
-public abstract class KafkaConsumerServiceBase : BackgroundService
+public abstract class KafkaConsumerBase : BackgroundService
 {
     private readonly ConsumerConfig _config;
     private readonly string _topic;
     private readonly ILogger _logger;
     private IConsumer<string, JsonDocument>? _consumer;
 
-    protected KafkaConsumerServiceBase(IOptions<KafkaSettings> kafkaSettings, string topic, ILogger logger)
+    protected KafkaConsumerBase(IOptions<KafkaSettings> kafkaSettings, string topic, ILogger logger)
     {
         _config = kafkaSettings.Value.Consumer;
         _config.BootstrapServers = kafkaSettings.Value.BootstrapServers;

@@ -1,8 +1,9 @@
 ﻿using AutoMapper;
+using CombatAnalysis.ChatApi.Consts;
 using CombatAnalysis.ChatApi.Enums;
 using CombatAnalysis.ChatApi.Interfaces;
+using CombatAnalysis.ChatApi.Kafka.Actions;
 using CombatAnalysis.ChatApi.Models;
-using CombatAnalysis.ChatApi.Models.Kafka;
 using CombatAnalysis.ChatBL.DTO;
 using CombatAnalysis.ChatBL.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -17,8 +18,6 @@ namespace CombatAnalysis.ChatApi.Controllers;
 public class GroupChatMessageController(IChatMessageService<GroupChatMessageDto, int> chatMessageService, IMapper mapper, ILogger<GroupChatMessageController> logger,
     IKafkaProducerService<string, string> kafkaProducer) : ControllerBase
 {
-    private const string MessageCreatedTopic = "group-chat";
-
     private readonly IChatMessageService<GroupChatMessageDto, int> _chatMessageService = chatMessageService;
     private readonly IMapper _mapper = mapper;
     private readonly ILogger<GroupChatMessageController> _logger = logger;
@@ -83,7 +82,7 @@ public class GroupChatMessageController(IChatMessageService<GroupChatMessageDto,
                 State = (int)KafkaActionState.Created,
                 When = DateTime.UtcNow.ToString(),
             });
-            await _kafkaProducer.ProduceAsync(MessageCreatedTopic, createdGroupChatMessage.Id.ToString(), chatAction);
+            await _kafkaProducer.ProduceAsync(KafkaTopics.GroupChatMessage, createdGroupChatMessage.Id.ToString(), chatAction);
 
             return Ok(createdGroupChatMessage);
         }

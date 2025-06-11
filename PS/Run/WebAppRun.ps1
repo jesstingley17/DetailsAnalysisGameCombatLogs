@@ -1,2 +1,0 @@
-# Run build PowerShell script
-& "PS\Build.ps1" -PROJECT_PATH "src\CombatAnalysis.WebApp\CombatAnalysis.WebApp.csproj" -TEST_PROJECT_PATH "tests\CombatAnalysis.Parser.Tests\CombatAnalysis.Parser.Tests.csproj"

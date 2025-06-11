@@ -3,14 +3,14 @@ using CombatAnalysis.ChatApi.Interfaces;
 using Confluent.Kafka;
 using Microsoft.Extensions.Options;
 
-namespace CombatAnalysis.ChatApi.Services;
+namespace CombatAnalysis.ChatApi.Kafka;
 
-internal class KafkaProducerService<TKey, TValue> : IKafkaProducerService<TKey, TValue>
+internal class KafkaProducer<TKey, TValue> : IKafkaProducerService<TKey, TValue>
 {
     private readonly IProducer<TKey, TValue> _producer;
-    private readonly ILogger<KafkaProducerService<TKey, TValue>> _logger;
+    private readonly ILogger<KafkaProducer<TKey, TValue>> _logger;
 
-    public KafkaProducerService(IOptions<KafkaSettings> kafkaSettings, ILogger<KafkaProducerService<TKey, TValue>> logger)
+    public KafkaProducer(IOptions<KafkaSettings> kafkaSettings, ILogger<KafkaProducer<TKey, TValue>> logger)
     {
         var producerConfig = kafkaSettings.Value.Producer ?? new ProducerConfig();
         producerConfig.BootstrapServers ??= kafkaSettings.Value.BootstrapServers;

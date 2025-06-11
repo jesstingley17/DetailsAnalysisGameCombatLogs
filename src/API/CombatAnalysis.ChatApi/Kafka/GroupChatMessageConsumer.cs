@@ -1,20 +1,18 @@
 ﻿using CombatAnalysis.ChatApi.Consts;
 using CombatAnalysis.ChatApi.Enums;
-using CombatAnalysis.ChatApi.Models.Kafka;
+using CombatAnalysis.ChatApi.Kafka.Actions;
 using CombatAnalysis.ChatBL.DTO;
 using CombatAnalysis.ChatBL.Interfaces;
 using Confluent.Kafka;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
 
-namespace CombatAnalysis.ChatApi.Services;
+namespace CombatAnalysis.ChatApi.Kafka;
 
-public class GroupChatMessageCountConsumerService(IOptions<KafkaSettings> kafkaSettings, ILogger<GroupChatMessageCountConsumerService> logger, IServiceScopeFactory serviceScopeFactory, 
-    IChatTransactionService chatTransactionService) : KafkaConsumerServiceBase(kafkaSettings, KafkaTopics.GroupChat, logger)
+public class GroupChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, ILogger<GroupChatMessageConsumer> logger, IServiceScopeFactory serviceScopeFactory) : KafkaConsumerBase(kafkaSettings, KafkaTopics.GroupChatMessage, logger)
 {
-    private readonly ILogger<GroupChatMessageCountConsumerService> _logger = logger;
+    private readonly ILogger<GroupChatMessageConsumer> _logger = logger;
     private readonly IServiceScopeFactory _serviceScopeFactory = serviceScopeFactory;
-    private readonly IChatTransactionService _chatTransactionService = chatTransactionService;
 
     protected override async Task ConsumeMessageAsync(ConsumeResult<string, JsonDocument> kafkaData, CancellationToken stoppingToken)
     {
@@ -22,11 +20,32 @@ public class GroupChatMessageCountConsumerService(IOptions<KafkaSettings> kafkaS
         {
             ArgumentNullException.ThrowIfNull(kafkaData);
 
-            await _chatTransactionService.BeginTransactionAsync();
-
             using var scope = _serviceScopeFactory.CreateScope();
-            var chatMessageCountService = scope.ServiceProvider.GetService<IService<GroupChatMessageCountDto, int>>();
+            var chatTransaction = scope.ServiceProvider.GetService<IChatTransactionService>();
+            ArgumentNullException.ThrowIfNull(chatTransaction);
 
+            await ExecuteAsync(scope, chatTransaction, kafkaData);
+        }
+        catch (ArgumentNullException ex)
+        {
+            _logger.LogError(ex, $"Some argument receavied as null while consume Chat API data: ${ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"An unexpected error occurred while consume Chat API data: {ex.Message}");
+        }
+    }
+
+    private async Task ExecuteAsync(IServiceScope scope, IChatTransactionService chatTransaction, ConsumeResult<string, JsonDocument> kafkaData)
+    {
+
+        try
+        {
+            ArgumentNullException.ThrowIfNull(kafkaData);
+
+            await chatTransaction.BeginTransactionAsync();
+
+            var chatMessageCountService = scope.ServiceProvider.GetService<IService<GroupChatMessageCountDto, int>>();
             ArgumentNullException.ThrowIfNull(chatMessageCountService);
 
             var chatAction = kafkaData.Message.Value.Deserialize<GroupChatMessageAction>();
@@ -41,20 +60,19 @@ public class GroupChatMessageCountConsumerService(IOptions<KafkaSettings> kafkaS
                 await DecreaseCountAsync(chatAction, chatMessageCountService);
             }
 
-            await _chatTransactionService.CommitTransactionAsync();
+            await chatTransaction.CommitTransactionAsync();
         }
         catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, $"Update Personal Chat Message count was failed: ${ex.Message}");
+            _logger.LogError(ex, $"Some argument receavied as null while consume Chat API data: ${ex.Message}");
 
-            await _chatTransactionService.RollbackTransactionAsync();
+            await chatTransaction.RollbackTransactionAsync();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"An unexpected error occurred while updating Personal Chat Message count: {ex.Message}");
+            _logger.LogError(ex, $"An unexpected error occurred while consume Chat API data: {ex.Message}");
 
-
-            await _chatTransactionService.RollbackTransactionAsync();
+            await chatTransaction.RollbackTransactionAsync();
         }
     }
 

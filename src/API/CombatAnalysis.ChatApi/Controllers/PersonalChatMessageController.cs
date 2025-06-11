@@ -1,8 +1,9 @@
 ﻿using AutoMapper;
+using CombatAnalysis.ChatApi.Consts;
 using CombatAnalysis.ChatApi.Enums;
 using CombatAnalysis.ChatApi.Interfaces;
+using CombatAnalysis.ChatApi.Kafka.Actions;
 using CombatAnalysis.ChatApi.Models;
-using CombatAnalysis.ChatApi.Models.Kafka;
 using CombatAnalysis.ChatBL.DTO;
 using CombatAnalysis.ChatBL.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -14,27 +15,15 @@ namespace CombatAnalysis.ChatApi.Controllers;
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class PersonalChatMessageController : ControllerBase
+public class PersonalChatMessageController(IService<PersonalChatDto, int> chatService, IChatMessageService<PersonalChatMessageDto, int> chatMessageService,
+    IMapper mapper, ILogger<PersonalChatMessageController> logger, IChatTransactionService chatTransactionService, IKafkaProducerService<string, string> kafkaProducer) : ControllerBase
 {
-    private const string MessageCreatedTopic = "personal-chat";
-
-    private readonly IService<PersonalChatDto, int> _chatService;
-    private readonly IChatMessageService<PersonalChatMessageDto, int> _chatMessageService;
-    private readonly IMapper _mapper;
-    private readonly ILogger<PersonalChatMessageController> _logger;
-    private readonly IChatTransactionService _chatTransactionService;
-    private readonly IKafkaProducerService<string, string> _kafkaProducer;
-
-    public PersonalChatMessageController(IService<PersonalChatDto, int> chatService, IChatMessageService<PersonalChatMessageDto, int> chatMessageService, 
-        IMapper mapper, ILogger<PersonalChatMessageController> logger, IChatTransactionService chatTransactionService, IKafkaProducerService<string, string> kafkaProducer)
-    {
-        _chatService = chatService;
-        _chatMessageService = chatMessageService;
-        _mapper = mapper;
-        _logger = logger;
-        _chatTransactionService = chatTransactionService;
-        _kafkaProducer = kafkaProducer;
-    }
+    private readonly IService<PersonalChatDto, int> _chatService = chatService;
+    private readonly IChatMessageService<PersonalChatMessageDto, int> _chatMessageService = chatMessageService;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<PersonalChatMessageController> _logger = logger;
+    private readonly IChatTransactionService _chatTransactionService = chatTransactionService;
+    private readonly IKafkaProducerService<string, string> _kafkaProducer = kafkaProducer;
 
     [HttpGet("count/{chatId}")]
     public async Task<IActionResult> Count(int chatId)
@@ -102,7 +91,7 @@ public class PersonalChatMessageController : ControllerBase
                 State = (int)KafkaActionState.Created,
                 When = DateTime.UtcNow.ToString(),
             });
-            await _kafkaProducer.ProduceAsync(MessageCreatedTopic, createdPersonalChatMessage.Id.ToString(), chatAction);
+            await _kafkaProducer.ProduceAsync(KafkaTopics.PersonalChatMessage, createdPersonalChatMessage.Id.ToString(), chatAction);
 
             return Ok(createdPersonalChatMessage);
         }
