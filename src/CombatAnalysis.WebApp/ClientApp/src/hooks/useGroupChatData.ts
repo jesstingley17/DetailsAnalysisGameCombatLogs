@@ -9,7 +9,7 @@ const useGroupChatData = (chatId: number, appUserId: string, pageSizeRef: any): 
     const [groupChatData, setGroupChatData] = useState<GroupChatData>({
         messages: [],
         count: 0,
-        meInChat: { id: "", appUserId: "", chatId: 0, username: "" },
+        meInChat: { id: "", appUserId: "", chatId: 0, username: "", unreadMessages: 0 },
         groupChatUsers: [],
         isLoading: true,
     });

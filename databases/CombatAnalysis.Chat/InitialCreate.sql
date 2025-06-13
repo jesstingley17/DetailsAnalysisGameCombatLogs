@@ -32,15 +32,6 @@ CREATE TABLE [GroupChatMessage] (
 );
 GO
 
-CREATE TABLE [GroupChatMessageCount] (
-    [Id] int NOT NULL IDENTITY,
-    [Count] int NOT NULL,
-    [ChatId] int NOT NULL,
-    [GroupChatUserId] nvarchar(max) NOT NULL,
-    CONSTRAINT [PK_GroupChatMessageCount] PRIMARY KEY ([Id])
-);
-GO
-
 CREATE TABLE [GroupChatRules] (
     [Id] int NOT NULL IDENTITY,
     [InvitePeople] int NOT NULL,
@@ -55,6 +46,7 @@ GO
 CREATE TABLE [GroupChatUser] (
     [Id] nvarchar(450) NOT NULL,
     [Username] nvarchar(max) NOT NULL,
+    UnreadMessages int NOT NULL,
     [ChatId] int NOT NULL,
     [AppUserId] nvarchar(max) NOT NULL,
     CONSTRAINT [PK_GroupChatUser] PRIMARY KEY ([Id])

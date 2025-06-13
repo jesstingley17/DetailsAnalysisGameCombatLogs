@@ -6,9 +6,11 @@ using CombatAnalysis.ChatApi.Kafka;
 using CombatAnalysis.ChatApi.Mapping;
 using CombatAnalysis.ChatBL.Extensions;
 using CombatAnalysis.ChatBL.Mapping;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using Serilog.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -111,11 +113,9 @@ builder.Services.AddSwaggerGen(options =>
         });
 });
 
-
-
 Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Debug()
-    .WriteTo.Console()
+    .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Debug)
+    .WriteTo.File("logs/chatapi.log", rollingInterval: RollingInterval.Day, retainedFileCountLimit: 7, restrictedToMinimumLevel: LogEventLevel.Error)
     .CreateLogger();
 
 builder.Host.UseSerilog();
@@ -124,7 +124,7 @@ var app = builder.Build();
 
 app.UseRouting();
 
-app.UseAuthentication(); // Enable authentication middleware
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseSwagger();
@@ -140,5 +140,26 @@ app.UseStaticFiles();
 app.UseHttpsRedirection();
 
 app.MapControllers();
+
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.StatusCode = 500;
+        context.Response.ContentType = "application/json";
+
+        var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
+        var ex = exceptionHandlerPathFeature?.Error;
+
+        Log.Error(ex, "Unhandled exception occurred");
+
+        var result = new
+        {
+            message = "An unexpected error occurred. Please try again later."
+        };
+
+        await context.Response.WriteAsJsonAsync(result);
+    });
+});
 
 app.Run();

@@ -16,13 +16,12 @@ namespace CombatAnalysis.ChatApi.Controllers;
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class GroupChatController(IService<GroupChatDto, int> chatService, IMapper mapper, IChatTransactionService chatTransactionService,
-    ILogger<GroupChatController> logger, IKafkaProducerService<string, string> kafkaProducer) : ControllerBase
+public class GroupChatController(IService<GroupChatDto, int> chatService, IMapper mapper, ILogger<GroupChatController> logger, 
+    IKafkaProducerService<string, string> kafkaProducer) : ControllerBase
 {
     private readonly IService<GroupChatDto, int> _chatService = chatService;
     private readonly IMapper _mapper = mapper;
     private readonly ILogger<GroupChatController> _logger = logger;
-    private readonly IChatTransactionService _chatTransactionService = chatTransactionService;
     private readonly IKafkaProducerService<string, string> _kafkaProducer = kafkaProducer;
 
     [HttpGet]
@@ -30,19 +29,14 @@ public class GroupChatController(IService<GroupChatDto, int> chatService, IMappe
     {
         try
         {
-            var result = await _chatService.GetAllAsync();
+            var groupChats = await _chatService.GetAllAsync();
+            ArgumentNullException.ThrowIfNull(groupChats, nameof(groupChats));
 
-            return Ok(result);
+            return Ok(groupChats);
         }
         catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, $"Get all Group Chats failed: ${ex.Message}");
-
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"An unexpected error occurred while getting all Group Chats: ${ex.Message}");
+            _logger.LogError(ex, "Get all group chats failed: Parameter '{ParamName}' was null.", ex.ParamName);
 
             return BadRequest();
         }
@@ -53,19 +47,22 @@ public class GroupChatController(IService<GroupChatDto, int> chatService, IMappe
     {
         try
         {
-            var result = await _chatService.GetByIdAsync(id);
+            ArgumentOutOfRangeException.ThrowIfZero(id, nameof(id));
 
-            return Ok(result);
+            var groupChat = await _chatService.GetByIdAsync(id);
+            ArgumentNullException.ThrowIfNull(groupChat, nameof(groupChat));
+
+            return Ok(groupChat);
         }
-        catch (ArgumentNullException ex)
+        catch (ArgumentOutOfRangeException ex)
         {
-            _logger.LogError(ex, $"Get Group Chat by id failed: ${ex.Message}", id);
+            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
 
             return BadRequest();
         }
-        catch (Exception ex)
+        catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, $"An unexpected error occurred while getting Group Chat by id: ${ex.Message}", id);
+            _logger.LogError(ex, "Get group chat by id failed: Parameter '{ParamName}' was null.", ex.ParamName);
 
             return BadRequest();
         }
@@ -76,12 +73,11 @@ public class GroupChatController(IService<GroupChatDto, int> chatService, IMappe
     {
         try
         {
-            ArgumentNullException.ThrowIfNull(container);
-
-            await _chatTransactionService.BeginTransactionAsync();
+            ArgumentNullException.ThrowIfNull(container, nameof(container));
 
             var chatMap = _mapper.Map<GroupChatDto>(container.GroupChat);
             var createdGroupChat = await _chatService.CreateAsync(chatMap);
+            ArgumentNullException.ThrowIfNull(createdGroupChat, nameof(createdGroupChat));
 
             var chatAction = JsonSerializer.Serialize(new GroupChatAction
             {
@@ -93,23 +89,11 @@ public class GroupChatController(IService<GroupChatDto, int> chatService, IMappe
             });
             await _kafkaProducer.ProduceAsync(KafkaTopics.GroupChat, createdGroupChat.Id.ToString(), chatAction);
 
-            await _chatTransactionService.CommitTransactionAsync();
-
             return Ok(createdGroupChat);
         }
         catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, $"Create Group Chat failed: ${ex.Message}", container);
-
-            await _chatTransactionService.RollbackTransactionAsync();
-
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"An unexpected error occurred while create Group Chat: ${ex.Message}", container);
-
-            await _chatTransactionService.RollbackTransactionAsync();
+            _logger.LogError(ex, "Create group chat failed: Parameter '{ParamName}' was null.", ex.ParamName);
 
             return BadRequest();
         }
@@ -120,22 +104,25 @@ public class GroupChatController(IService<GroupChatDto, int> chatService, IMappe
     {
         try
         {
-            ArgumentNullException.ThrowIfNull(chat);
+            ArgumentNullException.ThrowIfNull(chat, nameof(chat));
+
+            ArgumentOutOfRangeException.ThrowIfZero(chat.Id, nameof(chat.Id));
 
             var chatMap = _mapper.Map<GroupChatDto>(chat);
-            var result = await _chatService.UpdateAsync(chatMap);
+            var rowsAffected = await _chatService.UpdateAsync(chatMap);
+            ArgumentOutOfRangeException.ThrowIfZero(rowsAffected, nameof(rowsAffected));
 
-            return Ok(result);
+            return Ok();
         }
         catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, $"Update Group Chat failed: ${ex.Message}", chat);
+            _logger.LogError(ex, "Update group chat failed: Parameter '{ParamName}' was null.", ex.ParamName);
 
             return BadRequest();
         }
-        catch (Exception ex)
+        catch (ArgumentOutOfRangeException ex)
         {
-            _logger.LogError(ex, $"An unexpected error occurred while update Group Chat: ${ex.Message}", chat);
+            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
 
             return BadRequest();
         }
@@ -146,19 +133,16 @@ public class GroupChatController(IService<GroupChatDto, int> chatService, IMappe
     {
         try
         {
-            var result = await _chatService.DeleteAsync(id);
+            ArgumentOutOfRangeException.ThrowIfZero(id, nameof(id));
 
-            return Ok(result);
-        }
-        catch (ArgumentNullException ex)
-        {
-            _logger.LogError(ex, $"Remove Group Chat failed: ${ex.Message}", id);
+            var rowsAffected = await _chatService.DeleteAsync(id);
+            ArgumentOutOfRangeException.ThrowIfZero(rowsAffected, nameof(rowsAffected));
 
-            return BadRequest();
+            return Ok();
         }
-        catch (Exception ex)
+        catch (ArgumentOutOfRangeException ex)
         {
-            _logger.LogError(ex, $"An unexpected error occurred while remove Group Chat: ${ex.Message}", id);
+            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
 
             return BadRequest();
         }

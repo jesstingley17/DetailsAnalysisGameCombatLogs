@@ -25,13 +25,13 @@ public class ChatViewModel : ParentTemplate
     private bool _isChatSelected;
     private IImprovedMvxViewModel? _personalChatMessagesTemplate;
     private IImprovedMvxViewModel? _groupChatMessagesTemplate;
-    private ObservableCollection<MyGroupChatContainerModel>? _myGroupChats;
+    private ObservableCollection<GroupChatModel>? _myGroupChats;
     private ObservableCollection<MyPersonalChatContainerModel>? _personalChats;
     private ObservableCollection<AppUserModel>? _users;
     private List<AppUserModel>? _allUsers;
     private string? _inputedUsername;
     private int _selectedUsersIndex = -1;
-    private MyGroupChatContainerModel? _selectedMyGroupChat;
+    private GroupChatModel? _selectedMyGroupChat;
     private MyPersonalChatContainerModel? _selectedPersonalChat;
     private AppUserModel? _myAccount;
     private LoadingStatus _groupChatLoadingResponse;
@@ -109,7 +109,7 @@ public class ChatViewModel : ParentTemplate
         }
     }
 
-    public ObservableCollection<MyGroupChatContainerModel>? MyGroupChats
+    public ObservableCollection<GroupChatModel>? MyGroupChats
     {
         get { return _myGroupChats; }
         set
@@ -149,14 +149,14 @@ public class ChatViewModel : ParentTemplate
         }
     }
 
-    public MyGroupChatContainerModel? SelectedMyGroupChat
+    public GroupChatModel? SelectedMyGroupChat
     {
         get { return _selectedMyGroupChat; }
         set
         {
             SetProperty(ref _selectedMyGroupChat, value);
 
-            if (value != null && value.GroupChat != null)
+            if (value != null)
             {
                 IsChatSelected = true;
                 SelectedPersonalChat = null;
@@ -167,7 +167,7 @@ public class ChatViewModel : ParentTemplate
                 GroupChatMessagesTemplate?.ViewDestroy();
 
                 GroupChatMessagesTemplate = Mvx.IoCProvider?.IoCConstruct<GroupChatMessagesViewModel>();
-                GroupChatMessagesTemplate?.Handler.PropertyUpdate<GroupChatMessagesViewModel>(GroupChatMessagesTemplate, nameof(GroupChatMessagesViewModel.SelectedChat), value.GroupChat);
+                GroupChatMessagesTemplate?.Handler.PropertyUpdate<GroupChatMessagesViewModel>(GroupChatMessagesTemplate, nameof(GroupChatMessagesViewModel.SelectedChat), value);
 
                 var groupChatMessagesVewModel = GroupChatMessagesTemplate as GroupChatMessagesViewModel;
                 if (groupChatMessagesVewModel != null)
@@ -451,7 +451,7 @@ public class ChatViewModel : ParentTemplate
     private async Task GetMyGroupChatsByUserIdAsync(IEnumerable<GroupChatUserModel> myGroupChatUsers, string refreshToken)
     {
         HttpResponseMessage response;
-        var container = new List<MyGroupChatContainerModel>();
+        var groupChats = new List<GroupChatModel>();
 
         foreach (var groupChatUser in myGroupChatUsers)
         {
@@ -464,16 +464,7 @@ public class ChatViewModel : ParentTemplate
                 throw new ArgumentNullException(nameof(groupChat));
             }
 
-            response = await _httpClientHelper.GetAsync($"GroupChatMessageCount/findMe?chatId={groupChatUser.ChatId}&chatUserId={groupChatUser.Id}", refreshToken, API.ChatApi);
-            response.EnsureSuccessStatusCode();
-
-            var messageCount = await response.Content.ReadFromJsonAsync<GroupChatMessageCountModel>();
-            if (messageCount == null)
-            {
-                throw new ArgumentNullException(nameof(messageCount));
-            }
-
-            container.Add(new MyGroupChatContainerModel { GroupChat = groupChat, GroupChatMessageCount = messageCount });
+            groupChats.Add(groupChat);
 
             if (_groupChatHubConnection == null)
             {
@@ -487,7 +478,7 @@ public class ChatViewModel : ParentTemplate
             });
         }
 
-        MyGroupChats = new ObservableCollection<MyGroupChatContainerModel>(container);
+        MyGroupChats = new ObservableCollection<GroupChatModel>(groupChats);
     }
 
     private async Task CreatePersonalChatContainerAsync(IEnumerable<PersonalChatModel> myPersonalChats, string refreshToken)
@@ -575,22 +566,17 @@ public class ChatViewModel : ParentTemplate
                 throw new ArgumentNullException(nameof(MyGroupChats));
             }
 
-            var chat = MyGroupChats.FirstOrDefault(x => x.GroupChat.Id == chatId);
+            var chat = MyGroupChats.FirstOrDefault(x => x.Id == chatId);
             if (chat == null)
             {
                 throw new ArgumentNullException(nameof(chat));
             }
 
-            if (chat.GroupChatMessageCount.GroupChatUserId != meInChatId)
-            {
-                return;
-            }
-
             var index = MyGroupChats.IndexOf(chat);
             await AsyncDispatcher.ExecuteOnMainThreadAsync(() =>
             {
-                chat.GroupChatMessageCount.Count = count;
-                MyGroupChats[index] = new MyGroupChatContainerModel { GroupChat = chat.GroupChat, GroupChatMessageCount = chat.GroupChatMessageCount };
+                //chat.GroupChatMessageCount.Count = count;
+                //MyGroupChats[index] = new MyGroupChatContainerModel { GroupChat = chat.GroupChat, GroupChatMessageCount = chat.GroupChatMessageCount };
             });
         }
         catch (ArgumentNullException ex)

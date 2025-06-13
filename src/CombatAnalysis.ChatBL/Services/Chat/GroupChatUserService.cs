@@ -11,15 +11,12 @@ internal class GroupChatUserService : IServiceTransaction<GroupChatUserDto, stri
 {
     private readonly IGenericRepository<GroupChatUser, string> _repository;
     private readonly IService<UnreadGroupChatMessageDto, int> _unreadGroupChatMessageService;
-    private readonly IService<GroupChatMessageCountDto, int> _groupChatMessageCountService;
     private readonly IMapper _mapper;
 
-    public GroupChatUserService(IGenericRepository<GroupChatUser, string> repository, IService<UnreadGroupChatMessageDto, int> unreadGroupChatMessageService,
-        IService<GroupChatMessageCountDto, int> groupChatMessageCountService, IMapper mapper)
+    public GroupChatUserService(IGenericRepository<GroupChatUser, string> repository, IService<UnreadGroupChatMessageDto, int> unreadGroupChatMessageService, IMapper mapper)
     {
         _repository = repository;
         _unreadGroupChatMessageService = unreadGroupChatMessageService;
-        _groupChatMessageCountService = groupChatMessageCountService;
         _mapper = mapper;
     }
 
@@ -40,7 +37,6 @@ internal class GroupChatUserService : IServiceTransaction<GroupChatUserDto, stri
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
             await DeleteUnreadGroupChatMessageAsync(id);
-            await DeleteGroupChatMessageCountAsync(id);
 
             var rowsAffected = await _repository.DeleteAsync(id);
 
@@ -63,7 +59,6 @@ internal class GroupChatUserService : IServiceTransaction<GroupChatUserDto, stri
         try
         {
             await DeleteUnreadGroupChatMessageAsync(id);
-            await DeleteGroupChatMessageCountAsync(id);
 
             var rowsAffected = await _repository.DeleteAsync(id);
 
@@ -154,21 +149,6 @@ internal class GroupChatUserService : IServiceTransaction<GroupChatUserDto, stri
             {
                 throw new ArgumentException("Unread group chat message didn't removed");
             }
-        }
-    }
-
-    private async Task DeleteGroupChatMessageCountAsync(string customerId)
-    {
-        var groupChatMessageCount = await _groupChatMessageCountService.GetByParamAsync(nameof(GroupChatMessageCountDto.GroupChatUserId), customerId);
-        if (!groupChatMessageCount.Any())
-        {
-            return;
-        }
-
-        var rowsAffected = await _groupChatMessageCountService.DeleteAsync(groupChatMessageCount.FirstOrDefault().Id);
-        if (rowsAffected == 0)
-        {
-            throw new ArgumentException("Unread group chat message didn't removed");
         }
     }
 }

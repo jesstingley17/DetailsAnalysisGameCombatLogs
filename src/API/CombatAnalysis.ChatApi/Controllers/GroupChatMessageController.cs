@@ -26,43 +26,120 @@ public class GroupChatMessageController(IChatMessageService<GroupChatMessageDto,
     [HttpGet("count/{chatId}")]
     public async Task<IActionResult> Count(int chatId)
     {
-        var count = await _chatMessageService.CountByChatIdAsync(chatId);
+        try
+        {
+            ArgumentOutOfRangeException.ThrowIfZero(chatId, nameof(chatId));
 
-        return Ok(count);
+            var count = await _chatMessageService.CountByChatIdAsync(chatId);
+            ArgumentOutOfRangeException.ThrowIfLessThan(count, 0, nameof(count));
+
+            return Ok(count);
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
+
+            return BadRequest();
+        }
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var result = await _chatMessageService.GetAllAsync();
-        var map = _mapper.Map<IEnumerable<GroupChatMessageModel>>(result);
+        try
+        {
+            var groupChatMessages = await _chatMessageService.GetAllAsync();
+            ArgumentNullException.ThrowIfNull(groupChatMessages, nameof(groupChatMessages));
 
-        return Ok(map);
+            return Ok(groupChatMessages);
+        }
+        catch (ArgumentNullException ex)
+        {
+            _logger.LogError(ex, "Get all group chat messages failed: Parameter '{ParamName}' was null.", ex.ParamName);
+
+            return BadRequest();
+        }
     }
 
     [HttpGet("{id:int:min(1)}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var result = await _chatMessageService.GetByIdAsync(id);
-        var map = _mapper.Map<GroupChatMessageModel>(result);
+        try
+        {
+            ArgumentOutOfRangeException.ThrowIfZero(id, nameof(id));
 
-        return Ok(map);
+            var groupChatMessage = await _chatMessageService.GetByIdAsync(id);
+            ArgumentNullException.ThrowIfNull(groupChatMessage, nameof(groupChatMessage));
+
+            return Ok(groupChatMessage);
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
+
+            return BadRequest();
+        }
+        catch (ArgumentNullException ex)
+        {
+            _logger.LogError(ex, "Get group chat message by id failed: Parameter '{ParamName}' was null.", ex.ParamName);
+
+            return BadRequest();
+        }
     }
 
     [HttpGet("getByChatId")]
     public async Task<IActionResult> GetByChatId(int chatId, int pageSize)
     {
-        var messages = await _chatMessageService.GetByChatIdAsync(chatId, pageSize);
+        try
+        {
+            ArgumentOutOfRangeException.ThrowIfZero(chatId, nameof(chatId));
+            ArgumentOutOfRangeException.ThrowIfLessThan(pageSize, 1, nameof(pageSize));
 
-        return Ok(messages);
+            var messages = await _chatMessageService.GetByChatIdAsync(chatId, pageSize);
+            ArgumentNullException.ThrowIfNull(messages, nameof(messages));
+
+            return Ok(messages);
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
+
+            return BadRequest();
+        }
+        catch (ArgumentNullException ex)
+        {
+            _logger.LogError(ex, "Get group chat messages by chat id failed: Parameter '{ParamName}' was null.", ex.ParamName);
+
+            return BadRequest();
+        }
     }
 
     [HttpGet("getMoreByChatId")]
     public async Task<IActionResult> GetMoreByChatId(int chatId, int offset, int pageSize)
     {
-        var messages = await _chatMessageService.GetMoreByChatIdAsync(chatId, offset, pageSize);
+        try
+        {
+            ArgumentOutOfRangeException.ThrowIfZero(chatId, nameof(chatId));
+            ArgumentOutOfRangeException.ThrowIfLessThan(offset, 0, nameof(offset));
+            ArgumentOutOfRangeException.ThrowIfLessThan(pageSize, 1, nameof(pageSize));
 
-        return Ok(messages);
+            var messages = await _chatMessageService.GetMoreByChatIdAsync(chatId, offset, pageSize);
+            ArgumentNullException.ThrowIfNull(messages, nameof(messages));
+
+            return Ok(messages);
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
+
+            return BadRequest();
+        }
+        catch (ArgumentNullException ex)
+        {
+            _logger.LogError(ex, "Get more group chat messages by chat id failed: Parameter '{ParamName}' was null.", ex.ParamName);
+
+            return BadRequest();
+        }
     }
 
     [HttpPost]
@@ -74,6 +151,7 @@ public class GroupChatMessageController(IChatMessageService<GroupChatMessageDto,
 
             var map = _mapper.Map<GroupChatMessageDto>(chatMessage);
             var createdGroupChatMessage = await _chatMessageService.CreateAsync(map);
+            ArgumentNullException.ThrowIfNull(createdGroupChatMessage, nameof(createdGroupChatMessage));
 
             var chatAction = JsonSerializer.Serialize(new GroupChatMessageAction
             {
@@ -88,37 +166,36 @@ public class GroupChatMessageController(IChatMessageService<GroupChatMessageDto,
         }
         catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, $"Create Group Chat Message failed: ${ex.Message}", chatMessage);
-
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Create Group Chat Message failed: ${ex.Message}", chatMessage);
+            _logger.LogError(ex, "Create group chat message failed: Parameter '{ParamName}' was null.", ex.ParamName);
 
             return BadRequest();
         }
     }
 
     [HttpPut]
-    public async Task<IActionResult> Update(GroupChatMessageModel model)
+    public async Task<IActionResult> Update(GroupChatMessageModel chatMessage)
     {
         try
         {
-            var map = _mapper.Map<GroupChatMessageDto>(model);
-            var result = await _chatMessageService.UpdateAsync(map);
+            ArgumentNullException.ThrowIfNull(chatMessage, nameof(chatMessage));
 
-            return Ok(result);
+            ArgumentOutOfRangeException.ThrowIfZero(chatMessage.Id, nameof(chatMessage.Id));
+
+            var map = _mapper.Map<GroupChatMessageDto>(chatMessage);
+            var rowsAffected = await _chatMessageService.UpdateAsync(map);
+            ArgumentOutOfRangeException.ThrowIfZero(rowsAffected, nameof(rowsAffected));
+
+            return Ok();
         }
         catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, $"Update Group Chat Message failed: ${ex.Message}", model);
+            _logger.LogError(ex, "Update group chat message failed: Parameter '{ParamName}' was null.", ex.ParamName);
 
             return BadRequest();
         }
-        catch (Exception ex)
+        catch (ArgumentOutOfRangeException ex)
         {
-            _logger.LogError(ex, $"Update Group Chat Message failed: ${ex.Message}", model);
+            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
 
             return BadRequest();
         }
@@ -127,8 +204,20 @@ public class GroupChatMessageController(IChatMessageService<GroupChatMessageDto,
     [HttpDelete("{id:int:min(1)}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var affectedRows = await _chatMessageService.DeleteAsync(id);
+        try
+        {
+            ArgumentOutOfRangeException.ThrowIfZero(id, nameof(id));
 
-        return Ok(affectedRows);
+            var rowsAffected = await _chatMessageService.DeleteAsync(id);
+            ArgumentOutOfRangeException.ThrowIfZero(rowsAffected, nameof(rowsAffected));
+
+            return Ok();
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
+
+            return BadRequest();
+        }
     }
 }

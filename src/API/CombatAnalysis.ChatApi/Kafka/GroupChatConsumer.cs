@@ -21,21 +21,17 @@ public class GroupChatConsumer(IOptions<KafkaSettings> kafkaSettings, ILogger<Gr
     {
         try
         {
-            ArgumentNullException.ThrowIfNull(kafkaData);
+            ArgumentNullException.ThrowIfNull(kafkaData, nameof(kafkaData));
 
             using var scope = _serviceScopeFactory.CreateScope();
             var chatTransaction = scope.ServiceProvider.GetService<IChatTransactionService>();
-            ArgumentNullException.ThrowIfNull(chatTransaction);
+            ArgumentNullException.ThrowIfNull(chatTransaction, nameof(chatTransaction));
 
             await ExecuteAsync(scope, chatTransaction, kafkaData);
         }
         catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, $"Some argument receavied as null while consume Chat API data: ${ex.Message}");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"An unexpected error occurred while consume Chat API data: {ex.Message}");
+            _logger.LogError(ex, "Consume Chat API data failed: Parameter '{ParamName}' was null.", ex.ParamName);
         }
     }
 
@@ -46,7 +42,9 @@ public class GroupChatConsumer(IOptions<KafkaSettings> kafkaSettings, ILogger<Gr
             await chatTransaction.BeginTransactionAsync();
 
             var chatAction = kafkaData.Message.Value.Deserialize<GroupChatAction>();
-            ArgumentNullException.ThrowIfNull(chatAction);
+            ArgumentNullException.ThrowIfNull(chatAction, nameof(chatAction));
+            ArgumentNullException.ThrowIfNull(chatAction.Rules, nameof(chatAction.Rules));
+            ArgumentNullException.ThrowIfNull(chatAction.User, nameof(chatAction.User));
 
             await CreateChatRefsAsync(scope, chatAction.ChatId, chatAction.Rules, chatAction.User);
 
@@ -54,46 +52,44 @@ public class GroupChatConsumer(IOptions<KafkaSettings> kafkaSettings, ILogger<Gr
         }
         catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, $"Some argument receavied as null while consume Chat API data: ${ex.Message}");
+            _logger.LogError(ex, "Create group chat refs failed: Parameter '{ParamName}' was null.", ex.ParamName);
 
             await chatTransaction.RollbackTransactionAsync();
         }
-        catch (Exception ex)
+        catch (ArgumentOutOfRangeException ex)
         {
-            _logger.LogError(ex, $"An unexpected error occurred while consume Chat API data: {ex.Message}");
+            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
 
             await chatTransaction.RollbackTransactionAsync();
+        }
+        catch (Exception)
+        {
+            await chatTransaction.RollbackTransactionAsync();
+
+            throw;
         }
     }
 
     private async Task CreateChatRefsAsync(IServiceScope scope, int chatId, GroupChatRulesModel chatRules, GroupChatUserModel chatUser)
     {
+        ArgumentOutOfRangeException.ThrowIfZero(chatId, nameof(chatId));
+
         var chatRulesService = scope.ServiceProvider.GetService<IService<GroupChatRulesDto, int>>();
-        ArgumentNullException.ThrowIfNull(chatRulesService);
+        ArgumentNullException.ThrowIfNull(chatRulesService, nameof(chatRulesService));
 
         var chatUserService = scope.ServiceProvider.GetService<IServiceTransaction<GroupChatUserDto, string>>();
-        ArgumentNullException.ThrowIfNull(chatUserService);
-
-        var chatMessageCountService = scope.ServiceProvider.GetService<IService<GroupChatMessageCountDto, int>>();
-        ArgumentNullException.ThrowIfNull(chatMessageCountService);
+        ArgumentNullException.ThrowIfNull(chatUserService, nameof(chatUserService));
 
         chatRules.ChatId = chatId;
 
         var chatRulesMap = _mapper.Map<GroupChatRulesDto>(chatRules);
-        await chatRulesService.CreateAsync(chatRulesMap);
+        var createdChatRules = await chatRulesService.CreateAsync(chatRulesMap);
+        ArgumentNullException.ThrowIfNull(createdChatRules, nameof(createdChatRules));
 
         chatUser.ChatId = chatId;
 
         var chatUserMap = _mapper.Map<GroupChatUserDto>(chatUser);
-        var result = await chatUserService.CreateAsync(chatUserMap);
-
-        var messageCount = new GroupChatMessageCountDto
-        {
-            ChatId = chatId,
-            GroupChatUserId = result.Id,
-            Count = 0
-        };
-
-        await chatMessageCountService.CreateAsync(messageCount);
+        var createdChatUser = await chatUserService.CreateAsync(chatUserMap);
+        ArgumentNullException.ThrowIfNull(createdChatUser, nameof(createdChatUser));
     }
 }

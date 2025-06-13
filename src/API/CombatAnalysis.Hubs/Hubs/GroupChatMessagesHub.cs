@@ -84,20 +84,6 @@ public class GroupChatMessagesHub(IHttpClientHelper httpClient, ILogger<GroupCha
             response = await _httpClient.PutAsync("GroupChatMessage", JsonContent.Create(messageModel));
             response.EnsureSuccessStatusCode();
 
-            response = await _httpClient.GetAsync($"GroupChatMessageCount/findMe?chatId={messageModel.ChatId}&chatUserId={meInChatId}");
-            response.EnsureSuccessStatusCode();
-
-            var messageCount = await response.Content.ReadFromJsonAsync<GroupChatMessageCountModel>();
-            if (messageCount == null)
-            {
-                throw new ArgumentNullException(nameof(messageCount));
-            }
-
-            messageCount.Count--;
-
-            response = await _httpClient.PutAsync("GroupChatMessageCount", JsonContent.Create(messageCount));
-            response.EnsureSuccessStatusCode();
-
             await Clients.Caller.SendAsync("ReceiveMessageHasBeenRead");
         }
         catch (ArgumentNullException ex)

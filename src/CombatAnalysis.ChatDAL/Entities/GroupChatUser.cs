@@ -11,6 +11,8 @@ public class GroupChatUser : IChatEntity
 
     public string Username { get; set; }
 
+    public int UnreadMessages { get; set; }
+
     [ForeignKey(nameof(GroupChat))]
     public int ChatId { get; set; }
 

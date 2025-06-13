@@ -16,7 +16,6 @@ public class ChatBLMapper : Profile
         CreateMap<GroupChatRulesDto, GroupChatRules>().ReverseMap();
         CreateMap<GroupChatMessageDto, GroupChatMessage>().ReverseMap();
         CreateMap<UnreadGroupChatMessageDto, UnreadGroupChatMessage>().ReverseMap();
-        CreateMap<GroupChatMessageCountDto, GroupChatMessageCount>().ReverseMap();
         CreateMap<GroupChatUserDto, GroupChatUser>().ReverseMap();
     }
 }

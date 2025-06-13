@@ -9,73 +9,158 @@ namespace CombatAnalysis.ChatApi.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-[Authorize]
-public class GroupChatUserController : ControllerBase
+//[Authorize]
+public class GroupChatUserController(IServiceTransaction<GroupChatUserDto, string> chatUserService, IMapper mapper, ILogger<GroupChatUserController> logger) 
+    : ControllerBase
 {
-    private readonly IServiceTransaction<GroupChatUserDto, string> _chatUserService;
-    private readonly IService<GroupChatMessageCountDto, int> _chatMessageCountService;
-    private readonly IMapper _mapper;
-    private readonly ILogger<GroupChatUserController> _logger;
-    private readonly IChatTransactionService _chatTransactionService;
-
-    public GroupChatUserController(IServiceTransaction<GroupChatUserDto, string> chatUserService, IService<GroupChatMessageCountDto, int> chatMessageCountService, IMapper mapper, 
-        ILogger<GroupChatUserController> logger, IChatTransactionService chatTransactionService)
-    {
-        _chatUserService = chatUserService;
-        _chatMessageCountService = chatMessageCountService;
-        _mapper = mapper;
-        _logger = logger;
-        _chatTransactionService = chatTransactionService;
-    }
+    private readonly IServiceTransaction<GroupChatUserDto, string> _chatUserService = chatUserService;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<GroupChatUserController> _logger = logger;
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var result = await _chatUserService.GetAllAsync();
+        try
+        {
+            var groupChatUsers = await _chatUserService.GetAllAsync();
+            ArgumentNullException.ThrowIfNull(groupChatUsers, nameof(groupChatUsers));
 
-        return Ok(result);
+            return Ok(groupChatUsers);
+        }
+        catch (ArgumentNullException ex)
+        {
+            _logger.LogError(ex, "Get all group chat users failed: Parameter '{ParamName}' was null.", ex.ParamName);
+
+            return BadRequest();
+        }
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(string id)
     {
-        var result = await _chatUserService.GetByIdAsync(id);
+        try
+        {
+            ArgumentNullException.ThrowIfNull(id, nameof(id));
 
-        return Ok(result);
+            var groupChatUser = await _chatUserService.GetByIdAsync(id);
+            ArgumentNullException.ThrowIfNull(groupChatUser, nameof(groupChatUser));
+
+            return Ok(groupChatUser);
+        }
+        catch (ArgumentNullException ex)
+        {
+            _logger.LogError(ex, "Get group chat user by id failed: Parameter '{ParamName}' was null.", ex.ParamName);
+
+            return BadRequest();
+        }
     }
 
     [HttpGet("findUserInChat")]
     public async Task<IActionResult> FindUserInChat(int chatId, string appUserId)
     {
-        var result = await _chatUserService.GetByParamAsync(nameof(GroupChatUserModel.ChatId), chatId);
-        var userInChat = result.FirstOrDefault(x => x.AppUserId == appUserId);
+        try
+        {
+            ArgumentOutOfRangeException.ThrowIfZero(chatId, nameof(chatId));
 
-        return Ok(userInChat);
+            ArgumentNullException.ThrowIfNull(appUserId, nameof(appUserId));
+
+            var groupChatUsers = await _chatUserService.GetByParamAsync(nameof(GroupChatUserModel.ChatId), chatId);
+            ArgumentNullException.ThrowIfNull(groupChatUsers, nameof(groupChatUsers));
+
+            var groupChatUser = groupChatUsers.FirstOrDefault(x => x.AppUserId == appUserId);
+            ArgumentNullException.ThrowIfNull(groupChatUser, nameof(groupChatUser));
+
+            return Ok(groupChatUser);
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
+
+            return BadRequest();
+        }
+        catch (ArgumentNullException ex)
+        {
+            _logger.LogError(ex, "Get users in group chat failed: Parameter '{ParamName}' was null.", ex.ParamName);
+
+            return BadRequest();
+        }
     }
 
     [HttpGet("findByUserId/{id}")]
     public async Task<IActionResult> FindByUserId(string id)
     {
-        var result = await _chatUserService.GetByParamAsync(nameof(GroupChatUserModel.AppUserId), id);
+        try
+        {
+            ArgumentNullException.ThrowIfNull(id, nameof(id));
 
-        return Ok(result);
+            var groupChatUsers = await _chatUserService.GetByParamAsync(nameof(GroupChatUserModel.AppUserId), id);
+            ArgumentNullException.ThrowIfNull(groupChatUsers, nameof(groupChatUsers));
+
+            return Ok(groupChatUsers);
+        }
+        catch (ArgumentNullException ex)
+        {
+            _logger.LogError(ex, "Find group chat users by user id failed: Parameter '{ParamName}' was null.", ex.ParamName);
+
+            return BadRequest();
+        }
     }
 
     [HttpGet("findByChatId/{id:int:min(1)}")]
     public async Task<IActionResult> FindByChatId(int id)
     {
-        var result = await _chatUserService.GetByParamAsync(nameof(GroupChatUserModel.ChatId), id);
+        try
+        {
+            ArgumentOutOfRangeException.ThrowIfZero(id, nameof(id));
 
-        return Ok(result);
+            var groupChatUsers = await _chatUserService.GetByParamAsync(nameof(GroupChatUserModel.ChatId), id);
+            ArgumentNullException.ThrowIfNull(groupChatUsers, nameof(groupChatUsers));
+
+            return Ok(groupChatUsers);
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
+
+            return BadRequest();
+        }
+        catch (ArgumentNullException ex)
+        {
+            _logger.LogError(ex, "Find group chat users by chat id failed: Parameter '{ParamName}' was null.", ex.ParamName);
+
+            return BadRequest();
+        }
     }
 
     [HttpGet("findMeInChat")]
     public async Task<IActionResult> FindMeInChat(int chatId, string appUserId)
     {
-        var chatUsers = await _chatUserService.GetByParamAsync(nameof(GroupChatUserModel.ChatId), chatId);
-        var meInChat = chatUsers.FirstOrDefault(x => x.AppUserId == appUserId);
+        try
+        {
+            ArgumentOutOfRangeException.ThrowIfZero(chatId, nameof(chatId));
 
-        return Ok(meInChat);
+            ArgumentNullException.ThrowIfNull(appUserId, nameof(appUserId));
+
+            var groupChatUsers = await _chatUserService.GetByParamAsync(nameof(GroupChatUserModel.ChatId), chatId);
+            ArgumentNullException.ThrowIfNull(groupChatUsers, nameof(groupChatUsers));
+
+            var meInChat = groupChatUsers.FirstOrDefault(x => x.AppUserId == appUserId);
+            ArgumentNullException.ThrowIfNull(meInChat, nameof(meInChat));
+
+            return Ok(meInChat);
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
+
+            return BadRequest();
+        }
+        catch (ArgumentNullException ex)
+        {
+            _logger.LogError(ex, "Find me in chat failed: Parameter '{ParamName}' was null.", ex.ParamName);
+
+            return BadRequest();
+        }
     }
 
     [HttpPost]
@@ -83,58 +168,46 @@ public class GroupChatUserController : ControllerBase
     {
         try
         {
-            ArgumentNullException.ThrowIfNull(chatUser);
-
-            await _chatTransactionService.BeginTransactionAsync();
+            ArgumentNullException.ThrowIfNull(chatUser, nameof(chatUser));
 
             chatUser.Id = Guid.NewGuid().ToString();
 
             var map = _mapper.Map<GroupChatUserDto>(chatUser);
-            var result = await _chatUserService.CreateAsync(map);
+            var createdGroupChatUser = await _chatUserService.CreateAsync(map);
+            ArgumentNullException.ThrowIfNull(createdGroupChatUser, nameof(createdGroupChatUser));
 
-            await CreateChatMessageCountAsync(result.ChatId, result.Id);
-
-            await _chatTransactionService.CommitTransactionAsync();
-
-            return Ok(result);
+            return Ok(createdGroupChatUser);
         }
         catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, $"Create Group Chat User failed: ${ex.Message}", chatUser);
-
-            await _chatTransactionService.RollbackTransactionAsync();
-
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Create Group Chat User failed: ${ex.Message}", chatUser);
-
-            await _chatTransactionService.RollbackTransactionAsync();
+            _logger.LogError(ex, "Create group chat ser failed:  Parameter '{ParamName}' was null.", ex.ParamName);
 
             return BadRequest();
         }
     }
 
     [HttpPut]
-    public async Task<IActionResult> Update(GroupChatUserModel model)
+    public async Task<IActionResult> Update(GroupChatUserModel groupChatUser)
     {
         try
         {
-            var map = _mapper.Map<GroupChatUserDto>(model);
-            var result = await _chatUserService.UpdateAsync(map);
+            ArgumentNullException.ThrowIfNull(groupChatUser, nameof(groupChatUser));
 
-            return Ok(result);
+            var map = _mapper.Map<GroupChatUserDto>(groupChatUser);
+            var rowsAffected = await _chatUserService.UpdateAsync(map);
+            ArgumentOutOfRangeException.ThrowIfZero(rowsAffected, nameof(rowsAffected));
+
+            return Ok();
         }
         catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, $"Update Group Chat User failed: ${ex.Message}", model);
+            _logger.LogError(ex, "Update group chat user failed: Parameter '{ParamName}' was null.", ex.ParamName);
 
             return BadRequest();
         }
-        catch (Exception ex)
+        catch (ArgumentOutOfRangeException ex)
         {
-            _logger.LogError(ex, $"Update Group Chat User failed: ${ex.Message}", model);
+            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
 
             return BadRequest();
         }
@@ -143,19 +216,26 @@ public class GroupChatUserController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(string id)
     {
-        var rowsAffected = await _chatUserService.DeleteAsync(id);
-
-        return Ok(rowsAffected);
-    }
-
-    private async Task CreateChatMessageCountAsync(int chatId, string groupChatUserId)
-    {
-        var groupChatMessageCount = new GroupChatMessageCountDto
+        try
         {
-            ChatId = chatId,
-            GroupChatUserId = groupChatUserId
-        };
+            ArgumentNullException.ThrowIfNull(id, nameof(id));
 
-        await _chatMessageCountService.CreateAsync(groupChatMessageCount);
+            var rowsAffected = await _chatUserService.DeleteAsync(id);
+            ArgumentOutOfRangeException.ThrowIfZero(rowsAffected, nameof(rowsAffected));
+
+            return Ok();
+        }
+        catch (ArgumentNullException ex)
+        {
+            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was null.", ex.ParamName);
+
+            return BadRequest();
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
+
+            return BadRequest();
+        }
     }
 }

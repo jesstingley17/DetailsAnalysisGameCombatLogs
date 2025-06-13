@@ -27,8 +27,6 @@ public class ChatSQLContext : DbContext
 
     public DbSet<UnreadGroupChatMessage>? UnreadGroupChatMessage { get; }
 
-    public DbSet<GroupChatMessageCount>? GroupChatMessageCount { get; }
-
     public DbSet<GroupChatUser>? GroupChatUser { get; }
 
     #endregion

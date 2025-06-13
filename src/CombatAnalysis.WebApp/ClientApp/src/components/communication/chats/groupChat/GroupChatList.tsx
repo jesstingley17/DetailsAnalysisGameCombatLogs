@@ -58,9 +58,8 @@ const GroupChatList: React.FC<GroupChatListProps> = ({ meId, t, selectedChat, se
                     : meInGroupChats.map((meInChat) => (
                         <li key={meInChat.id} className={selectedChat.type === "group" && selectedChat.chat.id === meInChat.chatId ? `selected` : ``}>
                             <GroupChatListItem
-                                chatId={meInChat.chatId}
+                                meInChat={meInChat}
                                 setSelectedGroupChat={setSelectedChat}
-                                meInChatId={meInChat.id}
                                 subscribeToUnreadGroupMessagesUpdated={subscribeToUnreadGroupMessagesUpdated}
                             />
                         </li>

@@ -23,7 +23,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IService<GroupChatRulesDto, int>, GroupChatRulesService>();
         services.AddScoped<IChatMessageService<GroupChatMessageDto, int>, GroupChatMessageService>();
         services.AddScoped<IService<UnreadGroupChatMessageDto, int>, UnreadGroupChatMessageService>();
-        services.AddScoped<IService<GroupChatMessageCountDto, int>, GroupChatMessageCountService>();
         services.AddScoped<IServiceTransaction<GroupChatUserDto, string>, GroupChatUserService>();
     }
 }

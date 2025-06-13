@@ -57,16 +57,13 @@ public class GroupChatUnreadMessageHub : Hub
     {
         try
         {
-            var response = await _httpClient.GetAsync($"GroupChatMessageCount/findMe?chatId={chatId}&chatUserId={meInChatId}");
+            var response = await _httpClient.GetAsync($"GroupChatUser/{meInChatId}");
             response.EnsureSuccessStatusCode();
 
-            var messagesCount = await response.Content.ReadFromJsonAsync<GroupChatMessageCountModel>();
-            if (messagesCount == null)
-            {
-                throw new ArgumentNullException(nameof(messagesCount));
-            }
+            var groupChatUser = await response.Content.ReadFromJsonAsync<GroupChatUserModel>();
+            ArgumentNullException.ThrowIfNull(groupChatUser, nameof(groupChatUser));
 
-            await Clients.Group(chatId.ToString()).SendAsync("ReceiveUnreadMessage", chatId, meInChatId, messagesCount.Count);
+            await Clients.Group(chatId.ToString()).SendAsync("ReceiveUnreadMessage", chatId, meInChatId, groupChatUser.UnreadMessages);
         }
         catch (ArgumentNullException ex)
         {
