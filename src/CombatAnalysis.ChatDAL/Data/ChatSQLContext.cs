@@ -3,21 +3,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.ChatDAL.Data;
 
-public class ChatSQLContext : DbContext
+public class ChatSQLContext(DbContextOptions<ChatSQLContext> options) : DbContext(options)
 {
-    public ChatSQLContext(DbContextOptions<ChatSQLContext> options) : base(options)
-    {
-    }
-
-    #region Chat
 
     public DbSet<VoiceChat>? VoiceChat { get; }
 
     public DbSet<PersonalChat>? PersonalChat { get; }
 
     public DbSet<PersonalChatMessage>? PersonalChatMessage { get; }
-
-    public DbSet<PersonalChatMessageCount>? PersonalChatMessageCount { get; }
 
     public DbSet<GroupChat>? GroupChat { get; }
 
@@ -28,6 +21,4 @@ public class ChatSQLContext : DbContext
     public DbSet<UnreadGroupChatMessage>? UnreadGroupChatMessage { get; }
 
     public DbSet<GroupChatUser>? GroupChatUser { get; }
-
-    #endregion
 }

@@ -41,7 +41,6 @@ public static class DataCollectionExtensions
         services.AddScoped<IGenericRepository<VoiceChat, string>, SQLRepository<VoiceChat, string>>();
         services.AddScoped<IGenericRepository<PersonalChat, int>, SQLRepository<PersonalChat, int>>();
         services.AddScoped<IChatMessageRepository<PersonalChatMessage, int>, SQLSPChatMessageRepository<PersonalChatMessage, int>>();
-        services.AddScoped<IGenericRepository<PersonalChatMessageCount, int>, SQLRepository<PersonalChatMessageCount, int>>();
         services.AddScoped<IGenericRepository<GroupChat, int>, SQLRepository<GroupChat, int>>();
         services.AddScoped<IGenericRepository<GroupChatRules, int>, SQLRepository<GroupChatRules, int>>();
         services.AddScoped<IChatMessageRepository<GroupChatMessage, int>, SQLSPChatMessageRepository<GroupChatMessage, int>>();

@@ -11,6 +11,10 @@ public class PersonalChat
     [ForeignKey("AppUser")]
     public string InitiatorId { get; set; }
 
+    public int InitiatorUnreadMessages { get; set; }
+
     [ForeignKey("AppUser")]
     public string CompanionId { get; set; }
+
+    public int CompanionUnreadMessages { get; set; }
 }

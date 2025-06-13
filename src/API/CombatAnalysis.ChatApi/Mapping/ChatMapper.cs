@@ -11,7 +11,6 @@ internal class ChatMapper : Profile
         CreateMap<VoiceChatDto, VoiceChatModel>().ReverseMap();
         CreateMap<PersonalChatDto, PersonalChatModel>().ReverseMap();
         CreateMap<PersonalChatMessageDto, PersonalChatMessageModel>().ReverseMap();
-        CreateMap<PersonalChatMessageCountDto, PersonalChatMessageCountModel>().ReverseMap();
         CreateMap<GroupChatDto, GroupChatModel>().ReverseMap();
         CreateMap<GroupChatRulesDto, GroupChatRulesModel>().ReverseMap();
         CreateMap<GroupChatMessageDto, GroupChatMessageModel>().ReverseMap();

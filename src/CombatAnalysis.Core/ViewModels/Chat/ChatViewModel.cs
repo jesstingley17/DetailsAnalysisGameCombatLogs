@@ -3,7 +3,6 @@ using CombatAnalysis.Core.Enums;
 using CombatAnalysis.Core.Extensions;
 using CombatAnalysis.Core.Interfaces;
 using CombatAnalysis.Core.Models.Chat;
-using CombatAnalysis.Core.Models.Containers;
 using CombatAnalysis.Core.Models.User;
 using CombatAnalysis.Core.ViewModels.Base;
 using CombatAnalysis.Core.ViewModels.ViewModelTemplates;
@@ -26,13 +25,13 @@ public class ChatViewModel : ParentTemplate
     private IImprovedMvxViewModel? _personalChatMessagesTemplate;
     private IImprovedMvxViewModel? _groupChatMessagesTemplate;
     private ObservableCollection<GroupChatModel>? _myGroupChats;
-    private ObservableCollection<MyPersonalChatContainerModel>? _personalChats;
+    private ObservableCollection<PersonalChatModel>? _personalChats;
     private ObservableCollection<AppUserModel>? _users;
     private List<AppUserModel>? _allUsers;
     private string? _inputedUsername;
     private int _selectedUsersIndex = -1;
     private GroupChatModel? _selectedMyGroupChat;
-    private MyPersonalChatContainerModel? _selectedPersonalChat;
+    private PersonalChatModel? _selectedPersonalChat;
     private AppUserModel? _myAccount;
     private LoadingStatus _groupChatLoadingResponse;
     private LoadingStatus _personalChatLoadingResponse;
@@ -118,7 +117,7 @@ public class ChatViewModel : ParentTemplate
         }
     }
 
-    public ObservableCollection<MyPersonalChatContainerModel>? MyPersonalChats
+    public ObservableCollection<PersonalChatModel>? MyPersonalChats
     {
         get { return _personalChats; }
         set
@@ -178,14 +177,14 @@ public class ChatViewModel : ParentTemplate
         }
     }
 
-    public MyPersonalChatContainerModel? SelectedPersonalChat
+    public PersonalChatModel? SelectedPersonalChat
     {
         get { return _selectedPersonalChat; }
         set
         {
             SetProperty(ref _selectedPersonalChat, value);
 
-            if (value != null && value.PersonalChat != null)
+            if (value != null)
             {
                 IsChatSelected = true;
                 SelectedMyGroupChat = null;
@@ -196,7 +195,7 @@ public class ChatViewModel : ParentTemplate
                 PersonalChatMessagesTemplate?.ViewDestroy();
 
                 PersonalChatMessagesTemplate = Mvx.IoCProvider?.IoCConstruct<PersonalChatMessagesVewModel>();
-                PersonalChatMessagesTemplate?.Handler.PropertyUpdate<PersonalChatMessagesVewModel>(PersonalChatMessagesTemplate, nameof(PersonalChatMessagesVewModel.SelectedChat), value.PersonalChat);
+                PersonalChatMessagesTemplate?.Handler.PropertyUpdate<PersonalChatMessagesVewModel>(PersonalChatMessagesTemplate, nameof(PersonalChatMessagesVewModel.SelectedChat), value);
                 
                 var personalChatMessagesVewModel = PersonalChatMessagesTemplate as PersonalChatMessagesVewModel;
                 if (personalChatMessagesVewModel != null)
@@ -483,23 +482,11 @@ public class ChatViewModel : ParentTemplate
 
     private async Task CreatePersonalChatContainerAsync(IEnumerable<PersonalChatModel> myPersonalChats, string refreshToken)
     {
-        HttpResponseMessage response;
-        var container = new List<MyPersonalChatContainerModel>();
+        var personalChats = new List<PersonalChatModel>();
 
         foreach (var chat in myPersonalChats)
         {
             await GetPersonalChatCompanionAsync(chat, refreshToken);
-
-            response = await _httpClientHelper.GetAsync($"PersonalChatMessageCount/findMe?chatId={chat.Id}&appUserId={MyAccount?.Id}", refreshToken, API.ChatApi);
-            response.EnsureSuccessStatusCode();
-
-            var messageCount = await response.Content.ReadFromJsonAsync<PersonalChatMessageCountModel>();
-            if (messageCount == null)
-            {
-                throw new ArgumentNullException(nameof(messageCount));
-            }
-
-            container.Add(new MyPersonalChatContainerModel { PersonalChat = chat, PersonalChatMessageCount = messageCount });
 
             if (_personalChatHubConnection == null)
             {
@@ -517,7 +504,7 @@ public class ChatViewModel : ParentTemplate
             });
         }
 
-        MyPersonalChats = new ObservableCollection<MyPersonalChatContainerModel>(container);
+        MyPersonalChats = new ObservableCollection<PersonalChatModel>(myPersonalChats);
     }
 
     private async Task UpdatePersonalChatUnreadMessagesAsync(int chatId, string meInChatId, int count)
@@ -529,22 +516,17 @@ public class ChatViewModel : ParentTemplate
                 throw new ArgumentNullException(nameof(MyPersonalChats));
             }
 
-            var chat = MyPersonalChats.FirstOrDefault(x => x.PersonalChat.Id == chatId);
+            var chat = MyPersonalChats.FirstOrDefault(x => x.Id == chatId);
             if (chat == null)
             {
                 throw new ArgumentNullException(nameof(chat));
-            }
-            
-            if (chat.PersonalChatMessageCount.AppUserId != meInChatId)
-            {
-                return;
             }
 
             var index = MyPersonalChats.IndexOf(chat);
             await AsyncDispatcher.ExecuteOnMainThreadAsync(() =>
             {
-                chat.PersonalChatMessageCount.Count = count;
-                MyPersonalChats[index] = new MyPersonalChatContainerModel { PersonalChat = chat.PersonalChat, PersonalChatMessageCount = chat.PersonalChatMessageCount };
+                //chat.PersonalChatMessageCount.Count = count;
+                //MyPersonalChats[index] = new MyPersonalChatContainerModel { PersonalChat = chat.PersonalChat, PersonalChatMessageCount = chat.PersonalChatMessageCount };
             });
         }
         catch (ArgumentNullException ex)
@@ -651,7 +633,7 @@ public class ChatViewModel : ParentTemplate
         }
 
         var freeUsers = _allUsers?
-            .Where(user => !MyPersonalChats.Any(chat => chat.PersonalChat.InitiatorId == user.Id || chat.PersonalChat.CompanionId == user.Id))
+            .Where(user => !MyPersonalChats.Any(chat => chat.InitiatorId == user.Id || chat.CompanionId == user.Id))
             .Where(user => user.Id != MyAccount?.Id)
             .ToList();
 

@@ -20,7 +20,7 @@ public class PersonalChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, 
         try
         {
             using var scope = _serviceScopeFactory.CreateScope();
-            var chatMessageCountService = scope.ServiceProvider.GetService<IService<PersonalChatMessageCountDto, int>>();
+            var chatMessageCountService = scope.ServiceProvider.GetService<IService<PersonalChatDto, int>>();
             ArgumentNullException.ThrowIfNull(chatMessageCountService);
 
             var chatAction = kafkaData.Message.Value.Deserialize<PersonalChatMessageAction>();
@@ -39,28 +39,48 @@ public class PersonalChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, 
         {
             _logger.LogError(ex, $"Update Personal Chat Message count was failed: ${ex.Message}");
         }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, $"An unexpected error occurred while updating Personal Chat Message count: {ex.Message}");
         }
     }
 
-    private static async Task IncreaseCountAsync(PersonalChatMessageAction chatAction, IService<PersonalChatMessageCountDto, int> chatMessageCountService)
+    private static async Task IncreaseCountAsync(PersonalChatMessageAction chatAction, IService<PersonalChatDto, int> chatMessageCountService)
     {
-        var messagesCount = await chatMessageCountService.GetByParamAsync(nameof(GroupChatMessageAction.ChatId), chatAction.ChatId);
-        var companionMessageCount = messagesCount.FirstOrDefault(x => x.AppUserId == chatAction.CompanionId);
-        ArgumentNullException.ThrowIfNull(companionMessageCount);
+        var personalChat = await chatMessageCountService.GetByIdAsync(chatAction.ChatId);
+        ArgumentNullException.ThrowIfNull(personalChat);
 
-        companionMessageCount.Count++;
-        await chatMessageCountService.UpdateAsync(companionMessageCount);
+        if (chatAction.AppUserId == personalChat.CompanionId)
+        {
+            personalChat.InitiatorUnreadMessages++;
+        }
+        else
+        {
+            personalChat.CompanionUnreadMessages++;
+        }
+
+        var affectedRows = await chatMessageCountService.UpdateAsync(personalChat);
+        ArgumentOutOfRangeException.ThrowIfLessThan(affectedRows, 1, nameof(affectedRows));
     }
-    private static async Task DecreaseCountAsync(PersonalChatMessageAction chatAction, IService<PersonalChatMessageCountDto, int> chatMessageCountService)
+    private static async Task DecreaseCountAsync(PersonalChatMessageAction chatAction, IService<PersonalChatDto, int> chatMessageCountService)
     {
-        var messagesCount = await chatMessageCountService.GetByParamAsync(nameof(GroupChatMessageAction.ChatId), chatAction.ChatId);
-        var myCounts = messagesCount.FirstOrDefault(x => x.AppUserId == chatAction.AppUserId);
-        ArgumentNullException.ThrowIfNull(myCounts);
+        var personalChat = await chatMessageCountService.GetByIdAsync(chatAction.ChatId);
+        ArgumentNullException.ThrowIfNull(personalChat);
 
-        myCounts.Count--;
-        await chatMessageCountService.UpdateAsync(myCounts);
+        if (chatAction.AppUserId == personalChat.CompanionId)
+        {
+            personalChat.CompanionUnreadMessages--;
+        }
+        else
+        {
+            personalChat.InitiatorUnreadMessages--;
+        }
+
+        var affectedRows =await chatMessageCountService.UpdateAsync(personalChat);
+        ArgumentOutOfRangeException.ThrowIfLessThan(affectedRows, 1, nameof(affectedRows));
     }
 }

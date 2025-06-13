@@ -46,7 +46,7 @@ GO
 CREATE TABLE [GroupChatUser] (
     [Id] nvarchar(450) NOT NULL,
     [Username] nvarchar(max) NOT NULL,
-    UnreadMessages int NOT NULL,
+    [UnreadMessages] int NOT NULL,
     [ChatId] int NOT NULL,
     [AppUserId] nvarchar(max) NOT NULL,
     CONSTRAINT [PK_GroupChatUser] PRIMARY KEY ([Id])
@@ -56,7 +56,9 @@ GO
 CREATE TABLE [PersonalChat] (
     [Id] int NOT NULL IDENTITY,
     [InitiatorId] nvarchar(max) NOT NULL,
+    [InitiatorUnreadMessages] int NOT NULL,
     [CompanionId] nvarchar(max) NOT NULL,
+    [CompanionUnreadMessages] int NOT NULL,
     CONSTRAINT [PK_PersonalChat] PRIMARY KEY ([Id])
 );
 GO
@@ -73,15 +75,6 @@ CREATE TABLE [PersonalChatMessage] (
     [ChatId] int NOT NULL,
     [AppUserId] nvarchar(max) NOT NULL,
     CONSTRAINT [PK_PersonalChatMessage] PRIMARY KEY ([Id])
-);
-GO
-
-CREATE TABLE [PersonalChatMessageCount] (
-    [Id] int NOT NULL IDENTITY,
-    [Count] int NOT NULL,
-    [ChatId] int NOT NULL,
-    [AppUserId] nvarchar(max) NOT NULL,
-    CONSTRAINT [PK_PersonalChatMessageCount] PRIMARY KEY ([Id])
 );
 GO
 

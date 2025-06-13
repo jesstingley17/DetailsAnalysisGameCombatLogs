@@ -94,10 +94,7 @@ public class PersonalChatMessagesHub : Hub
             response.EnsureSuccessStatusCode();
 
             var messageModel = await response.Content.ReadFromJsonAsync<PersonalChatMessageModel>();
-            if (messageModel == null)
-            {
-                throw new ArgumentNullException(nameof(messageModel));
-            }
+            ArgumentNullException.ThrowIfNull(messageModel, nameof(messageModel));
 
             if (messageModel.Status == 2)
             {
@@ -107,20 +104,6 @@ public class PersonalChatMessagesHub : Hub
             messageModel.Status = 2;
 
             response = await _httpClient.PutAsync("PersonalChatMessage", JsonContent.Create(messageModel));
-            response.EnsureSuccessStatusCode();
-
-            response = await _httpClient.GetAsync($"PersonalChatMessageCount/findMe?chatId={messageModel.ChatId}&appUserId={meId}");
-            response.EnsureSuccessStatusCode();
-
-            var messageCount = await response.Content.ReadFromJsonAsync<PersonalChatMessageCountModel>();
-            if (messageCount == null)
-            {
-                throw new ArgumentNullException(nameof(messageCount));
-            }
-
-            messageCount.Count--;
-
-            response = await _httpClient.PutAsync("PersonalChatMessageCount", JsonContent.Create(messageCount));
             response.EnsureSuccessStatusCode();
 
             await Clients.Caller.SendAsync("ReceiveMessageHasBeenRead");

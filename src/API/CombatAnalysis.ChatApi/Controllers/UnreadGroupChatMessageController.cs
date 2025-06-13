@@ -10,18 +10,11 @@ namespace CombatAnalysis.ChatApi.Controllers;
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class UnreadGroupChatMessageController : ControllerBase
+public class UnreadGroupChatMessageController(IService<UnreadGroupChatMessageDto, int> service, IMapper mapper, ILogger<UnreadGroupChatMessageController> logger) : ControllerBase
 {
-    private readonly IService<UnreadGroupChatMessageDto, int> _service;
-    private readonly IMapper _mapper;
-    private readonly ILogger<PersonalChatMessageCountController> _logger;
-
-    public UnreadGroupChatMessageController(IService<UnreadGroupChatMessageDto, int> service, IMapper mapper, ILogger<PersonalChatMessageCountController> logger)
-    {
-        _service = service;
-        _mapper = mapper;
-        _logger = logger;
-    }
+    private readonly IService<UnreadGroupChatMessageDto, int> _service = service;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<UnreadGroupChatMessageController> _logger = logger;
 
     [HttpGet]
     public async Task<IActionResult> GetAll()

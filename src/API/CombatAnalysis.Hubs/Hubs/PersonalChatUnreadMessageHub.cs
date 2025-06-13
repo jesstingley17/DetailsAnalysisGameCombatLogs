@@ -57,16 +57,15 @@ public class PersonalChatUnreadMessageHub : Hub
     {
         try
         {
-            var response = await _httpClient.GetAsync($"PersonalChatMessageCount/findMe?chatId={chatId}&appUserId={appUserId}");
+            var response = await _httpClient.GetAsync($"PersonalChat/{chatId}");
             response.EnsureSuccessStatusCode();
 
-            var messagesCount = await response.Content.ReadFromJsonAsync<PersonalChatMessageCountModel>();
-            if (messagesCount == null)
-            {
-                throw new ArgumentNullException(nameof(messagesCount));
-            }
+            var personalChat = await response.Content.ReadFromJsonAsync<PersonalChatModel>();
+            ArgumentNullException.ThrowIfNull(personalChat, nameof(personalChat));
 
-            await Clients.Group(chatId.ToString()).SendAsync("ReceiveUnreadMessage", chatId, appUserId, messagesCount.Count);
+            var count = personalChat.InitiatorId == appUserId ? personalChat.InitiatorUnreadMessages : personalChat.CompanionUnreadMessages;
+
+            await Clients.Group(chatId.ToString()).SendAsync("ReceiveUnreadMessage", chatId, appUserId, count);
         }
         catch (ArgumentNullException ex)
         {
