@@ -2,6 +2,7 @@ import { faCircle, faCircleUp, faClock, faCloudArrowUp, faEye, faFaceMeh, faUpRi
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useChatHub } from '../../../context/ChatHubProvider';
 import { DefaultChatMessageProps } from '../../../types/components/communication/chats/DefaultChatMessageProps';
 import ChatMessageMenu from './ChatMessageMenu';
 import ChatMessageTitle from './ChatMessageTitle';
@@ -14,8 +15,10 @@ const chatStatus = {
     read: 2
 };
 
-const DefaultChatMessage: React.FC<DefaultChatMessageProps> = ({ me, meInChatId, reviewerId, messageOwnerId, message, updateMessageAsync, chatMessagesHubConnection, subscribeToMessageHasBeenRead }) => {
+const DefaultChatMessage: React.FC<DefaultChatMessageProps> = ({ me, meInChatId, reviewerId, messageOwnerId, message, updateMessageAsync }) => {
     const { t } = useTranslation("communication/chats/chatMessage");
+
+    const chatHub = useChatHub();
 
     const [targetMessage, setTargetMessage] = useState(message);
     const [openMessageMenu, setOpenMessageMenu] = useState(false);
@@ -24,7 +27,19 @@ const DefaultChatMessage: React.FC<DefaultChatMessageProps> = ({ me, meInChatId,
     const editMessageInput = useRef<HTMLInputElement | null>(null);
 
     useEffect(() => {
-        subscribeToMessageHasBeenRead(message.chatId, reviewerId);
+        if (!chatHub) {
+            return;
+        }
+
+        chatHub.subscribeToPersonalMessageHasBeenRead((chatId: number) => {
+            if (targetMessage.id !== chatId) {
+                return;
+            }
+
+            const updatedTargetMessage = Object.assign({}, targetMessage);
+            updatedTargetMessage.status = 2;
+            setTargetMessage(updatedTargetMessage);
+        });
     }, []);
 
     useEffect(() => {
@@ -51,16 +66,12 @@ const DefaultChatMessage: React.FC<DefaultChatMessageProps> = ({ me, meInChatId,
         await updateMessageAsync(updateForMessage);
     }
 
-    const updateMessageStatusAsync = async () => {
-        if (reviewerId === messageOwnerId || targetMessage.status === chatStatus["read"]) {
+    const messageHasBeenReadHandle = async () => {
+        if (!chatHub || reviewerId === messageOwnerId || targetMessage.status === chatStatus["read"]) {
             return;
         }
 
-        await chatMessagesHubConnection?.invoke("SendMessageHasBeenRead", message.id, reviewerId);
-
-        const updatedChat = Object.assign({}, targetMessage);
-        updatedChat.status = 2;
-        setTargetMessage(updatedChat);
+        await chatHub.personalChatMessagesHubConnection?.invoke("SendMessageHasBeenRead", message.id, reviewerId);
     }
 
     const handleOpenMessageMenu = () => {
@@ -134,7 +145,7 @@ const DefaultChatMessage: React.FC<DefaultChatMessageProps> = ({ me, meInChatId,
                     <div className={`text-of-message${targetMessage.status !== chatStatus["read"] ? "__unread" : "__read"} link 
                             ${message.markedType === 1 ? 'not-relevant' : message.markedType === 2 ? 'with-emotions' : ''}
                             ${openMessageMenu ? 'menu' : ''} `}
-                            onMouseOver={updateMessageStatusAsync}>
+                            onMouseOver={messageHasBeenReadHandle}>
                         <div className="content" onClick={handleOpenMessageMenu}>{message?.message}</div>
                         {message?.message.startsWith("http") &&
                             <FontAwesomeIcon

@@ -9,6 +9,4 @@ export interface ChatMessageProps {
     messageOwnerId: string;
     message: PersonalChatMessage | GroupChatMessage;
     updateMessageAsync(message: PersonalChatMessage | GroupChatMessage): Promise<void>;
-    chatMessagesHubConnection: any;
-    subscribeToMessageHasBeenRead: any;
 }

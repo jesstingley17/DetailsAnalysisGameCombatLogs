@@ -1,5 +1,6 @@
 ﻿using CombatAnalysis.ChatApi.Consts;
 using CombatAnalysis.ChatApi.Enums;
+using CombatAnalysis.ChatApi.Interfaces;
 using CombatAnalysis.ChatApi.Kafka.Actions;
 using CombatAnalysis.ChatBL.DTO;
 using CombatAnalysis.ChatBL.Interfaces;
@@ -21,18 +22,27 @@ public class PersonalChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, 
         {
             using var scope = _serviceScopeFactory.CreateScope();
             var chatMessageCountService = scope.ServiceProvider.GetService<IService<PersonalChatDto, int>>();
-            ArgumentNullException.ThrowIfNull(chatMessageCountService);
+            ArgumentNullException.ThrowIfNull(chatMessageCountService, nameof(chatMessageCountService));
+
+            var chatHubHelper = scope.ServiceProvider.GetService<IChatHubHelper>();
+            ArgumentNullException.ThrowIfNull(chatHubHelper, nameof(chatHubHelper));
 
             var chatAction = kafkaData.Message.Value.Deserialize<PersonalChatMessageAction>();
-            ArgumentNullException.ThrowIfNull(chatAction);
+            ArgumentNullException.ThrowIfNull(chatAction, nameof(chatAction));
+
+            var personalChat = await chatMessageCountService.GetByIdAsync(chatAction.ChatId);
+            ArgumentNullException.ThrowIfNull(personalChat);
+
+            await chatHubHelper.ConnectToUnreadMessageHubAsync("https://localhost:7026/personalChatUnreadMessageHub", chatAction.RefreshToken, chatAction.AccessToken);
+            await chatHubHelper.JoinChatRoomAsync(personalChat.Id);
 
             if (chatAction.State == (int)KafkaActionState.Created)
             {
-                await IncreaseCountAsync(chatAction, chatMessageCountService);
+                await IncreaseCountAsync(chatHubHelper, personalChat, chatAction, chatMessageCountService);
             }
             else if (chatAction.State == (int)KafkaActionState.Read)
             {
-                await DecreaseCountAsync(chatAction, chatMessageCountService);
+                await DecreaseCountAsync(chatHubHelper, personalChat, chatAction, chatMessageCountService);
             }
         }
         catch (ArgumentNullException ex)
@@ -49,11 +59,8 @@ public class PersonalChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, 
         }
     }
 
-    private static async Task IncreaseCountAsync(PersonalChatMessageAction chatAction, IService<PersonalChatDto, int> chatMessageCountService)
+    private static async Task IncreaseCountAsync(IChatHubHelper chatHubHelper, PersonalChatDto personalChat, PersonalChatMessageAction chatAction, IService<PersonalChatDto, int> chatMessageCountService)
     {
-        var personalChat = await chatMessageCountService.GetByIdAsync(chatAction.ChatId);
-        ArgumentNullException.ThrowIfNull(personalChat);
-
         if (chatAction.AppUserId == personalChat.CompanionId)
         {
             personalChat.InitiatorUnreadMessages++;
@@ -65,12 +72,12 @@ public class PersonalChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, 
 
         var affectedRows = await chatMessageCountService.UpdateAsync(personalChat);
         ArgumentOutOfRangeException.ThrowIfLessThan(affectedRows, 1, nameof(affectedRows));
-    }
-    private static async Task DecreaseCountAsync(PersonalChatMessageAction chatAction, IService<PersonalChatDto, int> chatMessageCountService)
-    {
-        var personalChat = await chatMessageCountService.GetByIdAsync(chatAction.ChatId);
-        ArgumentNullException.ThrowIfNull(personalChat);
 
+        await chatHubHelper.RequestUnreadMessagesAsync(personalChat.Id, chatAction.AppUserId == personalChat.CompanionId ? personalChat.InitiatorId : personalChat.CompanionId);
+    }
+
+    private async Task DecreaseCountAsync(IChatHubHelper chatHubHelper, PersonalChatDto personalChat, PersonalChatMessageAction chatAction, IService<PersonalChatDto, int> chatMessageCountService)
+    {
         if (chatAction.AppUserId == personalChat.CompanionId)
         {
             personalChat.CompanionUnreadMessages--;
@@ -80,7 +87,9 @@ public class PersonalChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, 
             personalChat.InitiatorUnreadMessages--;
         }
 
-        var affectedRows =await chatMessageCountService.UpdateAsync(personalChat);
+        var affectedRows = await chatMessageCountService.UpdateAsync(personalChat);
         ArgumentOutOfRangeException.ThrowIfLessThan(affectedRows, 1, nameof(affectedRows));
+
+        await chatHubHelper.RequestUnreadMessagesAsync(personalChat.Id, chatAction.AppUserId == personalChat.CompanionId ? personalChat.CompanionId : personalChat.InitiatorId);
     }
 }

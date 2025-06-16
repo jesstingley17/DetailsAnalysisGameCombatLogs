@@ -17,7 +17,7 @@ import '../../../../styles/communication/chats/groupChat.scss';
 const GroupChat: React.FC<GroupChatProps> = ({ me, chat, setSelectedChat }) => {
     const { t } = useTranslation("communication/chats/groupChat");
 
-    const { groupChatMessagesHubConnection, connectToGroupChatMessagesAsync, subscribeToGroupChatMessages, subscribeGroupChatUser, subscribeToGroupMessageHasBeenRead } = useChatHub();
+    const chatHub = useChatHub();
 
     const [settingsIsShow, setSettingsIsShow] = useState(false);
     const [groupChatUsersId, setGroupChatUsersId] = useState<string[]>([]);
@@ -35,24 +35,28 @@ const GroupChat: React.FC<GroupChatProps> = ({ me, chat, setSelectedChat }) => {
     const [updateGroupChatMessage] = useUpdateGroupChatMessageAsyncMutation();
 
     useEffect(() => {
+        if (!chatHub) {
+            return;
+        }
+
         const connectToGroupChatMessages = async () => {
-            await connectToGroupChatMessagesAsync(chat.id);
+            await chatHub.connectToGroupChatMessagesAsync(chat.id);
         }
 
         connectToGroupChatMessages();
     }, []);
 
     useEffect(() => {
-        if (!groupChatMessagesHubConnection) {
+        if (!chatHub || !chatHub.groupChatMessagesHubConnection) {
             return;
         }
 
-        subscribeGroupChatUser();
+        chatHub.subscribeGroupChatUser({});
 
-        subscribeToGroupChatMessages((message: GroupChatMessageModel) => {
+        chatHub.subscribeToGroupChatMessages((message: GroupChatMessageModel) => {
             setCurrentMessages(prevMessages => [...prevMessages, message]);
         });
-    }, [groupChatMessagesHubConnection]);
+    }, [chatHub?.groupChatMessagesHubConnection]);
 
     useEffect(() => {
         if (!groupChatData.messages) {
@@ -179,8 +183,8 @@ const GroupChat: React.FC<GroupChatProps> = ({ me, chat, setSelectedChat }) => {
                                 messageOwnerId={message.groupChatUserId}
                                 message={message}
                                 updateMessageAsync={updateMessageAsync}
-                                chatMessagesHubConnection={groupChatMessagesHubConnection}
-                                subscribeToMessageHasBeenRead={subscribeToGroupMessageHasBeenRead}
+                                chatMessagesHubConnection={chatHub?.groupChatMessagesHubConnection}
+                                subscribeToMessageHasBeenRead={chatHub?.subscribeToGroupMessageHasBeenRead}
                             />
                         </li>
                     ))}

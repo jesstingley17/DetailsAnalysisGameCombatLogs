@@ -10,21 +10,21 @@ import GroupChatListItem from './GroupChatListItem';
 const GroupChatList: React.FC<GroupChatListProps> = ({ meId, t, selectedChat, setSelectedChat, chatsHidden, toggleChatsHidden, setShowCreateGroupChat }) => {
     const { data, isLoading } = useFindGroupChatUserByUserIdQuery(meId);
 
-    const { connectToGroupChatUnreadMessagesAsync, subscribeToUnreadGroupMessagesUpdated, subscribeToGroupChat } = useChatHub();
+    const chatHub = useChatHub();
 
     const [meInGroupChats, setMeInGroupChats] = useState<GroupChatUser[]>([]);
 
     useEffect(() => {
-        if (!data) {
+        if (!data || !chatHub) {
             return;
         }
 
         setMeInGroupChats(data);
 
         const connectToPersonalChatUnreadMessages = async () => {
-            await connectToGroupChatUnreadMessagesAsync(data);
+            await chatHub.connectToGroupChatUnreadMessagesAsync(data);
 
-            subscribeToGroupChat((groupChatUser: GroupChatUser) => {
+            chatHub.subscribeToGroupChat((groupChatUser: GroupChatUser) => {
                 setMeInGroupChats(prev => [...prev, groupChatUser]);
             });
         }
@@ -32,7 +32,7 @@ const GroupChatList: React.FC<GroupChatListProps> = ({ meId, t, selectedChat, se
         connectToPersonalChatUnreadMessages();
     }, [data]);
 
-    if (isLoading) {
+    if (isLoading || !chatHub) {
         return (<div>Loading...</div>);
     }
 
@@ -60,7 +60,7 @@ const GroupChatList: React.FC<GroupChatListProps> = ({ meId, t, selectedChat, se
                             <GroupChatListItem
                                 meInChat={meInChat}
                                 setSelectedGroupChat={setSelectedChat}
-                                subscribeToUnreadGroupMessagesUpdated={subscribeToUnreadGroupMessagesUpdated}
+                                subscribeToUnreadGroupMessagesUpdated={chatHub.subscribeToUnreadGroupMessagesUpdated}
                             />
                         </li>
                     ))

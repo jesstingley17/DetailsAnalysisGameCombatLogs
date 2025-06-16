@@ -1,6 +1,7 @@
 using AutoMapper;
 using CombatAnalysis.ChatApi.Consts;
 using CombatAnalysis.ChatApi.Enums;
+using CombatAnalysis.ChatApi.Helpers;
 using CombatAnalysis.ChatApi.Interfaces;
 using CombatAnalysis.ChatApi.Kafka;
 using CombatAnalysis.ChatApi.Mapping;
@@ -67,6 +68,7 @@ builder.Services.AddAuthorization(options =>
 });
 
 builder.Services.AddSingleton<IKafkaProducerService<string, string>, KafkaProducer<string, string>>();
+builder.Services.AddScoped<IChatHubHelper, ChatHubHelper>();
 builder.Services.AddHostedService<PersonalChatMessageConsumer>();
 builder.Services.AddHostedService<GroupChatConsumer>();
 builder.Services.AddHostedService<GroupChatMessageConsumer>();

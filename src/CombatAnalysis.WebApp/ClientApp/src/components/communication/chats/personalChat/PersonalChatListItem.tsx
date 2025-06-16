@@ -8,7 +8,7 @@ const PersonalChatListItem: React.FC<PersonalChatListItemProps> = ({ chat, setSe
     const { data: companion, isLoading } = useGetUserByIdQuery(companionId);
 
     useEffect(() => {
-        subscribeToUnreadPersonalMessagesUpdated(meId, (targetChatId: number, targetMeInChatId: string, count: number) => {
+        subscribeToUnreadPersonalMessagesUpdated((targetChatId: number, targetMeInChatId: string, count: number) => {
             if (targetChatId === chat?.id && targetMeInChatId === meId) {
                 setUnreadMessageCount(count);
             }

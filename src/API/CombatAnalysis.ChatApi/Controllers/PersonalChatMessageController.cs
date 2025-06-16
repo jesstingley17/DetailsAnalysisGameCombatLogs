@@ -1,14 +1,9 @@
 ﻿using AutoMapper;
-using CombatAnalysis.ChatApi.Consts;
-using CombatAnalysis.ChatApi.Enums;
-using CombatAnalysis.ChatApi.Interfaces;
-using CombatAnalysis.ChatApi.Kafka.Actions;
 using CombatAnalysis.ChatApi.Models;
 using CombatAnalysis.ChatBL.DTO;
 using CombatAnalysis.ChatBL.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
 
 namespace CombatAnalysis.ChatApi.Controllers;
 
@@ -16,14 +11,12 @@ namespace CombatAnalysis.ChatApi.Controllers;
 [ApiController]
 [Authorize]
 public class PersonalChatMessageController(IService<PersonalChatDto, int> chatService, IChatMessageService<PersonalChatMessageDto, int> chatMessageService,
-    IMapper mapper, ILogger<PersonalChatMessageController> logger, IChatTransactionService chatTransactionService, IKafkaProducerService<string, string> kafkaProducer) : ControllerBase
+    IMapper mapper, ILogger<PersonalChatMessageController> logger, IChatTransactionService chatTransactionService) : ControllerBase
 {
-    private readonly IService<PersonalChatDto, int> _chatService = chatService;
     private readonly IChatMessageService<PersonalChatMessageDto, int> _chatMessageService = chatMessageService;
     private readonly IMapper _mapper = mapper;
     private readonly ILogger<PersonalChatMessageController> _logger = logger;
     private readonly IChatTransactionService _chatTransactionService = chatTransactionService;
-    private readonly IKafkaProducerService<string, string> _kafkaProducer = kafkaProducer;
 
     [HttpGet("count/{chatId}")]
     public async Task<IActionResult> Count(int chatId)
@@ -76,22 +69,6 @@ public class PersonalChatMessageController(IService<PersonalChatDto, int> chatSe
 
             var map = _mapper.Map<PersonalChatMessageDto>(chatMessage);
             var createdPersonalChatMessage = await _chatMessageService.CreateAsync(map);
-
-            var chat = await _chatService.GetByIdAsync(createdPersonalChatMessage.ChatId);
-
-            var companionId = chatMessage.AppUserId == chat.CompanionId
-                ? chat.InitiatorId
-                : chat.CompanionId;
-
-            var chatAction = JsonSerializer.Serialize(new PersonalChatMessageAction 
-            {
-                ChatId = chatMessage.ChatId, 
-                AppUserId = chatMessage.AppUserId, 
-                CompanionId = companionId,
-                State = (int)KafkaActionState.Created,
-                When = DateTime.UtcNow.ToString(),
-            });
-            await _kafkaProducer.ProduceAsync(KafkaTopics.PersonalChatMessage, createdPersonalChatMessage.Id.ToString(), chatAction);
 
             return Ok(createdPersonalChatMessage);
         }

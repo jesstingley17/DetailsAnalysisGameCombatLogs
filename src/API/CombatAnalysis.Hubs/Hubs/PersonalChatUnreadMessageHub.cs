@@ -5,16 +5,10 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace CombatAnalysis.Hubs.Hubs;
 
-public class PersonalChatUnreadMessageHub : Hub
+public class PersonalChatUnreadMessageHub(IHttpClientHelper httpClient, ILogger<PersonalChatUnreadMessageHub> logger) : Hub
 {
-    private readonly IHttpClientHelper _httpClient;
-    private readonly ILogger<PersonalChatUnreadMessageHub> _logger;
-
-    public PersonalChatUnreadMessageHub(IHttpClientHelper httpClient, ILogger<PersonalChatUnreadMessageHub> logger)
-    {
-        _httpClient = httpClient;
-        _logger = logger;
-    }
+    private readonly IHttpClientHelper _httpClient = httpClient;
+    private readonly ILogger<PersonalChatUnreadMessageHub> _logger = logger;
 
     public async Task JoinRoom(int chatId)
     {
@@ -34,18 +28,6 @@ public class PersonalChatUnreadMessageHub : Hub
         catch (ArgumentNullException ex)
         {
             _logger.LogError(ex, ex.Message);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
-        }
-    }
-
-    public async Task SendUnreadMessageUpdated(int chatId)
-    {
-        try
-        {
-            await Clients.OthersInGroup(chatId.ToString()).SendAsync("ReceiveUnreadMessageUpdated", chatId);
         }
         catch (Exception ex)
         {

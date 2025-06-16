@@ -1,30 +1,25 @@
-﻿using CombatAnalysis.Hubs.Enums;
+﻿using CombatAnalysis.Hubs.Consts;
+using CombatAnalysis.Hubs.Enums;
 using CombatAnalysis.Hubs.Interfaces;
+using CombatAnalysis.Hubs.Kafka.Actions;
 using CombatAnalysis.Hubs.Models;
 using Microsoft.AspNetCore.SignalR;
+using System.Text.Json;
 
 namespace CombatAnalysis.Hubs.Hubs;
 
-public class PersonalChatMessagesHub : Hub
+public class PersonalChatMessagesHub(IHttpClientHelper httpClient, ILogger<PersonalChatMessagesHub> logger, IKafkaProducerService<string, string> kafkaProducer) : Hub
 {
-    private readonly IHttpClientHelper _httpClient;
-    private readonly ILogger<PersonalChatMessagesHub> _logger;
-
-    public PersonalChatMessagesHub(IHttpClientHelper httpClient, ILogger<PersonalChatMessagesHub> logger)
-    {
-        _httpClient = httpClient;
-        _logger = logger;
-    }
+    private readonly IHttpClientHelper _httpClient = httpClient;
+    private readonly ILogger<PersonalChatMessagesHub> _logger = logger;
+    private readonly IKafkaProducerService<string, string> _kafkaProducer = kafkaProducer;
 
     public async Task JoinRoom(int chatId)
     {
         try
         {
             var context = Context.GetHttpContext();
-            if (context == null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
+            ArgumentNullException.ThrowIfNull(context, nameof(context));
 
             if (context.Request.Cookies.TryGetValue(nameof(AuthenticationCookie.RefreshToken), out var refreshToken))
             {
@@ -59,12 +54,18 @@ public class PersonalChatMessagesHub : Hub
             response.EnsureSuccessStatusCode();
 
             var createdMessage = await response.Content.ReadFromJsonAsync<PersonalChatMessageModel>();
-            if (createdMessage == null)
-            {
-                throw new ArgumentNullException(nameof(createdMessage));
-            }
+            ArgumentNullException.ThrowIfNull(createdMessage, nameof(createdMessage));
 
-            await Clients.Caller.SendAsync("ReceiveMessageDelivered");
+            var chatAction = JsonSerializer.Serialize(new PersonalChatMessageAction
+            {
+                ChatId = createdMessage.ChatId,
+                AppUserId = appUserId,
+                State = (int)KafkaActionState.Created,
+                When = DateTime.UtcNow.ToString(),
+                RefreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty,
+                AccessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)] ?? string.Empty
+            });
+            await _kafkaProducer.ProduceAsync(KafkaTopics.PersonalChatMessage, createdMessage.Id.ToString(), chatAction);
 
             await Clients.Group(chatId.ToString()).SendAsync("ReceiveMessage", createdMessage);
         }
@@ -93,20 +94,31 @@ public class PersonalChatMessagesHub : Hub
             var response = await _httpClient.GetAsync($"PersonalChatMessage/{chatMessageId}");
             response.EnsureSuccessStatusCode();
 
-            var messageModel = await response.Content.ReadFromJsonAsync<PersonalChatMessageModel>();
-            ArgumentNullException.ThrowIfNull(messageModel, nameof(messageModel));
+            var chatMessage = await response.Content.ReadFromJsonAsync<PersonalChatMessageModel>();
+            ArgumentNullException.ThrowIfNull(chatMessage, nameof(chatMessage));
 
-            if (messageModel.Status == 2)
+            if (chatMessage.Status == 2)
             {
                 return;
             }
 
-            messageModel.Status = 2;
+            chatMessage.Status = 2;
 
-            response = await _httpClient.PutAsync("PersonalChatMessage", JsonContent.Create(messageModel));
+            response = await _httpClient.PutAsync("PersonalChatMessage", JsonContent.Create(chatMessage));
             response.EnsureSuccessStatusCode();
 
-            await Clients.Caller.SendAsync("ReceiveMessageHasBeenRead");
+            var chatAction = JsonSerializer.Serialize(new PersonalChatMessageAction
+            {
+                ChatId = chatMessage.ChatId,
+                AppUserId = meId,
+                State = (int)KafkaActionState.Read,
+                When = DateTime.UtcNow.ToString(),
+                RefreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty,
+                AccessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)] ?? string.Empty
+            });
+            await _kafkaProducer.ProduceAsync(KafkaTopics.PersonalChatMessage, chatMessage.Id.ToString(), chatAction);
+
+            await Clients.Caller.SendAsync("ReceiveMessageHasBeenRead", chatMessage.Id);
         }
         catch (ArgumentNullException ex)
         {

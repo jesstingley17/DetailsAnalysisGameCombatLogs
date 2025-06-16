@@ -7,5 +7,5 @@ export interface PersonalChatListItemProps {
     setSelectedChat(value: SetStateAction<SelectedChat>): void;
     companionId: string;
     meId: string;
-    subscribeToUnreadPersonalMessagesUpdated(meId: string, callback: any): void;
+    subscribeToUnreadPersonalMessagesUpdated(callback: any): void;
 }

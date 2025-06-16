@@ -1,16 +1,16 @@
 ﻿import { memo, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useChatHub } from '../../../../context/ChatHubProvider';
+import {
+    useGetPersonalChatMessageCountByChatIdQuery,
+    useUpdatePersonalChatMessageAsyncMutation
+} from '../../../../store/api/chat/PersonalChatMessage.api';
 import { useGetMessagesByPersonalChatIdQuery, useLazyGetMoreMessagesByPersonalChatIdQuery } from '../../../../store/api/core/Chat.api';
 import { useGetUserByIdQuery } from '../../../../store/api/user/Account.api';
 import { GroupChatMessage } from '../../../../types/GroupChatMessage';
 import { PersonalChatMessage } from '../../../../types/PersonalChatMessage';
 import { PersonalChatProps } from '../../../../types/components/communication/chats/PersonalChatProps';
 import Loading from '../../../Loading';
-import {
-    useGetPersonalChatMessageCountByChatIdQuery,
-    useUpdatePersonalChatMessageAsyncMutation
-} from '../../../../store/api/chat/PersonalChatMessage.api';
 import ChatMessage from '../ChatMessage';
 import MessageInput from '../MessageInput';
 import PersonalChatTitle from './PersonalChatTitle';
@@ -20,7 +20,7 @@ import '../../../../styles/communication/chats/personalChat.scss';
 const PersonalChat: React.FC<PersonalChatProps> = ({ me, chat, setSelectedChat, companionId }) => {
     const { t } = useTranslation("communication/chats/personalChat");
 
-    const { personalChatMessagesHubConnection, connectToPersonalChatMessagesAsync, subscribeToPersonalChatMessages, subscribeToPersonalMessageHasBeenRead } = useChatHub();
+    const chatHub = useChatHub();
 
     const chatContainerRef = useRef<HTMLUListElement | null>(null);
     const pageSizeRef = useRef<any>(process.env.REACT_APP_CHAT_PAGE_SIZE);
@@ -41,22 +41,26 @@ const PersonalChat: React.FC<PersonalChatProps> = ({ me, chat, setSelectedChat, 
     const [updateChatMessage] = useUpdatePersonalChatMessageAsyncMutation();
 
     useEffect(() => {
+        if (!chatHub) {
+            return;
+        }
+
         const connectToPersonalChatMessages = async () => {
-            await connectToPersonalChatMessagesAsync(chat.id);
+            await chatHub.connectToPersonalChatMessagesAsync(chat.id);
         }
 
         connectToPersonalChatMessages();
     }, []);
 
     useEffect(() => {
-        if (!personalChatMessagesHubConnection) {
+        if (!chatHub || !chatHub.personalChatMessagesHubConnection) {
             return;
         }
 
-        subscribeToPersonalChatMessages((message: PersonalChatMessage) => {
+        chatHub.subscribeToPersonalChatMessages((message: PersonalChatMessage) => {
             setCurrentMessages(prevMessages => [...prevMessages, message]);
         });
-    }, [personalChatMessagesHubConnection]);
+    }, [chatHub?.personalChatMessagesHubConnection]);
 
     useEffect(() => {
         if (!messages) {
@@ -154,7 +158,7 @@ const PersonalChat: React.FC<PersonalChatProps> = ({ me, chat, setSelectedChat, 
         saveScrollState();
     }
 
-    if (isLoading || companionIsLoading || countIsLoading) {
+    if (!chatHub || isLoading || companionIsLoading || countIsLoading) {
         return (
             <div className="chats__selected-chat_loading">
                 <Loading />
@@ -184,8 +188,6 @@ const PersonalChat: React.FC<PersonalChatProps> = ({ me, chat, setSelectedChat, 
                                     messageOwnerId={message.appUserId}
                                     message={message}
                                     updateMessageAsync={updateMessageAsync}
-                                    chatMessagesHubConnection={personalChatMessagesHubConnection}
-                                    subscribeToMessageHasBeenRead={subscribeToPersonalMessageHasBeenRead}
                                 />
                             </li>
                     ))}

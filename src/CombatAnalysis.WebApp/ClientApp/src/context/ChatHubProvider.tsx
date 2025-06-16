@@ -1,15 +1,19 @@
 ﻿import * as signalR from '@microsoft/signalr';
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { AppUser } from '../types/AppUser';
+import { GroupChatUser } from '../types/GroupChatUser';
+import { ChatHubContextType } from '../types/context/ChatHubType';
+import { createContext } from 'react';
 
-const ChatHubContext = createContext();
+const ChatHubContext = createContext<ChatHubContextType | null>(null);
 
 const messageType = {
     default: 0,
     system: 1
 };
 
-export const ChatHubProvider = ({ children }) => {
+export const ChatHubProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const personalChatHubURL = `${process.env.REACT_APP_HUBS_URL}${process.env.REACT_APP_HUBS_PERSONAL_CHAT_ADDRESS}`;
     const personalChatMessagesHubURL = `${process.env.REACT_APP_HUBS_URL}${process.env.REACT_APP_HUBS_PERSONAL_CHAT_MESSAGES_ADDRESS}`;
     const personalChatUnreadMessagesHubURL = `${process.env.REACT_APP_HUBS_URL}${process.env.REACT_APP_HUBS_PERSONAL_CHAT_UNREAD_MESSAGES_ADDRESS}`;
@@ -17,14 +21,14 @@ export const ChatHubProvider = ({ children }) => {
     const groupChatMessagesHubURL = `${process.env.REACT_APP_HUBS_URL}${process.env.REACT_APP_HUBS_GROUP_CHAT_MESSAGES_ADDRESS}`;
     const groupChatUnreadMessagesHubURL = `${process.env.REACT_APP_HUBS_URL}${process.env.REACT_APP_HUBS_GROUP_CHAT_UNREAD_MESSAGES_ADDRESS}`;
 
-    const me = useSelector((state) => state.user.value);
+    const me = useSelector((state: any) => state.user.value);
 
-    const [personalChatHubConnection, setPersonalChatHubConnection] = useState(null);
-    const [personalChatMessagesHubConnection, setPersonalChatMessagesHubConnection] = useState(null);
-    const [personalChatUnreadMessagesHubConnection, setPersonalChatUnreadMessagesHubConnection] = useState(null);
-    const [groupChatHubConnection, setGroupChatHubConnection] = useState(null);
-    const [groupChatMessagesHubConnection, setGroupChatMessagesHubConnection] = useState(null);
-    const [groupChatUnreadMessagesHubConnection, setGroupChatUnreadMessagesHubConnection] = useState(null);
+    const [personalChatHubConnection, setPersonalChatHubConnection] = useState<signalR.HubConnection | null>(null);
+    const [personalChatMessagesHubConnection, setPersonalChatMessagesHubConnection] = useState<signalR.HubConnection | null>(null);
+    const [personalChatUnreadMessagesHubConnection, setPersonalChatUnreadMessagesHubConnection] = useState<signalR.HubConnection | null>(null);
+    const [groupChatHubConnection, setGroupChatHubConnection] = useState<signalR.HubConnection | null>(null);
+    const [groupChatMessagesHubConnection, setGroupChatMessagesHubConnection] = useState<signalR.HubConnection | null>(null);
+    const [groupChatUnreadMessagesHubConnection, setGroupChatUnreadMessagesHubConnection] = useState<signalR.HubConnection | null>(null);
 
     useEffect(() => {
         if (!me) {
@@ -52,14 +56,16 @@ export const ChatHubProvider = ({ children }) => {
         }
     }, [me]);
 
-    const createHubConnection = (url) => {
-        return new signalR.HubConnectionBuilder()
+    const createHubConnection = (url: string): signalR.HubConnection => {
+        const hubConnection = new signalR.HubConnectionBuilder()
             .withUrl(url, {
                 withCredentials: true,
-                transports: ['websocket', 'polling'],
+                transport: signalR.HttpTransportType.WebSockets | signalR.HttpTransportType.LongPolling,
             })
             .withAutomaticReconnect()
             .build();
+
+        return hubConnection;
     }
 
     const connectToPersonalChatAsync = async () => {
@@ -79,7 +85,7 @@ export const ChatHubProvider = ({ children }) => {
         }
     }
 
-    const connectToPersonalChatMessagesAsync = async (chatId) => {
+    const connectToPersonalChatMessagesAsync = async (chatId: number) => {
         try {
             if (personalChatMessagesHubConnection) {
                 return;
@@ -96,7 +102,7 @@ export const ChatHubProvider = ({ children }) => {
         }
     }
 
-    const connectToPersonalChatUnreadMessagesAsync = async (meInChats) => {
+    const connectToPersonalChatUnreadMessagesAsync = async (meInChats: AppUser[]) => {
         try {
             if (personalChatUnreadMessagesHubConnection) {
                 return;
@@ -132,7 +138,7 @@ export const ChatHubProvider = ({ children }) => {
         }
     }
 
-    const connectToGroupChatMessagesAsync = async (chatId) => {
+    const connectToGroupChatMessagesAsync = async (chatId: number) => {
         try {
             if (groupChatMessagesHubConnection) {
                 return;
@@ -149,7 +155,7 @@ export const ChatHubProvider = ({ children }) => {
         }
     }
 
-    const connectToGroupChatUnreadMessagesAsync = async (meInChats) => {
+    const connectToGroupChatUnreadMessagesAsync = async (meInChats: GroupChatUser[]) => {
         try {
             if (groupChatUnreadMessagesHubConnection) {
                 return;
@@ -168,41 +174,31 @@ export const ChatHubProvider = ({ children }) => {
         }
     }
 
-    const subscribeToPersonalChat = (callback) => {
+    const subscribeToPersonalChat = (callback: any) => {
         personalChatHubConnection?.on("ReceivePersonalChat", (chat) => {
             callback(chat);
         });
     }
 
-    const subscribeToPersonalChatMessages = (callback) => {
+    const subscribeToPersonalChatMessages = (callback: any) => {
         personalChatMessagesHubConnection?.on("ReceiveMessage", (message) => {
             callback(message);
         });
     }
 
-    const subscribeToPersonalMessageHasBeenRead = (chatId, reviewerId) => {
-        personalChatMessagesHubConnection?.on("ReceiveMessageHasBeenRead", async () => {
-            await personalChatUnreadMessagesHubConnection?.invoke("RequestUnreadMessages", chatId, reviewerId);
+    const subscribeToPersonalMessageHasBeenRead = (callback: any = {}) => {
+        personalChatMessagesHubConnection?.on("ReceiveMessageHasBeenRead", async (chatId) => {
+            callback(chatId);
         });
     }
 
-    const subscribeToPersonalMessageDelivered = (chatId) => {
-        personalChatMessagesHubConnection?.on("ReceiveMessageDelivered", async () => {
-            await personalChatUnreadMessagesHubConnection?.invoke("SendUnreadMessageUpdated", chatId);
-        });
-    }
-
-    const subscribeToUnreadPersonalMessagesUpdated = (meId, callback) => {
-        personalChatUnreadMessagesHubConnection?.on("ReceiveUnreadMessageUpdated", async (chatId) => {
-            await personalChatUnreadMessagesHubConnection?.invoke("RequestUnreadMessages", chatId, meId);
-        });
-
+    const subscribeToUnreadPersonalMessagesUpdated = (callback: any) => {
         personalChatUnreadMessagesHubConnection?.on("ReceiveUnreadMessage", (targetChatId, targetMeInChatId, count) => {
             callback(targetChatId, targetMeInChatId, count);
         });
     }
 
-    const subscribeToGroupChat = (callback) => {
+    const subscribeToGroupChat = (callback: any) => {
         groupChatHubConnection?.on("ReceiveGroupChat", async (chatId, appUserId) => {
             await groupChatHubConnection?.invoke("RequestJoinedUser", chatId, appUserId);
         });
@@ -220,19 +216,19 @@ export const ChatHubProvider = ({ children }) => {
         });
     }
 
-    const subscribeToGroupChatMessages = (callback) => {
+    const subscribeToGroupChatMessages = (callback: any) => {
         groupChatMessagesHubConnection?.on("ReceiveMessage", (message) => {
             callback(message);
         });
     }
 
-    const subscribeToGroupMessageDelivered = (chatId) => {
+    const subscribeToGroupMessageDelivered = (chatId: number) => {
         groupChatMessagesHubConnection?.on("ReceiveMessageDelivered", async () => {
             await groupChatUnreadMessagesHubConnection?.invoke("SendUnreadMessageUpdated", chatId);
         });
     }
 
-    const subscribeToUnreadGroupMessagesUpdated = (meInChatId, callback) => {
+    const subscribeToUnreadGroupMessagesUpdated = (meInChatId: string, callback: any) => {
         groupChatUnreadMessagesHubConnection?.on("ReceiveUnreadMessageUpdated", async (chatId) => {
             await groupChatUnreadMessagesHubConnection?.invoke("RequestUnreadMessages", chatId, meInChatId);
         });
@@ -242,7 +238,7 @@ export const ChatHubProvider = ({ children }) => {
         });
     }
 
-    const subscribeToGroupMessageHasBeenRead = (chatId, reviewerId) => {
+    const subscribeToGroupMessageHasBeenRead = (chatId: number, reviewerId: string) => {
         groupChatMessagesHubConnection?.on("ReceiveMessageHasBeenRead", async () => {
             await groupChatUnreadMessagesHubConnection?.invoke("RequestUnreadMessages", chatId, reviewerId);
         });
@@ -252,7 +248,7 @@ export const ChatHubProvider = ({ children }) => {
         <ChatHubContext.Provider value={{
             personalChatHubConnection, personalChatMessagesHubConnection, personalChatUnreadMessagesHubConnection,
             connectToPersonalChatAsync, connectToPersonalChatMessagesAsync, connectToPersonalChatUnreadMessagesAsync,
-            subscribeToPersonalChat, subscribeToPersonalChatMessages, subscribeToPersonalMessageHasBeenRead, subscribeToPersonalMessageDelivered, subscribeToUnreadPersonalMessagesUpdated,
+            subscribeToPersonalChat, subscribeToPersonalChatMessages, subscribeToPersonalMessageHasBeenRead, subscribeToUnreadPersonalMessagesUpdated,
             subscribeToGroupChat, subscribeGroupChatUser, subscribeToGroupChatMessages, subscribeToGroupMessageHasBeenRead, subscribeToUnreadGroupMessagesUpdated, subscribeToGroupMessageDelivered,
             groupChatHubConnection, groupChatMessagesHubConnection, groupChatUnreadMessagesHubConnection,
             connectToGroupChatAsync, connectToGroupChatMessagesAsync, connectToGroupChatUnreadMessagesAsync

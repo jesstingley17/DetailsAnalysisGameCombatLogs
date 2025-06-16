@@ -5,11 +5,15 @@ import { GroupChatAddUserProps } from '../../../../types/components/communicatio
 import AddPeople from '../../../AddPeople';
 
 const GroupChatAddUser: React.FC<GroupChatAddUserProps> = ({ me, chatId, groupChatUsersId, setShowAddPeople, t }) => {
-    const { groupChatHubConnection } = useChatHub();
+    const chatHub = useChatHub();
 
     const [peopleToJoin, setPeopleToJoin] = useState<AppUser[]>([]);
 
     const createGroupChatUserAsync = async () => {
+        if (!chatHub || !chatHub.groupChatHubConnection) {
+            return;
+        }
+
         for (let i = 0; i < peopleToJoin.length; i++) {
             const newGroupChatUser = {
                 id: " ",
@@ -18,7 +22,7 @@ const GroupChatAddUser: React.FC<GroupChatAddUserProps> = ({ me, chatId, groupCh
                 chatId: chatId,
             };
 
-            await groupChatHubConnection.invoke("AddUserToChat", newGroupChatUser);
+            await chatHub.groupChatHubConnection.invoke("AddUserToChat", newGroupChatUser);
         }
 
         setPeopleToJoin([]);

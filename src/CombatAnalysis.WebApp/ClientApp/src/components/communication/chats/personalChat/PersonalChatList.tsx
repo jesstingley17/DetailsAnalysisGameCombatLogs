@@ -10,21 +10,21 @@ import PersonalChatListItem from './PersonalChatListItem';
 const PersonalChatList: React.FC<PersonalChatListProps> = ({ meId, t, selectedChat, setSelectedChat, chatsHidden, toggleChatsHidden }) => {
     const { data: personalChats, isLoading } = useGetByUserIdAsyncQuery(meId);
 
-    const { connectToPersonalChatUnreadMessagesAsync, subscribeToUnreadPersonalMessagesUpdated, subscribeToPersonalChat } = useChatHub();
+    const chatHub = useChatHub();
 
     const [chats, setChats] = useState<PersonalChat[]>([]);
 
     useEffect(() => {
-        if (!personalChats) {
+        if (!chatHub || !personalChats) {
             return;
         }
 
         setChats(personalChats);
 
         const connectToPersonalChatUnreadMessages = async () => {
-            await connectToPersonalChatUnreadMessagesAsync(personalChats);
+            await chatHub.connectToPersonalChatUnreadMessagesAsync(personalChats);
 
-            subscribeToPersonalChat((chat: PersonalChat) => {
+            chatHub.subscribeToPersonalChat((chat: PersonalChat) => {
                 setChats(prevChats => [...prevChats, chat]);
             });
         }
@@ -32,7 +32,7 @@ const PersonalChatList: React.FC<PersonalChatListProps> = ({ meId, t, selectedCh
         connectToPersonalChatUnreadMessages();
     }, [personalChats]);
 
-    if (isLoading) {
+    if (!chatHub || !chatHub.personalChatUnreadMessagesHubConnection || isLoading) {
         return (<div>Loading...</div>);
     }
 
@@ -58,7 +58,7 @@ const PersonalChatList: React.FC<PersonalChatListProps> = ({ meId, t, selectedCh
                                 setSelectedChat={setSelectedChat}
                                 companionId={chat.initiatorId === meId ? chat.companionId : chat.initiatorId}
                                 meId={meId}
-                                subscribeToUnreadPersonalMessagesUpdated={subscribeToUnreadPersonalMessagesUpdated}
+                                subscribeToUnreadPersonalMessagesUpdated={chatHub.subscribeToUnreadPersonalMessagesUpdated}
                             />
                         </li>
                     ))

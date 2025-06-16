@@ -20,7 +20,7 @@ const failedNotificationTimeout = 2000;
 const UserInformation: React.FC<UserInformationProps> = ({ me, person, closeUserInformation }) => {
     const { t } = useTranslation("communication/userInformation");
 
-    const { subscribeToPersonalChat, personalChatHubConnection } = useChatHub();
+    const chatHub = useChatHub();
 
     const navigate = useNavigate();
 
@@ -45,17 +45,21 @@ const UserInformation: React.FC<UserInformationProps> = ({ me, person, closeUser
     }
 
     const createChatAsync = async (targetUser: any) => {
+        if (!chatHub) {
+            return;
+        }
+
         const isExist = await checkExistOfChatsAsync(targetUser);
         if (isExist) {
             navigate("/chats");
             return;
         }
 
-        subscribeToPersonalChat(() => {
+        chatHub.subscribeToPersonalChat(() => {
             navigate("/chats");
         });
 
-        await personalChatHubConnection?.invoke("CreateChat", me?.id, targetUser.id);
+        await chatHub.personalChatHubConnection?.invoke("CreateChat", me?.id, targetUser.id);
     }
 
     const checkIfRequestExistAsync = async (targetUserId: string) => {

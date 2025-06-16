@@ -2,10 +2,13 @@ using CombatAnalysis.Hubs.Consts;
 using CombatAnalysis.Hubs.Helpers;
 using CombatAnalysis.Hubs.Hubs;
 using CombatAnalysis.Hubs.Interfaces;
+using CombatAnalysis.Hubs.Kafka;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.Configure<KafkaSettings>(builder.Configuration.GetSection("Kafka"));
 
 builder.Services.AddHttpContextAccessor();
 
@@ -44,6 +47,8 @@ builder.Services.AddAuthorization(options =>
         builder.RequireClaim("scope", "api1");
     });
 });
+
+builder.Services.AddSingleton<IKafkaProducerService<string, string>, KafkaProducer<string, string>>();
 
 var cors = new CORS();
 builder.Configuration.Bind("Cors", cors);

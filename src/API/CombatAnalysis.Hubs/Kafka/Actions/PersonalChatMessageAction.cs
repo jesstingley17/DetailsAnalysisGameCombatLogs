@@ -1,4 +1,4 @@
-﻿namespace CombatAnalysis.ChatApi.Kafka.Actions;
+﻿namespace CombatAnalysis.Hubs.Kafka.Actions;
 
 public class PersonalChatMessageAction
 {

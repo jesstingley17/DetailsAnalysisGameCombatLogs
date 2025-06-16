@@ -12,23 +12,24 @@ const chatType = {
 const emptyMessageNotificationTimeout = 4000;
 
 const MessageInput: React.FC<MessageInputProps> = ({ chat, meInChat, setAreLoadingOldMessages, targetChatType, t }) => {
-    const { personalChatMessagesHubConnection, groupChatMessagesHubConnection, subscribeToPersonalMessageDelivered, subscribeToGroupMessageDelivered } = useChatHub();
+    const chatHub = useChatHub();
 
     const messageInput = useRef<any>(null);
 
     const [isEmptyMessage, setIsEmptyMessage] = useState(false);
 
     useEffect(() => {
-        if (targetChatType === chatType["personal"]) {
-            subscribeToPersonalMessageDelivered(chat.id);
+        if (!chatHub) {
+            return;
         }
-        else {
-            subscribeToGroupMessageDelivered(chat.id);
+
+        if (targetChatType === chatType["group"]) {
+            chatHub.subscribeToGroupMessageDelivered(chat.id);
         }
     }, []);
 
     const handleSendMessageByKeyAsync = async (e: any) => {
-        if (e.code !== "Enter") {
+        if (!chatHub || e.code !== "Enter") {
             return;
         }
         else if (messageInput.current.value === "") {
@@ -40,16 +41,20 @@ const MessageInput: React.FC<MessageInputProps> = ({ chat, meInChat, setAreLoadi
         setAreLoadingOldMessages(false);
 
         if (targetChatType === chatType["personal"]) {
-            await personalChatMessagesHubConnection?.invoke("SendMessage", messageInput.current.value, chat.id, meInChat?.id, meInChat?.username);
+            await chatHub.personalChatMessagesHubConnection?.invoke("SendMessage", messageInput.current.value, chat.id, meInChat?.id, meInChat?.username);
         }
         else {
-            await groupChatMessagesHubConnection?.invoke("SendMessage", messageInput.current.value, chat.id, 0, meInChat?.id, meInChat?.username);
+            await chatHub.groupChatMessagesHubConnection?.invoke("SendMessage", messageInput.current.value, chat.id, 0, meInChat?.id, meInChat?.username);
         }
 
         messageInput.current.value = "";
     }
 
     const handleSendMessageAsync = async () => {
+        if (!chatHub) {
+            return;
+        }
+
         if (messageInput.current.value === "") {
             sentEmptyMessage();
 
@@ -59,10 +64,10 @@ const MessageInput: React.FC<MessageInputProps> = ({ chat, meInChat, setAreLoadi
         setAreLoadingOldMessages(false);
 
         if (targetChatType === chatType["personal"]) {
-            await personalChatMessagesHubConnection?.invoke("SendMessage", messageInput.current.value, chat.id, meInChat?.id, meInChat?.username);
+            await chatHub.personalChatMessagesHubConnection?.invoke("SendMessage", messageInput.current.value, chat.id, meInChat?.id, meInChat?.username);
         }
         else {
-            await groupChatMessagesHubConnection?.invoke("SendMessage", messageInput.current.value, chat.id, 0, meInChat?.id, meInChat?.username);
+            await chatHub.groupChatMessagesHubConnection?.invoke("SendMessage", messageInput.current.value, chat.id, 0, meInChat?.id, meInChat?.username);
         }
 
         messageInput.current.value = "";

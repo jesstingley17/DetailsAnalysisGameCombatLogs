@@ -17,8 +17,6 @@ const GroupChatMessage: React.FC<GroupChatMessageProps> = ({ me, reviewerId, mes
             messageOwnerId={messageOwnerId}
             message={message}
             updateMessageAsync={updateMessageAsync}
-            chatMessagesHubConnection={chatMessagesHubConnection}
-            subscribeToMessageHasBeenRead={subscribeToMessageHasBeenRead}
         />
     );
 }
