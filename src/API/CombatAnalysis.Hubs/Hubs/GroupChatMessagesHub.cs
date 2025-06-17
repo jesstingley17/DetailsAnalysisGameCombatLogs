@@ -1,21 +1,37 @@
-﻿using CombatAnalysis.Hubs.Enums;
+﻿using CombatAnalysis.Hubs.Consts;
+using CombatAnalysis.Hubs.Enums;
 using CombatAnalysis.Hubs.Interfaces;
+using CombatAnalysis.Hubs.Kafka.Actions;
 using CombatAnalysis.Hubs.Models;
 using Microsoft.AspNetCore.SignalR;
+using System.Text.Json;
 
 namespace CombatAnalysis.Hubs.Hubs;
 
-public class GroupChatMessagesHub(IHttpClientHelper httpClient, ILogger<GroupChatMessagesHub> logger) : Hub
+public class GroupChatMessagesHub(IHttpClientHelper httpClient, ILogger<GroupChatMessagesHub> logger, IKafkaProducerService<string, string> kafkaProducer) : Hub
 {
     private readonly IHttpClientHelper _httpClient = httpClient;
     private readonly ILogger<GroupChatMessagesHub> _logger = logger;
+    private readonly IKafkaProducerService<string, string> _kafkaProducer = kafkaProducer;
 
     public async Task JoinRoom(int chatId)
     {
-        var refreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty;
-        if (!string.IsNullOrEmpty(refreshToken))
+        try
         {
+            ArgumentOutOfRangeException.ThrowIfLessThan(chatId, 1, nameof(chatId));
+
+            var refreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty;
+            ArgumentNullException.ThrowIfNullOrEmpty(refreshToken, nameof(refreshToken));
+
             await Groups.AddToGroupAsync(Context.ConnectionId, chatId.ToString());
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
+        }
+        catch (ArgumentNullException ex)
+        {
+            _logger.LogError(ex, "Join chat to room failed: Parameter '{ParamName}' was null.", ex.ParamName);
         }
     }
 
@@ -23,41 +39,51 @@ public class GroupChatMessagesHub(IHttpClientHelper httpClient, ILogger<GroupCha
     {
         try
         {
-            var groupMessage = new GroupChatMessageModel
+            var chatMessage = new GroupChatMessageModel
             {
                 Username = username,
                 Message = message,
                 Time = TimeSpan.Parse($"{DateTimeOffset.UtcNow.Hour}:{DateTimeOffset.UtcNow.Minute}").ToString(),
                 Type = type,
                 ChatId = chatId,
-                GroupChatUserId = groupChatUserId
+                GroupChatUserId = groupChatUserId,
+                Status = type == (int)MessageType.Default ? 0 : 2,
             };
 
-            var response = await _httpClient.PostAsync("GroupChatMessage", JsonContent.Create(groupMessage));
+            var response = await _httpClient.PostAsync("GroupChatMessage", JsonContent.Create(chatMessage));
             response.EnsureSuccessStatusCode();
 
             var createdMessage = await response.Content.ReadFromJsonAsync<GroupChatMessageModel>();
-            ArgumentNullException.ThrowIfNull(createdMessage);
+            ArgumentNullException.ThrowIfNull(createdMessage, nameof(createdMessage));
 
-            await Clients.Caller.SendAsync("ReceiveMessageDelivered");
+            if (type == (int)MessageType.Default)
+            {
+                var chatAction = JsonSerializer.Serialize(new GroupChatMessageAction
+                {
+                    ChatId = createdMessage.ChatId,
+                    MessageId = createdMessage.Id,
+                    GroupChatUserId = chatMessage.GroupChatUserId,
+                    State = (int)KafkaActionState.Created,
+                    When = DateTime.UtcNow.ToString(),
+                    RefreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty,
+                    AccessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)] ?? string.Empty
+                });
+                await _kafkaProducer.ProduceAsync(KafkaTopics.GroupChatMessage, createdMessage.Id.ToString(), chatAction);
+            }
 
             await Clients.Group(chatId.ToString()).SendAsync("ReceiveMessage", createdMessage);
         }
         catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, ex.Message);
+            _logger.LogError(ex, "Send message failed: Parameter '{ParamName}' was null.", ex.ParamName);
         }
         catch (UnauthorizedAccessException ex)
         {
-            _logger.LogError(ex, ex.Message);
+            _logger.LogError(ex, "Access denied: user should be authorized.");
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogError(ex, ex.Message);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
+            _logger.LogError(ex, "Request unsuccessful. Status code: '{StatusCode}'", ex.StatusCode);
         }
     }
 
@@ -68,48 +94,60 @@ public class GroupChatMessagesHub(IHttpClientHelper httpClient, ILogger<GroupCha
             var response = await _httpClient.GetAsync($"GroupChatMessage/{chatMessageId}");
             response.EnsureSuccessStatusCode();
 
-            var messageModel = await response.Content.ReadFromJsonAsync<GroupChatMessageModel>();
-            if (messageModel == null)
-            {
-                throw new ArgumentNullException(nameof(messageModel));
-            }
+            var chatMessage = await response.Content.ReadFromJsonAsync<GroupChatMessageModel>();
+            ArgumentNullException.ThrowIfNull(chatMessage, nameof(chatMessage));
 
-            if (messageModel.Status == 2)
+            if (chatMessage.Status == 2)
             {
                 return;
             }
 
-            messageModel.Status = 2;
+            var chatAction = JsonSerializer.Serialize(new GroupChatMessageAction
+            {
+                ChatId = chatMessage.ChatId,
+                MessageId = chatMessageId,
+                GroupChatUserId = meInChatId,
+                State = (int)KafkaActionState.Read,
+                When = DateTime.UtcNow.ToString(),
+                RefreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty,
+                AccessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)] ?? string.Empty
+            });
+            await _kafkaProducer.ProduceAsync(KafkaTopics.GroupChatMessage, chatMessage.Id.ToString(), chatAction);
 
-            response = await _httpClient.PutAsync("GroupChatMessage", JsonContent.Create(messageModel));
-            response.EnsureSuccessStatusCode();
-
-            await Clients.Caller.SendAsync("ReceiveMessageHasBeenRead");
+            await Clients.Caller.SendAsync("ReceiveMessageHasBeenRead", chatMessage.Id);
         }
         catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, ex.Message);
+            _logger.LogError(ex, "Send message has been read failed: Parameter '{ParamName}' was null.", ex.ParamName);
         }
         catch (UnauthorizedAccessException ex)
         {
-            _logger.LogError(ex, ex.Message);
+            _logger.LogError(ex, "Access denied: user should be authorized.");
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogError(ex, ex.Message);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
+            _logger.LogError(ex, "Request unsuccessful. Status code: '{StatusCode}'", ex.StatusCode);
         }
     }
 
     public async Task LeaveFromRoom(int room)
     {
-        var refreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty;
-        if (!string.IsNullOrEmpty(refreshToken))
+        try
         {
+            ArgumentOutOfRangeException.ThrowIfLessThan(room, 1, nameof(room));
+
+            var refreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty;
+            ArgumentNullException.ThrowIfNullOrEmpty(refreshToken, nameof(refreshToken));
+
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, room.ToString());
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
+        }
+        catch (ArgumentNullException ex)
+        {
+            _logger.LogError(ex, "Leave from room failed: Parameter '{ParamName}' was null.", ex.ParamName);
         }
     }
 }

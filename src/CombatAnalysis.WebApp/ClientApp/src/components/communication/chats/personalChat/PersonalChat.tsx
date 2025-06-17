@@ -182,12 +182,15 @@ const PersonalChat: React.FC<PersonalChatProps> = ({ me, chat, setSelectedChat, 
                     {currentMessages?.map((message) => (
                             <li key={message.id}>
                                 <ChatMessage
+                                    chatType={0}
                                     me={me}
                                     meInChatId={me.id}
                                     reviewerId={me.id}
                                     messageOwnerId={message.appUserId}
                                     message={message}
                                     updateMessageAsync={updateMessageAsync}
+                                    hubConnection={chatHub.personalChatMessagesHubConnection}
+                                    subscribeToChatMessageHasBeenRead={chatHub.subscribeToPersonalMessageHasBeenRead}
                                 />
                             </li>
                     ))}

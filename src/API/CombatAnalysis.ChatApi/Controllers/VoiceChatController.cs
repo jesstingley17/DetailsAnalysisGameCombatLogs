@@ -10,81 +10,95 @@ namespace CombatAnalysis.ChatApi.Controllers;
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class VoiceChatController : ControllerBase
+public class VoiceChatController(IService<VoiceChatDto, string> service, IMapper mapper, ILogger<VoiceChatController> logger)
+    : ControllerBase
 {
-    private readonly IService<VoiceChatDto, string> _service;
-    private readonly IMapper _mapper;
-    private readonly ILogger<VoiceChatController> _logger;
-
-    public VoiceChatController(IService<VoiceChatDto, string> service, IMapper mapper, ILogger<VoiceChatController> logger)
-    {
-        _service = service;
-        _mapper = mapper;
-        _logger = logger;
-    }
+    private readonly IService<VoiceChatDto, string> _service = service;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<VoiceChatController> _logger = logger;
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var result = await _service.GetAllAsync();
-        var map = _mapper.Map<IEnumerable<VoiceChatModel>>(result);
+        try
+        {
+            var voiceChats = await _service.GetAllAsync();
+            ArgumentNullException.ThrowIfNull(voiceChats, nameof(voiceChats));
 
-        return Ok(map);
+            return Ok(voiceChats);
+        }
+        catch (ArgumentNullException ex)
+        {
+            _logger.LogError(ex, "Get all voice chats failed: Parameter '{ParamName}' was null.", ex.ParamName);
+
+            return BadRequest();
+        }
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(string id)
     {
-        var result = await _service.GetByIdAsync(id);
-        var map = _mapper.Map<VoiceChatModel>(result);
-
-        return Ok(map);
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> Create(VoiceChatModel model)
-    {
         try
         {
-            var map = _mapper.Map<VoiceChatDto>(model);
-            var result = await _service.CreateAsync(map);
-            var resultMap = _mapper.Map<VoiceChatModel>(result);
+            ArgumentOutOfRangeException.ThrowIfNullOrEmpty(id, nameof(id));
 
-            return Ok(resultMap);
+            var voiceChat = await _service.GetByIdAsync(id);
+            ArgumentNullException.ThrowIfNull(voiceChat, nameof(voiceChat));
+
+            return Ok(voiceChat);
         }
-        catch (ArgumentNullException ex)
+        catch (ArgumentOutOfRangeException ex)
         {
-            _logger.LogError(ex, $"Create Voice Chat failed: ${ex.Message}", model);
+            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
 
             return BadRequest();
         }
-        catch (Exception ex)
+        catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, $"Create Voice Chat failed: ${ex.Message}", model);
+            _logger.LogError(ex, "Get voice chat by id failed: Parameter '{ParamName}' was null.", ex.ParamName);
+
+            return BadRequest();
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Create(VoiceChatModel voiceChat)
+    {
+        try
+        {
+            ArgumentNullException.ThrowIfNull(voiceChat, nameof(voiceChat));
+
+            var map = _mapper.Map<VoiceChatDto>(voiceChat);
+            var createdVoiceChat = await _service.CreateAsync(map);
+            ArgumentNullException.ThrowIfNull(createdVoiceChat, nameof(createdVoiceChat));
+
+            return Ok(createdVoiceChat);
+        }
+        catch (ArgumentNullException ex)
+        {
+            _logger.LogError(ex, "Create voice chat failed: Parameter '{ParamName}' was null.", ex.ParamName);
 
             return BadRequest();
         }
     }
 
     [HttpPut]
-    public async Task<IActionResult> Update(VoiceChatModel model)
+    public async Task<IActionResult> Update(VoiceChatModel voiceChat)
     {
         try
         {
-            var map = _mapper.Map<VoiceChatDto>(model);
-            var result = await _service.UpdateAsync(map);
+            ArgumentNullException.ThrowIfNull(voiceChat, nameof(voiceChat));
+            ArgumentOutOfRangeException.ThrowIfNullOrEmpty(voiceChat.Id, nameof(voiceChat.Id));
 
-            return Ok(result);
+            var map = _mapper.Map<VoiceChatDto>(voiceChat);
+            var rowsAffected = await _service.UpdateAsync(map);
+            ArgumentOutOfRangeException.ThrowIfZero(rowsAffected, nameof(rowsAffected));
+
+            return Ok();
         }
         catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, $"Update Voice Chat failed: ${ex.Message}", model);
-
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Update Voice Chat failed: ${ex.Message}", model);
+            _logger.LogError(ex, "Update voice chat failed: Parameter '{ParamName}' was null.", ex.ParamName);
 
             return BadRequest();
         }
@@ -93,8 +107,20 @@ public class VoiceChatController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(string id)
     {
-        var affectedRows = await _service.DeleteAsync(id);
+        try
+        {
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(id, nameof(id));
 
-        return Ok(affectedRows);
+            var rowsAffected = await _service.DeleteAsync(id);
+            ArgumentOutOfRangeException.ThrowIfZero(rowsAffected, nameof(rowsAffected));
+
+            return Ok();
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
+
+            return BadRequest();
+        }
     }
 }

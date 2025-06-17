@@ -5,6 +5,7 @@ import { useChatHub } from '../../../context/ChatHubProvider';
 import ChatRulesItem from "./ChatRulesItem";
 
 import "../../../styles/communication/create.scss";
+import { CreateGroupChatProps } from "../../../types/components/communication/create/CreateGroupChatProps";
 
 const payload = {
     invitePeople: 0,
@@ -13,14 +14,14 @@ const payload = {
     announcements: 1,
 };
 
-const CreateGroupChat = ({ setShowCreateGroupChat }) => {
+const CreateGroupChat: React.FC<CreateGroupChatProps> = ({ setShowCreateGroupChat }) => {
     const { t } = useTranslation("communication/create");
 
-    const { groupChatHubConnection } = useChatHub();
+    const chatHub = useChatHub();
 
-    const me = useSelector((state) => state.user.value);
+    const me = useSelector((state: any) => state.user.value);
 
-    const chatNameRef = useRef(null);
+    const chatNameRef = useRef<HTMLInputElement | null>(null);
 
     const [chatName, setChatName] = useState("");
     const [invitePeople, setInvitePeople] = useState(0);
@@ -30,6 +31,10 @@ const CreateGroupChat = ({ setShowCreateGroupChat }) => {
     const [isCreating, setIsCreating] = useState(false);
 
     const createGroupChatAsync = async () => {
+        if (!chatHub) {
+            return;
+        }
+
         const groupChat = {
             id: 0,
             name: chatNameRef.current?.value,
@@ -56,7 +61,7 @@ const CreateGroupChat = ({ setShowCreateGroupChat }) => {
             groupChatRules
         };
 
-        await groupChatHubConnection?.invoke("CreateGroupChat", container);
+        await chatHub.groupChatHubConnection?.invoke("CreateGroupChat", container);
     }
 
     const handleCreateNewGroupChatAsync = async () => {
@@ -69,7 +74,11 @@ const CreateGroupChat = ({ setShowCreateGroupChat }) => {
     }
 
     const chatNameChangeHandler = () => {
-        setChatName(chatNameRef.current?.value);
+        if (!chatNameRef || !chatNameRef.current) {
+            return;
+        }
+
+        setChatName(chatNameRef.current.value);
     }
 
     return (
@@ -96,7 +105,7 @@ const CreateGroupChat = ({ setShowCreateGroupChat }) => {
                 />
             </div>
             <div className="actions">
-                <div className={`btn-shadow create ${chatName.length > 0 ? '' : 'can-not-finish'}`} onClick={chatName.length > 0 ? handleCreateNewGroupChatAsync : null}>{t("Create")}</div>
+                <div className={`btn-shadow create ${chatName.length > 0 ? '' : 'can-not-finish'}`} onClick={chatName.length > 0 ? handleCreateNewGroupChatAsync : () => {}}>{t("Create")}</div>
                 <div className="btn-shadow" onClick={() => setShowCreateGroupChat(false)}>{t("Cancel")}</div>
             </div>
             {isCreating &&

@@ -1,27 +1,20 @@
 ﻿using AutoMapper;
-using CombatAnalysis.ChatApi.Consts;
-using CombatAnalysis.ChatApi.Enums;
-using CombatAnalysis.ChatApi.Interfaces;
-using CombatAnalysis.ChatApi.Kafka.Actions;
 using CombatAnalysis.ChatApi.Models;
 using CombatAnalysis.ChatBL.DTO;
 using CombatAnalysis.ChatBL.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
 
 namespace CombatAnalysis.ChatApi.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class GroupChatMessageController(IChatMessageService<GroupChatMessageDto, int> chatMessageService, IMapper mapper, ILogger<GroupChatMessageController> logger,
-    IKafkaProducerService<string, string> kafkaProducer) : ControllerBase
+public class GroupChatMessageController(IChatMessageService<GroupChatMessageDto, int> chatMessageService, IMapper mapper, ILogger<GroupChatMessageController> logger) : ControllerBase
 {
     private readonly IChatMessageService<GroupChatMessageDto, int> _chatMessageService = chatMessageService;
     private readonly IMapper _mapper = mapper;
     private readonly ILogger<GroupChatMessageController> _logger = logger;
-    private readonly IKafkaProducerService<string, string> _kafkaProducer = kafkaProducer;
 
     [HttpGet("count/{chatId}")]
     public async Task<IActionResult> Count(int chatId)
@@ -153,15 +146,6 @@ public class GroupChatMessageController(IChatMessageService<GroupChatMessageDto,
             var createdGroupChatMessage = await _chatMessageService.CreateAsync(map);
             ArgumentNullException.ThrowIfNull(createdGroupChatMessage, nameof(createdGroupChatMessage));
 
-            var chatAction = JsonSerializer.Serialize(new GroupChatMessageAction
-            {
-                ChatId = chatMessage.ChatId,
-                GroupChatUserId = chatMessage.GroupChatUserId,
-                State = (int)KafkaActionState.Created,
-                When = DateTime.UtcNow.ToString(),
-            });
-            await _kafkaProducer.ProduceAsync(KafkaTopics.GroupChatMessage, createdGroupChatMessage.Id.ToString(), chatAction);
-
             return Ok(createdGroupChatMessage);
         }
         catch (ArgumentNullException ex)
@@ -178,7 +162,6 @@ public class GroupChatMessageController(IChatMessageService<GroupChatMessageDto,
         try
         {
             ArgumentNullException.ThrowIfNull(chatMessage, nameof(chatMessage));
-
             ArgumentOutOfRangeException.ThrowIfZero(chatMessage.Id, nameof(chatMessage.Id));
 
             var map = _mapper.Map<GroupChatMessageDto>(chatMessage);

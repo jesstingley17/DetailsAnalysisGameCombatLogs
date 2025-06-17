@@ -10,54 +10,130 @@ namespace CombatAnalysis.ChatApi.Controllers;
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class PersonalChatMessageController(IService<PersonalChatDto, int> chatService, IChatMessageService<PersonalChatMessageDto, int> chatMessageService,
-    IMapper mapper, ILogger<PersonalChatMessageController> logger, IChatTransactionService chatTransactionService) : ControllerBase
+public class PersonalChatMessageController(IChatMessageService<PersonalChatMessageDto, int> chatMessageService, IMapper mapper, ILogger<PersonalChatMessageController> logger) 
+    : ControllerBase
 {
     private readonly IChatMessageService<PersonalChatMessageDto, int> _chatMessageService = chatMessageService;
     private readonly IMapper _mapper = mapper;
     private readonly ILogger<PersonalChatMessageController> _logger = logger;
-    private readonly IChatTransactionService _chatTransactionService = chatTransactionService;
 
     [HttpGet("count/{chatId}")]
     public async Task<IActionResult> Count(int chatId)
     {
-        var count = await _chatMessageService.CountByChatIdAsync(chatId);
+        try
+        {
+            ArgumentOutOfRangeException.ThrowIfZero(chatId, nameof(chatId));
 
-        return Ok(count);
+            var count = await _chatMessageService.CountByChatIdAsync(chatId);
+            ArgumentOutOfRangeException.ThrowIfLessThan(count, 0, nameof(count));
+
+            return Ok(count);
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
+
+            return BadRequest();
+        }
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var result = await _chatMessageService.GetAllAsync();
-        var map = _mapper.Map<IEnumerable<PersonalChatMessageModel>>(result);
+        try
+        {
+            var personalChatMessages = await _chatMessageService.GetAllAsync();
+            ArgumentNullException.ThrowIfNull(personalChatMessages, nameof(personalChatMessages));
 
-        return Ok(map);
+            return Ok(personalChatMessages);
+        }
+        catch (ArgumentNullException ex)
+        {
+            _logger.LogError(ex, "Get all personal chat messages failed: Parameter '{ParamName}' was null.", ex.ParamName);
+
+            return BadRequest();
+        }
     }
 
     [HttpGet("{id:int:min(1)}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var result = await _chatMessageService.GetByIdAsync(id);
-        var map = _mapper.Map<PersonalChatMessageModel>(result);
+        try
+        {
+            ArgumentOutOfRangeException.ThrowIfZero(id, nameof(id));
 
-        return Ok(map);
+            var personalChatMessage = await _chatMessageService.GetByIdAsync(id);
+            ArgumentNullException.ThrowIfNull(personalChatMessage, nameof(personalChatMessage));
+
+            return Ok(personalChatMessage);
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
+
+            return BadRequest();
+        }
+        catch (ArgumentNullException ex)
+        {
+            _logger.LogError(ex, "Get personal chat message by id failed: Parameter '{ParamName}' was null.", ex.ParamName);
+
+            return BadRequest();
+        }
     }
 
     [HttpGet("getByChatId")]
     public async Task<IActionResult> GetByChatId(int chatId, int pageSize)
     {
-        var messages = await _chatMessageService.GetByChatIdAsync(chatId, pageSize);
+        try
+        {
+            ArgumentOutOfRangeException.ThrowIfZero(chatId, nameof(chatId));
+            ArgumentOutOfRangeException.ThrowIfLessThan(pageSize, 1, nameof(pageSize));
 
-        return Ok(messages);
+            var personalChatMessages = await _chatMessageService.GetByChatIdAsync(chatId, pageSize);
+            ArgumentNullException.ThrowIfNull(personalChatMessages, nameof(personalChatMessages));
+
+            return Ok(personalChatMessages);
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
+
+            return BadRequest();
+        }
+        catch (ArgumentNullException ex)
+        {
+            _logger.LogError(ex, "Get personal chat messages by chat id failed: Parameter '{ParamName}' was null.", ex.ParamName);
+
+            return BadRequest();
+        }
     }
 
     [HttpGet("getMoreByChatId")]
     public async Task<IActionResult> GetMoreByChatId(int chatId, int offset, int pageSize)
     {
-        var messages = await _chatMessageService.GetMoreByChatIdAsync(chatId, offset, pageSize);
+        try
+        {
+            ArgumentOutOfRangeException.ThrowIfZero(chatId, nameof(chatId));
+            ArgumentOutOfRangeException.ThrowIfLessThan(offset, 0, nameof(offset));
+            ArgumentOutOfRangeException.ThrowIfLessThan(pageSize, 1, nameof(pageSize));
 
-        return Ok(messages);
+            var personalChatMessages = await _chatMessageService.GetMoreByChatIdAsync(chatId, offset, pageSize);
+            ArgumentNullException.ThrowIfNull(personalChatMessages, nameof(personalChatMessages));
+
+            return Ok(personalChatMessages);
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
+
+            return BadRequest();
+        }
+        catch (ArgumentNullException ex)
+        {
+            _logger.LogError(ex, "Get more personal chat messages by chat id failed: Parameter '{ParamName}' was null.", ex.ParamName);
+
+            return BadRequest();
+        }
     }
 
     [HttpPost]
@@ -65,50 +141,45 @@ public class PersonalChatMessageController(IService<PersonalChatDto, int> chatSe
     {
         try
         {
-            ArgumentNullException.ThrowIfNull(chatMessage);
+            ArgumentNullException.ThrowIfNull(chatMessage, nameof(chatMessage));
 
             var map = _mapper.Map<PersonalChatMessageDto>(chatMessage);
             var createdPersonalChatMessage = await _chatMessageService.CreateAsync(map);
+            ArgumentNullException.ThrowIfNull(createdPersonalChatMessage, nameof(createdPersonalChatMessage));
 
             return Ok(createdPersonalChatMessage);
         }
         catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, $"Create Personal Chat Message failed: ${ex.Message}", chatMessage);
-
-            await _chatTransactionService.RollbackTransactionAsync();
-
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Create Personal Chat Message failed: ${ex.Message}", chatMessage);
-
-            await _chatTransactionService.RollbackTransactionAsync();
+            _logger.LogError(ex, "Create personal chat message failed: Parameter '{ParamName}' was null.", ex.ParamName);
 
             return BadRequest();
         }
     }
 
     [HttpPut]
-    public async Task<IActionResult> Update(PersonalChatMessageModel model)
+    public async Task<IActionResult> Update(PersonalChatMessageModel chatMessage)
     {
         try
         {
-            var map = _mapper.Map<PersonalChatMessageDto>(model);
-            var result = await _chatMessageService.UpdateAsync(map);
+            ArgumentNullException.ThrowIfNull(chatMessage, nameof(chatMessage));
+            ArgumentOutOfRangeException.ThrowIfZero(chatMessage.Id, nameof(chatMessage.Id));
 
-            return Ok(result);
+            var map = _mapper.Map<PersonalChatMessageDto>(chatMessage);
+            var rowsAffected = await _chatMessageService.UpdateAsync(map);
+            ArgumentOutOfRangeException.ThrowIfZero(rowsAffected, nameof(rowsAffected));
+
+            return Ok();
         }
         catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, $"Update Personal Chat Message failed: ${ex.Message}", model);
+            _logger.LogError(ex, "Update personal chat message failed: Parameter '{ParamName}' was null.", ex.ParamName);
 
             return BadRequest();
         }
-        catch (Exception ex)
+        catch (ArgumentOutOfRangeException ex)
         {
-            _logger.LogError(ex, $"Update Personal Chat Message failed: ${ex.Message}", model);
+            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
 
             return BadRequest();
         }
@@ -117,8 +188,20 @@ public class PersonalChatMessageController(IService<PersonalChatDto, int> chatSe
     [HttpDelete("{id:int:min(1)}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var rowsAffected = await _chatMessageService.DeleteAsync(id);
+        try
+        {
+            ArgumentOutOfRangeException.ThrowIfZero(id, nameof(id));
 
-        return Ok(rowsAffected);
+            var rowsAffected = await _chatMessageService.DeleteAsync(id);
+            ArgumentOutOfRangeException.ThrowIfZero(rowsAffected, nameof(rowsAffected));
+
+            return Ok();
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
+
+            return BadRequest();
+        }
     }
 }

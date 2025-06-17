@@ -9,7 +9,7 @@ namespace CombatAnalysis.ChatApi.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-//[Authorize]
+[Authorize]
 public class GroupChatUserController(IServiceTransaction<GroupChatUserDto, string> chatUserService, IMapper mapper, ILogger<GroupChatUserController> logger) 
     : ControllerBase
 {

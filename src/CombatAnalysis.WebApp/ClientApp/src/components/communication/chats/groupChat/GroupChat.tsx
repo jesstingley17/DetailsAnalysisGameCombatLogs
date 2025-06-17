@@ -72,6 +72,10 @@ const GroupChat: React.FC<GroupChatProps> = ({ me, chat, setSelectedChat }) => {
         }
 
         const handleScroll = () => {
+            if (!groupChatData.messages) {
+                return;
+            }
+
             const chatContainer: any = chatContainerRef.current;
             if (chatContainer.scrollTop === 0) {
                 const moreMessagesCount = groupChatData.count - currentMessages.length + (groupChatData.messages === null ? 0 : groupChatData.messages.length) - pageSizeRef.current;
@@ -153,7 +157,7 @@ const GroupChat: React.FC<GroupChatProps> = ({ me, chat, setSelectedChat }) => {
         saveScrollState();
     }
 
-    if (groupChatData.isLoading) {
+    if (!chatHub || groupChatData.isLoading) {
         return (
             <div className="chats__selected-chat_loading">
                 <Loading />
@@ -183,8 +187,8 @@ const GroupChat: React.FC<GroupChatProps> = ({ me, chat, setSelectedChat }) => {
                                 messageOwnerId={message.groupChatUserId}
                                 message={message}
                                 updateMessageAsync={updateMessageAsync}
-                                chatMessagesHubConnection={chatHub?.groupChatMessagesHubConnection}
-                                subscribeToMessageHasBeenRead={chatHub?.subscribeToGroupMessageHasBeenRead}
+                                hubConnection={chatHub.groupChatMessagesHubConnection}
+                                subscribeToChatMessageHasBeenRead={chatHub.subscribeToGroupMessageHasBeenRead}
                             />
                         </li>
                     ))}

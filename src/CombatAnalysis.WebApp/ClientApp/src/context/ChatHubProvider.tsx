@@ -1,10 +1,9 @@
 ﻿import * as signalR from '@microsoft/signalr';
-import { useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { AppUser } from '../types/AppUser';
 import { GroupChatUser } from '../types/GroupChatUser';
 import { ChatHubContextType } from '../types/context/ChatHubType';
-import { createContext } from 'react';
 
 const ChatHubContext = createContext<ChatHubContextType | null>(null);
 
@@ -186,14 +185,14 @@ export const ChatHubProvider: React.FC<{ children: React.ReactNode }> = ({ child
         });
     }
 
-    const subscribeToPersonalMessageHasBeenRead = (callback: any = {}) => {
-        personalChatMessagesHubConnection?.on("ReceiveMessageHasBeenRead", async (chatId) => {
-            callback(chatId);
+    const subscribeToPersonalMessageHasBeenRead = (callback: any) => {
+        personalChatMessagesHubConnection?.on("ReceiveMessageHasBeenRead", (messageId: number) => {
+            callback(messageId);
         });
     }
 
     const subscribeToUnreadPersonalMessagesUpdated = (callback: any) => {
-        personalChatUnreadMessagesHubConnection?.on("ReceiveUnreadMessage", (targetChatId, targetMeInChatId, count) => {
+        personalChatUnreadMessagesHubConnection?.on("ReceiveUnreadMessage", (targetChatId: number, targetMeInChatId: string, count: number) => {
             callback(targetChatId, targetMeInChatId, count);
         });
     }
@@ -228,19 +227,15 @@ export const ChatHubProvider: React.FC<{ children: React.ReactNode }> = ({ child
         });
     }
 
-    const subscribeToUnreadGroupMessagesUpdated = (meInChatId: string, callback: any) => {
-        groupChatUnreadMessagesHubConnection?.on("ReceiveUnreadMessageUpdated", async (chatId) => {
-            await groupChatUnreadMessagesHubConnection?.invoke("RequestUnreadMessages", chatId, meInChatId);
-        });
-
+    const subscribeToUnreadGroupMessagesUpdated = (callback: any) => {
         groupChatUnreadMessagesHubConnection?.on("ReceiveUnreadMessage", (targetChatId, targetMeInChatId, count) => {
             callback(targetChatId, targetMeInChatId, count);
         });
     }
 
-    const subscribeToGroupMessageHasBeenRead = (chatId: number, reviewerId: string) => {
-        groupChatMessagesHubConnection?.on("ReceiveMessageHasBeenRead", async () => {
-            await groupChatUnreadMessagesHubConnection?.invoke("RequestUnreadMessages", chatId, reviewerId);
+    const subscribeToGroupMessageHasBeenRead = (callback: any) => {
+        groupChatMessagesHubConnection?.on("ReceiveMessageHasBeenRead", async (chatMessage: number) => {
+            callback(chatMessage);
         });
     }
 

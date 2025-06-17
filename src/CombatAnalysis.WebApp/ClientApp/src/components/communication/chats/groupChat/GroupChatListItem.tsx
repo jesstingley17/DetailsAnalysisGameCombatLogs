@@ -8,8 +8,8 @@ const GroupChatListItem: React.FC<GroupChatListItemProps> = ({ meInChat, setSele
     const { data: chat, isLoading } = useGetGroupChatByIdQuery(meInChat.chatId);
 
     useEffect(() => {
-        subscribeToUnreadGroupMessagesUpdated(meInChat.id, (targetChatId: number, targetMeInChatId: string, count: number) => {
-            if (targetChatId === meInChat.chatId && targetMeInChatId === meInChat.id) {
+        subscribeToUnreadGroupMessagesUpdated((targetChatId: number, targetChatUserId: string, count: number) => {
+            if (targetChatId === meInChat.chatId && targetChatUserId === meInChat.id) {
                 setUnreadMessageCount(count);
             }
         });

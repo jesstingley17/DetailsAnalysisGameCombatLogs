@@ -8,13 +8,13 @@ public class ChatHubHelper(ILogger<ChatHubHelper> logger) : IChatHubHelper
 {
     private readonly ILogger<ChatHubHelper> _logger = logger;
 
-    private HubConnection? _chatUnreadMessagesHubConnection;
+    private HubConnection? _chatHubConnection;
 
     public async Task ConnectToUnreadMessageHubAsync(string hubURL, string refreshToken, string accessToken)
     {
         try
         {
-            _chatUnreadMessagesHubConnection = await CreateHubConnectionAsync(hubURL, refreshToken, accessToken);
+            _chatHubConnection = await CreateHubConnectionAsync(hubURL, refreshToken, accessToken);
         }
         catch (ArgumentNullException ex)
         {
@@ -26,24 +26,34 @@ public class ChatHubHelper(ILogger<ChatHubHelper> logger) : IChatHubHelper
         }
     }
 
-    public async Task JoinChatRoomAsync(int chatId)
+    public async Task JoinRoomAsync(int chatId)
     {
-        if (_chatUnreadMessagesHubConnection == null)
+        if (_chatHubConnection == null)
         {
             return;
         }
 
-        await _chatUnreadMessagesHubConnection.SendAsync("JoinRoom", chatId);
+        await _chatHubConnection.SendAsync("JoinRoom", chatId);
     }
 
     public async Task RequestUnreadMessagesAsync(int chatId, string appUserId)
     {
-        if (_chatUnreadMessagesHubConnection == null)
+        if (_chatHubConnection == null)
         {
             return;
         }
 
-        await _chatUnreadMessagesHubConnection.SendAsync("RequestUnreadMessages", chatId, appUserId);
+        await _chatHubConnection.SendAsync("RequestUnreadMessages", chatId, appUserId);
+    }
+
+    public async Task RequestsChats(int chatId, string appUserId)
+    {
+        if (_chatHubConnection == null)
+        {
+            return;
+        }
+
+        await _chatHubConnection.SendAsync("RequestJoinedUser", chatId, appUserId);
     }
 
     private static async Task<HubConnection> CreateHubConnectionAsync(string hubURL, string refreshToken, string accessToken)

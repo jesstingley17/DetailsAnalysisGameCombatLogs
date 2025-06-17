@@ -1,4 +1,4 @@
-import { AppUser } from "../AppUser";
+import { AppUser } from '../AppUser';
 
 export type ChatHubContextType = {
     personalChatHubConnection: signalR.HubConnection | null;
@@ -20,7 +20,7 @@ export type ChatHubContextType = {
     subscribeToGroupChat(callback: any): void;
     subscribeGroupChatUser(callback: any): void;
     subscribeToGroupChatMessages(callback: any): void;
-    subscribeToGroupMessageHasBeenRead(chatId: number, reviewerId: string): void;
-    subscribeToUnreadGroupMessagesUpdated(meInChatId: string, callback: any): void;
+    subscribeToGroupMessageHasBeenRead(callback: any): void;
+    subscribeToUnreadGroupMessagesUpdated(callback: any): void;
     subscribeToGroupMessageDelivered(callback: any): void;
 }

@@ -1,4 +1,3 @@
-# Variables
 $serverScriptPath = "F:\Kafka\bin\windows"
 $propertyPath = "F:\Kafka\config"
 

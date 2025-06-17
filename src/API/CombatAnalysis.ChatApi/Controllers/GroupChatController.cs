@@ -1,28 +1,20 @@
 ﻿using AutoMapper;
-using CombatAnalysis.ChatApi.Consts;
-using CombatAnalysis.ChatApi.Enums;
-using CombatAnalysis.ChatApi.Interfaces;
-using CombatAnalysis.ChatApi.Kafka.Actions;
 using CombatAnalysis.ChatApi.Models;
-using CombatAnalysis.ChatApi.Models.Containers;
 using CombatAnalysis.ChatBL.DTO;
 using CombatAnalysis.ChatBL.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
 
 namespace CombatAnalysis.ChatApi.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class GroupChatController(IService<GroupChatDto, int> chatService, IMapper mapper, ILogger<GroupChatController> logger, 
-    IKafkaProducerService<string, string> kafkaProducer) : ControllerBase
+public class GroupChatController(IService<GroupChatDto, int> chatService, IMapper mapper, ILogger<GroupChatController> logger) : ControllerBase
 {
     private readonly IService<GroupChatDto, int> _chatService = chatService;
     private readonly IMapper _mapper = mapper;
     private readonly ILogger<GroupChatController> _logger = logger;
-    private readonly IKafkaProducerService<string, string> _kafkaProducer = kafkaProducer;
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
@@ -63,37 +55,6 @@ public class GroupChatController(IService<GroupChatDto, int> chatService, IMappe
         catch (ArgumentNullException ex)
         {
             _logger.LogError(ex, "Get group chat by id failed: Parameter '{ParamName}' was null.", ex.ParamName);
-
-            return BadRequest();
-        }
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> Create(GroupChatContainerModel container)
-    {
-        try
-        {
-            ArgumentNullException.ThrowIfNull(container, nameof(container));
-
-            var chatMap = _mapper.Map<GroupChatDto>(container.GroupChat);
-            var createdGroupChat = await _chatService.CreateAsync(chatMap);
-            ArgumentNullException.ThrowIfNull(createdGroupChat, nameof(createdGroupChat));
-
-            var chatAction = JsonSerializer.Serialize(new GroupChatAction
-            {
-                ChatId = createdGroupChat.Id,
-                Rules = container.GroupChatRules,
-                User = container.GroupChatUser,
-                State = (int)KafkaActionState.Created,
-                When = DateTime.UtcNow.ToString(),
-            });
-            await _kafkaProducer.ProduceAsync(KafkaTopics.GroupChat, createdGroupChat.Id.ToString(), chatAction);
-
-            return Ok(createdGroupChat);
-        }
-        catch (ArgumentNullException ex)
-        {
-            _logger.LogError(ex, "Create group chat failed: Parameter '{ParamName}' was null.", ex.ParamName);
 
             return BadRequest();
         }

@@ -1,4 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { GroupChatMessage } from '../../../types/GroupChatMessage';
+import { PersonalChatMessage } from '../../../types/PersonalChatMessage';
 
 const apiURL = '/api/v1';
 
@@ -7,49 +9,50 @@ export const ChatApi = createApi({
     tagTypes: [
         'GroupChatMessage',
         'PersonalChatMessage',
+        'UnreadGroupChatMessage',
     ],
     baseQuery: fetchBaseQuery({
         baseUrl: apiURL
     }),
     endpoints: builder => ({
-        getMessagesByGroupChatId: builder.query({
+        getMessagesByGroupChatId: builder.query<GroupChatMessage[], { chatId: number, pageSize: number }>({
             query: ({ chatId, pageSize }) => ({
                 url: `/GroupChatMessage/getByChatId?chatId=${chatId}&pageSize=${pageSize}`,
             }),
-            transformResponse: (response) => response.reverse(),
+            transformResponse: (response: GroupChatMessage[]) => response.reverse(),
             providesTags: (result, error, arg) =>
                 result
-                    ? [...result.map(({ id }) => ({ type: 'GroupChatMessage', id })), { type: 'GroupChatMessage' }]
+                    ? [...result.map(({ id }) => ({ type: 'GroupChatMessage' as const, id })), { type: 'GroupChatMessage' }]
                     : [{ type: 'GroupChatMessage' }]
         }),
-        getMoreMessagesByGroupChatId: builder.query({
+        getMoreMessagesByGroupChatId: builder.query<GroupChatMessage[], { chatId: number, offset: number, pageSize: number }>({
             query: ({ chatId, offset, pageSize }) => ({
                 url: `/GroupChatMessage/getMoreByChatId?chatId=${chatId}&offset=${offset}&pageSize=${pageSize}`,
             }),
-            transformResponse: (response) => response.reverse(),
+            transformResponse: (response: GroupChatMessage[]) => response.reverse(),
             providesTags: (result, error, arg) =>
                 result
-                    ? [...result.map(({ id }) => ({ type: 'GroupChatMessage', id })), { type: 'GroupChatMessage' }]
+                    ? [...result.map(({ id }) => ({ type: 'GroupChatMessage' as const, id })), { type: 'GroupChatMessage' }]
                     : [{ type: 'GroupChatMessage' }]
         }),
-        getMessagesByPersonalChatId: builder.query({
+        getMessagesByPersonalChatId: builder.query<PersonalChatMessage[], { chatId: number, pageSize: number }>({
             query: ({ chatId, pageSize }) => ({
                 url: `/PersonalChatMessage/getByChatId?chatId=${chatId}&pageSize=${pageSize}`,
             }),
-            transformResponse: (response) => response.reverse(),
+            transformResponse: (response: PersonalChatMessage[]) => response.reverse(),
             providesTags: (result, error, arg) =>
                 result
-                    ? [...result.map(({ id }) => ({ type: 'PersonalChatMessage', id })), { type: 'PersonalChatMessage' }]
+                    ? [...result.map(({ id }) => ({ type: 'PersonalChatMessage' as const, id })), { type: 'PersonalChatMessage' }]
                     : [{ type: 'PersonalChatMessage' }]
         }),
-        getMoreMessagesByPersonalChatId: builder.query({
+        getMoreMessagesByPersonalChatId: builder.query<PersonalChatMessage[], { chatId: number, offset: number, pageSize: number }>({
             query: ({ chatId, offset, pageSize }) => ({
                 url: `/PersonalChatMessage/getMoreByChatId?chatId=${chatId}&offset=${offset}&pageSize=${pageSize}`,
             }),
-            transformResponse: (response) => response.reverse(),
+            transformResponse: (response: PersonalChatMessage[]) => response.reverse(),
             providesTags: (result, error, arg) =>
                 result
-                    ? [...result.map(({ id }) => ({ type: 'PersonalChatMessage', id })), { type: 'PersonalChatMessage' }]
+                    ? [...result.map(({ id }) => ({ type: 'PersonalChatMessage' as const, id })), { type: 'PersonalChatMessage' }]
                     : [{ type: 'PersonalChatMessage' }]
         }),
     })

@@ -32,7 +32,7 @@ const GroupChatList: React.FC<GroupChatListProps> = ({ meId, t, selectedChat, se
         connectToPersonalChatUnreadMessages();
     }, [data]);
 
-    if (isLoading || !chatHub) {
+    if (isLoading || !chatHub || !chatHub.groupChatUnreadMessagesHubConnection  || !chatHub) {
         return (<div>Loading...</div>);
     }
 

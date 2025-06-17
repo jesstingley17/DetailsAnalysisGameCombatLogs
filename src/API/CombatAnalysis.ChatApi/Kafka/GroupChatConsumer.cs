@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CombatAnalysis.ChatApi.Consts;
+using CombatAnalysis.ChatApi.Interfaces;
 using CombatAnalysis.ChatApi.Kafka.Actions;
 using CombatAnalysis.ChatApi.Models;
 using CombatAnalysis.ChatBL.DTO;
@@ -46,19 +47,15 @@ public class GroupChatConsumer(IOptions<KafkaSettings> kafkaSettings, ILogger<Gr
             ArgumentNullException.ThrowIfNull(chatAction.Rules, nameof(chatAction.Rules));
             ArgumentNullException.ThrowIfNull(chatAction.User, nameof(chatAction.User));
 
-            await CreateChatRefsAsync(scope, chatAction.ChatId, chatAction.Rules, chatAction.User);
+            var chatId = await CreateChatRefsAsync(scope, chatAction.Chat, chatAction.Rules, chatAction.User);
 
             await chatTransaction.CommitTransactionAsync();
+
+            await SendSignalAsync(scope, chatAction, chatId);
         }
         catch (ArgumentNullException ex)
         {
             _logger.LogError(ex, "Create group chat refs failed: Parameter '{ParamName}' was null.", ex.ParamName);
-
-            await chatTransaction.RollbackTransactionAsync();
-        }
-        catch (ArgumentOutOfRangeException ex)
-        {
-            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
 
             await chatTransaction.RollbackTransactionAsync();
         }
@@ -70,9 +67,10 @@ public class GroupChatConsumer(IOptions<KafkaSettings> kafkaSettings, ILogger<Gr
         }
     }
 
-    private async Task CreateChatRefsAsync(IServiceScope scope, int chatId, GroupChatRulesModel chatRules, GroupChatUserModel chatUser)
+    private async Task<int> CreateChatRefsAsync(IServiceScope scope, GroupChatModel chat, GroupChatRulesModel chatRules, GroupChatUserModel chatUser)
     {
-        ArgumentOutOfRangeException.ThrowIfZero(chatId, nameof(chatId));
+        var chatService = scope.ServiceProvider.GetService<IService<GroupChatDto, int>>();
+        ArgumentNullException.ThrowIfNull(chatService, nameof(chatService));
 
         var chatRulesService = scope.ServiceProvider.GetService<IService<GroupChatRulesDto, int>>();
         ArgumentNullException.ThrowIfNull(chatRulesService, nameof(chatRulesService));
@@ -80,16 +78,32 @@ public class GroupChatConsumer(IOptions<KafkaSettings> kafkaSettings, ILogger<Gr
         var chatUserService = scope.ServiceProvider.GetService<IServiceTransaction<GroupChatUserDto, string>>();
         ArgumentNullException.ThrowIfNull(chatUserService, nameof(chatUserService));
 
-        chatRules.ChatId = chatId;
+        var map = _mapper.Map<GroupChatDto>(chat);
+        var createdChat = await chatService.CreateAsync(map);
+        ArgumentNullException.ThrowIfNull(createdChat, nameof(createdChat));
+
+        chatRules.ChatId = createdChat.Id;
 
         var chatRulesMap = _mapper.Map<GroupChatRulesDto>(chatRules);
         var createdChatRules = await chatRulesService.CreateAsync(chatRulesMap);
         ArgumentNullException.ThrowIfNull(createdChatRules, nameof(createdChatRules));
 
-        chatUser.ChatId = chatId;
+        chatUser.ChatId = createdChat.Id;
 
         var chatUserMap = _mapper.Map<GroupChatUserDto>(chatUser);
         var createdChatUser = await chatUserService.CreateAsync(chatUserMap);
         ArgumentNullException.ThrowIfNull(createdChatUser, nameof(createdChatUser));
+
+        return createdChat.Id;
+    }
+
+    private static async Task SendSignalAsync(IServiceScope scope, GroupChatAction chatAction, int chatId)
+    {
+        var chatHubHelper = scope.ServiceProvider.GetService<IChatHubHelper>();
+        ArgumentNullException.ThrowIfNull(chatHubHelper, nameof(chatHubHelper));
+
+        await chatHubHelper.ConnectToUnreadMessageHubAsync("https://localhost:7026/groupChatHub", chatAction.RefreshToken, chatAction.AccessToken);
+        await chatHubHelper.JoinRoomAsync(chatId);
+        await chatHubHelper.RequestsChats(chatId, chatAction.User.AppUserId);
     }
 }

@@ -1,6 +1,6 @@
-﻿using CombatAnalysis.ChatApi.Models;
+﻿using CombatAnalysis.Hubs.Models;
 
-namespace CombatAnalysis.ChatApi.Kafka.Actions;
+namespace CombatAnalysis.Hubs.Kafka.Actions;
 
 public class GroupChatAction
 {
