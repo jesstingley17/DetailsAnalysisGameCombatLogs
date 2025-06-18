@@ -16,6 +16,7 @@ using Serilog.Events;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<KafkaSettings>(builder.Configuration.GetSection("Kafka"));
+builder.Services.Configure<Hubs>(builder.Configuration.GetSection("Hubs"));
 
 var databasePropsOptions = new DatabaseProps();
 builder.Configuration.Bind("Database", databasePropsOptions);
@@ -68,7 +69,7 @@ builder.Services.AddAuthorization(options =>
 });
 
 builder.Services.AddSingleton<IKafkaProducerService<string, string>, KafkaProducer<string, string>>();
-builder.Services.AddScoped<IChatHubHelper, ChatHubHelper>();
+builder.Services.AddTransient<IChatHubHelper, ChatHubHelper>();
 builder.Services.AddHostedService<PersonalChatMessageConsumer>();
 builder.Services.AddHostedService<GroupChatConsumer>();
 builder.Services.AddHostedService<GroupChatMessageConsumer>();

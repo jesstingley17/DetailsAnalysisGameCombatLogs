@@ -114,17 +114,12 @@ internal class ChatHubHelper : IChatHubHelper
         await _chatMessagesCountHubConnection.SendAsync("JoinRoom", chatId);
     }
 
-    public void SubscribeUnreadMessagesUpdated(string meInChatId, Action<int, string, int> receiveUnreadMessageAction)
+    public void SubscribeUnreadMessagesUpdated(Action<int, string, int> receiveUnreadMessageAction)
     {
         if (_chatMessagesCountHubConnection == null)
         {
             return;
         }
-
-        _chatMessagesCountHubConnection.On<int>("ReceiveUnreadMessageUpdated", async (chatId) => 
-        {
-            await _chatMessagesCountHubConnection.SendAsync("RequestUnreadMessages", chatId, meInChatId);
-        });
 
         _chatMessagesCountHubConnection.On("ReceiveUnreadMessage", receiveUnreadMessageAction);
     }
@@ -137,16 +132,7 @@ internal class ChatHubHelper : IChatHubHelper
             return;
         }
 
-        _chatMessagesHubConnection.On("ReceiveMessageHasBeenRead", async () =>
-        {
-            await _chatMessagesCountHubConnection.SendAsync("RequestUnreadMessages", chatId, meInChatId);
-        });
-
         _chatMessagesHubConnection.On("ReceiveMessage", action);
-
-        _chatMessagesHubConnection.On("ReceiveMessageDelivered", async () => {
-            await _chatMessagesCountHubConnection.SendAsync("SendUnreadMessageUpdated", chatId);
-        });
     }
 
     public async Task SubscribeMessageHasBeenReadAsync(int messageId, string appUserId)
@@ -157,6 +143,16 @@ internal class ChatHubHelper : IChatHubHelper
         }
 
         await _chatMessagesHubConnection.SendAsync("SendMessageHasBeenRead", messageId, appUserId);
+    }
+
+    public void SubscribeReceiveMessageHasBeenRead<T>(Action<T> action)
+    {
+        if (_chatMessagesHubConnection == null)
+        {
+            return;
+        }
+
+        _chatMessagesHubConnection.On("ReceiveMessageHasBeenRead", action);
     }
 
     public async Task LeaveFromChatRoomAsync(int chatId)

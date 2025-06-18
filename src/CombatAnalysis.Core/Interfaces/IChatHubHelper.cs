@@ -12,11 +12,13 @@ public interface IChatHubHelper
 
     Task JoinUnreadMessageRoomAsync(int chatId);
 
-    void SubscribeUnreadMessagesUpdated(string meInChatId, Action<int, string, int> receiveUnreadMessageAction);
+    void SubscribeUnreadMessagesUpdated(Action<int, string, int> receiveUnreadMessageAction);
 
     void SubscribeMessagesUpdated<T>(int chatId, string meInChatId, Action<T> action) where T : class;
 
     Task SubscribeMessageHasBeenReadAsync(int messageId, string appUserId);
+
+    void SubscribeReceiveMessageHasBeenRead<T>(Action<T> action);
 
     Task LeaveFromChatRoomAsync(int chatId);
 

@@ -11,9 +11,10 @@ using System.Text.Json;
 
 namespace CombatAnalysis.ChatApi.Kafka;
 
-public class GroupChatConsumer(IOptions<KafkaSettings> kafkaSettings, ILogger<GroupChatConsumer> logger, IServiceScopeFactory serviceScopeFactory,
-    IMapper mapper) : KafkaConsumerBase(kafkaSettings, KafkaTopics.GroupChat, logger)
+public class GroupChatConsumer(IOptions<KafkaSettings> kafkaSettings, IOptions<Hubs> hubs, ILogger<GroupChatConsumer> logger, 
+    IServiceScopeFactory serviceScopeFactory, IMapper mapper) : KafkaConsumerBase(kafkaSettings, KafkaTopics.GroupChat, logger)
 {
+    private readonly IOptions<Hubs> _hubs = hubs;
     private readonly ILogger<GroupChatConsumer> _logger = logger;
     private readonly IServiceScopeFactory _serviceScopeFactory = serviceScopeFactory;
     private readonly IMapper _mapper = mapper;
@@ -97,12 +98,12 @@ public class GroupChatConsumer(IOptions<KafkaSettings> kafkaSettings, ILogger<Gr
         return createdChat.Id;
     }
 
-    private static async Task SendSignalAsync(IServiceScope scope, GroupChatAction chatAction, int chatId)
+    private async Task SendSignalAsync(IServiceScope scope, GroupChatAction chatAction, int chatId)
     {
         var chatHubHelper = scope.ServiceProvider.GetService<IChatHubHelper>();
         ArgumentNullException.ThrowIfNull(chatHubHelper, nameof(chatHubHelper));
 
-        await chatHubHelper.ConnectToUnreadMessageHubAsync("https://localhost:7026/groupChatHub", chatAction.RefreshToken, chatAction.AccessToken);
+        await chatHubHelper.ConnectToHubAsync($"{_hubs.Value.Server}{_hubs.Value.GroupChatAddress}", chatAction.RefreshToken, chatAction.AccessToken);
         await chatHubHelper.JoinRoomAsync(chatId);
         await chatHubHelper.RequestsChats(chatId, chatAction.User.AppUserId);
     }

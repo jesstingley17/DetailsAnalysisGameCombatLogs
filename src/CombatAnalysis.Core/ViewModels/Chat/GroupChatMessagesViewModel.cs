@@ -20,12 +20,12 @@ public class GroupChatMessagesViewModel : MvxViewModel, IImprovedMvxViewModel
     private readonly IMemoryCache _memoryCache;
     private readonly ILogger _logger;
 
-    private ObservableCollection<GroupChatMessageModel>? _messages;
-    private IEnumerable<GroupChatMessageModel>? _allMessages;
+    private ObservableCollection<GroupChatMessageViewModel>? _messages;
+    private List<GroupChatMessageViewModel>? _allMessages;
     private ObservableCollection<AppUserModel>? _usersToInviteToChat;
     private ObservableCollection<AppUserModel>? _users;
     private List<AppUserModel>? _usersExcludingInvitees;
-    private GroupChatModel? _selectedChat;
+    private GroupChatViewModel? _selectedChat;
     private string _meInChatId = string.Empty;
     private GroupChatMessageModel? _selectedMessage;
     private int _selectedMessageIndex = -1;
@@ -52,7 +52,7 @@ public class GroupChatMessagesViewModel : MvxViewModel, IImprovedMvxViewModel
         _logger = logger;
 
         SendMessageCommand = new MvxAsyncCommand(SendMessageAsync);
-        MessageHasBeenReadCommand = new MvxAsyncCommand<GroupChatMessageModel>(SendMessageHasBeenReadAsync);
+        MessageHasBeenReadCommand = new MvxAsyncCommand<GroupChatMessageViewModel>(SendMessageHasBeenReadAsync);
         SendMessageKeyDownCommand = new MvxAsyncCommand<string>(SendMessageKeyDownAsync);
 
         ShowChatMenuCommand = new MvxCommand(() => ChatMenuIsVisibly = !ChatMenuIsVisibly);
@@ -79,7 +79,7 @@ public class GroupChatMessagesViewModel : MvxViewModel, IImprovedMvxViewModel
 
     public IMvxAsyncCommand SendMessageCommand { get; set; }
 
-    public IMvxAsyncCommand<GroupChatMessageModel> MessageHasBeenReadCommand { get; set; }
+    public IMvxAsyncCommand<GroupChatMessageViewModel> MessageHasBeenReadCommand { get; set; }
 
     public IMvxAsyncCommand<string> SendMessageKeyDownCommand { get; set; }
 
@@ -119,7 +119,7 @@ public class GroupChatMessagesViewModel : MvxViewModel, IImprovedMvxViewModel
         }
     }
 
-    public ObservableCollection<GroupChatMessageModel>? Messages
+    public ObservableCollection<GroupChatMessageViewModel>? Messages
     {
         get { return _messages; }
         set
@@ -128,7 +128,7 @@ public class GroupChatMessagesViewModel : MvxViewModel, IImprovedMvxViewModel
         }
     }
 
-    public GroupChatModel? SelectedChat
+    public GroupChatViewModel? SelectedChat
     {
         get { return _selectedChat; }
         set
@@ -279,6 +279,12 @@ public class GroupChatMessagesViewModel : MvxViewModel, IImprovedMvxViewModel
 
             _hubConnection = hubConnection;
 
+            var refreshToken = _memoryCache.Get<string>(nameof(MemoryCacheValue.RefreshToken));
+            if (string.IsNullOrEmpty(refreshToken))
+            {
+                throw new ArgumentNullException(nameof(refreshToken));
+            }
+
             if (SelectedChat == null)
             {
                 throw new ArgumentNullException(nameof(SelectedChat));
@@ -295,7 +301,23 @@ public class GroupChatMessagesViewModel : MvxViewModel, IImprovedMvxViewModel
             {
                 await AsyncDispatcher.ExecuteOnMainThreadAsync(() =>
                 {
-                    Messages?.Insert(0, message);
+                    Messages?.Insert(0, new GroupChatMessageViewModel(message));
+                });
+            });
+
+            hubConnection?.SubscribeReceiveMessageHasBeenRead<int>(async (messageId) =>
+            {
+                await AsyncDispatcher.ExecuteOnMainThreadAsync(async () =>
+                {
+                    var response = await _httpClientHelper.GetAsync($"UnreadGroupChatMessage/findByMessageId/{messageId}", refreshToken, API.ChatApi);
+                    response.EnsureSuccessStatusCode();
+
+                    var unreadGroupChatMessages = await response.Content.ReadFromJsonAsync<IEnumerable<UnreadGroupChatMessageModel>>();
+                    if (!unreadGroupChatMessages.Any())
+                    {
+                        var message = Messages?.FirstOrDefault(x => x.Id == messageId);
+                        message.IsRead = true;
+                    }
                 });
             });
         }
@@ -329,7 +351,7 @@ public class GroupChatMessagesViewModel : MvxViewModel, IImprovedMvxViewModel
         });
     }
 
-    private async Task SendMessageHasBeenReadAsync(GroupChatMessageModel? message)
+    private async Task SendMessageHasBeenReadAsync(GroupChatMessageViewModel? message)
     {
         try
         {
@@ -346,44 +368,12 @@ public class GroupChatMessagesViewModel : MvxViewModel, IImprovedMvxViewModel
                 throw new ArgumentNullException(nameof(MeInChatId));
             }
 
-            if (message.GroupChatUserId == MeInChatId)
+            if (message.GroupChatUserId == MeInChatId || message.IsRead)
             {
                 return;
             }
 
             await _hubConnection.SubscribeMessageHasBeenReadAsync(message.Id, MeInChatId);
-
-            await AsyncDispatcher.ExecuteOnMainThreadAsync(() =>
-            {
-                if (Messages == null)
-                {
-                    return;
-                }
-
-                var targetMessage = Messages.FirstOrDefault(x => x.Id == message.Id);
-                if (targetMessage == null)
-                {
-                    return;
-                }
-
-                var neMessage = new GroupChatMessageModel
-                {
-                    Id = targetMessage.Id,
-                    Username = targetMessage.Username,
-                    Message = targetMessage.Message,
-                    Time = targetMessage.Time,
-                    Status = 2,
-                    Type = targetMessage.Type,
-                    ChatId = targetMessage.ChatId,
-                    GroupChatUserId = targetMessage.GroupChatUserId
-                };
-
-                var index = Messages.IndexOf(targetMessage);
-                if (index > -1)
-                {
-                    Messages[index] = neMessage;
-                }
-            });
         }
         catch (ArgumentNullException ex)
         {
@@ -618,12 +608,20 @@ public class GroupChatMessagesViewModel : MvxViewModel, IImprovedMvxViewModel
             var response = await _httpClientHelper.GetAsync($"GroupChatMessage/getByChatId?chatId={SelectedChat?.Id}&pageSize=20", refreshToken, API.ChatApi);
             response.EnsureSuccessStatusCode();
 
-            _allMessages = await response.Content.ReadFromJsonAsync<IEnumerable<GroupChatMessageModel>>();
-            if (_allMessages == null)
+            var messages = await response.Content.ReadFromJsonAsync<IEnumerable<GroupChatMessageModel>>();
+            if (messages == null)
             {
-                throw new ArgumentNullException(nameof(_allMessages));
+                throw new ArgumentNullException(nameof(messages));
             }
 
+            _allMessages = [];
+
+            foreach (var item in messages)
+            {
+                _allMessages.Add(new GroupChatMessageViewModel(item));
+            }
+
+            await LoadUnreadMessagesAsync();
             await FillAsync();
         }
         catch (ArgumentNullException ex)
@@ -637,6 +635,27 @@ public class GroupChatMessagesViewModel : MvxViewModel, IImprovedMvxViewModel
         catch (Exception ex)
         {
             _logger.LogError(ex, ex.Message);
+        }
+    }
+
+    private async Task LoadUnreadMessagesAsync()
+    {
+        var refreshToken = _memoryCache.Get<string>(nameof(MemoryCacheValue.RefreshToken));
+        if (string.IsNullOrEmpty(refreshToken))
+        {
+            throw new ArgumentNullException(nameof(refreshToken));
+        }
+
+        foreach (var message in _allMessages)
+        {
+            var response = await _httpClientHelper.GetAsync($"UnreadGroupChatMessage/findByMessageId/{message.Id}", refreshToken, API.ChatApi);
+            response.EnsureSuccessStatusCode();
+
+            var unreadGroupChatMessages = await response.Content.ReadFromJsonAsync<IEnumerable<UnreadGroupChatMessageModel>>();
+            if (!unreadGroupChatMessages.Any())
+            {
+                message.IsRead = true;
+            }
         }
     }
 

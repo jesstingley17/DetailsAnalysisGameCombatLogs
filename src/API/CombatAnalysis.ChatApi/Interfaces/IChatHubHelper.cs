@@ -2,11 +2,13 @@
 
 public interface IChatHubHelper
 {
-    Task ConnectToUnreadMessageHubAsync(string hubURL, string refreshToken, string accessToken);
+    Task ConnectToHubAsync(string hubURL, string refreshToken, string accessToken);
 
     Task JoinRoomAsync(int chatId);
 
     Task RequestUnreadMessagesAsync(int chatId, string appUserId);
+
+    Task SendMessageAlreadyRead(int chatId, int chatMessageId);
 
     Task RequestsChats(int chatId, string appUserId);
 }

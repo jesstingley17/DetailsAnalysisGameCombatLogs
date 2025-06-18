@@ -20,9 +20,9 @@ public class PersonalChatMessagesVewModel : MvxViewModel, IImprovedMvxViewModel
     private readonly IMemoryCache _memoryCache;
     private readonly ILogger _logger;
 
-    private ObservableCollection<PersonalChatMessageModel>? _messages;
-    private IEnumerable<PersonalChatMessageModel>? _allMessages;
-    private PersonalChatModel? _selectedChat;
+    private ObservableCollection<PersonalChatMessageViewModel>? _messages;
+    private List<PersonalChatMessageViewModel>? _allMessages;
+    private PersonalChatViewModel? _selectedChat;
     private string? _selectedChatName;
     private string? _message;
     private AppUserModel? _myAccount;
@@ -39,7 +39,7 @@ public class PersonalChatMessagesVewModel : MvxViewModel, IImprovedMvxViewModel
         _logger = logger;
 
         SendMessageCommand = new MvxAsyncCommand(SendMessageAsync);
-        MessageHasBeenReadCommand = new MvxAsyncCommand<PersonalChatMessageModel>(SendMessageHasBeenReadAsync);
+        MessageHasBeenReadCommand = new MvxAsyncCommand<PersonalChatMessageViewModel>(SendMessageHasBeenReadAsync);
         SendMessageKeyDownCommand = new MvxAsyncCommand<string>(SendMessageKeyDownAsync);
 
         Messages = [];
@@ -58,7 +58,7 @@ public class PersonalChatMessagesVewModel : MvxViewModel, IImprovedMvxViewModel
 
     public IMvxAsyncCommand SendMessageCommand { get; set; }
 
-    public IMvxAsyncCommand<PersonalChatMessageModel> MessageHasBeenReadCommand { get; set; }
+    public IMvxAsyncCommand<PersonalChatMessageViewModel> MessageHasBeenReadCommand { get; set; }
 
     public IMvxAsyncCommand<string> SendMessageKeyDownCommand { get; set; }
 
@@ -66,7 +66,7 @@ public class PersonalChatMessagesVewModel : MvxViewModel, IImprovedMvxViewModel
 
     #region View model properties
 
-    public ObservableCollection<PersonalChatMessageModel>? Messages
+    public ObservableCollection<PersonalChatMessageViewModel>? Messages
     {
         get { return _messages; }
         set
@@ -75,7 +75,7 @@ public class PersonalChatMessagesVewModel : MvxViewModel, IImprovedMvxViewModel
         }
     }
 
-    public PersonalChatModel? SelectedChat
+    public PersonalChatViewModel? SelectedChat
     {
         get { return _selectedChat; }
         set
@@ -150,7 +150,16 @@ public class PersonalChatMessagesVewModel : MvxViewModel, IImprovedMvxViewModel
             {
                 await AsyncDispatcher.ExecuteOnMainThreadAsync(() =>
                 {
-                    Messages?.Insert(0, message);
+                    Messages?.Insert(0, new PersonalChatMessageViewModel(message));
+                });
+            });
+
+            hubConnection?.SubscribeReceiveMessageHasBeenRead<int>(async (messageId) =>
+            {
+                await AsyncDispatcher.ExecuteOnMainThreadAsync(() =>
+                {
+                    var message = Messages?.FirstOrDefault(x => x.Id == messageId);
+                    message.Status = 2;
                 });
             });
         }
@@ -184,7 +193,7 @@ public class PersonalChatMessagesVewModel : MvxViewModel, IImprovedMvxViewModel
         });
     }
 
-    private async Task SendMessageHasBeenReadAsync(PersonalChatMessageModel? message)
+    private async Task SendMessageHasBeenReadAsync(PersonalChatMessageViewModel? message)
     {
         try
         {
@@ -207,38 +216,6 @@ public class PersonalChatMessagesVewModel : MvxViewModel, IImprovedMvxViewModel
             }
 
             await _hubConnection.SubscribeMessageHasBeenReadAsync(message.Id, MyAccount.Id);
-
-            await AsyncDispatcher.ExecuteOnMainThreadAsync(() =>
-            {
-                if (Messages == null)
-                {
-                    return;
-                }
-
-                var targetMessage = Messages.FirstOrDefault(x => x.Id == message.Id);
-                if (targetMessage == null)
-                {
-                    return;
-                }
-
-                var neMessage = new PersonalChatMessageModel
-                {
-                    Id = targetMessage.Id,
-                    Username = targetMessage.Username,
-                    Message = targetMessage.Message,
-                    Time = targetMessage.Time,
-                    Status = 2,
-                    Type = targetMessage.Type,
-                    ChatId = targetMessage.ChatId,
-                    AppUserId = targetMessage.AppUserId
-                };
-
-                var index = Messages.IndexOf(targetMessage);
-                if (index > -1)
-                {
-                    Messages[index] = neMessage;
-                }
-            });
         }
         catch (ArgumentNullException ex)
         {
@@ -315,10 +292,17 @@ public class PersonalChatMessagesVewModel : MvxViewModel, IImprovedMvxViewModel
             var response = await _httpClientHelper.GetAsync($"PersonalChatMessage/getByChatId?chatId={SelectedChat?.Id}&pageSize=20", refreshToken, API.ChatApi);
             response.EnsureSuccessStatusCode();
 
-            _allMessages = await response.Content.ReadFromJsonAsync<IEnumerable<PersonalChatMessageModel>>();
-            if (_allMessages == null)
+            var messages = await response.Content.ReadFromJsonAsync<IEnumerable<PersonalChatMessageModel>>();
+            if (messages == null)
             {
                 throw new ArgumentNullException(nameof(_allMessages));
+            }
+
+            _allMessages = [];
+
+            foreach (var message in messages)
+            {
+                _allMessages.Add(new PersonalChatMessageViewModel(message));
             }
 
             await FillAsync();

@@ -152,7 +152,6 @@
                             </StackPanel>
                             <uc:SystemMessageChat Message="{Binding Path=Message}"/>
                         </StackPanel>
-
                         <StackPanel Visibility="{Binding Type, Converter={StaticResource IntToVisibility}, ConverterParameter='true:0:='}">
                             <StackPanel>
                                 <StackPanel.Visibility>
@@ -182,9 +181,9 @@
                                     <TextBlock Text="{Binding Path=Time, StringFormat={}{0:MM-dd HH\\:mm}}" Style="{StaticResource timeTextRight}"/>
                                 </StackPanel>
                                 <uc:MyMessageChat Color="#96CDFF" Message="{Binding Path=Message}"
-                                            Visibility="{Binding Status, Converter={StaticResource IntToVisibility}, ConverterParameter='true:2:='}" />
+                                            Visibility="{Binding IsRead, Converter={StaticResource BoolToVisibility}, ConverterParameter='true:false'}" />
                                 <uc:MyMessageChat Color="#155E95" Opacity="0.75" Message="{Binding Path=Message}"
-                                            Visibility="{Binding Status, Converter={StaticResource IntToVisibility}, ConverterParameter='true:2:!='}" />
+                                            Visibility="{Binding IsRead, Converter={StaticResource BoolToVisibility}, ConverterParameter='true:true'}" />
                             </StackPanel>
                         </StackPanel>
                     </Grid>

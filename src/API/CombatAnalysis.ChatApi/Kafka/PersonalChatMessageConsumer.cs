@@ -10,9 +10,10 @@ using System.Text.Json;
 
 namespace CombatAnalysis.ChatApi.Kafka;
 
-public class PersonalChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, ILogger<PersonalChatMessageConsumer> logger, IServiceScopeFactory serviceScopeFactory) 
-    : KafkaConsumerBase(kafkaSettings, KafkaTopics.PersonalChatMessage, logger)
+public class PersonalChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, IOptions<Hubs> hubs, ILogger<PersonalChatMessageConsumer> logger,
+    IServiceScopeFactory serviceScopeFactory) : KafkaConsumerBase(kafkaSettings, KafkaTopics.PersonalChatMessage, logger)
 {
+    private readonly IOptions<Hubs> _hubs = hubs;
     private readonly ILogger<PersonalChatMessageConsumer> _logger = logger;
     private readonly IServiceScopeFactory _serviceScopeFactory = serviceScopeFactory;
 
@@ -33,7 +34,7 @@ public class PersonalChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, 
             var personalChat = await personalChatService.GetByIdAsync(chatAction.ChatId);
             ArgumentNullException.ThrowIfNull(personalChat);
 
-            await chatHubHelper.ConnectToUnreadMessageHubAsync("https://localhost:7026/personalChatUnreadMessageHub", chatAction.RefreshToken, chatAction.AccessToken);
+            await chatHubHelper.ConnectToHubAsync($"{_hubs.Value.Server}{_hubs.Value.PersonalChatUnreadMessageAddress}", chatAction.RefreshToken, chatAction.AccessToken);
             await chatHubHelper.JoinRoomAsync(personalChat.Id);
 
             if (chatAction.State == (int)KafkaActionState.Created)

@@ -1,5 +1,4 @@
-﻿using CombatAnalysis.Core.Models.Chat;
-using CombatAnalysis.Core.ViewModels.Chat;
+﻿using CombatAnalysis.Core.ViewModels.Chat;
 using MvvmCross.Platforms.Wpf.Views;
 using System.Windows.Controls;
 
@@ -20,7 +19,7 @@ public partial class GroupChatMessagesView : MvxWpfView
             return;
         }
 
-        var groupChatMessage = item.DataContext as GroupChatMessageModel;
+        var groupChatMessage = item.DataContext as GroupChatMessageViewModel;
         if (groupChatMessage == null || groupChatMessage.Status == 2)
         {
             return;

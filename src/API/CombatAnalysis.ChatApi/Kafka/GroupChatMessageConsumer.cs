@@ -10,9 +10,10 @@ using System.Text.Json;
 
 namespace CombatAnalysis.ChatApi.Kafka;
 
-public class GroupChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, ILogger<GroupChatMessageConsumer> logger, IServiceScopeFactory serviceScopeFactory) 
-    : KafkaConsumerBase(kafkaSettings, KafkaTopics.GroupChatMessage, logger)
+public class GroupChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, IOptions<Hubs> hubs, ILogger<GroupChatMessageConsumer> logger, 
+    IServiceScopeFactory serviceScopeFactory) : KafkaConsumerBase(kafkaSettings, KafkaTopics.GroupChatMessage, logger)
 {
+    private readonly IOptions<Hubs> _hubs = hubs;
     private readonly ILogger<GroupChatMessageConsumer> _logger = logger;
     private readonly IServiceScopeFactory _serviceScopeFactory = serviceScopeFactory;
 
@@ -52,7 +53,7 @@ public class GroupChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, ILo
             var unreadGroupChatMessageService = scope.ServiceProvider.GetService<IService<UnreadGroupChatMessageDto, int>>();
             ArgumentNullException.ThrowIfNull(unreadGroupChatMessageService, nameof(unreadGroupChatMessageService));
 
-            await chatHubHelper.ConnectToUnreadMessageHubAsync("https://localhost:7026/groupChatUnreadMessageHub", chatAction.RefreshToken, chatAction.AccessToken);
+            await chatHubHelper.ConnectToHubAsync($"{_hubs.Value.Server}{_hubs.Value.GroupChatUnreadMessageAddress}", chatAction.RefreshToken, chatAction.AccessToken);
             await chatHubHelper.JoinRoomAsync(chatAction.ChatId);
 
             if (chatAction.State == (int)KafkaActionState.Created)
@@ -61,7 +62,7 @@ public class GroupChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, ILo
             }
             else if (chatAction.State == (int)KafkaActionState.Read)
             {
-                await DecreaseCountAsync(chatHubHelper, chatAction, groupChatUser, unreadGroupChatMessageService);
+                await DecreaseCountAsync(scope, chatHubHelper, chatAction, groupChatUser, unreadGroupChatMessageService);
             }
 
             await chatTransaction.CommitTransactionAsync();
@@ -112,7 +113,7 @@ public class GroupChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, ILo
         await chatHubHelper.RequestUnreadMessagesAsync(chatAction.ChatId, chatAction.GroupChatUserId);
     }
 
-    private static async Task DecreaseCountAsync(IChatHubHelper chatHubHelper, GroupChatMessageAction chatAction, IServiceTransaction<GroupChatUserDto, string> groupChatUserService, IService<UnreadGroupChatMessageDto, int> unreadGroupChatMessageServic)
+    private async Task DecreaseCountAsync(IServiceScope scope, IChatHubHelper chatHubHelper, GroupChatMessageAction chatAction, IServiceTransaction<GroupChatUserDto, string> groupChatUserService, IService<UnreadGroupChatMessageDto, int> unreadGroupChatMessageServic)
     {
         var groupChatUsers = await groupChatUserService.GetByParamAsync(nameof(GroupChatMessageAction.ChatId), chatAction.ChatId);
         ArgumentNullException.ThrowIfNull(groupChatUsers, nameof(groupChatUsers));
@@ -136,8 +137,15 @@ public class GroupChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, ILo
                 rowsAffected = await unreadGroupChatMessageServic.DeleteAsync(currentUnreadMessage.Id);
                 ArgumentOutOfRangeException.ThrowIfZero(rowsAffected, nameof(rowsAffected));
             }
-        }   
+        }
 
+        var chatMessageHubHelper = scope.ServiceProvider.GetService<IChatHubHelper>();
+        ArgumentNullException.ThrowIfNull(chatMessageHubHelper, nameof(chatMessageHubHelper));
+
+        await chatMessageHubHelper.ConnectToHubAsync($"{_hubs.Value.Server}{_hubs.Value.GroupChatMessagesAddress}", chatAction.RefreshToken, chatAction.AccessToken);
+        await chatMessageHubHelper.JoinRoomAsync(chatAction.ChatId);
+        await chatMessageHubHelper.SendMessageAlreadyRead(chatAction.ChatId, chatAction.MessageId);
+        
         await chatHubHelper.RequestUnreadMessagesAsync(chatAction.ChatId, chatAction.GroupChatUserId);
     }
 }

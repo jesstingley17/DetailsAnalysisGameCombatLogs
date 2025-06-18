@@ -18,7 +18,7 @@ public class GroupChatMessagesHub(IHttpClientHelper httpClient, ILogger<GroupCha
     {
         try
         {
-            ArgumentOutOfRangeException.ThrowIfLessThan(chatId, 1, nameof(chatId));
+            ArgumentOutOfRangeException.ThrowIfZero(chatId, nameof(chatId));
 
             var refreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty;
             ArgumentNullException.ThrowIfNullOrEmpty(refreshToken, nameof(refreshToken));
@@ -39,6 +39,12 @@ public class GroupChatMessagesHub(IHttpClientHelper httpClient, ILogger<GroupCha
     {
         try
         {
+            ArgumentNullException.ThrowIfNullOrEmpty(message, nameof(message));
+            ArgumentOutOfRangeException.ThrowIfZero(chatId, nameof(chatId));
+            ArgumentOutOfRangeException.ThrowIfLessThan(type, 0, nameof(type));
+            ArgumentNullException.ThrowIfNullOrEmpty(groupChatUserId, nameof(groupChatUserId));
+            ArgumentNullException.ThrowIfNullOrEmpty(username, nameof(username));
+
             var chatMessage = new GroupChatMessageModel
             {
                 Username = username,
@@ -77,6 +83,10 @@ public class GroupChatMessagesHub(IHttpClientHelper httpClient, ILogger<GroupCha
         {
             _logger.LogError(ex, "Send message failed: Parameter '{ParamName}' was null.", ex.ParamName);
         }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
+        }
         catch (UnauthorizedAccessException ex)
         {
             _logger.LogError(ex, "Access denied: user should be authorized.");
@@ -91,6 +101,9 @@ public class GroupChatMessagesHub(IHttpClientHelper httpClient, ILogger<GroupCha
     {
         try
         {
+            ArgumentOutOfRangeException.ThrowIfZero(chatMessageId, nameof(chatMessageId));
+            ArgumentNullException.ThrowIfNullOrEmpty(meInChatId, nameof(meInChatId));
+
             var response = await _httpClient.GetAsync($"GroupChatMessage/{chatMessageId}");
             response.EnsureSuccessStatusCode();
 
@@ -114,7 +127,11 @@ public class GroupChatMessagesHub(IHttpClientHelper httpClient, ILogger<GroupCha
             });
             await _kafkaProducer.ProduceAsync(KafkaTopics.GroupChatMessage, chatMessage.Id.ToString(), chatAction);
 
-            await Clients.Caller.SendAsync("ReceiveMessageHasBeenRead", chatMessage.Id);
+            //await Clients.Caller.SendAsync("ReceiveMessageHasBeenRead", chatMessage.Id);
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
         }
         catch (ArgumentNullException ex)
         {
@@ -127,6 +144,21 @@ public class GroupChatMessagesHub(IHttpClientHelper httpClient, ILogger<GroupCha
         catch (HttpRequestException ex)
         {
             _logger.LogError(ex, "Request unsuccessful. Status code: '{StatusCode}'", ex.StatusCode);
+        }
+    }
+
+    public async Task MessageAlreadyRead(int chatId, int chatMessageId)
+    {
+        try
+        {
+            ArgumentOutOfRangeException.ThrowIfZero(chatId, nameof(chatId));
+            ArgumentOutOfRangeException.ThrowIfZero(chatMessageId, nameof(chatMessageId));
+
+            await Clients.Group(chatId.ToString()).SendAsync("ReceiveMessageHasBeenRead", chatMessageId);
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
         }
     }
 

@@ -10,7 +10,7 @@ public class ChatHubHelper(ILogger<ChatHubHelper> logger) : IChatHubHelper
 
     private HubConnection? _chatHubConnection;
 
-    public async Task ConnectToUnreadMessageHubAsync(string hubURL, string refreshToken, string accessToken)
+    public async Task ConnectToHubAsync(string hubURL, string refreshToken, string accessToken)
     {
         try
         {
@@ -44,6 +44,16 @@ public class ChatHubHelper(ILogger<ChatHubHelper> logger) : IChatHubHelper
         }
 
         await _chatHubConnection.SendAsync("RequestUnreadMessages", chatId, appUserId);
+    }
+
+    public async Task SendMessageAlreadyRead(int chatId, int chatMessageId)
+    {
+        if (_chatHubConnection == null)
+        {
+            return;
+        }
+
+        await _chatHubConnection.SendAsync("MessageAlreadyRead", chatId, chatMessageId);
     }
 
     public async Task RequestsChats(int chatId, string appUserId)

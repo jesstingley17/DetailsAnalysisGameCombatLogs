@@ -234,8 +234,8 @@ export const ChatHubProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
 
     const subscribeToGroupMessageHasBeenRead = (callback: any) => {
-        groupChatMessagesHubConnection?.on("ReceiveMessageHasBeenRead", async (chatMessage: number) => {
-            callback(chatMessage);
+        groupChatMessagesHubConnection?.on("ReceiveMessageHasBeenRead", async (messageId: number) => {
+            callback(messageId);
         });
     }
 

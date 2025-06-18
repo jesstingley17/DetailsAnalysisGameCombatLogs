@@ -1,5 +1,4 @@
-﻿using CombatAnalysis.Core.Models.Chat;
-using CombatAnalysis.Core.ViewModels.Chat;
+﻿using CombatAnalysis.Core.ViewModels.Chat;
 using MvvmCross.Platforms.Wpf.Views;
 using System.Windows.Controls;
 
@@ -20,7 +19,7 @@ public partial class PersonalChatMessagesVew : MvxWpfView
             return;
         }
 
-        var personalChatMessage = item.DataContext as PersonalChatMessageModel;
+        var personalChatMessage = item.DataContext as PersonalChatMessageViewModel;
         if (personalChatMessage == null || personalChatMessage.Status == 2)
         {
             return;
