@@ -94,30 +94,30 @@ namespace CombatAnalysis.IdentityDAL.Migrations
                             Id = "client1",
                             ClientName = "web",
                             ClientType = "public",
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 1, 22, 10, 56, 33, 302, DateTimeKind.Unspecified).AddTicks(6555), new TimeSpan(0, 1, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 6, 20, 12, 10, 47, 382, DateTimeKind.Unspecified).AddTicks(2686), new TimeSpan(0, 3, 0, 0, 0)),
                             RedirectUrl = "encounters.analysis.com/callback",
                             Scope = "client1scope",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2025, 1, 22, 10, 56, 33, 304, DateTimeKind.Unspecified).AddTicks(3452), new TimeSpan(0, 1, 0, 0, 0))
+                            UpdatedAt = new DateTimeOffset(new DateTime(2025, 6, 20, 12, 10, 47, 384, DateTimeKind.Unspecified).AddTicks(1628), new TimeSpan(0, 3, 0, 0, 0))
                         },
                         new
                         {
                             Id = "client2",
                             ClientName = "desktop",
                             ClientType = "public",
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 1, 22, 10, 56, 33, 304, DateTimeKind.Unspecified).AddTicks(3652), new TimeSpan(0, 1, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 6, 20, 12, 10, 47, 384, DateTimeKind.Unspecified).AddTicks(1813), new TimeSpan(0, 3, 0, 0, 0)),
                             RedirectUrl = "localhost:45571/callback",
                             Scope = "client2scope",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2025, 1, 22, 10, 56, 33, 304, DateTimeKind.Unspecified).AddTicks(3657), new TimeSpan(0, 1, 0, 0, 0))
+                            UpdatedAt = new DateTimeOffset(new DateTime(2025, 6, 20, 12, 10, 47, 384, DateTimeKind.Unspecified).AddTicks(1815), new TimeSpan(0, 3, 0, 0, 0))
                         },
                         new
                         {
                             Id = "client3",
                             ClientName = "devWeb",
                             ClientType = "public",
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 1, 22, 10, 56, 33, 304, DateTimeKind.Unspecified).AddTicks(3659), new TimeSpan(0, 1, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 6, 20, 12, 10, 47, 384, DateTimeKind.Unspecified).AddTicks(1817), new TimeSpan(0, 3, 0, 0, 0)),
                             RedirectUrl = "localhost:44479/callback",
                             Scope = "client3scope",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2025, 1, 22, 10, 56, 33, 304, DateTimeKind.Unspecified).AddTicks(3661), new TimeSpan(0, 1, 0, 0, 0))
+                            UpdatedAt = new DateTimeOffset(new DateTime(2025, 6, 20, 12, 10, 47, 384, DateTimeKind.Unspecified).AddTicks(1818), new TimeSpan(0, 3, 0, 0, 0))
                         });
                 });
 
