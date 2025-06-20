@@ -4,15 +4,24 @@ using CombatAnalysis.Hubs.Interfaces;
 using CombatAnalysis.Hubs.Kafka.Actions;
 using CombatAnalysis.Hubs.Models;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Options;
 using System.Text.Json;
 
 namespace CombatAnalysis.Hubs.Hubs;
 
-public class GroupChatMessagesHub(IHttpClientHelper httpClient, ILogger<GroupChatMessagesHub> logger, IKafkaProducerService<string, string> kafkaProducer) : Hub
+public class GroupChatMessagesHub : Hub
 {
-    private readonly IHttpClientHelper _httpClient = httpClient;
-    private readonly ILogger<GroupChatMessagesHub> _logger = logger;
-    private readonly IKafkaProducerService<string, string> _kafkaProducer = kafkaProducer;
+    private readonly IHttpClientHelper _httpClient;
+    private readonly ILogger<GroupChatMessagesHub> _logger;
+    private readonly IKafkaProducerService<string, string> _kafkaProducer;
+
+    public GroupChatMessagesHub(IHttpClientHelper httpClient, IOptions<Cluster> cluster, ILogger<GroupChatMessagesHub> logger, IKafkaProducerService<string, string> kafkaProducer)
+    {
+        _logger = logger;
+        _kafkaProducer = kafkaProducer;
+        _httpClient = httpClient;
+        _httpClient.APIUrl = cluster.Value.Chat;
+    }
 
     public async Task JoinRoom(int chatId)
     {
@@ -126,8 +135,6 @@ public class GroupChatMessagesHub(IHttpClientHelper httpClient, ILogger<GroupCha
                 AccessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)] ?? string.Empty
             });
             await _kafkaProducer.ProduceAsync(KafkaTopics.GroupChatMessage, chatMessage.Id.ToString(), chatAction);
-
-            //await Clients.Caller.SendAsync("ReceiveMessageHasBeenRead", chatMessage.Id);
         }
         catch (ArgumentOutOfRangeException ex)
         {

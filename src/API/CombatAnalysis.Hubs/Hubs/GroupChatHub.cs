@@ -5,15 +5,24 @@ using CombatAnalysis.Hubs.Kafka.Actions;
 using CombatAnalysis.Hubs.Models;
 using CombatAnalysis.Hubs.Models.Containers;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Options;
 using System.Text.Json;
 
 namespace CombatAnalysis.Hubs.Hubs;
 
-public class GroupChatHub(IHttpClientHelper httpClient, ILogger<GroupChatHub> logger, IKafkaProducerService<string, string> kafkaProducer) : Hub
+public class GroupChatHub : Hub
 {
-    private readonly IHttpClientHelper _httpClient = httpClient;
-    private readonly ILogger<GroupChatHub> _logger = logger;
-    private readonly IKafkaProducerService<string, string> _kafkaProducer = kafkaProducer;
+    private readonly IHttpClientHelper _httpClient;
+    private readonly ILogger<GroupChatHub> _logger;
+    private readonly IKafkaProducerService<string, string> _kafkaProducer;
+
+    public GroupChatHub(IHttpClientHelper httpClient, IOptions<Cluster> cluster, ILogger<GroupChatHub> logger, IKafkaProducerService<string, string> kafkaProducer)
+    {
+        _logger = logger;
+        _kafkaProducer = kafkaProducer;
+        _httpClient = httpClient;
+        _httpClient.APIUrl = cluster.Value.Chat;
+    }
 
     public async Task JoinRoom(string appUserId)
     {

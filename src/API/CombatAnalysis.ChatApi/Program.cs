@@ -68,7 +68,6 @@ builder.Services.AddAuthorization(options =>
     });
 });
 
-builder.Services.AddSingleton<IKafkaProducerService<string, string>, KafkaProducer<string, string>>();
 builder.Services.AddTransient<IChatHubHelper, ChatHubHelper>();
 builder.Services.AddHostedService<PersonalChatMessageConsumer>();
 builder.Services.AddHostedService<GroupChatConsumer>();

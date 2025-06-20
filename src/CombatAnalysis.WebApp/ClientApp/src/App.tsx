@@ -4,6 +4,7 @@ import AppRoutes from './AppRoutes';
 import Layout from './components/Layout';
 import { AuthProvider } from './context/AuthProvider';
 import { ChatHubProvider } from './context/ChatHubProvider';
+import { NotificationProvider } from './context/NotificationProvider';
 
 import './i18n';
 
@@ -13,16 +14,18 @@ const App: React.FC = () => {
     const render = () => {
         return (
             <AuthProvider>
-                <ChatHubProvider>
-                    <Layout>
-                        <Routes>
-                            {AppRoutes.map((route, index) => {
-                                const { element, ...rest } = route;
-                                return <Route key={index} {...rest} element={element} />;
-                            })}
-                        </Routes>
-                    </Layout>
-                </ChatHubProvider>
+                <NotificationProvider>
+                    <ChatHubProvider>
+                        <Layout>
+                            <Routes>
+                                {AppRoutes.map((route, index) => {
+                                    const { element, ...rest } = route;
+                                    return <Route key={index} {...rest} element={element} />;
+                                })}
+                            </Routes>
+                        </Layout>
+                    </ChatHubProvider>
+                </NotificationProvider>
             </AuthProvider>
         );
     }

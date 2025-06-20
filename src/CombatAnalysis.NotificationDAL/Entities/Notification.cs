@@ -16,9 +16,7 @@ public class Notification
 
     public int Status { get; set; }
 
-    public string TargetId { get; set; } = string.Empty;
+    public string InitiatorId { get; set; } = string.Empty;
 
     public string? TargetName { get; set; }
-
-    public string AppUserId { get; set; } = string.Empty;
 }

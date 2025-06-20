@@ -1,13 +1,21 @@
 using AutoMapper;
 using CombatAnalysis.NotificationAPI.Consts;
+using CombatAnalysis.NotificationAPI.Helpers;
+using CombatAnalysis.NotificationAPI.Interfaces;
+using CombatAnalysis.NotificationAPI.Kafka;
 using CombatAnalysis.NotificationAPI.Mapping;
 using CombatAnalysis.NotificationBL.Extensions;
 using CombatAnalysis.NotificationBL.Mapping;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Serilog;
 using Serilog.Events;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.Configure<KafkaSettings>(builder.Configuration.GetSection("Kafka"));
+builder.Services.Configure<Hubs>(builder.Configuration.GetSection("Hubs"));
 
 var databasePropsOptions = new DatabaseProps();
 builder.Configuration.Bind("Database", databasePropsOptions);
@@ -22,10 +30,85 @@ var mappingConfig = new MapperConfiguration(mc =>
 var mapper = mappingConfig.CreateMapper();
 builder.Services.AddSingleton(mapper);
 
+var authenticationOptions = new Authentication();
+builder.Configuration.Bind("Authentication", authenticationOptions);
+var authenticationClientOptions = new AuthenticationClient();
+builder.Configuration.Bind("Authentication:Client", authenticationClientOptions);
+var apiOptions = new API();
+builder.Configuration.Bind("API", apiOptions);
+
+builder.Services.AddAuthentication("Bearer")
+    .AddJwtBearer(options =>
+    {
+        options.Authority = authenticationOptions.Authority;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(authenticationOptions.IssuerSigningKey),
+            ValidateIssuer = true,
+            ValidIssuer = authenticationOptions.Issuer,
+            ValidateAudience = true,
+            ValidAudiences = [authenticationClientOptions.WebClientId, authenticationClientOptions.DesktopClientId],
+            ClockSkew = TimeSpan.Zero
+        };
+        // Skip checking HTTPS (should be HTTPS in production)
+        options.RequireHttpsMetadata = false;
+    });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("ApiScope", builder =>
+    {
+        builder.RequireAuthenticatedUser();
+        builder.RequireClaim("scope", authenticationClientOptions.Scope);
+    });
+});
+
+builder.Services.AddTransient<IChatHubHelper, ChatHubHelper>();
+builder.Services.AddHostedService<PersonalChatMessageNotificationConsumer>();
+
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Notification API",
+        Version = "v1",
+    });
+
+    options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+    {
+        Type = SecuritySchemeType.OAuth2,
+        Flows = new OpenApiOAuthFlows
+        {
+            ClientCredentials = new OpenApiOAuthFlow
+            {
+                TokenUrl = new Uri($"{apiOptions.Identity}connect/token"),
+                Scopes = new Dictionary<string, string>
+                {
+                    { authenticationClientOptions.Scope, "Request API #1" }
+                }
+            }
+        }
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "oauth2"
+                    },
+                },
+                new[] { authenticationClientOptions.Scope }
+            }
+        });
+});
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Debug)
@@ -52,8 +135,8 @@ app.UseSwaggerUI(options =>
 {
     options.SwaggerEndpoint("/swagger/v1/swagger.json", "Notification API v1");
     options.InjectStylesheet("/swagger-ui/swaggerDark.css");
-    //options.OAuthClientId(authenticationClientOptions.WebClientId);
-    //options.OAuthScopes(authenticationClientOptions.Scope);
+    options.OAuthClientId(authenticationClientOptions.WebClientId);
+    options.OAuthScopes(authenticationClientOptions.Scope);
 });
 
 app.UseStaticFiles();

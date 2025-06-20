@@ -4,15 +4,24 @@ using CombatAnalysis.Hubs.Interfaces;
 using CombatAnalysis.Hubs.Kafka.Actions;
 using CombatAnalysis.Hubs.Models;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Options;
 using System.Text.Json;
 
 namespace CombatAnalysis.Hubs.Hubs;
 
-public class PersonalChatMessagesHub(IHttpClientHelper httpClient, ILogger<PersonalChatMessagesHub> logger, IKafkaProducerService<string, string> kafkaProducer) : Hub
+public class PersonalChatMessagesHub : Hub
 {
-    private readonly IHttpClientHelper _httpClient = httpClient;
-    private readonly ILogger<PersonalChatMessagesHub> _logger = logger;
-    private readonly IKafkaProducerService<string, string> _kafkaProducer = kafkaProducer;
+    private readonly IHttpClientHelper _httpClient;
+    private readonly ILogger<PersonalChatMessagesHub> _logger;
+    private readonly IKafkaProducerService<string, string> _kafkaProducer;
+
+    public PersonalChatMessagesHub(IHttpClientHelper httpClient, IOptions<Cluster> cluster, ILogger<PersonalChatMessagesHub> logger, IKafkaProducerService<string, string> kafkaProducer)
+    {
+        _logger = logger;
+        _kafkaProducer = kafkaProducer;
+        _httpClient = httpClient;
+        _httpClient.APIUrl = cluster.Value.Chat;
+    }
 
     public async Task JoinRoom(int chatId)
     {
@@ -35,13 +44,13 @@ public class PersonalChatMessagesHub(IHttpClientHelper httpClient, ILogger<Perso
         }
     }
 
-    public async Task SendMessage(string message, int chatId, string appUserId, string username)
+    public async Task SendMessage(string message, int chatId, string creatorId, string username)
     {
         try
         {
             ArgumentNullException.ThrowIfNullOrEmpty(message, nameof(message));
             ArgumentOutOfRangeException.ThrowIfLessThan(chatId, 1, nameof(chatId));
-            ArgumentNullException.ThrowIfNullOrEmpty(appUserId, nameof(appUserId));
+            ArgumentNullException.ThrowIfNullOrEmpty(creatorId, nameof(creatorId));
             ArgumentNullException.ThrowIfNullOrEmpty(username, nameof(username));
 
             var personalMessage = new PersonalChatMessageModel
@@ -51,7 +60,7 @@ public class PersonalChatMessagesHub(IHttpClientHelper httpClient, ILogger<Perso
                 Time = TimeSpan.Parse($"{DateTimeOffset.UtcNow.Hour}:{DateTimeOffset.UtcNow.Minute}").ToString(),
                 Status = 0,
                 ChatId = chatId,
-                AppUserId = appUserId
+                AppUserId = creatorId
             };
 
             var response = await _httpClient.PostAsync("PersonalChatMessage", JsonContent.Create(personalMessage));
@@ -63,7 +72,7 @@ public class PersonalChatMessagesHub(IHttpClientHelper httpClient, ILogger<Perso
             var chatAction = JsonSerializer.Serialize(new PersonalChatMessageAction
             {
                 ChatId = createdMessage.ChatId,
-                AppUserId = appUserId,
+                CreatorId = creatorId,
                 State = (int)KafkaActionState.Created,
                 When = DateTime.UtcNow.ToString(),
                 RefreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty,
@@ -114,7 +123,7 @@ public class PersonalChatMessagesHub(IHttpClientHelper httpClient, ILogger<Perso
             var chatAction = JsonSerializer.Serialize(new PersonalChatMessageAction
             {
                 ChatId = chatMessage.ChatId,
-                AppUserId = meId,
+                CreatorId = meId,
                 State = (int)KafkaActionState.Read,
                 When = DateTime.UtcNow.ToString(),
                 RefreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty,

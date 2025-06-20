@@ -1,6 +1,6 @@
-﻿namespace CombatAnalysis.NotificationBL.DTO;
+﻿namespace CombatAnalysis.Hubs.Models.Notifications;
 
-public class NotificationDto
+public class NotificationModel
 {
     public int Id { get; set; }
 

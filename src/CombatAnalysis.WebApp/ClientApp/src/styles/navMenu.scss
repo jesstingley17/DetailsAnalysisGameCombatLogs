@@ -10,7 +10,7 @@ $box-shadow-secondary: 2px 2px 2px 2px #028391;
 $box-shadow-tertiary: 2px 2px 2px 2px #7776B3;
 $gap-small: 10px;
 $gap-medium: 15px;
-$gap-large: 20px;
+$gap-large: 25px;
 $padding-small: 5px 10px;
 $padding-medium: 5px;
 $z-index-high: 100;
@@ -89,6 +89,8 @@ a.navbar-brand {
 
 .authorization {
     display: flex;
+    justify-content: center;
+    align-items: center;
     gap: $gap-large;
 
     &__login, &__registration {
@@ -132,6 +134,10 @@ a.navbar-brand {
         box-shadow: $box-shadow-tertiary;
         cursor: pointer;
     }
+}
+
+.authorized svg, .authorization svg {
+    cursor: pointer;
 }
 
 .search {
@@ -299,5 +305,25 @@ a.navbar-brand {
                 }
             }
         }
+    }
+}
+
+.notifications {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    border-radius: 20px;
+    border: 2px solid gray;
+    background: #0c192c;
+    padding: 5px 20px;
+    top: 11vh;
+    cursor: default;
+    z-index: 9999;
+
+    &__empty {
+        font-size: 0.8em;
+        opacity: 0.7;
     }
 }

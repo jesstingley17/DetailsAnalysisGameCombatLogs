@@ -1,14 +1,23 @@
-﻿using CombatAnalysis.Hubs.Enums;
+﻿using CombatAnalysis.Hubs.Consts;
+using CombatAnalysis.Hubs.Enums;
 using CombatAnalysis.Hubs.Interfaces;
 using CombatAnalysis.Hubs.Models;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Options;
 
 namespace CombatAnalysis.Hubs.Hubs;
 
-public class PersonalChatUnreadMessageHub(IHttpClientHelper httpClient, ILogger<PersonalChatUnreadMessageHub> logger) : Hub
+public class PersonalChatUnreadMessageHub : Hub
 {
-    private readonly IHttpClientHelper _httpClient = httpClient;
-    private readonly ILogger<PersonalChatUnreadMessageHub> _logger = logger;
+    private readonly IHttpClientHelper _httpClient;
+    private readonly ILogger<PersonalChatUnreadMessageHub> _logger;
+
+    public PersonalChatUnreadMessageHub(IHttpClientHelper httpClient, IOptions<Cluster> cluster, ILogger<PersonalChatUnreadMessageHub> logger)
+    {
+        _logger = logger;
+        _httpClient = httpClient;
+        _httpClient.APIUrl = cluster.Value.Chat;
+    }
 
     public async Task JoinRoom(int chatId)
     {

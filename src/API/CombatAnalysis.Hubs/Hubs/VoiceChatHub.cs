@@ -1,6 +1,8 @@
-﻿using CombatAnalysis.Hubs.Interfaces;
+﻿using CombatAnalysis.Hubs.Consts;
+using CombatAnalysis.Hubs.Interfaces;
 using CombatAnalysis.Hubs.Models;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
 
 namespace CombatAnalysis.Hubs.Hubs;
@@ -11,10 +13,11 @@ public class VoiceChatHub : Hub
     private readonly ILogger<VoiceChatHub> _logger;
     private static readonly ConcurrentDictionary<string, HashSet<string>> _groupUsers = new();
 
-    public VoiceChatHub(IHttpClientHelper httpClient, ILogger<VoiceChatHub> logger)
+    public VoiceChatHub(IHttpClientHelper httpClient, IOptions<Cluster> cluster, ILogger<VoiceChatHub> logger)
     {
-        _httpClient = httpClient;
         _logger = logger;
+        _httpClient = httpClient;
+        _httpClient.APIUrl = cluster.Value.Chat;
     }
 
     public async Task JoinRoom(string room, string userId)

@@ -90,6 +90,7 @@ app.UseRouting().UseEndpoints(endpoints =>
     app.MapHub<GroupChatMessagesHub>("/groupChatMessagesHub");
     app.MapHub<GroupChatUnreadMessageHub>("/groupChatUnreadMessageHub");
     app.MapHub<VoiceChatHub>("/voiceChatHub");
+    app.MapHub<NotificationHub>("/notificationHub");
 });
 
 app.UseHttpsRedirection();

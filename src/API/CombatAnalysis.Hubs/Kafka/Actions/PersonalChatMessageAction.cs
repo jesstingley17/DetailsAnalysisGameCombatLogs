@@ -4,7 +4,7 @@ public class PersonalChatMessageAction
 {
     public int ChatId { get; set; }
 
-    public string AppUserId { get; set; }
+    public string CreatorId { get; set; }
 
     public int State { get; set; }
 

@@ -9,7 +9,7 @@ namespace CombatAnalysis.NotificationAPI.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-//[Authorize]
+[Authorize]
 public class NotificationController(IService<NotificationDto, int> notificationService, IMapper mapper, ILogger<NotificationController> logger) : ControllerBase
 {
     private readonly IService<NotificationDto, int> _notificationService = notificationService;

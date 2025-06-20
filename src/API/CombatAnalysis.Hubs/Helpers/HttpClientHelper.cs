@@ -6,27 +6,20 @@ using System.Net.Http.Headers;
 
 namespace CombatAnalysis.Hubs.Helpers;
 
-internal class HttpClientHelper : IHttpClientHelper
+internal class HttpClientHelper(IOptions<Cluster> cluster, IHttpContextAccessor httpContextAccessor) : IHttpClientHelper
 {
     private const string _baseAddressApi = "api/v1/";
 
-    private readonly HttpClient _client;
-    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly HttpClient _client = new();
+    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
-    public HttpClientHelper(IOptions<Cluster> cluster, IHttpContextAccessor httpContextAccessor)
-    {
-        _httpContextAccessor = httpContextAccessor;
-
-        _client = new HttpClient {
-            BaseAddress = new Uri($"{cluster.Value.Chat}{_baseAddressApi}")
-        };
-    }
+    public string APIUrl { get; set; } = string.Empty;
 
     public async Task<HttpResponseMessage> PostAsync(string requestUri, JsonContent content)
     {
         AddAuthorizationHeader();
 
-        var responseMessage = await _client.PostAsync(requestUri, content);
+        var responseMessage = await _client.PostAsync($"{APIUrl}{_baseAddressApi}{requestUri}", content);
 
         return responseMessage;
     }
@@ -35,7 +28,7 @@ internal class HttpClientHelper : IHttpClientHelper
     {
         AddAuthorizationHeader();
 
-        var responseMessage = await _client.GetAsync(requestUri);
+        var responseMessage = await _client.GetAsync($"{APIUrl}{_baseAddressApi}{requestUri}");
 
         return responseMessage;
     }
@@ -44,7 +37,7 @@ internal class HttpClientHelper : IHttpClientHelper
     {
         AddAuthorizationHeader();
 
-        var responseMessage = await _client.PutAsync(requestUri, content);
+        var responseMessage = await _client.PutAsync($"{APIUrl}{_baseAddressApi}{requestUri}", content);
 
         return responseMessage;
     }
@@ -53,7 +46,7 @@ internal class HttpClientHelper : IHttpClientHelper
     {
         AddAuthorizationHeader();
 
-        var responseMessage = await _client.DeleteAsync(requestUri);
+        var responseMessage = await _client.DeleteAsync($"{APIUrl}{_baseAddressApi}{requestUri}");
 
         return responseMessage;
     }
