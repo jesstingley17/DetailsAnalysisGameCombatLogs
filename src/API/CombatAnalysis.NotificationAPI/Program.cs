@@ -66,9 +66,9 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddTransient<IChatHubHelper, ChatHubHelper>();
 builder.Services.AddHostedService<PersonalChatMessageNotificationConsumer>();
+builder.Services.AddHostedService<NotificationConsumer>();
 
 builder.Services.AddControllers();
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -124,17 +124,11 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
 app.UseSwagger();
 app.UseSwaggerUI(options =>
 {
     options.SwaggerEndpoint("/swagger/v1/swagger.json", "Notification API v1");
-    options.InjectStylesheet("/swagger-ui/swaggerDark.css");
+    options.InjectStylesheet("/swagger/swagger-dark.css");
     options.OAuthClientId(authenticationClientOptions.WebClientId);
     options.OAuthScopes(authenticationClientOptions.Scope);
 });

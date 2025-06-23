@@ -56,11 +56,11 @@ public class GroupChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, IOp
             await chatHubHelper.ConnectToHubAsync($"{_hubs.Value.Server}{_hubs.Value.GroupChatUnreadMessageAddress}", chatAction.RefreshToken, chatAction.AccessToken);
             await chatHubHelper.JoinRoomAsync(chatAction.ChatId);
 
-            if (chatAction.State == (int)KafkaActionState.Created)
+            if (chatAction.State == (int)ChatActionState.Created)
             {
                 await IncreaseCountAsync(chatHubHelper, chatAction, groupChatUser, unreadGroupChatMessageService);
             }
-            else if (chatAction.State == (int)KafkaActionState.Read)
+            else if (chatAction.State == (int)ChatActionState.Read)
             {
                 await DecreaseCountAsync(scope, chatHubHelper, chatAction, groupChatUser, unreadGroupChatMessageService);
             }

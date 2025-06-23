@@ -21,9 +21,19 @@ export const NotificationApi = createApi({
                     ? [...result.map(({ id }) => ({ type: 'Notification' as const, id })), { type: 'Notification' }]
                     : [{ type: 'Notification' }]
         }),
+        getUnreadNotificationsByRecipientId: builder.query<AppNotification[], string>({
+            query: (recipientId) => ({
+                url: `/Notification/getUnreadByRecipientId/${recipientId}`,
+            }),
+            providesTags: (result, error, arg) =>
+                result
+                    ? [...result.map(({ id }) => ({ type: 'Notification' as const, id })), { type: 'Notification' }]
+                    : [{ type: 'Notification' }]
+        }),
     })
 })
 
 export const {
     useLazyGetNotificationsByRecipientIdQuery,
+    useLazyGetUnreadNotificationsByRecipientIdQuery,
 } = NotificationApi;

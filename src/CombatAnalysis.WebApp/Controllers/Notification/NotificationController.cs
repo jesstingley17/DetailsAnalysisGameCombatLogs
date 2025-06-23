@@ -37,4 +37,22 @@ public class NotificationController : ControllerBase
 
         return BadRequest();
     }
+
+    [HttpGet("getUnreadByRecipientId/{recipientId}")]
+    public async Task<IActionResult> GetUnreadByRecipientId(string recipientId)
+    {
+        var responseMessage = await _httpClient.GetAsync($"Notification/getUnreadByRecipientId/{recipientId}");
+        if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        {
+            return Unauthorized();
+        }
+        else if (responseMessage.IsSuccessStatusCode)
+        {
+            var recipientNotifications = await responseMessage.Content.ReadFromJsonAsync<IEnumerable<NotificationModel>>();
+
+            return Ok(recipientNotifications);
+        }
+
+        return BadRequest();
+    }
 }

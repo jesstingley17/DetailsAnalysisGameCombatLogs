@@ -82,7 +82,7 @@ public class PersonalChatMessagesHub : Hub
                 InititatorUsername = username,
                 InititatorId = creatorId,
                 RecipientId = companionId,
-                State = (int)KafkaActionState.Created,
+                State = (int)ChatActionState.Created,
                 When = DateTime.UtcNow.ToString(),
                 RefreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty,
                 AccessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)] ?? string.Empty
@@ -133,7 +133,7 @@ public class PersonalChatMessagesHub : Hub
             {
                 ChatId = chatMessage.ChatId,
                 InititatorId = meId,
-                State = (int)KafkaActionState.Read,
+                State = (int)ChatActionState.Read,
                 When = DateTime.UtcNow.ToString(),
                 RefreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty,
                 AccessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)] ?? string.Empty

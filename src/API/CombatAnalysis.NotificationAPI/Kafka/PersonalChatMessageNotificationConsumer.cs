@@ -35,7 +35,7 @@ public class PersonalChatMessageNotificationConsumer(IOptions<KafkaSettings> kaf
             await chatHubHelper.ConnectToHubAsync($"{_hubs.Value.Server}{_hubs.Value.NotificationAddress}", chatAction.RefreshToken, chatAction.AccessToken);
             await chatHubHelper.JoinRoomAsync(chatAction.InititatorId);
 
-            if (chatAction.State == (int)KafkaActionState.Created)
+            if (chatAction.State == (int)ChatActionState.Created)
             {
                 await CreateNotificationAsync(chatHubHelper, chatAction, notificationService);
             }

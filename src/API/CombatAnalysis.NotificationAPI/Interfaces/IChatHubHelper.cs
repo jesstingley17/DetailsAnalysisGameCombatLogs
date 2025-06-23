@@ -7,4 +7,6 @@ public interface IChatHubHelper
     Task JoinRoomAsync(string appUserId);
 
     Task RequestNotificationAsync(int notificationId, int chatId);
+
+    Task RequestRecipientNotifications(string recipientId);
 }

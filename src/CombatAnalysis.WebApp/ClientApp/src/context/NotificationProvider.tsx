@@ -70,9 +70,15 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         });
     }
 
+    const subscribeToRecipientNotifications = (callback: any) => {
+        notificationHubConnection?.on("ReceiveRequestRecipientNotifications", () => {
+            callback();
+        });
+    }
+
     return (
         <NotificationHubContext.Provider value={{
-            notificationHubConnection, connectToNotificationAsync, subscribeToNotifications
+            notificationHubConnection, connectToNotificationAsync, subscribeToNotifications, subscribeToRecipientNotifications
         }}>
             {children}
         </NotificationHubContext.Provider>

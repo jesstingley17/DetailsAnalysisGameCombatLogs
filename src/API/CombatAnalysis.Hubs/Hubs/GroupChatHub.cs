@@ -52,7 +52,7 @@ public class GroupChatHub : Hub
                 Chat = container.GroupChat,
                 Rules = container.GroupChatRules,
                 User = container.GroupChatUser,
-                State = (int)KafkaActionState.Created,
+                State = (int)ChatActionState.Created,
                 When = DateTime.UtcNow.ToString(),
                 RefreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty,
                 AccessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)] ?? string.Empty

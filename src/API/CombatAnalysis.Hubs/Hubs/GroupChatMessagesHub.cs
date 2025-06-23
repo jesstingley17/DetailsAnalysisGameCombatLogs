@@ -78,7 +78,7 @@ public class GroupChatMessagesHub : Hub
                     ChatId = createdMessage.ChatId,
                     MessageId = createdMessage.Id,
                     GroupChatUserId = chatMessage.GroupChatUserId,
-                    State = (int)KafkaActionState.Created,
+                    State = (int)ChatActionState.Created,
                     When = DateTime.UtcNow.ToString(),
                     RefreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty,
                     AccessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)] ?? string.Empty
@@ -129,7 +129,7 @@ public class GroupChatMessagesHub : Hub
                 ChatId = chatMessage.ChatId,
                 MessageId = chatMessageId,
                 GroupChatUserId = meInChatId,
-                State = (int)KafkaActionState.Read,
+                State = (int)ChatActionState.Read,
                 When = DateTime.UtcNow.ToString(),
                 RefreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty,
                 AccessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)] ?? string.Empty

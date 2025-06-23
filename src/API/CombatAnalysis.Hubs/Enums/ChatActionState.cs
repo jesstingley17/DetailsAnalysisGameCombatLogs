@@ -1,6 +1,6 @@
 ﻿namespace CombatAnalysis.Hubs.Enums;
 
-internal enum KafkaActionState
+internal enum ChatActionState
 {
     Created,
     Read,

@@ -2,11 +2,11 @@ import { faBell } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useNotificationHub } from '../context/NotificationProvider';
+import { useLazyGetUnreadNotificationsByRecipientIdQuery } from '../store/api/core/Notification.api';
 import { AppNotification } from '../types/AppNotification';
-import { useLazyGetNotificationsByRecipientIdQuery } from '../store/api/core/Notification.api';
-import { useSelector } from 'react-redux';
 
 const Notification: React.FC = () => {
     const { t } = useTranslation("notification");
@@ -17,7 +17,7 @@ const Notification: React.FC = () => {
 
     const notificationHub = useNotificationHub();
 
-    const [getNotificationsByRecipientIdAsync] = useLazyGetNotificationsByRecipientIdQuery();
+    const [getUnreadNotificationsByRecipientIdAsync] = useLazyGetUnreadNotificationsByRecipientIdQuery();
 
     const [showNotifications, setShowNotifications] = useState(false);
     const [notifications, setNotifications] = useState<AppNotification[]>([]);
@@ -28,7 +28,7 @@ const Notification: React.FC = () => {
         }
 
         const getNotificationsByRecipientId = async () => {
-            const notifications = await getNotificationsByRecipientIdAsync(me.id).unwrap();
+            const notifications = await getUnreadNotificationsByRecipientIdAsync(me.id).unwrap();
             setNotifications(notifications);
         }
 
@@ -43,14 +43,35 @@ const Notification: React.FC = () => {
         notificationHub.subscribeToNotifications((notification: AppNotification) => {
             setNotifications(prevNot => [...prevNot, notification]);
         });
+
+        notificationHub.subscribeToRecipientNotifications(async () => {
+            const notifications = await getUnreadNotificationsByRecipientIdAsync(me.id).unwrap();
+            setNotifications(notifications);
+        });
     }, [notificationHub?.notificationHubConnection]);
 
     const personalChatNotifications = (notification: AppNotification) => {
-        const navigateToChats = () => navigate(`/chats?personal=${notification.initiatorId}`);
+        const navigateToChats = () => seeNotification(notification);
 
         return (
-            <li className="notification-message" key={notification.id}>{t("PersonalChatNotification")} '{notification.initiatorName}'. <span className="notifications-container__see" onClick={navigateToChats}>See</span></li>
+            <li className="notification-message" key={notification.id}>{t("PersonalChatNotification")} '{notification.initiatorName}'. <span className="notifications-container__see" onClick={navigateToChats}>{t("See")}</span></li>
         );
+    }
+
+    const seeNotification = (notification: AppNotification) => {
+        if (!notificationHub || !me) {
+            return;
+        }
+
+        notificationHub.notificationHubConnection?.invoke("ReadNotification", notification.id, me.id).then(() => navigate(`/chats?personal=${notification.initiatorId}`));
+    }
+
+    const readAllNotifications = async () => {
+        if (!notificationHub) {
+            return;
+        }
+
+        await notificationHub.notificationHubConnection?.invoke("ReadRecipientNotifications", me?.id);
     }
 
     return (
@@ -73,11 +94,11 @@ const Notification: React.FC = () => {
                     <ul className="notifications-container__content">
                         {notifications.length === 0
                             ? <li className="notifications-container__empty">{t("Empty")}</li>
-                            : notifications.map((notification) => (
-                                personalChatNotifications(notification)
-                            ))}
+                            : notifications.map((notification) => personalChatNotifications(notification))}
                     </ul>
-                    <div className="notifications-container__read-all">{t("ReadAll")}</div>
+                    {notifications?.length > 0 &&
+                        <div className="notifications-container__read-all" onClick={readAllNotifications}>{t("ReadAll")}</div>
+                    }
                 </div>
             }
         </div>

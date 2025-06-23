@@ -40,6 +40,15 @@ public class NotificationController(IService<NotificationDto, int> notificationS
         return Ok(recipientNotifications);
     }
 
+    [HttpGet("getUnreadByRecipientId/{recipientId}")]
+    public async Task<IActionResult> GetUnreadByRecipientId(string recipientId)
+    {
+        var recipientNotifications = await _notificationService.GetByParamAsync(nameof(NotificationModel.RecipientId), recipientId);
+        var unreadNotifications = recipientNotifications.Where(n => n.Status == 0).ToList();
+
+        return Ok(unreadNotifications);
+    }
+
     [HttpPost]
     public async Task<IActionResult> Create(NotificationModel notification)
     {

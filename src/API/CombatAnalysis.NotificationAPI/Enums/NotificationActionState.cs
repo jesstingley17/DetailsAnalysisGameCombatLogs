@@ -1,8 +1,7 @@
 ﻿namespace CombatAnalysis.NotificationAPI.Enums;
 
-internal enum KafkaActionState
+internal enum NotificationActionState
 {
-    Created,
     Read,
-    Edited,
+    ReadAll
 }

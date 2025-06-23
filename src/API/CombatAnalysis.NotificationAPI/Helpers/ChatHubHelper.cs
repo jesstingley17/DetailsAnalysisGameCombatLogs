@@ -46,6 +46,16 @@ public class ChatHubHelper(ILogger<ChatHubHelper> logger) : IChatHubHelper
         await _notificationHubConnection.SendAsync("RequestNotification", notificationId, chatId);
     }
 
+    public async Task RequestRecipientNotifications(string recipientId)
+    {
+        if (_notificationHubConnection == null)
+        {
+            return;
+        }
+
+        await _notificationHubConnection.SendAsync("RequestRecipientNotifications", recipientId);
+    }
+
     private static async Task<HubConnection> CreateHubConnectionAsync(string hubURL, string refreshToken, string accessToken)
     {
         var cookieContainer = new CookieContainer();
