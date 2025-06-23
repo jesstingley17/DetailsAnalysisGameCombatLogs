@@ -194,11 +194,12 @@ const GroupChat: React.FC<GroupChatProps> = ({ me, chat, setSelectedChat }) => {
                     ))}
                 </ul>
                 <MessageInput
-                    chat={chat}
+                    chatId={chat.id}
                     meInChat={groupChatData.meInChat}
                     setAreLoadingOldMessages={setAreLoadingOldMessages}
                     targetChatType={1}
                     t={t}
+                    companionsId={groupChatUsersId}
                 />
             </div>
             {settingsIsShow &&

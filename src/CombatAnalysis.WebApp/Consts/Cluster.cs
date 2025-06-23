@@ -2,13 +2,15 @@
 
 public class Cluster
 {
-    public string CombatParser { get; set; }
+    public string CombatParser { get; set; } = string.Empty;
 
-    public string User { get; set; }
+    public string User { get; set; } = string.Empty;
 
-    public string Chat { get; set; }
+    public string Chat { get; set; } = string.Empty;
 
-    public string Communication { get; set; }
+    public string Communication { get; set; } = string.Empty;
 
-    public string Identity { get; set; }
+    public string Identity { get; set; } = string.Empty;
+
+    public string Notification { get; set; } = string.Empty;
 }

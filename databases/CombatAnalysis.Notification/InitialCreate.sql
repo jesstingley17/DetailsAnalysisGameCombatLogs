@@ -9,22 +9,24 @@ END;
 GO
 
 BEGIN TRANSACTION;
+GO
+
 CREATE TABLE [Notification] (
     [Id] int NOT NULL IDENTITY,
-    [Title] nvarchar(max) NOT NULL,
-    [Message] nvarchar(max) NULL,
-    [CreatedAt] datetime2 NOT NULL,
-    [ReadAt] datetime2 NULL,
     [Type] int NOT NULL,
     [Status] int NOT NULL,
     [InitiatorId] nvarchar(max) NOT NULL,
-    [TargetName] nvarchar(max) NULL,
+    [InitiatorName] nvarchar(max) NULL,
+    [RecipientId] nvarchar(max) NOT NULL,
+    [CreatedAt] datetime2 NOT NULL,
     CONSTRAINT [PK_Notification] PRIMARY KEY ([Id])
 );
 GO
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'20250620093219_InitialCreate', N'8.0.17');
+VALUES (N'20250623072614_InitialCreate-2', N'8.0.17');
+GO
 
 COMMIT;
 GO
+

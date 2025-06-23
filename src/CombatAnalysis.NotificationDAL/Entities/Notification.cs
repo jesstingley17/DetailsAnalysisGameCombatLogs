@@ -4,19 +4,15 @@ public class Notification
 {
     public int Id { get; set; }
 
-    public string Title { get; set; } = string.Empty;
-
-    public string? Message { get; set; }
-
-    public DateTime CreatedAt { get; set; }
-
-    public DateTime? ReadAt { get; set; }
-
     public int Type { get; set; }
 
     public int Status { get; set; }
 
     public string InitiatorId { get; set; } = string.Empty;
 
-    public string? TargetName { get; set; }
+    public string? InitiatorName { get; set; }
+
+    public string RecipientId { get; set; } = string.Empty;
+
+    public DateTime CreatedAt { get; set; }
 }

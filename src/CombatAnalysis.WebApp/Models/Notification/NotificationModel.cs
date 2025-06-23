@@ -1,4 +1,4 @@
-﻿namespace CombatAnalysis.NotificationAPI.Models;
+﻿namespace CombatAnalysis.WebApp.Models.Notification;
 
 public class NotificationModel
 {

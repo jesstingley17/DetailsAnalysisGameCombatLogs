@@ -27,8 +27,12 @@ export const PersonalChatApi = ChatApi.injectEndpoints({
             },
             providesTags: (result, error, id) => [{ type: 'PersonalChat', id }],
         }),
-        getByUserIdAsync: builder.query({
+        getChatByIdAsync: builder.query({
             query: (id) => `/PersonalChat/${id}`,
+            providesTags: (result, error, id) => [{ type: 'PersonalChat', id }],
+        }),
+        getByUserIdAsync: builder.query({
+            query: (userId) => `/PersonalChat/getByUserId/${userId}`,
             providesTags: (result, error, id) => [{ type: 'PersonalChat', id }],
         }),
         removePersonalChatAsync: builder.mutation({
@@ -45,6 +49,7 @@ export const {
     useCreatePersonalChatAsyncMutation,
     useUpdatePersonalChatAsyncMutation,
     useLazyIsExistAsyncQuery,
+    useLazyGetChatByIdAsyncQuery,
     useGetByUserIdAsyncQuery,
     useLazyGetByUserIdAsyncQuery,
     useRemovePersonalChatAsyncMutation,

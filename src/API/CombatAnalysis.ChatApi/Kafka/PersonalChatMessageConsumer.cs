@@ -54,7 +54,7 @@ public class PersonalChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, 
 
     private static async Task IncreaseCountAsync(IChatHubHelper chatHubHelper, PersonalChatDto personalChat, PersonalChatMessageAction chatAction, IService<PersonalChatDto, int> chatMessageCountService)
     {
-        if (chatAction.CreatorId == personalChat.CompanionId)
+        if (chatAction.InititatorId == personalChat.CompanionId)
         {
             personalChat.InitiatorUnreadMessages++;
         }
@@ -66,12 +66,12 @@ public class PersonalChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, 
         var affectedRows = await chatMessageCountService.UpdateAsync(personalChat);
         ArgumentOutOfRangeException.ThrowIfLessThan(affectedRows, 1, nameof(affectedRows));
 
-        await chatHubHelper.RequestUnreadMessagesAsync(personalChat.Id, chatAction.CreatorId == personalChat.CompanionId ? personalChat.InitiatorId : personalChat.CompanionId);
+        await chatHubHelper.RequestUnreadMessagesAsync(personalChat.Id, chatAction.InititatorId == personalChat.CompanionId ? personalChat.InitiatorId : personalChat.CompanionId);
     }
 
     private static async Task DecreaseCountAsync(IChatHubHelper chatHubHelper, PersonalChatDto personalChat, PersonalChatMessageAction chatAction, IService<PersonalChatDto, int> chatMessageCountService)
     {
-        if (chatAction.CreatorId == personalChat.CompanionId)
+        if (chatAction.InititatorId == personalChat.CompanionId)
         {
             personalChat.CompanionUnreadMessages--;
         }
@@ -83,6 +83,6 @@ public class PersonalChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, 
         var affectedRows = await chatMessageCountService.UpdateAsync(personalChat);
         ArgumentOutOfRangeException.ThrowIfLessThan(affectedRows, 1, nameof(affectedRows));
 
-        await chatHubHelper.RequestUnreadMessagesAsync(personalChat.Id, chatAction.CreatorId == personalChat.CompanionId ? personalChat.CompanionId : personalChat.InitiatorId);
+        await chatHubHelper.RequestUnreadMessagesAsync(personalChat.Id, chatAction.InititatorId == personalChat.CompanionId ? personalChat.CompanionId : personalChat.InitiatorId);
     }
 }

@@ -3,6 +3,7 @@ import authenticationMiddleware from '../middleware/authenticationMiddleware';
 import { ChatApi } from './api/core/Chat.api';
 import { CombatParserApi } from './api/core/CombatParser.api';
 import { CommunityApi } from './api/core/Community.api';
+import { NotificationApi } from './api/core/Notification.api';
 import { PostApi } from './api/core/Post.api';
 import { UserApi } from './api/core/User.api';
 import communityMenuReducer from './slicers/CommunityMenuSlice';
@@ -20,6 +21,7 @@ const reducers = combineReducers({
     [CommunityApi.reducerPath]: CommunityApi.reducer,
     [PostApi.reducerPath]: PostApi.reducer,
     [CombatParserApi.reducerPath]: CombatParserApi.reducer,
+    [NotificationApi.reducerPath]: NotificationApi.reducer,
 });
 
 const Store = configureStore({
@@ -31,6 +33,7 @@ const Store = configureStore({
             .concat(CommunityApi.middleware)
             .concat(PostApi.middleware)
             .concat(CombatParserApi.middleware)
+            .concat(NotificationApi.middleware)
             .concat(authenticationMiddleware)
 });
 

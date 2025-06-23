@@ -44,7 +44,7 @@ public class PersonalChatMessagesHub : Hub
         }
     }
 
-    public async Task SendMessage(string message, int chatId, string creatorId, string username)
+    public async Task SendMessage(string message, int chatId, string creatorId, string username, string companionId)
     {
         try
         {
@@ -52,6 +52,7 @@ public class PersonalChatMessagesHub : Hub
             ArgumentOutOfRangeException.ThrowIfLessThan(chatId, 1, nameof(chatId));
             ArgumentNullException.ThrowIfNullOrEmpty(creatorId, nameof(creatorId));
             ArgumentNullException.ThrowIfNullOrEmpty(username, nameof(username));
+            ArgumentNullException.ThrowIfNullOrEmpty(companionId, nameof(companionId));
 
             var personalMessage = new PersonalChatMessageModel
             {
@@ -69,10 +70,18 @@ public class PersonalChatMessagesHub : Hub
             var createdMessage = await response.Content.ReadFromJsonAsync<PersonalChatMessageModel>();
             ArgumentNullException.ThrowIfNull(createdMessage, nameof(createdMessage));
 
+            response = await _httpClient.GetAsync($"PersonalChat/{chatId}");
+            response.EnsureSuccessStatusCode();
+
+            var chat = await response.Content.ReadFromJsonAsync<PersonalChatModel>();
+            ArgumentNullException.ThrowIfNull(chat, nameof(chat));
+
             var chatAction = JsonSerializer.Serialize(new PersonalChatMessageAction
             {
                 ChatId = createdMessage.ChatId,
-                CreatorId = creatorId,
+                InititatorUsername = username,
+                InititatorId = creatorId,
+                RecipientId = companionId,
                 State = (int)KafkaActionState.Created,
                 When = DateTime.UtcNow.ToString(),
                 RefreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty,
@@ -123,7 +132,7 @@ public class PersonalChatMessagesHub : Hub
             var chatAction = JsonSerializer.Serialize(new PersonalChatMessageAction
             {
                 ChatId = chatMessage.ChatId,
-                CreatorId = meId,
+                InititatorId = meId,
                 State = (int)KafkaActionState.Read,
                 When = DateTime.UtcNow.ToString(),
                 RefreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty,

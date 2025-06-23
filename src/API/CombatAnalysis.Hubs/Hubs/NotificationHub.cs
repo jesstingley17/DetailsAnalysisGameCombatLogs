@@ -1,11 +1,9 @@
 ﻿using CombatAnalysis.Hubs.Consts;
 using CombatAnalysis.Hubs.Enums;
 using CombatAnalysis.Hubs.Interfaces;
-using CombatAnalysis.Hubs.Models;
-using CombatAnalysis.Hubs.Models.Notifications;
+using CombatAnalysis.Hubs.Models.Notification;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
-using System.Net.Http;
 
 namespace CombatAnalysis.Hubs.Hubs;
 
@@ -13,13 +11,11 @@ public class NotificationHub : Hub
 {
     private readonly IHttpClientHelper _httpClient;
     private readonly ILogger<NotificationHub> _logger;
-    private readonly Cluster _cluster;
 
     public NotificationHub(IHttpClientHelper httpClient, IOptions<Cluster> cluster, ILogger<NotificationHub> logger)
     {
         _httpClient = httpClient;
         _logger = logger;
-        _cluster = cluster.Value;
         _httpClient.APIUrl = cluster.Value.Notification;
     }
 
@@ -52,18 +48,7 @@ public class NotificationHub : Hub
             var notification = await response.Content.ReadFromJsonAsync<NotificationModel>();
             ArgumentNullException.ThrowIfNull(notification, nameof(notification));
 
-            _httpClient.APIUrl = _cluster.Chat;
-            response = await _httpClient.GetAsync($"PersonalChat/{chatId}");
-            response.EnsureSuccessStatusCode();
-
-            var personalChat = await response.Content.ReadFromJsonAsync<PersonalChatModel>();
-            ArgumentNullException.ThrowIfNull(personalChat, nameof(personalChat));
-
-            var targetUserId = personalChat.InitiatorId == notification.InitiatorId
-                ? personalChat.CompanionId
-                : personalChat.InitiatorId;
-
-            await Clients.Group(targetUserId).SendAsync("ReceiveNotification", notification);
+            await Clients.Group(notification.RecipientId).SendAsync("ReceiveNotification", notification);
         }
         catch (ArgumentNullException ex)
         {

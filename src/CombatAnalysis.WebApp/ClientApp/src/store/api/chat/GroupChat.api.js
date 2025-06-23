@@ -37,4 +37,5 @@ export const {
     useUpdateGroupChatAsyncMutation,
     useRemoveGroupChatAsyncMutation,
     useGetGroupChatByIdQuery,
+    useLazyGetGroupChatByIdQuery,
 } = GroupChatApi;

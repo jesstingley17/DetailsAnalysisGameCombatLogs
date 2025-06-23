@@ -33,7 +33,7 @@ public class PersonalChatMessageNotificationConsumer(IOptions<KafkaSettings> kaf
             ArgumentNullException.ThrowIfNull(chatAction, nameof(chatAction));
 
             await chatHubHelper.ConnectToHubAsync($"{_hubs.Value.Server}{_hubs.Value.NotificationAddress}", chatAction.RefreshToken, chatAction.AccessToken);
-            await chatHubHelper.JoinRoomAsync(chatAction.CreatorId);
+            await chatHubHelper.JoinRoomAsync(chatAction.InititatorId);
 
             if (chatAction.State == (int)KafkaActionState.Created)
             {
@@ -50,9 +50,12 @@ public class PersonalChatMessageNotificationConsumer(IOptions<KafkaSettings> kaf
     {
         var notification = new NotificationDto
         {
-            Title = "A new message has been received",
+            InitiatorId = chatAction.ChatId.ToString(),
+            InitiatorName = chatAction.InititatorUsername,
+            RecipientId = chatAction.RecipientId,
+            Type = (int)NotificationType.PersonalChatMessage,
+            Status = 0,
             CreatedAt = DateTime.UtcNow,
-            InitiatorId = chatAction.CreatorId
         };
 
         var createdNotification = await notificationService.CreateAsync(notification);

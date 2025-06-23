@@ -20,8 +20,26 @@ public class PersonalChatController : ControllerBase
         _httpClient.APIUrl = cluster.Value.Chat;
     }
 
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetByUserId(string id)
+    [HttpGet("{id:int:min(1)}")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var responseMessage = await _httpClient.GetAsync($"PersonalChat/{id}");
+        if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        {
+            return Unauthorized();
+        }
+        else if (responseMessage.IsSuccessStatusCode)
+        {
+            var personalChat = await responseMessage.Content.ReadFromJsonAsync<PersonalChatModel>();
+
+            return Ok(personalChat);
+        }
+
+        return BadRequest();
+    }
+
+    [HttpGet("getByUserId/{userId}")]
+    public async Task<IActionResult> GetByUserId(string userId)
     {
         var responseMessage = await _httpClient.GetAsync("PersonalChat");
         if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
@@ -31,7 +49,7 @@ public class PersonalChatController : ControllerBase
         else if (responseMessage.IsSuccessStatusCode)
         {
             var personalChats = await responseMessage.Content.ReadFromJsonAsync<IEnumerable<PersonalChatModel>>();
-            var myPersonalChats = personalChats?.Where(x => x.InitiatorId == id || x.CompanionId == id).ToList();
+            var myPersonalChats = personalChats?.Where(x => x.InitiatorId == userId || x.CompanionId == userId).ToList();
 
             return Ok(myPersonalChats);
         }

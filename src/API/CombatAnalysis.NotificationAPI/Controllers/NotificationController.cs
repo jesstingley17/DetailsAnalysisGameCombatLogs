@@ -32,6 +32,14 @@ public class NotificationController(IService<NotificationDto, int> notificationS
         return Ok(notification);
     }
 
+    [HttpGet("getByRecipientId/{recipientId}")]
+    public async Task<IActionResult> GetByRecipientId(string recipientId)
+    {
+        var recipientNotifications = await _notificationService.GetByParamAsync(nameof(NotificationModel.RecipientId), recipientId);
+
+        return Ok(recipientNotifications);
+    }
+
     [HttpPost]
     public async Task<IActionResult> Create(NotificationModel notification)
     {

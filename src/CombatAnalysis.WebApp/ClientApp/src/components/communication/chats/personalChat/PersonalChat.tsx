@@ -196,11 +196,12 @@ const PersonalChat: React.FC<PersonalChatProps> = ({ me, chat, setSelectedChat, 
                     ))}
                 </ul>
                 <MessageInput
-                    chat={chat}
+                    chatId={chat.id}
                     meInChat={me}
                     setAreLoadingOldMessages={setAreLoadingOldMessages}
                     targetChatType={0}
                     t={t}
+                    companionsId={[companionId]}
                 />
             </div>
         </div>
