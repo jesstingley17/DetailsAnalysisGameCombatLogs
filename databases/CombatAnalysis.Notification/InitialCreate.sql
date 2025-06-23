@@ -19,6 +19,7 @@ CREATE TABLE [Notification] (
     [InitiatorName] nvarchar(max) NULL,
     [RecipientId] nvarchar(max) NOT NULL,
     [CreatedAt] datetime2 NOT NULL,
+    [ReadAt] datetime2 NULL,
     CONSTRAINT [PK_Notification] PRIMARY KEY ([Id])
 );
 GO

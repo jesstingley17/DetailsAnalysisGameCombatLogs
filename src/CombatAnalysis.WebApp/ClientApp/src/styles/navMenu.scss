@@ -355,9 +355,17 @@ a.navbar-brand {
         }
 
         &__empty, .notification-message {
+            display: flex;
+            align-items: center;
+            gap: 15px;
             font-size: 0.9em;
             opacity: 0.75;
             text-align: center;
+
+            &__time {
+                font-size: 0.9em;
+                opacity: 0.6;
+            }
         }
 
         &__see {

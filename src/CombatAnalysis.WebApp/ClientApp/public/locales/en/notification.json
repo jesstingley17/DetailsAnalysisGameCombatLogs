@@ -3,5 +3,6 @@
   "Empty": "No any notifications",
   "PersonalChatNotification": "You have unread message from",
   "See": "See",
-  "ReadAll": "Read all notifications"
+  "ReadAll": "Read all notifications",
+  "Remove": "Remove"
 }

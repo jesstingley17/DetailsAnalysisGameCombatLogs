@@ -125,6 +125,33 @@ public class NotificationHub : Hub
         }
     }
 
+    public async Task RemoveNotification(int notificationId, string recipientId)
+    {
+        try
+        {
+            ArgumentOutOfRangeException.ThrowIfLessThan(notificationId, 1, nameof(notificationId));
+
+            var notificationAction = JsonSerializer.Serialize(new NotificationAction
+            {
+                NotificationId = notificationId,
+                RecipientId = recipientId,
+                State = (int)NotificationActionState.Remove,
+                When = DateTime.UtcNow.ToString(),
+                RefreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty,
+                AccessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)] ?? string.Empty
+            });
+            await _kafkaProducer.ProduceAsync(KafkaTopics.Notification, notificationId.ToString(), notificationAction);
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            _logger.LogError(ex, "Access denied: user should be authorized.");
+        }
+    }
+
     public async Task RequestRecipientNotifications(string recipientId)
     {
         try

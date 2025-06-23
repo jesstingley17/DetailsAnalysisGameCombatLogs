@@ -1,4 +1,4 @@
-import { faBell } from '@fortawesome/free-solid-svg-icons';
+import { faBell, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -52,10 +52,26 @@ const Notification: React.FC = () => {
 
     const personalChatNotifications = (notification: AppNotification) => {
         const navigateToChats = () => seeNotification(notification);
+        const removeNotification = async () => await removeNotificationAsync(notification);
 
         return (
-            <li className="notification-message" key={notification.id}>{t("PersonalChatNotification")} '{notification.initiatorName}'. <span className="notifications-container__see" onClick={navigateToChats}>{t("See")}</span></li>
+            <li className="notification-message" key={notification.id}>
+                <div className="notification-message__time">{getNotificationTime(notification)}</div>
+                <div>{t("PersonalChatNotification")} '{notification.initiatorName}'. <span className="notifications-container__see" onClick={navigateToChats}>{t("See")}</span></div>
+                <FontAwesomeIcon
+                    icon={faXmark}
+                    title={t("Remove") || ""}
+                    onClick={removeNotification}
+                />
+            </li>
         );
+    }
+
+    const getNotificationTime = (notification: AppNotification) => {
+        const date = new Date(notification.createdAt);
+        const time = `${date.getHours()}:${date.getMinutes()}`;
+
+        return time;
     }
 
     const seeNotification = (notification: AppNotification) => {
@@ -64,6 +80,14 @@ const Notification: React.FC = () => {
         }
 
         notificationHub.notificationHubConnection?.invoke("ReadNotification", notification.id, me.id).then(() => navigate(`/chats?personal=${notification.initiatorId}`));
+    }
+
+    const removeNotificationAsync = async (notification: AppNotification) => {
+        if (!notificationHub || !me) {
+            return;
+        }
+
+        await notificationHub.notificationHubConnection?.invoke("RemoveNotification", notification.id, me.id);
     }
 
     const readAllNotifications = async () => {

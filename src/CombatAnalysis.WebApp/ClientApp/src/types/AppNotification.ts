@@ -6,4 +6,5 @@ export type AppNotification = {
     initiatorName?: string;
     recipientId: string;
     createdAt: string;
+    readAt?: string;
 }

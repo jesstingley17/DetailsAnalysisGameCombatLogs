@@ -15,4 +15,6 @@ public class Notification
     public string RecipientId { get; set; } = string.Empty;
 
     public DateTime CreatedAt { get; set; }
+
+    public DateTime? ReadAt { get; set; }
 }

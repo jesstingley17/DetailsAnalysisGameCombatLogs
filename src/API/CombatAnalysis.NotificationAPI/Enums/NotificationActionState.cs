@@ -3,5 +3,6 @@
 internal enum NotificationActionState
 {
     Read,
-    ReadAll
+    ReadAll,
+    Remove
 }

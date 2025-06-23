@@ -40,6 +40,10 @@ public class NotificationConsumer(IOptions<KafkaSettings> kafkaSettings, IOption
             {
                 await ReadNotificationAsync(chatHubHelper, notificationAction, notificationService);
             }
+            else if (notificationAction.State == (int)NotificationActionState.Remove)
+            {
+                await RemoveNotificationAsync(chatHubHelper, notificationAction, notificationService);
+            }
             else if (notificationAction.State == (int)NotificationActionState.ReadAll)
             {
                 await ReadRecipientNotificationsAsync(chatHubHelper, notificationAction, notificationService);
@@ -56,6 +60,19 @@ public class NotificationConsumer(IOptions<KafkaSettings> kafkaSettings, IOption
     }
 
     private static async Task ReadNotificationAsync(IChatHubHelper chatHubHelper, NotificationAction notificationAction, IService<NotificationDto, int> notificationService)
+    {
+        var notification = await notificationService.GetByIdAsync(notificationAction.NotificationId);
+        ArgumentNullException.ThrowIfNull(notification, nameof(notification));
+
+        notification.Status = (int)NotificationStatus.Read;
+        notification.ReadAt = DateTime.UtcNow;
+        var affectedRows = await notificationService.UpdateAsync(notification);
+        ArgumentOutOfRangeException.ThrowIfLessThan(affectedRows, 1, nameof(affectedRows));
+
+        await chatHubHelper.RequestRecipientNotifications(notificationAction.RecipientId);
+    }
+
+    private static async Task RemoveNotificationAsync(IChatHubHelper chatHubHelper, NotificationAction notificationAction, IService<NotificationDto, int> notificationService)
     {
         var notification = await notificationService.GetByIdAsync(notificationAction.NotificationId);
         ArgumentNullException.ThrowIfNull(notification, nameof(notification));
