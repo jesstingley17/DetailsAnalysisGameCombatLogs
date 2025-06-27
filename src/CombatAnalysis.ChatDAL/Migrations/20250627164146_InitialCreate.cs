@@ -1,4 +1,5 @@
 ﻿using System;
+using CombatAnalysis.ChatDAL.Helpers;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -47,21 +48,6 @@ namespace CombatAnalysis.ChatDAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "GroupChatMessageCount",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Count = table.Column<int>(type: "int", nullable: false),
-                    ChatId = table.Column<int>(type: "int", nullable: false),
-                    GroupChatUserId = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_GroupChatMessageCount", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "GroupChatRules",
                 columns: table => new
                 {
@@ -84,6 +70,7 @@ namespace CombatAnalysis.ChatDAL.Migrations
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Username = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UnreadMessages = table.Column<int>(type: "int", nullable: false),
                     ChatId = table.Column<int>(type: "int", nullable: false),
                     AppUserId = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
@@ -99,7 +86,9 @@ namespace CombatAnalysis.ChatDAL.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     InitiatorId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CompanionId = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    InitiatorUnreadMessages = table.Column<int>(type: "int", nullable: false),
+                    CompanionId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CompanionUnreadMessages = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -128,21 +117,6 @@ namespace CombatAnalysis.ChatDAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PersonalChatMessageCount",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Count = table.Column<int>(type: "int", nullable: false),
-                    ChatId = table.Column<int>(type: "int", nullable: false),
-                    AppUserId = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PersonalChatMessageCount", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "UnreadGroupChatMessage",
                 columns: table => new
                 {
@@ -167,6 +141,8 @@ namespace CombatAnalysis.ChatDAL.Migrations
                 {
                     table.PrimaryKey("PK_VoiceChat", x => x.Id);
                 });
+
+            MigrationHelper.CreateProcedures(migrationBuilder);
         }
 
         /// <inheritdoc />
@@ -177,9 +153,6 @@ namespace CombatAnalysis.ChatDAL.Migrations
 
             migrationBuilder.DropTable(
                 name: "GroupChatMessage");
-
-            migrationBuilder.DropTable(
-                name: "GroupChatMessageCount");
 
             migrationBuilder.DropTable(
                 name: "GroupChatRules");
@@ -194,13 +167,12 @@ namespace CombatAnalysis.ChatDAL.Migrations
                 name: "PersonalChatMessage");
 
             migrationBuilder.DropTable(
-                name: "PersonalChatMessageCount");
-
-            migrationBuilder.DropTable(
                 name: "UnreadGroupChatMessage");
 
             migrationBuilder.DropTable(
                 name: "VoiceChat");
+
+            MigrationHelper.DropProcedures(migrationBuilder);
         }
     }
 }

@@ -22,7 +22,7 @@ const Chats: React.FC = () => {
 
     const location = useLocation();
 
-    const me = useSelector((state: any) => state.user.value);
+    const myself = useSelector((state: any) => state.user.value);
 
     const [getPersonalChatByIdAsync] = useLazyGetChatByIdAsyncQuery();
     const [getGroupChatByIdAsync] = useLazyGetGroupChatByIdQuery();
@@ -63,7 +63,7 @@ const Chats: React.FC = () => {
         checkSelectedChat();
     }, []);
 
-    if (!me) {
+    if (!myself) {
         return (
             <>
                 <CommunicationMenu
@@ -94,15 +94,15 @@ const Chats: React.FC = () => {
                         {selectedChat.type === "group"
                             ? <GroupChat
                                 chat={selectedChat.chat}
-                                me={me}
+                                myself={myself}
                                 setSelectedChat={setSelectedChat}
                             />
                             : selectedChat.type === "personal"
                                 ? <PersonalChat
                                     chat={selectedChat.chat}
-                                    me={me}
+                                    myself={myself}
                                     setSelectedChat={setSelectedChat}
-                                    companionId={selectedChat.chat.initiatorId === me?.id ? selectedChat.chat.companionId : selectedChat.chat.initiatorId}
+                                    companionId={selectedChat.chat.initiatorId === myself.id ? selectedChat.chat.companionId : selectedChat.chat.initiatorId}
                                 />
                                 : <div className="select-chat">
                                     {t("SelectChat")} <span onClick={() => setShowCreateGroupChat(true)}>{t("Create")}</span> {t("NewChat")}
@@ -129,7 +129,7 @@ const Chats: React.FC = () => {
                 <div className="chats">
                     <div className="chats__my-chats">
                         <GroupChatList
-                            meId={me?.id}
+                            meId={myself?.id}
                             t={t}
                             selectedChat={selectedChat}
                             setSelectedChat={setSelectedChat}
@@ -138,7 +138,7 @@ const Chats: React.FC = () => {
                             setShowCreateGroupChat={setShowCreateGroupChat}
                         />
                         <PersonalChatList
-                            meId={me?.id}
+                            meId={myself?.id}
                             t={t}
                             selectedChat={selectedChat}
                             setSelectedChat={setSelectedChat}
@@ -149,15 +149,15 @@ const Chats: React.FC = () => {
                     {selectedChat.type === "group"
                         ? <GroupChat
                             chat={selectedChat.chat}
-                            me={me}
+                            myself={myself}
                             setSelectedChat={setSelectedChat}
                         />
                         : selectedChat.type === "personal"
                             ? <PersonalChat
                                 chat={selectedChat.chat}
-                                me={me}
+                                myself={myself}
                                 setSelectedChat={setSelectedChat}
-                                companionId={selectedChat.chat.initiatorId === me?.id ? selectedChat.chat.companionId : selectedChat.chat.initiatorId}
+                                companionId={selectedChat.chat.initiatorId === myself.id ? selectedChat.chat.companionId : selectedChat.chat.initiatorId}
                             />
                             : <div className="select-chat">
                                 {t("SelectChat")} <span onClick={() => setShowCreateGroupChat(true)}>{t("Create")}</span> {t("NewChat")}

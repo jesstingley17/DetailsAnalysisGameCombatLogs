@@ -25,7 +25,7 @@ const defaultPayload = {
     announcements: 1,
 };
 
-const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ me, setSelectedChat, groupChatUsersId, groupChatUsers, meInChat, chat, t }) => {
+const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ myself, setSelectedChat, groupChatUsersId, groupChatUsers, IasGroupChatUser, chat, t }) => {
     const [showAddPeople, setShowAddPeople] = useState(false);
     const [peopleInspectionModeOn, setPeopleInspectionModeOn] = useState(false);
     const [rulesInspectionModeOn, setRulesInspectionModeOn] = useState(false);
@@ -67,7 +67,7 @@ const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ me, setSelectedChat, grou
 
             const user = await getUserByIdAsync(peopleToRemove[i].appUserId);
             if (user.data !== undefined) {
-                const systemMessage = `'${me?.username}' removed '${user.data.username}' from chat`;
+                const systemMessage = `'${myself?.username}' removed '${user.data.username}' from chat`;
                 await createMessageAsync(chat?.id, systemMessage);
             }
         }
@@ -83,7 +83,7 @@ const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ me, setSelectedChat, grou
             status: 0,
             type: 1,
             chatId: chatId,
-            appUserId: me.id
+            appUserId: myself.id
         };
 
         await createGroupChatMessageAsync(newMessage);
@@ -125,7 +125,7 @@ const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ me, setSelectedChat, grou
             return true;
         }
 
-        return chat?.appUserId === me?.id;
+        return chat?.appUserId === myself?.id;
     }
 
     const canRemovePeople = (): boolean => {
@@ -134,7 +134,7 @@ const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ me, setSelectedChat, grou
             return true;
         }
 
-        return chat?.appUserId === me?.id;
+        return chat?.appUserId === myself?.id;
     }
 
     if (isLoading) {
@@ -149,27 +149,27 @@ const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ me, setSelectedChat, grou
                     {canInvitePeople() &&
                         <div className="btn-border-shadow" onClick={() => setShowAddPeople((item) => !item)}>{t("Invite")}</div>
                     }
-                    {chat.appUserId === me.id &&
+                    {chat.appUserId === myself.id &&
                         <div className="btn-border-shadow" onClick={() => setRulesInspectionModeOn((item) => !item)}>{t("Rules")}</div>
                     }
                     <div className="btn-border-shadow">{t("Documents")}</div>
                 </div>
                 <div className="danger-settings">
-                    {me.id === chat.appUserId &&
+                    {myself.id === chat.appUserId &&
                         <div className="btn-border-shadow" onClick={() => setShowRemoveChatAlert((item) => !item)}>{t("RemoveChat")}</div>
                     }
-                    {me.id === chat.appUserId
+                    {myself.id === chat.appUserId
                         ? <VerificationRestriction
                             contentText={t("Leave")}
                             infoText={t("YouShouldTransferRights")}
                         />
-                        : <div className="btn-border-shadow" onClick={async () => await leaveFromChatAsync(meInChat?.id)}>{t("Leave")}</div>
+                        : <div className="btn-border-shadow" onClick={async () => await leaveFromChatAsync(IasGroupChatUser?.id)}>{t("Leave")}</div>
                     }
                 </div>
             </div>
             {showAddPeople &&
                 <GroupChatAddUser
-                    me={me}
+                    me={myself}
                     chatId={chat?.id}
                     groupChatUsersId={groupChatUsersId}
                     setShowAddPeople={setShowAddPeople}
@@ -178,7 +178,7 @@ const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ me, setSelectedChat, grou
             }
             {peopleInspectionModeOn &&
                 <GroupChatMembers
-                    me={me}
+                    me={myself}
                     communicationUsers={groupChatUsers}
                     removeUsersAsync={removeGroupChatUserAsync}
                     setShowMembers={setPeopleInspectionModeOn}
@@ -188,7 +188,7 @@ const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ me, setSelectedChat, grou
             }
             {peopleInspectionModeOn &&
                 <GroupChatMembers
-                    me={me}
+                    me={myself}
                     communicationUsers={groupChatUsers}
                     removeUsersAsync={removeGroupChatUserAsync}
                     setShowMembers={setPeopleInspectionModeOn}

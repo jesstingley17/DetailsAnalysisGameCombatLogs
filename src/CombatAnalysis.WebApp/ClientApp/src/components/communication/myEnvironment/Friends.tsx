@@ -43,8 +43,9 @@ const Friends: React.FC = () => {
                         ? myFriends.map((friend: Friend) => (
                             <li key={friend.id} className="friend">
                                 <User
-                                    me={me}
+                                    myself={me}
                                     targetUserId={friend.forWhomId === me?.id ? friend.whoFriendId : friend.forWhomId}
+                                    targetUsername={friend.forWhomId === me?.id ? friend.whoFriendId : friend.forWhomId}
                                     setUserInformation={setUserInformation}
                                     friendId={friend.id}
                                 />

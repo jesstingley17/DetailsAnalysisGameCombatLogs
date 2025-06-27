@@ -4,11 +4,11 @@ import { GroupChatUser } from "../../../GroupChatUser";
 import { SelectedChat } from "../SelectedChat";
 
 export interface GroupChatMenuProps {
-    me: any;
+    myself: any;
     setSelectedChat(value: SetStateAction<SelectedChat>): void;
     groupChatUsers: GroupChatUser[];
     groupChatUsersId: string[];
-    meInChat: GroupChatUser;
+    IasGroupChatUser: GroupChatUser;
     chat: GroupChat;
     t(key: string): string;
 }

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CombatAnalysis.ChatDAL.Migrations
 {
     [DbContext(typeof(ChatSQLContext))]
-    [Migration("20250426114600_InitialCreate")]
+    [Migration("20250627164146_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -24,6 +24,49 @@ namespace CombatAnalysis.ChatDAL.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("CombatAnalysis.ChatDAL.DTO.GroupChatMessageDto", b =>
+                {
+                    b.Property<int>("ChatId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("GroupChatMessageId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("GroupChatUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsEdited")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("MarkedType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("Time")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.ToTable((string)null);
+
+                    b.ToView(null, (string)null);
+                });
 
             modelBuilder.Entity("CombatAnalysis.ChatDAL.Entities.GroupChat", b =>
                 {
@@ -89,29 +132,6 @@ namespace CombatAnalysis.ChatDAL.Migrations
                     b.ToTable("GroupChatMessage");
                 });
 
-            modelBuilder.Entity("CombatAnalysis.ChatDAL.Entities.GroupChatMessageCount", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ChatId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Count")
-                        .HasColumnType("int");
-
-                    b.Property<string>("GroupChatUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("GroupChatMessageCount");
-                });
-
             modelBuilder.Entity("CombatAnalysis.ChatDAL.Entities.GroupChatRules", b =>
                 {
                     b.Property<int>("Id")
@@ -152,6 +172,9 @@ namespace CombatAnalysis.ChatDAL.Migrations
                     b.Property<int>("ChatId")
                         .HasColumnType("int");
 
+                    b.Property<int>("UnreadMessages")
+                        .HasColumnType("int");
+
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -173,9 +196,15 @@ namespace CombatAnalysis.ChatDAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("CompanionUnreadMessages")
+                        .HasColumnType("int");
+
                     b.Property<string>("InitiatorId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("InitiatorUnreadMessages")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -223,29 +252,6 @@ namespace CombatAnalysis.ChatDAL.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("PersonalChatMessage");
-                });
-
-            modelBuilder.Entity("CombatAnalysis.ChatDAL.Entities.PersonalChatMessageCount", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AppUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("ChatId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Count")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("PersonalChatMessageCount");
                 });
 
             modelBuilder.Entity("CombatAnalysis.ChatDAL.Entities.UnreadGroupChatMessage", b =>

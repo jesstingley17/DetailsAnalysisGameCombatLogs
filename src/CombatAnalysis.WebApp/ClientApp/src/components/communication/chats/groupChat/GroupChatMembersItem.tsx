@@ -3,7 +3,7 @@ import { GroupChatUser } from "../../../../types/GroupChatUser";
 import { GroupChatMembersItemProps } from "../../../../types/components/communication/chats/GroupChatMembersItemProps";
 import User from "../../User";
 
-const GroupChatMembersItem: React.FC<GroupChatMembersItemProps> = ({ me, groupChatUser, usersToRemove, setUsersToRemove, showRemoveUser }) => {
+const GroupChatMembersItem: React.FC<GroupChatMembersItemProps> = ({ myself, groupChatUser, usersToRemove, setUsersToRemove, showRemoveUser }) => {
     const [userInformation, setUserInformation] = useState(null);
 
     const addUserToUsersToRemove = (groupChatUser: GroupChatUser) => {
@@ -29,11 +29,12 @@ const GroupChatMembersItem: React.FC<GroupChatMembersItemProps> = ({ me, groupCh
         <>
             <div className="user-target-community__information">
                 <User
-                    me={me}
+                    myself={myself}
                     targetUserId={groupChatUser.appUserId}
+                    targetUsername={groupChatUser.appUserId}
                     setUserInformation={setUserInformation}
                 />
-                {(me.id !== groupChatUser.appUserId && showRemoveUser) &&
+                {(myself.id !== groupChatUser.appUserId && showRemoveUser) &&
                     <input className="form-check-input" type="checkbox" onChange={(e) => handleRemoveUser(e, groupChatUser)} />
                 }
             </div>

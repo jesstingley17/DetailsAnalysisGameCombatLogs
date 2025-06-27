@@ -3,7 +3,7 @@ import { AppUser } from "../../../AppUser";
 import { GroupChat } from "../../../GroupChat";
 
 export interface GroupChatTitleProps {
-    me: AppUser;
+    myself: AppUser;
     chat: GroupChat;
     settingsIsShow: boolean;
     setSettingsIsShow(value: SetStateAction<boolean>): void;

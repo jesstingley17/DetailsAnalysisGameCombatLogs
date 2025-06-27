@@ -10,10 +10,10 @@ namespace CombatAnalysis.ChatApi.Controllers;
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class PersonalChatMessageController(IChatMessageService<PersonalChatMessageDto, int> chatMessageService, IMapper mapper, ILogger<PersonalChatMessageController> logger) 
+public class PersonalChatMessageController(IPersonalChatMessageService<PersonalChatMessageDto, int> chatMessageService, IMapper mapper, ILogger<PersonalChatMessageController> logger) 
     : ControllerBase
 {
-    private readonly IChatMessageService<PersonalChatMessageDto, int> _chatMessageService = chatMessageService;
+    private readonly IPersonalChatMessageService<PersonalChatMessageDto, int> _chatMessageService = chatMessageService;
     private readonly IMapper _mapper = mapper;
     private readonly ILogger<PersonalChatMessageController> _logger = logger;
 

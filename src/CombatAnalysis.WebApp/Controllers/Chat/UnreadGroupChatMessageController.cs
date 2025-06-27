@@ -34,7 +34,7 @@ public class UnreadGroupChatMessageController : ControllerBase
         }
 
         var groupChatMessagesCount = await responseMessage.Content.ReadFromJsonAsync<IEnumerable<UnreadGroupChatMessageModel>>();
-        var myGroupChatMessagesCount = groupChatMessagesCount.Where(x => x.GroupChatMessageId == messageId && x.GroupChatUserId == groupChatUserId).FirstOrDefault();
+        var myGroupChatMessagesCount = groupChatMessagesCount?.Where(x => x.GroupChatMessageId == messageId && x.GroupChatUserId == groupChatUserId).FirstOrDefault();
 
         return Ok(myGroupChatMessagesCount);
     }
@@ -52,55 +52,6 @@ public class UnreadGroupChatMessageController : ControllerBase
             var unredMessages = await responseMessage.Content.ReadFromJsonAsync<IEnumerable<UnreadGroupChatMessageModel>>();
 
             return Ok(unredMessages);
-        }
-
-        return BadRequest();
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> Create(UnreadGroupChatMessageModel message)
-    {
-        var responseMessage = await _httpClient.PostAsync("UnreadGroupChatMessage", JsonContent.Create(message));
-        if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-        {
-            return Unauthorized();
-        }
-        else if (responseMessage.IsSuccessStatusCode)
-        {
-            var personalChatMessage = await responseMessage.Content.ReadFromJsonAsync<UnreadGroupChatMessageModel>();
-            return Ok(personalChatMessage);
-        }
-
-        return BadRequest();
-    }
-
-    [HttpPut]
-    public async Task<IActionResult> Update(UnreadGroupChatMessageModel message)
-    {
-        var responseMessage = await _httpClient.PutAsync("UnreadGroupChatMessage", JsonContent.Create(message));
-        if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-        {
-            return Unauthorized();
-        }
-        else if (responseMessage.IsSuccessStatusCode)
-        {
-            return Ok();
-        }
-
-        return BadRequest();
-    }
-
-    [HttpDelete("{id:int:min(1)}")]
-    public async Task<IActionResult> Delete(int id)
-    {
-        var responseMessage = await _httpClient.DeletAsync($"UnreadGroupChatMessage/{id}");
-        if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-        {
-            return Unauthorized();
-        }
-        else if (responseMessage.IsSuccessStatusCode)
-        {
-            return Ok();
         }
 
         return BadRequest();

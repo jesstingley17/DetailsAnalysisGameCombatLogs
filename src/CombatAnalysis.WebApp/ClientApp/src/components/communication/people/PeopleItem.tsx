@@ -9,8 +9,9 @@ const PeopleItem: React.FC<PeopleItemProps> = ({ me, targetUser }) => {
         <>
             <div className="card box-shadow">
                 <User
-                    me={me}
+                    myself={me}
                     targetUserId={targetUser.id}
+                    targetUsername={targetUser.id}
                     setUserInformation={setUserInformation}
                 />
             </div>

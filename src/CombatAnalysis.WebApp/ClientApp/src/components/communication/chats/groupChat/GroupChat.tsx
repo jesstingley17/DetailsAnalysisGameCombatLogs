@@ -9,12 +9,12 @@ import { GroupChatProps } from '../../../../types/components/communication/chats
 import Loading from '../../../Loading';
 import MessageInput from '../MessageInput';
 import GroupChatMenu from './GroupChatMenu';
-import GroupChatMessage from './GroupChatMessage';
 import GroupChatTitle from './GroupChatTitle';
 
 import '../../../../styles/communication/chats/groupChat.scss';
+import ChatMessage from '../ChatMessage';
 
-const GroupChat: React.FC<GroupChatProps> = ({ me, chat, setSelectedChat }) => {
+const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) => {
     const { t } = useTranslation("communication/chats/groupChat");
 
     const chatHub = useChatHub();
@@ -30,7 +30,7 @@ const GroupChat: React.FC<GroupChatProps> = ({ me, chat, setSelectedChat }) => {
     const chatContainerRef = useRef<HTMLUListElement | null>(null);
     const pageSizeRef = useRef<any>(process.env.REACT_APP_CHAT_PAGE_SIZE);
 
-    const { groupChatData, getMoreMessagesAsync } = useGroupChatData(chat.id, me.id, pageSizeRef);
+    const { groupChatData, getMoreMessagesAsync } = useGroupChatData(chat.id, myself.id, pageSizeRef);
 
     const [updateGroupChatMessage] = useUpdateGroupChatMessageAsyncMutation();
 
@@ -54,6 +54,7 @@ const GroupChat: React.FC<GroupChatProps> = ({ me, chat, setSelectedChat }) => {
         chatHub.subscribeGroupChatUser({});
 
         chatHub.subscribeToGroupChatMessages((message: GroupChatMessageModel) => {
+            message.groupChatMessageId = 1;
             setCurrentMessages(prevMessages => [...prevMessages, message]);
         });
     }, [chatHub?.groupChatMessagesHubConnection]);
@@ -170,7 +171,7 @@ const GroupChat: React.FC<GroupChatProps> = ({ me, chat, setSelectedChat }) => {
             <div className="messages-container">
                 <GroupChatTitle
                     chat={chat}
-                    me={me}
+                    myself={myself}
                     settingsIsShow={settingsIsShow}
                     setSettingsIsShow={setSettingsIsShow}
                     haveMoreMessages={haveMoreMessages}
@@ -181,10 +182,13 @@ const GroupChat: React.FC<GroupChatProps> = ({ me, chat, setSelectedChat }) => {
                 <ul className="chat-messages" ref={chatContainerRef}>
                     {currentMessages?.map((message) => (
                         <li className="message" key={message.id}>
-                            <GroupChatMessage
-                                me={me}
-                                reviewerId={!groupChatData.meInChat ? "" : groupChatData.meInChat.id}
-                                messageOwnerId={message.groupChatUserId}
+                            <ChatMessage
+                                chatType={1}
+                                myself={myself}
+                                reviewerId={groupChatData.IasGroupChatUser.id}
+                                chatUserAsUserId={groupChatData.groupChatUsers.filter(u => u.id === message.groupChatUserId)[0]?.appUserId}
+                                chatUserUsername={groupChatData.groupChatUsers.filter(u => u.id === message.groupChatUserId)[0]?.username}
+                                messageOwnerId={groupChatData.groupChatUsers.filter(u => u.id === message.groupChatUserId)[0]?.id}
                                 message={message}
                                 updateMessageAsync={updateMessageAsync}
                                 hubConnection={chatHub.groupChatMessagesHubConnection}
@@ -195,7 +199,7 @@ const GroupChat: React.FC<GroupChatProps> = ({ me, chat, setSelectedChat }) => {
                 </ul>
                 <MessageInput
                     chatId={chat.id}
-                    meInChat={groupChatData.meInChat}
+                    IasGroupChatUser={groupChatData.IasGroupChatUser}
                     setAreLoadingOldMessages={setAreLoadingOldMessages}
                     targetChatType={1}
                     t={t}
@@ -204,11 +208,11 @@ const GroupChat: React.FC<GroupChatProps> = ({ me, chat, setSelectedChat }) => {
             </div>
             {settingsIsShow &&
                 <GroupChatMenu
-                    me={me}
+                    myself={myself}
                     setSelectedChat={setSelectedChat}
                     groupChatUsers={groupChatData.groupChatUsers}
                     groupChatUsersId={groupChatUsersId}
-                    meInChat={groupChatData.meInChat}
+                    IasGroupChatUser={groupChatData.IasGroupChatUser}
                     chat={chat}
                     t={t}
                 />

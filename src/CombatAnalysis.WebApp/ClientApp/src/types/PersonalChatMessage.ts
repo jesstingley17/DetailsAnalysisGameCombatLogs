@@ -7,6 +7,8 @@ export interface PersonalChatMessage {
     type: number;
     markedType: number;
     isEdited: boolean;
+    isRead: boolean;
     chatId: number;
     appUserId: string;
+    groupChatMessageId?: number;
 }

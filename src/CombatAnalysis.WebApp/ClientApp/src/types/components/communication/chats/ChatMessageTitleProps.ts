@@ -3,8 +3,9 @@ import { GroupChatMessage } from "../../../GroupChatMessage";
 import { PersonalChatMessage } from "../../../PersonalChatMessage";
 
 export interface ChatMessageTitleProps {
-    me: AppUser;
+    myself: AppUser;
     itIsMe: boolean;
     message: PersonalChatMessage | GroupChatMessage;
-    meInChatId: string;
+    chatUserAsUserId: string;
+    chatUserUsername: string;
 }

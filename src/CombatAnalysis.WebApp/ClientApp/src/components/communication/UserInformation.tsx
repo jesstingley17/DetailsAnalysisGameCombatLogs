@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useChatHub } from '../../context/ChatHubProvider';
 import { useLazyIsExistAsyncQuery } from '../../store/api/chat/PersonalChat.api';
+import { useGetUserByIdQuery } from '../../store/api/user/Account.api';
 import { useFriendSearchMyFriendsQuery } from '../../store/api/user/Friend.api';
 import { useCreateRequestAsyncMutation, useLazyRequestIsExistQuery } from '../../store/api/user/RequestToConnect.api';
 import { Friend } from '../../types/Friend';
@@ -17,12 +18,14 @@ import './../../styles/communication/userInformation.scss';
 const successNotificationTimeout = 2000;
 const failedNotificationTimeout = 2000;
 
-const UserInformation: React.FC<UserInformationProps> = ({ me, person, closeUserInformation }) => {
+const UserInformation: React.FC<UserInformationProps> = ({ myself, personId, closeUserInformation }) => {
     const { t } = useTranslation("communication/userInformation");
 
     const chatHub = useChatHub();
 
     const navigate = useNavigate();
+
+    const { data: person, isLoading: personIsLoading } = useGetUserByIdQuery(personId);
 
     const [isExistAsync] = useLazyIsExistAsyncQuery();
     const [createRequestAsync] = useCreateRequestAsyncMutation();
@@ -32,11 +35,11 @@ const UserInformation: React.FC<UserInformationProps> = ({ me, person, closeUser
     const [showFailedNotification, setShowFailedNotification] = useState(false);
     const [openInviteToCommunity, setOpenInviteToCommunity] = useState(false);
 
-    const { data: myFriends, isLoading } = useFriendSearchMyFriendsQuery(me?.id);
+    const { data: myFriends, isLoading } = useFriendSearchMyFriendsQuery(myself?.id);
 
     const checkExistOfChatsAsync = async (targetUser: any) => {
         const queryParams = {
-            userId: me?.id,
+            userId: myself?.id,
             targetUserId: targetUser?.id
         };
 
@@ -59,12 +62,12 @@ const UserInformation: React.FC<UserInformationProps> = ({ me, person, closeUser
             navigate("/chats");
         });
 
-        await chatHub.personalChatHubConnection?.invoke("CreateChat", me?.id, targetUser.id);
+        await chatHub.personalChatHubConnection?.invoke("CreateChat", myself?.id, targetUser.id);
     }
 
     const checkIfRequestExistAsync = async (targetUserId: string) => {
         const arg = {
-            userId: me?.id,
+            userId: myself?.id,
             targetUserId: targetUserId
         };
 
@@ -91,7 +94,7 @@ const UserInformation: React.FC<UserInformationProps> = ({ me, person, closeUser
         const newRequest = {
             toAppUserId: people.id,
             when: new Date(),
-            appUserId: me?.id,
+            appUserId: myself?.id,
         };
 
         const createdRequest = await createRequestAsync(newRequest);
@@ -108,7 +111,7 @@ const UserInformation: React.FC<UserInformationProps> = ({ me, person, closeUser
         navigate(`/user?id=${person.id}`)
     }
 
-    if (isLoading) {
+    if (isLoading || personIsLoading) {
         return (<></>);
     }
 
@@ -178,7 +181,7 @@ const UserInformation: React.FC<UserInformationProps> = ({ me, person, closeUser
             {openInviteToCommunity &&
                 <div className="invite">
                     <PeopleInvitesToCommunity
-                        me={me}
+                        me={myself}
                         targetUser={person}
                         setOpenInviteToCommunity={setOpenInviteToCommunity}
                     />

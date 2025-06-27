@@ -4,7 +4,7 @@ import { PersonalChat } from "../../../PersonalChat";
 import { SelectedChat } from "../SelectedChat";
 
 export interface PersonalChatProps {
-    me: AppUser;
+    myself: AppUser;
     chat: PersonalChat;
     setSelectedChat(value: SetStateAction<SelectedChat>): void;
     companionId: string;

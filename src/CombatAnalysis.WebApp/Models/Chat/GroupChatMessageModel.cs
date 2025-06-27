@@ -4,11 +4,11 @@ public class GroupChatMessageModel
 {
     public int Id { get; set; }
 
-    public string Username { get; set; }
+    public string Username { get; set; } = string.Empty;
 
-    public string Message { get; set; }
+    public string Message { get; set; } = string.Empty;
 
-    public string Time { get; set; }
+    public string Time { get; set; } = string.Empty;
 
     public int Status { get; set; }
 
@@ -20,5 +20,7 @@ public class GroupChatMessageModel
 
     public int ChatId { get; set; }
 
-    public string GroupChatUserId { get; set; }
+    public string GroupChatUserId { get; set; } = string.Empty;
+
+    public int? GroupChatMessageId { get; set; }
 }

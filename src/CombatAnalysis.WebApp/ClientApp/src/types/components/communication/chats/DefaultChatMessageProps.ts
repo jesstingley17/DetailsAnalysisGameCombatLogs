@@ -3,8 +3,9 @@ import { GroupChatMessage } from '../../../GroupChatMessage';
 import { PersonalChatMessage } from '../../../PersonalChatMessage';
 
 export type DefaultChatMessageProps = {
-    me: AppUser;
-    meInChatId: string;
+    myself: AppUser;
+    chatUserAsUserId: string;
+    chatUserUsername: string;
     reviewerId: string;
     messageOwnerId: string;
     message: PersonalChatMessage | GroupChatMessage;

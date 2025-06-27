@@ -1,6 +1,6 @@
 ﻿namespace CombatAnalysis.ChatBL.Interfaces;
 
-public interface IChatMessageService<TModel, TIdType> : IService<TModel, TIdType>
+public interface IPersonalChatMessageService<TModel, TIdType> : IService<TModel, TIdType>
     where TModel : class
     where TIdType : notnull
 {

@@ -65,13 +65,13 @@ internal class CommunityService : ICommunityService
 
             return rowsAffected;
         }
-        catch (ArgumentException ex)
+        catch (ArgumentException)
         {
             await transaction.RollbackToSavepointAsync("BeforeDeleteCommunity");
 
             return 0;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             await transaction.RollbackToSavepointAsync("BeforeDeleteCommunity");
 

@@ -121,7 +121,7 @@ const Notification: React.FC = () => {
                             : notifications.map((notification) => personalChatNotifications(notification))}
                     </ul>
                     {notifications?.length > 0 &&
-                        <div className="notifications-container__read-all" onClick={readAllNotifications}>{t("ReadAll")}</div>
+                        <div className="notifications-container__read-all" onClick={readAllNotifications}>{t("ClearAll")}</div>
                     }
                 </div>
             }

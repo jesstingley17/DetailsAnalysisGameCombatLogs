@@ -12,14 +12,15 @@ const messageType = {
     log: 2
 };
 
-const ChatMessage: React.FC<ChatMessageProps> = ({ chatType, me, meInChatId, reviewerId, messageOwnerId, message, updateMessageAsync, hubConnection, subscribeToChatMessageHasBeenRead }) => {
+const ChatMessage: React.FC<ChatMessageProps> = ({ chatType, myself, chatUserAsUserId, chatUserUsername, reviewerId, messageOwnerId, message, updateMessageAsync, hubConnection, subscribeToChatMessageHasBeenRead }) => {
     return (
         <>
             {message.type === messageType["default"]
                 ? chatType === 0 ?
                     <DefaultChatMessage
-                        me={me}
-                        meInChatId={meInChatId}
+                        myself={myself}
+                        chatUserAsUserId={chatUserAsUserId}
+                        chatUserUsername={chatUserUsername}
                         reviewerId={reviewerId}
                         messageOwnerId={messageOwnerId}
                         message={message}
@@ -28,8 +29,9 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ chatType, me, meInChatId, rev
                         subscribeToChatMessageHasBeenRead={subscribeToChatMessageHasBeenRead}
                     />
                     : <DefaultGroupChatMessage
-                        me={me}
-                        meInChatId={meInChatId}
+                        myself={myself}
+                        chatUserAsUserId={chatUserAsUserId}
+                        chatUserUsername={chatUserUsername}
                         reviewerId={reviewerId}
                         messageOwnerId={messageOwnerId}
                         message={message}

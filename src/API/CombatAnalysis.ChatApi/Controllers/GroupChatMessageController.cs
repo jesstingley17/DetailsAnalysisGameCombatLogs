@@ -10,9 +10,9 @@ namespace CombatAnalysis.ChatApi.Controllers;
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class GroupChatMessageController(IChatMessageService<GroupChatMessageDto, int> chatMessageService, IMapper mapper, ILogger<GroupChatMessageController> logger) : ControllerBase
+public class GroupChatMessageController(IGroupChatMessageService<GroupChatMessageDto, int> chatMessageService, IMapper mapper, ILogger<GroupChatMessageController> logger) : ControllerBase
 {
-    private readonly IChatMessageService<GroupChatMessageDto, int> _chatMessageService = chatMessageService;
+    private readonly IGroupChatMessageService<GroupChatMessageDto, int> _chatMessageService = chatMessageService;
     private readonly IMapper _mapper = mapper;
     private readonly ILogger<GroupChatMessageController> _logger = logger;
 
@@ -81,14 +81,15 @@ public class GroupChatMessageController(IChatMessageService<GroupChatMessageDto,
     }
 
     [HttpGet("getByChatId")]
-    public async Task<IActionResult> GetByChatId(int chatId, int pageSize)
+    public async Task<IActionResult> GetByChatId(int chatId, string groupChatUserId, int pageSize)
     {
         try
         {
             ArgumentOutOfRangeException.ThrowIfZero(chatId, nameof(chatId));
+            ArgumentNullException.ThrowIfNullOrEmpty(groupChatUserId, nameof(groupChatUserId));
             ArgumentOutOfRangeException.ThrowIfLessThan(pageSize, 1, nameof(pageSize));
 
-            var messages = await _chatMessageService.GetByChatIdAsync(chatId, pageSize);
+            var messages = await _chatMessageService.GetByChatIdAsync(chatId, groupChatUserId, pageSize);
             ArgumentNullException.ThrowIfNull(messages, nameof(messages));
 
             return Ok(messages);
@@ -108,15 +109,16 @@ public class GroupChatMessageController(IChatMessageService<GroupChatMessageDto,
     }
 
     [HttpGet("getMoreByChatId")]
-    public async Task<IActionResult> GetMoreByChatId(int chatId, int offset, int pageSize)
+    public async Task<IActionResult> GetMoreByChatId(int chatId, string groupChatUserId, int offset, int pageSize)
     {
         try
         {
             ArgumentOutOfRangeException.ThrowIfZero(chatId, nameof(chatId));
+            ArgumentNullException.ThrowIfNullOrEmpty(groupChatUserId, nameof(groupChatUserId));
             ArgumentOutOfRangeException.ThrowIfLessThan(offset, 0, nameof(offset));
             ArgumentOutOfRangeException.ThrowIfLessThan(pageSize, 1, nameof(pageSize));
 
-            var messages = await _chatMessageService.GetMoreByChatIdAsync(chatId, offset, pageSize);
+            var messages = await _chatMessageService.GetMoreByChatIdAsync(chatId, groupChatUserId, offset, pageSize);
             ArgumentNullException.ThrowIfNull(messages, nameof(messages));
 
             return Ok(messages);

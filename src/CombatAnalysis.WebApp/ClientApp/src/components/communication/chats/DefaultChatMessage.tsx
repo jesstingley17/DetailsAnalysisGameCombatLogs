@@ -14,7 +14,7 @@ const messageStatus = {
     read: 2
 };
 
-const DefaultChatMessage: React.FC<DefaultChatMessageProps> = ({ me, meInChatId, reviewerId, messageOwnerId, message, updateMessageAsync, hubConnection, subscribeToChatMessageHasBeenRead }) => {
+const DefaultChatMessage: React.FC<DefaultChatMessageProps> = ({ myself, chatUserAsUserId, chatUserUsername, reviewerId, messageOwnerId, message, updateMessageAsync, hubConnection, subscribeToChatMessageHasBeenRead }) => {
     const { t } = useTranslation("communication/chats/chatMessage");
 
     const [targetMessage, setTargetMessage] = useState(message);
@@ -111,10 +111,11 @@ const DefaultChatMessage: React.FC<DefaultChatMessageProps> = ({ me, meInChatId,
     return (
         <div className={`chat-messages__content${reviewerId === messageOwnerId ? ' my-message' : ''}`}>
             <ChatMessageTitle
-                me={me}
+                myself={myself}
                 itIsMe={reviewerId !== messageOwnerId}
                 message={message}
-                meInChatId={meInChatId}
+                chatUserAsUserId={chatUserAsUserId}
+                chatUserUsername={chatUserUsername}
             />
             {editModeIsOn && reviewerId === messageOwnerId
                 ? <div className="edit-message">

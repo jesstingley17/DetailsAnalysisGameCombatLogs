@@ -35,21 +35,27 @@ internal static class MigrationHelper
                              "\tFETCH NEXT @pageSize ROWS ONLY\n" +
                              "END");
 
-        migrationBuilder.Sql($"CREATE PROCEDURE {_procedureNames[2]} (@chatId INT, @pageSize INT)\n" +
+        migrationBuilder.Sql($"CREATE PROCEDURE {_procedureNames[2]} (@chatId INT, @groupChatUserId NVARCHAR (MAX), @pageSize INT)\n" +
                               "AS\n" +
                               "BEGIN\n" +
-                              "\tSELECT TOP (@pageSize) * \n" +
-                             $"\tFROM {nameof(GroupChatMessage)}\n" +
-                              "\tWHERE ChatId = @chatId\n" +
+                              "\tSELECT TOP (@pageSize)\n" +
+                              "\t\tgcm.*,\n" +
+                              "\t\tugcm.GroupChatMessageId\n" +
+                             $"\tFROM {nameof(GroupChatMessage)} gcm\n" +
+                             $"\tLEFT JOIN {nameof(UnreadGroupChatMessage)} ugcm ON gcm.{nameof(GroupChatMessage.Id)} = ugcm.{nameof(UnreadGroupChatMessage.GroupChatMessageId)} AND @groupChatUserId = ugcm.{nameof(UnreadGroupChatMessage.GroupChatUserId)}\n" +
+                              "\tWHERE gcm.ChatId = @chatId\n" +
                               "\tORDER BY Id DESC\n" +
                               "END");
 
-        migrationBuilder.Sql($"CREATE PROCEDURE {_procedureNames[3]} (@chatId INT, @offset INT, @pageSize INT)\n" +
+        migrationBuilder.Sql($"CREATE PROCEDURE {_procedureNames[3]} (@chatId INT, @groupChatUserId NVARCHAR (MAX), @offset INT, @pageSize INT)\n" +
                              "AS\n" +
                              "BEGIN\n" +
-                             "\tSELECT * \n" +
-                            $"\tFROM {nameof(GroupChatMessage)}\n" +
-                             "\tWHERE ChatId = @chatId\n" +
+                             "\tSELECT\n" +
+                              "\t\tgcm.*,\n" +
+                              "\t\tugcm.GroupChatMessageId\n" +
+                             $"\tFROM {nameof(GroupChatMessage)} gcm\n" +
+                             $"\tLEFT JOIN {nameof(UnreadGroupChatMessage)} ugcm ON gcm.{nameof(GroupChatMessage.Id)} = ugcm.{nameof(UnreadGroupChatMessage.GroupChatMessageId)} AND @groupChatUserId = ugcm.{nameof(UnreadGroupChatMessage.GroupChatUserId)}\n" +
+                              "\tWHERE gcm.ChatId = @chatId\n" +
                              "\tORDER BY Id DESC\n" +
                              "\tOFFSET @offset ROWS\n" +
                              "\tFETCH NEXT @pageSize ROWS ONLY\n" +

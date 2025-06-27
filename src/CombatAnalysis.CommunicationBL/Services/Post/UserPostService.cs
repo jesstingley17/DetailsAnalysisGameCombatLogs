@@ -53,13 +53,13 @@ internal class UserPostService : IUserPostService
 
             return rowsAffected;
         }
-        catch (ArgumentException ex)
+        catch (ArgumentException)
         {
             await transaction.RollbackToSavepointAsync("BeforeDeletePost");
 
             return 0;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             await transaction.RollbackToSavepointAsync("BeforeDeletePost");
 

@@ -3,7 +3,7 @@ import { GroupChatUser } from "../../../GroupChatUser";
 import { AppUser } from "../../../AppUser";
 
 export interface GroupChatMembersItemProps {
-    me: AppUser;
+    myself: AppUser;
     groupChatUser: GroupChatUser;
     usersToRemove: GroupChatUser[];
     setUsersToRemove(value: SetStateAction<GroupChatUser[]>): void;

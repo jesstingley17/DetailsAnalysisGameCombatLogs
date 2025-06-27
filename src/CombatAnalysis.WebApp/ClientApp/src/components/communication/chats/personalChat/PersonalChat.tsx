@@ -17,7 +17,7 @@ import PersonalChatTitle from './PersonalChatTitle';
 
 import '../../../../styles/communication/chats/personalChat.scss';
 
-const PersonalChat: React.FC<PersonalChatProps> = ({ me, chat, setSelectedChat, companionId }) => {
+const PersonalChat: React.FC<PersonalChatProps> = ({ myself, chat, setSelectedChat, companionId }) => {
     const { t } = useTranslation("communication/chats/personalChat");
 
     const chatHub = useChatHub();
@@ -183,9 +183,10 @@ const PersonalChat: React.FC<PersonalChatProps> = ({ me, chat, setSelectedChat, 
                             <li key={message.id}>
                                 <ChatMessage
                                     chatType={0}
-                                    me={me}
-                                    meInChatId={me.id}
-                                    reviewerId={me.id}
+                                    myself={myself}
+                                    reviewerId={myself.id}
+                                    chatUserAsUserId={myself.id}
+                                    chatUserUsername={myself.username}
                                     messageOwnerId={message.appUserId}
                                     message={message}
                                     updateMessageAsync={updateMessageAsync}
@@ -197,7 +198,7 @@ const PersonalChat: React.FC<PersonalChatProps> = ({ me, chat, setSelectedChat, 
                 </ul>
                 <MessageInput
                     chatId={chat.id}
-                    meInChat={me}
+                    IasGroupChatUser={myself}
                     setAreLoadingOldMessages={setAreLoadingOldMessages}
                     targetChatType={0}
                     t={t}

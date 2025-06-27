@@ -1,11 +1,11 @@
-﻿using CombatAnalysis.ChatDAL.Entities;
+﻿using CombatAnalysis.ChatDAL.DTO;
+using CombatAnalysis.ChatDAL.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.ChatDAL.Data;
 
 public class ChatSQLContext(DbContextOptions<ChatSQLContext> options) : DbContext(options)
 {
-
     public DbSet<VoiceChat>? VoiceChat { get; }
 
     public DbSet<PersonalChat>? PersonalChat { get; }
@@ -21,4 +21,9 @@ public class ChatSQLContext(DbContextOptions<ChatSQLContext> options) : DbContex
     public DbSet<UnreadGroupChatMessage>? UnreadGroupChatMessage { get; }
 
     public DbSet<GroupChatUser>? GroupChatUser { get; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<GroupChatMessageDto>().HasNoKey().ToView(null);
+    }
 }

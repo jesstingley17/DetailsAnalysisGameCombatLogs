@@ -2,7 +2,6 @@ import { faCircle, faCircleUp, faClock, faCloudArrowUp, faEye, faFaceMeh, faUpRi
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useFindUnreadGroupChatMessageByMessageIdQuery, useLazyFindUnreadGroupChatMessageByMessageIdQuery } from '../../../store/api/chat/UnreadGroupChatMessage.api';
 import { DefaultChatMessageProps } from '../../../types/components/communication/chats/DefaultChatMessageProps';
 import ChatMessageMenu from './ChatMessageMenu';
 import ChatMessageTitle from './ChatMessageTitle';
@@ -15,18 +14,14 @@ const messageStatus = {
     read: 2
 };
 
-const DefaultGroupChatMessage: React.FC<DefaultChatMessageProps> = ({ me, meInChatId, reviewerId, messageOwnerId, message, updateMessageAsync, hubConnection, subscribeToChatMessageHasBeenRead }) => {
+const DefaultGroupChatMessage: React.FC<DefaultChatMessageProps> = ({ myself, chatUserAsUserId, chatUserUsername, reviewerId, messageOwnerId, message, updateMessageAsync, hubConnection, subscribeToChatMessageHasBeenRead }) => {
     const { t } = useTranslation("communication/chats/chatMessage");
 
+    const [targetMessage, setTargetMessage] = useState(message);
     const [openMessageMenu, setOpenMessageMenu] = useState(false);
     const [editModeIsOn, setEditModeIsOn] = useState(false);
-    const [messageAlreadyRead, setMessageAlreadyRead] = useState(false);
 
     const editMessageInput = useRef<HTMLInputElement | null>(null);
-
-    const [findUnreadGroupChatMessageByMessageId] = useLazyFindUnreadGroupChatMessageByMessageIdQuery();
-
-    const { data: unreadMessages, isLoading } = useFindUnreadGroupChatMessageByMessageIdQuery(message.id);
 
     useEffect(() => {
         subscribeToChatMessageHasBeenRead((messageId: number) => {
@@ -34,22 +29,11 @@ const DefaultGroupChatMessage: React.FC<DefaultChatMessageProps> = ({ me, meInCh
                 return;
             }
 
-            const findUnreadGroupChatMessageByMessageIdAsync = async () => {
-                const unreadMessages = await findUnreadGroupChatMessageByMessageId(message.id).unwrap();
-                setMessageAlreadyRead(!unreadMessages || unreadMessages.length === 0 ? true : false);
-            }
-
-            findUnreadGroupChatMessageByMessageIdAsync();
+            const updatedTargetMessage = Object.assign({}, targetMessage);
+            updatedTargetMessage.groupChatMessageId = undefined;
+            setTargetMessage(updatedTargetMessage);
         });
     }, []);
-
-    useEffect(() => {
-        if (!unreadMessages) {
-            return;
-        }
-
-        setMessageAlreadyRead(unreadMessages.length === 0 ? true : false);
-    }, [unreadMessages])
 
     useEffect(() => {
         if (!openMessageMenu) {
@@ -76,12 +60,11 @@ const DefaultGroupChatMessage: React.FC<DefaultChatMessageProps> = ({ me, meInCh
     }
 
     const messageHasBeenReadHandle = async () => {
-        if (!hubConnection || reviewerId === messageOwnerId || messageAlreadyRead) {
+        if (!hubConnection || reviewerId === messageOwnerId || !targetMessage.groupChatMessageId) {
             return;
         }
 
-        setMessageAlreadyRead(true);
-        await hubConnection?.invoke("SendMessageHasBeenRead", message.id, reviewerId);
+        await hubConnection?.invoke("SendMessageHasBeenRead", targetMessage.id, reviewerId);
     }
 
     const handleOpenMessageMenu = () => {
@@ -125,21 +108,18 @@ const DefaultGroupChatMessage: React.FC<DefaultChatMessageProps> = ({ me, meInCh
         window.open(url, "_blink");
     }
 
-    if (isLoading) {
-        return (<></>);
-    }
-
     return (
         <div className={`chat-messages__content${reviewerId === messageOwnerId ? ' my-message' : ''}`}>
             <ChatMessageTitle
-                me={me}
+                myself={myself}
                 itIsMe={reviewerId !== messageOwnerId}
-                message={message}
-                meInChatId={meInChatId}
+                message={targetMessage}
+                chatUserAsUserId={chatUserAsUserId}
+                chatUserUsername={chatUserUsername}
             />
             {editModeIsOn && reviewerId === messageOwnerId
                 ? <div className="edit-message">
-                    <input className="form-control" type="text" defaultValue={message.message} ref={editMessageInput} />
+                    <input className="form-control" type="text" defaultValue={targetMessage.message} ref={editMessageInput} />
                     <FontAwesomeIcon
                         icon={faCloudArrowUp}
                         title={t("Save") || ""}
@@ -149,35 +129,35 @@ const DefaultGroupChatMessage: React.FC<DefaultChatMessageProps> = ({ me, meInCh
                 : <div className="message">
                     {reviewerId === messageOwnerId
                         ? getMessageStatus()
-                        : message.status === messageStatus["delivered"] &&
+                        : targetMessage.status === messageStatus["delivered"] &&
                         <FontAwesomeIcon
                             icon={faCircle}
                             className="status"
                             title={t("Delivered") || ""}
                         />
                     }
-                    <div className={`text-of-message${messageAlreadyRead ? "__read" : "__unread"} link 
-                            ${message.markedType === 1 ? 'not-relevant' : message.markedType === 2 ? 'with-emotions' : ''}
+                    <div className={`text-of-message${!targetMessage.groupChatMessageId ? "__read" : "__unread"} link 
+                            ${targetMessage.markedType === 1 ? 'not-relevant' : targetMessage.markedType === 2 ? 'with-emotions' : ''}
                             ${openMessageMenu ? 'menu' : ''} `}
-                            onMouseOver={!messageAlreadyRead ? messageHasBeenReadHandle : () => {}}>
-                        <div className="content" onClick={handleOpenMessageMenu}>{message?.message}</div>
-                        {message?.message.startsWith("http") &&
+                            onMouseOver={messageHasBeenReadHandle}>
+                        <div className="content" onClick={handleOpenMessageMenu}>{targetMessage?.message}</div>
+                        {targetMessage?.message.startsWith("http") &&
                             <FontAwesomeIcon
                                 icon={faUpRightFromSquare}
                                 className="open-link"
-                                onClick={() => openLink(message?.message)}
+                                onClick={() => openLink(targetMessage?.message)}
                                 title={t("OpenLink") || ""}
                             />
                         }
                     </div>
-                    {message.markedType === 1 &&
+                    {targetMessage.markedType === 1 &&
                         <FontAwesomeIcon
                             icon={faXmark}
                             className="not-relevant"
                             title={t("NotRelevant") || ""}
                         />
                     }
-                    {message.markedType === 2 &&
+                    {targetMessage.markedType === 2 &&
                         <FontAwesomeIcon
                             icon={faFaceMeh}
                             className="emotions"
@@ -186,12 +166,12 @@ const DefaultGroupChatMessage: React.FC<DefaultChatMessageProps> = ({ me, meInCh
                     }
                 </div>
             }
-            {message?.isEdited &&
+            {targetMessage?.isEdited &&
                 <div className="chat-messages__edited">{t("Edited") || ""}</div>
             }
             {openMessageMenu &&
                 <ChatMessageMenu
-                    message={message}
+                    message={targetMessage}
                     setEditModeIsOn={setEditModeIsOn}
                     setOpenMessageMenu={setOpenMessageMenu}
                     updateMessageMarkedTypeAsync={updateMessageMarkedTypeAsync}

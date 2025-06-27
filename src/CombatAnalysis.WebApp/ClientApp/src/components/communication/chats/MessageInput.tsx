@@ -11,7 +11,7 @@ const chatType = {
 
 const emptyMessageNotificationTimeout = 4000;
 
-const MessageInput: React.FC<MessageInputProps> = ({ chatId, meInChat, setAreLoadingOldMessages, targetChatType, companionsId, t }) => {
+const MessageInput: React.FC<MessageInputProps> = ({ chatId, IasGroupChatUser, setAreLoadingOldMessages, targetChatType, companionsId, t }) => {
     const chatHub = useChatHub();
 
     const messageInput = useRef<any>(null);
@@ -37,7 +37,7 @@ const MessageInput: React.FC<MessageInputProps> = ({ chatId, meInChat, setAreLoa
     }
 
     const handleSendMessageAsync = async () => {
-        if (!chatHub || !meInChat) {
+        if (!chatHub || !IasGroupChatUser) {
             return;
         }
 
@@ -45,7 +45,7 @@ const MessageInput: React.FC<MessageInputProps> = ({ chatId, meInChat, setAreLoa
     }
 
     const sendMessageAsync = async () => {
-        if (!chatHub || !meInChat) {
+        if (!chatHub || !IasGroupChatUser) {
             return;
         }
 
@@ -58,10 +58,10 @@ const MessageInput: React.FC<MessageInputProps> = ({ chatId, meInChat, setAreLoa
         setAreLoadingOldMessages(false);
 
         if (targetChatType === chatType["personal"]) {
-            await chatHub.personalChatMessagesHubConnection?.invoke("SendMessage", messageInput.current.value, chatId, meInChat.id, meInChat.username, companionsId[0]);
+            await chatHub.personalChatMessagesHubConnection?.invoke("SendMessage", messageInput.current.value, chatId, IasGroupChatUser.id, IasGroupChatUser.username);
         }
         else {
-            await chatHub.groupChatMessagesHubConnection?.invoke("SendMessage", messageInput.current.value, chatId, 0, meInChat.id, meInChat.username, companionsId);
+            await chatHub.groupChatMessagesHubConnection?.invoke("SendMessage", messageInput.current.value, chatId, 0, IasGroupChatUser.id, IasGroupChatUser.username);
         }
 
         messageInput.current.value = "";

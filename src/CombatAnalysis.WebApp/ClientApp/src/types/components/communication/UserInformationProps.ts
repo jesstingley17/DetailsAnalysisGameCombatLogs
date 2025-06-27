@@ -1,5 +1,7 @@
+import { AppUser } from "../../AppUser";
+
 export interface UserInformationProps {
-    me: any;
-    person: any;
+    myself: AppUser;
+    personId: string;
     closeUserInformation(): void;
 }

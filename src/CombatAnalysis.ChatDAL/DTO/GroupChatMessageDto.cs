@@ -1,12 +1,9 @@
 ﻿using CombatAnalysis.ChatDAL.Interfaces.Entities;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace CombatAnalysis.ChatDAL.Entities;
+namespace CombatAnalysis.ChatDAL.DTO;
 
-public class GroupChatMessage : IChatEntity
+public class GroupChatMessageDto : IChatEntity
 {
-    [Key]
     public int Id { get; set; }
 
     public string Username { get; set; } = string.Empty;
@@ -23,9 +20,9 @@ public class GroupChatMessage : IChatEntity
 
     public bool IsEdited { get; set; }
 
-    [ForeignKey(nameof(GroupChat))]
     public int ChatId { get; set; }
 
-    [ForeignKey(nameof(GroupChatUser))]
     public string GroupChatUserId { get; set; } = string.Empty;
+
+    public int? GroupChatMessageId { get; set; }
 }

@@ -1,4 +1,5 @@
 ﻿using CombatAnalysis.ChatDAL.Data;
+using CombatAnalysis.ChatDAL.DTO;
 using CombatAnalysis.ChatDAL.Entities;
 using CombatAnalysis.ChatDAL.Enums;
 using CombatAnalysis.ChatDAL.Interfaces;
@@ -40,10 +41,10 @@ public static class DataCollectionExtensions
 
         services.AddScoped<IGenericRepository<VoiceChat, string>, SQLRepository<VoiceChat, string>>();
         services.AddScoped<IGenericRepository<PersonalChat, int>, SQLRepository<PersonalChat, int>>();
-        services.AddScoped<IChatMessageRepository<PersonalChatMessage, int>, SQLSPChatMessageRepository<PersonalChatMessage, int>>();
+        services.AddScoped<IPersonalChatMessageRepository<PersonalChatMessage, int>, SQLSPPersonalChatMessageRepository<PersonalChatMessage, int>>();
         services.AddScoped<IGenericRepository<GroupChat, int>, SQLRepository<GroupChat, int>>();
         services.AddScoped<IGenericRepository<GroupChatRules, int>, SQLRepository<GroupChatRules, int>>();
-        services.AddScoped<IChatMessageRepository<GroupChatMessage, int>, SQLSPChatMessageRepository<GroupChatMessage, int>>();
+        services.AddScoped<IGroupChatMessageRepository<int>, SQLSPGroupChatMessageRepository<int>>();
         services.AddScoped<IGenericRepository<UnreadGroupChatMessage, int>, SQLRepository<UnreadGroupChatMessage, int>>();
         services.AddScoped<IGenericRepository<GroupChatUser, string>, SQLRepository<GroupChatUser, string>>();
     }

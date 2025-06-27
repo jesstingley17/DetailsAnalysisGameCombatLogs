@@ -1,22 +1,15 @@
 import { useState } from 'react';
-import { useGetUserByIdQuery } from '../../../store/api/user/Account.api';
 import { ChatMessageTitleProps } from '../../../types/components/communication/chats/ChatMessageTitleProps';
 import User from '../User';
 
-const ChatMessageTitle: React.FC<ChatMessageTitleProps> = ({ me, itIsMe, message, meInChatId }) => {
+const ChatMessageTitle: React.FC<ChatMessageTitleProps> = ({ myself, itIsMe, message, chatUserAsUserId, chatUserUsername }) => {
     const [userInformation, setUserInformation] = useState(null);
-
-    const { data: user, isLoading } = useGetUserByIdQuery(meInChatId);
 
     const getMessageTime = () => {
         const getDate = new Date(message?.time);
         const time = `${getDate.getHours()}:${getDate.getMinutes() }`;
 
         return time;
-    }
-
-    if (isLoading) {
-        return (<></>);
     }
 
     return (
@@ -27,8 +20,9 @@ const ChatMessageTitle: React.FC<ChatMessageTitleProps> = ({ me, itIsMe, message
                         <div>{getMessageTime()}</div>
                     </div>
                     <User
-                        me={me}
-                        targetUserId={user?.id}
+                        myself={myself}
+                        targetUserId={chatUserAsUserId}
+                        targetUsername={chatUserUsername}
                         setUserInformation={setUserInformation}
                     />
                 </div>

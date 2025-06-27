@@ -7,19 +7,12 @@ using System.Transactions;
 
 namespace CombatAnalysis.ChatBL.Services.Chat;
 
-internal class PersonalChatService : IService<PersonalChatDto, int>
+internal class PersonalChatService(IGenericRepository<PersonalChat, int> repository, IMapper mapper,
+    IPersonalChatMessageService<PersonalChatMessageDto, int> personalChatMessageService) : IService<PersonalChatDto, int>
 {
-    private readonly IGenericRepository<PersonalChat, int> _repository;
-    private readonly IChatMessageService<PersonalChatMessageDto, int> _personalChatMessageService;
-    private readonly IMapper _mapper;
-
-    public PersonalChatService(IGenericRepository<PersonalChat, int> repository, IMapper mapper,
-        IChatMessageService<PersonalChatMessageDto, int> personalChatMessageService)
-    {
-        _repository = repository;
-        _mapper = mapper;
-        _personalChatMessageService = personalChatMessageService;
-    }
+    private readonly IGenericRepository<PersonalChat, int> _repository = repository;
+    private readonly IPersonalChatMessageService<PersonalChatMessageDto, int> _personalChatMessageService = personalChatMessageService;
+    private readonly IMapper _mapper = mapper;
 
     public Task<PersonalChatDto> CreateAsync(PersonalChatDto item)
     {

@@ -2,17 +2,14 @@ import { faCircleXmark, faUser } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useGetUserByIdQuery } from '../../store/api/user/Account.api';
 import { useRemoveFriendAsyncMutation } from '../../store/api/user/Friend.api';
 import { UserProps } from '../../types/components/communication/UserProps';
 import UserInformation from './UserInformation';
 
-import "../../styles/communication/user.scss";
+import '../../styles/communication/user.scss';
 
-const User: React.FC<UserProps> = ({ me, targetUserId, setUserInformation, friendId = 0 }) => {
+const User: React.FC<UserProps> = ({ myself, targetUserId, targetUsername, setUserInformation, friendId = 0 }) => {
     const { t } = useTranslation("communication/myEnvironment/friends");
-
-    const { data: targetUser, isLoading } = useGetUserByIdQuery(targetUserId);
 
     const [removeFriend] = useRemoveFriendAsyncMutation();
 
@@ -25,8 +22,8 @@ const User: React.FC<UserProps> = ({ me, targetUserId, setUserInformation, frien
     const openUserInformation = () => {
         setUserInformation(
             <UserInformation
-                me={me}
-                person={targetUser}
+                myself={myself}
+                personId={targetUserId}
                 closeUserInformation={closeUserInformation}
             />
         );
@@ -44,10 +41,6 @@ const User: React.FC<UserProps> = ({ me, targetUserId, setUserInformation, frien
         setUserInformation(null);
     }
 
-    if (isLoading) {
-        return (<div className="special-user__another">Loading...</div>);
-    }
-
     return (
         <div className="special-user__another"
             onMouseOver={userActiveHandler}
@@ -58,7 +51,7 @@ const User: React.FC<UserProps> = ({ me, targetUserId, setUserInformation, frien
                 className={`details${userActive}`}
                 onClick={openUserInformation}
             />
-            <div className="username" title={targetUser?.username}>{targetUser?.username}</div>
+            <div className="username" title={targetUsername}>{targetUsername}</div>
             {friendId > 0 &&
                 <FontAwesomeIcon
                     icon={faCircleXmark}

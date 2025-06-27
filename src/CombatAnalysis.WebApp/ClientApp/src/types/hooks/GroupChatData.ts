@@ -1,10 +1,10 @@
 import { GroupChatMessage } from '../GroupChatMessage';
 import { GroupChatUser } from '../GroupChatUser';
 
-export interface GroupChatData {
+export type GroupChatData = {
     messages: GroupChatMessage[] | undefined;
     count: number;
-    meInChat: GroupChatUser;
+    IasGroupChatUser: GroupChatUser;
     groupChatUsers: GroupChatUser[];
     isLoading: boolean;
 }

@@ -9,4 +9,5 @@ export interface GroupChatMessage {
     isEdited: boolean;
     chatId: number;
     groupChatUserId: string;
+    groupChatMessageId?: number;
 }

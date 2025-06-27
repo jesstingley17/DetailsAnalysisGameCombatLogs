@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useUpdateGroupChatAsyncMutation } from '../../../../store/api/chat/GroupChat.api';
 import { GroupChatTitleProps } from '../../../../types/components/communication/chats/GroupChatTitleProps';
 
-const GroupChatTitle: React.FC<GroupChatTitleProps> = ({ me, chat, settingsIsShow, setSettingsIsShow, haveMoreMessages, setHaveMoreMessage, loadMoreMessagesAsync, t }) => {
+const GroupChatTitle: React.FC<GroupChatTitleProps> = ({ myself, chat, settingsIsShow, setSettingsIsShow, haveMoreMessages, setHaveMoreMessage, loadMoreMessagesAsync, t }) => {
     const navigate = useNavigate();
 
     const [editNameOn, setEditNameOn] = useState(false);
@@ -48,7 +48,7 @@ const GroupChatTitle: React.FC<GroupChatTitleProps> = ({ me, chat, settingsIsSho
         <>
             <div className="title">
                 <div className="title__content">
-                    {chat?.appUserId === me?.id &&
+                    {chat?.appUserId === myself?.id &&
                         <FontAwesomeIcon
                             icon={faPen}
                             title={t("EditName")}

@@ -1,8 +1,6 @@
-﻿using CombatAnalysis.ChatDAL.Entities;
+﻿namespace CombatAnalysis.ChatDAL.Interfaces;
 
-namespace CombatAnalysis.ChatDAL.Interfaces;
-
-public interface IChatMessageRepository<TModel, TIdType> : IGenericRepository<TModel, TIdType>
+public interface IPersonalChatMessageRepository<TModel, TIdType> : IGenericRepository<TModel, TIdType>
     where TModel : class
     where TIdType : notnull
 {

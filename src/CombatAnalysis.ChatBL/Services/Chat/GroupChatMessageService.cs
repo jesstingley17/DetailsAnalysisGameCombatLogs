@@ -6,16 +6,10 @@ using CombatAnalysis.ChatDAL.Interfaces;
 
 namespace CombatAnalysis.ChatBL.Services.Chat;
 
-internal class GroupChatMessageService : IChatMessageService<GroupChatMessageDto, int>
+internal class GroupChatMessageService(IGroupChatMessageRepository<int> repository, IMapper mapper) : IGroupChatMessageService<GroupChatMessageDto, int>
 {
-    private readonly IChatMessageRepository<GroupChatMessage, int> _repository;
-    private readonly IMapper _mapper;
-
-    public GroupChatMessageService(IChatMessageRepository<GroupChatMessage, int> repository, IMapper mapper)
-    {
-        _repository = repository;
-        _mapper = mapper;
-    }
+    private readonly IGroupChatMessageRepository<int> _repository = repository;
+    private readonly IMapper _mapper = mapper;
 
     public Task<GroupChatMessageDto> CreateAsync(GroupChatMessageDto item)
     {
@@ -58,17 +52,17 @@ internal class GroupChatMessageService : IChatMessageService<GroupChatMessageDto
         return resultMap;
     }
 
-    public async Task<IEnumerable<GroupChatMessageDto>> GetByChatIdAsync(int chatId, int pageSize = 100)
+    public async Task<IEnumerable<GroupChatMessageDto>> GetByChatIdAsync(int chatId, string groupChatUserId, int pageSize = 100)
     {
-        var result = await _repository.GetByChatIdAsyn(chatId, pageSize);
+        var result = await _repository.GetByChatIdAsyn(chatId, groupChatUserId, pageSize);
         var map = _mapper.Map<IEnumerable<GroupChatMessageDto>>(result);
 
         return map;
     }
 
-    public async Task<IEnumerable<GroupChatMessageDto>> GetMoreByChatIdAsync(int chatId, int offset = 0, int pageSize = 100)
+    public async Task<IEnumerable<GroupChatMessageDto>> GetMoreByChatIdAsync(int chatId, string groupChatUserId, int offset = 0, int pageSize = 100)
     {
-        var result = await _repository.GetMoreByChatIdAsyn(chatId, offset, pageSize);
+        var result = await _repository.GetMoreByChatIdAsyn(chatId, groupChatUserId, offset, pageSize);
         var map = _mapper.Map<IEnumerable<GroupChatMessageDto>>(result);
 
         return map;

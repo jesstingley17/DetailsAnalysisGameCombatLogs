@@ -15,7 +15,6 @@ CREATE TABLE [GroupChat] (
     [AppUserId] nvarchar(max) NOT NULL,
     CONSTRAINT [PK_GroupChat] PRIMARY KEY ([Id])
 );
-GO
 
 CREATE TABLE [GroupChatMessage] (
     [Id] int NOT NULL IDENTITY,
@@ -30,7 +29,6 @@ CREATE TABLE [GroupChatMessage] (
     [GroupChatUserId] nvarchar(max) NOT NULL,
     CONSTRAINT [PK_GroupChatMessage] PRIMARY KEY ([Id])
 );
-GO
 
 CREATE TABLE [GroupChatRules] (
     [Id] int NOT NULL IDENTITY,
@@ -41,7 +39,6 @@ CREATE TABLE [GroupChatRules] (
     [ChatId] int NOT NULL,
     CONSTRAINT [PK_GroupChatRules] PRIMARY KEY ([Id])
 );
-GO
 
 CREATE TABLE [GroupChatUser] (
     [Id] nvarchar(450) NOT NULL,
@@ -51,7 +48,6 @@ CREATE TABLE [GroupChatUser] (
     [AppUserId] nvarchar(max) NOT NULL,
     CONSTRAINT [PK_GroupChatUser] PRIMARY KEY ([Id])
 );
-GO
 
 CREATE TABLE [PersonalChat] (
     [Id] int NOT NULL IDENTITY,
@@ -61,7 +57,6 @@ CREATE TABLE [PersonalChat] (
     [CompanionUnreadMessages] int NOT NULL,
     CONSTRAINT [PK_PersonalChat] PRIMARY KEY ([Id])
 );
-GO
 
 CREATE TABLE [PersonalChatMessage] (
     [Id] int NOT NULL IDENTITY,
@@ -76,7 +71,6 @@ CREATE TABLE [PersonalChatMessage] (
     [AppUserId] nvarchar(max) NOT NULL,
     CONSTRAINT [PK_PersonalChatMessage] PRIMARY KEY ([Id])
 );
-GO
 
 CREATE TABLE [UnreadGroupChatMessage] (
     [Id] int NOT NULL IDENTITY,
@@ -84,7 +78,6 @@ CREATE TABLE [UnreadGroupChatMessage] (
     [GroupChatMessageId] int NOT NULL,
     CONSTRAINT [PK_UnreadGroupChatMessage] PRIMARY KEY ([Id])
 );
-GO
 
 CREATE TABLE [VoiceChat] (
     [Id] nvarchar(450) NOT NULL,
@@ -115,30 +108,35 @@ BEGIN
 END
 GO
 
-CREATE PROCEDURE GetGroupChatMessageByChatIdPagination (@chatId INT, @pageSize INT)
+CREATE PROCEDURE GetGroupChatMessageByChatIdPagination (@chatId INT, @groupChatUserId NVARCHAR (MAX), @pageSize INT)
 AS
 BEGIN
-	SELECT TOP (@pageSize) * 
-	FROM GroupChatMessage
-	WHERE ChatId = @chatId
+	SELECT TOP (@pageSize)
+		gcm.*,
+		ugcm.GroupChatMessageId
+	FROM GroupChatMessage gcm
+	LEFT JOIN UnreadGroupChatMessage ugcm ON gcm.Id = ugcm.GroupChatMessageId AND @groupChatUserId = ugcm.GroupChatUserId
+	WHERE gcm.ChatId = @chatId
 	ORDER BY Id DESC
 END
 GO
 
-CREATE PROCEDURE GetGroupChatMessageByChatIdMore (@chatId INT, @offset INT, @pageSize INT)
+CREATE PROCEDURE GetGroupChatMessageByChatIdMore (@chatId INT, @groupChatUserId NVARCHAR (MAX), @offset INT, @pageSize INT)
 AS
 BEGIN
-	SELECT * 
-	FROM GroupChatMessage
-	WHERE ChatId = @chatId
+	SELECT
+		gcm.*,
+		ugcm.GroupChatMessageId
+	FROM GroupChatMessage gcm
+	LEFT JOIN UnreadGroupChatMessage ugcm ON gcm.Id = ugcm.GroupChatMessageId AND @groupChatUserId = ugcm.GroupChatUserId
+	WHERE gcm.ChatId = @chatId
 	ORDER BY Id DESC
 	OFFSET @offset ROWS
 	FETCH NEXT @pageSize ROWS ONLY
 END
-GO
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'20250122135024_InitialCreate', N'9.0.1');
+VALUES (N'20250627164146_InitialCreate', N'9.0.1');
 
 COMMIT;
 GO

@@ -6,16 +6,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.ChatDAL.Repositories.SQL.StoredProcedure;
 
-internal class SQLSPChatMessageRepository<TModel, TIdType> : SQLRepository<TModel, TIdType>, IChatMessageRepository<TModel, TIdType>
+internal class SQLSPPersonalChatMessageRepository<TModel, TIdType>(ChatSQLContext context) : SQLRepository<TModel, TIdType>(context), IPersonalChatMessageRepository<TModel, TIdType>
     where TModel : class, IChatEntity
     where TIdType : notnull
 {
-    private readonly ChatSQLContext _context;
-
-    public SQLSPChatMessageRepository(ChatSQLContext context) : base(context)
-    {
-        _context = context;
-    }
+    private readonly ChatSQLContext _context = context;
 
     public async Task<IEnumerable<TModel>> GetByChatIdAsyn(int chatId, int pageSize)
     {

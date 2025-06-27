@@ -6,12 +6,12 @@ using CombatAnalysis.ChatDAL.Interfaces;
 
 namespace CombatAnalysis.ChatBL.Services.Chat;
 
-internal class PersonalChatMessageService : IChatMessageService<PersonalChatMessageDto, int>
+internal class PersonalChatMessageService : IPersonalChatMessageService<PersonalChatMessageDto, int>
 {
-    private readonly IChatMessageRepository<PersonalChatMessage, int> _repository;
+    private readonly IPersonalChatMessageRepository<PersonalChatMessage, int> _repository;
     private readonly IMapper _mapper;
 
-    public PersonalChatMessageService(IChatMessageRepository<PersonalChatMessage, int> repository, IMapper mapper)
+    public PersonalChatMessageService(IPersonalChatMessageRepository<PersonalChatMessage, int> repository, IMapper mapper)
     {
         _repository = repository;
         _mapper = mapper;

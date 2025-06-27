@@ -29,8 +29,9 @@ const CommunityUsersItem: React.FC<CommunityUsersItemProps> = ({ me, communityUs
         <>
             <div className="user-target-community__information">
                 <User
-                    me={me}
+                    myself={me}
                     targetUserId={communityUser.appUserId}
+                    targetUsername={communityUser.appUserId}
                     setUserInformation={setUserInformation}
                 />
                 {(me.id !== communityUser.appUserId && showRemoveUser) &&

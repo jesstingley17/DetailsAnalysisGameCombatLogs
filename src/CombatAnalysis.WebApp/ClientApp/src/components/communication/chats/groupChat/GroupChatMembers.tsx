@@ -74,7 +74,7 @@ const GroupChatMembers: React.FC<GroupChatMembersProps> = ({ me, communicationUs
                     ? communicationUsers?.map((groupChatUser: GroupChatUser) => (
                         <li className="user-target-community" key={groupChatUser.id}>
                             <GroupChatMembersItem
-                                me={me}
+                                myself={me}
                                 groupChatUser={groupChatUser}
                                 usersToRemove={usersToRemove}
                                 setUsersToRemove={setUsersToRemove}
@@ -85,7 +85,7 @@ const GroupChatMembers: React.FC<GroupChatMembersProps> = ({ me, communicationUs
                     : communicationUsers?.filter((groupChatUser: GroupChatUser) => groupChatUser.username.toLowerCase().startsWith(searchUsername.toLowerCase())).map((groupChatUser: GroupChatUser) => (
                         <li className="user-target-community" key={groupChatUser.id}>
                             <GroupChatMembersItem
-                                me={me}
+                                myself={me}
                                 groupChatUser={groupChatUser}
                                 usersToRemove={usersToRemove}
                                 setUsersToRemove={setUsersToRemove}
