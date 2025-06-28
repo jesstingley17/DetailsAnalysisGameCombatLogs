@@ -11,7 +11,7 @@ const PeopleItem: React.FC<PeopleItemProps> = ({ me, targetUser }) => {
                 <User
                     myself={me}
                     targetUserId={targetUser.id}
-                    targetUsername={targetUser.id}
+                    targetUsername={targetUser.username}
                     setUserInformation={setUserInformation}
                 />
             </div>

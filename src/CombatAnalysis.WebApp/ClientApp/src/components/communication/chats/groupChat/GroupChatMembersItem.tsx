@@ -31,7 +31,7 @@ const GroupChatMembersItem: React.FC<GroupChatMembersItemProps> = ({ myself, gro
                 <User
                     myself={myself}
                     targetUserId={groupChatUser.appUserId}
-                    targetUsername={groupChatUser.appUserId}
+                    targetUsername={groupChatUser.username}
                     setUserInformation={setUserInformation}
                 />
                 {(myself.id !== groupChatUser.appUserId && showRemoveUser) &&

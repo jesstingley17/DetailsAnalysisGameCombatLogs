@@ -121,6 +121,11 @@ public class GroupChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, IOp
         var meAsGroupChatUser = groupChatUsers.FirstOrDefault(x => x.Id == chatAction.GroupChatUserId);
         ArgumentNullException.ThrowIfNull(meAsGroupChatUser, nameof(meAsGroupChatUser));
 
+        if (meAsGroupChatUser.UnreadMessages == 0)
+        {
+            return;
+        }
+
         meAsGroupChatUser.UnreadMessages--;
 
         var rowsAffected = await groupChatUserService.UpdateAsync(meAsGroupChatUser);

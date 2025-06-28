@@ -111,29 +111,38 @@ GO
 CREATE PROCEDURE GetGroupChatMessageByChatIdPagination (@chatId INT, @groupChatUserId NVARCHAR (MAX), @pageSize INT)
 AS
 BEGIN
-	SELECT TOP (@pageSize)
-		gcm.*,
-		ugcm.GroupChatMessageId
-	FROM GroupChatMessage gcm
-	LEFT JOIN UnreadGroupChatMessage ugcm ON gcm.Id = ugcm.GroupChatMessageId AND @groupChatUserId = ugcm.GroupChatUserId
-	WHERE gcm.ChatId = @chatId
-	ORDER BY Id DESC
+    SELECT TOP (@pageSize)
+        gcm.*,
+        (
+		    SELECT TOP 1 GroupChatMessageId
+            FROM UnreadGroupChatMessage ugcm
+            WHERE (ugcm.GroupChatMessageId = gcm.Id AND ugcm.GroupChatUserId = @groupChatUserId)
+			    OR (ugcm.GroupChatMessageId = gcm.Id AND gcm.GroupChatUserId = @groupChatUserId)
+        ) AS GroupChatMessageId
+    FROM GroupChatMessage gcm
+    WHERE gcm.ChatId = @chatId
+    ORDER BY gcm.Id DESC
 END
 GO
 
 CREATE PROCEDURE GetGroupChatMessageByChatIdMore (@chatId INT, @groupChatUserId NVARCHAR (MAX), @offset INT, @pageSize INT)
 AS
 BEGIN
-	SELECT
-		gcm.*,
-		ugcm.GroupChatMessageId
-	FROM GroupChatMessage gcm
-	LEFT JOIN UnreadGroupChatMessage ugcm ON gcm.Id = ugcm.GroupChatMessageId AND @groupChatUserId = ugcm.GroupChatUserId
-	WHERE gcm.ChatId = @chatId
-	ORDER BY Id DESC
-	OFFSET @offset ROWS
-	FETCH NEXT @pageSize ROWS ONLY
+    SELECT
+        gcm.*,
+        (
+		    SELECT TOP 1 GroupChatMessageId
+            FROM UnreadGroupChatMessage ugcm
+            WHERE (ugcm.GroupChatMessageId = gcm.Id AND ugcm.GroupChatUserId = @groupChatUserId)
+			    OR (ugcm.GroupChatMessageId = gcm.Id AND gcm.GroupChatUserId = @groupChatUserId)
+        ) AS GroupChatMessageId
+    FROM GroupChatMessage gcm
+    WHERE gcm.ChatId = @chatId
+    ORDER BY gcm.Id DESC
+    OFFSET @offset ROWS
+    FETCH NEXT @pageSize ROWS ONLY
 END
+GO
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
 VALUES (N'20250627164146_InitialCreate', N'9.0.1');

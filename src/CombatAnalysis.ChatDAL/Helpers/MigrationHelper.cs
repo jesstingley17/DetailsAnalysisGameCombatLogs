@@ -35,31 +35,42 @@ internal static class MigrationHelper
                              "\tFETCH NEXT @pageSize ROWS ONLY\n" +
                              "END");
 
-        migrationBuilder.Sql($"CREATE PROCEDURE {_procedureNames[2]} (@chatId INT, @groupChatUserId NVARCHAR (MAX), @pageSize INT)\n" +
-                              "AS\n" +
-                              "BEGIN\n" +
-                              "\tSELECT TOP (@pageSize)\n" +
-                              "\t\tgcm.*,\n" +
-                              "\t\tugcm.GroupChatMessageId\n" +
-                             $"\tFROM {nameof(GroupChatMessage)} gcm\n" +
-                             $"\tLEFT JOIN {nameof(UnreadGroupChatMessage)} ugcm ON gcm.{nameof(GroupChatMessage.Id)} = ugcm.{nameof(UnreadGroupChatMessage.GroupChatMessageId)} AND @groupChatUserId = ugcm.{nameof(UnreadGroupChatMessage.GroupChatUserId)}\n" +
-                              "\tWHERE gcm.ChatId = @chatId\n" +
-                              "\tORDER BY Id DESC\n" +
-                              "END");
+        migrationBuilder.Sql($@"
+CREATE PROCEDURE {_procedureNames[2]} (@chatId INT, @groupChatUserId NVARCHAR (MAX), @pageSize INT)
+AS
+BEGIN
+    SELECT TOP (@pageSize)
+        gcm.*,
+        (
+		    SELECT TOP 1 {nameof(UnreadGroupChatMessage.GroupChatMessageId)}
+            FROM {nameof(UnreadGroupChatMessage)} ugcm
+            WHERE (ugcm.{nameof(UnreadGroupChatMessage.GroupChatMessageId)} = gcm.{nameof(GroupChatMessage.Id)} AND ugcm.{nameof(UnreadGroupChatMessage.GroupChatUserId)} = @groupChatUserId)
+			    OR (ugcm.{nameof(UnreadGroupChatMessage.GroupChatMessageId)} = gcm.{nameof(GroupChatMessage.Id)} AND gcm.{nameof(GroupChatMessage.GroupChatUserId)} = @groupChatUserId)
+        ) AS {nameof(UnreadGroupChatMessage.GroupChatMessageId)}
+    FROM {nameof(GroupChatMessage)} gcm
+    WHERE gcm.{nameof(GroupChatMessage.ChatId)} = @chatId
+    ORDER BY gcm.{nameof(GroupChatMessage.Id)} DESC
+END");
 
-        migrationBuilder.Sql($"CREATE PROCEDURE {_procedureNames[3]} (@chatId INT, @groupChatUserId NVARCHAR (MAX), @offset INT, @pageSize INT)\n" +
-                             "AS\n" +
-                             "BEGIN\n" +
-                             "\tSELECT\n" +
-                              "\t\tgcm.*,\n" +
-                              "\t\tugcm.GroupChatMessageId\n" +
-                             $"\tFROM {nameof(GroupChatMessage)} gcm\n" +
-                             $"\tLEFT JOIN {nameof(UnreadGroupChatMessage)} ugcm ON gcm.{nameof(GroupChatMessage.Id)} = ugcm.{nameof(UnreadGroupChatMessage.GroupChatMessageId)} AND @groupChatUserId = ugcm.{nameof(UnreadGroupChatMessage.GroupChatUserId)}\n" +
-                              "\tWHERE gcm.ChatId = @chatId\n" +
-                             "\tORDER BY Id DESC\n" +
-                             "\tOFFSET @offset ROWS\n" +
-                             "\tFETCH NEXT @pageSize ROWS ONLY\n" +
-                             "END");
+
+        migrationBuilder.Sql($@"
+CREATE PROCEDURE {_procedureNames[3]} (@chatId INT, @groupChatUserId NVARCHAR (MAX), @offset INT, @pageSize INT)
+AS
+BEGIN
+    SELECT
+        gcm.*,
+        (
+		    SELECT TOP 1 {nameof(UnreadGroupChatMessage.GroupChatMessageId)}
+            FROM {nameof(UnreadGroupChatMessage)} ugcm
+            WHERE (ugcm.{nameof(UnreadGroupChatMessage.GroupChatMessageId)} = gcm.{nameof(GroupChatMessage.Id)} AND ugcm.{nameof(UnreadGroupChatMessage.GroupChatUserId)} = @groupChatUserId)
+			    OR (ugcm.{nameof(UnreadGroupChatMessage.GroupChatMessageId)} = gcm.{nameof(GroupChatMessage.Id)} AND gcm.{nameof(GroupChatMessage.GroupChatUserId)} = @groupChatUserId)
+        ) AS {nameof(UnreadGroupChatMessage.GroupChatMessageId)}
+    FROM {nameof(GroupChatMessage)} gcm
+    WHERE gcm.{nameof(GroupChatMessage.ChatId)} = @chatId
+    ORDER BY gcm.{nameof(GroupChatMessage.Id)} DESC
+    OFFSET @offset ROWS
+    FETCH NEXT @pageSize ROWS ONLY
+END");
     }
 
     public static void DropProcedures(MigrationBuilder migrationBuilder)
