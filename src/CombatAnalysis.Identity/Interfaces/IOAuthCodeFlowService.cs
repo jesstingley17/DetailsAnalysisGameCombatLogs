@@ -6,7 +6,7 @@ public interface IOAuthCodeFlowService
 
     Task<bool> ValidateCodeChallengeAsync(string clientId, string codeVerifier, string authorizationCode, string redirectUri);
 
-    Task<bool> ValidateClientAsync(string clientId, string redirectUri, string clientScope);
+    Task<bool> ValidateClientAsync(string clientId, string redirectUri, string clientScope, bool isDevRequest);
 
     (string AuthorizationCode, string UserData) DecryptAuthorizationCode(string encryptedDataWithCustomData, byte[] encryptionKey);
 

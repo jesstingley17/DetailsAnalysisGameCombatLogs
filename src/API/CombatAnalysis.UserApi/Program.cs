@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using AutoMapper;
 using CombatAnalysis.UserApi.Consts;
 using CombatAnalysis.UserApi.Enums;
 using CombatAnalysis.UserApi.Mapping;
@@ -75,31 +75,32 @@ builder.Services.AddSwaggerGen(options =>
         Type = SecuritySchemeType.OAuth2,
         Flows = new OpenApiOAuthFlows
         {
-            ClientCredentials = new OpenApiOAuthFlow
+            AuthorizationCode = new OpenApiOAuthFlow
             {
+                AuthorizationUrl = new Uri($"{apiOptions.Identity}connect/authorize"),
                 TokenUrl = new Uri($"{apiOptions.Identity}connect/token"),
                 Scopes = new Dictionary<string, string>
                 {
-                    { authenticationClientOptions.Scope, "Request API #1" }
+                    { authenticationClientOptions.Scope, "Request User API Authorization" }
                 }
             }
         }
     });
 
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
         {
+            new OpenApiSecurityScheme
             {
-                new OpenApiSecurityScheme
+                Reference = new OpenApiReference
                 {
-                    Reference = new OpenApiReference
-                    {
-                        Type = ReferenceType.SecurityScheme,
-                        Id = "oauth2"
-                    },
-                },
-                new[] { authenticationClientOptions.Scope }
-            }
-        });
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "oauth2"
+                }
+            },
+            new[] { authenticationClientOptions.Scope }
+        }
+    });
 });
 
 Log.Logger = new LoggerConfiguration()
@@ -123,6 +124,9 @@ app.UseSwaggerUI(options =>
     options.InjectStylesheet("/swagger-ui/swaggerDark.css");
     options.OAuthClientId(authenticationClientOptions.WebClientId);
     options.OAuthScopes(authenticationClientOptions.Scope);
+    options.OAuthUsePkce();
+
+    //options.OAuth2RedirectUrl("https://localhost:5003/swagger/oauth2-redirect.html");
 });
 
 app.UseStaticFiles();

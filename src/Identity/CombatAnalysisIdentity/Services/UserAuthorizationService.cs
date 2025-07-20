@@ -67,11 +67,18 @@ internal class UserAuthorizationService : IUserAuthorizationService
         return redirectUrl;
     }
 
-    async Task<bool> IUserAuthorizationService.ClientValidationAsync(HttpRequest request)
+    async Task<bool> IUserAuthorizationService.ClientValidationAsync(HttpRequest request, bool isDevRequest = false)
     {
-        GetAuthorizationRequestData(request);
+        if (isDevRequest) 
+        {
+            GetDevAuthorizationRequestData(request);
+        }
+        else
+        {
+            GetAuthorizationRequestData(request);
+        }
 
-        var clientIsValid = await _oAuthCodeFlowService.ValidateClientAsync(_authorizationRequest.ClientTd, _authorizationRequest.RedirectUri, _authorizationRequest.Scope);
+        var clientIsValid = await _oAuthCodeFlowService.ValidateClientAsync(_authorizationRequest.ClientTd, _authorizationRequest.RedirectUri, _authorizationRequest.Scope, isDevRequest);
 
         return clientIsValid;
     }
@@ -217,6 +224,52 @@ internal class UserAuthorizationService : IUserAuthorizationService
         }
 
         if (request.Query.TryGetValue(AuthorizationRequest.CodeChallenge.ToString(), out var codeChallenge))
+        {
+            _authorizationRequest.CodeChallenge = codeChallenge;
+        }
+    }
+    
+    private void GetDevAuthorizationRequestData(HttpRequest request)
+    {
+        var returnUrlEncoded = request.Query["ReturnUrl"];
+        var returnUrlDecoded = Uri.UnescapeDataString(returnUrlEncoded);
+        var innerQuery = new Uri("https://localhost" + returnUrlDecoded);
+        var innerParams = Microsoft.AspNetCore.WebUtilities
+                .QueryHelpers.ParseQuery(innerQuery.Query);
+
+        if (innerParams.TryGetValue("redirect_uri", out var redirectUri))
+        {
+            var url = redirectUri.ToString();
+            var isHttps = url.StartsWith("https://");
+            _authorizationRequest.RedirectUri = isHttps ? url.Split("https://")[1] : url.Split("http://")[1];
+        }
+
+        if (innerParams.TryGetValue("response_type", out var grantType))
+        {
+            _authorizationRequest.GrantType = grantType;
+        }
+
+        if (innerParams.TryGetValue("client_id", out var clientId))
+        {
+            _authorizationRequest.ClientTd = clientId;
+        }
+
+        if (innerParams.TryGetValue(AuthorizationRequest.Scope.ToString(), out var scope))
+        {
+            _authorizationRequest.Scope = scope;
+        }
+
+        if (innerParams.TryGetValue(AuthorizationRequest.State.ToString(), out var state))
+        {
+            _authorizationRequest.State = state;
+        }
+
+        if (innerParams.TryGetValue("code_challenge_method", out var codeChallengeMethod))
+        {
+            _authorizationRequest.CodeChallengeMethod = codeChallengeMethod;
+        }
+
+        if (innerParams.TryGetValue("code_challenge", out var codeChallenge))
         {
             _authorizationRequest.CodeChallenge = codeChallenge;
         }

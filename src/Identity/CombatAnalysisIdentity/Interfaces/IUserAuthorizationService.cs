@@ -6,7 +6,7 @@ public interface IUserAuthorizationService
 {
     Task<string> AuthorizationAsync(HttpRequest request, string email, string password);
 
-    Task<bool> ClientValidationAsync(HttpRequest request);
+    Task<bool> ClientValidationAsync(HttpRequest request, bool isDevRequest = false);
 
     Task<bool> CreateUserAsync(IdentityUserModel identityUser, AppUserModel appUser, CustomerModel customer);
 

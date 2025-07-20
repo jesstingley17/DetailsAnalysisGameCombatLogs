@@ -5,49 +5,44 @@ namespace CombatAnalysisIdentity.Core;
 internal class Config
 {
     public static IEnumerable<ApiScope> ApiScopes =>
-        new List<ApiScope>
-        {
-            new ApiScope("api1", "My API #1"),
-            new ApiScope("api2", "My API #2")
-        };
+        [
+            new ApiScope("client3scope", "My Scope 3")
+        ];
 
     public static IEnumerable<Client> GetClients()
     {
-        return new List<Client>
-        {
+        return
+        [
             new Client
             {
-                ClientId = "client1",
-                AllowedGrantTypes = GrantTypes.CodeAndClientCredentials,
-                RedirectUris = { "https://localhost:44479/callback" },
-                PostLogoutRedirectUris = { "https://localhost:44479" },
+                ClientId = "client3",
+                AllowedGrantTypes = GrantTypes.Code,
+
+                RedirectUris = { "https://localhost:5003/swagger/oauth2-redirect.html" },
+
                 RequirePkce = true,
-                AllowPlainTextPkce = false,
-                RequireConsent = true,
-                AllowedScopes = { "api1" },
-                ClientSecrets =
-                {
-                    new Secret("secret1".Sha512())
-                },
+                RequireClientSecret = false,
+
+                AllowedScopes = { "client3scope" },
+                AllowAccessTokensViaBrowser = true,
             }
-        };
+        ];
     }
 
     public static IEnumerable<IdentityResource> GetIdentityResources()
     {
-        return new List<IdentityResource>
-        {
+        return
+        [
             new IdentityResources.OpenId(),
             new IdentityResources.Profile(),
-        };
+        ];
     }
 
     public static IEnumerable<ApiResource> GetApiResources()
     {
-        return new List<ApiResource>
-        {
-            new ApiResource("api1", "My API 1"),
-            new ApiResource("api2", "My API 2"),
-        };
+        return
+        [
+            new ApiResource("client3scope", "My Scope 3"),
+        ];
     }
 }

@@ -74,7 +74,7 @@ internal class OAuthCodeFlowService(IOptions<Authentication> authentication, IPk
         return true;
     }
 
-    async Task<bool> IOAuthCodeFlowService.ValidateClientAsync(string clientId, string redirectUri, string clientScope)
+    async Task<bool> IOAuthCodeFlowService.ValidateClientAsync(string clientId, string redirectUri, string clientScope, bool isDevRequest)
     {
         if (string.IsNullOrEmpty(clientId)
             || string.IsNullOrEmpty(clientScope)
@@ -96,7 +96,7 @@ internal class OAuthCodeFlowService(IOptions<Authentication> authentication, IPk
         }
 
         var redirectUriIsValid = allowedRedirects.Contains(redirectUri);
-        if (!redirectUriIsValid)
+        if (!redirectUriIsValid && !isDevRequest)
         {
             return false;
         }
