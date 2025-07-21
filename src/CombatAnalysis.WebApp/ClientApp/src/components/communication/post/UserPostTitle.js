@@ -6,7 +6,7 @@ import { useGetUserByIdQuery } from '../../../store/api/user/Account.api';
 import { useRemoveUserPostMutation } from '../../../store/api/post/UserPost.api';
 import User from '../User';
 
-const UserPostTitle = ({ post, dateFormatting, isMyPost }) => {
+const UserPostTitle = ({ post, dateFormatting, isMyPost, myself }) => {
     const { t } = useTranslation("communication/postTitle");
 
     const { data: targetUser } = useGetUserByIdQuery(post?.appUserId);
@@ -24,9 +24,10 @@ const UserPostTitle = ({ post, dateFormatting, isMyPost }) => {
                 <div className="content">
                     <div className="username">
                         <User
+                            myself={myself}
                             targetUserId={targetUser ? targetUser.id : "0"}
+                            targetUsername={targetUser?.username}
                             setUserInformation={setUserInformation}
-                            allowRemoveFriend={false}
                         />
                     </div>
                     <div className="when">{dateFormatting(post?.createdAt)}</div>

@@ -1,12 +1,6 @@
-export interface UserPost {
-    id: number;
-    owner: string;
-    content: string;
+import { Post } from "./Post";
+
+export interface UserPost extends Post {
     publicType: number;
     tags: string;
-    createdAt: string;
-    likeCount: number;
-    dislikeCount: number;
-    commentCount: number;
-    appUserId: string;
 }

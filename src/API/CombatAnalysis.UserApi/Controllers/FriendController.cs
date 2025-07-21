@@ -10,18 +10,11 @@ namespace CombatAnalysis.UserApi.Controllers;
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class FriendController : ControllerBase
+public class FriendController(IService<FriendDto, int> service, IMapper mapper, ILogger<FriendController> logger) : ControllerBase
 {
-    private readonly IService<FriendDto, int> _service;
-    private readonly IMapper _mapper;
-    private readonly ILogger<FriendController> _logger;
-
-    public FriendController(IService<FriendDto, int> service, IMapper mapper, ILogger<FriendController> logger)
-    {
-        _service = service;
-        _mapper = mapper;
-        _logger = logger;
-    }
+    private readonly IService<FriendDto, int> _service = service;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<FriendController> _logger = logger;
 
     [HttpGet]
     public async Task<IActionResult> GetAll()

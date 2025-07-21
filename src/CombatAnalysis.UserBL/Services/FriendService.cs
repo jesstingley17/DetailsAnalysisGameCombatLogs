@@ -6,16 +6,10 @@ using CombatAnalysis.UserDAL.Interfaces;
 
 namespace CombatAnalysis.UserBL.Services;
 
-internal class FriendService : IService<FriendDto, int>
+internal class FriendService(IFriendRepository repository, IMapper mapper) : IService<FriendDto, int>
 {
-    private readonly IGenericRepository<Friend, int> _repository;
-    private readonly IMapper _mapper;
-
-    public FriendService(IGenericRepository<Friend, int> repository, IMapper mapper)
-    {
-        _repository = repository;
-        _mapper = mapper;
-    }
+    private readonly IFriendRepository _repository = repository;
+    private readonly IMapper _mapper = mapper;
 
     public Task<FriendDto> CreateAsync(FriendDto item)
     {

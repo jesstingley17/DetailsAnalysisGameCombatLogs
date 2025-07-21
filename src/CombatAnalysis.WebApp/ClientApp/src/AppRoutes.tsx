@@ -9,7 +9,6 @@ import VoiceChat from './components/communication/chats/voiceChat/VoiceChat';
 import AllCommunities from './components/communication/community/AllCommunities';
 import SelectedCommunity from './components/communication/community/SelectedCommunity';
 import Friends from './components/communication/myEnvironment/Friends';
-import MyCommunities from './components/communication/myEnvironment/MyCommunities';
 import MyFeed from './components/communication/myEnvironment/MyFeed';
 import Profile from './components/communication/myEnvironment/Profile';
 import People from './components/communication/people/People';
@@ -17,6 +16,7 @@ import SelectedUser from './components/communication/people/SelectedUser';
 import AuthorizationCallback from './components/identity/AuthorizationCallback';
 //import PlayerMovements from './components/combatDetails/actions/PlayerMovements';
 import CombatAuras from './components/combatDetails/actions/CombatAuras';
+import MyEnvironmentCommunities from './components/communication/myEnvironment/MyEnvironmentCommunities';
 
 interface Route {
     index?: boolean;
@@ -71,7 +71,7 @@ const AppRoutes: Route[] = [
     },
     {
         path: '/environment/communities',
-        element: <MyCommunities />
+        element: <MyEnvironmentCommunities />
     },
     {
         path: '/environment/profile',

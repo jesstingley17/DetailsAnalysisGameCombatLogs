@@ -13,13 +13,13 @@ import '../../../styles/communication/myEnvironment/friends.scss';
 const Friends: React.FC = () => {
     const { t } = useTranslation("communication/myEnvironment/friends");
 
-    const me = useSelector((state: any) => state.user.value);
+    const myself = useSelector((state: any) => state.user.value);
 
     const [userInformation, setUserInformation] = useState<any>(null);
 
-    const { data: myFriends, isLoading } = useFriendSearchMyFriendsQuery(me?.id);
+    const { data: myFriends, isLoading } = useFriendSearchMyFriendsQuery(myself?.id);
 
-    if (isLoading) {
+    if (isLoading || !myFriends) {
         return (
             <>
                 <CommunicationMenu
@@ -43,9 +43,9 @@ const Friends: React.FC = () => {
                         ? myFriends.map((friend: Friend) => (
                             <li key={friend.id} className="friend">
                                 <User
-                                    myself={me}
-                                    targetUserId={friend.forWhomId === me?.id ? friend.whoFriendId : friend.forWhomId}
-                                    targetUsername={friend.forWhomId === me?.id ? friend.whoFriendId : friend.forWhomId}
+                                    myself={myself}
+                                    targetUserId={friend.forWhomId === myself?.id ? friend.whoFriendId : friend.forWhomId}
+                                    targetUsername={friend.forWhomId === myself?.id ? friend.whoFriendUsername : friend.forWhomUsername}
                                     setUserInformation={setUserInformation}
                                     friendId={friend.id}
                                 />

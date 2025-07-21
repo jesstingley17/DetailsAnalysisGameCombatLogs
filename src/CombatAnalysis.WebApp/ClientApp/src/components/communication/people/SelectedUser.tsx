@@ -124,7 +124,7 @@ const SelectedUser: React.FC = () => {
                                     : allPosts?.map(post => (
                                         <li key={post.id}>
                                             <UserPost
-                                                meId={me.id}
+                                                myself={me.id}
                                                 post={post}
                                             />
                                         </li>

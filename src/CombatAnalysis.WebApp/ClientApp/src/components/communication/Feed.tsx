@@ -8,9 +8,9 @@ import FeedParticipants from './FeedParticipants';
 const Feed: React.FC = () => {
     const { t } = useTranslation("communication/feed");
 
-    const me = useSelector((state: any) => state.user.value);
+    const myself = useSelector((state: any) => state.user.value);
 
-    if (!me) {
+    if (!myself) {
         return (
             <>
                 <CommunicationMenu
@@ -26,12 +26,12 @@ const Feed: React.FC = () => {
         <>
             <div className="communication-content">
                 <CreateUserPost
-                    user={me}
-                    owner={me?.username}
+                    user={myself}
+                    owner={myself?.username}
                     t={t}
                 />
                 <FeedParticipants
-                    meId={me?.id}
+                    myself={myself}
                     t={t}
                 />
             </div>

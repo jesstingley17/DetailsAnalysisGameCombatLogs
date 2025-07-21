@@ -4,14 +4,14 @@ using CombatAnalysis.UserDAL.Entities;
 
 namespace CombatAnalysis.UserBL.Mapping;
 
-public class CustomerBLMapper : Profile
+public class UserBLMapper : Profile
 {
-    public CustomerBLMapper()
+    public UserBLMapper()
     {
         CreateMap<AppUserDto, AppUser>().ReverseMap(); ;
         CreateMap<BannedUserDto, BannedUser>().ReverseMap();
         CreateMap<CustomerDto, Customer>().ReverseMap();
-        CreateMap<FriendDto, Friend>().ReverseMap();
+        CreateMap<FriendDto, UserDAL.DTO.FriendDto>().ReverseMap();
         CreateMap<RequestToConnectDto, RequestToConnect>().ReverseMap();
     }
 }

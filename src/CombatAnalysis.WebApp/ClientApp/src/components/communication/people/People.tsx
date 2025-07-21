@@ -21,8 +21,9 @@ const People: React.FC = () => {
     const { people, isLoading } = useGetUsersQuery(undefined, {
         pollingInterval: peopleInterval,
         skip: skipFetching,
-        selectFromResult: ({ data }: { data?: AppUser[] }) => ({
-            people: data !== undefined ? data.filter((item) => item.id !== me?.id) : []
+        selectFromResult: ({ data, isLoading }) => ({
+            people: data !== undefined ? data.filter((item) => item.id !== me?.id) : [],
+            isLoading
         }),
     });
 

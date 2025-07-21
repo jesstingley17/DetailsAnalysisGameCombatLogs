@@ -1,16 +1,10 @@
-export interface CommunityPost {
-    id: number;
+import { Post } from "./Post";
+
+export interface CommunityPost extends Post {
     communityName: string;
-    owner: string;
-    content: string;
     postType: number;
     publicType: number;
     restrictions: number;
     tags: string;
-    createdAt: string;
-    likeCount: number;
-    dislikeCount: number;
-    commentCount: number;
     communityId: number;
-    appUserId: string;
 }

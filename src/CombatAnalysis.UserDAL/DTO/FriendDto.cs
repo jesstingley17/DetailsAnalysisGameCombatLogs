@@ -1,6 +1,6 @@
-﻿namespace CombatAnalysis.WebApp.Models.User;
+﻿namespace CombatAnalysis.UserDAL.DTO;
 
-public class FriendModel
+public class FriendDto
 {
     public int Id { get; set; }
 

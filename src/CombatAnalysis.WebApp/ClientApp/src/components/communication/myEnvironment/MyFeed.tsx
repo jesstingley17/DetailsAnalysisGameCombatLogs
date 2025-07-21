@@ -3,23 +3,26 @@ import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { v4 as uuidv4 } from 'uuid';
 import useFetchCommunityPosts from '../../../hooks/useFetchUsersPosts';
+import { Post } from '../../../types/Post';
+import { CommunityPost as CommunityPostModel } from '../../../types/CommunityPost';
+import { UserPost as UserPostModel } from '../../../types/UserPost';
 import Loading from '../../Loading';
 import CommunicationMenu from '../CommunicationMenu';
 import CommunityPost from '../post/CommunityPost';
 import CreateUserPost from '../post/CreateUserPost';
 import UserPost from '../post/UserPost';
 
-const MyFeed = () => {
+const MyFeed: React.FC = () => {
     const { t } = useTranslation("communication/feed");
 
-    const me = useSelector((state) => state.user.value);
+    const myself = useSelector((state: any) => state.user.value);
 
     const userPostsSizeRef = useRef(0);
     const communityPostsSizeRef = useRef(0);
 
-    const [currentPosts, setCurrentPosts] = useState([]);
+    const [currentPosts, setCurrentPosts] = useState<Post[]>([]);
 
-    const { posts, communityPosts, count, communityCount, isLoading, getMoreUserPostsAsync, getMoreCommunityPostsAsync } = useFetchCommunityPosts(me?.id, true);
+    const { posts, communityPosts, count, communityCount, isLoading, getMoreUserPostsAsync, getMoreCommunityPostsAsync } = useFetchCommunityPosts(myself?.id);
 
     useEffect(() => {
         if (!posts) {
@@ -29,7 +32,7 @@ const MyFeed = () => {
         userPostsSizeRef.current = posts.length;
 
         const totalPosts = [...currentPosts, ...posts];
-        totalPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        totalPosts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
         setCurrentPosts(totalPosts);
     }, [posts]);
@@ -42,7 +45,7 @@ const MyFeed = () => {
         communityPostsSizeRef.current = communityPosts.length;
 
         const totalPosts = [...currentPosts, ...communityPosts];
-        totalPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        totalPosts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
         setCurrentPosts(totalPosts);
     }, [communityPosts]);
@@ -54,7 +57,7 @@ const MyFeed = () => {
         const newPosts = newUserPosts.concat(newCommunityPosts);
 
         const totalPosts = [...currentPosts, ...newPosts];
-        totalPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        totalPosts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
         setCurrentPosts(totalPosts);
     }
@@ -75,22 +78,22 @@ const MyFeed = () => {
         <>
             <div>
                 <CreateUserPost
-                    user={me}
-                    owner={me?.username}
+                    user={myself}
+                    owner={myself?.username}
                     t={t}
                 />
                 <ul className="posts">
                     {currentPosts?.map(post => (
                         <li className="posts__item" key={uuidv4()}>
-                            {post.communityId
+                            {(post as CommunityPostModel).communityId !== undefined
                                 ? <CommunityPost
-                                    userId={me?.id}
-                                    post={post}
-                                    communityId={post.communityId}
+                                    userId={myself?.id}
+                                    post={(post as CommunityPostModel)}
+                                    communityId={(post as CommunityPostModel).communityId}
                                 />
                                 : <UserPost
-                                    userId={me?.id}
-                                    post={post}
+                                    myself={myself}
+                                    post={(post as UserPostModel)}
                                 />
                             }
                         </li>

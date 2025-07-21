@@ -14,6 +14,7 @@ import PeopleInvitesToCommunity from './people/PeopleInvitesToCommunity';
 import SelectedUserProfile from './people/SelectedUserProfile';
 
 import './../../styles/communication/userInformation.scss';
+import { RequestToConnect } from '../../types/RequestToConnect';
 
 const successNotificationTimeout = 2000;
 const failedNotificationTimeout = 2000;
@@ -91,14 +92,15 @@ const UserInformation: React.FC<UserInformationProps> = ({ myself, personId, clo
             return;
         }
 
-        const newRequest = {
+        const newRequest: RequestToConnect = {
+            id: 0,
             toAppUserId: people.id,
             when: new Date(),
             appUserId: myself?.id,
         };
 
-        const createdRequest = await createRequestAsync(newRequest);
-        if (createdRequest.data !== undefined) {
+        const createdRequest = await createRequestAsync(newRequest).unwrap();
+        if (createdRequest) {
             setShowSuccessNotification(true);
 
             setTimeout(() => {
@@ -111,7 +113,7 @@ const UserInformation: React.FC<UserInformationProps> = ({ myself, personId, clo
         navigate(`/user?id=${person.id}`)
     }
 
-    if (isLoading || personIsLoading) {
+    if (isLoading || personIsLoading || !myFriends) {
         return (<></>);
     }
 

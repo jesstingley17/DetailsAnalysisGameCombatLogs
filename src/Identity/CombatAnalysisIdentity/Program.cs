@@ -28,7 +28,7 @@ builder.Services.UserBLDependencies(databasePropsOptions.Name, databasePropsOpti
 var mappingConfig = new MapperConfiguration(mc =>
 {
     mc.AddProfile(new IdentityMapper());
-    mc.AddProfile(new CustomerBLMapper());
+    mc.AddProfile(new UserBLMapper());
     mc.AddProfile(new CombatAnalysisIdentityMapper());
 });
 var mapper = mappingConfig.CreateMapper();

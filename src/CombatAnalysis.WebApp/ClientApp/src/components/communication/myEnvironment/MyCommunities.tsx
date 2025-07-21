@@ -13,11 +13,11 @@ import MyCommunitiesItem from './MyCommunitiesItem';
 
 import '../../../styles/communication/community/communities.scss';
 
-const MyCommunities = () => {
+const MyCommunities: React.FC = () => {
     const { t } = useTranslation("communication/myEnvironment/myCommunities");
 
-    const me = useSelector((state) => state.user.value);
-    const userPrivacy = useSelector((state) => state.userPrivacy.value);
+    const myself = useSelector((state: any) => state.user.value);
+    const userPrivacy = useSelector((state: any) => state.userPrivacy.value);
 
     const [showCreateCommunity, setShowCreateCommunity] = useState(false);
     const [showMyCommunities, setShowMyCommunities] = useState(true);
@@ -25,17 +25,17 @@ const MyCommunities = () => {
     const [showSearchCommunity, setShowSearchCommunity] = useState(false);
     const [skipFetching, setSkipFetching] = useState(true);
 
-    const { data: myCommunities, isLoading } = useCommunityUserSearchByUserIdQuery(me?.id, {
+    const { data: myCommunities, isLoading } = useCommunityUserSearchByUserIdQuery(myself?.id, {
         skip: skipFetching
     });
 
-    const searchHandler = (e) => {
+    const searchHandler = (e: any) => {
         setFilterContent(e.target.value);
     }
 
     useEffect(() => {
-        me !== null ? setSkipFetching(false) : setSkipFetching(true);
-    }, [me]);
+        myself !== null ? setSkipFetching(false) : setSkipFetching(true);
+    }, [myself]);
 
     if (isLoading || !userPrivacy) {
         return (
@@ -52,7 +52,7 @@ const MyCommunities = () => {
     return (
         <>
             <InvitesToCommunity
-                user={me}
+                user={myself}
             />
             {showCreateCommunity &&
                 <CreateCommunity
@@ -62,18 +62,11 @@ const MyCommunities = () => {
             <div className="communities__list">
                 <div className="title">
                     <div className="content">
-                        {showSearchCommunity
-                            ? <FontAwesomeIcon
-                                icon={faMagnifyingGlassMinus}
-                                title={t("HideSearchCommunity")}
-                                onClick={() => setShowSearchCommunity(false)}
-                            />
-                            : <FontAwesomeIcon
-                                icon={faMagnifyingGlassPlus}
-                                title={t("ShowSearchCommunity")}
-                                onClick={() => setShowSearchCommunity(true)}
-                            />
-                        }
+                        <FontAwesomeIcon
+                            icon={showSearchCommunity ? faMagnifyingGlassMinus : faMagnifyingGlassPlus}
+                            title={(showSearchCommunity ? t("HideSearchCommunity") : t("ShowSearchCommunity")) || ""}
+                            onClick={() => setShowSearchCommunity(!showSearchCommunity)}
+                        />
                         <div>{t("MyCommunitites")}</div>
                         {userPrivacy.emailVerified 
                             ? <div className="btn-shadow create-new-community" onClick={() => setShowCreateCommunity(true)}>
@@ -89,7 +82,7 @@ const MyCommunities = () => {
                         }
                         <FontAwesomeIcon
                             icon={showMyCommunities ? faEye : faEyeSlash}
-                            title={showMyCommunities ? t("Hide") : t("Show")}
+                            title={(showMyCommunities ? t("Hide") : t("Show")) || ""}
                             onClick={() => setShowMyCommunities(prev => !prev)}
                         />
                     </div>
@@ -99,7 +92,7 @@ const MyCommunities = () => {
                         {showSearchCommunity &&
                             <div className="communities__search mb-3">
                                 <label htmlFor="inputSearchCommunity" className="form-label">{t("Search")}</label>
-                                <input type="text" className="form-control" id="inputSearchCommunity" placeholder={t("TypeCommunityName")} onChange={searchHandler} />
+                                <input type="text" className="form-control" id="inputSearchCommunity" placeholder={t("TypeCommunityName") || ""} onChange={searchHandler} />
                             </div>
                         }
                         <ul>
@@ -116,10 +109,6 @@ const MyCommunities = () => {
                     </>
                 }
             </div>
-            <CommunicationMenu
-                currentMenuItem={7}
-                hasSubMenu={true}
-            />
         </>
     );
 }

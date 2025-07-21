@@ -4,16 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.UserDAL.Repositories.SQL;
 
-internal class SQLRepository<TModel, TIdType> : IGenericRepository<TModel, TIdType>
+internal class SQLRepository<TModel, TIdType>(UserSQLContext context) : IGenericRepository<TModel, TIdType>
     where TModel : class
     where TIdType : notnull
 {
-    private readonly UserSQLContext _context;
-
-    public SQLRepository(UserSQLContext context)
-    {
-        _context = context;
-    }
+    private readonly UserSQLContext _context = context;
 
     public async Task<TModel> CreateAsync(TModel item)
     {

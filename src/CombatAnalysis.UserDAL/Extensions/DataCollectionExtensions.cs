@@ -39,9 +39,10 @@ public static class DataCollectionExtensions
 
         services.AddScoped<IUserRepository, SQLUserRepository>();
         services.AddScoped<IGenericRepository<Customer, string>, SQLRepository<Customer, string>>();
-        services.AddScoped<IGenericRepository<Friend, int>, SQLRepository<Friend, int>>();
         services.AddScoped<IGenericRepository<BannedUser, int>, SQLRepository<BannedUser, int>>();
         services.AddScoped<IGenericRepository<RequestToConnect, int>, SQLRepository<RequestToConnect, int>>();
+
+        services.AddScoped<IFriendRepository, SQLFriendRepository>();
     }
 
     private static void FirebaseDatabase(IServiceCollection services)

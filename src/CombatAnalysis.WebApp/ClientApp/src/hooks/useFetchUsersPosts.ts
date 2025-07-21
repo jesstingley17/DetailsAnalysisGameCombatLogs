@@ -29,7 +29,7 @@ const useFetchUsersPosts = (meId: string): UseFetchUsersPostsResult => {
     const [communityCount, setCommunityCount] = useState(0);
 
     const { data: myFriends, isLoading: friendsAreLoading } = useFriendSearchMyFriendsQuery(meId, {
-        selectFromResult: ({ data }: { data: Friend[] }) => ({ data }),
+        selectFromResult: ({ data, isLoading }) => ({ data, isLoading }),
     });
     const { data: myCommunitiesUsers, isLoading: communitiesAreLoading } = useCommunityUserSearchByUserIdQuery(meId, {
         selectFromResult: ({ data, isLoading }) => ({ data, isLoading }),

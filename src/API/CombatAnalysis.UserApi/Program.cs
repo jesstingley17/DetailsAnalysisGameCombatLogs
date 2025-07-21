@@ -21,7 +21,7 @@ builder.Services.UserBLDependencies(databasePropsOptions.Name, connection);
 var mappingConfig = new MapperConfiguration(mc =>
 {
     mc.AddProfile(new UserApiMapper());
-    mc.AddProfile(new CustomerBLMapper());
+    mc.AddProfile(new UserBLMapper());
 });
 var mapper = mappingConfig.CreateMapper();
 builder.Services.AddSingleton(mapper);

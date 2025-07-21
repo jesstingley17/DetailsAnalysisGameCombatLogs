@@ -2,14 +2,17 @@ import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useCommunityUserSearchByUserIdQuery } from '../../../store/api/community/CommunityUser.api';
 import { useGetCommunitiesCountQuery, useLazyGetCommunitiesWithPaginationQuery, useLazyGetMoreCommunitiesWithPaginationQuery } from '../../../store/api/core/Community.api';
+import { Community } from '../../../types/Community';
+import { CommunityListProps } from '../../../types/components/communication/community/CommunityListProps';
 import CommunityItem from './CommunityItem';
 
-const CommunityList = ({ filterContent }) => {
-    const user = useSelector((state) => state.user.value);
+const CommunityList: React.FC<CommunityListProps> = ({ filterContent }) => {
+    const user = useSelector((state: any) => state.user.value);
 
-    const pageSizeRef = useRef(1);
+    const pageSizeRef = useRef<HTMLInputElement | string>("1");
 
-    const [communities, setCommunities] = useState([]);
+    const [communities, setCommunities] = useState<Community[]>([]);
+    const [actualCount, setActualCount] = useState(0);
 
     const { data: count, isLoading: countIsLoading } = useGetCommunitiesCountQuery();
     const { data: userCommunities, isLoading } = useCommunityUserSearchByUserIdQuery(user?.id);
@@ -18,20 +21,24 @@ const CommunityList = ({ filterContent }) => {
     const [getMoreCommunities] = useLazyGetMoreCommunitiesWithPaginationQuery();
 
     useEffect(() => {
-        pageSizeRef.current = process.env.REACT_APP_COMMUNITY_PAGE_SIZE;
+        if (pageSizeRef.current !== null) {
+            pageSizeRef.current = process.env.REACT_APP_COMMUNITY_PAGE_SIZE || "0";
+        }
 
         const getCommunitiesAsync = async () => {
-            const response = await getCommunities(pageSizeRef.current);
+            const response = await getCommunities(pageSizeRef.current === null ? 0 : +pageSizeRef.current).unwrap();
 
-            if (!response.error) {
-                setCommunities(response.data);
-            }
+            setCommunities(response);
         }
 
         getCommunitiesAsync();
     }, []);
 
-    const anotherCommunity = (community) => {
+    useEffect(() => {
+        setActualCount(count === undefined ? 0 : count);
+    }, [count]);
+
+    const anotherCommunity = (community: Community) => {
         if (user == null) {
             return true;
         }
@@ -42,14 +49,12 @@ const CommunityList = ({ filterContent }) => {
 
     const getMoreCommunitiesAsync = async () => {
         const arg = {
-            offset: communities.length,
-            pageSize: pageSizeRef.current 
+            offset: +communities.length,
+            pageSize: +pageSizeRef.current 
         };
 
-        const response = await getMoreCommunities(arg);
-        if (!response.error) {
-            setCommunities(prevCom => [...prevCom, ...response.data]);
-        }
+        const response = await getMoreCommunities(arg).unwrap();
+        setCommunities(prevCom => [...prevCom, ...response]);
     }
 
     if (countIsLoading || isLoading) {
@@ -61,16 +66,16 @@ const CommunityList = ({ filterContent }) => {
             <ul>
                 {communities?.filter(community => community.policyType === 0).map((item) => (
                     (anotherCommunity(item) && item.name.toLowerCase().startsWith(filterContent.toLowerCase())) &&
-                    <li key={item.id} className="community">
-                        <CommunityItem
-                            id={item.id}
-                            me={user}
-                        />
-                    </li>
-                ))
+                        <li key={item.id} className="community">
+                            <CommunityItem
+                                id={item.id}
+                                me={user}
+                            />
+                        </li>
+                    ))
                 }
             </ul>
-            {communities.length < count &&
+            {communities?.length < actualCount &&
                 <div className="load-more" onClick={getMoreCommunitiesAsync}>
                     <div className="load-more__content">Load more</div>
                 </div>

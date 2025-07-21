@@ -45,7 +45,7 @@ const Home: React.FC = () => {
     }, [shouldBeAuthorize]);
 
     const loginAsync = async () => {
-        const identityServerAuthPath = process.env.REACT_APP_IDENTITY_SERVER_AUTH_PATH;
+        const identityServerAuthPath = process.env.REACT_APP_IDENTITY_SERVER_AUTH_PATH || "";
 
         const response: any = await authorization(identityServerAuthPath);
 

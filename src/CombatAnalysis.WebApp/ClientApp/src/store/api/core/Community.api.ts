@@ -26,7 +26,7 @@ export const CommunityApi = createApi({
             query: (id) => `/Community/${id}`,
             providesTags: (result, error, id) => [{ type: 'Community', id }]
         }),
-        getCommunitiesCount: builder.query<number, number>({
+        getCommunitiesCount: builder.query<number, void>({
             query: () => '/Community/count'
         }),
         getCommunitiesWithPagination: builder.query<Community[], number>({

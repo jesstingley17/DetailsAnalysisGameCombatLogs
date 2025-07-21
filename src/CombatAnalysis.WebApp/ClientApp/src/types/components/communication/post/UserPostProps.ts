@@ -1,6 +1,7 @@
+import { AppUser } from '../../../AppUser';
 import { UserPost } from '../../../UserPost';
 
 export interface UserPostProps {
-    meId: string;
+    myself: AppUser;
     post: UserPost;
 }

@@ -6,14 +6,14 @@ import Loading from '../Loading';
 import CommunityPost from './post/CommunityPost';
 import UserPost from './post/UserPost';
 
-const FeedParticipants: React.FC<FeedParticipantsProps> = ({ meId, t }) => {
+const FeedParticipants: React.FC<FeedParticipantsProps> = ({ myself, t }) => {
     const userPostsSizeRef = useRef(0);
     const communityPostsSizeRef = useRef(0);
 
     const [currentPosts, setCurrentPosts] = useState<any[]>([]);
     const [haveNewPosts, setHaveNewPosts] = useState(false);
 
-    const { posts, communityPosts, newPosts, newCommunityPosts, count, communityCount, isLoading, getMoreUserPostsAsync, getMoreCommunityPostsAsync, currentDateRef } = useFetchUsersPosts(meId);
+    const { posts, communityPosts, newPosts, newCommunityPosts, count, communityCount, isLoading, getMoreUserPostsAsync, getMoreCommunityPostsAsync, currentDateRef } = useFetchUsersPosts(myself.id);
 
     useEffect(() => {
         if (!posts) {
@@ -103,12 +103,12 @@ const FeedParticipants: React.FC<FeedParticipantsProps> = ({ meId, t }) => {
                     <li key={uuidv4()}>
                         {post.communityId
                             ? <CommunityPost
-                                userId={meId}
+                                userId={myself.id}
                                 post={post}
                                 communityId={post.communityId}
                             />
                             : <UserPost
-                                meId={meId}
+                                myself={myself}
                                 post={post}
                             />
                         }

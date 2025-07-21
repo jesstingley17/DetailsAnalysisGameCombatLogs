@@ -20,13 +20,15 @@ const AddPeople: React.FC<AddPeopleProps> = ({ user, usersId, peopleToJoin, setP
     const [maxFriendsItems, setMaxFriendsItems] = useState(defaultMaxItems);
 
     const { friends, isLoading: friendsIsLoading } = useFriendSearchMyFriendsQuery(user?.id, {
-        selectFromResult: ({ data }: { data: Friend[] }) => ({
-            friends: data?.filter((item) => !usersId.includes(user?.id === item.whoFriendId ? item.forWhomId : item.whoFriendId))
+        selectFromResult: ({ data, isLoading }) => ({
+            friends: data?.filter((item) => !usersId.includes(user?.id === item.whoFriendId ? item.forWhomId : item.whoFriendId)),
+            isLoading,
         }),
     });
     const { people, isLoading: peopleIsLoading } = useGetUsersQuery(undefined, {
-        selectFromResult: ({ data }: { data: AppUser[] }) => ({
-            people: data?.filter((item) => !usersId.includes(item.id))
+        selectFromResult: ({ data, isLoading }) => ({
+            people: data?.filter((item) => !usersId.includes(item.id)),
+            isLoading
         }),
     });
 
@@ -36,7 +38,7 @@ const AddPeople: React.FC<AddPeopleProps> = ({ user, usersId, peopleToJoin, setP
     const [showPeopleList, setShowPeopleList] = useState(true);
 
     const [selectedPeopleToJoin, setSelectedPeopleToJoin] = useState(peopleToJoin);
-    const [filteredPeople, setFilteredPeople] = useState([]);
+    const [filteredPeople, setFilteredPeople] = useState<AppUser[]>([]);
 
     const filterContent = useRef<HTMLInputElement | null>(null);
 
@@ -53,9 +55,13 @@ const AddPeople: React.FC<AddPeopleProps> = ({ user, usersId, peopleToJoin, setP
     }
 
     const handlerSearch = (e: any) => {
+        if (!people) {
+            return;
+        }
+
         const searchValue = e.target.value.toLowerCase();
-        const filtered = people.filter((user: AppUser) => user.username.toLowerCase().startsWith(searchValue));
-        setFilteredPeople(filtered);
+        const foundPeople = people.filter((user: AppUser) => user.username.toLowerCase().startsWith(searchValue));
+        setFilteredPeople(foundPeople);
     }
 
     const cleanSearch = () => {
@@ -66,7 +72,7 @@ const AddPeople: React.FC<AddPeopleProps> = ({ user, usersId, peopleToJoin, setP
         setFilteredPeople([]);
     }
 
-    if (friendsIsLoading || peopleIsLoading) {
+    if (friendsIsLoading || peopleIsLoading || !friends || !people) {
         return (<></>);
     }
 

@@ -9,7 +9,7 @@ import UserPostTitle from './UserPostTitle';
 
 import '../../../styles/communication/post.scss';
 
-const UserPost: React.FC<UserPostProps> = ({ meId, post }) => {
+const UserPost: React.FC<UserPostProps> = ({ myself, post }) => {
     const { t } = useTranslation("communication/post");
 
     const [updatePost] = useUpdateUserPostMutation();
@@ -23,7 +23,7 @@ const UserPost: React.FC<UserPostProps> = ({ meId, post }) => {
     const [isMyPost, setIsMyPost] = useState(false);
 
     useEffect(() => {
-        setIsMyPost(post?.appUserId === meId);
+        setIsMyPost(post?.appUserId === myself.id);
     }, [post]);
 
     const updatePostAsync = async (postId: number, likesCount: number, dislikesCount: number, commentsCount: number) => {
@@ -61,7 +61,7 @@ const UserPost: React.FC<UserPostProps> = ({ meId, post }) => {
             content: postCommentContent,
             createdAt: new Date(),
             userPostId: post.id,
-            appUserId: meId
+            appUserId: myself
         }
 
         const response = await createPostComment(newPostComment);
@@ -99,13 +99,14 @@ const UserPost: React.FC<UserPostProps> = ({ meId, post }) => {
         <>
             <div className="posts__card">
                 <UserPostTitle
+                    myself={myself}
                     post={post}
                     dateFormatting={dateFormatting}
                     isMyPost={isMyPost}
                 />
                 <div className="posts__content">{post?.content}</div>
                 <UserPostReactions
-                    userId={meId}
+                    userId={myself}
                     post={post}
                     updatePostAsync={updatePostAsync}
                     setShowComments={setShowComments}
@@ -117,7 +118,7 @@ const UserPost: React.FC<UserPostProps> = ({ meId, post }) => {
                 <>
                     <UserPostComments
                         dateFormatting={dateFormatting}
-                        userId={meId}
+                        userId={myself}
                         postId={post.id}
                         updatePostAsync={updatePostAsync}
                     />
