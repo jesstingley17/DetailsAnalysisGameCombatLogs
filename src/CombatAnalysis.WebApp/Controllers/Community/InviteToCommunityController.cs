@@ -107,12 +107,8 @@ public class InviteToCommunityController : ControllerBase
 
         var allInvites = await responseMessage.Content.ReadFromJsonAsync<IEnumerable<InviteToCommunityModel>>();
         var existedInvites = allInvites.Where(x => x.ToAppUserId == appUserId && x.CommunityId == communityId).ToList();
-        if (existedInvites.Any())
-        {
-            return Ok(true);
-        }
 
-        return Ok(false);
+        return Ok(existedInvites.Count != 0);
     }
 
     [HttpPut]

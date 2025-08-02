@@ -1,0 +1,111 @@
+$primary-color: #5BBCFF;
+$border-radius: 10px;
+$box-shadow: 2px 2px 2px 2px $primary-color;
+$font-size: 0.9em;
+$gap-large: 50px;
+$gap-medium: 25px;
+$padding: 10px 20px;
+$mobile-max-width: 425px;
+
+.home {
+    display: flex;
+    justify-content: center;
+    gap: $gap-large;
+    margin-bottom: 10px;
+
+    &__item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: $gap-medium;
+
+        .go-to-communication, .go-to-combat-logs {
+            padding: $padding;
+            border-radius: $border-radius;
+            box-shadow: $box-shadow;
+            font-size: $font-size;
+            cursor: pointer;
+        }
+    }
+
+    .should-be-authorize {
+        position: fixed;
+        display: flex;
+        justify-content: center;
+        text-align: center;
+        left: 35%;
+        top: 0;
+        width: 500px;
+    }
+
+    .title {
+        display: flex;
+        align-items: center;
+        gap: $gap-medium;
+
+        .authorize-alert {
+            width: 35px;
+            overflow: hidden;
+            white-space: nowrap;
+            font-size: 0.9em;
+
+            &:hover {
+                animation-name: need-be-authorize;
+                animation-duration: 0.5s;
+                animation-fill-mode: forwards;
+            }
+
+            svg {
+                color: orange;
+            }
+        }
+
+        @keyframes need-be-authorize {
+            from {
+                width: 35px;
+            }
+
+            to {
+                width: 275px;
+            }
+        }
+    }
+}
+
+@media (max-width: $mobile-max-width) {
+    .home {
+        flex-direction: column;
+        gap: $gap-medium;
+
+        &__item {
+            gap: $gap-medium;
+
+            .go-to-communication, .go-to-combat-logs {
+                font-size: $font-size;
+                padding: 8px 16px;
+            }
+        }
+
+        .should-be-authorize {
+            left: 10%;
+            width: 80%;
+        }
+
+        .title {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+
+            .authorize-alert {
+                width: auto;
+                overflow: auto;
+                white-space: normal;
+                height: 30px;
+
+                &:hover {
+                    animation: none;
+                }
+            }
+        }
+    }
+}

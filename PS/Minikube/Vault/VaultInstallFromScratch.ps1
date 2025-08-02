@@ -24,7 +24,7 @@ helm install vault hashicorp/vault -f ..\..\..\charts\vault-chart\values.yaml -n
 kubectl apply -f ..\..\..\charts\vault-chart\templates\vaultInitSecret.yaml -n vault
 kubectl apply -f ..\..\..\charts\api-chart\templates\chat\chatDbSecret.yaml -n vault
 kubectl apply -f ..\..\..\charts\api-chart\templates\communication\communicationDbSecret.yaml -n vault
-kubectl apply -f ..\..\..\charts\api-chart\templates\authenticationSecret.yaml -n vault
+kubectl apply -f ..\..\..\charts\identity-chart\templates\secrets\authenticationSecret.yaml -n vault
 kubectl apply -f ..\..\..\charts\api-chart\templates\clientSecret.yaml -n vault
 
 # Apply Service accounts
