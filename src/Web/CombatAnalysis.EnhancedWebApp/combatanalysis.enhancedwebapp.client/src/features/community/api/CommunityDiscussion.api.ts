@@ -1,4 +1,4 @@
-import { type CommunityDiscussionModel } from '../types/CommunityDiscussionModel';
+import type { CommunityDiscussionModel } from '../types/CommunityDiscussionModel';
 import { CommunityApi } from './Community.api';
 
 export const CommunityDiscussionApi = CommunityApi.injectEndpoints({

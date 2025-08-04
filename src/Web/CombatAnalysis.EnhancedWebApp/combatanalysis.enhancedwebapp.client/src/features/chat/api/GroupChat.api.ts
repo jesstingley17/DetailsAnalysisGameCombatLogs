@@ -1,4 +1,4 @@
-import { type GroupChatModel } from '../types/GroupChatModel';
+import type { GroupChatModel } from '../types/GroupChatModel';
 import { ChatApi } from './Chat.api';
 
 export const GroupChatApi = ChatApi.injectEndpoints({
@@ -9,7 +9,7 @@ export const GroupChatApi = ChatApi.injectEndpoints({
                 url: '/GroupChat',
                 method: 'POST'
             }),
-            invalidatesTags: (result) => [{ type: 'GroupChat', result }],
+            invalidatesTags: result => [{ type: 'GroupChat', result }],
         }),
         updateGroupChatAsync: builder.mutation<number, GroupChatModel>({
             query: groupChat => ({
@@ -17,7 +17,7 @@ export const GroupChatApi = ChatApi.injectEndpoints({
                 url: '/GroupChat',
                 method: 'PUT'
             }),
-            invalidatesTags: (result) => [{ type: 'GroupChat', result }],
+            invalidatesTags: result => [{ type: 'GroupChat', result }],
         }),
         removeGroupChatAsync: builder.mutation<number, number>({
             query: id => ({
@@ -27,7 +27,7 @@ export const GroupChatApi = ChatApi.injectEndpoints({
             invalidatesTags: (result, error, arg) => [{ type: 'GroupChat', arg }]
         }),
         getGroupChatById: builder.query<GroupChatModel, number>({
-            query: (id) => `/GroupChat/${id}`,
+            query: id => `/GroupChat/${id}`,
             providesTags: (result, error, id) => [{ type: 'GroupChat', id }],
         }),
     })

@@ -1,12 +1,10 @@
-﻿using CombatAnalysis.Hubs.Consts;
-using CombatAnalysis.Hubs.Enums;
+﻿using CombatAnalysis.Hubs.Enums;
 using CombatAnalysis.Hubs.Interfaces;
-using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
 
 namespace CombatAnalysis.Hubs.Helpers;
 
-internal class HttpClientHelper(IOptions<Cluster> cluster, IHttpContextAccessor httpContextAccessor) : IHttpClientHelper
+internal class HttpClientHelper(IHttpContextAccessor httpContextAccessor) : IHttpClientHelper
 {
     private const string _baseAddressApi = "api/v1/";
 

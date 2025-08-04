@@ -1,4 +1,4 @@
-import { type GroupChatMessageModel } from '../types/GroupChatMessageModel';
+import type { GroupChatMessageModel } from '../types/GroupChatMessageModel';
 import { ChatApi } from './Chat.api';
 
 export const GroupChatMessageApi = ChatApi.injectEndpoints({
@@ -9,7 +9,7 @@ export const GroupChatMessageApi = ChatApi.injectEndpoints({
                 url: '/GroupChatMessage',
                 method: 'POST'
             }),
-            invalidatesTags: (result) => [{ type: 'GroupChatMessage', result }],
+            invalidatesTags: result => [{ type: 'GroupChatMessage', result }],
         }),
         updateGroupChatMessage: builder.mutation<void, GroupChatMessageModel>({
             query: message => ({
@@ -17,24 +17,24 @@ export const GroupChatMessageApi = ChatApi.injectEndpoints({
                 url: '/GroupChatMessage',
                 method: 'PUT'
             }),
-            invalidatesTags: (result) => [{ type: 'GroupChatMessage', result }],
+            invalidatesTags: result => [{ type: 'GroupChatMessage', result }],
         }),
         removeGroupChatMessage: builder.mutation<void, number>({
             query: id => ({
                 url: `/GroupChatMessage/${id}`,
                 method: 'DELETE'
             }),
-            invalidatesTags: (result) => [{ type: 'GroupChatMessage', result }],
+            invalidatesTags: result => [{ type: 'GroupChatMessage', result }],
         }),
         removeGroupChatMessageByChatId: builder.mutation<void, number>({
             query: id => ({
                 url: `/GroupChatMessage/deleteByChatId/${id}`,
                 method: 'DELETE'
             }),
-            invalidatesTags: (result) => [{ type: 'GroupChatMessage', result }],
+            invalidatesTags: result => [{ type: 'GroupChatMessage', result }],
         }),
         getGroupChatMessageCountByChatId: builder.query<number, number>({
-            query: chatId => `/GroupChatMessage/count/${chatId}`
+            query: chatId => `/GroupChatMessage/count/${chatId}`,
         }),
     })
 })

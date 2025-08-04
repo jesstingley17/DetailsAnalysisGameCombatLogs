@@ -1,5 +1,5 @@
-import { type FriendModel } from "../types/FriendModel";
-import { UserApi } from "./User.api";
+import type { FriendModel } from '../types/FriendModel';
+import { UserApi } from './User.api';
 
 export const FriendApi = UserApi.injectEndpoints({
     endpoints: builder => ({

@@ -1,4 +1,4 @@
-import { type InviteToCommunityModel } from '../types/InviteToCommunityModel';
+import type { InviteToCommunityModel } from '../types/InviteToCommunityModel';
 import { CommunityApi } from './Community.api';
 
 export const InviteToCommunityApi = CommunityApi.injectEndpoints({

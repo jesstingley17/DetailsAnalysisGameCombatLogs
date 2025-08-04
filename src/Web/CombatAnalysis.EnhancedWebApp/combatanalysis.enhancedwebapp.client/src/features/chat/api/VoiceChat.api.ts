@@ -1,9 +1,9 @@
-import type { VoiceChat } from '../../../types/components/communication/chats/VoiceChat';
-import { ChatApi } from '../core/Chat.api';
+import type { VoiceChatModel } from '../types/VoiceChatModel';
+import { ChatApi } from './Chat.api';
 
 export const VoiceChatApi = ChatApi.injectEndpoints({
     endpoints: builder => ({
-        createCall: builder.mutation<VoiceChat, VoiceChat>({
+        createCall: builder.mutation<VoiceChatModel, VoiceChatModel>({
             query: groupChat => ({
                 body: groupChat,
                 url: '/VoiceChat',
@@ -16,10 +16,10 @@ export const VoiceChatApi = ChatApi.injectEndpoints({
                 method: 'DELETE'
             }),
         }),
-        getCalls: builder.query<VoiceChat[], void>({
+        getCalls: builder.query<VoiceChatModel[], void>({
             query: () => `/VoiceChat`,
         }),
-        getCallById: builder.query<VoiceChat, string>({
+        getCallById: builder.query<VoiceChatModel, string>({
             query: id => `/VoiceChat/${id}`,
         }),
     })

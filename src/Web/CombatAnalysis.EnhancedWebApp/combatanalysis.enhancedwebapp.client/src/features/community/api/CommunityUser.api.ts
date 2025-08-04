@@ -1,4 +1,4 @@
-import { type CommunityUserModel } from '../types/CommunityUserModel';
+import type { CommunityUserModel } from '../types/CommunityUserModel';
 import { CommunityApi } from './Community.api';
 
 export const CommunityUserApi = CommunityApi.injectEndpoints({

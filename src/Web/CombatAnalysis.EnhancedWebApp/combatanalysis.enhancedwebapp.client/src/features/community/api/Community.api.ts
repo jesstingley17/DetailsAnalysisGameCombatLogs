@@ -1,6 +1,6 @@
 ﻿import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { type InviteToCommunityModel } from '../types/InviteToCommunityModel';
-import { type CommunityModel } from '../types/CommunityModel';
+import type { CommunityModel } from '../types/CommunityModel';
+import type { InviteToCommunityModel } from '../types/InviteToCommunityModel';
 
 const apiURL = '/api/v1';
 
@@ -18,6 +18,29 @@ export const CommunityApi = createApi({
         baseUrl: apiURL
     }),
     endpoints: builder => ({
+        createCommunity: builder.mutation<CommunityModel, CommunityModel>({
+            query: community => ({
+                body: community,
+                url: '/Community',
+                method: 'POST'
+            }),
+            invalidatesTags: (result, error, arg) => [{ type: 'Community', arg }]
+        }),
+        updateCommunityAsync: builder.mutation<void, CommunityModel>({
+            query: community => ({
+                body: community,
+                url: '/Community',
+                method: 'PUT'
+            }),
+            invalidatesTags: (result, error, arg) => [{ type: 'Community', arg }]
+        }),
+        removeCommunityAsync: builder.mutation<void, number>({
+            query: id => ({
+                url: `/Community/${id}`,
+                method: 'DELETE'
+            }),
+            invalidatesTags: (result, error, arg) => [{ type: 'Community', arg }]
+        }),
         getCommunities: builder.query<CommunityModel[], void>({
             query: () => '/Community',
             providesTags: (result) =>
@@ -46,29 +69,6 @@ export const CommunityApi = createApi({
                     ? [...result.map(({ id }) => ({ type: 'Community' as const, id })), { type: 'Community' }]
                     : [{ type: 'Community' }]
         }),
-        createCommunity: builder.mutation<CommunityModel, CommunityModel>({
-            query: community => ({
-                body: community,
-                url: '/Community',
-                method: 'POST'
-            }),
-            invalidatesTags: (result, error, arg) => [{ type: 'Community', arg }]
-        }),
-        updateCommunityAsync: builder.mutation<void, CommunityModel>({
-            query: community => ({
-                body: community,
-                url: '/Community',
-                method: 'PUT'
-            }),
-            invalidatesTags: (result, error, arg) => [{ type: 'Community', arg }]
-        }),
-        removeCommunityAsync: builder.mutation<void, number>({
-            query: id => ({
-                url: `/Community/${id}`,
-                method: 'DELETE'
-            }),
-            invalidatesTags: (result, error, arg) => [{ type: 'Community', arg }]
-        }),
         getInviteToCommunityById: builder.query<InviteToCommunityModel, number>({
             query: id => `/InviteToCommunity/${id}`,
             providesTags: (result, error, id) => [{ type: 'InviteToCommunity', id }]
@@ -77,6 +77,9 @@ export const CommunityApi = createApi({
 })
 
 export const {
+    useCreateCommunityMutation,
+    useUpdateCommunityAsyncMutation,
+    useRemoveCommunityAsyncMutation,
     useGetCommunitiesQuery,
     useLazyGetCommunitiesQuery,
     useGetCommunityByIdQuery,
@@ -87,9 +90,6 @@ export const {
     useLazyGetCommunitiesWithPaginationQuery,
     useGetMoreCommunitiesWithPaginationQuery,
     useLazyGetMoreCommunitiesWithPaginationQuery,
-    useCreateCommunityMutation,
-    useUpdateCommunityAsyncMutation,
-    useRemoveCommunityAsyncMutation,
     useGetInviteToCommunityByIdQuery,
     useLazyGetInviteToCommunityByIdQuery,
 } = CommunityApi;

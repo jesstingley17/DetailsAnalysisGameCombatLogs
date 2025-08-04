@@ -1,4 +1,4 @@
-import { type GroupChatRulesModel } from '../types/GroupChatRulesModel';
+import type { GroupChatRulesModel } from '../types/GroupChatRulesModel';
 import { ChatApi } from './Chat.api';
 
 export const GroupChatRulesApi = ChatApi.injectEndpoints({
@@ -9,7 +9,7 @@ export const GroupChatRulesApi = ChatApi.injectEndpoints({
                 url: '/GroupChatRules',
                 method: 'POST'
             }),
-            invalidatesTags: (result) => [{ type: 'GroupChatRules', result }],
+            invalidatesTags: result => [{ type: 'GroupChatRules', result }],
         }),
         updateGroupChatRulesAsync: builder.mutation<void, GroupChatRulesModel>({
             query: groupChatRules => ({
@@ -17,7 +17,7 @@ export const GroupChatRulesApi = ChatApi.injectEndpoints({
                 url: '/GroupChatRules',
                 method: 'PUT'
             }),
-            invalidatesTags: (result) => [{ type: 'GroupChatRules', result }],
+            invalidatesTags: result => [{ type: 'GroupChatRules', result }],
         }),
         removeGroupChatRulesAsync: builder.mutation<void, number>({
             query: id => ({

@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { type GroupChatMessageModel } from '../types/GroupChatMessageModel';
-import { type PersonalChatMessageModel } from '../types/PersonalChatMessageModel';
+import type { GroupChatMessageModel } from '../types/GroupChatMessageModel';
+import type { PersonalChatMessageModel } from '../types/PersonalChatMessageModel';
 
 const apiURL = '/api/v1';
 

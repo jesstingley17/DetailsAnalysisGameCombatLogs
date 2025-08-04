@@ -1,4 +1,4 @@
-import { type RequestToConnectModel } from '../types/RequestToConnectModel';
+import type { RequestToConnectModel } from '../types/RequestToConnectModel';
 import { UserApi } from './User.api';
 
 export const RequestToConnectApi = UserApi.injectEndpoints({
@@ -19,9 +19,7 @@ export const RequestToConnectApi = UserApi.injectEndpoints({
             invalidatesTags: (result, error, arg) => [{ type: 'RequestToConnect', arg }]
         }),
         requestIsExist: builder.query<boolean, { userId: string, targetUserId: string }>({
-            query: ({ userId, targetUserId }) => ({
-                url: `/RequestToConnect/isExist?initiatorId=${userId}&companionId=${targetUserId}`,
-            }),
+            query: ({ userId, targetUserId }) => `/RequestToConnect/isExist?initiatorId=${userId}&companionId=${targetUserId}`,
             providesTags: (result, error, { userId, targetUserId }) => [{ type: 'RequestToConnect', id: `${userId}-${targetUserId}` }]
         }),
         searchByOwnerId: builder.query<RequestToConnectModel, string>({
