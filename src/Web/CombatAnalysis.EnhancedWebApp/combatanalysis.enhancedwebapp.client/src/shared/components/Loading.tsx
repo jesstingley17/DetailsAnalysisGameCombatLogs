@@ -1,6 +1,6 @@
 ﻿import { useTranslation } from 'react-i18next';
 
-import '../styles/loading.scss';
+import './Loading.scss';
 
 const Loading: React.FC = () => {
     const { t } = useTranslation("translate");

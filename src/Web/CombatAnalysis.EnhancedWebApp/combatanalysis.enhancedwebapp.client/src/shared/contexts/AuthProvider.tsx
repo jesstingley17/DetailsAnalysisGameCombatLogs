@@ -1,13 +1,13 @@
 ﻿import { createContext, useContext, useState, type ReactNode } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { useLazyAuthenticationQuery } from '../store/api/core/User.api';
-import { useLogoutAsyncMutation } from '../store/api/user/Account.api';
-import { useLazySearchCustomerByUserIdQuery } from '../store/api/user/Customer.api';
-import { useLazyGetUserPrivacyQuery } from '../store/api/user/Identity.api';
-import { updateCustomer } from '../store/slicers/CustomerSlice';
-import { updateUserPrivacy } from '../store/slicers/UserPrivacySlice';
-import { updateUser } from '../store/slicers/UserSlice';
+import { useLazyAuthenticationQuery } from '../../features/user/api/User.api';
+import { useLogoutAsyncMutation } from '../../features/user/api/Account.api';
+import { useLazySearchCustomerByUserIdQuery } from '../../features/user/api/Customer.api';
+import { useLazyGetUserPrivacyQuery } from '../../features/user/api/Identity.api';
+import { updateCustomer } from '../../features/user/store/CustomerSlice';
+import { updateUserPrivacy } from '../../features/user/store/UserPrivacySlice';
+import { updateUser } from '../../features/user/store/UserSlice';
 
 interface AuthContextType {
     isAuthenticated: boolean;

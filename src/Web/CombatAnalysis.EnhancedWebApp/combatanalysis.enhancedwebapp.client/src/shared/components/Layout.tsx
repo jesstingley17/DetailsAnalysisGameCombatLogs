@@ -1,6 +1,10 @@
+import type { ReactNode } from 'react';
 import { Container } from 'reactstrap';
-import { type LayoutProps } from '../types/components/LayoutProps';
 import NavMenu from './NavMenu';
+
+interface LayoutProps {
+    children: ReactNode;
+}
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
     const render = () => {

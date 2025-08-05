@@ -8,7 +8,7 @@ import { useLazyGetCombatsByCombatLogIdQuery } from '../api/GameLogs.api';
 import type { CombatModel } from '../types/CombatModel';
 import GeneralAnalysisItem from './GeneralAnalysisItem';
 
-import '../../styles/generalAnalysis.scss';
+import './GeneralAnalysis.scss';
 
 const GeneralAnalysis: React.FC = () => {
     const fixedNumberUntil = 2;

@@ -5,14 +5,14 @@ import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { Container, Navbar, NavbarBrand } from 'reactstrap';
-import { useAuth } from '../context/AuthProvider';
-import { useLazyAuthorizationQuery } from '../store/api/core/User.api';
+import { useLazyAuthorizationQuery } from '../../features/user/api/User.api';
+import { useAuth } from '../../shared/contexts/AuthProvider';
 //import LanguageSelector from './LanguageSelector';
 //import Notification from './Notification';
 //import Search from './Search';
-import type { RootState } from '../store/Store';
+import type { RootState } from '../../app/Store';
 
-import '../styles/navMenu.scss';
+import './NavMenu.scss';
 
 const NavMenu: React.FC = () => {
     const { t } = useTranslation("translate");

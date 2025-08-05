@@ -1,15 +1,15 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
+import { ChatApi } from '../features/chat/api/Chat.api';
+import { CommunityApi } from '../features/community/api/Community.api';
+import communityMenuReducer from '../features/community/store/CommunityMenuSlice';
+import { GameLogsApi } from '../features/gameLogs/api/GameLogs.api';
+import { NotificationApi } from '../features/notification/api/Notification.api';
+import { PostApi } from '../features/post/api/Post.api';
 import { UserApi } from '../features/user/api/User.api';
 import customerReducer from '../features/user/store/CustomerSlice';
 import userPrivacyReducer from '../features/user/store/UserPrivacySlice';
 import userReducer from '../features/user/store/UserSlice';
 import authenticationMiddleware from '../middleware/authenticationMiddleware';
-import { ChatApi } from '../features/chat/api/Chat.api';
-import { CombatParserApi } from './api/core/CombatParser.api';
-import { CommunityApi } from '../features/community/api/Community.api';
-import { NotificationApi } from './api/core/Notification.api';
-import { PostApi } from './api/core/Post.api';
-import communityMenuReducer from './slicers/CommunityMenuSlice';
 
 const reducers = combineReducers({
     customer: customerReducer,
@@ -20,7 +20,7 @@ const reducers = combineReducers({
     [ChatApi.reducerPath]: ChatApi.reducer,
     [CommunityApi.reducerPath]: CommunityApi.reducer,
     [PostApi.reducerPath]: PostApi.reducer,
-    [CombatParserApi.reducerPath]: CombatParserApi.reducer,
+    [GameLogsApi.reducerPath]: GameLogsApi.reducer,
     [NotificationApi.reducerPath]: NotificationApi.reducer,
 });
 
@@ -32,7 +32,7 @@ const Store = configureStore({
             .concat(ChatApi.middleware)
             .concat(CommunityApi.middleware)
             .concat(PostApi.middleware)
-            .concat(CombatParserApi.middleware)
+            .concat(GameLogsApi.middleware)
             .concat(NotificationApi.middleware)
             .concat(authenticationMiddleware)
 });

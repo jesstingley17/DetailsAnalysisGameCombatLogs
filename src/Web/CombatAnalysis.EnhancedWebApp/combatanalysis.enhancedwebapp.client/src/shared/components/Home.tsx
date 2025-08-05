@@ -4,11 +4,11 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useLazyAuthorizationQuery } from '../store/api/core/User.api';
-import type { RootState } from '../store/Store';
+import type { RootState } from '../../app/Store';
+import { useLazyAuthorizationQuery } from '../../features/user/api/User.api';
 import type { IdentityRedirect } from '../types/IdentityRedirect';
 
-import '../styles/home.scss';
+import './Home.scss';
 
 const shouldBeAuthorizeTimeout = 10000;
 

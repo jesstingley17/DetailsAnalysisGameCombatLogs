@@ -1,9 +1,9 @@
 import { Route, Routes } from 'react-router-dom';
-import AppRoutes from './Routes';
 import Layout from '../shared/components/Layout';
 import { AuthProvider } from '../shared/contexts/AuthProvider';
+import AppRoutes from './Routes';
 
-import './index.css';
+import './App.css';
 
 const App: React.FC = () => {
     return (

@@ -12,6 +12,7 @@
     <Folder Include="src\features\chat\components\" />
     <Folder Include="src\features\chat\store\" />
     <Folder Include="src\features\community\components\" />
+    <Folder Include="src\features\gameLogs\types\dashboard\" />
     <Folder Include="src\features\notification\components\" />
     <Folder Include="src\features\post\components\" />
     <Folder Include="src\features\user\components\" />

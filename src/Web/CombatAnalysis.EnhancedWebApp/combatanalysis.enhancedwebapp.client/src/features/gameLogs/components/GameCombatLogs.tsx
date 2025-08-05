@@ -8,7 +8,7 @@ import { useGetCombatLogsQuery } from '../api/GameLogs.api';
 import type { CombatLogModel } from '../types/CombatLogModel';
 import CombatLogItem from './CombatLogItem';
 
-import '../../styles/mainInformation.scss';
+import './GameCombatLogs.scss';
 
 const GameCombatLogs: React.FC = () => {
     const { t } = useTranslation("combatDetails/mainInformation");
