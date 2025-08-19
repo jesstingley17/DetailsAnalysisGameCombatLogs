@@ -3,7 +3,7 @@ export const statusCode = {
 };
 
 export const pageWithoutAuth = [
-    "/", "/login", "/registration", "/main-information",
+    "/", "/login", "/registration", "/game-combat-logs",
     "/general-analysis", "/general-analysis/auras",
     "/details-specifical-combat", "/combat-details",
     "/callback", "/player-movements"

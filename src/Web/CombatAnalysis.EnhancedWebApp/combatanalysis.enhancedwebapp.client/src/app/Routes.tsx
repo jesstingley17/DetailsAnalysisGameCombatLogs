@@ -1,8 +1,8 @@
-import Home from '../shared/components/Home';
-//import CombatDetails from './components/combatDetails/CombatDetails';
+import CombatDetails from '../features/gameLogs/components/CombatDetails';
 import DetailsSpecificalCombat from '../features/gameLogs/components/DetailsSpecificalCombat';
-import GeneralAnalysis from '../features/gameLogs/components/GeneralAnalysis';
 import GameCombatLogs from '../features/gameLogs/components/GameCombatLogs';
+import GeneralAnalysis from '../features/gameLogs/components/GeneralAnalysis';
+import Home from '../shared/components/Home';
 //import Feed from './components/communication/Feed';
 //import Chats from './components/communication/chats/Chats';
 //import VoiceChat from './components/communication/chats/voiceChat/VoiceChat';
@@ -16,7 +16,6 @@ import GameCombatLogs from '../features/gameLogs/components/GameCombatLogs';
 //import AuthorizationCallback from './components/identity/AuthorizationCallback';
 ////import PlayerMovements from './components/combatDetails/actions/PlayerMovements';
 //import CombatAuras from './components/combatDetails/actions/CombatAuras';
-//import MyEnvironmentCommunities from './components/communication/myEnvironment/MyEnvironmentCommunities';
 
 type Route = {
     index?: boolean;
@@ -93,14 +92,10 @@ const AppRoutes: Route[] = [
         path: '/details-specifical-combat',
         element: <DetailsSpecificalCombat />
     },
-    //{
-    //    path: '/combat-details',
-    //    element: <CombatDetails />
-    //},
-    // {
-    //     path: '/player-movements',
-    //     element: <PlayerMovements />
-    // },
+    {
+        path: '/combat-details',
+        element: <CombatDetails />
+    },
 ];
 
 export default AppRoutes;

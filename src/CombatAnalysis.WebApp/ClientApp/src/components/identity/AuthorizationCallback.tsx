@@ -1,5 +1,4 @@
-﻿import { TimeoutId } from '@reduxjs/toolkit/dist/query/core/buildMiddleware/types';
-import { memo, useEffect, useState } from 'react';
+﻿import { memo, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthProvider';
@@ -50,7 +49,7 @@ const AuthorizationCallback: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        let timeout: TimeoutId;
+        let timeout: NodeJS.Timeout;
         if (!stateIsValid || accessRestored || verified) {
             timeout = setTimeout(() => {
                 navigate("/");

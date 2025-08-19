@@ -28,14 +28,8 @@ const CommunityPost: React.FC<CommunityPostProps> = ({ userId, communityId, post
 
     const updatePostAsync = async (postId: number, likesCount: number, dislikesCount: number, commentsCount: number) => {
         try {
-            let response = await getPostByIdAsync(postId);
-            if (response.error) {
-                console.error("Error updating post:", response.error);
+            const communityPost = await getPostByIdAsync(postId).unwrap();
 
-                return;
-            }
-
-            let communityPost = response.data;
             const postForUpdate = {
                 ...communityPost,
                 likeCount: communityPost.likeCount + likesCount,
@@ -43,12 +37,7 @@ const CommunityPost: React.FC<CommunityPostProps> = ({ userId, communityId, post
                 commentCount: communityPost.commentCount + commentsCount
             };
 
-            response = await updatePost(postForUpdate);
-            if (response.error) {
-                console.error("Error updating post:", response.error);
-
-                return;
-            }
+            await updatePost(postForUpdate).unwrap();
         } catch (e) {
             console.error("Failed to update post:", e);
         }

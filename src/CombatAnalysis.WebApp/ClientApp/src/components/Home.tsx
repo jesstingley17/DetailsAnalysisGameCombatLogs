@@ -1,6 +1,5 @@
 ﻿import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { TimeoutId } from '@reduxjs/toolkit/dist/query/core/buildMiddleware/types';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
@@ -33,7 +32,7 @@ const Home: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        let timeoutId: TimeoutId;
+        let timeoutId: NodeJS.Timeout;
 
         if (shouldBeAuthorize) {
             timeoutId = setTimeout(() => {

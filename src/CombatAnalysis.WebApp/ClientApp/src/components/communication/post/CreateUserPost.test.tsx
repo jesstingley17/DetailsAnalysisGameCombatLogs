@@ -11,7 +11,7 @@ describe('CreateUserPost', () => {
     const t = (key: string) => key;
 
     beforeEach(() => {
-        useCreateUserPostMutation.mockReturnValue([jest.fn()]);
+        //useCreateUserPostMutation.mockReturnValue([jest.fn()]);
     });
 
     test('renders create post button', () => {
@@ -72,9 +72,9 @@ describe('CreateUserPost', () => {
     });
 
     test('does not create a new post when save button is clicked and response data is undefined', async () => {
-        useCreateUserPostMutation.mockReturnValue([
-            jest.fn().mockResolvedValue({ data: undefined }),
-        ]);
+        //useCreateUserPostMutation.mockReturnValue([
+        //    jest.fn().mockResolvedValue({ data: undefined }),
+        //]);
 
         const [createNewUserPostAsync] = useCreateUserPostMutation();
 

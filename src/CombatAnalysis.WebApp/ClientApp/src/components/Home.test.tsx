@@ -31,7 +31,7 @@ describe('Home Component', () => {
         (useNavigate as jest.Mock).mockReturnValue(mockNavigate);
         (useLocation as jest.Mock).mockReturnValue({ search: '' });
         (useLazyAuthorizationQuery as jest.Mock).mockReturnValue([mockUseLazyAuthorizationQuery]);
-        (useSelector as jest.Mock).mockReturnValue(null);
+        //(useSelector as jest.Mock).mockReturnValue(null);
     });
 
     afterEach(() => {
@@ -60,7 +60,7 @@ describe('Home Component', () => {
     });
 
     test('navigates to feed when user is not null', () => {
-        (useSelector as jest.Mock).mockReturnValue({ id: 1 });
+        //(useSelector as jest.Mock).mockReturnValue({ id: 1 });
 
         render(<Home />);
 

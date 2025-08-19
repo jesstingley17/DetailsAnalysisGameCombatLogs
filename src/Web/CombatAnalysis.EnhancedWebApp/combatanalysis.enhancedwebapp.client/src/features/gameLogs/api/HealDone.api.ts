@@ -14,17 +14,17 @@ export const HealDoneApi = GameLogsApi.injectEndpoints({
         getHealDoneCountByCombatPlayerId: builder.query<number, number>({
             query: combatPlayerId => `/HealDone/count/${combatPlayerId}`,
         }),
-        getHealDoneUniqueFilterValues: builder.query<string[], { combatPlayerId: number, filter: number }>({
+        getHealDoneUniqueFilterValues: builder.query<string[], { combatPlayerId: number, filter: string }>({
             query: ({ combatPlayerId, filter }) => `/HealDone/getUniqueFilterValues?combatPlayerId=${combatPlayerId}&filter=${filter}`,
         }),
-        getHealDoneByFilter: builder.query<HealDoneModel[], { combatPlayerId: number, filter: number, filterValue: number, page: number, pageSize: number }>({
+        getHealDoneByFilter: builder.query<HealDoneModel[], { combatPlayerId: number, filter: string, filterValue: number, page: number, pageSize: number }>({
             query: ({ combatPlayerId, filter, filterValue, page, pageSize }) => `/HealDone/getByFilter?combatPlayerId=${combatPlayerId}&filter=${filter}&filterValue=${filterValue}&page=${page}&pageSize=${pageSize}`,
             providesTags: result =>
                 result
                     ? [...result.map(({ id }) => ({ type: 'HealDone' as const, id })), 'HealDone']
                     : ['HealDone'],
         }),
-        getHealDoneCountByFilter: builder.query<number[], { combatPlayerId: number, filter: number, filterValue: number }>({
+        getHealDoneCountByFilter: builder.query<number, { combatPlayerId: number, filter: string, filterValue: number }>({
             query: ({ combatPlayerId, filter, filterValue }) => `/HealDone/countByFilter?combatPlayerId=${combatPlayerId}&filter=${filter}&filterValue=${filterValue}`,
         }),
         getHealDoneGeneralByCombatPlayerId: builder.query<HealDoneGeneralModel[], number>({

@@ -6,7 +6,7 @@ export type HealDoneModel = {
     time: string;
     creator: string;
     target: string;
-    isPet: boolean;
+    isCrit: boolean;
     isAbsorbed: boolean;
     combatPlayerId: number;
 }

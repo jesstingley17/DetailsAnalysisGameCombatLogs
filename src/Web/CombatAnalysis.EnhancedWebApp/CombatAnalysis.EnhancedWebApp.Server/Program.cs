@@ -1,4 +1,5 @@
 using CombatAnalysis.EnhancedWebApp.Server.Attributes;
+using CombatAnalysis.EnhancedWebApp.Server.Consts;
 using CombatAnalysis.EnhancedWebApp.Server.Helpers;
 using CombatAnalysis.EnhancedWebApp.Server.Interfaces;
 
@@ -6,6 +7,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddScoped<IHttpClientHelper, HttpClientHelper>();
 builder.Services.AddScoped<RequireAccessTokenAttribute>();
+
+builder.Services.Configure<Cluster>(builder.Configuration.GetSection("Cluster"));
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

@@ -28,14 +28,8 @@ const UserPost: React.FC<UserPostProps> = ({ myself, post }) => {
 
     const updatePostAsync = async (postId: number, likesCount: number, dislikesCount: number, commentsCount: number) => {
         try {
-            let response = await getPostByIdAsync(postId);
-            if (response.error) {
-                console.error("Error updating post:", response.error);
+            const userPost = await getPostByIdAsync(postId).unwrap();
 
-                return;
-            }
-
-            let userPost = response.data;
             const postForUpdate = {
                 ...userPost,
                 likeCount: userPost.likeCount + likesCount,
@@ -43,12 +37,7 @@ const UserPost: React.FC<UserPostProps> = ({ myself, post }) => {
                 commentCount: userPost.commentCount + commentsCount
             };
 
-            response = await updatePost(postForUpdate);
-            if (response.error) {
-                console.error("Error updating post:", response.error);
-
-                return;
-            }
+            await updatePost(postForUpdate).unwrap();
         } catch (e) {
             console.error("Failed to update post:", e);
 

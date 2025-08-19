@@ -1,11 +1,11 @@
 import { fileURLToPath, URL } from 'node:url';
 
-import { defineConfig } from 'vite';
 import plugin from '@vitejs/plugin-react';
+import child_process from 'child_process';
 import fs from 'fs';
 import path from 'path';
-import child_process from 'child_process';
 import { env } from 'process';
+import { defineConfig } from 'vite';
 
 const baseFolder =
     env.APPDATA !== undefined && env.APPDATA !== ''
@@ -52,7 +52,51 @@ export default defineConfig({
             [`^/api/${apiVersion}/Authentication`]: {
                 target,
                 secure: false
-            }
+            },
+            [`^/api/${apiVersion}/CombatLog`]: {
+                target,
+                secure: false
+            },
+            [`^/api/${apiVersion}/Combat`]: {
+                target,
+                secure: false
+            },
+            [`^/api/${apiVersion}/CombatPlayer`]: {
+                target,
+                secure: false
+            },
+            [`^/api/${apiVersion}/DamageDone`]: {
+                target,
+                secure: false
+            },
+            [`^/api/${apiVersion}/DamageDoneGeneral`]: {
+                target,
+                secure: false
+            },
+            [`^/api/${apiVersion}/DamageTaken`]: {
+                target,
+                secure: false
+            },
+            [`^/api/${apiVersion}/DamageTakenGeneral`]: {
+                target,
+                secure: false
+            },
+            [`^/api/${apiVersion}/HealDone`]: {
+                target,
+                secure: false
+            },
+            [`^/api/${apiVersion}/HealDoneGeneral`]: {
+                target,
+                secure: false
+            },
+            [`^/api/${apiVersion}/ResourceRecovery`]: {
+                target,
+                secure: false
+            },
+            [`^/api/${apiVersion}/ResourceRecoveryGeneral`]: {
+                target,
+                secure: false
+            },
         },
         port: parseInt(env.DEV_SERVER_PORT || '65471'),
         https: {

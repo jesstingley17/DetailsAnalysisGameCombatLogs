@@ -6,6 +6,11 @@ import App from './app/App.tsx';
 import Loading from './shared/components/Loading.tsx';
 import Store from './app/Store.ts';
 
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min';
+
+import './i18n';
+
 createRoot(document.getElementById('root')!).render(
     <Provider store={Store}>
         <BrowserRouter>

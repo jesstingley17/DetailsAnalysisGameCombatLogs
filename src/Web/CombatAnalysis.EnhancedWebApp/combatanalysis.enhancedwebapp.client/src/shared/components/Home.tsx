@@ -66,7 +66,7 @@ const Home: React.FC = () => {
             <div className="home__item">
                 <div className="title">
                     <div>{t("Communication")}</div>
-                    {myself === null &&
+                    {!myself &&
                         <div className="btn-shadow authorize-alert" onClick={loginAsync} title={t("GoToLogin") || ""}>
                             <FontAwesomeIcon
                                 icon={faTriangleExclamation}
