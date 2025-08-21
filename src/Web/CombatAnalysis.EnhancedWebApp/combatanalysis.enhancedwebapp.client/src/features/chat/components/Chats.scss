@@ -1,0 +1,258 @@
+﻿$primary-color: #3AA6B9;
+$secondary-color: #57A6A1;
+$white: white;
+$blue: blue;
+$padding-small: 10px;
+$padding-medium: 20px;
+$padding-large: 25px;
+$border-radius: 10px;
+$box-shadow: 2px 2px 2px 2px;
+$mobile-max-width: 425px;
+
+.chats {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: $padding-small;
+    width: 100%;
+    height: 100%;
+
+    &__title {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        padding: 0 10px;
+    }
+
+    &__selected-chat {
+        display: flex;
+        justify-content: center;
+        gap: $padding-medium;
+        width: 100%;
+        height: 100%;
+
+        &_loading {
+            width: 100%;
+        }
+
+        .messages-container {
+            flex-grow: 2;
+
+            .title {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                box-shadow: $box-shadow $white;
+                border-radius: $border-radius;
+                padding: 5px 20px;
+                cursor: default;
+
+                &__content {
+                    display: flex;
+                    align-items: center;
+                    gap: $padding-small;
+                }
+
+                &__call-started {
+                    position: absolute;
+                    right: 10%;
+                    font-size: 10px;
+                }
+
+                &__menu {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    gap: 25px;
+
+                    .call_active {
+                        border: 1px solid $blue;
+                        padding: $padding-small;
+                        border-radius: 20px;
+                        box-shadow: $box-shadow $blue;
+                    }
+
+                    .call-minimazed {
+                        padding: $padding-small;
+                        opacity: 0.2;
+                        cursor: default;
+                    }
+                }
+
+                .name {
+                    margin: 0 $padding-medium;
+                    font-weight: bold;
+                    background: linear-gradient($blue, 1%, $secondary-color);
+                    color: $white;
+                    padding: 5px $padding-small;
+                    border-radius: $border-radius;
+                }
+            }
+
+            .load-more {
+                position: fixed;
+                margin-top: 15px;
+                left: 55vw;
+                z-index: 100;
+                cursor: pointer;
+            }
+
+            .empty-message {
+                display: none;
+
+                &_show {
+                    display: block;
+                    opacity: 0.5;
+                    font-size: 12px;
+                    margin: 2px;
+                }
+            }
+        }
+    }
+
+    .select-chat {
+        margin: $padding-large;
+        font-size: 20px;
+        text-align: center;
+
+        span {
+            color: aqua;
+            cursor: pointer;
+        }
+    }
+
+    &__my-chats {
+        width: 30%;
+
+        &_title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            .main-content {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+
+                div {
+                    margin-right: 15px;
+                }
+            }
+
+            svg {
+                cursor: pointer;
+            }
+
+            .create {
+                width: 20px;
+                height: 20px;
+            }
+        }
+
+        .chat-list {
+            &__chats, &__chats_active {
+                max-height: 50vh;
+                overflow-y: auto;
+                padding: 0;
+            }
+
+            &__chats {
+                display: none;
+
+
+
+                &_active {
+                    .selected {
+                        box-shadow: $box-shadow $white;
+                    }
+
+                    .last-message {
+                        max-height: 20px;
+                        max-width: 90%;
+                        overflow: hidden;
+                        word-wrap: break-word;
+                        font-size: 12px;
+                    }
+
+                    .chat-loading-yet, .chat-card {
+                        padding: 10px;
+                    }
+
+                    .chat-loading-yet {
+                        position: relative;
+                        cursor: default;
+                        opacity: 0.4;
+                    }
+
+                    .chat-card {
+                        display: flex;
+                        justify-content: space-around;
+                        gap: 5px;
+                        cursor: pointer;
+
+                        .chat-tooltip {
+                            display: flex;
+                            align-items: center;
+                            gap: $padding-small;
+
+                            .unread-message-count {
+                                padding: 5px;
+                                box-shadow: $box-shadow $primary-color;
+                                border-radius: 25px;
+                                font-size: 10px;
+                                width: 25px;
+                                text-align: center;
+                            }
+                        }
+                    }
+                }
+            }
+
+            .not-found {
+                opacity: 0.6;
+                text-align: center;
+                margin: 5px 0;
+
+                span {
+                    color: aqua;
+                    cursor: pointer;
+                }
+            }
+        }
+
+        li {
+            cursor: pointer;
+            margin: $padding-small;
+            box-shadow: 4px 4px $primary-color;
+            border: 1px solid $primary-color;
+            overflow-x: hidden;
+            margin-left: $padding-small;
+            border-radius: $border-radius;
+
+            .username {
+                font-weight: bold;
+            }
+        }
+    }
+}
+
+.chats-empty {
+    width: 300px;
+    opacity: 0.5;
+}
+
+@media (max-width: $mobile-max-width) {
+    .chats {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-start;
+        gap: $padding-small;
+
+        &__my-chats {
+            order: 2;
+            width: 100%
+        }
+    }
+}

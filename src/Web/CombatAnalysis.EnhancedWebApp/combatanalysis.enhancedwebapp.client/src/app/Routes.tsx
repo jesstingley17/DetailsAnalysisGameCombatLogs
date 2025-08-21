@@ -4,7 +4,7 @@ import GameCombatLogs from '../features/gameLogs/components/GameCombatLogs';
 import GeneralAnalysis from '../features/gameLogs/components/GeneralAnalysis';
 import Home from '../shared/components/Home';
 //import Feed from './components/communication/Feed';
-//import Chats from './components/communication/chats/Chats';
+import Chats from '../features/chat/components/Chats';
 //import VoiceChat from './components/communication/chats/voiceChat/VoiceChat';
 //import AllCommunities from './components/communication/community/AllCommunities';
 //import SelectedCommunity from './components/communication/community/SelectedCommunity';
@@ -40,10 +40,10 @@ const AppRoutes: Route[] = [
     //    path: '/feed',
     //    element: <Feed />
     //},
-    //{
-    //    path: '/chats',
-    //    element: <Chats />
-    //},
+    {
+        path: '/chats',
+        element: <Chats />
+    },
     //{
     //    path: '/chats/voice/:roomId/:chatName',
     //    element: <VoiceChat />

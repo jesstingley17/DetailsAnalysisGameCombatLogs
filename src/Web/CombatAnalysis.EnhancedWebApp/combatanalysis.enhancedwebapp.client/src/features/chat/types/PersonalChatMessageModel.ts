@@ -1,3 +1,4 @@
+
 export type PersonalChatMessageModel = {
     id: number;
     username: string;
@@ -10,5 +11,4 @@ export type PersonalChatMessageModel = {
     isRead: boolean;
     chatId: number;
     appUserId: string;
-    groupChatMessageId?: number;
 }

@@ -1,5 +1,6 @@
+
 export type GroupChatMessageModel = {
-    id?: number;
+    id: number;
     username: string;
     message: string;
     time: string;
@@ -8,5 +9,6 @@ export type GroupChatMessageModel = {
     markedType?: number;
     isEdited?: boolean;
     chatId: number;
-    appUserId: string;
+    groupChatUserId: string;
+    groupChatMessageId?: number;
 }

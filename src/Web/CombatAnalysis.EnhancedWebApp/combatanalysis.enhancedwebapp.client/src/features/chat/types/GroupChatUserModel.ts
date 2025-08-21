@@ -1,4 +1,4 @@
-export type GroupChatModel = {
+export type GroupChatUserModel = {
     id: string;
     username: string;
     unreadMessages: number;

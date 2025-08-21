@@ -1,0 +1,16 @@
+.special-user {
+    &__me, &__another {
+        .details {
+            opacity: 0.4;
+
+            &_active {
+                opacity: 1;
+            }
+        }
+
+        .username {
+            width: 100px;
+            overflow-x: hidden;
+        }
+    }
+}
