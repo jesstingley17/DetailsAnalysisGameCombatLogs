@@ -2,13 +2,13 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState, type SetStateAction } from 'react';
 import { useRemovePersonalChatAsyncMutation } from '../../api/PersonalChat.api';
+import type { GroupChatModel } from '../../types/GroupChatModel';
 import type { PersonalChatModel } from '../../types/PersonalChatModel';
-import type { SelectedChatModel } from '../../types/SelectedChatModel';
 
 interface PersonalChatTitleProps {
     chat: PersonalChatModel;
     companionUsername: string;
-    setSelectedChat(value: SetStateAction<SelectedChatModel>): void;
+    setSelectedChat(value: SetStateAction<PersonalChatModel | GroupChatModel | null>): void;
     haveMoreMessages: boolean;
     setHaveMoreMessage(value: SetStateAction<boolean>): void;
     loadMoreMessagesAsync(): Promise<void>;
@@ -23,7 +23,7 @@ const PersonalChatTitle: React.FC<PersonalChatTitleProps> = ({ chat, companionUs
     const leaveFromChatAsync = async () => {
         try {
             await removePersonalChatAsync(chat.id).unwrap();
-            setSelectedChat({ type: null, chat: null });
+            setSelectedChat(null);
         } catch (e) {
             console.error(e);
         }

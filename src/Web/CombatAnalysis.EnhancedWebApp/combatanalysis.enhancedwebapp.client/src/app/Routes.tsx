@@ -1,21 +1,20 @@
 import Chats from '../features/chat/components/Chats';
+//import VoiceChat from '../features/chat/components/voiceChat/VoiceChat';
+// import AllCommunities from '../features/community/components/AllCommunities';
+// import SelectedCommunity from '../features/community/components/SelectedCommunity';
 import Feed from '../features/feed/components/Feed';
+// import MyFeed from '../features/feed/components/MyFeed';
+import People from '../features/user/components/people/People';
+// import Profile from '../features/feed/components/Profile';
 import CombatDetails from '../features/gameLogs/components/CombatDetails';
 import DetailsSpecificalCombat from '../features/gameLogs/components/DetailsSpecificalCombat';
 import GameCombatLogs from '../features/gameLogs/components/GameCombatLogs';
 import GeneralAnalysis from '../features/gameLogs/components/GeneralAnalysis';
-import Home from '../shared/components/Home';
-//import VoiceChat from './components/communication/chats/voiceChat/VoiceChat';
-//import AllCommunities from './components/communication/community/AllCommunities';
-//import SelectedCommunity from './components/communication/community/SelectedCommunity';
-//import Friends from './components/communication/myEnvironment/Friends';
-//import MyFeed from './components/communication/myEnvironment/MyFeed';
-//import Profile from './components/communication/myEnvironment/Profile';
-//import People from './components/communication/people/People';
-//import SelectedUser from './components/communication/people/SelectedUser';
 import AuthorizationCallback from '../features/user/components/identity/AuthorizationCallback';
-////import PlayerMovements from './components/combatDetails/actions/PlayerMovements';
-//import CombatAuras from './components/combatDetails/actions/CombatAuras';
+import Home from '../shared/components/Home';
+// import CombatAuras from './components/combatDetails/actions/CombatAuras';
+// import Friends from './components/communication/myEnvironment/Friends';
+// import SelectedUser from './components/communication/people/SelectedUser';
 
 type Route = {
     index?: boolean;
@@ -52,10 +51,10 @@ const AppRoutes: Route[] = [
     //    path: '/communities',
     //    element: <AllCommunities />
     //},
-    //{
-    //    path: '/people',
-    //    element: <People />
-    //},
+    {
+        path: '/people',
+        element: <People />
+    },
     //{
     //    path: '/user',
     //    element: <SelectedUser />

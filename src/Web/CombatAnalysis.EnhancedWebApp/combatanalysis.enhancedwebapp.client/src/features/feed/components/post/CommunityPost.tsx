@@ -1,4 +1,5 @@
-﻿import { useEffect, useState } from 'react';
+﻿import logger from '@/utils/Logger';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLazyGetCommunityPostByIdQuery, useUpdateCommunityPostMutation } from '../../api/CommunityPost.api';
 import { useCreateCommunityPostCommentMutation } from '../../api/CommunityPostComment.api';
@@ -47,26 +48,28 @@ const CommunityPost: React.FC<CommunityPostProps> = ({ userId, communityId, post
 
             await updatePost(postForUpdate).unwrap();
         } catch (e) {
-            console.error("Failed to update post:", e);
+            logger.error("Failed to update community post", e);
         }
     }
 
     const createPostCommentAsync = async () => {
-        const newPostComment: CommunityPostCommentModel = {
-            id: 0,
-            content: postCommentContent,
-            commentType: 0,
-            createdAt: new Date(),
-            communityPostId: post.id,
-            communityId: communityId,
-            appUserId: userId
-        }
+        try {
+            const newPostComment: CommunityPostCommentModel = {
+                id: 0,
+                content: postCommentContent,
+                commentType: 0,
+                createdAt: new Date(),
+                communityPostId: post.id,
+                communityId: communityId,
+                appUserId: userId
+            }
 
-        const response = await createPostComment(newPostComment);
-        if (response.data) {
+            await createPostComment(newPostComment).unwrap();
             setPostCommentContent("");
 
             await updatePostAsync(post.id, 0, 0, 1);
+        } catch (e) {
+            logger.error("Failed to create community post comment", e);
         }
     }
 

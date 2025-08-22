@@ -1,11 +1,12 @@
 import { useEffect, useState, type SetStateAction } from 'react';
 import { useGetGroupChatByIdQuery } from '../../api/GroupChat.api';
+import type { GroupChatModel } from '../../types/GroupChatModel';
 import type { GroupChatUserModel } from '../../types/GroupChatUserModel';
-import type { SelectedChatModel } from '../../types/SelectedChatModel';
+import type { PersonalChatModel } from '../../types/PersonalChatModel';
 
 interface GroupChatListItemProps {
     meInChat: GroupChatUserModel;
-    setSelectedGroupChat(value: SetStateAction<SelectedChatModel>): void;
+    setSelectedGroupChat(value: SetStateAction<GroupChatModel | PersonalChatModel | null>): void;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     subscribeToUnreadGroupMessagesUpdated(callback: any): void;
 }
@@ -36,7 +37,7 @@ const GroupChatListItem: React.FC<GroupChatListItemProps> = ({ meInChat, setSele
     }
 
     return (
-        <span className="chat-card" onClick={() => setSelectedGroupChat({ type: "group", chat: chat })}>
+        <span className="chat-card" onClick={() => setSelectedGroupChat(chat)}>
             <div className="username">{chat?.name}</div>
             {unreadMessageCount > 0 &&
                 <div className="chat-tooltip">

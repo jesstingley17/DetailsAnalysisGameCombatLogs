@@ -1,7 +1,7 @@
+import type { RootState } from '@/app/Store';
+import Loading from '@/shared/components/Loading';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
-import type { RootState } from '../../../app/Store';
-import Loading from '../../../shared/components/Loading';
 import CommunicationMenu from './CommunicationMenu';
 import FeedParticipants from './FeedParticipants';
 import CreateUserPost from './post/CreateUserPost';

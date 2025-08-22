@@ -1,16 +1,16 @@
-﻿import { faArrowDown, faArrowUp } from '@fortawesome/free-solid-svg-icons';
+﻿import { useChatHub } from '@/shared/hooks/useChatHub';
+import { faArrowDown, faArrowUp } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useState, type SetStateAction } from 'react';
-import { useChatHub } from '../../../../shared/hooks/useChatHub';
 import { useGetPersonalChatsByUserIdQuery } from '../../api/PersonalChat.api';
+import type { GroupChatModel } from '../../types/GroupChatModel';
 import type { PersonalChatModel } from '../../types/PersonalChatModel';
-import type { SelectedChatModel } from '../../types/SelectedChatModel';
 import PersonalChatListItem from './PersonalChatListItem';
 
 interface PersonalChatListProps {
     meId: string;
-    selectedChat: SelectedChatModel;
-    setSelectedChat(value: SetStateAction<SelectedChatModel>): void;
+    selectedChat: PersonalChatModel | GroupChatModel | null;
+    setSelectedChat(value: SetStateAction<PersonalChatModel | GroupChatModel | null>): void;
     chatsHidden: boolean;
     toggleChatsHidden(): void;
     t(key: string): string;

@@ -1,14 +1,14 @@
-﻿import { memo, useEffect, useRef, useState, type SetStateAction } from 'react';
+﻿import Loading from '@/shared/components/Loading';
+import { useChatHub } from '@/shared/hooks/useChatHub';
+import { memo, useEffect, useRef, useState, type SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useChatHub } from '../../../../shared/hooks/useChatHub';
-import Loading from '../../../../shared/components/Loading';
 import type { AppUserModel } from '../../../user/types/AppUserModel';
 import { useUpdateGroupChatMessageMutation } from '../../api/GroupChatMessage.api';
 import useGroupChatData from '../../hooks/useGroupChatData';
 import type { GroupChatMessageModel } from '../../types/GroupChatMessageModel';
 import type { GroupChatModel } from '../../types/GroupChatModel';
 import type { PersonalChatMessageModel } from '../../types/PersonalChatMessageModel';
-import type { SelectedChatModel } from '../../types/SelectedChatModel';
+import type { PersonalChatModel } from '../../types/PersonalChatModel';
 import ChatMessage from '../ChatMessage';
 import MessageInput from '../MessageInput';
 import GroupChatMenu from './GroupChatMenu';
@@ -19,11 +19,11 @@ import './GroupChat.scss';
 interface GroupChatProps {
     myself: AppUserModel;
     chat: GroupChatModel;
-    setSelectedChat(value: SetStateAction<SelectedChatModel>): void;
+    setSelectedChat(value: SetStateAction<PersonalChatModel | GroupChatModel | null>): void;
 }
 
 const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) => {
-    const { t } = useTranslation("communication/chats/groupChat");
+    const { t } = useTranslation('communication/chats/groupChat');
 
     const chatHub = useChatHub();
 

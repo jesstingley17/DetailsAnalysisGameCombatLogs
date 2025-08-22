@@ -1,7 +1,7 @@
-﻿import { memo, useEffect, useRef, useState, type SetStateAction } from 'react';
+﻿import Loading from '@/shared/components/Loading';
+import { useChatHub } from '@/shared/hooks/useChatHub';
+import { memo, useEffect, useRef, useState, type SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useChatHub } from '../../../../shared/hooks/useChatHub';
-import Loading from '../../../../shared/components/Loading';
 import { useGetUserByIdQuery } from '../../../user/api/Account.api';
 import type { AppUserModel } from '../../../user/types/AppUserModel';
 import { useGetMessagesByPersonalChatIdQuery, useLazyGetMoreMessagesByPersonalChatIdQuery } from '../../api/Chat.api';
@@ -10,9 +10,9 @@ import {
     useUpdatePersonalChatMessageMutation
 } from '../../api/PersonalChatMessage.api';
 import type { GroupChatMessageModel } from '../../types/GroupChatMessageModel';
+import type { GroupChatModel } from '../../types/GroupChatModel';
 import type { PersonalChatMessageModel } from '../../types/PersonalChatMessageModel';
 import type { PersonalChatModel } from '../../types/PersonalChatModel';
-import type { SelectedChatModel } from '../../types/SelectedChatModel';
 import ChatMessage from '../ChatMessage';
 import MessageInput from '../MessageInput';
 import PersonalChatTitle from './PersonalChatTitle';
@@ -22,7 +22,7 @@ import './PersonalChat.scss';
 interface PersonalChatProps {
     myself: AppUserModel;
     chat: PersonalChatModel;
-    setSelectedChat(value: SetStateAction<SelectedChatModel>): void;
+    setSelectedChat(value: SetStateAction<PersonalChatModel | GroupChatModel | null>): void;
     companionId: string;
 }
 

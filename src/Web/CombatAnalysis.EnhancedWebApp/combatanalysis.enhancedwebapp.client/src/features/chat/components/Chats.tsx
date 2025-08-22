@@ -1,16 +1,16 @@
-﻿import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+﻿import type { RootState } from '@/app/Store';
+import CommunicationMenu from '@/shared/components/CommunicationMenu';
+import Loading from '@/shared/components/Loading';
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { memo, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
-import type { RootState } from '../../../app/Store';
-import CommunicationMenu from '../../../shared/components/CommunicationMenu';
-import Loading from '../../../shared/components/Loading';
 import { useLazyGetGroupChatByIdQuery } from '../api/GroupChat.api';
 import { useLazyGetPersonalChatByIdQuery } from '../api/PersonalChat.api';
+import type { GroupChatModel } from '../types/GroupChatModel';
 import type { PersonalChatModel } from '../types/PersonalChatModel';
-import type { SelectedChatModel } from '../types/SelectedChatModel';
 import CreateGroupChat from './create/CreateGroupChat';
 import GroupChat from './groupChat/GroupChat';
 import GroupChatList from './groupChat/GroupChatList';
@@ -20,7 +20,7 @@ import PersonalChatList from './personalChat/PersonalChatList';
 import './Chats.scss';
 
 const Chats: React.FC = () => {
-    const { t } = useTranslation("communication/chats/chats");
+    const { t } = useTranslation('communication/chats/chats');
 
     const location = useLocation();
 
@@ -29,7 +29,7 @@ const Chats: React.FC = () => {
     const [getPersonalChatByIdAsync] = useLazyGetPersonalChatByIdQuery();
     const [getGroupChatByIdAsync] = useLazyGetGroupChatByIdQuery();
 
-    const [selectedChat, setSelectedChat] = useState<SelectedChatModel>({ type: null, chat: null });
+    const [selectedChat, setSelectedChat] = useState<PersonalChatModel | GroupChatModel | null>(null);
     const [personalChatsHidden, setPersonalChatsHidden] = useState(false);
     const [groupChatsHidden, setGroupChatsHidden] = useState(false);
     const [showCreateGroupChat, setShowCreateGroupChat] = useState(false);
@@ -47,7 +47,7 @@ const Chats: React.FC = () => {
                 const getPersonalChatById = async () => {
                     const id = parseInt(searchParams.get("personal") ?? "1");
                     const chat = await getPersonalChatByIdAsync(id).unwrap();
-                    setSelectedChat({ type: "personal", chat: chat });
+                    setSelectedChat(chat);
                 }
   
                 getPersonalChatById();
@@ -55,7 +55,7 @@ const Chats: React.FC = () => {
                 const getPersonalChatById = async () => {
                     const id = parseInt(searchParams.get("group") ?? "1");
                     const chat = await getGroupChatByIdAsync(id).unwrap();
-                    setSelectedChat({ type: "group", chat: chat });
+                    setSelectedChat(chat);
                 }
 
                 getPersonalChatById();
@@ -67,7 +67,7 @@ const Chats: React.FC = () => {
 
     const getCompanionId = (chat: PersonalChatModel | null) => {
         if (!chat) {
-            return "1";
+            return "0";
         }
 
         const id = chat.initiatorId === myself?.id ? chat.companionId : chat.initiatorId;
@@ -87,7 +87,7 @@ const Chats: React.FC = () => {
         );
     }
 
-    if (selectedChat && selectedChat.type && screenSize.width <= maxWidth) {
+    if (screenSize.width <= maxWidth) {
         return (
             <>
                 {showCreateGroupChat &&
@@ -100,25 +100,25 @@ const Chats: React.FC = () => {
                         <div className="chats__title">
                             <FontAwesomeIcon
                                 icon={faArrowLeft}
-                                onClick={() => setSelectedChat({ type: null, chat: null })}
+                                onClick={() => setSelectedChat(null)}
                             />
                         </div>
-                        {selectedChat.type === "group"
-                            ? <GroupChat
-                                chat={selectedChat.chat}
-                                myself={myself}
-                                setSelectedChat={setSelectedChat}
-                            />
-                            : (selectedChat.type === "personal")
-                                ? <PersonalChat
-                                    chat={selectedChat.chat}
+                        {selectedChat
+                            ? "appUserId" in selectedChat
+                                ? <GroupChat
+                                    chat={selectedChat}
                                     myself={myself}
                                     setSelectedChat={setSelectedChat}
-                                    companionId={getCompanionId((selectedChat.chat && "initiatorId" in selectedChat.chat) ? selectedChat.chat : null)}
                                 />
-                                : <div className="select-chat">
-                                    {t("SelectChat")} <span onClick={() => setShowCreateGroupChat(true)}>{t("Create")}</span> {t("NewChat")}
-                                </div>
+                                : <PersonalChat
+                                    chat={selectedChat}
+                                    myself={myself}
+                                    setSelectedChat={setSelectedChat}
+                                    companionId={getCompanionId((selectedChat && "initiatorId" in selectedChat) ? selectedChat : null)}
+                                />
+                            : <div className="select-chat">
+                                {t("SelectChat")} <span onClick={() => setShowCreateGroupChat(true)}>{t("Create")}</span> {t("NewChat")}
+                            </div>
                         }
                     </div>
                 </div>
@@ -158,22 +158,22 @@ const Chats: React.FC = () => {
                             toggleChatsHidden={() => setPersonalChatsHidden(prev => !prev)}
                         />
                     </div>
-                    {selectedChat.type === "group"
-                        ? <GroupChat
-                            chat={selectedChat.chat}
-                            myself={myself}
-                            setSelectedChat={setSelectedChat}
-                        />
-                        : selectedChat.type === "personal"
-                            ? <PersonalChat
-                                chat={selectedChat.chat}
+                    {selectedChat
+                        ? "appUserId" in selectedChat
+                            ? <GroupChat
+                                chat={selectedChat}
                                 myself={myself}
                                 setSelectedChat={setSelectedChat}
-                                companionId={getCompanionId((selectedChat.chat && "initiatorId" in selectedChat.chat) ? selectedChat.chat : null)}
                             />
-                            : <div className="select-chat">
-                                {t("SelectChat")} <span onClick={() => setShowCreateGroupChat(true)}>{t("Create")}</span> {t("NewChat")}
-                            </div>
+                            : <PersonalChat
+                                chat={selectedChat}
+                                myself={myself}
+                                setSelectedChat={setSelectedChat}
+                                companionId={getCompanionId((selectedChat && "initiatorId" in selectedChat) ? selectedChat : null)}
+                            />
+                        : <div className="select-chat">
+                            {t("SelectChat")} <span onClick={() => setShowCreateGroupChat(true)}>{t("Create")}</span> {t("NewChat")}
+                        </div>
                     }
                 </div>
             </div>

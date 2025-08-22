@@ -1,16 +1,17 @@
-﻿import { faArrowDown, faArrowUp } from '@fortawesome/free-solid-svg-icons';
+﻿import { useChatHub } from '@/shared/hooks/useChatHub';
+import { faArrowDown, faArrowUp } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useEffect, useState, type SetStateAction } from 'react';
-import { useChatHub } from '../../../../shared/hooks/useChatHub';
 import { useFindGroupChatUsersByUserIdQuery } from '../../api/GroupChatUser.api';
+import type { GroupChatModel } from '../../types/GroupChatModel';
 import type { GroupChatUserModel } from '../../types/GroupChatUserModel';
-import type { SelectedChatModel } from '../../types/SelectedChatModel';
+import type { PersonalChatModel } from '../../types/PersonalChatModel';
 import GroupChatListItem from './GroupChatListItem';
 
 interface GroupChatListProps {
     meId: string;
-    selectedChat: SelectedChatModel;
-    setSelectedChat(value: SetStateAction<SelectedChatModel>): void;
+    selectedChat: GroupChatModel | PersonalChatModel | null;
+    setSelectedChat(value: SetStateAction<GroupChatModel | PersonalChatModel | null>): void;
     chatsHidden: boolean;
     toggleChatsHidden(): void;
     t(key: string): string;
@@ -66,7 +67,7 @@ const GroupChatList: React.FC<GroupChatListProps> = ({ meId, t, selectedChat, se
                         <span onClick={() => setShowCreateGroupChat(true)}>{t("Create")}</span>
                     </div>
                     : meInGroupChats.map((meInChat) => (
-                        <li key={meInChat.id} className={selectedChat.type === "group" && selectedChat && selectedChat.chat?.id === meInChat.chatId ? `selected` : ``}>
+                        <li key={meInChat.id} className={selectedChat && "appUserId" in selectedChat && selectedChat.id === meInChat.chatId ? `selected` : ``}>
                             <GroupChatListItem
                                 meInChat={meInChat}
                                 setSelectedGroupChat={setSelectedChat}

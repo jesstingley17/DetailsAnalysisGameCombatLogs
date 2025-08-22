@@ -1,13 +1,14 @@
-﻿import { faHeart, faMessage, faThumbsDown } from '@fortawesome/free-solid-svg-icons';
+﻿import type { RootState } from '@/app/Store';
+import VerificationRestriction from '@/shared/components/VerificationRestriction';
+import { faHeart, faMessage, faThumbsDown } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useCallback, type SetStateAction } from 'react';
 import { useSelector } from 'react-redux';
-import type { RootState } from '../../../../app/Store';
-import VerificationRestriction from '../../../../shared/components/VerificationRestriction';
-import { useCreateCommunityPostDislikeMutation, useLazySearchCommunityPostDislikeByPostIdQuery, useRemoveCommunityPostDislikeMutation } from '../../api/CommunityPostDislike.api';
-import { useCreateCommunityPostLikeMutation, useLazySearchCommunityPostLikeByPostIdQuery, useRemoveCommunityPostLikeMutation } from '../../api/CommunityPostLike.api';
+import { useCreateCommunityPostDislikeMutation, useLazySearchCommunityPostDislikeByPostIdQuery } from '../../api/CommunityPostDislike.api';
+import { useCreateCommunityPostLikeMutation, useLazySearchCommunityPostLikeByPostIdQuery } from '../../api/CommunityPostLike.api';
 import type { CommunityPostModel } from '../../types/CommunityPostModel';
 import type { CommunityPostReactionModel } from '../../types/CommunityPostReactionModel';
+import logger from '@/utils/Logger';
 
 interface CommunityPostReactionsProps {
     userId: string;
@@ -23,51 +24,71 @@ const CommunityPostReactions: React.FC<CommunityPostReactionsProps> = ({ userId,
     const userPrivacy = useSelector((state: RootState) => state.userPrivacy.value);
 
     const [createPostLike] = useCreateCommunityPostLikeMutation();
-    const [removePostLike] = useRemoveCommunityPostLikeMutation();
+    //const [removePostLike] = useRemoveCommunityPostLikeMutation();
     const [searchPostLikeByPostId] = useLazySearchCommunityPostLikeByPostIdQuery();
     const [createPostDislike] = useCreateCommunityPostDislikeMutation();
-    const [removePostDislike] = useRemoveCommunityPostDislikeMutation();
+    //const [removePostDislike] = useRemoveCommunityPostDislikeMutation();
     const [searchPostDislikeByPostId] = useLazySearchCommunityPostDislikeByPostIdQuery();
 
     const getPostLikesAsync = async (postId: number) => {
-        const postLikes = await searchPostLikeByPostId(postId);
-        if (postLikes.data) {
-            return await removePostLikeIfExistAsync(postLikes.data);
-        }
+        try {
+            const postLikes = await searchPostLikeByPostId(postId).unwrap();
+            //return await removePostLikeIfExistAsync(postLikes);
 
-        return false;
+            return postLikes.length > 0;
+        } catch (e) {
+            logger.error("Failed to receive community post likes", e);
+
+            return false;
+        }
     }
 
     const getPostDislikesAsync = async (postId: number) => {
-        const postDislikes = await searchPostDislikeByPostId(postId);
-        if (postDislikes.data) {
-            return await removePostDislikeIfExistAsync(postDislikes.data);
-        }
+        try {
+            const postDislikes = await searchPostDislikeByPostId(postId).unwrap();
+            //return await removePostDislikeIfExistAsync(postDislikes);
 
-        return false;
+            return postDislikes.length > 0;
+        } catch (e) {
+            logger.error("Failed to receive community post dislikes", e);
+
+            return false;
+        }
     }
 
-    const removePostLikeIfExistAsync = async (postLikes: CommunityPostReactionModel[]) => {
-        for (let i = 0; i < postLikes.length; i++) {
-            if (postLikes[i].appUserId === userId) {
-                await removePostLike(postLikes[i].id);
-                return true;
-            }
-        }
+    //const removePostLikeIfExistAsync = async (postLikes: CommunityPostReactionModel[]) => {
+    //    try {
+    //        for (let i = 0; i < postLikes.length; i++) {
+    //            if (postLikes[i].appUserId === userId) {
+    //                await removePostLike(postLikes[i].id);
+    //                return true;
+    //            }
+    //        }
 
-        return false;
-    }
+    //        return false;
+    //    } catch (e) {
+    //        logger.error("Failed to remove likes if already exist for current user", e);
 
-    const removePostDislikeIfExistAsync = async (postDislikes: CommunityPostReactionModel[]) => {
-        for (let i = 0; i < postDislikes.length; i++) {
-            if (postDislikes[i].appUserId === userId) {
-                await removePostDislike(postDislikes[i].id);
-                return true;
-            }
-        }
+    //        return false;
+    //    }
+    //}
 
-        return false;
-    }
+    //const removePostDislikeIfExistAsync = async (postDislikes: CommunityPostReactionModel[]) => {
+    //    try {
+    //        for (let i = 0; i < postDislikes.length; i++) {
+    //            if (postDislikes[i].appUserId === userId) {
+    //                await removePostDislike(postDislikes[i].id);
+    //                return true;
+    //            }
+    //        }
+
+    //        return false;
+    //    } catch (e) {
+    //        logger.error("Failed to remove dislikes if already exist for current user", e);
+
+    //        return false;
+    //    }
+    //}
 
     const createPostLikeAsync = useCallback(async () => {
         const postLikeIsExist = await getPostLikesAsync(post?.id);

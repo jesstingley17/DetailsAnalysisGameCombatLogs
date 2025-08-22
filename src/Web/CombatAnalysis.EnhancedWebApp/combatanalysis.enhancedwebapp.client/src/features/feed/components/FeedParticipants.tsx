@@ -1,5 +1,5 @@
+import Loading from '@/shared/components/Loading';
 import { memo, useEffect, useRef, useState } from 'react';
-import Loading from '../../../shared/components/Loading';
 import type { AppUserModel } from '../../user/types/AppUserModel';
 import useFetchUsersPosts from '../hooks/useFetchUsersPosts';
 import type { CommunityPostModel } from '../types/CommunityPostModel';

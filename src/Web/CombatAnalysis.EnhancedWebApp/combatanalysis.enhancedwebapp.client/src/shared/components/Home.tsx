@@ -1,10 +1,10 @@
-﻿import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
+﻿import type { RootState } from '@/app/Store';
+import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
-import type { RootState } from '../../app/Store';
 import { useLazyAuthorizationQuery } from '../../features/user/api/User.api';
 import type { IdentityRedirect } from '../types/IdentityRedirect';
 
@@ -13,7 +13,7 @@ import './Home.scss';
 const shouldBeAuthorizeTimeout = 10000;
 
 const Home: React.FC = () => {
-    const { t } = useTranslation("home");
+    const { t } = useTranslation('home');
 
     const navigate = useNavigate();
     const location = useLocation();

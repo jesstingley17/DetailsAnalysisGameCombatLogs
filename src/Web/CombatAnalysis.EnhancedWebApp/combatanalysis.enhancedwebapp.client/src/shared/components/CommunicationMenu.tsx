@@ -1,10 +1,10 @@
+import type { RootState } from '@/app/Store';
 import { faAddressBook, faBars, faCalendar, faCheck, faComment, faComments, faLaptop, faPeopleLine, faPerson, faRss, faSquareMinus, faUser } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Fragment } from "react";
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import type { RootState } from '../../app/Store';
 import { updateMenu } from '../../features/community/store/CommunityMenuSlice';
 import type { MenuItemModel } from '../types/MenuItemModel';
 
@@ -16,7 +16,7 @@ interface CommunicationMenuProps {
 }
 
 const CommunicationMenu: React.FC<CommunicationMenuProps> = ({ currentMenuItem, hasSubMenu }) => {
-    const { t } = useTranslation("communication/communication");
+    const { t } = useTranslation('communication/communication');
 
     const menu = useSelector((state: RootState) => state.communityMenu.value);
 

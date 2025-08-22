@@ -1,4 +1,5 @@
-﻿import { faTrash } from '@fortawesome/free-solid-svg-icons';
+﻿import logger from '@/utils/Logger';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'react-i18next';
 import { useGetUserByIdQuery } from '../../../user/api/Account.api';
@@ -21,9 +22,11 @@ const CommunityPostCommentTitle: React.FC<CommunityPostCommentTitleProps> = ({ u
     const [removePostCommentAsyncMut] = useRemoveCommunityPostCommentMutation();
 
     const deletePostCommentAsync = async (postCommentId: number) => {
-        const response = await removePostCommentAsyncMut(postCommentId);
-        if (!response.error) {
+        try {
+            await removePostCommentAsyncMut(postCommentId).unwrap();
             await updatePostAsync(postId, 0, 0, -1);
+        } catch (e) {
+            logger.error("Failed to remove community post comment", e);
         }
     }
 

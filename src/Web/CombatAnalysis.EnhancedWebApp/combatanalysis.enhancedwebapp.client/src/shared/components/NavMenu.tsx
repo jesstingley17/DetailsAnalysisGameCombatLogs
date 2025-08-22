@@ -1,3 +1,7 @@
+import type { RootState } from '@/app/Store';
+import APP_CONFIG from "@/config/appConfig";
+import { useAuth } from '@/shared/contexts/AuthProvider';
+import logger from '@/utils/Logger';
 import { faMagnifyingGlassMinus, faMagnifyingGlassPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -6,18 +10,14 @@ import { useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { Container, Navbar, NavbarBrand } from 'reactstrap';
 import { useLazyAuthorizationQuery } from '../../features/user/api/User.api';
-import { useAuth } from '../../shared/contexts/AuthProvider';
 import LanguageSelector from './LanguageSelector';
 //import Notification from './Notification';
 //import Search from './Search';
-import APP_CONFIG from "@/config/appConfig";
-import logger from '@/utils/Logger';
-import type { RootState } from '../../app/Store';
 
 import './NavMenu.scss';
 
 const NavMenu: React.FC = () => {
-    const { t } = useTranslation("translate");
+    const { t } = useTranslation('translate');
 
     const me = useSelector((state: RootState) => state.user.value);
 

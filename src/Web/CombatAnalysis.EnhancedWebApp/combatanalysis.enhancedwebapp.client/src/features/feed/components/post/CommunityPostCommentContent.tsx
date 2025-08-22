@@ -1,4 +1,5 @@
-﻿import { faPen } from '@fortawesome/free-solid-svg-icons';
+﻿import logger from '@/utils/Logger';
+import { faPen } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -20,12 +21,14 @@ const CommunityPostCommentContent: React.FC<CommunityPostCommentContentProps> = 
     const commentContent = useRef<HTMLTextAreaElement | null>(null);
 
     const updatePostCommentAsync = async () => {
-        const postCommentForUpdate = Object.assign({}, comment);
-        postCommentForUpdate.content = commentContent.current?.value ?? "";
+        try {
+            const postCommentForUpdate = Object.assign({}, comment);
+            postCommentForUpdate.content = commentContent.current?.value ?? "";
 
-        const response = await updatePostComment(postCommentForUpdate);
-        if (!response.error) {
+            await updatePostComment(postCommentForUpdate).unwrap();
             setEditModeOne(false);
+        } catch (e) {
+            logger.error("Failed to update community post comment", e);
         }
     }
 

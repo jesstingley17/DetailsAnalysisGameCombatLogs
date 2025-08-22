@@ -1,6 +1,6 @@
+import Layout from '@/shared/components/Layout';
+import { AuthProvider } from '@/shared/contexts/AuthProvider';
 import { Route, Routes } from 'react-router-dom';
-import Layout from '../shared/components/Layout';
-import { AuthProvider } from '../shared/contexts/AuthProvider';
 import AppRoutes from './Routes';
 
 import './App.css';

@@ -13,7 +13,7 @@ interface AddFriendItemProps {
 }
 
 const AddFriendItem: React.FC<AddFriendItemProps> = ({ friendUserId, addUserToList, removeUserToList, filterContent, peopleIdToJoin }) => {
-    const { t } = useTranslation("addFriendItem");
+    const { t } = useTranslation('addFriendItem');
 
     const { data: user, isLoading } = useGetUserByIdQuery(friendUserId);
 

@@ -4,8 +4,8 @@ import { Fragment } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import type { RootState } from '../../../app/Store';
-import type { MenuItemModel } from '../../../shared/types/MenuItemModel';
+import type { RootState } from '@/app/Store';
+import type { MenuItemModel } from '@/shared/types/MenuItemModel';
 import { updateMenu } from '../../community/store/CommunityMenuSlice';
 
 import './CommunicationMenu.scss';

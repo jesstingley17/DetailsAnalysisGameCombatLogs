@@ -2,11 +2,7 @@ import type { ReactNode } from 'react';
 import { Container } from 'reactstrap';
 import NavMenu from './NavMenu';
 
-interface LayoutProps {
-    children: ReactNode;
-}
-
-const Layout: React.FC<LayoutProps> = ({ children }) => {
+const Layout: React.FC<{ children: ReactNode }> = ({ children }) => {
     const render = () => {
         return (
             <div>

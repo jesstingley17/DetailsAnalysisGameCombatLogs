@@ -13,7 +13,7 @@ interface ChatMessageMenuProps {
 }
 
 const ChatMessageMenu: React.FC<ChatMessageMenuProps> = ({ message, setEditModeIsOn, setOpenMessageMenu, updateMessageMarkedTypeAsync }) => {
-    const { t } = useTranslation("communication/chats/chatMessage");
+    const { t } = useTranslation('communication/chats/chatMessage');
 
     const handleMarkAsNotRelevant = async () => {
         if (message.markedType === 1) {

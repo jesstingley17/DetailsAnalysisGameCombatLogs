@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
 const LogChatMessage: React.FC<{ message: string }> = ({ message }) => {
-    const { t } = useTranslation("communication/chats/chatMessage");
+    const { t } = useTranslation('communication/chats/chatMessage');
 
     const navigate = useNavigate();
 

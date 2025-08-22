@@ -1,6 +1,6 @@
+import VerificationRestriction from '@/shared/components/VerificationRestriction';
 import logger from '@/utils/Logger';
 import { useEffect, useState, type SetStateAction } from 'react';
-import VerificationRestriction from '../../../../shared/components/VerificationRestriction';
 import { useLazyGetUserByIdQuery } from '../../../user/api/Account.api';
 import type { AppUserModel } from '../../../user/types/AppUserModel';
 import { useRemoveGroupChatAsyncMutation } from '../../api/GroupChat.api';
@@ -12,7 +12,7 @@ import {
 import type { GroupChatMessageModel } from '../../types/GroupChatMessageModel';
 import type { GroupChatModel } from '../../types/GroupChatModel';
 import type { GroupChatUserModel } from '../../types/GroupChatUserModel';
-import type { SelectedChatModel } from '../../types/SelectedChatModel';
+import type { PersonalChatModel } from '../../types/PersonalChatModel';
 import ChatRulesItem from '../create/ChatRulesItem';
 import GroupChatAddUser from './GroupChatAddUser';
 import GroupChatMembers from './GroupChatMembers';
@@ -31,7 +31,7 @@ const defaultPayload = {
 
 interface GroupChatMenuProps {
     myself: AppUserModel;
-    setSelectedChat: (value: SetStateAction<SelectedChatModel>) => void;
+    setSelectedChat: (value: SetStateAction<PersonalChatModel | GroupChatModel | null>) => void;
     groupChatUsers: GroupChatUserModel[];
     groupChatUsersId: string[];
     IasGroupChatUser: GroupChatUserModel;
@@ -108,7 +108,7 @@ const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ myself, setSelectedChat, 
     const leaveFromChatAsync = async (groupChatUserId: string) => {
         try {
             await removeGroupChatUserAsyncMut(groupChatUserId).unwrap();
-            setSelectedChat({ type: null, chat: null });
+            setSelectedChat(null);
         } catch (e) {
             logger.error("Failed to leave from group chat", e);
         }
@@ -117,7 +117,7 @@ const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ myself, setSelectedChat, 
     const removeChatAsync = async () => {
         try {
             await removeGroupChatAsyncMut(chat?.id);
-            setSelectedChat({ type: null, chat: null });
+            setSelectedChat(null);
         } catch (e) {
             logger.error("Failed to remove group chat", e);
         }

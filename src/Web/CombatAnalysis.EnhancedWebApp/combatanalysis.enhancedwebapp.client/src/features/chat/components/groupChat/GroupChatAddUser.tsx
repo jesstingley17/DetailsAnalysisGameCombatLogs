@@ -1,6 +1,6 @@
-﻿import { useState, type SetStateAction } from 'react';
-import { useChatHub } from '../../../../shared/hooks/useChatHub';
-import AddPeople from '../../../../shared/components/AddPeople';
+﻿import AddPeople from '@/shared/components/AddPeople';
+import { useChatHub } from '@/shared/hooks/useChatHub';
+import { useState, type SetStateAction } from 'react';
 import type { AppUserModel } from '../../../user/types/AppUserModel';
 
 interface GroupChatAddUserProps {

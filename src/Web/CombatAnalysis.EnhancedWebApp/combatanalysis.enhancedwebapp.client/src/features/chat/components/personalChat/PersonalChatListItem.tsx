@@ -1,11 +1,11 @@
 import { useEffect, useState, type SetStateAction } from 'react';
 import { useGetUserByIdQuery } from '../../../user/api/Account.api';
+import type { GroupChatModel } from '../../types/GroupChatModel';
 import type { PersonalChatModel } from '../../types/PersonalChatModel';
-import type { SelectedChatModel } from '../../types/SelectedChatModel';
 
 interface PersonalChatListItemProps {
     chat: PersonalChatModel;
-    setSelectedChat(value: SetStateAction<SelectedChatModel>): void;
+    setSelectedChat(value: SetStateAction<PersonalChatModel | GroupChatModel | null>): void;
     companionId: string;
     meId: string;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -38,7 +38,7 @@ const PersonalChatListItem: React.FC<PersonalChatListItemProps> = ({ chat, setSe
     }
 
     return (
-        <span className="chat-card" onClick={() => setSelectedChat({ type: "personal", chat: chat })}>
+        <span className="chat-card" onClick={() => setSelectedChat(chat)}>
             <div className="username">{companion?.username}</div>
             {unreadMessageCount > 0 &&
                 <div className="chat-tooltip">

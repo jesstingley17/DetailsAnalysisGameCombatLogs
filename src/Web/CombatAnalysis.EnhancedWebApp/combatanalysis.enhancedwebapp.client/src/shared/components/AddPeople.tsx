@@ -20,7 +20,7 @@ interface AddPeopleProps {
 }
 
 const AddPeople: React.FC<AddPeopleProps> = ({ user, usersId, peopleToJoin, setPeopleToJoin }) => {
-    const { t } = useTranslation("addPeople");
+    const { t } = useTranslation('addPeople');
 
     const [maxPeopleItems, setMaxPeopleItems] = useState(defaultMaxItems);
     const [maxFriendsItems, setMaxFriendsItems] = useState(defaultMaxItems);

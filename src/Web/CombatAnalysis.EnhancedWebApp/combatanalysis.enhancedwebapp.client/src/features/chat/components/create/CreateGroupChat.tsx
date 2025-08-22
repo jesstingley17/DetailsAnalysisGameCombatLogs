@@ -1,8 +1,8 @@
+import type { RootState } from '@/app/Store';
+import { useChatHub } from '@/shared/hooks/useChatHub';
 import { useRef, useState, type SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
-import type { RootState } from '../../../../app/Store';
-import { useChatHub } from '../../../../shared/hooks/useChatHub';
 import ChatRulesItem from './ChatRulesItem';
 
 import './Create.scss';
@@ -15,7 +15,7 @@ const payload = {
 };
 
 const CreateGroupChat: React.FC<{ setShowCreateGroupChat: (value: SetStateAction<boolean>) => void; }> = ({ setShowCreateGroupChat }) => {
-    const { t } = useTranslation("communication/create");
+    const { t } = useTranslation('communication/create');
 
     const chatHub = useChatHub();
 

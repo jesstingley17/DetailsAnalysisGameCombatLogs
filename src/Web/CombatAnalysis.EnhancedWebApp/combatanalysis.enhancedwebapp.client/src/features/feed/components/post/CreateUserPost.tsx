@@ -1,7 +1,7 @@
+import Loading from '@/shared/components/Loading';
 import { faBan, faCheck, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState, type ChangeEvent } from 'react';
-import Loading from '../../../../shared/components/Loading';
 import type { AppUserModel } from '../../../user/types/AppUserModel';
 import { useCreateUserPostMutation } from '../../api/UserPost.api';
 import type { UserPostModel } from '../../types/UserPostModel';
