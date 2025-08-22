@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.2752196">
+﻿<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.2752196">
   <PropertyGroup>
     <StartupCommand>npm run dev</StartupCommand>
     <JavaScriptTestRoot>src\</JavaScriptTestRoot>
@@ -9,11 +9,15 @@
     <BuildOutputFolder>$(MSBuildProjectDirectory)\dist</BuildOutputFolder>
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="src\features\chat\props\" />
+    <None Remove="src\features\chat\props\**" />
+    <None Remove="src\features\post\**" />
+    <TypeScriptConfiguration Remove="src\features\chat\props\**" />
+    <TypeScriptConfiguration Remove="src\features\post\**" />
+  </ItemGroup>
+  <ItemGroup>
     <Folder Include="src\features\chat\store\" />
     <Folder Include="src\features\community\components\" />
     <Folder Include="src\features\gameLogs\types\dashboard\" />
     <Folder Include="src\features\notification\components\" />
-    <Folder Include="src\features\post\components\" />
   </ItemGroup>
 </Project>

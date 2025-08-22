@@ -1,7 +1,7 @@
 import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useRef, useState, type SetStateAction } from 'react';
-import { useChatHub } from '../../../context/ChatHubProvider';
+import { useChatHub } from '../../../shared/hooks/useChatHub';
 import type { AppUserModel } from '../../user/types/AppUserModel';
 import type { GroupChatUserModel } from '../types/GroupChatUserModel';
 

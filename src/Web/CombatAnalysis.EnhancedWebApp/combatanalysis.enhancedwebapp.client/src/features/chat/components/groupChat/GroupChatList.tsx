@@ -1,18 +1,28 @@
 ﻿import { faArrowDown, faArrowUp } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useEffect, useState } from 'react';
-import { useChatHub } from '../../../../context/ChatHubProvider';
-import { useFindGroupChatUserByUserIdQuery } from '../../../../store/api/chat/GroupChatUser.api';
-import { GroupChatUser } from '../../../../types/GroupChatUser';
-import { GroupChatListProps } from '../../../../types/components/communication/chats/GroupChatListProps';
+import React, { useEffect, useState, type SetStateAction } from 'react';
+import { useChatHub } from '../../../../shared/hooks/useChatHub';
+import { useFindGroupChatUsersByUserIdQuery } from '../../api/GroupChatUser.api';
+import type { GroupChatUserModel } from '../../types/GroupChatUserModel';
+import type { SelectedChatModel } from '../../types/SelectedChatModel';
 import GroupChatListItem from './GroupChatListItem';
 
+interface GroupChatListProps {
+    meId: string;
+    selectedChat: SelectedChatModel;
+    setSelectedChat(value: SetStateAction<SelectedChatModel>): void;
+    chatsHidden: boolean;
+    toggleChatsHidden(): void;
+    t(key: string): string;
+    setShowCreateGroupChat(value: SetStateAction<boolean>): void;
+}
+
 const GroupChatList: React.FC<GroupChatListProps> = ({ meId, t, selectedChat, setSelectedChat, chatsHidden, toggleChatsHidden, setShowCreateGroupChat }) => {
-    const { data, isLoading } = useFindGroupChatUserByUserIdQuery(meId);
+    const { data, isLoading } = useFindGroupChatUsersByUserIdQuery(meId);
 
     const chatHub = useChatHub();
 
-    const [meInGroupChats, setMeInGroupChats] = useState<GroupChatUser[]>([]);
+    const [meInGroupChats, setMeInGroupChats] = useState<GroupChatUserModel[]>([]);
 
     useEffect(() => {
         if (!data || !chatHub) {
@@ -24,7 +34,7 @@ const GroupChatList: React.FC<GroupChatListProps> = ({ meId, t, selectedChat, se
         const connectToPersonalChatUnreadMessages = async () => {
             await chatHub.connectToGroupChatUnreadMessagesAsync(data);
 
-            chatHub.subscribeToGroupChat((groupChatUser: GroupChatUser) => {
+            chatHub.subscribeToGroupChat((groupChatUser: GroupChatUserModel) => {
                 setMeInGroupChats(prev => [...prev, groupChatUser]);
             });
         }
@@ -56,7 +66,7 @@ const GroupChatList: React.FC<GroupChatListProps> = ({ meId, t, selectedChat, se
                         <span onClick={() => setShowCreateGroupChat(true)}>{t("Create")}</span>
                     </div>
                     : meInGroupChats.map((meInChat) => (
-                        <li key={meInChat.id} className={selectedChat.type === "group" && selectedChat.chat.id === meInChat.chatId ? `selected` : ``}>
+                        <li key={meInChat.id} className={selectedChat.type === "group" && selectedChat && selectedChat.chat?.id === meInChat.chatId ? `selected` : ``}>
                             <GroupChatListItem
                                 meInChat={meInChat}
                                 setSelectedGroupChat={setSelectedChat}

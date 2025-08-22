@@ -1,18 +1,26 @@
-﻿import { memo, useEffect, useRef, useState } from 'react';
+﻿import { memo, useEffect, useRef, useState, type SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useChatHub } from '../../../../context/ChatHubProvider';
-import useGroupChatData from '../../../../hooks/useGroupChatData';
-import { useUpdateGroupChatMessageAsyncMutation } from '../../../../store/api/chat/GroupChatMessage.api';
-import { GroupChatMessage as GroupChatMessageModel } from '../../../../types/GroupChatMessage';
-import { PersonalChatMessage } from '../../../../types/PersonalChatMessage';
-import { GroupChatProps } from '../../../../types/components/communication/chats/GroupChatProps';
-import Loading from '../../../Loading';
+import { useChatHub } from '../../../../shared/hooks/useChatHub';
+import Loading from '../../../../shared/components/Loading';
+import type { AppUserModel } from '../../../user/types/AppUserModel';
+import { useUpdateGroupChatMessageMutation } from '../../api/GroupChatMessage.api';
+import useGroupChatData from '../../hooks/useGroupChatData';
+import type { GroupChatMessageModel } from '../../types/GroupChatMessageModel';
+import type { GroupChatModel } from '../../types/GroupChatModel';
+import type { PersonalChatMessageModel } from '../../types/PersonalChatMessageModel';
+import type { SelectedChatModel } from '../../types/SelectedChatModel';
+import ChatMessage from '../ChatMessage';
 import MessageInput from '../MessageInput';
 import GroupChatMenu from './GroupChatMenu';
 import GroupChatTitle from './GroupChatTitle';
 
-import '../../../../styles/communication/chats/groupChat.scss';
-import ChatMessage from '../ChatMessage';
+import './GroupChat.scss';
+
+interface GroupChatProps {
+    myself: AppUserModel;
+    chat: GroupChatModel;
+    setSelectedChat(value: SetStateAction<SelectedChatModel>): void;
+}
 
 const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) => {
     const { t } = useTranslation("communication/chats/groupChat");
@@ -28,11 +36,11 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
     const [areLoadingOldMessages, setAreLoadingOldMessages] = useState(true);
 
     const chatContainerRef = useRef<HTMLUListElement | null>(null);
-    const pageSizeRef = useRef<any>(process.env.REACT_APP_CHAT_PAGE_SIZE);
+    const pageSizeRef = useRef<number>(process.env.REACT_APP_CHAT_PAGE_SIZE ? +process.env.REACT_APP_CHAT_PAGE_SIZE : 1);
 
     const { groupChatData, getMoreMessagesAsync } = useGroupChatData(chat.id, myself.id, pageSizeRef);
 
-    const [updateGroupChatMessage] = useUpdateGroupChatMessageAsyncMutation();
+    const [updateGroupChatMessage] = useUpdateGroupChatMessageMutation();
 
     useEffect(() => {
         if (!chatHub) {
@@ -60,24 +68,25 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
     }, [chatHub?.groupChatMessagesHubConnection]);
 
     useEffect(() => {
-        if (!groupChatData.messages) {
+        if (!groupChatData || !groupChatData.messages) {
             return;
         }
 
         setCurrentMessages(groupChatData.messages);
-    }, [groupChatData.messages]);
+    }, [groupChatData?.messages]);
 
     useEffect(() => {
-        if (!groupChatData.messages) {
+        if (!groupChatData || !groupChatData.messages) {
             return;
         }
 
         const handleScroll = () => {
-            if (!groupChatData.messages) {
+            const chatContainer: HTMLUListElement | null = chatContainerRef.current;
+
+            if (!groupChatData.messages || !chatContainer) {
                 return;
             }
 
-            const chatContainer: any = chatContainerRef.current;
             if (chatContainer.scrollTop === 0) {
                 const moreMessagesCount = groupChatData.count - currentMessages.length + (groupChatData.messages === null ? 0 : groupChatData.messages.length) - pageSizeRef.current;
 
@@ -94,7 +103,7 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
         return () => {
             scrollContainer?.removeEventListener("scroll", handleScroll);
         }
-    }, [currentMessages, groupChatData.messages]);
+    }, [currentMessages, groupChatData?.messages]);
 
     useEffect(() => {
         if (!currentMessages || messagesIsLoaded) {
@@ -115,7 +124,7 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
     }, [currentMessages]);
 
     useEffect(() => {
-        if (!groupChatData.groupChatUsers) {
+        if (!groupChatData || !groupChatData.groupChatUsers) {
             return;
         }
 
@@ -125,14 +134,20 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
         }
 
         setGroupChatUsersId(customersId);
-    }, [groupChatData.groupChatUsers]);
+    }, [groupChatData?.groupChatUsers]);
 
-    const updateMessageAsync = async (message: PersonalChatMessage | GroupChatMessageModel) => {
-        await updateGroupChatMessage(message);
+    const updateMessageAsync = async (message: PersonalChatMessageModel | GroupChatMessageModel) => {
+        if ("groupChatUserId" in message) {
+            await updateGroupChatMessage(message);
+        }
     }
 
     const saveScrollState = () => {
-        const chatContainer: any = chatContainerRef.current;
+        const chatContainer: HTMLUListElement | null = chatContainerRef.current;
+        if (!chatContainer) {
+            return;
+        }
+
         const previousScrollHeight = chatContainer.scrollHeight;
         const previousScrollTop = chatContainer.scrollTop;
 
@@ -151,14 +166,14 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
     const handleLoadMoreMessagesAsync = async () => {
         setAreLoadingOldMessages(true);
 
-        const moreMessages: any = await getMoreMessagesAsync(currentMessages.length);
+        const moreMessages = await getMoreMessagesAsync(currentMessages.length);
 
         setCurrentMessages(prevMessages => [...moreMessages, ...prevMessages]);
 
         saveScrollState();
     }
 
-    if (!chatHub || groupChatData.isLoading) {
+    if (!chatHub || !groupChatData || groupChatData.isLoading) {
         return (
             <div className="chats__selected-chat_loading">
                 <Loading />

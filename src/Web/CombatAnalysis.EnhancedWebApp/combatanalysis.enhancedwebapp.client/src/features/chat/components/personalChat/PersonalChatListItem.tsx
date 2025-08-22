@@ -1,6 +1,16 @@
-import { useEffect, useState } from 'react';
-import { useGetUserByIdQuery } from '../../../../store/api/user/Account.api';
-import { PersonalChatListItemProps } from '../../../../types/components/communication/chats/PersonalChatListItemProps';
+import { useEffect, useState, type SetStateAction } from 'react';
+import { useGetUserByIdQuery } from '../../../user/api/Account.api';
+import type { PersonalChatModel } from '../../types/PersonalChatModel';
+import type { SelectedChatModel } from '../../types/SelectedChatModel';
+
+interface PersonalChatListItemProps {
+    chat: PersonalChatModel;
+    setSelectedChat(value: SetStateAction<SelectedChatModel>): void;
+    companionId: string;
+    meId: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    subscribeToUnreadPersonalMessagesUpdated(callback: any): void;
+}
 
 const PersonalChatListItem: React.FC<PersonalChatListItemProps> = ({ chat, setSelectedChat, companionId, meId, subscribeToUnreadPersonalMessagesUpdated }) => {
     const [unreadMessageCount, setUnreadMessageCount] = useState(-1);

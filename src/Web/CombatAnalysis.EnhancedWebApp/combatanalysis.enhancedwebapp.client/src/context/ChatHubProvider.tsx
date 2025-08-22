@@ -1,18 +1,18 @@
-﻿import * as signalR from '@microsoft/signalr';
-import { createContext, useContext, useEffect, useState } from 'react';
+﻿/* eslint-disable @typescript-eslint/no-explicit-any */
+import * as signalR from '@microsoft/signalr';
+import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { AppUser } from '../types/AppUser';
-import { GroupChatUser } from '../types/GroupChatUser';
-import { ChatHubContextType } from '../types/context/ChatHubType';
-
-const ChatHubContext = createContext<ChatHubContextType | null>(null);
+import type { RootState } from '../app/Store';
+import ChatHubContext from '../constants/ChatHubContext';
+import type { GroupChatUserModel } from '../features/chat/types/GroupChatUserModel';
+import type { AppUserModel } from '../features/user/types/AppUserModel';
 
 const messageType = {
     default: 0,
     system: 1
 };
 
-export const ChatHubProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const ChatHubProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const personalChatHubURL = `${process.env.REACT_APP_HUBS_URL}${process.env.REACT_APP_HUBS_PERSONAL_CHAT_ADDRESS}`;
     const personalChatMessagesHubURL = `${process.env.REACT_APP_HUBS_URL}${process.env.REACT_APP_HUBS_PERSONAL_CHAT_MESSAGES_ADDRESS}`;
     const personalChatUnreadMessagesHubURL = `${process.env.REACT_APP_HUBS_URL}${process.env.REACT_APP_HUBS_PERSONAL_CHAT_UNREAD_MESSAGES_ADDRESS}`;
@@ -20,7 +20,7 @@ export const ChatHubProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const groupChatMessagesHubURL = `${process.env.REACT_APP_HUBS_URL}${process.env.REACT_APP_HUBS_GROUP_CHAT_MESSAGES_ADDRESS}`;
     const groupChatUnreadMessagesHubURL = `${process.env.REACT_APP_HUBS_URL}${process.env.REACT_APP_HUBS_GROUP_CHAT_UNREAD_MESSAGES_ADDRESS}`;
 
-    const me = useSelector((state: any) => state.user.value);
+    const myself = useSelector((state: RootState) => state.user.value);
 
     const [personalChatHubConnection, setPersonalChatHubConnection] = useState<signalR.HubConnection | null>(null);
     const [personalChatMessagesHubConnection, setPersonalChatMessagesHubConnection] = useState<signalR.HubConnection | null>(null);
@@ -30,7 +30,7 @@ export const ChatHubProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const [groupChatUnreadMessagesHubConnection, setGroupChatUnreadMessagesHubConnection] = useState<signalR.HubConnection | null>(null);
 
     useEffect(() => {
-        if (!me) {
+        if (!myself) {
             return;
         }
 
@@ -53,7 +53,7 @@ export const ChatHubProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
             stopConnection();
         }
-    }, [me]);
+    }, [myself]);
 
     const createHubConnection = (url: string): signalR.HubConnection => {
         const hubConnection = new signalR.HubConnectionBuilder()
@@ -76,7 +76,7 @@ export const ChatHubProvider: React.FC<{ children: React.ReactNode }> = ({ child
             const connection = createHubConnection(personalChatHubURL);
 
             await connection.start();
-            await connection.invoke("JoinRoom", me.id);
+            await connection.invoke("JoinRoom", myself?.id);
 
             setPersonalChatHubConnection(connection);
         } catch (e) {
@@ -101,7 +101,7 @@ export const ChatHubProvider: React.FC<{ children: React.ReactNode }> = ({ child
         }
     }
 
-    const connectToPersonalChatUnreadMessagesAsync = async (meInChats: AppUser[]) => {
+    const connectToPersonalChatUnreadMessagesAsync = async (meInChats: AppUserModel[]) => {
         try {
             if (personalChatUnreadMessagesHubConnection) {
                 return;
@@ -129,7 +129,7 @@ export const ChatHubProvider: React.FC<{ children: React.ReactNode }> = ({ child
             const connection = createHubConnection(groupChatHubURL);
 
             await connection.start();
-            await connection.invoke("JoinRoom", me.id);
+            await connection.invoke("JoinRoom", myself?.id);
 
             setGroupChatHubConnection(connection);
         } catch (e) {
@@ -154,7 +154,7 @@ export const ChatHubProvider: React.FC<{ children: React.ReactNode }> = ({ child
         }
     }
 
-    const connectToGroupChatUnreadMessagesAsync = async (meInChats: GroupChatUser[]) => {
+    const connectToGroupChatUnreadMessagesAsync = async (meInChats: GroupChatUserModel[]) => {
         try {
             if (groupChatUnreadMessagesHubConnection) {
                 return;
@@ -209,7 +209,7 @@ export const ChatHubProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
     const subscribeGroupChatUser = () => {
         groupChatHubConnection?.on("ReceiveAddedUserToChat", async (groupChatUser) => {
-            const systemMessage = `'${me?.username}' added '${groupChatUser.username}' to chat`;
+            const systemMessage = `'${myself?.username}' added '${groupChatUser.username}' to chat`;
             await groupChatMessagesHubConnection?.invoke("SendMessage", systemMessage, groupChatUser.chatId, messageType["system"], groupChatUser.id, groupChatUser.username);
             await groupChatHubConnection?.invoke("RequestJoinedUser", groupChatUser.chatId, groupChatUser.appUserId);
         });
@@ -253,4 +253,4 @@ export const ChatHubProvider: React.FC<{ children: React.ReactNode }> = ({ child
     );
 }
 
-export const useChatHub = () => useContext(ChatHubContext);
+export default ChatHubProvider;

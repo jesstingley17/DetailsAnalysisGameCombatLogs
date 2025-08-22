@@ -1,20 +1,30 @@
-import { ChatRulesItemProps } from "../../../types/components/communication/create/ChatRulesItemProps";
+import type { ChangeEvent, SetStateAction } from 'react';
+
+interface ChatRulesItemProps {
+    setInvitePeople: (value: SetStateAction<number>) => void;
+    setRemovePeople: (value: SetStateAction<number>) => void;
+    setPinMessage: (value: SetStateAction<number>) => void;
+    setAnnouncements: (value: SetStateAction<number>) => void;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    payload: any;
+    t: (key: string) => string;
+}
 
 const ChatRulesItem: React.FC<ChatRulesItemProps> = ({ setInvitePeople, setRemovePeople, setPinMessage, setAnnouncements, payload, t }) => {
-    const handleInviteChange = (event: any) => {
-        setInvitePeople(event.target.value);
+    const handleInviteChange = (e: ChangeEvent<HTMLInputElement> | undefined) => {
+        setInvitePeople(e?.target.value ? +e?.target.value : 0);
     }
 
-    const handleRemoveChange = (event: any) => {
-        setRemovePeople(event.target.value);
+    const handleRemoveChange = (e: ChangeEvent<HTMLInputElement> | undefined) => {
+        setRemovePeople(e?.target.value ? +e?.target.value : 0);
     }
 
-    const handlePinMessageChange = (event: any) => {
-        setPinMessage(event.target.value);
+    const handlePinMessageChange = (e: ChangeEvent<HTMLInputElement> | undefined) => {
+        setPinMessage(e?.target.value ? +e?.target.value : 0);
     }
 
-    const handleAnnounceChange = (event: any) => {
-        setAnnouncements(event.target.value);
+    const handleAnnounceChange = (e: ChangeEvent<HTMLInputElement> | undefined) => {
+        setAnnouncements(e?.target.value ? +e?.target.value : 0);
     }
 
     return (

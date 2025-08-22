@@ -1,0 +1,166 @@
+﻿import APP_CONFIG from "@/config/appConfig";
+import logger from '@/utils/Logger';
+import { useEffect, useRef, useState, type RefObject } from 'react';
+import { useCommunityUserSearchByUserIdQuery } from '../../community/api/CommunityUser.api';
+import type { CommunityUserModel } from '../../community/types/CommunityUserModel';
+import { useFriendSearchMyFriendsQuery } from '../../user/api/Friend.api';
+import type { FriendModel } from '../../user/types/FriendModel';
+import { useLazyGetCommunityPostCountByListOfCommunityIdQuery } from '../api/CommunityPost.api';
+import {
+    useGetCommunityPostByListOfCommunityIdsQuery,
+    useGetNewCommunityPostByListOfCommunityIdsQuery,
+    useGetNewUserPostByListOfUserIdsQuery,
+    useGetUserPostByListOfUserIdsQuery,
+    useLazyGetMoreCommunityPostByListOfCommunityIdsQuery,
+    useLazyGetMoreUserPostByListOfUserIdsQuery
+} from '../api/Post.api';
+import { useLazyGetUserPostCountByUserIdQuery } from '../api/UserPost.api';
+import type { CommunityPostModel } from '../types/CommunityPostModel';
+import type { UserPostModel } from '../types/UserPostModel';
+
+const getUserPostsInterval = 5000;
+
+interface UseFetchUsersPostsResult {
+    posts: UserPostModel[] | undefined;
+    communityPosts: CommunityPostModel[] | undefined;
+    newPosts: UserPostModel[] | undefined;
+    newCommunityPosts: CommunityPostModel[] | undefined;
+    count: number;
+    communityCount: number;
+    isLoading: boolean;
+    getMoreUserPostsAsync(currentPostsSize: number): Promise<UserPostModel[]>;
+    getMoreCommunityPostsAsync(currentPostsSize: number): Promise<CommunityPostModel[]>;
+    currentDateRef: RefObject<string>;
+}
+
+const useFetchUsersPosts = (meId: string): UseFetchUsersPostsResult => {
+    const pageSizeRef = useRef<number>(APP_CONFIG.communication.communityPostPageSize ?? 5);
+    const currentDateRef = useRef<string>((new Date()).toISOString());
+    const appUserIdsRef = useRef<string>(meId);
+    const communityIdsRef = useRef<string>("0");
+
+    const [count, setCount] = useState(0);
+    const [communityCount, setCommunityCount] = useState(0);
+
+    const { data: myFriends, isLoading: friendsAreLoading } = useFriendSearchMyFriendsQuery(meId);
+    const { data: myCommunitiesUsers, isLoading: communitiesAreLoading } = useCommunityUserSearchByUserIdQuery(meId);
+    const { data: posts } = useGetUserPostByListOfUserIdsQuery({ appUserIds: appUserIdsRef.current, pageSize: pageSizeRef.current });
+    const { data: newPosts } = useGetNewUserPostByListOfUserIdsQuery({ appUserIds: appUserIdsRef.current, checkFrom: currentDateRef.current }, {
+        pollingInterval: getUserPostsInterval,
+    });
+    const { data: communityPosts } = useGetCommunityPostByListOfCommunityIdsQuery({ communityIds: communityIdsRef.current, pageSize: pageSizeRef.current });
+    const { data: newCommunityPosts } = useGetNewCommunityPostByListOfCommunityIdsQuery({ communityIds: communityIdsRef.current, checkFrom: currentDateRef.current }, {
+        pollingInterval: getUserPostsInterval,
+    });
+
+    const [getUserPostCountByUserId] = useLazyGetUserPostCountByUserIdQuery();
+    const [getCommunityPostsCountAsync] = useLazyGetCommunityPostCountByListOfCommunityIdQuery();
+    const [getMoreUsersPosts] = useLazyGetMoreUserPostByListOfUserIdsQuery();
+    const [getMoreCommunityPosts] = useLazyGetMoreCommunityPostByListOfCommunityIdsQuery();
+
+    useEffect(() => {
+        const getUserPostCount = async () => {
+            try {
+                appUserIdsRef.current = meId;
+
+                const count = await getUserPostCountByUserId(meId).unwrap();
+                setCount(count);
+            } catch (e) {
+                logger.error("Failed to receive user post count", e);
+            }
+        }
+
+        getUserPostCount();
+    }, [meId]);
+
+    useEffect(() => {
+        if (!myFriends) {
+            return;
+        }
+
+        const getUserPostCount = async () => {
+            try {
+                const appUserIds: string[] = myFriends
+                    ? myFriends.map((friend: FriendModel) => friend.whoFriendId === meId
+                        ? friend.forWhomId
+                        : friend.whoFriendId)
+                    : [];
+                appUserIds.push(meId);
+
+                appUserIdsRef.current = appUserIds.join(',');
+
+                const count = await getUserPostCountByUserId(appUserIdsRef.current).unwrap();
+                setCount(count);
+            } catch (e) {
+                logger.error("Failed to receive user post count", e);
+            }
+        }
+
+        getUserPostCount();
+    }, [myFriends]);
+
+    useEffect(() => {
+        if (!myCommunitiesUsers) {
+            return;
+        }
+
+        const getCommunityPostByListOfCommunityIds = async () => {
+            try {
+                const communityIds: number[] = myCommunitiesUsers
+                    ? myCommunitiesUsers.map((user: CommunityUserModel) => user.communityId)
+                    : [];
+
+                if (communityIds.length === 0) {
+                    return;
+                }
+
+                communityIdsRef.current = communityIds.join(',');
+
+                const count = await getCommunityPostsCountAsync(communityIdsRef.current).unwrap();
+                setCommunityCount(count);
+            } catch (e) {
+                logger.error("Failed to receive community post count", e);
+            }
+        }
+
+        getCommunityPostByListOfCommunityIds();
+    }, [myCommunitiesUsers]);
+
+    const getMoreUserPostsAsync = async (currentPostsSize: number): Promise<UserPostModel[]> => {
+        try {
+            const arg = {
+                appUserIds: appUserIdsRef.current,
+                offset: currentPostsSize,
+                pageSize: pageSizeRef.current
+            };
+
+            const userPosts = await getMoreUsersPosts(arg).unwrap();
+            return userPosts;
+        } catch (e) {
+            logger.error("Failed to receive more user posts", e);
+
+            return [];
+        }
+    }
+
+    const getMoreCommunityPostsAsync = async (currentPostsSize: number): Promise<CommunityPostModel[]> => {
+        try {
+            const arg = {
+                communityIds: communityIdsRef.current,
+                offset: currentPostsSize,
+                pageSize: pageSizeRef.current
+            };
+
+            const communityPosts = await getMoreCommunityPosts(arg).unwrap();
+            return communityPosts;
+        } catch (e) {
+            logger.error("Failed to receive more user posts", e);
+
+            return [];
+        }
+    }
+
+    return { posts, communityPosts, newPosts, newCommunityPosts, count, communityCount, isLoading: friendsAreLoading || communitiesAreLoading, getMoreUserPostsAsync, getMoreCommunityPostsAsync, currentDateRef };
+}
+
+export default useFetchUsersPosts;

@@ -7,12 +7,12 @@ const apiURL = '/api/v1';
 export const ChatApi = createApi({
     reducerPath: 'chatApi',
     tagTypes: [
-        'GroupChatMessage',
-        'PersonalChatMessage',
-        'UnreadGroupChatMessage',
-        'GroupChat',
-        'GroupChatUser',
         'PersonalChat',
+        'PersonalChatMessage',
+        'GroupChat',
+        'GroupChatMessage',
+        'UnreadGroupChatMessage',
+        'GroupChatUser',
         'GroupChatRules',
         'VoiceChat',
     ],

@@ -3,7 +3,6 @@ using CombatAnalysis.EnhancedWebApp.Server.Consts;
 using CombatAnalysis.EnhancedWebApp.Server.Enums;
 using CombatAnalysis.EnhancedWebApp.Server.Helpers;
 using CombatAnalysis.EnhancedWebApp.Server.Interfaces;
-using CombatAnalysis.EnhancedWebApp.Server.Models.Authorization;
 using CombatAnalysis.EnhancedWebApp.Server.Models.User;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -84,11 +83,6 @@ public class AuthenticationController : ControllerBase
             $"&scope={_authenticationClient.Scope}&state={state}&codeChallengeMethod={_authentication.CodeChallengeMethod}" +
             $"&codeChallenge={codeChallenge}";
 
-        var identityRedirect = new IdentityRedirect
-        {
-            Uri = uri
-        };
-
         HttpContext.Response.Cookies.Append(nameof(AuthenticationCookie.CodeVerifier), codeVerifier, new CookieOptions
         {
             Domain = _authentication.CookieDomain,
@@ -104,7 +98,7 @@ public class AuthenticationController : ControllerBase
             SameSite = SameSiteMode.None,
         });
 
-        return Ok(identityRedirect);
+        return Ok(new { uri });
     }
 
     [HttpGet("verifyEmail")]
@@ -112,12 +106,7 @@ public class AuthenticationController : ControllerBase
     {
         var uri = $"{_server.Identity}{identityPath}?email={email}&redirectUri={_authentication.RedirectUri}";
 
-        var identityRedirect = new IdentityRedirect
-        {
-            Uri = uri
-        };
-
-        return Ok(identityRedirect);
+        return Ok(new { uri });
     }
 
     [HttpGet("stateValidate")]

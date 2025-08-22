@@ -1,15 +1,24 @@
 ﻿import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { memo, useRef, useState } from 'react';
-import { GroupChatMessageInputProps } from '../../../../types/components/communication/chats/GroupChatMessageInputProps';
+import { memo, useRef, useState, type SetStateAction } from 'react';
+import type { PersonalChatModel } from '../../types/PersonalChatModel';
+
+interface GroupChatMessageInputProps {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    hubConnection: any;
+    chat: PersonalChatModel;
+    meId: string;
+    setAreLoadingOldMessages(value: SetStateAction<boolean>): void;
+    t(key: string): string;
+}
 
 const GroupChatMessageInput: React.FC<GroupChatMessageInputProps> = ({ hubConnection, chat, meId, setAreLoadingOldMessages, t }) => {
-    const messageInput = useRef<any>(null);
+    const messageInput = useRef<HTMLInputElement | null>(null);
 
     const [isEmptyMessage, setIsEmptyMessage] = useState<boolean | null>(null);
 
-    const handleSendMessageByKeyAsync = async (e: any) => {
-        if (e.code !== "Enter") {
+    const handleSendMessageByKeyAsync = async (code: string) => {
+        if (code !== "Enter" || !messageInput?.current) {
             return;
         }
         else if (messageInput.current.value === "") {
@@ -26,7 +35,7 @@ const GroupChatMessageInput: React.FC<GroupChatMessageInputProps> = ({ hubConnec
     }
 
     const handleSendMessageAsync = async () => {
-        if (messageInput.current.value === "") {
+        if (!messageInput.current || messageInput.current.value === "") {
             sentEmptyMessage();
 
             return;
@@ -52,7 +61,7 @@ const GroupChatMessageInput: React.FC<GroupChatMessageInputProps> = ({ hubConnec
             <div className={`empty-message${isEmptyMessage ? "_show" : ""}`}>{t("CanNotSendEmpty")}</div>
             <div className="form-group input-message">
                 <input type="text" className="form-control" placeholder={t("TypeYourMessage")}
-                    ref={messageInput} onKeyDown={handleSendMessageByKeyAsync} />
+                    ref={messageInput} onKeyDown={async (e) => await handleSendMessageByKeyAsync(e.code)} />
                 <FontAwesomeIcon
                     icon={faPaperPlane}
                     title={t("SendMessage")}

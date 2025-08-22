@@ -1,19 +1,28 @@
 import { faMagnifyingGlassMinus, faMagnifyingGlassPlus, faUserXmark, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useState } from 'react';
+import { useState, type ChangeEvent, type SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
-import { GroupChatUser } from '../../../../types/GroupChatUser';
-import { GroupChatMembersProps } from '../../../../types/components/communication/chats/GroupChatMembersProps';
+import type { AppUserModel } from '../../../user/types/AppUserModel';
+import type { GroupChatUserModel } from '../../types/GroupChatUserModel';
 import GroupChatMembersItem from './GroupChatMembersItem';
 
-import '../../../../styles/communication/members.scss';
+import './GroupChatMembers.scss';
+
+interface GroupChatMembersProps {
+    me: AppUserModel;
+    communicationUsers: GroupChatUserModel[];
+    removeUsersAsync(peopleToRemove: GroupChatUserModel[]): Promise<void>;
+    setShowMembers(value: SetStateAction<boolean>): void;
+    isPopup: boolean;
+    canRemovePeople(): boolean;
+}
 
 const GroupChatMembers: React.FC<GroupChatMembersProps> = ({ me, communicationUsers, removeUsersAsync, setShowMembers, isPopup, canRemovePeople }) => {
-    const { t } = useTranslation("communication/members");
+    const { t } = useTranslation('communication/members');
 
     const [showRemoveUser, setShowRemoveUser] = useState(false);
     const [showSearchPeople, setShowSearchPeople] = useState(false);
-    const [usersToRemove, setUsersToRemove] = useState<GroupChatUser[]>([]);
+    const [usersToRemove, setUsersToRemove] = useState<GroupChatUserModel[]>([]);
     const [searchUsername, setSearchUsername] = useState("");
 
     const handleShowRemoveUsers = () => {
@@ -25,14 +34,17 @@ const GroupChatMembers: React.FC<GroupChatMembersProps> = ({ me, communicationUs
     const hidePeopleInspectionMode = () => {
         setUsersToRemove([]);
 
-        isPopup && setShowMembers(false);
+        if (isPopup) {
+            setShowMembers(false);
+        }
+
         setShowRemoveUser(false);
     }
 
-    const handleSearchUsername = (event : any) => {
-        const content = event.target.value;
+    const handleSearchUsername = (e: ChangeEvent<HTMLInputElement> | undefined) => {
+        const content = e?.target.value;
 
-        setSearchUsername(content);
+        setSearchUsername(content ?? "");
     }
 
     const clear = () => {
@@ -71,7 +83,7 @@ const GroupChatMembers: React.FC<GroupChatMembersProps> = ({ me, communicationUs
             <div className="divide"></div>
             <ul className="list">
                 {searchUsername === ""
-                    ? communicationUsers?.map((groupChatUser: GroupChatUser) => (
+                    ? communicationUsers?.map((groupChatUser: GroupChatUserModel) => (
                         <li className="user-target-community" key={groupChatUser.id}>
                             <GroupChatMembersItem
                                 myself={me}
@@ -82,7 +94,7 @@ const GroupChatMembers: React.FC<GroupChatMembersProps> = ({ me, communicationUs
                             />
                         </li>
                     ))
-                    : communicationUsers?.filter((groupChatUser: GroupChatUser) => groupChatUser.username.toLowerCase().startsWith(searchUsername.toLowerCase())).map((groupChatUser: GroupChatUser) => (
+                    : communicationUsers?.filter((groupChatUser: GroupChatUserModel) => groupChatUser.username.toLowerCase().startsWith(searchUsername.toLowerCase())).map((groupChatUser: GroupChatUserModel) => (
                         <li className="user-target-community" key={groupChatUser.id}>
                             <GroupChatMembersItem
                                 myself={me}

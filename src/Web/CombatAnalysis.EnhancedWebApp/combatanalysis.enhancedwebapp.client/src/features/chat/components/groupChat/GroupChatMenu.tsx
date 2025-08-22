@@ -1,21 +1,25 @@
-import { useEffect, useState } from 'react';
-import { useRemoveGroupChatAsyncMutation } from '../../../../store/api/chat/GroupChat.api';
-import { useCreateGroupChatMessageAsyncMutation } from '../../../../store/api/chat/GroupChatMessage.api';
-import { useGetGroupChatRulesByIdQuery, useUpdateGroupChatRulesAsyncMutation } from '../../../../store/api/chat/GroupChatRules.api';
+import logger from '@/utils/Logger';
+import { useEffect, useState, type SetStateAction } from 'react';
+import VerificationRestriction from '../../../../shared/components/VerificationRestriction';
+import { useLazyGetUserByIdQuery } from '../../../user/api/Account.api';
+import type { AppUserModel } from '../../../user/types/AppUserModel';
+import { useRemoveGroupChatAsyncMutation } from '../../api/GroupChat.api';
+import { useCreateGroupChatMessageMutation } from '../../api/GroupChatMessage.api';
+import { useGetGroupChatRulesByIdQuery, useUpdateGroupChatRulesAsyncMutation } from '../../api/GroupChatRules.api';
 import {
     useRemoveGroupChatUserAsyncMutation
-} from '../../../../store/api/chat/GroupChatUser.api';
-import { useLazyGetUserByIdQuery } from '../../../../store/api/user/Account.api';
-import { GroupChatUser } from '../../../../types/GroupChatUser';
-import { GroupChatMenuProps } from '../../../../types/components/communication/chats/GroupChatMenuProps';
-import VerificationRestriction from '../../../common/VerificationRestriction';
-import ChatRulesItem from '../../create/ChatRulesItem';
+} from '../../api/GroupChatUser.api';
+import type { GroupChatMessageModel } from '../../types/GroupChatMessageModel';
+import type { GroupChatModel } from '../../types/GroupChatModel';
+import type { GroupChatUserModel } from '../../types/GroupChatUserModel';
+import type { SelectedChatModel } from '../../types/SelectedChatModel';
+import ChatRulesItem from '../create/ChatRulesItem';
 import GroupChatAddUser from './GroupChatAddUser';
 import GroupChatMembers from './GroupChatMembers';
 
 const rulesEnum = {
-    "owner": 0,
-    "anyone": 1
+    owner: 0,
+    anyone: 1
 };
 
 const defaultPayload = {
@@ -24,6 +28,16 @@ const defaultPayload = {
     pinMessage: 1,
     announcements: 1,
 };
+
+interface GroupChatMenuProps {
+    myself: AppUserModel;
+    setSelectedChat: (value: SetStateAction<SelectedChatModel>) => void;
+    groupChatUsers: GroupChatUserModel[];
+    groupChatUsersId: string[];
+    IasGroupChatUser: GroupChatUserModel;
+    chat: GroupChatModel;
+    t: (key: string) => string;
+}
 
 const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ myself, setSelectedChat, groupChatUsersId, groupChatUsers, IasGroupChatUser, chat, t }) => {
     const [showAddPeople, setShowAddPeople] = useState(false);
@@ -38,7 +52,7 @@ const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ myself, setSelectedChat, 
 
     const [removeGroupChatAsyncMut] = useRemoveGroupChatAsyncMutation();
     const [removeGroupChatUserAsyncMut] = useRemoveGroupChatUserAsyncMutation();
-    const [createGroupChatMessageAsync] = useCreateGroupChatMessageAsyncMutation();
+    const [createGroupChatMessageAsync] = useCreateGroupChatMessageMutation();
     const [getUserByIdAsync] = useLazyGetUserByIdQuery();
     const [updateGroupChatRulesMutAsync] = useUpdateGroupChatRulesAsyncMutation();
 
@@ -57,65 +71,73 @@ const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ myself, setSelectedChat, 
         });
     }, [rules])
 
-    const removeGroupChatUserAsync = async (peopleToRemove: GroupChatUser[]) => {
-        for (let i = 0; i < peopleToRemove.length; i++) {
-            const removed: any = await removeGroupChatUserAsyncMut(peopleToRemove[i].id);
+    const removeGroupChatUsersAsync = async (peopleToRemove: GroupChatUserModel[]) => {
+        try {
+            for (let i = 0; i < peopleToRemove.length; i++) {
+                await removeGroupChatUserAsyncMut(peopleToRemove[i].id).unwrap();
 
-            if (!removed.data) {
-                continue;
+                const user = await getUserByIdAsync(peopleToRemove[i].appUserId);
+                if (user.data !== undefined) {
+                    const systemMessage = `'${myself?.username}' removed '${user.data.username}' from chat`;
+                    await createMessageAsync(chat?.id, systemMessage);
+                }
             }
 
-            const user = await getUserByIdAsync(peopleToRemove[i].appUserId);
-            if (user.data !== undefined) {
-                const systemMessage = `'${myself?.username}' removed '${user.data.username}' from chat`;
-                await createMessageAsync(chat?.id, systemMessage);
-            }
+            setPeopleInspectionModeOn(false);
+        } catch (e) {
+            logger.error("Failed to remove group chat users", e);
         }
-
-        setPeopleInspectionModeOn(false);
     }
 
     const createMessageAsync = async (chatId: number, message: string) => {
         const today = new Date();
-        const newMessage = {
+        const newMessage: GroupChatMessageModel = {
+            id: 0,
+            username: myself.username,
             message: message,
-            time: `${today.getHours()}:${today.getMinutes()}`,
+            time: `${today.getUTCHours()}:${today.getUTCMinutes()}`,
             status: 0,
             type: 1,
             chatId: chatId,
-            appUserId: myself.id
+            groupChatUserId: myself.id
         };
 
         await createGroupChatMessageAsync(newMessage);
     }
 
     const leaveFromChatAsync = async (groupChatUserId: string) => {
-        const deletedItem: any = await removeGroupChatUserAsyncMut(groupChatUserId);
-        if (deletedItem.data !== undefined) {
+        try {
+            await removeGroupChatUserAsyncMut(groupChatUserId).unwrap();
             setSelectedChat({ type: null, chat: null });
+        } catch (e) {
+            logger.error("Failed to leave from group chat", e);
         }
     }
 
     const removeChatAsync = async () => {
-        const deletedItem: any = await removeGroupChatAsyncMut(chat?.id);
-        if (deletedItem.data !== undefined) {
+        try {
+            await removeGroupChatAsyncMut(chat?.id);
             setSelectedChat({ type: null, chat: null });
+        } catch (e) {
+            logger.error("Failed to remove group chat", e);
         }
     }
 
     const updateGroupChatRulesAsync = async () => {
-        const groupChatRules = {
-            id: rules.id,
-            invitePeople: invitePeople,
-            removePeople: removePeople,
-            pinMessage: pinMessage,
-            announcements: announcements,
-            chatId: rules.chatId
-        };
+        try {
+            const groupChatRules = {
+                id: rules?.id ?? 0,
+                invitePeople: invitePeople,
+                removePeople: removePeople,
+                pinMessage: pinMessage,
+                announcements: announcements,
+                chatId: rules?.chatId ?? 0
+            };
 
-        const updated: any = await updateGroupChatRulesMutAsync(groupChatRules);
-        if (updated.data !== undefined) {
+            await updateGroupChatRulesMutAsync(groupChatRules).unwrap();
             setRulesInspectionModeOn((item) => !item);
+        } catch (e) {
+            logger.error("Failed to update group chat rules", e);
         }
     }
 
@@ -180,7 +202,7 @@ const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ myself, setSelectedChat, 
                 <GroupChatMembers
                     me={myself}
                     communicationUsers={groupChatUsers}
-                    removeUsersAsync={removeGroupChatUserAsync}
+                    removeUsersAsync={removeGroupChatUsersAsync}
                     setShowMembers={setPeopleInspectionModeOn}
                     isPopup={true}
                     canRemovePeople={canRemovePeople}
@@ -190,7 +212,7 @@ const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ myself, setSelectedChat, 
                 <GroupChatMembers
                     me={myself}
                     communicationUsers={groupChatUsers}
-                    removeUsersAsync={removeGroupChatUserAsync}
+                    removeUsersAsync={removeGroupChatUsersAsync}
                     setShowMembers={setPeopleInspectionModeOn}
                     isPopup={true}
                     canRemovePeople={canRemovePeople}

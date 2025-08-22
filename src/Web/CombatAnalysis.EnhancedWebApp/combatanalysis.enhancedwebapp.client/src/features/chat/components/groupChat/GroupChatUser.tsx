@@ -1,7 +1,6 @@
-import { useGetUserByIdQuery } from '../../../../store/api/user/Account.api';
-import { GroupChatUserProps } from '../../../../types/components/communication/chats/GroupChatUserProps';
+import { useGetUserByIdQuery } from '../../../user/api/Account.api';
 
-const GroupChatUser: React.FC<GroupChatUserProps> = ({ userId }) => {
+const GroupChatUser: React.FC<{ userId: string }> = ({ userId }) => {
     const { data: user, isLoading } = useGetUserByIdQuery(userId);
 
     if (isLoading) {

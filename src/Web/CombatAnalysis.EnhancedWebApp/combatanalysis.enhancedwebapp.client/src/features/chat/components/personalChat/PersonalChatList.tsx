@@ -1,18 +1,27 @@
 ﻿import { faArrowDown, faArrowUp } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useEffect, useState } from 'react';
-import { useChatHub } from '../../../../context/ChatHubProvider';
-import { useGetByUserIdAsyncQuery } from '../../../../store/api/chat/PersonalChat.api';
-import { PersonalChat } from '../../../../types/PersonalChat';
-import { PersonalChatListProps } from '../../../../types/components/communication/chats/PersonalChatListProps';
+import { useEffect, useState, type SetStateAction } from 'react';
+import { useChatHub } from '../../../../shared/hooks/useChatHub';
+import { useGetPersonalChatsByUserIdQuery } from '../../api/PersonalChat.api';
+import type { PersonalChatModel } from '../../types/PersonalChatModel';
+import type { SelectedChatModel } from '../../types/SelectedChatModel';
 import PersonalChatListItem from './PersonalChatListItem';
 
+interface PersonalChatListProps {
+    meId: string;
+    selectedChat: SelectedChatModel;
+    setSelectedChat(value: SetStateAction<SelectedChatModel>): void;
+    chatsHidden: boolean;
+    toggleChatsHidden(): void;
+    t(key: string): string;
+}
+
 const PersonalChatList: React.FC<PersonalChatListProps> = ({ meId, t, selectedChat, setSelectedChat, chatsHidden, toggleChatsHidden }) => {
-    const { data: personalChats, isLoading } = useGetByUserIdAsyncQuery(meId);
+    const { data: personalChats, isLoading } = useGetPersonalChatsByUserIdQuery(meId);
 
     const chatHub = useChatHub();
 
-    const [chats, setChats] = useState<PersonalChat[]>([]);
+    const [chats, setChats] = useState<PersonalChatModel[]>([]);
 
     useEffect(() => {
         if (!chatHub || !personalChats) {
@@ -24,7 +33,7 @@ const PersonalChatList: React.FC<PersonalChatListProps> = ({ meId, t, selectedCh
         const connectToPersonalChatUnreadMessages = async () => {
             await chatHub.connectToPersonalChatUnreadMessagesAsync(personalChats);
 
-            chatHub.subscribeToPersonalChat((chat: PersonalChat) => {
+            chatHub.subscribeToPersonalChat((chat: PersonalChatModel) => {
                 setChats(prevChats => [...prevChats, chat]);
             });
         }

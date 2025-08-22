@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { memo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { useChatHub } from '../../../context/ChatHubProvider';
+import { useChatHub } from '../../../shared/hooks/useChatHub';
 import { useLazyIsExistQuery } from '../../chat/api/PersonalChat.api';
 import { useGetUserByIdQuery } from '../api/Account.api';
 import { useFriendSearchMyFriendsQuery } from '../api/Friend.api';

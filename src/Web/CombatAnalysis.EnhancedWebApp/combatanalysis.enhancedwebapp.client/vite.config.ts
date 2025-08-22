@@ -39,6 +39,57 @@ const target = env.ASPNETCORE_HTTPS_PORT ? `https://localhost:${env.ASPNETCORE_H
 
 const apiVersion = env.API_VERSION ? env.API_VERSION : 'v1';
 
+const logsProxy = {
+    [`^/api/${apiVersion}/Logs`]: { target, secure: false },
+};
+
+const gameLogsProxy = {
+    [`^/api/${apiVersion}/CombatLog`]: { target, secure: false },
+    [`^/api/${apiVersion}/Combat`]: { target, secure: false },
+    [`^/api/${apiVersion}/CombatPlayer`]: { target, secure: false },
+    [`^/api/${apiVersion}/CombatAura`]: { target, secure: false },
+    [`^/api/${apiVersion}/DamageDone`]: { target, secure: false },
+    [`^/api/${apiVersion}/DamageDoneGeneral`]: { target, secure: false },
+    [`^/api/${apiVersion}/DamageTaken`]: { target, secure: false },
+    [`^/api/${apiVersion}/DamageTakenGeneral`]: { target, secure: false },
+    [`^/api/${apiVersion}/HealDone`]: { target, secure: false },
+    [`^/api/${apiVersion}/HealDoneGeneral`]: { target, secure: false },
+    [`^/api/${apiVersion}/ResourceRecovery`]: { target, secure: false },
+    [`^/api/${apiVersion}/ResourceRecoveryGeneral`]: { target, secure: false },
+    [`^/api/${apiVersion}/PlayerDeath`]: { target, secure: false },
+};
+
+const userProxy = {
+    [`^/api/${apiVersion}/Account`]: { target, secure: false },
+    [`^/api/${apiVersion}/Authentication`]: { target, secure: false },
+    [`^/api/${apiVersion}/Customer`]: { target, secure: false },
+    [`^/api/${apiVersion}/Friend`]: { target, secure: false },
+    [`^/api/${apiVersion}/RequestToConnect`]: { target, secure: false },
+    [`^/api/${apiVersion}/Identity`]: { target, secure: false },
+};
+
+const feedProxy = {
+    [`^/api/${apiVersion}/UserPost`]: { target, secure: false },
+    [`^/api/${apiVersion}/UserPostLike`]: { target, secure: false },
+    [`^/api/${apiVersion}/UserPostDislike`]: { target, secure: false },
+    [`^/api/${apiVersion}/UserPostComment`]: { target, secure: false },
+    [`^/api/${apiVersion}/CommunityPost`]: { target, secure: false },
+    [`^/api/${apiVersion}/CommunityPostLike`]: { target, secure: false },
+    [`^/api/${apiVersion}/CommunityPostDislike`]: { target, secure: false },
+    [`^/api/${apiVersion}/CommunityPostComment`]: { target, secure: false },
+};
+
+const chatProxy = {
+    [`^/api/${apiVersion}/PersonalChat`]: { target, secure: false },
+    [`^/api/${apiVersion}/PersonalChatMessage`]: { target, secure: false },
+    [`^/api/${apiVersion}/GroupChat`]: { target, secure: false },
+    [`^/api/${apiVersion}/GroupChatMessage`]: { target, secure: false },
+    [`^/api/${apiVersion}/UnreadGroupChatMessage`]: { target, secure: false },
+    [`^/api/${apiVersion}/GroupChatUser`]: { target, secure: false },
+    [`^/api/${apiVersion}/GroupChatRules`]: { target, secure: false },
+    [`^/api/${apiVersion}/VoiceChat`]: { target, secure: false },
+};
+
 // https://vitejs.dev/config/
 export default defineConfig({
     plugins: [plugin()],
@@ -49,54 +100,11 @@ export default defineConfig({
     },
     server: {
         proxy: {
-            [`^/api/${apiVersion}/Authentication`]: {
-                target,
-                secure: false
-            },
-            [`^/api/${apiVersion}/CombatLog`]: {
-                target,
-                secure: false
-            },
-            [`^/api/${apiVersion}/Combat`]: {
-                target,
-                secure: false
-            },
-            [`^/api/${apiVersion}/CombatPlayer`]: {
-                target,
-                secure: false
-            },
-            [`^/api/${apiVersion}/DamageDone`]: {
-                target,
-                secure: false
-            },
-            [`^/api/${apiVersion}/DamageDoneGeneral`]: {
-                target,
-                secure: false
-            },
-            [`^/api/${apiVersion}/DamageTaken`]: {
-                target,
-                secure: false
-            },
-            [`^/api/${apiVersion}/DamageTakenGeneral`]: {
-                target,
-                secure: false
-            },
-            [`^/api/${apiVersion}/HealDone`]: {
-                target,
-                secure: false
-            },
-            [`^/api/${apiVersion}/HealDoneGeneral`]: {
-                target,
-                secure: false
-            },
-            [`^/api/${apiVersion}/ResourceRecovery`]: {
-                target,
-                secure: false
-            },
-            [`^/api/${apiVersion}/ResourceRecoveryGeneral`]: {
-                target,
-                secure: false
-            },
+            ...logsProxy,
+            ...gameLogsProxy,
+            ...userProxy,
+            ...feedProxy,
+            ...chatProxy,
         },
         port: parseInt(env.DEV_SERVER_PORT || '65471'),
         https: {

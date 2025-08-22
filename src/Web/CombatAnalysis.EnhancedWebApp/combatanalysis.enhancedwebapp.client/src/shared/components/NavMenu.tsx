@@ -7,9 +7,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Container, Navbar, NavbarBrand } from 'reactstrap';
 import { useLazyAuthorizationQuery } from '../../features/user/api/User.api';
 import { useAuth } from '../../shared/contexts/AuthProvider';
-//import LanguageSelector from './LanguageSelector';
+import LanguageSelector from './LanguageSelector';
 //import Notification from './Notification';
 //import Search from './Search';
+import APP_CONFIG from "@/config/appConfig";
+import logger from '@/utils/Logger';
 import type { RootState } from '../../app/Store';
 
 import './NavMenu.scss';
@@ -32,7 +34,7 @@ const NavMenu: React.FC = () => {
             try {
                 await auth?.checkAuthAsync();
             } catch (error) {
-                console.error("Authentication check failed", error);
+                logger.error("Authentication check failed", error);
             }
         }
 
@@ -40,23 +42,24 @@ const NavMenu: React.FC = () => {
     }, []);
 
     const loginAsync = async () => {
-        const identityServerAuthPath = process.env.REACT_APP_IDENTITY_SERVER_AUTH_PATH;
+        const identityServerAuthPath = APP_CONFIG.identity.authPath;
 
         await redirectToIdentityAsync(identityServerAuthPath || "");
     }
 
     const registrationAsync = async () => {
-        const identityServerRegistrationPath = process.env.REACT_APP_IDENTITY_SERVER_REGISTRY_PATH;
+        const identityServerRegistrationPath = APP_CONFIG.identity.registryPath;
 
         await redirectToIdentityAsync(identityServerRegistrationPath || "");
     }
 
     const redirectToIdentityAsync = async (identityPath: string) => {
-        const response = await authorization(identityPath);
+        try {
+            const authUri = await authorization(identityPath).unwrap();
 
-        if (response.data !== undefined) {
-            const uri = response.data.uri;
-            window.location.href = uri;
+            window.location.href = authUri.uri;
+        } catch (e) {
+            logger.error("Failed to redirect to Identity server", e);
         }
     } 
 
@@ -69,7 +72,7 @@ const NavMenu: React.FC = () => {
             <Navbar className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3" light>
                 <Container>
                     <div className="brand-container">
-                        {/*<LanguageSelector />*/}
+                        <LanguageSelector />
                         <div className="brand">
                             <NavbarBrand
                                 tag={Link}

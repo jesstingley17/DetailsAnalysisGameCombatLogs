@@ -1,13 +1,20 @@
-﻿import { useState } from 'react';
-import { useChatHub } from '../../../../context/ChatHubProvider';
-import { AppUser } from '../../../../types/AppUser';
-import { GroupChatAddUserProps } from '../../../../types/components/communication/chats/GroupChatAddUserProps';
-import AddPeople from '../../../AddPeople';
+﻿import { useState, type SetStateAction } from 'react';
+import { useChatHub } from '../../../../shared/hooks/useChatHub';
+import AddPeople from '../../../../shared/components/AddPeople';
+import type { AppUserModel } from '../../../user/types/AppUserModel';
+
+interface GroupChatAddUserProps {
+    me: AppUserModel;
+    chatId: number;
+    groupChatUsersId: string[];
+    setShowAddPeople(value: SetStateAction<boolean>): void;
+    t(key: string): string;
+}
 
 const GroupChatAddUser: React.FC<GroupChatAddUserProps> = ({ me, chatId, groupChatUsersId, setShowAddPeople, t }) => {
     const chatHub = useChatHub();
 
-    const [peopleToJoin, setPeopleToJoin] = useState<AppUser[]>([]);
+    const [peopleToJoin, setPeopleToJoin] = useState<AppUserModel[]>([]);
 
     const createGroupChatUserAsync = async () => {
         if (!chatHub || !chatHub.groupChatHubConnection) {

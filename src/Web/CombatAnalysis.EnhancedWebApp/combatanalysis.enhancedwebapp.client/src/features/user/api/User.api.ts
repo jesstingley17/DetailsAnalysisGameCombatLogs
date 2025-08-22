@@ -13,6 +13,7 @@ export const UserApi = createApi({
         'Customer',
         'Friend',
         'RequestToConnect',
+        'Identity',
     ],
     baseQuery: fetchBaseQuery({
         baseUrl: apiURL
@@ -37,7 +38,7 @@ export const UserApi = createApi({
             providesTags: result =>
                 result ? [{ type: 'Authentication', id: result.id }] : ['Authentication'],
         }),
-        authorization: builder.query<IdentityRedirectModel, string>({
+        authorization: builder.query<{ uri: string }, string>({
             query: identityPath => `/Authentication/authorization?identityPath=${identityPath}`,
         }),
         verifyEmail: builder.query<IdentityRedirectModel, { identityPath: string, email: string }>({

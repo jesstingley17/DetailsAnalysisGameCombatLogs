@@ -9,6 +9,10 @@ builder.Services.AddScoped<IHttpClientHelper, HttpClientHelper>();
 builder.Services.AddScoped<RequireAccessTokenAttribute>();
 
 builder.Services.Configure<Cluster>(builder.Configuration.GetSection("Cluster"));
+builder.Services.Configure<Server>(builder.Configuration.GetSection("Server"));
+builder.Services.Configure<Authentication>(builder.Configuration.GetSection("Authentication"));
+builder.Services.Configure<AuthenticationGrantType>(builder.Configuration.GetSection("Authentication:GrantType"));
+builder.Services.Configure<AuthenticationClient>(builder.Configuration.GetSection("Authentication:Client"));
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

@@ -1,11 +1,12 @@
-﻿import { UserApi } from './User.api';
+﻿import type { IdentityUserPrivacyModel } from '../types/IdentityUserPrivacyModel';
+import { UserApi } from './User.api';
 
 export const IdentityApi = UserApi.injectEndpoints({
     endpoints: builder => ({
         authorizationCodeExchange: builder.query<void, string>({
             query: authorizationCode => `/Identity?authorizationCode=${authorizationCode}`
         }),
-        getUserPrivacy: builder.query<string, string>({
+        getUserPrivacy: builder.query<IdentityUserPrivacyModel, string>({
             query: id => `/Identity/userPrivacy/${id}`
         }),
     })

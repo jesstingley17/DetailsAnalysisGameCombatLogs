@@ -4,7 +4,7 @@ import { CommunityApi } from '../features/community/api/Community.api';
 import communityMenuReducer from '../features/community/store/CommunityMenuSlice';
 import { GameLogsApi } from '../features/gameLogs/api/GameLogs.api';
 import { NotificationApi } from '../features/notification/api/Notification.api';
-import { PostApi } from '../features/post/api/Post.api';
+import { PostApi } from '../features/feed/api/Post.api';
 import { UserApi } from '../features/user/api/User.api';
 import customerReducer from '../features/user/store/CustomerSlice';
 import userPrivacyReducer from '../features/user/store/UserPrivacySlice';

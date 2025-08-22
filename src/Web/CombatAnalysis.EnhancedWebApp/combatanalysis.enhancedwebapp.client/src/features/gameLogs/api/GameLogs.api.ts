@@ -3,7 +3,6 @@ import type { CombatAuraModel } from '../types/CombatAuraModel';
 import type { CombatLogModel } from '../types/CombatLogModel';
 import type { CombatModel } from '../types/CombatModel';
 import type { CombatPlayerModel } from '../types/CombatPlayerModel';
-import type { CombatPlayerPositionModel } from '../types/CombatPlayerPositionModel';
 import type { PlayerDeathModel } from '../types/PlayerDeathModel';
 
 const apiURL = '/api/v1';
@@ -12,10 +11,8 @@ export const GameLogsApi = createApi({
     reducerPath: 'combatParserAPi',
     tagTypes: [
         'CombatLog',
-        'PlayerDeath',
         'Combat',
         'CombatPlayer',
-        'CombatPlayerPosition',
         'CombatAura',
         'DamageDone',
         'DamageDoneGeneral',
@@ -25,6 +22,7 @@ export const GameLogsApi = createApi({
         'HealDoneGeneral',
         'ResourceRecovery',
         'ResourceRecoveryGeneral',
+        'PlayerDeath',
     ],
     baseQuery: fetchBaseQuery({
         baseUrl: apiURL
@@ -72,13 +70,6 @@ export const GameLogsApi = createApi({
                     ? [{ type: 'Combat' as const, id: result.id }]
                     : ['Combat'],
         }),
-        getCombatPlayerPositionsByCombatId: builder.query<CombatPlayerPositionModel[], number>({
-            query: combatId => `/CombatPlayerPosition/getByCombatId/${combatId}`,
-            providesTags: result =>
-                result
-                    ? [...result.map(({ id }) => ({ type: 'CombatPlayerPosition' as const, id })), 'CombatPlayerPosition']
-                    : ['CombatPlayerPosition'],
-        }),
         getCombatAurasByCombatId: builder.query<CombatAuraModel[], number>({
             query: combatId => `/CombatAura/getByCombatId/${combatId}`,
             providesTags: result =>
@@ -96,6 +87,5 @@ export const {
     useLazyGetCombatPlayersByCombatIdQuery,
     useLazyGetCombatPlayerByIdQuery,
     useLazyGetCombatByIdQuery,
-    useLazyGetCombatPlayerPositionsByCombatIdQuery,
     useLazyGetCombatAurasByCombatIdQuery,
 } = GameLogsApi;

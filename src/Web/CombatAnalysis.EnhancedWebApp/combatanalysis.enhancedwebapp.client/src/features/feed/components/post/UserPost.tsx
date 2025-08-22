@@ -1,0 +1,122 @@
+import logger from '@/utils/Logger';
+import { memo, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import type { AppUserModel } from '../../../user/types/AppUserModel';
+import { useLazyGetUserPostByIdQuery, useUpdateUserPostMutation } from '../../api/UserPost.api';
+import { useCreateUserPostCommentMutation } from '../../api/UserPostComment.api';
+import type { UserPostCommentModel } from '../../types/UserPostCommentModel';
+import type { UserPostModel } from '../../types/UserPostModel';
+import UserPostComments from './UserPostComments';
+import UserPostReactions from './UserPostReactions';
+import UserPostTitle from './UserPostTitle';
+
+import './Post.scss';
+
+interface UserPostProps {
+    myself: AppUserModel;
+    post: UserPostModel;
+    dateFormatting: (stringOfDate: string) => string;
+}
+
+const UserPost: React.FC<UserPostProps> = ({ myself, post, dateFormatting }) => {
+    const { t } = useTranslation('communication/post');
+
+    const [updatePost] = useUpdateUserPostMutation();
+
+    const [createPostComment] = useCreateUserPostCommentMutation();
+    const [getPostByIdAsync] = useLazyGetUserPostByIdQuery();
+
+    const [showComments, setShowComments] = useState(false);
+    const [postCommentContent, setPostCommentContent] = useState("");
+    const [showAddComment, setShowAddComment] = useState(false);
+    const [isMyPost, setIsMyPost] = useState(false);
+
+    useEffect(() => {
+        setIsMyPost(post?.appUserId === myself.id);
+    }, [post]);
+
+    const updatePostAsync = async (postId: number, likesCount: number, dislikesCount: number, commentsCount: number): Promise<void> => {
+        try {
+            const userPost = await getPostByIdAsync(postId).unwrap();
+
+            const postForUpdate = {
+                ...userPost,
+                likeCount: userPost.likeCount + likesCount,
+                dislikeCount: userPost.dislikeCount + dislikesCount,
+                commentCount: userPost.commentCount + commentsCount
+            };
+
+            await updatePost(postForUpdate).unwrap();
+        } catch (e) {
+            logger.error("Failed to update post", e);
+        }
+    }
+
+    const createUserPostCommentAsync = async () => {
+        const userPostComment: UserPostCommentModel = {
+            id: 0,
+            content: postCommentContent,
+            createdAt: new Date(),
+            userPostId: post.id,
+            appUserId: myself.id
+        }
+
+        const response = await createPostComment(userPostComment);
+        if (response.data) {
+            setPostCommentContent("");
+
+            await updatePostAsync(post.id, 0, 0, 1);
+        }
+    }
+
+    return (
+        <>
+            <div className="posts__card">
+                <UserPostTitle
+                    myself={myself}
+                    post={post}
+                    dateFormatting={dateFormatting}
+                    isMyPost={isMyPost}
+                />
+                <div className="posts__content">{post?.content}</div>
+                <UserPostReactions
+                    userId={myself.id}
+                    post={post}
+                    updatePostAsync={updatePostAsync}
+                    setShowComments={setShowComments}
+                    showComments={showComments}
+                    t={t}
+                />
+            </div>
+            {showComments &&
+                <>
+                    <UserPostComments
+                        dateFormatting={dateFormatting}
+                        userId={myself.id}
+                        postId={post.id}
+                        updatePostAsync={updatePostAsync}
+                    />
+                    <div className="add-new-comment">
+                        <div className="add-new-comment__title">
+                            {showAddComment
+                                ? <div>{t("AddComment")}</div>
+                                : <div className="open-add-comment" onClick={() => setShowAddComment((item) => !item)}>{t("Add")}</div>
+                            }
+                        </div>
+                        {showAddComment &&
+                            <div className="add-new-comment__content">
+                            <textarea className="form-control" rows={3} cols={60} onChange={e => setPostCommentContent(e.target.value)} value={postCommentContent} />
+                            <div className="actions">
+                                <div className="add-comment" onClick={createUserPostCommentAsync}>{t("Add")}</div>
+                                    <div className="hide" onClick={() => setShowAddComment((item) => !item)}>{t("Hide")}</div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </>
+            }
+        </>
+    );
+}
+
+export default memo(UserPost);

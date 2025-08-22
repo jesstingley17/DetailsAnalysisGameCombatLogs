@@ -1,10 +1,11 @@
-﻿import { createContext, useContext, useState, type ReactNode } from 'react';
+﻿import logger from '@/utils/Logger';
+import { createContext, useContext, useState, type ReactNode } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { useLazyAuthenticationQuery } from '../../features/user/api/User.api';
 import { useLogoutAsyncMutation } from '../../features/user/api/Account.api';
 import { useLazySearchCustomerByUserIdQuery } from '../../features/user/api/Customer.api';
 import { useLazyGetUserPrivacyQuery } from '../../features/user/api/Identity.api';
+import { useLazyAuthenticationQuery } from '../../features/user/api/User.api';
 import { updateCustomer } from '../../features/user/store/CustomerSlice';
 import { updateUserPrivacy } from '../../features/user/store/UserPrivacySlice';
 import { updateUser } from '../../features/user/store/UserSlice';
@@ -34,39 +35,42 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [getUserPrivacyAsyncMut] = useLazyGetUserPrivacyQuery();
 
     const checkAuthAsync = async () => {
-        const response = await getAuth();
-        if (response.error !== undefined || !response.data) {
+        try {
+            const user = await getAuth().unwrap();
+
+            dispatch(updateUser(user));
+
+            await getCustomerDataAsync(user.id);
+            await getUserPrivacyAsync(user.identityUserId);
+
+            setIsAuthenticated(true);
+        } catch (e) {
+            logger.error("Failed to check auth", e);
+
             dispatch(updateUser(null));
             dispatch(updateCustomer(null));
             dispatch(updateUserPrivacy(null));
-
-            return;
         }
-
-        dispatch(updateUser(response.data));
-        await getCustomerDataAsync(response.data?.id);
-
-        await getUserPrivacyAsync(response.data.identityUserId);
     }
 
     const getCustomerDataAsync = async (userId: string) => {
-        const response = await searchCustomer(userId);
-        if (response.error !== undefined) {
-            return;
+        try {
+            const customer = await searchCustomer(userId).unwrap();
+
+            dispatch(updateCustomer(customer));
+        } catch (e) {
+            logger.error("Failed to receive customer data", e);
         }
-
-        dispatch(updateCustomer(response.data));
-
-        setIsAuthenticated(true);
     }
 
     const getUserPrivacyAsync = async (id: string) => {
-        const response = await getUserPrivacyAsyncMut(id);
-        if (response.error !== undefined) {
-            return;
-        }
+        try {
+            const userPrivacy = await getUserPrivacyAsyncMut(id).unwrap();
 
-        dispatch(updateUserPrivacy(response.data));
+            dispatch(updateUserPrivacy(userPrivacy));
+        } catch (e) {
+            logger.error("Failed to receive user privacy data", e);
+        }
     }
 
     const logoutAsync = async () => {

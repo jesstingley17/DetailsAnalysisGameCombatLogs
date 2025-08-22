@@ -1,6 +1,14 @@
-import { useEffect, useState } from 'react';
-import { useGetGroupChatByIdQuery } from '../../../../store/api/chat/GroupChat.api';
-import { GroupChatListItemProps } from '../../../../types/components/communication/chats/GroupChatListItemProps';
+import { useEffect, useState, type SetStateAction } from 'react';
+import { useGetGroupChatByIdQuery } from '../../api/GroupChat.api';
+import type { GroupChatUserModel } from '../../types/GroupChatUserModel';
+import type { SelectedChatModel } from '../../types/SelectedChatModel';
+
+interface GroupChatListItemProps {
+    meInChat: GroupChatUserModel;
+    setSelectedGroupChat(value: SetStateAction<SelectedChatModel>): void;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    subscribeToUnreadGroupMessagesUpdated(callback: any): void;
+}
 
 const GroupChatListItem: React.FC<GroupChatListItemProps> = ({ meInChat, setSelectedGroupChat, subscribeToUnreadGroupMessagesUpdated }) => {
     const [unreadMessageCount, setUnreadMessageCount] = useState(-1);

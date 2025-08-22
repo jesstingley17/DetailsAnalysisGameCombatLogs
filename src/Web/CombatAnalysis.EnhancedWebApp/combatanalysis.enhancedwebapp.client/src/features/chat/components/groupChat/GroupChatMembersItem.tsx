@@ -1,28 +1,41 @@
-import { useState } from "react";
-import { GroupChatUser } from "../../../../types/GroupChatUser";
-import { GroupChatMembersItemProps } from "../../../../types/components/communication/chats/GroupChatMembersItemProps";
-import User from "../../User";
+import { useState, type ChangeEvent, type SetStateAction } from 'react';
+import User from '../../../user/components/User';
+import type { AppUserModel } from '../../../user/types/AppUserModel';
+import type { GroupChatUserModel } from '../../types/GroupChatUserModel';
 
-const GroupChatMembersItem: React.FC<GroupChatMembersItemProps> = ({ myself, groupChatUser, usersToRemove, setUsersToRemove, showRemoveUser }) => {
+interface GroupChatMembersItemProps {
+    myself: AppUserModel;
+    GroupChatUserModel: GroupChatUserModel;
+    usersToRemove: GroupChatUserModel[];
+    setUsersToRemove(value: SetStateAction<GroupChatUserModel[]>): void;
+    showRemoveUser: boolean;
+}
+
+const GroupChatMembersItem: React.FC<GroupChatMembersItemProps> = ({ myself, GroupChatUserModel, usersToRemove, setUsersToRemove, showRemoveUser }) => {
     const [userInformation, setUserInformation] = useState(null);
 
-    const addUserToUsersToRemove = (groupChatUser: GroupChatUser) => {
+    const addUserToUsersToRemove = (GroupChatUserModel: GroupChatUserModel) => {
         const users = usersToRemove;
-        users.push(groupChatUser);
+        users.push(GroupChatUserModel);
 
         setUsersToRemove(users);
     }
 
-    const excludeUserFromUsersToRemove = (groupChatUser: GroupChatUser) => {
-        const people = usersToRemove.filter(user => user.id !== groupChatUser.id);
+    const excludeUserFromUsersToRemove = (GroupChatUserModel: GroupChatUserModel) => {
+        const people = usersToRemove.filter(user => user.id !== GroupChatUserModel.id);
 
         setUsersToRemove(people);
     }
 
-    const handleRemoveUser = (e: any, groupChatUser: GroupChatUser) => {
-        const checked = e.target.checked;
+    const handleRemoveUser = (e: ChangeEvent<HTMLInputElement> | undefined, GroupChatUserModel: GroupChatUserModel) => {
+        const checked = e?.target.checked ?? false;
 
-        checked ? addUserToUsersToRemove(groupChatUser) : excludeUserFromUsersToRemove(groupChatUser);
+        if (checked) {
+            addUserToUsersToRemove(GroupChatUserModel);
+        }
+        else {
+            excludeUserFromUsersToRemove(GroupChatUserModel);
+        }
     }
 
     return (
@@ -30,12 +43,12 @@ const GroupChatMembersItem: React.FC<GroupChatMembersItemProps> = ({ myself, gro
             <div className="user-target-community__information">
                 <User
                     myself={myself}
-                    targetUserId={groupChatUser.appUserId}
-                    targetUsername={groupChatUser.username}
+                    targetUserId={GroupChatUserModel.appUserId}
+                    targetUsername={GroupChatUserModel.username}
                     setUserInformation={setUserInformation}
                 />
-                {(myself.id !== groupChatUser.appUserId && showRemoveUser) &&
-                    <input className="form-check-input" type="checkbox" onChange={(e) => handleRemoveUser(e, groupChatUser)} />
+                {(myself.id !== GroupChatUserModel.appUserId && showRemoveUser) &&
+                    <input className="form-check-input" type="checkbox" onChange={(e) => handleRemoveUser(e, GroupChatUserModel)} />
                 }
             </div>
             {userInformation !== null &&

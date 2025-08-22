@@ -1,10 +1,10 @@
+import Chats from '../features/chat/components/Chats';
+import Feed from '../features/feed/components/Feed';
 import CombatDetails from '../features/gameLogs/components/CombatDetails';
 import DetailsSpecificalCombat from '../features/gameLogs/components/DetailsSpecificalCombat';
 import GameCombatLogs from '../features/gameLogs/components/GameCombatLogs';
 import GeneralAnalysis from '../features/gameLogs/components/GeneralAnalysis';
 import Home from '../shared/components/Home';
-//import Feed from './components/communication/Feed';
-import Chats from '../features/chat/components/Chats';
 //import VoiceChat from './components/communication/chats/voiceChat/VoiceChat';
 //import AllCommunities from './components/communication/community/AllCommunities';
 //import SelectedCommunity from './components/communication/community/SelectedCommunity';
@@ -13,7 +13,7 @@ import Chats from '../features/chat/components/Chats';
 //import Profile from './components/communication/myEnvironment/Profile';
 //import People from './components/communication/people/People';
 //import SelectedUser from './components/communication/people/SelectedUser';
-//import AuthorizationCallback from './components/identity/AuthorizationCallback';
+import AuthorizationCallback from '../features/user/components/identity/AuthorizationCallback';
 ////import PlayerMovements from './components/combatDetails/actions/PlayerMovements';
 //import CombatAuras from './components/combatDetails/actions/CombatAuras';
 
@@ -28,18 +28,18 @@ const AppRoutes: Route[] = [
         index: true,
         element: <Home />
     },
-    //{
-    //    path: '/callback',
-    //    element: <AuthorizationCallback />
-    //},
+    {
+        path: '/callback',
+        element: <AuthorizationCallback />
+    },
     {
         path: '/game-combat-logs',
         element: <GameCombatLogs />
     },
-    //{
-    //    path: '/feed',
-    //    element: <Feed />
-    //},
+    {
+        path: '/feed',
+        element: <Feed />
+    },
     {
         path: '/chats',
         element: <Chats />

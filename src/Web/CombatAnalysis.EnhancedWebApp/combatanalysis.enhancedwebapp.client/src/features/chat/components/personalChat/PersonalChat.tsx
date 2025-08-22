@@ -1,6 +1,6 @@
 ﻿import { memo, useEffect, useRef, useState, type SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useChatHub } from '../../../../context/ChatHubProvider';
+import { useChatHub } from '../../../../shared/hooks/useChatHub';
 import Loading from '../../../../shared/components/Loading';
 import { useGetUserByIdQuery } from '../../../user/api/Account.api';
 import type { AppUserModel } from '../../../user/types/AppUserModel';
@@ -17,7 +17,7 @@ import ChatMessage from '../ChatMessage';
 import MessageInput from '../MessageInput';
 import PersonalChatTitle from './PersonalChatTitle';
 
-import '../../../../styles/communication/chats/personalChat.scss';
+import './PersonalChat.scss';
 
 interface PersonalChatProps {
     myself: AppUserModel;

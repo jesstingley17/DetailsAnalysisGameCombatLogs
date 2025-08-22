@@ -1,9 +1,22 @@
-﻿import { faCloudArrowUp, faGear, faPen, faPhone } from '@fortawesome/free-solid-svg-icons';
+﻿import logger from '@/utils/Logger';
+import { faCloudArrowUp, faGear, faPen, faPhone } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type SetStateAction } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUpdateGroupChatAsyncMutation } from '../../../../store/api/chat/GroupChat.api';
-import { GroupChatTitleProps } from '../../../../types/components/communication/chats/GroupChatTitleProps';
+import type { AppUserModel } from '../../../user/types/AppUserModel';
+import { useUpdateGroupChatAsyncMutation } from '../../api/GroupChat.api';
+import type { GroupChatModel } from '../../types/GroupChatModel';
+
+interface GroupChatTitleProps {
+    myself: AppUserModel;
+    chat: GroupChatModel;
+    settingsIsShow: boolean;
+    setSettingsIsShow: (value: SetStateAction<boolean>) => void;
+    haveMoreMessages: boolean;
+    setHaveMoreMessage: (value: SetStateAction<boolean>) => void;
+    loadMoreMessagesAsync: () => Promise<void>;
+    t: (key: string) => string;
+}
 
 const GroupChatTitle: React.FC<GroupChatTitleProps> = ({ myself, chat, settingsIsShow, setSettingsIsShow, haveMoreMessages, setHaveMoreMessage, loadMoreMessagesAsync, t }) => {
     const navigate = useNavigate();
@@ -11,7 +24,7 @@ const GroupChatTitle: React.FC<GroupChatTitleProps> = ({ myself, chat, settingsI
     const [editNameOn, setEditNameOn] = useState(false);
     const [chatName, setChatName] = useState("");
 
-    const chatNameInput = useRef<any>(null);
+    const chatNameInput = useRef<HTMLInputElement | null>(null);
 
     const [updateGroupChatAsyncMut] = useUpdateGroupChatAsyncMutation();
 
@@ -23,14 +36,20 @@ const GroupChatTitle: React.FC<GroupChatTitleProps> = ({ myself, chat, settingsI
 
 
     const updateGroupChatNameAsync = async () => {
-        const unblockedObject = Object.assign({}, chat);
-        unblockedObject.name = chatNameInput.current.value;
+        try {
+            if (!chatNameInput.current) {
+                return;
+            }
 
-        const response: any = await updateGroupChatAsyncMut(unblockedObject);
-        if (!response.error) {
+            const unblockedObject = Object.assign({}, chat);
+            unblockedObject.name = chatNameInput.current.value;
+
+            await updateGroupChatAsyncMut(unblockedObject).unwrap();
             setChatName(chatNameInput.current.value);
 
             setEditNameOn(false);
+        } catch (e) {
+            logger.error("Failed to update group chat name", e);
         }
     }
 

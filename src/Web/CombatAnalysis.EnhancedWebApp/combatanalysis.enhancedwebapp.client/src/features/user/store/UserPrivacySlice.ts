@@ -1,6 +1,11 @@
 ﻿import { createSlice } from '@reduxjs/toolkit';
+import type { AppUserPrivacyModel } from '../types/AppUserPrivacyModel';
 
-const initialState = {
+type AppUserPrivacySlice = {
+    value: AppUserPrivacyModel | null;
+}
+
+const initialState: AppUserPrivacySlice = {
     value: null,
 }
 

@@ -1,15 +1,22 @@
-import { useState } from 'react';
+import { useState, type SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useCommunityUserSearchByUserIdQuery } from '../../../store/api/community/CommunityUser.api';
-import { useCreateInviteAsyncMutation, useLazyInviteIsExistQuery } from '../../../store/api/community/InviteToCommunity.api';
-import { PeopleInvitesToCommunityProps } from '../../../types/components/communication/people/PeopleInvitesToCommunityProps';
-import Loading from '../../Loading';
+import Loading from '../../../shared/components/Loading';
+import { useCommunityUserSearchByUserIdQuery } from '../../community/api/CommunityUser.api';
+import { useCreateInviteAsyncMutation, useLazyInviteIsExistQuery } from '../../community/api/InviteToCommunity.api';
+import type { InviteToCommunityModel } from '../../community/types/InviteToCommunityModel';
+import type { AppUserModel } from '../types/AppUserModel';
 import TargetCommunity from './TargetCommunity';
 
-import '../../../styles/communication/people/peopleInvitesToCommunity.scss';
+import './PeopleInvitesToCommunity.scss';
+
+interface PeopleInvitesToCommunityProps {
+    me: AppUserModel;
+    targetUser: AppUserModel;
+    setOpenInviteToCommunity(value: SetStateAction<boolean>): void;
+}
 
 const PeopleInvitesToCommunity: React.FC<PeopleInvitesToCommunityProps> = ({ me, targetUser, setOpenInviteToCommunity }) => {
-    const { t } = useTranslation("communication/people/people");
+    const { t } = useTranslation('communication/people/people');
 
     const { data: communityUsers, isLoading } = useCommunityUserSearchByUserIdQuery(me?.id);
 
@@ -18,13 +25,8 @@ const PeopleInvitesToCommunity: React.FC<PeopleInvitesToCommunityProps> = ({ me,
     const [createInviteAsyncMut] = useCreateInviteAsyncMutation();
     const [isInviteExistAsync] = useLazyInviteIsExistQuery();
 
-    const checkIfRequestExistAsync = async (peopleId: string, communityId: number) => {
-        const arg = {
-            peopleId: peopleId,
-            communityId: communityId
-        };
-
-        const isExist = await isInviteExistAsync(arg);
+    const checkIfRequestExistAsync = async (appUserId: string, communityId: number) => {
+        const isExist = await isInviteExistAsync({ appUserId, communityId });
         if (isExist.error !== undefined) {
             return true;
         }
@@ -39,9 +41,10 @@ const PeopleInvitesToCommunity: React.FC<PeopleInvitesToCommunityProps> = ({ me,
                 continue;
             }
 
-            const newInviteToCommunity = {
+            const newInviteToCommunity: InviteToCommunityModel = {
+                id: 0,
                 communityId: communityIdToInvite[i],
-                toCustomerId: targetUser?.id,
+                toAppUserId: targetUser?.id,
                 when: new Date(),
                 appUserId: me?.id
             }
@@ -61,7 +64,7 @@ const PeopleInvitesToCommunity: React.FC<PeopleInvitesToCommunityProps> = ({ me,
             <div className="title">{t("InviteToCommunity")}</div>
             <ul>
                 {
-                    communityUsers?.map((item :any) => (
+                    communityUsers?.map(item => (
                         <li key={item.id}>
                             <TargetCommunity
                                 communityId={item.communityId}

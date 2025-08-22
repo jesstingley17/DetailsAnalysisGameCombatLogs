@@ -1,6 +1,6 @@
 export type GroupChatRulesModel = {
     id: number;
-    InvitePeople: number;
+    invitePeople: number;
     removePeople: number;
     pinMessage: number;
     announcements: number;
