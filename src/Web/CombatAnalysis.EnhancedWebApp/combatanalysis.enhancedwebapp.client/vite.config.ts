@@ -59,6 +59,14 @@ const gameLogsProxy = {
     [`^/api/${apiVersion}/PlayerDeath`]: { target, secure: false },
 };
 
+const communityProxy = {
+    [`^/api/${apiVersion}/Community`]: { target, secure: false },
+    [`^/api/${apiVersion}/CommunityDiscussion`]: { target, secure: false },
+    [`^/api/${apiVersion}/CommunityDiscussionComment`]: { target, secure: false },
+    [`^/api/${apiVersion}/CommunityUser`]: { target, secure: false },
+    [`^/api/${apiVersion}/InviteToCommunity`]: { target, secure: false },
+};
+
 const userProxy = {
     [`^/api/${apiVersion}/Account`]: { target, secure: false },
     [`^/api/${apiVersion}/Authentication`]: { target, secure: false },
@@ -102,6 +110,7 @@ export default defineConfig({
         proxy: {
             ...logsProxy,
             ...gameLogsProxy,
+            ...communityProxy,
             ...userProxy,
             ...feedProxy,
             ...chatProxy,

@@ -1,4 +1,6 @@
 import type { RootState } from '@/app/Store';
+import APP_CONFIG from '@/config/appConfig';
+import logger from '@/utils/Logger';
 import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useGetCommunitiesCountQuery, useLazyGetCommunitiesWithPaginationQuery, useLazyGetMoreCommunitiesWithPaginationQuery } from '../api/Community.api';
@@ -9,7 +11,7 @@ import CommunityItem from './CommunityItem';
 const CommunityList: React.FC<{ filterContent: string }> = ({ filterContent }) => {
     const user = useSelector((state: RootState) => state.user.value);
 
-    const pageSizeRef = useRef<HTMLInputElement | string>("1");
+    const pageSizeRef = useRef<number>(5);
 
     const [communities, setCommunities] = useState<CommunityModel[]>([]);
     const [actualCount, setActualCount] = useState(0);
@@ -22,13 +24,17 @@ const CommunityList: React.FC<{ filterContent: string }> = ({ filterContent }) =
 
     useEffect(() => {
         if (pageSizeRef.current !== null) {
-            pageSizeRef.current = process.env.REACT_APP_COMMUNITY_PAGE_SIZE || "0";
+            pageSizeRef.current = APP_CONFIG.communication.communityPageSize || 5;
         }
 
         const getCommunitiesAsync = async () => {
-            const response = await getCommunities(pageSizeRef.current === null ? 0 : +pageSizeRef.current).unwrap();
+            try {
+                const communities = await getCommunities(pageSizeRef.current).unwrap();
 
-            setCommunities(response);
+                setCommunities(communities);
+            } catch (e) {
+                logger.error("Failed to receive communities", e);
+            }
         }
 
         getCommunitiesAsync();

@@ -1,7 +1,7 @@
 import Chats from '../features/chat/components/Chats';
 //import VoiceChat from '../features/chat/components/voiceChat/VoiceChat';
- import AllCommunities from '../features/community/components/AllCommunities';
-// import SelectedCommunity from '../features/community/components/SelectedCommunity';
+import AllCommunities from '../features/community/components/AllCommunities';
+import SelectedCommunity from '../features/community/components/selectedCommunity/SelectedCommunity';
 import Feed from '../features/feed/components/Feed';
 import People from '../features/user/components/people/People';
 import UserFeed from '../features/user/components/userEnvironment/UserFeed';
@@ -13,7 +13,7 @@ import GameCombatLogs from '../features/gameLogs/components/GameCombatLogs';
 import GeneralAnalysis from '../features/gameLogs/components/GeneralAnalysis';
 import AuthorizationCallback from '../features/user/components/identity/AuthorizationCallback';
 import Home from '../shared/components/Home';
-// import CombatAuras from './components/combatDetails/actions/CombatAuras';
+import CombatAuras from '../features/gameLogs/components/actions/CombatAuras';
 import Friends from '../features/user/components/userEnvironment/Friends';
 // import SelectedUser from './components/communication/people/SelectedUser';
 
@@ -76,18 +76,18 @@ const AppRoutes: Route[] = [
         path: '/environment/profile',
         element: <Profile />
     },
-    //{
-    //    path: '/community',
-    //    element: <SelectedCommunity />
-    //},
+    {
+        path: '/community',
+        element: <SelectedCommunity />
+    },
     {
         path: '/general-analysis',
         element: <GeneralAnalysis />
     },
-    //{
-    //    path: '/general-analysis/auras',
-    //    element: <CombatAuras />
-    //},
+    {
+        path: '/general-analysis/auras',
+        element: <CombatAuras />
+    },
     {
         path: '/details-specifical-combat',
         element: <DetailsSpecificalCombat />

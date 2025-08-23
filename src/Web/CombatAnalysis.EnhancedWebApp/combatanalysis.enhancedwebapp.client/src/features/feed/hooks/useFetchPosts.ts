@@ -1,4 +1,4 @@
-﻿import APP_CONFIG from "@/config/appConfig";
+﻿import APP_CONFIG from '@/config/appConfig';
 import logger from '@/utils/Logger';
 import { useEffect, useRef, useState, type RefObject } from 'react';
 import { useCommunityUserSearchByUserIdQuery } from '../../community/api/CommunityUser.api';
@@ -21,7 +21,7 @@ import type { UserPostModel } from '../types/UserPostModel';
 const getUserPostsInterval = 5000;
 
 interface UseFetchUsersPostsResult {
-    posts: UserPostModel[] | undefined;
+    userPosts: UserPostModel[] | undefined;
     communityPosts: CommunityPostModel[] | undefined;
     newPosts: UserPostModel[] | undefined;
     newCommunityPosts: CommunityPostModel[] | undefined;
@@ -33,18 +33,18 @@ interface UseFetchUsersPostsResult {
     currentDateRef: RefObject<string>;
 }
 
-const useFetchUsersPosts = (meId: string): UseFetchUsersPostsResult => {
+const useFetchPosts = (myselfId: string): UseFetchUsersPostsResult => {
     const pageSizeRef = useRef<number>(APP_CONFIG.communication.communityPostPageSize ?? 5);
     const currentDateRef = useRef<string>((new Date()).toISOString());
-    const appUserIdsRef = useRef<string>(meId);
+    const appUserIdsRef = useRef<string>(myselfId);
     const communityIdsRef = useRef<string>("0");
 
     const [count, setCount] = useState(0);
     const [communityCount, setCommunityCount] = useState(0);
 
-    const { data: myFriends, isLoading: friendsAreLoading } = useFriendSearchMyFriendsQuery(meId);
-    const { data: myCommunitiesUsers, isLoading: communitiesAreLoading } = useCommunityUserSearchByUserIdQuery(meId);
-    const { data: posts } = useGetUserPostByListOfUserIdsQuery({ appUserIds: appUserIdsRef.current, pageSize: pageSizeRef.current });
+    const { data: myFriends, isLoading: friendsAreLoading } = useFriendSearchMyFriendsQuery(myselfId);
+    const { data: myCommunitiesUsers, isLoading: communitiesAreLoading } = useCommunityUserSearchByUserIdQuery(myselfId);
+    const { data: userPosts } = useGetUserPostByListOfUserIdsQuery({ appUserIds: appUserIdsRef.current, pageSize: pageSizeRef.current });
     const { data: newPosts } = useGetNewUserPostByListOfUserIdsQuery({ appUserIds: appUserIdsRef.current, checkFrom: currentDateRef.current }, {
         pollingInterval: getUserPostsInterval,
     });
@@ -61,9 +61,9 @@ const useFetchUsersPosts = (meId: string): UseFetchUsersPostsResult => {
     useEffect(() => {
         const getUserPostCount = async () => {
             try {
-                appUserIdsRef.current = meId;
+                appUserIdsRef.current = myselfId;
 
-                const count = await getUserPostCountByUserId(meId).unwrap();
+                const count = await getUserPostCountByUserId(myselfId).unwrap();
                 setCount(count);
             } catch (e) {
                 logger.error("Failed to receive user post count", e);
@@ -71,7 +71,7 @@ const useFetchUsersPosts = (meId: string): UseFetchUsersPostsResult => {
         }
 
         getUserPostCount();
-    }, [meId]);
+    }, [myselfId]);
 
     useEffect(() => {
         if (!myFriends) {
@@ -81,11 +81,11 @@ const useFetchUsersPosts = (meId: string): UseFetchUsersPostsResult => {
         const getUserPostCount = async () => {
             try {
                 const appUserIds: string[] = myFriends
-                    ? myFriends.map((friend: FriendModel) => friend.whoFriendId === meId
+                    ? myFriends.map((friend: FriendModel) => friend.whoFriendId === myselfId
                         ? friend.forWhomId
                         : friend.whoFriendId)
                     : [];
-                appUserIds.push(meId);
+                appUserIds.push(myselfId);
 
                 appUserIdsRef.current = appUserIds.join(',');
 
@@ -160,7 +160,7 @@ const useFetchUsersPosts = (meId: string): UseFetchUsersPostsResult => {
         }
     }
 
-    return { posts, communityPosts, newPosts, newCommunityPosts, count, communityCount, isLoading: friendsAreLoading || communitiesAreLoading, getMoreUserPostsAsync, getMoreCommunityPostsAsync, currentDateRef };
+    return { userPosts, communityPosts, newPosts, newCommunityPosts, count, communityCount, isLoading: friendsAreLoading || communitiesAreLoading, getMoreUserPostsAsync, getMoreCommunityPostsAsync, currentDateRef };
 }
 
-export default useFetchUsersPosts;
+export default useFetchPosts;

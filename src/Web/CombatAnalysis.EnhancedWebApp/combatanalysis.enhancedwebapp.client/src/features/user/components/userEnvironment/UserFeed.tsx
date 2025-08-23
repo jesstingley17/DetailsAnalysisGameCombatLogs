@@ -7,7 +7,7 @@ import { useSelector } from 'react-redux';
 import CommunityPost from '../../../feed/components/post/CommunityPost';
 import CreateUserPost from '../../../feed/components/post/CreateUserPost';
 import UserPost from '../../../feed/components/post/UserPost';
-import useFetchCommunityPosts from '../../../feed/hooks/useFetchUsersPosts';
+import useFetchPosts from '../../../feed/hooks/useFetchPosts';
 import type { CommunityPostModel } from '../../../feed/types/CommunityPostModel';
 import type { PostModel } from '../../../feed/types/PostModel';
 import type { UserPostModel } from '../../../feed/types/UserPostModel';
@@ -22,20 +22,20 @@ const UserFeed: React.FC = () => {
 
     const [currentPosts, setCurrentPosts] = useState<PostModel[]>([]);
 
-    const { posts, communityPosts, count, communityCount, isLoading, getMoreUserPostsAsync, getMoreCommunityPostsAsync } = useFetchCommunityPosts(myself?.id ?? "");
+    const { userPosts, communityPosts, count, communityCount, isLoading, getMoreUserPostsAsync, getMoreCommunityPostsAsync } = useFetchPosts(myself?.id ?? "");
 
     useEffect(() => {
-        if (!posts) {
+        if (!userPosts) {
             return;
         }
 
-        userPostsSizeRef.current = posts.length;
+        userPostsSizeRef.current = userPosts.length;
 
-        const totalPosts = [...currentPosts, ...posts];
+        const totalPosts = [...currentPosts, ...userPosts];
         totalPosts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
         setCurrentPosts(totalPosts);
-    }, [posts]);
+    }, [userPosts]);
 
     useEffect(() => {
         if (!communityPosts) {

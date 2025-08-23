@@ -1,7 +1,7 @@
 import Loading from '@/shared/components/Loading';
 import { memo, useEffect, useRef, useState } from 'react';
 import type { AppUserModel } from '../../user/types/AppUserModel';
-import useFetchUsersPosts from '../hooks/useFetchUsersPosts';
+import useFetchPosts from '../hooks/useFetchPosts';
 import type { CommunityPostModel } from '../types/CommunityPostModel';
 import type { UserPostModel } from '../types/UserPostModel';
 import CommunityPost from './post/CommunityPost';
@@ -19,23 +19,23 @@ const FeedParticipants: React.FC<FeedParticipantsProps> = ({ myself, t }) => {
     const [currentPosts, setCurrentPosts] = useState<UserPostModel[] | CommunityPostModel[]>([]);
     const [haveNewPosts, setHaveNewPosts] = useState(false);
 
-    const { posts, communityPosts, newPosts, newCommunityPosts, count, communityCount, isLoading, getMoreUserPostsAsync, getMoreCommunityPostsAsync, currentDateRef } = useFetchUsersPosts(myself.id);
+    const { userPosts, communityPosts, newPosts, newCommunityPosts, count, communityCount, isLoading, getMoreUserPostsAsync, getMoreCommunityPostsAsync, currentDateRef } = useFetchPosts(myself.id);
 
     useEffect(() => {
-        if (!posts) {
+        if (!userPosts) {
             return;
         }
 
-        userPostsSizeRef.current = posts.length;
-        if (posts.length === 0) {
+        userPostsSizeRef.current = userPosts.length;
+        if (userPosts.length === 0) {
             return;
         }
 
-        const totalPosts = Array.from(posts);
+        const totalPosts = Array.from(userPosts);
         totalPosts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
         setCurrentPosts(totalPosts);
-    }, [posts]);
+    }, [userPosts]);
 
     useEffect(() => {
         if (!communityPosts) {

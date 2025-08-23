@@ -14,7 +14,7 @@ import './Post.scss';
 interface CommunityPostProps {
     userId: string;
     communityId: number;
-    post: CommunityPostModel;
+    post: CommunityPostModel | undefined;
     dateFormatting: (stringOfDate: string) => string;
 }
 
@@ -53,6 +53,10 @@ const CommunityPost: React.FC<CommunityPostProps> = ({ userId, communityId, post
     }
 
     const createPostCommentAsync = async () => {
+        if (!post) {
+            return;
+        }
+
         try {
             const newPostComment: CommunityPostCommentModel = {
                 id: 0,
@@ -71,6 +75,10 @@ const CommunityPost: React.FC<CommunityPostProps> = ({ userId, communityId, post
         } catch (e) {
             logger.error("Failed to create community post comment", e);
         }
+    }
+
+    if (!post) {
+        return (<></>);
     }
 
     return (

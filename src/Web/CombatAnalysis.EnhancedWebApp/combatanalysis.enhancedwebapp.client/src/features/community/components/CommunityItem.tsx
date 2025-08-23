@@ -1,16 +1,17 @@
 import { faCirclePlus, faCircleQuestion } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useEffect, useState } from 'react';
+import { type JSX, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import User from '../../user/components/User';
 import type { AppUserModel } from '../../user/types/AppUserModel';
 import { useGetCommunityByIdQuery } from '../api/Community.api';
 import { useCommunityUserSearchByUserIdQuery, useCreateCommunityUserMutation } from '../api/CommunityUser.api';
+import type { CommunityUserModel } from '../types/CommunityUserModel';
 
 interface CommunityItemProps {
     id: number;
-    myself: AppUserModel;
+    myself: AppUserModel | null;
 }
 
 const CommunityItem: React.FC<CommunityItemProps> = ({ id, myself }) => {
@@ -19,10 +20,10 @@ const CommunityItem: React.FC<CommunityItemProps> = ({ id, myself }) => {
     const navigate = useNavigate();
 
     const { data: community, isLoading } = useGetCommunityByIdQuery(id);
-    const { data: myCommunities, isLoading: myCommutiesIsLoading } = useCommunityUserSearchByUserIdQuery(myself?.id);
+    const { data: myCommunities, isLoading: myCommutiesIsLoading } = useCommunityUserSearchByUserIdQuery(myself?.id ?? "");
 
     const [canJoin, setCanJoin] = useState(true);
-    const [userInformation, setUserInformation] = useState(null);
+    const [userInformation, setUserInformation] = useState<JSX.Element | null>(null);
 
     const [createCommunityUserAsyncMut] = useCreateCommunityUserMutation();
 
@@ -39,10 +40,10 @@ const CommunityItem: React.FC<CommunityItemProps> = ({ id, myself }) => {
     }
 
     const createCommunityUserAsync = async () => {
-        const newCommunityUser = {
+        const newCommunityUser: CommunityUserModel = {
             id: "",
-            username: myself?.username,
-            appUserId: myself?.id,
+            username: myself?.username ?? "",
+            appUserId: myself?.id ?? "",
             communityId: id
         };
 
