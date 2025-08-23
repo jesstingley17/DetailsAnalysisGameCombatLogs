@@ -1,6 +1,6 @@
 import { faCircleXmark, faUser } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useState, type SetStateAction } from 'react';
+import { useState, type JSX, type SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useRemoveFriendAsyncMutation } from '../api/Friend.api';
 import type { AppUserModel } from '../types/AppUserModel';
@@ -9,16 +9,15 @@ import UserInformation from './UserInformation';
 import './User.scss';
 
 interface UserProps {
-    myself: AppUserModel;
+    myself: AppUserModel | null;
     targetUserId: string;
     targetUsername: string;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    setUserInformation: (value: SetStateAction<any>) => void;
+    setUserInformation: (value: SetStateAction<JSX.Element | null>) => void;
     friendId?: number | 0;
 }
 
 const User: React.FC<UserProps> = ({ myself, targetUserId, targetUsername, setUserInformation, friendId = 0 }) => {
-    const { t } = useTranslation("communication/myEnvironment/friends");
+    const { t } = useTranslation('communication/myEnvironment/friends');
 
     const [removeFriend] = useRemoveFriendAsyncMutation();
 

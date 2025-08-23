@@ -1,11 +1,12 @@
 import Chats from '../features/chat/components/Chats';
 //import VoiceChat from '../features/chat/components/voiceChat/VoiceChat';
-// import AllCommunities from '../features/community/components/AllCommunities';
+ import AllCommunities from '../features/community/components/AllCommunities';
 // import SelectedCommunity from '../features/community/components/SelectedCommunity';
 import Feed from '../features/feed/components/Feed';
-// import MyFeed from '../features/feed/components/MyFeed';
 import People from '../features/user/components/people/People';
-// import Profile from '../features/feed/components/Profile';
+import UserFeed from '../features/user/components/userEnvironment/UserFeed';
+import UserEnvironmentCommunities from '../features/community/components/userEnvironment/UserEnvironmentCommunities';
+import Profile from '../features/user/components/userEnvironment/Profile';
 import CombatDetails from '../features/gameLogs/components/CombatDetails';
 import DetailsSpecificalCombat from '../features/gameLogs/components/DetailsSpecificalCombat';
 import GameCombatLogs from '../features/gameLogs/components/GameCombatLogs';
@@ -13,7 +14,7 @@ import GeneralAnalysis from '../features/gameLogs/components/GeneralAnalysis';
 import AuthorizationCallback from '../features/user/components/identity/AuthorizationCallback';
 import Home from '../shared/components/Home';
 // import CombatAuras from './components/combatDetails/actions/CombatAuras';
-// import Friends from './components/communication/myEnvironment/Friends';
+import Friends from '../features/user/components/userEnvironment/Friends';
 // import SelectedUser from './components/communication/people/SelectedUser';
 
 type Route = {
@@ -47,10 +48,10 @@ const AppRoutes: Route[] = [
     //    path: '/chats/voice/:roomId/:chatName',
     //    element: <VoiceChat />
     //},
-    //{
-    //    path: '/communities',
-    //    element: <AllCommunities />
-    //},
+    {
+        path: '/communities',
+        element: <AllCommunities />
+    },
     {
         path: '/people',
         element: <People />
@@ -59,22 +60,22 @@ const AppRoutes: Route[] = [
     //    path: '/user',
     //    element: <SelectedUser />
     //},
-    //{
-    //    path: '/environment/feed',
-    //    element: <MyFeed />
-    //},
-    //{
-    //    path: '/environment/friends',
-    //    element: <Friends />
-    //},
-    //{
-    //    path: '/environment/communities',
-    //    element: <MyEnvironmentCommunities />
-    //},
-    //{
-    //    path: '/environment/profile',
-    //    element: <Profile />
-    //},
+    {
+        path: '/environment/feed',
+        element: <UserFeed />
+    },
+    {
+        path: '/environment/friends',
+        element: <Friends />
+    },
+    {
+        path: '/environment/communities',
+        element: <UserEnvironmentCommunities />
+    },
+    {
+        path: '/environment/profile',
+        element: <Profile />
+    },
     //{
     //    path: '/community',
     //    element: <SelectedCommunity />

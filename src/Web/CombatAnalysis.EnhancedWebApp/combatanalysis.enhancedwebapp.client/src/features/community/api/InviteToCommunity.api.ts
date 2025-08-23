@@ -25,7 +25,7 @@ export const InviteToCommunityApi = CommunityApi.injectEndpoints({
                     ? [{ type: 'InviteToCommunity', id: result.id }]
                     : [{ type: 'InviteToCommunity' }]
         }),
-        inviteSearchByUserId: builder.query<InviteToCommunityModel[], number>({
+        inviteSearchByUserId: builder.query<InviteToCommunityModel[], string>({
             query: id => `/InviteToCommunity/searchByUserId/${id}`,
             providesTags: (result, error, id) => [{ type: 'InviteToCommunity', id }],
         }),

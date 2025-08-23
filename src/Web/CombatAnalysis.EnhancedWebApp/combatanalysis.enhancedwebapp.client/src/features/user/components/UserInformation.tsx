@@ -20,7 +20,7 @@ const successNotificationTimeout = 2000;
 const failedNotificationTimeout = 2000;
 
 interface UserInformationProps {
-    myself: AppUserModel;
+    myself: AppUserModel | null;
     personId: string;
     closeUserInformation(): void;
 }

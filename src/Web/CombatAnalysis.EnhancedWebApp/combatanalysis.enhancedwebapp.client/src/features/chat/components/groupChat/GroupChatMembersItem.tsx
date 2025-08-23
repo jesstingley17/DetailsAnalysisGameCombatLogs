@@ -5,13 +5,13 @@ import type { GroupChatUserModel } from '../../types/GroupChatUserModel';
 
 interface GroupChatMembersItemProps {
     myself: AppUserModel;
-    GroupChatUserModel: GroupChatUserModel;
+    groupChatUser: GroupChatUserModel;
     usersToRemove: GroupChatUserModel[];
     setUsersToRemove(value: SetStateAction<GroupChatUserModel[]>): void;
     showRemoveUser: boolean;
 }
 
-const GroupChatMembersItem: React.FC<GroupChatMembersItemProps> = ({ myself, GroupChatUserModel, usersToRemove, setUsersToRemove, showRemoveUser }) => {
+const GroupChatMembersItem: React.FC<GroupChatMembersItemProps> = ({ myself, groupChatUser, usersToRemove, setUsersToRemove, showRemoveUser }) => {
     const [userInformation, setUserInformation] = useState(null);
 
     const addUserToUsersToRemove = (GroupChatUserModel: GroupChatUserModel) => {
@@ -43,12 +43,12 @@ const GroupChatMembersItem: React.FC<GroupChatMembersItemProps> = ({ myself, Gro
             <div className="user-target-community__information">
                 <User
                     myself={myself}
-                    targetUserId={GroupChatUserModel.appUserId}
-                    targetUsername={GroupChatUserModel.username}
+                    targetUserId={groupChatUser.appUserId}
+                    targetUsername={groupChatUser.username}
                     setUserInformation={setUserInformation}
                 />
-                {(myself.id !== GroupChatUserModel.appUserId && showRemoveUser) &&
-                    <input className="form-check-input" type="checkbox" onChange={(e) => handleRemoveUser(e, GroupChatUserModel)} />
+                {(myself.id !== groupChatUser.appUserId && showRemoveUser) &&
+                    <input className="form-check-input" type="checkbox" onChange={(e) => handleRemoveUser(e, groupChatUser)} />
                 }
             </div>
             {userInformation !== null &&

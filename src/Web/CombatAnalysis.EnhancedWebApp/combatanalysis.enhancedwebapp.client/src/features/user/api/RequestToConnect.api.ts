@@ -22,11 +22,11 @@ export const RequestToConnectApi = UserApi.injectEndpoints({
             query: ({ userId, targetUserId }) => `/RequestToConnect/isExist?initiatorId=${userId}&companionId=${targetUserId}`,
             providesTags: (result, error, { userId, targetUserId }) => [{ type: 'RequestToConnect', id: `${userId}-${targetUserId}` }]
         }),
-        searchByOwnerId: builder.query<RequestToConnectModel, string>({
+        searchByOwnerId: builder.query<RequestToConnectModel[], string>({
             query: userId => `/RequestToConnect/searchByOwnerId/${userId}`,
             providesTags: (result, error, id) => [{ type: 'RequestToConnect', id }]
         }),
-        searchByToUserId: builder.query<RequestToConnectModel, string>({
+        searchByToUserId: builder.query<RequestToConnectModel[], string>({
             query: userId => `/RequestToConnect/searchByToUserId/${userId}`,
             providesTags: (result, error, id) => [{ type: 'RequestToConnect', id }],
         }),

@@ -1,0 +1,103 @@
+import type { RootState } from '@/app/Store';
+import Loading from '@/shared/components/Loading';
+import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
+import { useCreateFriendAsyncMutation } from '../../api/Friend.api';
+import { useRemoveRequestAsyncMutation, useSearchByOwnerIdQuery, useSearchByToUserIdQuery } from '../../api/RequestToConnect.api';
+import type { FriendModel } from '../../types/FriendModel';
+import type { RequestToConnectModel } from '../../types/RequestToConnectModel';
+import MyRequestItem from './MyRequestItem';
+import RequestItem from './RequestItem';
+
+import './RequestToConnect.scss';
+
+const RequestToConnect = () => {
+    const { t } = useTranslation('communication/myEnvironment/requestsToConnect');
+
+    const myself = useSelector((state: RootState) => state.user.value);
+
+    const { data: allRequests, isLoading: reqIsLoading } = useSearchByToUserIdQuery(myself?.id ?? "");
+    const { data: allMyRequests, isLoading: myReqIsLoading } = useSearchByOwnerIdQuery(myself?.id ?? "");
+    const [createFriendAsync] = useCreateFriendAsyncMutation();
+    const [removeRequestAsync] = useRemoveRequestAsyncMutation();
+
+    const acceptRequestAsync = async (request: RequestToConnectModel) => {
+        const newFriend: FriendModel = {
+            id: 0,
+            whoFriendId: request.toAppUserId,
+            whoFriendUsername: "",
+            forWhomId: request.appUserId,
+            forWhomUsername: "",
+        };
+
+        const creadetFriend = await createFriendAsync(newFriend);
+        if (creadetFriend.error !== undefined) {
+            return;
+        }
+
+        const deletedItem = await removeRequestAsync(request.id);
+        if (deletedItem.error !== undefined) {
+            return;
+        }
+    }
+
+    const rejectRequestAsync = async (requestId: number) => {
+        const deletedItem = await removeRequestAsync(requestId);
+        if (deletedItem.error !== undefined) {
+            return;
+        }
+    }
+
+    const cancelMyRequestAsync = async (requestId: number) => {
+        const deletedItem = await removeRequestAsync(requestId);
+        if (deletedItem.error !== undefined) {
+            return;
+        }
+    }
+
+    if (reqIsLoading || myReqIsLoading) {
+        return (<Loading />);
+    }
+
+    return (
+        <>
+            {(allRequests && allRequests.length > 0) &&
+                <div>
+                    <div>{t("Requests")}</div>
+                    <ul>
+                        {allRequests?.map((item) => (
+                                <li key={item.id}>
+                                    <RequestItem
+                                        myself={myself}
+                                        request={item}
+                                        acceptRequestAsync={acceptRequestAsync}
+                                        rejectRequestAsync={rejectRequestAsync}
+                                    />
+                                </li>
+                            ))
+                        }
+                    </ul>
+                </div>
+            }
+            {(allMyRequests && allMyRequests.length > 0) &&
+                <div>
+                    <div>{t("MyRequests")}</div>
+                    <ul>
+                        {allMyRequests?.map((item) => (
+                                <li key={item.id}>
+                                    <MyRequestItem
+                                        myself={myself}
+                                        request={item}
+                                        cancelMyRequestAsync={cancelMyRequestAsync}
+                                    />
+                                </li>
+                            ))
+                        }
+                    </ul>
+                </div>
+            }
+        </>
+    );
+}
+
+export default RequestToConnect;

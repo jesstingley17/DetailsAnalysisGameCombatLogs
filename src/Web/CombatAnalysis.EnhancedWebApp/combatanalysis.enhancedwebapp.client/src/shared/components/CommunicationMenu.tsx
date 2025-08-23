@@ -12,10 +12,10 @@ import './Communication.scss';
 
 interface CommunicationMenuProps {
     currentMenuItem: number;
-    hasSubMenu: boolean;
+    hasSubMenu?: boolean;
 }
 
-const CommunicationMenu: React.FC<CommunicationMenuProps> = ({ currentMenuItem, hasSubMenu }) => {
+const CommunicationMenu: React.FC<CommunicationMenuProps> = ({ currentMenuItem, hasSubMenu = false }) => {
     const { t } = useTranslation('communication/communication');
 
     const menu = useSelector((state: RootState) => state.communityMenu.value);

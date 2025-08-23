@@ -9,15 +9,15 @@ import GroupChatMembersItem from './GroupChatMembersItem';
 import './GroupChatMembers.scss';
 
 interface GroupChatMembersProps {
-    me: AppUserModel;
+    myself: AppUserModel;
     communicationUsers: GroupChatUserModel[];
+    isPopup: boolean;
     removeUsersAsync(peopleToRemove: GroupChatUserModel[]): Promise<void>;
     setShowMembers(value: SetStateAction<boolean>): void;
-    isPopup: boolean;
     canRemovePeople(): boolean;
 }
 
-const GroupChatMembers: React.FC<GroupChatMembersProps> = ({ me, communicationUsers, removeUsersAsync, setShowMembers, isPopup, canRemovePeople }) => {
+const GroupChatMembers: React.FC<GroupChatMembersProps> = ({ myself, communicationUsers, isPopup, removeUsersAsync, setShowMembers, canRemovePeople }) => {
     const { t } = useTranslation('communication/members');
 
     const [showRemoveUser, setShowRemoveUser] = useState(false);
@@ -86,7 +86,7 @@ const GroupChatMembers: React.FC<GroupChatMembersProps> = ({ me, communicationUs
                     ? communicationUsers?.map((groupChatUser: GroupChatUserModel) => (
                         <li className="user-target-community" key={groupChatUser.id}>
                             <GroupChatMembersItem
-                                myself={me}
+                                myself={myself}
                                 groupChatUser={groupChatUser}
                                 usersToRemove={usersToRemove}
                                 setUsersToRemove={setUsersToRemove}
@@ -97,7 +97,7 @@ const GroupChatMembers: React.FC<GroupChatMembersProps> = ({ me, communicationUs
                     : communicationUsers?.filter((groupChatUser: GroupChatUserModel) => groupChatUser.username.toLowerCase().startsWith(searchUsername.toLowerCase())).map((groupChatUser: GroupChatUserModel) => (
                         <li className="user-target-community" key={groupChatUser.id}>
                             <GroupChatMembersItem
-                                myself={me}
+                                myself={myself}
                                 groupChatUser={groupChatUser}
                                 usersToRemove={usersToRemove}
                                 setUsersToRemove={setUsersToRemove}

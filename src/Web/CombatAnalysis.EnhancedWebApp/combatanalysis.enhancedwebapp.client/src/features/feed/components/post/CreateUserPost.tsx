@@ -8,7 +8,7 @@ import type { UserPostModel } from '../../types/UserPostModel';
 import AddTagsToPost from './AddTagsToPost';
 
 interface CreateUserPostProps {
-    user: AppUserModel;
+    user: AppUserModel | null;
     owner: string;
     t: (key: string) => string;
 }
@@ -21,7 +21,7 @@ const CreateUserPost: React.FC<CreateUserPostProps> = ({ user, owner, t }) => {
     const [createNewUserPostAsync] = useCreateUserPostMutation();
 
     const createUserPostAsync = async () => {
-        if (postContent === "") {
+        if (!user || postContent === "") {
             return;
         }
 
@@ -35,7 +35,7 @@ const CreateUserPost: React.FC<CreateUserPostProps> = ({ user, owner, t }) => {
             likeCount: 0,
             dislikeCount: 0,
             commentCount: 0,
-            appUserId: user?.id
+            appUserId: user.id
         }
 
         const response = await createNewUserPostAsync(newPost);
