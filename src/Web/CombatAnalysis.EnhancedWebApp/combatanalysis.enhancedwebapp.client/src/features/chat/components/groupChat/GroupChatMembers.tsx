@@ -2,6 +2,7 @@ import { faMagnifyingGlassMinus, faMagnifyingGlassPlus, faUserXmark, faXmark } f
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState, type ChangeEvent, type SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { CommunityUserModel } from '../../../community/types/CommunityUserModel';
 import type { AppUserModel } from '../../../user/types/AppUserModel';
 import type { GroupChatUserModel } from '../../types/GroupChatUserModel';
 import GroupChatMembersItem from './GroupChatMembersItem';
@@ -10,22 +11,22 @@ import './GroupChatMembers.scss';
 
 interface GroupChatMembersProps {
     myself: AppUserModel;
-    communicationUsers: GroupChatUserModel[];
+    users: (GroupChatUserModel | CommunityUserModel)[] | undefined;
     isPopup: boolean;
-    removeUsersAsync(peopleToRemove: GroupChatUserModel[]): Promise<void>;
-    setShowMembers(value: SetStateAction<boolean>): void;
-    canRemovePeople(): boolean;
+    removeUsersAsync(peopleToRemove: (GroupChatUserModel | CommunityUserModel)[]): Promise<void>;
+    setShowMembers?: (value: SetStateAction<boolean>) => void;
+    canRemovePeople: () => boolean;
 }
 
-const GroupChatMembers: React.FC<GroupChatMembersProps> = ({ myself, communicationUsers, isPopup, removeUsersAsync, setShowMembers, canRemovePeople }) => {
+const GroupChatMembers: React.FC<GroupChatMembersProps> = ({ myself, users, isPopup, removeUsersAsync, setShowMembers, canRemovePeople }) => {
     const { t } = useTranslation('communication/members');
 
     const [showRemoveUser, setShowRemoveUser] = useState(false);
     const [showSearchPeople, setShowSearchPeople] = useState(false);
-    const [usersToRemove, setUsersToRemove] = useState<GroupChatUserModel[]>([]);
+    const [usersToRemove, setUsersToRemove] = useState<(GroupChatUserModel | CommunityUserModel)[]>([]);
     const [searchUsername, setSearchUsername] = useState("");
 
-    const handleShowRemoveUsers = () => {
+    const showRemoveUsersHandle = () => {
         setUsersToRemove([]);
 
         setShowRemoveUser((item) => !item);
@@ -34,14 +35,14 @@ const GroupChatMembers: React.FC<GroupChatMembersProps> = ({ myself, communicati
     const hidePeopleInspectionMode = () => {
         setUsersToRemove([]);
 
-        if (isPopup) {
+        if (isPopup && setShowMembers) {
             setShowMembers(false);
         }
 
         setShowRemoveUser(false);
     }
 
-    const handleSearchUsername = (e: ChangeEvent<HTMLInputElement> | undefined) => {
+    const searchUsernameHandle = (e: ChangeEvent<HTMLInputElement> | undefined) => {
         const content = e?.target.value;
 
         setSearchUsername(content ?? "");
@@ -49,6 +50,24 @@ const GroupChatMembers: React.FC<GroupChatMembersProps> = ({ myself, communicati
 
     const clear = () => {
         setSearchUsername("");
+    }
+
+    const getUsers = () => {
+        const existUsers = searchUsername === ""
+            ? users
+            : users?.filter(user => user.username.toLowerCase().startsWith(searchUsername.toLowerCase()));
+
+        return existUsers?.map(user => (
+            <li className="user-target-community" key={user.id}>
+                <GroupChatMembersItem
+                    myself={myself}
+                    user={user}
+                    usersToRemove={usersToRemove}
+                    setUsersToRemove={setUsersToRemove}
+                    showRemoveUser={showRemoveUser}
+                />
+            </li>
+        ))
     }
 
     return (
@@ -65,14 +84,14 @@ const GroupChatMembers: React.FC<GroupChatMembersProps> = ({ myself, communicati
                         icon={faUserXmark}
                         className={`remove${showRemoveUser ? "_active" : ""}`}
                         title={t("Remove") || ""}
-                        onClick={handleShowRemoveUsers}
+                        onClick={showRemoveUsersHandle}
                     />
                 }
             </div>
             <div className={`mb-3 add-new-people__search${showSearchPeople ? "_active" : ""}`}>
                 <label htmlFor="inputUsername" className="form-label">{t("SearchPeople")}</label>
                 <div className="add-new-people__search-input">
-                    <input type="text" className="form-control" placeholder={t("TypeUsername") || ""} id="inputUsername" value={searchUsername} onChange={handleSearchUsername} />
+                    <input type="text" className="form-control" placeholder={t("TypeUsername") || ""} id="inputUsername" value={searchUsername} onChange={searchUsernameHandle} />
                     <FontAwesomeIcon
                         icon={faXmark}
                         title={t("Clean") || ""}
@@ -82,29 +101,7 @@ const GroupChatMembers: React.FC<GroupChatMembersProps> = ({ myself, communicati
             </div>
             <div className="divide"></div>
             <ul className="list">
-                {searchUsername === ""
-                    ? communicationUsers?.map((groupChatUser: GroupChatUserModel) => (
-                        <li className="user-target-community" key={groupChatUser.id}>
-                            <GroupChatMembersItem
-                                myself={myself}
-                                groupChatUser={groupChatUser}
-                                usersToRemove={usersToRemove}
-                                setUsersToRemove={setUsersToRemove}
-                                showRemoveUser={showRemoveUser}
-                            />
-                        </li>
-                    ))
-                    : communicationUsers?.filter((groupChatUser: GroupChatUserModel) => groupChatUser.username.toLowerCase().startsWith(searchUsername.toLowerCase())).map((groupChatUser: GroupChatUserModel) => (
-                        <li className="user-target-community" key={groupChatUser.id}>
-                            <GroupChatMembersItem
-                                myself={myself}
-                                groupChatUser={groupChatUser}
-                                usersToRemove={usersToRemove}
-                                setUsersToRemove={setUsersToRemove}
-                                showRemoveUser={showRemoveUser}
-                            />
-                        </li>
-                ))}
+                {getUsers()}
             </ul>
             <div className="item-result">
                 {(canRemovePeople() && showRemoveUser) &&

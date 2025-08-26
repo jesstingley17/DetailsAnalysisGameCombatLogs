@@ -85,7 +85,7 @@ const CreateCommunityPost: React.FC<CreateCommunityPostProps> = ({ user, communi
                 {showCreatePost &&
                     <div className="finish-create-post">
                         <div className={`btn-shadow${postContent === "" ? "_disabled" : ""}`} title={t("Save")}
-                            onClick={() => postContent === "" ? null : async () => await createCommunityPostAsync()}>
+                            onClick={postContent === "" ? () => {} : createCommunityPostAsync}>
                             <FontAwesomeIcon
                                 icon={faCheck}
                             />

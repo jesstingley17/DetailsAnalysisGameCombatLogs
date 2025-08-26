@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
-import type { AppUserModel } from '../types/AppUserModel';
+import type { AppUserModel } from '../../types/AppUserModel';
 
-const SelectedUserProfile: React.FC<{ person: AppUserModel }> = ({ person }) => {
+const SelectedUserProfile: React.FC<{ person: AppUserModel | null }> = ({ person }) => {
     const { t } = useTranslation("communication/people/user");
 
     return (

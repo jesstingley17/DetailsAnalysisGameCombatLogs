@@ -1,3 +1,4 @@
+import useFormatting from '@/shared/hooks/useFormatting';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'react-i18next';
@@ -8,11 +9,12 @@ import type { CommunityDiscussionCommentModel } from '../../../types/CommunityDi
 interface DiscussionCommentTitleProps {
     myselfId: string;
     comment: CommunityDiscussionCommentModel;
-    dateFormatting: (stringOfDate: string) => string;
 }
 
-const DiscussionCommentTitle: React.FC<DiscussionCommentTitleProps> = ({ myselfId, comment, dateFormatting }) => {
+const DiscussionCommentTitle: React.FC<DiscussionCommentTitleProps> = ({ myselfId, comment }) => {
     const { t } = useTranslation("communication/community/discussion");
+
+    const { dateFormatting } = useFormatting();
 
     const { data: user, isLoading } = useGetUserByIdQuery(comment?.appUserId);
 

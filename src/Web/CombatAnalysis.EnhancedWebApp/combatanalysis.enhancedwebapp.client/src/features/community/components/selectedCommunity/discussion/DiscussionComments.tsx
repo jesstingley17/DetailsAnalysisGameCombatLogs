@@ -6,10 +6,9 @@ import DiscussionCommentTitle from './DiscussionCommentTitle';
 interface DiscussionCommentsProps {
     userId: string;
     discussionId: number;
-    dateFormatting: (stringOfDate: string) => string;
 }
 
-const DiscussionComments: React.FC<DiscussionCommentsProps> = ({ userId, discussionId, dateFormatting }) => {
+const DiscussionComments: React.FC<DiscussionCommentsProps> = ({ userId, discussionId }) => {
     const { data: discussionComments, isLoading } = useGetCommunityDiscussionCommentByDiscussionIdQuery(discussionId);
 
     if (isLoading) {
@@ -23,7 +22,6 @@ const DiscussionComments: React.FC<DiscussionCommentsProps> = ({ userId, discuss
                     <DiscussionCommentTitle
                         myselfId={userId}
                         comment={item}
-                        dateFormatting={dateFormatting}
                     />
                     <DiscussionCommentContent
                         userId={userId}

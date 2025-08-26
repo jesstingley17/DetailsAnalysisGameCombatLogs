@@ -201,17 +201,7 @@ const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ myself, setSelectedChat, 
             {peopleInspectionModeOn &&
                 <GroupChatMembers
                     myself={myself}
-                    communicationUsers={groupChatUsers}
-                    removeUsersAsync={removeGroupChatUsersAsync}
-                    setShowMembers={setPeopleInspectionModeOn}
-                    isPopup={true}
-                    canRemovePeople={canRemovePeople}
-                />
-            }
-            {peopleInspectionModeOn &&
-                <GroupChatMembers
-                    myself={myself}
-                    communicationUsers={groupChatUsers}
+                    users={groupChatUsers}
                     removeUsersAsync={removeGroupChatUsersAsync}
                     setShowMembers={setPeopleInspectionModeOn}
                     isPopup={true}

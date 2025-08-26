@@ -154,7 +154,7 @@ const CommunityMembers: React.FC<CommunityMembersProps> = ({ community, myself, 
             <ul className="members__content">
                 {communityUsers?.map((user: CommunityUserModel) => (
                         <li key={user.id}>
-                        <CommunityMemberItem
+                            <CommunityMemberItem
                                 myself={myself}
                                 comunityUser={user}
                             />

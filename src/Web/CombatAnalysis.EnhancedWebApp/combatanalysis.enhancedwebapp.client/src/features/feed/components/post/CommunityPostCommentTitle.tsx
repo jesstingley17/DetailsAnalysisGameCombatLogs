@@ -1,4 +1,5 @@
-﻿import logger from '@/utils/Logger';
+﻿import useFormatting from '@/shared/hooks/useFormatting';
+import logger from '@/utils/Logger';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'react-i18next';
@@ -10,12 +11,13 @@ interface CommunityPostCommentTitleProps {
     userId: string;
     comment: CommunityPostCommentModel;
     postId: number;
-    dateFormatting: (stringOfDate: string) => string;
     updatePostAsync: (postId: number, likesCount: number, dislikesCount: number, commentsCount: number) => Promise<void>;
 }
 
-const CommunityPostCommentTitle: React.FC<CommunityPostCommentTitleProps> = ({ userId, comment, postId, dateFormatting, updatePostAsync }) => {
+const CommunityPostCommentTitle: React.FC<CommunityPostCommentTitleProps> = ({ userId, comment, postId, updatePostAsync }) => {
     const { t } = useTranslation('communication/postCommentTitle');
+
+    const { dateFormatting } = useFormatting();
 
     const { data: targetUser, isLoading } = useGetUserByIdQuery(comment?.appUserId);
 

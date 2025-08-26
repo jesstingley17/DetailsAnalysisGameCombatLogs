@@ -74,6 +74,8 @@ const CreateCommunity: React.FC<{ setShowCreateCommunity: (value: SetStateAction
         }
     }
 
+    console.log(name);
+    console.log(description);
     return (
         <>
             <CommunicationMenu
@@ -106,7 +108,7 @@ const CreateCommunity: React.FC<{ setShowCreateCommunity: (value: SetStateAction
                 </div>
                 <div className="actions">
                     <div className={`btn-shadow create ${(name.length > 0 && description.length > 0) ? '' : 'can-not-finish'}`}
-                        onClick={() => (name.length > 0 && description.length > 0) ? handleCreateNewCommunityAsync : null}>{t("Create")}</div>
+                        onClick={(name.length > 0 && description.length > 0) ? handleCreateNewCommunityAsync : () => { } }>{t("Create")}</div>
                     <div className="btn-shadow" onClick={() => setShowCreateCommunity(false)}>{t("Cancel")}</div>
                 </div>
                 {isCreating &&

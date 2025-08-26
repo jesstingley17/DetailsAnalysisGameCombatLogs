@@ -18,7 +18,7 @@ const CommunityMemberItem: React.FC<{ myself: AppUserModel | null, comunityUser:
             <User
                 myself={myself}
                 targetUserId={member?.id}
-                targetUsername={""}
+                targetUsername={member.username}
                 setUserInformation={setUserInformation}
             />
             {userInformation !== null &&

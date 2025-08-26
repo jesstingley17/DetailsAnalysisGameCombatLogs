@@ -13,5 +13,8 @@
   "LeaveAlert": "You want to leave",
   "InviteSuccess": "Invites sent success",
   "InviteFailed": "Someting wrong. Invites didn't sent",
-  "Close": "Close"
+  "Close": "Close",
+  "InviteOtherPeople": "Who can invite other people?",
+  "TypeOfCommunity": "Type of community",
+  "RemoveAnotherPeople": "Who can remove people?"
 }

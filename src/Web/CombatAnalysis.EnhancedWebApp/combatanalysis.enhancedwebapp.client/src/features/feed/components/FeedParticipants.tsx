@@ -93,16 +93,6 @@ const FeedParticipants: React.FC<FeedParticipantsProps> = ({ myself, t }) => {
         setHaveNewPosts(false);
     }
 
-    const dateFormatting = (stringOfDate: string): string => {
-        const date = new Date(stringOfDate);
-        const month = date.getMonth();
-        const monthes = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-
-        const formatted = `${date.getDate()} ${monthes[month]}, ${date.getHours()}:${date.getMinutes()}`;
-
-        return formatted;
-    }
-
     if (isLoading) {
         return (<Loading />);
     }
@@ -122,12 +112,10 @@ const FeedParticipants: React.FC<FeedParticipantsProps> = ({ myself, t }) => {
                                 userId={myself.id}
                                 post={post}
                                 communityId={post.communityId}
-                                dateFormatting={dateFormatting}
                             />
                             : <UserPost
                                 myself={myself}
                                 post={post}
-                                dateFormatting={dateFormatting}
                             />
                         }
                     </li>

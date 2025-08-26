@@ -1,4 +1,5 @@
-﻿import { faCircleXmark, faComments } from '@fortawesome/free-solid-svg-icons';
+﻿import useFormatting from '@/shared/hooks/useFormatting';
+import { faCircleXmark, faComments } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -7,14 +8,15 @@ import type { CommunityPostModel } from '../../types/CommunityPostModel';
 
 interface CommunityPostTitleProps {
     post: CommunityPostModel;
-    dateFormatting: (stringOfDate: string) => string;
     isMyPost: boolean;
 }
 
-const CommunityPostTitle: React.FC<CommunityPostTitleProps> = ({ post, dateFormatting, isMyPost }) => {
+const CommunityPostTitle: React.FC<CommunityPostTitleProps> = ({ post, isMyPost }) => {
     const { t } = useTranslation('communication/postTitle');
 
     const navigate = useNavigate();
+
+    const { dateFormatting } = useFormatting();
 
     const [removeCommunityPost] = useRemoveCommunityPostMutation();
 

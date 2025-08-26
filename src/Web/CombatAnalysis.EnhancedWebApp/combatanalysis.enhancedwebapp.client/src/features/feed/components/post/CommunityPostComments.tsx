@@ -7,11 +7,10 @@ import './PostComments.scss';
 interface CommunityPostCommentsProps {
     userId: string;
     postId: number;
-    dateFormatting: (stringOfDate: string) => string;
     updatePostAsync: (postId: number, likesCount: number, dislikesCount: number, commentsCount: number) => Promise<void>;
 }
 
-const CommunityPostComments: React.FC<CommunityPostCommentsProps> = ({ userId, postId, dateFormatting, updatePostAsync }) => {
+const CommunityPostComments: React.FC<CommunityPostCommentsProps> = ({ userId, postId, updatePostAsync }) => {
     const { data: postComments, isLoading } = useSearchCommunityPostCommentByPostIdQuery(postId);
 
     if (isLoading) {
@@ -29,7 +28,6 @@ const CommunityPostComments: React.FC<CommunityPostCommentsProps> = ({ userId, p
                     <CommunityPostCommentTitle
                         userId={userId}
                         comment={comment}
-                        dateFormatting={dateFormatting}
                         postId={postId}
                         updatePostAsync={updatePostAsync}
                     />

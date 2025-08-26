@@ -1,3 +1,4 @@
+import useFormatting from '@/shared/hooks/useFormatting';
 import logger from '@/utils/Logger';
 import { memo, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -15,10 +16,9 @@ import './Post.scss';
 interface UserPostProps {
     myself: AppUserModel;
     post: UserPostModel;
-    dateFormatting: (stringOfDate: string) => string;
 }
 
-const UserPost: React.FC<UserPostProps> = ({ myself, post, dateFormatting }) => {
+const UserPost: React.FC<UserPostProps> = ({ myself, post }) => {
     const { t } = useTranslation('communication/post');
 
     const [updatePost] = useUpdateUserPostMutation();
@@ -30,6 +30,8 @@ const UserPost: React.FC<UserPostProps> = ({ myself, post, dateFormatting }) => 
     const [postCommentContent, setPostCommentContent] = useState("");
     const [showAddComment, setShowAddComment] = useState(false);
     const [isMyPost, setIsMyPost] = useState(false);
+
+    const { dateFormatting } = useFormatting();
 
     useEffect(() => {
         setIsMyPost(post?.appUserId === myself.id);

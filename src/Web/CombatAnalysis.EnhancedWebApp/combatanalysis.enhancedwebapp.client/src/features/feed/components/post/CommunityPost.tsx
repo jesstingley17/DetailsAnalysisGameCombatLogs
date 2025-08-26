@@ -15,10 +15,9 @@ interface CommunityPostProps {
     userId: string;
     communityId: number;
     post: CommunityPostModel | undefined;
-    dateFormatting: (stringOfDate: string) => string;
 }
 
-const CommunityPost: React.FC<CommunityPostProps> = ({ userId, communityId, post, dateFormatting }) => {
+const CommunityPost: React.FC<CommunityPostProps> = ({ userId, communityId, post }) => {
     const { t } = useTranslation("communication/post");
 
     const [updatePost] = useUpdateCommunityPostMutation();
@@ -86,7 +85,6 @@ const CommunityPost: React.FC<CommunityPostProps> = ({ userId, communityId, post
             <div className="posts__card">
                 <CommunityPostTitle
                     post={post}
-                    dateFormatting={dateFormatting}
                     isMyPost={isMyPost}
                 />
                 <div className="posts__content">{post?.content}</div>
@@ -103,7 +101,6 @@ const CommunityPost: React.FC<CommunityPostProps> = ({ userId, communityId, post
             {showComments &&
                 <>
                     <CommunityPostComments
-                        dateFormatting={dateFormatting}
                         userId={userId}
                         postId={post.id}
                         updatePostAsync={updatePostAsync}

@@ -96,17 +96,7 @@ const Discussion: React.FC<DiscussionProps> = ({ user, discussionId, setShowDisc
         setContent(event.target.value);
     }
 
-    const dateFormatting = (stringOfDate: string): string => {
-        const date = new Date(stringOfDate);
-        const month = date.getMonth();
-        const monthes = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-
-        const formatted = `${date.getDate()} ${monthes[month]}, ${date.getHours()}:${date.getMinutes()}`;
-
-        return formatted;
-    }
-
-    if (!discussion) {
+    if (!discussion || !user) {
         return (<></>);
     }
 
@@ -122,7 +112,7 @@ const Discussion: React.FC<DiscussionProps> = ({ user, discussionId, setShowDisc
                         />
                     </div>
                     <div className="title">{discussion.title}</div>
-                    {discussion?.appUserId === user?.id &&
+                    {discussion?.appUserId === user.id &&
                         <div className="actions">
                             <div className={`btn-shadow ${showComments ? "active" : ""}`} onClick={() => setEditModeOne(true)}>
                                 <FontAwesomeIcon
@@ -131,7 +121,7 @@ const Discussion: React.FC<DiscussionProps> = ({ user, discussionId, setShowDisc
                                 />
                                 <div>{t("Edit")}</div>
                             </div>
-                            <div className={`btn-shadow ${showComments ? "active" : ""}`} onClick={async () => await removeDiscussionAsync()}>
+                            <div className={`btn-shadow ${showComments ? "active" : ""}`} onClick={removeDiscussionAsync}>
                                 <FontAwesomeIcon
                                     icon={faTrash}
                                     title={t("Remove")}
@@ -156,8 +146,7 @@ const Discussion: React.FC<DiscussionProps> = ({ user, discussionId, setShowDisc
                 {showComments &&
                     <>
                         <DiscussionComments
-                            dateFormatting={dateFormatting}
-                            userId={user?.id}
+                            userId={user.id}
                             discussionId={discussionId}
                         />
                         <div className="add-new-discussion-comment">
@@ -171,7 +160,7 @@ const Discussion: React.FC<DiscussionProps> = ({ user, discussionId, setShowDisc
                             <div className="add-new-discussion-comment__content">
                                 <textarea className="form-control" rows={3} cols={60} onChange={e => setDiscussionCommentContent(e.target.value)} value={discussionCommentContent} />
                                 <div className="actions">
-                                    <div className="btn-shadow create" onClick={async () => await createDiscussionCommentAsync()}>{t("Add")}</div>
+                                    <div className="btn-shadow create" onClick={createDiscussionCommentAsync}>{t("Add")}</div>
                                     <div className="btn-shadow hide" onClick={() => setAddShowComment((item) => !item)}>{t("Hide")}</div>
                                 </div>
                             </div>
@@ -208,7 +197,7 @@ const Discussion: React.FC<DiscussionProps> = ({ user, discussionId, setShowDisc
     }
 
     if (isLoading) {
-        return <div>Loading...</div>;
+        return (<div>Loading...</div>);
     }
 
     return (

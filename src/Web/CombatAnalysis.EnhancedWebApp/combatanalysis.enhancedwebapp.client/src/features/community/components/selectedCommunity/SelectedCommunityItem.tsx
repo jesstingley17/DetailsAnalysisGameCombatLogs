@@ -59,16 +59,6 @@ const SelectedCommunityItem: React.FC<SelectedCommunityItemProps> = ({ myselfId,
         return uniqueNewElements;
     }
 
-    const dateFormatting = (stringOfDate: string): string => {
-        const date = new Date(stringOfDate);
-        const month = date.getMonth();
-        const monthes = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-
-        const formatted = `${date.getDate()} ${monthes[month]}, ${date.getHours()}:${date.getMinutes()}`;
-
-        return formatted;
-    }
-
     if (isLoading || !communityPosts) {
         return (<Loading />);
     }
@@ -87,7 +77,6 @@ const SelectedCommunityItem: React.FC<SelectedCommunityItemProps> = ({ myselfId,
                             userId={myselfId}
                             communityId={communityId}
                             post={post}
-                            dateFormatting={dateFormatting}
                         />
                     </li>
                     ))

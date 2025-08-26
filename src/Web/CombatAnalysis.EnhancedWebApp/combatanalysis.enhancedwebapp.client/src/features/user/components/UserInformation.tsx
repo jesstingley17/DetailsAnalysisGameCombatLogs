@@ -12,7 +12,7 @@ import type { AppUserModel } from '../types/AppUserModel';
 import type { FriendModel } from '../types/FriendModel';
 import type { RequestToConnectModel } from '../types/RequestToConnectModel';
 import PeopleInvitesToCommunity from './PeopleInvitesToCommunity';
-import SelectedUserProfile from './SelectedUserProfile';
+import SelectedUserProfile from './selectedUser/SelectedUserProfile';
 
 import './UserInformation.scss';
 
@@ -42,15 +42,14 @@ const UserInformation: React.FC<UserInformationProps> = ({ myself, personId, clo
     const [showFailedNotification, setShowFailedNotification] = useState(false);
     const [openInviteToCommunity, setOpenInviteToCommunity] = useState(false);
 
-    const { data: myFriends, isLoading } = useFriendSearchMyFriendsQuery(myself?.id);
+    const { data: myFriends, isLoading } = useFriendSearchMyFriendsQuery(myself?.id ?? "");
 
     const checkExistOfChatsAsync = async (targetUser: AppUserModel) => {
-        const queryParams = {
-            userId: myself?.id,
-            targetUserId: targetUser?.id
-        };
+        if (!myself) {
+            return;
+        }
 
-        const isExist = await isExistAsync(queryParams);
+        const isExist = await isExistAsync({ userId: myself?.id, targetUserId: targetUser?.id });
         return isExist.data !== undefined ? isExist.data : true;
     }
 
@@ -73,12 +72,11 @@ const UserInformation: React.FC<UserInformationProps> = ({ myself, personId, clo
     }
 
     const checkIfRequestExistAsync = async (targetUserId: string) => {
-        const arg = {
-            userId: myself?.id,
-            targetUserId: targetUserId
-        };
+        if (!myself) {
+            return;
+        }
 
-        const isExist = await isRequestExistAsync(arg);
+        const isExist = await isRequestExistAsync({ userId: myself.id, targetUserId: targetUserId });
         if (isExist.error !== undefined) {
             return true;
         }
@@ -88,7 +86,7 @@ const UserInformation: React.FC<UserInformationProps> = ({ myself, personId, clo
 
     const createRequestToConnectAsync = async (people: AppUserModel) => {
         const isExist = await checkIfRequestExistAsync(people.id);
-        if (isExist) {
+        if (isExist || !myself) {
             setShowFailedNotification(true);
 
             setTimeout(() => {
@@ -102,7 +100,7 @@ const UserInformation: React.FC<UserInformationProps> = ({ myself, personId, clo
             id: 0,
             toAppUserId: people.id,
             when: new Date(),
-            appUserId: myself?.id,
+            appUserId: myself.id,
         };
 
         const createdRequest = await createRequestAsync(newRequest).unwrap();
@@ -189,7 +187,7 @@ const UserInformation: React.FC<UserInformationProps> = ({ myself, personId, clo
             {openInviteToCommunity &&
                 <div className="invite">
                     <PeopleInvitesToCommunity
-                        me={myself}
+                        myself={myself}
                         targetUser={person}
                         setOpenInviteToCommunity={setOpenInviteToCommunity}
                     />

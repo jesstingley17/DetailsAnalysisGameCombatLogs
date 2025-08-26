@@ -1,14 +1,18 @@
 import AddPeople from '@/shared/components/AddPeople';
+import Loading from '@/shared/components/Loading';
+import logger from '@/utils/Logger';
 import { faCircleCheck, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState, type SetStateAction } from "react";
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import GroupChatMembers from '../../../chat/components/groupChat/GroupChatMembers';
 import type { AppUserModel } from '../../../user/types/AppUserModel';
 import { useRemoveCommunityAsyncMutation, useUpdateCommunityAsyncMutation } from '../../api/Community.api';
-import { useLazyCommunityUserSearchByUserIdQuery, useRemoveCommunityUserMutation } from '../../api/CommunityUser.api';
+import { useCommunityUserSearchByCommunityIdQuery, useLazyCommunityUserSearchByUserIdQuery, useRemoveCommunityUserMutation } from '../../api/CommunityUser.api';
 import { useCreateInviteAsyncMutation, useLazyInviteIsExistQuery } from '../../api/InviteToCommunity.api';
 import type { CommunityModel } from '../../types/CommunityModel';
+import type { CommunityUserModel } from '../../types/CommunityUserModel';
 import type { InviteToCommunityModel } from '../../types/InviteToCommunityModel';
 import CommonItem from '../create/CommonItem';
 import CommunityRulesItem from '../create/CommunityRulesItem';
@@ -20,14 +24,14 @@ const successNotificationTimeout = 2000;
 const failedNotificationTimeout = 2000;
 
 interface CommunityMenuProps {
-    setShowMenu(value: SetStateAction<boolean>): void;
+    setShowMenu: (value: SetStateAction<boolean>) => void;
     user: AppUserModel;
     community: CommunityModel;
-    setCommunity(value: SetStateAction<CommunityModel | null>): void;
+    setCommunity: (value: SetStateAction<CommunityModel | null>) => void;
 }
 
 const CommunityMenu: React.FC<CommunityMenuProps> = ({ setShowMenu, user, community, setCommunity }) => {
-    const { t } = useTranslation("communication/community/communityMenu");
+    const { t } = useTranslation('communication/community/communityMenu');
 
     const navigate = useNavigate();
 
@@ -45,23 +49,21 @@ const CommunityMenu: React.FC<CommunityMenuProps> = ({ setShowMenu, user, commun
     const [createInviteAsyncMut] = useCreateInviteAsyncMutation();
     const [isInviteExistAsync] = useLazyInviteIsExistQuery();
     const [updateCommunityAsyncMut] = useUpdateCommunityAsyncMutation();
+    const { data: communityUsers, isLoading } = useCommunityUserSearchByCommunityIdQuery(community?.id);
 
     const leaveFromCommunityAsync = async () => {
-        const myCommunityUserId = await searchByUserIdAsync(user?.id);
-        if (myCommunityUserId.error !== undefined) {
-            return;
-        }
-
         try {
-            const meInCommunity = myCommunityUserId.data?.filter(x => x.communityId === community?.id)[0];
+            const myCommunities = await searchByUserIdAsync(user?.id).unwrap();
+
+            const meInCommunity = myCommunities.filter(x => x.communityId === community?.id)[0];
             if (!meInCommunity) {
-                throw new Error('Something wrong when tried leave from chat. Please, try one more time later');
+                throw new Error();
             }
 
             await removeCommunityUserAsync(meInCommunity.id).unwrap();
             navigate('/communities');
         } catch (e) {
-            console.error(e);
+            logger.error("Failed to leave from community", e);
         }
     }
 
@@ -70,7 +72,7 @@ const CommunityMenu: React.FC<CommunityMenuProps> = ({ setShowMenu, user, commun
             await removeCommunityAsync(community.id).unwrap();
             navigate('/communities');
         } catch (e) {
-            console.error(e);
+            logger.error("Failed to leave from community", e);
         }
     }
 
@@ -83,7 +85,7 @@ const CommunityMenu: React.FC<CommunityMenuProps> = ({ setShowMenu, user, commun
             await updateCommunityAsyncMut(communityForUpdate).unwrap();
             setCommunity(communityForUpdate);
         } catch (e) {
-            console.error(e);
+            logger.error("Failed to update commuity", e);
         }
     }
 
@@ -92,17 +94,12 @@ const CommunityMenu: React.FC<CommunityMenuProps> = ({ setShowMenu, user, commun
     }
 
     const checkIfRequestExistAsync = async (appUserId: string, communityId: number) => {
-        const arg = {
-            appUserId: appUserId,
-            communityId: communityId
-        };
-
-        const isExist = await isInviteExistAsync(arg);
-        if (isExist.error !== undefined) {
-            return true;
+        try {
+            const isExist = await isInviteExistAsync({ appUserId: appUserId, communityId: communityId }).unwrap();
+            return isExist;
+        } catch (e) {
+            logger.error("Failed to check if request to join to community exist", e);
         }
-
-        return isExist.data;
     }
 
     const createInviteAsync = async () => {
@@ -139,6 +136,25 @@ const CommunityMenu: React.FC<CommunityMenuProps> = ({ setShowMenu, user, commun
         }, successNotificationTimeout);
     }
 
+    const removeUsersAsync = async (peopleToRemove: CommunityUserModel[]) => {
+        try {
+            for (let i = 0; i < peopleToRemove.length; i++) {
+                await removeCommunityUserAsync(peopleToRemove[i].id).unwrap();
+            }
+        } catch (e) {
+            logger.error("Failed to remove user from commuity", e);
+        }
+    }
+
+    const canRemovePeople = () => {
+        return false;
+    }
+
+    if (isLoading) {
+        return (<Loading />);
+    }
+
+
     return (
         <div className="communication-content community-menu box-shadow">
             {showLeaveFromCommunity &&
@@ -153,12 +169,12 @@ const CommunityMenu: React.FC<CommunityMenuProps> = ({ setShowMenu, user, commun
                                 {t("LeaveOwnerConfirm")}
                             </div>
                             <div className="actions">
-                                <button className="btn btn-outline-danger" onClick={async () => await ownerLeaveFromCommunityAsync()}>{t("Leave")}</button>
+                                <button className="btn btn-outline-danger" onClick={ownerLeaveFromCommunityAsync}>{t("Leave")}</button>
                                 <button className="btn btn-outline-success" onClick={() => setShowLeaveFromCommunity((item) => !item)}>{t("Cancel")}</button>
                             </div>
                         </>
                         : <div className="actions">
-                            <button className="btn btn-outline-danger" onClick={async () => await leaveFromCommunityAsync()}>{t("Leave")}</button>
+                            <button className="btn btn-outline-danger" onClick={leaveFromCommunityAsync}>{t("Leave")}</button>
                             <button className="btn btn-outline-success" onClick={() => setShowLeaveFromCommunity((item) => !item)}>{t("Cancel")}</button>
                         </div>
                     }
@@ -233,9 +249,20 @@ const CommunityMenu: React.FC<CommunityMenuProps> = ({ setShowMenu, user, commun
                                 }
                             />
                             <div className="actions">
-                                <div className="btn-shadow" onClick={async () => await updateCommunityAsync()}>{t("Update")}</div>
+                                <div className="btn-shadow" onClick={updateCommunityAsync}>{t("Update")}</div>
                             </div>
                         </>
+                    }
+                    {itemIndex === 1 &&
+                        <div className="members">
+                            <GroupChatMembers
+                                myself={user}
+                                users={communityUsers}
+                                isPopup={false}
+                                removeUsersAsync={removeUsersAsync}
+                                canRemovePeople={canRemovePeople}
+                            />
+                        </div>
                     }
                     {itemIndex === 2 &&
                         <>
@@ -261,14 +288,14 @@ const CommunityMenu: React.FC<CommunityMenuProps> = ({ setShowMenu, user, commun
                                 </div>
                             }
                             <div className="actions">
-                                <div className="btn-shadow" onClick={async () => await createInviteAsync()}>{t("Apply")}</div>
+                                <div className="btn-shadow" onClick={createInviteAsync}>{t("Apply")}</div>
                             </div>
                         </>
                     }
                     {itemIndex === 4 &&
                         <>
                             <CommunityRulesItem
-                                t={t}    
+                                t={t}
                             />
                             <div className="actions">
                                 <div className="btn-shadow">{t("Update")}</div>
