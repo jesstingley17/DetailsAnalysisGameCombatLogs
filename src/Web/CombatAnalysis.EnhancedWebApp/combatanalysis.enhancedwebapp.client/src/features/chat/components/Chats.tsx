@@ -141,7 +141,7 @@ const Chats: React.FC = () => {
                 <div className="chats">
                     <div className="chats__my-chats">
                         <GroupChatList
-                            meId={myself?.id}
+                            myselfId={myself.id}
                             t={t}
                             selectedChat={selectedChat}
                             setSelectedChat={setSelectedChat}
@@ -150,7 +150,7 @@ const Chats: React.FC = () => {
                             setShowCreateGroupChat={setShowCreateGroupChat}
                         />
                         <PersonalChatList
-                            meId={myself?.id}
+                            myselfId={myself.id}
                             t={t}
                             selectedChat={selectedChat}
                             setSelectedChat={setSelectedChat}

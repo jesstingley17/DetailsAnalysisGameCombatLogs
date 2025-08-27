@@ -1,11 +1,10 @@
 ﻿/* eslint-disable @typescript-eslint/no-explicit-any */
+import APP_CONFIG from '@/config/appConfig';
+import { ChatHubContext } from '@/shared/hooks/useChatHub';
 import * as signalR from '@microsoft/signalr';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../app/Store';
-import ChatHubContext from '../constants/ChatHubContext';
-import type { GroupChatUserModel } from '../features/chat/types/GroupChatUserModel';
-import type { AppUserModel } from '../features/user/types/AppUserModel';
 
 const messageType = {
     default: 0,
@@ -13,12 +12,12 @@ const messageType = {
 };
 
 const ChatHubProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const personalChatHubURL = `${process.env.REACT_APP_HUBS_URL}${process.env.REACT_APP_HUBS_PERSONAL_CHAT_ADDRESS}`;
-    const personalChatMessagesHubURL = `${process.env.REACT_APP_HUBS_URL}${process.env.REACT_APP_HUBS_PERSONAL_CHAT_MESSAGES_ADDRESS}`;
-    const personalChatUnreadMessagesHubURL = `${process.env.REACT_APP_HUBS_URL}${process.env.REACT_APP_HUBS_PERSONAL_CHAT_UNREAD_MESSAGES_ADDRESS}`;
-    const groupChatHubURL = `${process.env.REACT_APP_HUBS_URL}${process.env.REACT_APP_HUBS_GROUP_CHAT_ADDRESS}`;
-    const groupChatMessagesHubURL = `${process.env.REACT_APP_HUBS_URL}${process.env.REACT_APP_HUBS_GROUP_CHAT_MESSAGES_ADDRESS}`;
-    const groupChatUnreadMessagesHubURL = `${process.env.REACT_APP_HUBS_URL}${process.env.REACT_APP_HUBS_GROUP_CHAT_UNREAD_MESSAGES_ADDRESS}`;
+    const personalChatHubURL = `${APP_CONFIG.hubs.url}${APP_CONFIG.hubs.personalChat}`;
+    const personalChatMessagesHubURL = `${APP_CONFIG.hubs.url}${APP_CONFIG.hubs.personalChatMessages}`;
+    const personalChatUnreadMessagesHubURL = `${APP_CONFIG.hubs.url}${APP_CONFIG.hubs.personalChatUnreadMessage}`;
+    const groupChatHubURL = `${APP_CONFIG.hubs.url}${APP_CONFIG.hubs.groupChat}`;
+    const groupChatMessagesHubURL = `${APP_CONFIG.hubs.url}${APP_CONFIG.hubs.groupChatMessages}`;
+    const groupChatUnreadMessagesHubURL = `${APP_CONFIG.hubs.url}${APP_CONFIG.hubs.groupChatUnreadMessage}`;
 
     const myself = useSelector((state: RootState) => state.user.value);
 
@@ -69,14 +68,14 @@ const ChatHubProvider: React.FC<{ children: React.ReactNode }> = ({ children }) 
 
     const connectToPersonalChatAsync = async () => {
         try {
-            if (personalChatHubConnection) {
+            if (personalChatHubConnection || !myself) {
                 return;
             }
 
             const connection = createHubConnection(personalChatHubURL);
 
             await connection.start();
-            await connection.invoke("JoinRoom", myself?.id);
+            await connection.invoke("JoinRoom", myself.id);
 
             setPersonalChatHubConnection(connection);
         } catch (e) {
@@ -84,7 +83,7 @@ const ChatHubProvider: React.FC<{ children: React.ReactNode }> = ({ children }) 
         }
     }
 
-    const connectToPersonalChatMessagesAsync = async (chatId: number) => {
+    const connectToPersonalChatMessagesAsync = async (myPersonalChatId: number) => {
         try {
             if (personalChatMessagesHubConnection) {
                 return;
@@ -93,7 +92,7 @@ const ChatHubProvider: React.FC<{ children: React.ReactNode }> = ({ children }) 
             const connection = createHubConnection(personalChatMessagesHubURL);
 
             await connection.start();
-            await connection.invoke("JoinRoom", chatId);
+            await connection.invoke("JoinRoom", myPersonalChatId);
 
             setPersonalChatMessagesHubConnection(connection);
         } catch (e) {
@@ -101,7 +100,7 @@ const ChatHubProvider: React.FC<{ children: React.ReactNode }> = ({ children }) 
         }
     }
 
-    const connectToPersonalChatUnreadMessagesAsync = async (meInChats: AppUserModel[]) => {
+    const connectToPersonalChatUnreadMessagesAsync = async (myPersonalChatId: number) => {
         try {
             if (personalChatUnreadMessagesHubConnection) {
                 return;
@@ -110,9 +109,7 @@ const ChatHubProvider: React.FC<{ children: React.ReactNode }> = ({ children }) 
             const connection = createHubConnection(personalChatUnreadMessagesHubURL);
 
             await connection.start();
-            for (let i = 0; i < meInChats.length; i++) {
-                await connection.invoke("JoinRoom", meInChats[i].id);
-            }
+            await connection.invoke("JoinRoom", myPersonalChatId);
 
             setPersonalChatUnreadMessagesHubConnection(connection);
         } catch (e) {
@@ -154,7 +151,7 @@ const ChatHubProvider: React.FC<{ children: React.ReactNode }> = ({ children }) 
         }
     }
 
-    const connectToGroupChatUnreadMessagesAsync = async (meInChats: GroupChatUserModel[]) => {
+    const connectToGroupChatUnreadMessagesAsync = async (myGroupChatId: number) => {
         try {
             if (groupChatUnreadMessagesHubConnection) {
                 return;
@@ -163,9 +160,7 @@ const ChatHubProvider: React.FC<{ children: React.ReactNode }> = ({ children }) 
             const connection = createHubConnection(groupChatUnreadMessagesHubURL);
 
             await connection.start();
-            for (let i = 0; i < meInChats.length; i++) {
-                await connection.invoke("JoinRoom", meInChats[i].chatId);
-            }
+            await connection.invoke("JoinRoom", myGroupChatId);
 
             setGroupChatUnreadMessagesHubConnection(connection);
         } catch (e) {
@@ -203,6 +198,7 @@ const ChatHubProvider: React.FC<{ children: React.ReactNode }> = ({ children }) 
         });
 
         groupChatHubConnection?.on("ReceiveJoinedUser", (groupChatUser) => {
+            console.log(groupChatUser);
             callback(groupChatUser);
         });
     }

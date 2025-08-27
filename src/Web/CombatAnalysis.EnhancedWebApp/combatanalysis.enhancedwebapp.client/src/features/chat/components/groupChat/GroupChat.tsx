@@ -1,4 +1,5 @@
-﻿import Loading from '@/shared/components/Loading';
+﻿import APP_CONFIG from '@/config/appConfig';
+import Loading from '@/shared/components/Loading';
 import { useChatHub } from '@/shared/hooks/useChatHub';
 import { memo, useEffect, useRef, useState, type SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -19,7 +20,7 @@ import './GroupChat.scss';
 interface GroupChatProps {
     myself: AppUserModel;
     chat: GroupChatModel;
-    setSelectedChat(value: SetStateAction<PersonalChatModel | GroupChatModel | null>): void;
+    setSelectedChat: (value: SetStateAction<PersonalChatModel | GroupChatModel | null>) => void;
 }
 
 const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) => {
@@ -36,7 +37,7 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
     const [areLoadingOldMessages, setAreLoadingOldMessages] = useState(true);
 
     const chatContainerRef = useRef<HTMLUListElement | null>(null);
-    const pageSizeRef = useRef<number>(process.env.REACT_APP_CHAT_PAGE_SIZE ? +process.env.REACT_APP_CHAT_PAGE_SIZE : 1);
+    const pageSizeRef = useRef<number>(APP_CONFIG.communication.chatPageSize ? +APP_CONFIG.communication.chatPageSize : 5);
 
     const { groupChatData, getMoreMessagesAsync } = useGroupChatData(chat.id, myself.id, pageSizeRef);
 

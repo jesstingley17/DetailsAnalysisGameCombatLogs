@@ -11,11 +11,12 @@
   <ItemGroup>
     <None Remove="src\features\chat\props\**" />
     <None Remove="src\features\post\**" />
+    <None Remove="src\types\**" />
     <TypeScriptConfiguration Remove="src\features\chat\props\**" />
     <TypeScriptConfiguration Remove="src\features\post\**" />
+    <TypeScriptConfiguration Remove="src\types\**" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="src\features\chat\store\" />
     <Folder Include="src\features\gameLogs\types\dashboard\" />
     <Folder Include="src\features\notification\components\" />
   </ItemGroup>

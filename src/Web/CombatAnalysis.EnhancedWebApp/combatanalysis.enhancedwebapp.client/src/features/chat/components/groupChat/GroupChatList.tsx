@@ -9,41 +9,49 @@ import type { PersonalChatModel } from '../../types/PersonalChatModel';
 import GroupChatListItem from './GroupChatListItem';
 
 interface GroupChatListProps {
-    meId: string;
+    myselfId: string;
     selectedChat: GroupChatModel | PersonalChatModel | null;
-    setSelectedChat(value: SetStateAction<GroupChatModel | PersonalChatModel | null>): void;
+    setSelectedChat: (value: SetStateAction<GroupChatModel | PersonalChatModel | null>) => void;
     chatsHidden: boolean;
-    toggleChatsHidden(): void;
-    t(key: string): string;
-    setShowCreateGroupChat(value: SetStateAction<boolean>): void;
+    toggleChatsHidden: () => void;
+    t: (key: string) => string;
+    setShowCreateGroupChat: (value: SetStateAction<boolean>) => void;
 }
 
-const GroupChatList: React.FC<GroupChatListProps> = ({ meId, t, selectedChat, setSelectedChat, chatsHidden, toggleChatsHidden, setShowCreateGroupChat }) => {
-    const { data, isLoading } = useFindGroupChatUsersByUserIdQuery(meId);
+const GroupChatList: React.FC<GroupChatListProps> = ({ myselfId, t, selectedChat, setSelectedChat, chatsHidden, toggleChatsHidden, setShowCreateGroupChat }) => {
+    const { data: myselfInGroupChats, isLoading } = useFindGroupChatUsersByUserIdQuery(myselfId);
 
     const chatHub = useChatHub();
 
-    const [meInGroupChats, setMeInGroupChats] = useState<GroupChatUserModel[]>([]);
+    const [extendedMyselfInGroupChats, setExtendedMyselfInGroupChats] = useState<GroupChatUserModel[]>([]);
 
     useEffect(() => {
-        if (!data || !chatHub) {
+        if (!chatHub) {
             return;
         }
 
-        setMeInGroupChats(data);
+        chatHub.subscribeToGroupChat((myselfInGroupChat: GroupChatUserModel) => {
+            setExtendedMyselfInGroupChats(prev => [...prev, myselfInGroupChat]);
+        });
+    }, []);
+
+    useEffect(() => {
+        if (!chatHub || !myselfInGroupChats) {
+            return;
+        }
+
+        setExtendedMyselfInGroupChats(myselfInGroupChats);
 
         const connectToPersonalChatUnreadMessages = async () => {
-            await chatHub.connectToGroupChatUnreadMessagesAsync(data);
-
-            chatHub.subscribeToGroupChat((groupChatUser: GroupChatUserModel) => {
-                setMeInGroupChats(prev => [...prev, groupChatUser]);
-            });
+            for (let i = 0; i < myselfInGroupChats.length; i++) {
+                await chatHub.connectToGroupChatUnreadMessagesAsync(myselfInGroupChats[i].chatId);
+            }
         }
 
         connectToPersonalChatUnreadMessages();
-    }, [data]);
+    }, [myselfInGroupChats]);
 
-    if (isLoading || !chatHub || !chatHub.groupChatUnreadMessagesHubConnection  || !chatHub) {
+    if (isLoading || !chatHub) {
         return (<div>Loading...</div>);
     }
 
@@ -61,15 +69,15 @@ const GroupChatList: React.FC<GroupChatListProps> = ({ meId, t, selectedChat, se
                 />
             </div>
             <ul className={`chat-list__chats${!chatsHidden ? "_active" : ""}`}>
-                {meInGroupChats.length === 0
+                {extendedMyselfInGroupChats.length === 0
                     ? <div className="group-chats not-found">
                         <div>{t("GroupChatsEmptyYet")}</div>
                         <span onClick={() => setShowCreateGroupChat(true)}>{t("Create")}</span>
                     </div>
-                    : meInGroupChats.map((meInChat) => (
-                        <li key={meInChat.id} className={selectedChat && "appUserId" in selectedChat && selectedChat.id === meInChat.chatId ? `selected` : ``}>
+                    : extendedMyselfInGroupChats.map((myselfInChat) => (
+                        <li key={myselfInChat.id} className={selectedChat?.id === myselfInChat.chatId ? `selected` : ``}>
                             <GroupChatListItem
-                                meInChat={meInChat}
+                                meInChat={myselfInChat}
                                 setSelectedGroupChat={setSelectedChat}
                                 subscribeToUnreadGroupMessagesUpdated={chatHub.subscribeToUnreadGroupMessagesUpdated}
                             />

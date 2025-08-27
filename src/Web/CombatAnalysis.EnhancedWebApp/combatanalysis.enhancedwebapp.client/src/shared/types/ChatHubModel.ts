@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as signalR from '@microsoft/signalr';
-import type { AppUserModel } from '../../features/user/types/AppUserModel';
 
 export type ChatHubModel = {
     personalChatHubConnection: signalR.HubConnection | null;
@@ -10,15 +9,15 @@ export type ChatHubModel = {
     groupChatMessagesHubConnection: signalR.HubConnection | null;
     groupChatUnreadMessagesHubConnection: signalR.HubConnection | null;
     connectToPersonalChatAsync(): Promise<void>;
-    connectToPersonalChatMessagesAsync(chatId: number): Promise<void>;
-    connectToPersonalChatUnreadMessagesAsync(meInChats: AppUserModel[]): Promise<void>;
+    connectToPersonalChatMessagesAsync(myPersonalChatId: number): Promise<void>;
+    connectToPersonalChatUnreadMessagesAsync(myPersonalChatId: number): Promise<void>;
     subscribeToPersonalChat(callback: any): void;
     subscribeToPersonalChatMessages(callback: any): void;
     subscribeToPersonalMessageHasBeenRead(callback: any): void;
     subscribeToUnreadPersonalMessagesUpdated(callback: any): void;
     connectToGroupChatAsync(callback: any): Promise<void>;
     connectToGroupChatMessagesAsync(callback: any): Promise<void>;
-    connectToGroupChatUnreadMessagesAsync(callback: any): Promise<void>;
+    connectToGroupChatUnreadMessagesAsync(myGroupChatId: number): Promise<void>;
     subscribeToGroupChat(callback: any): void;
     subscribeGroupChatUser(callback: any): void;
     subscribeToGroupChatMessages(callback: any): void;

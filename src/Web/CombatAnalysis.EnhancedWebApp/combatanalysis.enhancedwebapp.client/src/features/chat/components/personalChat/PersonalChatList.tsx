@@ -8,20 +8,30 @@ import type { PersonalChatModel } from '../../types/PersonalChatModel';
 import PersonalChatListItem from './PersonalChatListItem';
 
 interface PersonalChatListProps {
-    meId: string;
+    myselfId: string;
     selectedChat: PersonalChatModel | GroupChatModel | null;
-    setSelectedChat(value: SetStateAction<PersonalChatModel | GroupChatModel | null>): void;
+    setSelectedChat: (value: SetStateAction<PersonalChatModel | GroupChatModel | null>) => void;
     chatsHidden: boolean;
-    toggleChatsHidden(): void;
-    t(key: string): string;
+    toggleChatsHidden: () => void;
+    t: (key: string) => string;
 }
 
-const PersonalChatList: React.FC<PersonalChatListProps> = ({ meId, t, selectedChat, setSelectedChat, chatsHidden, toggleChatsHidden }) => {
-    const { data: personalChats, isLoading } = useGetPersonalChatsByUserIdQuery(meId);
+const PersonalChatList: React.FC<PersonalChatListProps> = ({ myselfId, t, selectedChat, setSelectedChat, chatsHidden, toggleChatsHidden }) => {
+    const { data: personalChats, isLoading } = useGetPersonalChatsByUserIdQuery(myselfId);
 
     const chatHub = useChatHub();
 
     const [chats, setChats] = useState<PersonalChatModel[]>([]);
+
+    useEffect(() => {
+        if (!chatHub) {
+            return;
+        }
+
+        chatHub.subscribeToPersonalChat((chat: PersonalChatModel) => {
+            setChats(prevChats => [...prevChats, chat]);
+        });
+    }, []);
 
     useEffect(() => {
         if (!chatHub || !personalChats) {
@@ -31,17 +41,15 @@ const PersonalChatList: React.FC<PersonalChatListProps> = ({ meId, t, selectedCh
         setChats(personalChats);
 
         const connectToPersonalChatUnreadMessages = async () => {
-            await chatHub.connectToPersonalChatUnreadMessagesAsync(personalChats);
-
-            chatHub.subscribeToPersonalChat((chat: PersonalChatModel) => {
-                setChats(prevChats => [...prevChats, chat]);
-            });
+            for (let i = 0; i < personalChats.length; i++) {
+                await chatHub.connectToPersonalChatUnreadMessagesAsync(personalChats[i].id);
+            }
         }
 
         connectToPersonalChatUnreadMessages();
     }, [personalChats]);
 
-    if (!chatHub || !chatHub.personalChatUnreadMessagesHubConnection || isLoading) {
+    if (!chatHub || isLoading) {
         return (<div>Loading...</div>);
     }
 
@@ -61,12 +69,12 @@ const PersonalChatList: React.FC<PersonalChatListProps> = ({ meId, t, selectedCh
                         {t("PersonalChatsEmptyYet")}
                     </div>
                     : chats.map((chat) => (
-                        <li key={chat.id} className={selectedChat.type === "personal" && selectedChat.chat?.id === chat?.id ? `selected` : ``}>
+                        <li key={chat.id} className={selectedChat?.id === chat.id ? `selected` : ``}>
                             <PersonalChatListItem
                                 chat={chat}
                                 setSelectedChat={setSelectedChat}
-                                companionId={chat.initiatorId === meId ? chat.companionId : chat.initiatorId}
-                                meId={meId}
+                                companionId={chat.initiatorId === myselfId ? chat.companionId : chat.initiatorId}
+                                meId={myselfId}
                                 subscribeToUnreadPersonalMessagesUpdated={chatHub.subscribeToUnreadPersonalMessagesUpdated}
                             />
                         </li>

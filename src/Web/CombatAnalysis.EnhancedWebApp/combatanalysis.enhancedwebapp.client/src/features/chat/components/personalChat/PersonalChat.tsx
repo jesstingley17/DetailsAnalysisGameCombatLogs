@@ -1,4 +1,5 @@
-﻿import Loading from '@/shared/components/Loading';
+﻿import APP_CONFIG from '@/config/appConfig';
+import Loading from '@/shared/components/Loading';
 import { useChatHub } from '@/shared/hooks/useChatHub';
 import { memo, useEffect, useRef, useState, type SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -22,7 +23,7 @@ import './PersonalChat.scss';
 interface PersonalChatProps {
     myself: AppUserModel;
     chat: PersonalChatModel;
-    setSelectedChat(value: SetStateAction<PersonalChatModel | GroupChatModel | null>): void;
+    setSelectedChat: (value: SetStateAction<PersonalChatModel | GroupChatModel | null>) => void;
     companionId: string;
 }
 
@@ -32,7 +33,7 @@ const PersonalChat: React.FC<PersonalChatProps> = ({ myself, chat, setSelectedCh
     const chatHub = useChatHub();
 
     const chatContainerRef = useRef<HTMLUListElement | null>(null);
-    const pageSizeRef = useRef<number>(process.env.REACT_APP_CHAT_PAGE_SIZE ? +process.env.REACT_APP_CHAT_PAGE_SIZE : 1);
+    const pageSizeRef = useRef<number>(APP_CONFIG.communication.chatPageSize ? +APP_CONFIG.communication.chatPageSize : 5);
 
     const [haveMoreMessages, setHaveMoreMessage] = useState(false);
     const [currentMessages, setCurrentMessages] = useState<PersonalChatMessageModel[]>([]);

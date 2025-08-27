@@ -1,3 +1,4 @@
+import ChatHubProvider from '@/context/ChatHubProvider';
 import Layout from '@/shared/components/Layout';
 import { AuthProvider } from '@/shared/contexts/AuthProvider';
 import { Route, Routes } from 'react-router-dom';
@@ -9,12 +10,14 @@ const App: React.FC = () => {
     return (
         <AuthProvider>
             <Layout>
-                <Routes>
-                    {AppRoutes.map((route, index) => {
-                        const { element, ...rest } = route;
-                        return <Route key={index} {...rest} element={element} />;
-                    })}
-                </Routes>
+                <ChatHubProvider>
+                    <Routes>
+                        {AppRoutes.map((route, index) => {
+                            const { element, ...rest } = route;
+                            return <Route key={index} {...rest} element={element} />;
+                        })}
+                    </Routes>
+                </ChatHubProvider>
             </Layout>
         </AuthProvider>
     );
