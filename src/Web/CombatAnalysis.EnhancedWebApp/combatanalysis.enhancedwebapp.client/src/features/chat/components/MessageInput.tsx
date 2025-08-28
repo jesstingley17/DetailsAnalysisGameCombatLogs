@@ -14,14 +14,14 @@ const emptyMessageNotificationTimeout = 4000;
 
 interface MessageInputProps {
     chatId: number;
-    IasGroupChatUser: GroupChatUserModel | AppUserModel;
-    setAreLoadingOldMessages(value: SetStateAction<boolean>): void;
-    targetChatType: number;
-    companionsId: string[];
-    t(key: string): string;
+    initiator: GroupChatUserModel | AppUserModel;
+    setAreLoadingOldMessages: (value: SetStateAction<boolean>) => void;
+    t: (key: string) => string;
+    targetChatType?: number;
+    companionId?: string;
 }
 
-const MessageInput: React.FC<MessageInputProps> = ({ chatId, IasGroupChatUser, setAreLoadingOldMessages, targetChatType, t }) => {
+const MessageInput: React.FC<MessageInputProps> = ({ chatId, initiator, setAreLoadingOldMessages, t, targetChatType = 0, companionId }) => {
     const chatHub = useChatHub();
 
     const messageInput = useRef<HTMLInputElement | null>(null);
@@ -38,7 +38,7 @@ const MessageInput: React.FC<MessageInputProps> = ({ chatId, IasGroupChatUser, s
         }
     }, []);
 
-    const handleSendMessageByKeyAsync = async (code: string) => {
+    const sendMessageByKeyHandle = async (code: string) => {
         if (code !== "Enter") {
             return;
         }
@@ -46,8 +46,8 @@ const MessageInput: React.FC<MessageInputProps> = ({ chatId, IasGroupChatUser, s
         await sendMessageAsync();
     };
 
-    const handleSendMessageAsync = async () => {
-        if (!chatHub || !IasGroupChatUser) {
+    const sendMessageHandle = async () => {
+        if (!chatHub) {
             return;
         }
 
@@ -55,11 +55,11 @@ const MessageInput: React.FC<MessageInputProps> = ({ chatId, IasGroupChatUser, s
     };
 
     const sendMessageAsync = async () => {
-        if (!chatHub || !IasGroupChatUser || !messageInput) {
+        if (!chatHub || !messageInput || !messageInput.current) {
             return;
         }
 
-        if (messageInput.current?.value === "") {
+        if (messageInput.current.value === "") {
             sentEmptyMessage();
 
             return;
@@ -67,16 +67,14 @@ const MessageInput: React.FC<MessageInputProps> = ({ chatId, IasGroupChatUser, s
 
         setAreLoadingOldMessages(false);
 
-        if (targetChatType === chatType["personal"]) {
-            await chatHub.personalChatMessagesHubConnection?.invoke("SendMessage", messageInput.current?.value, chatId, IasGroupChatUser.id, IasGroupChatUser.username);
+        if (targetChatType === chatType["group"]) {
+            await chatHub.groupChatMessagesHubConnectionRef.current?.invoke("SendMessage", messageInput.current.value, chatId, 0, initiator.id, initiator.username);
         }
         else {
-            await chatHub.groupChatMessagesHubConnection?.invoke("SendMessage", messageInput.current?.value, chatId, 0, IasGroupChatUser.id, IasGroupChatUser.username);
+            await chatHub.personalChatMessagesHubConnectionRef.current?.invoke("SendMessage", messageInput.current.value, chatId, initiator.id, initiator.username, companionId);
         }
 
-        if (messageInput.current) {
-            messageInput.current.value = "";
-        }
+        messageInput.current.value = "";
     };
 
     const sentEmptyMessage = () => {
@@ -92,11 +90,11 @@ const MessageInput: React.FC<MessageInputProps> = ({ chatId, IasGroupChatUser, s
             <div className={`empty-message${isEmptyMessage ? "_show" : ""}`}>{t("CanNotSendEmpty")}</div>
             <div className="form-group input-message">
                 <input type="text" className="form-control" placeholder={t("TypeYourMessage")}
-                    ref={messageInput} onKeyDown={async (e) => await handleSendMessageByKeyAsync(e.code)} />
+                    ref={messageInput} onKeyDown={async (e) => await sendMessageByKeyHandle(e.code)} />
                 <FontAwesomeIcon
                     icon={faPaperPlane}
                     title={t("SendMessage")}
-                    onClick={handleSendMessageAsync} />
+                    onClick={sendMessageHandle} />
             </div>
         </div>
     );

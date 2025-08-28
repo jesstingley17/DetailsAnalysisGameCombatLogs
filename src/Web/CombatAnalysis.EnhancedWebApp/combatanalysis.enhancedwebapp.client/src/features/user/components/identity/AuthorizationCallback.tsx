@@ -1,9 +1,9 @@
 ﻿/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useAuth } from '@/context/AuthProvider';
 import logger from '@/utils/Logger';
 import { memo, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../../../shared/contexts/AuthProvider';
 import { useLazyAuthorizationCodeExchangeQuery } from '../../api/Identity.api';
 import { useLazyStateValidateQuery } from '../../api/User.api';
 

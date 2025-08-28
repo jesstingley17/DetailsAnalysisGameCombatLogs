@@ -1,4 +1,4 @@
-import { StrictMode, Suspense } from 'react';
+import { Suspense } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
@@ -12,13 +12,11 @@ import 'bootstrap/dist/js/bootstrap.bundle.min';
 import './i18n';
 
 createRoot(document.getElementById('root')!).render(
-    <StrictMode>
-        <Provider store={Store}>
-            <BrowserRouter>
-                <Suspense fallback={<Loading />}>
-                    <App />
-                </Suspense>
-            </BrowserRouter>
-        </Provider>
-    </StrictMode>
+    <Provider store={Store}>
+        <BrowserRouter>
+            <Suspense fallback={<Loading />}>
+                <App />
+            </Suspense>
+        </BrowserRouter>
+    </Provider>
 )

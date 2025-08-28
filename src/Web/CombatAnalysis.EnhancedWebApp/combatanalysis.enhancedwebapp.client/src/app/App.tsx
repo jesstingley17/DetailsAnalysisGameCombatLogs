@@ -1,6 +1,6 @@
 import ChatHubProvider from '@/context/ChatHubProvider';
 import Layout from '@/shared/components/Layout';
-import { AuthProvider } from '@/shared/contexts/AuthProvider';
+import { AuthProvider } from '@/context/AuthProvider';
 import { Route, Routes } from 'react-router-dom';
 import AppRoutes from './Routes';
 

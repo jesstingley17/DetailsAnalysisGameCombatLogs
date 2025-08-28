@@ -44,29 +44,28 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
     const [updateGroupChatMessage] = useUpdateGroupChatMessageMutation();
 
     useEffect(() => {
+        setCurrentMessages([]);
+
         if (!chatHub) {
             return;
         }
 
-        const connectToGroupChatMessages = async () => {
+        (async () => {
+            await chatHub.connectToGroupChatAsync();
             await chatHub.connectToGroupChatMessagesAsync(chat.id);
+
+            chatHub.subscribeToGroupChatMessages((message: GroupChatMessageModel) => {
+                message.groupChatMessageId = 1;
+                setCurrentMessages(prevMessages => [...prevMessages, message]);
+            });
+        })();
+
+        return () => {
+            (async () => {
+                await chatHub.disconnectFromGroupChatHub();
+            })();
         }
-
-        connectToGroupChatMessages();
-    }, []);
-
-    useEffect(() => {
-        if (!chatHub || !chatHub.groupChatMessagesHubConnection) {
-            return;
-        }
-
-        chatHub.subscribeGroupChatUser({});
-
-        chatHub.subscribeToGroupChatMessages((message: GroupChatMessageModel) => {
-            message.groupChatMessageId = 1;
-            setCurrentMessages(prevMessages => [...prevMessages, message]);
-        });
-    }, [chatHub?.groupChatMessagesHubConnection]);
+    }, [chat]);
 
     useEffect(() => {
         if (!groupChatData || !groupChatData.messages) {
@@ -199,14 +198,14 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
                     {currentMessages?.map((message) => (
                         <li className="message" key={message.id}>
                             <ChatMessage
-                                myself={myself}
+                                user={myself}
                                 reviewerId={groupChatData.IasGroupChatUser.id}
                                 chatUserAsUserId={groupChatData.groupChatUsers.filter(u => u.id === message.groupChatUserId)[0]?.appUserId}
                                 chatUserUsername={groupChatData.groupChatUsers.filter(u => u.id === message.groupChatUserId)[0]?.username}
                                 messageOwnerId={groupChatData.groupChatUsers.filter(u => u.id === message.groupChatUserId)[0]?.id}
                                 message={message}
                                 updateMessageAsync={updateMessageAsync}
-                                hubConnection={chatHub.groupChatMessagesHubConnection}
+                                hubConnection={chatHub.groupChatMessagesHubConnectionRef.current}
                                 subscribeToChatMessageHasBeenRead={chatHub.subscribeToGroupMessageHasBeenRead}
                             />
                         </li>
@@ -214,11 +213,10 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
                 </ul>
                 <MessageInput
                     chatId={chat.id}
-                    IasGroupChatUser={groupChatData.IasGroupChatUser}
+                    initiator={groupChatData.IasGroupChatUser}
                     setAreLoadingOldMessages={setAreLoadingOldMessages}
-                    targetChatType={1}
                     t={t}
-                    companionsId={groupChatUsersId}
+                    targetChatType={1}
                 />
             </div>
             {settingsIsShow &&

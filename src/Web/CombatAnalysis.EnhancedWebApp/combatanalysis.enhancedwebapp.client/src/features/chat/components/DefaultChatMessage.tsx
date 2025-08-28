@@ -15,20 +15,19 @@ const messageStatus = {
 };
 
 interface DefaultChatMessageProps {
-    myself: AppUserModel;
+    user: AppUserModel;
     chatUserAsUserId: string;
     chatUserUsername: string;
     reviewerId: string;
     messageOwnerId: string;
     message: GroupChatMessageModel | PersonalChatMessageModel;
     updateMessageAsync: (message: GroupChatMessageModel | PersonalChatMessageModel) => Promise<void>;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    subscribeToChatMessageHasBeenRead: (callback: any) => void;
+    subscribeToChatMessageHasBeenRead: (callback: (messageId: number) => void) => void;
     chatMessageHasMessageBeenRead: () => void;
     messageHasBeenReadHandle: () => Promise<void>;
 }
 
-const DefaultChatMessage: React.FC<DefaultChatMessageProps> = ({ myself, chatUserAsUserId, chatUserUsername, reviewerId, messageOwnerId, message, updateMessageAsync, subscribeToChatMessageHasBeenRead, chatMessageHasMessageBeenRead, messageHasBeenReadHandle }) => {
+const DefaultChatMessage: React.FC<DefaultChatMessageProps> = ({ user, chatUserAsUserId, chatUserUsername, reviewerId, messageOwnerId, message, updateMessageAsync, subscribeToChatMessageHasBeenRead, chatMessageHasMessageBeenRead, messageHasBeenReadHandle }) => {
     const { t } = useTranslation("communication/chats/chatMessage");
 
     const [openMessageMenu, setOpenMessageMenu] = useState(false);
@@ -114,7 +113,7 @@ const DefaultChatMessage: React.FC<DefaultChatMessageProps> = ({ myself, chatUse
     return (
         <div className={`chat-messages__content${reviewerId === messageOwnerId ? ' my-message' : ''}`}>
             <ChatMessageTitle
-                myself={myself}
+                user={user}
                 itIsMe={reviewerId !== messageOwnerId}
                 message={message}
                 chatUserAsUserId={chatUserAsUserId}

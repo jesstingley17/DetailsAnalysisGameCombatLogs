@@ -14,11 +14,11 @@ interface GroupChatListProps {
     setSelectedChat: (value: SetStateAction<GroupChatModel | PersonalChatModel | null>) => void;
     chatsHidden: boolean;
     toggleChatsHidden: () => void;
-    t: (key: string) => string;
     setShowCreateGroupChat: (value: SetStateAction<boolean>) => void;
+    t: (key: string) => string;
 }
 
-const GroupChatList: React.FC<GroupChatListProps> = ({ myselfId, t, selectedChat, setSelectedChat, chatsHidden, toggleChatsHidden, setShowCreateGroupChat }) => {
+const GroupChatList: React.FC<GroupChatListProps> = ({ myselfId, selectedChat, setSelectedChat, chatsHidden, toggleChatsHidden, setShowCreateGroupChat, t }) => {
     const { data: myselfInGroupChats, isLoading } = useFindGroupChatUsersByUserIdQuery(myselfId);
 
     const chatHub = useChatHub();
@@ -26,13 +26,11 @@ const GroupChatList: React.FC<GroupChatListProps> = ({ myselfId, t, selectedChat
     const [extendedMyselfInGroupChats, setExtendedMyselfInGroupChats] = useState<GroupChatUserModel[]>([]);
 
     useEffect(() => {
-        if (!chatHub) {
-            return;
+        return () => {
+            (async () => {
+                await chatHub?.disconnectFromGroupChatUnreadMessagesHub();
+            })();
         }
-
-        chatHub.subscribeToGroupChat((myselfInGroupChat: GroupChatUserModel) => {
-            setExtendedMyselfInGroupChats(prev => [...prev, myselfInGroupChat]);
-        });
     }, []);
 
     useEffect(() => {
@@ -42,13 +40,10 @@ const GroupChatList: React.FC<GroupChatListProps> = ({ myselfId, t, selectedChat
 
         setExtendedMyselfInGroupChats(myselfInGroupChats);
 
-        const connectToPersonalChatUnreadMessages = async () => {
-            for (let i = 0; i < myselfInGroupChats.length; i++) {
-                await chatHub.connectToGroupChatUnreadMessagesAsync(myselfInGroupChats[i].chatId);
-            }
-        }
-
-        connectToPersonalChatUnreadMessages();
+        (async () => {
+            const myGroupChatsId = myselfInGroupChats.map((key) => key.chatId);
+            await chatHub.connectToGroupChatUnreadMessagesAsync(myGroupChatsId);
+        })();
     }, [myselfInGroupChats]);
 
     if (isLoading || !chatHub) {
@@ -75,7 +70,7 @@ const GroupChatList: React.FC<GroupChatListProps> = ({ myselfId, t, selectedChat
                         <span onClick={() => setShowCreateGroupChat(true)}>{t("Create")}</span>
                     </div>
                     : extendedMyselfInGroupChats.map((myselfInChat) => (
-                        <li key={myselfInChat.id} className={selectedChat?.id === myselfInChat.chatId ? `selected` : ``}>
+                        <li key={myselfInChat.id} className={selectedChat && "appUserId" in selectedChat && selectedChat.id === myselfInChat.chatId ? `selected` : ``}>
                             <GroupChatListItem
                                 meInChat={myselfInChat}
                                 setSelectedGroupChat={setSelectedChat}

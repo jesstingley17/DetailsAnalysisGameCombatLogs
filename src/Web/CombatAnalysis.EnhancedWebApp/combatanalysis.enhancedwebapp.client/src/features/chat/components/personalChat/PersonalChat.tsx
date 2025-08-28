@@ -28,7 +28,7 @@ interface PersonalChatProps {
 }
 
 const PersonalChat: React.FC<PersonalChatProps> = ({ myself, chat, setSelectedChat, companionId }) => {
-    const { t } = useTranslation("communication/chats/personalChat");
+    const { t } = useTranslation('communication/chats/personalChat');
 
     const chatHub = useChatHub();
 
@@ -51,26 +51,27 @@ const PersonalChat: React.FC<PersonalChatProps> = ({ myself, chat, setSelectedCh
     const [updatePersonalChatMessage] = useUpdatePersonalChatMessageMutation();
 
     useEffect(() => {
+        setCurrentMessages([]);
+
         if (!chatHub) {
             return;
         }
 
-        const connectToPersonalChatMessages = async () => {
+        (async () => {
+            await chatHub.connectToPersonalChatAsync();
             await chatHub.connectToPersonalChatMessagesAsync(chat.id);
+
+            chatHub.subscribeToPersonalChatMessages((message: PersonalChatMessageModel) => {
+                setCurrentMessages(prevMessages => [...prevMessages, message]);
+            });
+        })();
+
+        return () => {
+            (async () => {
+                await chatHub.disconnectFromPersonalChatHub();
+            })();
         }
-
-        connectToPersonalChatMessages();
-    }, []);
-
-    useEffect(() => {
-        if (!chatHub || !chatHub.personalChatMessagesHubConnection) {
-            return;
-        }
-
-        chatHub.subscribeToPersonalChatMessages((message: PersonalChatMessageModel) => {
-            setCurrentMessages(prevMessages => [...prevMessages, message]);
-        });
-    }, [chatHub?.personalChatMessagesHubConnection]);
+    }, [chat]);
 
     useEffect(() => {
         if (!messages) {
@@ -202,14 +203,14 @@ const PersonalChat: React.FC<PersonalChatProps> = ({ myself, chat, setSelectedCh
                     {currentMessages?.map((message) => (
                             <li key={message.id}>
                                 <ChatMessage
-                                    myself={myself}
+                                    user={myself}
                                     reviewerId={myself.id}
-                                    chatUserAsUserId={myself.id}
-                                    chatUserUsername={myself.username}
+                                    chatUserAsUserId={message.appUserId}
+                                    chatUserUsername={message.username}
                                     messageOwnerId={message.appUserId}
                                     message={message}
                                     updateMessageAsync={updateMessageAsync}
-                                    hubConnection={chatHub.personalChatMessagesHubConnection}
+                                    hubConnection={chatHub.personalChatMessagesHubConnectionRef.current}
                                     subscribeToChatMessageHasBeenRead={chatHub.subscribeToPersonalMessageHasBeenRead}
                                 />
                             </li>
@@ -217,11 +218,10 @@ const PersonalChat: React.FC<PersonalChatProps> = ({ myself, chat, setSelectedCh
                 </ul>
                 <MessageInput
                     chatId={chat.id}
-                    IasGroupChatUser={myself}
+                    initiator={myself}
                     setAreLoadingOldMessages={setAreLoadingOldMessages}
-                    targetChatType={0}
                     t={t}
-                    companionsId={[companionId]}
+                    companionId={companionId}
                 />
             </div>
         </div>

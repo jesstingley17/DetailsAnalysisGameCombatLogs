@@ -24,13 +24,11 @@ const PersonalChatList: React.FC<PersonalChatListProps> = ({ myselfId, t, select
     const [chats, setChats] = useState<PersonalChatModel[]>([]);
 
     useEffect(() => {
-        if (!chatHub) {
-            return;
+        return () => {
+            (async () => {
+                await chatHub?.disconnectFromPersonalChatUnreadMessagesHub();
+            })();
         }
-
-        chatHub.subscribeToPersonalChat((chat: PersonalChatModel) => {
-            setChats(prevChats => [...prevChats, chat]);
-        });
     }, []);
 
     useEffect(() => {
@@ -40,13 +38,10 @@ const PersonalChatList: React.FC<PersonalChatListProps> = ({ myselfId, t, select
 
         setChats(personalChats);
 
-        const connectToPersonalChatUnreadMessages = async () => {
-            for (let i = 0; i < personalChats.length; i++) {
-                await chatHub.connectToPersonalChatUnreadMessagesAsync(personalChats[i].id);
-            }
-        }
-
-        connectToPersonalChatUnreadMessages();
+        (async () => {
+            const myChatsId = personalChats.map((key) => key.id);
+            await chatHub.connectToPersonalChatUnreadMessagesAsync(myChatsId);
+        })();
     }, [personalChats]);
 
     if (!chatHub || isLoading) {
@@ -69,7 +64,7 @@ const PersonalChatList: React.FC<PersonalChatListProps> = ({ myselfId, t, select
                         {t("PersonalChatsEmptyYet")}
                     </div>
                     : chats.map((chat) => (
-                        <li key={chat.id} className={selectedChat?.id === chat.id ? `selected` : ``}>
+                        <li key={chat.id} className={selectedChat && "initiatorId" in selectedChat && selectedChat.id === chat.id ? `selected` : ``}>
                             <PersonalChatListItem
                                 chat={chat}
                                 setSelectedChat={setSelectedChat}

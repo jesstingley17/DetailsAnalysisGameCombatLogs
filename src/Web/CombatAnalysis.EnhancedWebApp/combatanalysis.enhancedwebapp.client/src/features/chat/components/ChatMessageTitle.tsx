@@ -1,19 +1,19 @@
-import { useState } from 'react';
+import { useState, type JSX } from 'react';
 import User from '../../user/components/User';
 import type { AppUserModel } from '../../user/types/AppUserModel';
-import type { PersonalChatMessageModel } from '../types/PersonalChatMessageModel';
 import type { GroupChatMessageModel } from '../types/GroupChatMessageModel';
+import type { PersonalChatMessageModel } from '../types/PersonalChatMessageModel';
 
 interface ChatMessageTitleProps {
-    myself: AppUserModel;
+    user: AppUserModel;
     itIsMe: boolean;
     message: PersonalChatMessageModel | GroupChatMessageModel;
     chatUserAsUserId: string;
     chatUserUsername: string;
 }
 
-const ChatMessageTitle: React.FC<ChatMessageTitleProps> = ({ myself, itIsMe, message, chatUserAsUserId, chatUserUsername }) => {
-    const [userInformation, setUserInformation] = useState(null);
+const ChatMessageTitle: React.FC<ChatMessageTitleProps> = ({ user, itIsMe, message, chatUserAsUserId, chatUserUsername }) => {
+    const [userInformation, setUserInformation] = useState<JSX.Element | null>(null);
 
     const getMessageTime = () => {
         const getDate = new Date(message?.time);
@@ -30,7 +30,7 @@ const ChatMessageTitle: React.FC<ChatMessageTitleProps> = ({ myself, itIsMe, mes
                         <div>{getMessageTime()}</div>
                     </div>
                     <User
-                        myself={myself}
+                        myself={user}
                         targetUserId={chatUserAsUserId}
                         targetUsername={chatUserUsername}
                         setUserInformation={setUserInformation}

@@ -4,20 +4,20 @@ import { useState, type SetStateAction } from 'react';
 import type { AppUserModel } from '../../../user/types/AppUserModel';
 
 interface GroupChatAddUserProps {
-    me: AppUserModel;
+    myself: AppUserModel;
     chatId: number;
     groupChatUsersId: string[];
-    setShowAddPeople(value: SetStateAction<boolean>): void;
-    t(key: string): string;
+    setShowAddPeople: (value: SetStateAction<boolean>) => void;
+    t: (key: string) => string;
 }
 
-const GroupChatAddUser: React.FC<GroupChatAddUserProps> = ({ me, chatId, groupChatUsersId, setShowAddPeople, t }) => {
+const GroupChatAddUser: React.FC<GroupChatAddUserProps> = ({ myself, chatId, groupChatUsersId, setShowAddPeople, t }) => {
     const chatHub = useChatHub();
 
     const [peopleToJoin, setPeopleToJoin] = useState<AppUserModel[]>([]);
 
     const createGroupChatUserAsync = async () => {
-        if (!chatHub || !chatHub.groupChatHubConnection) {
+        if (!chatHub || !chatHub.groupChatHubConnectionRef.current) {
             return;
         }
 
@@ -29,7 +29,7 @@ const GroupChatAddUser: React.FC<GroupChatAddUserProps> = ({ me, chatId, groupCh
                 chatId: chatId,
             };
 
-            await chatHub.groupChatHubConnection.invoke("AddUserToChat", newGroupChatUser);
+            await chatHub.groupChatHubConnectionRef.current.invoke("AddUserToChat", newGroupChatUser);
         }
 
         setPeopleToJoin([]);
@@ -39,7 +39,7 @@ const GroupChatAddUser: React.FC<GroupChatAddUserProps> = ({ me, chatId, groupCh
     return (
         <div className="add-people-to-chat box-shadow">
             <AddPeople
-                user={me}
+                user={myself}
                 usersId={groupChatUsersId}
                 peopleToJoin={peopleToJoin}
                 setPeopleToJoin={setPeopleToJoin}

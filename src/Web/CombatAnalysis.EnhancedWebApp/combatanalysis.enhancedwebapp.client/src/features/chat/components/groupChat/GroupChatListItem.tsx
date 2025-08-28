@@ -6,9 +6,9 @@ import type { PersonalChatModel } from '../../types/PersonalChatModel';
 
 interface GroupChatListItemProps {
     meInChat: GroupChatUserModel;
-    setSelectedGroupChat(value: SetStateAction<GroupChatModel | PersonalChatModel | null>): void;
+    setSelectedGroupChat: (value: SetStateAction<GroupChatModel | PersonalChatModel | null>) => void;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    subscribeToUnreadGroupMessagesUpdated(callback: any): void;
+    subscribeToUnreadGroupMessagesUpdated: (callback: any) => void;
 }
 
 const GroupChatListItem: React.FC<GroupChatListItemProps> = ({ meInChat, setSelectedGroupChat, subscribeToUnreadGroupMessagesUpdated }) => {
@@ -32,12 +32,20 @@ const GroupChatListItem: React.FC<GroupChatListItemProps> = ({ meInChat, setSele
         setUnreadMessageCount(meInChat.unreadMessages);
     }, [meInChat]);
 
+    const selectChatHandle = () => {
+        setSelectedGroupChat(null);
+
+        if (chat) {
+            setSelectedGroupChat(chat);
+        }
+    }
+
     if (isLoading || !chat) {
         return (<div className="chat-loading-yet">Loading...</div>);
     }
 
     return (
-        <span className="chat-card" onClick={() => setSelectedGroupChat(chat)}>
+        <span className="chat-card" onClick={selectChatHandle}>
             <div className="username">{chat?.name}</div>
             {unreadMessageCount > 0 &&
                 <div className="chat-tooltip">

@@ -1,6 +1,6 @@
 import type { RootState } from '@/app/Store';
 import APP_CONFIG from "@/config/appConfig";
-import { useAuth } from '@/shared/contexts/AuthProvider';
+import { useAuth } from '@/context/AuthProvider';
 import logger from '@/utils/Logger';
 import { faMagnifyingGlassMinus, faMagnifyingGlassPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

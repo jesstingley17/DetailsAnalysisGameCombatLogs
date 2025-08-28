@@ -2,13 +2,13 @@
 import { createContext, useContext, useState, type ReactNode } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { useLogoutAsyncMutation } from '../../features/user/api/Account.api';
-import { useLazySearchCustomerByUserIdQuery } from '../../features/user/api/Customer.api';
-import { useLazyGetUserPrivacyQuery } from '../../features/user/api/Identity.api';
-import { useLazyAuthenticationQuery } from '../../features/user/api/User.api';
-import { updateCustomer } from '../../features/user/store/CustomerSlice';
-import { updateUserPrivacy } from '../../features/user/store/UserPrivacySlice';
-import { updateUser } from '../../features/user/store/UserSlice';
+import { useLogoutAsyncMutation } from '../features/user/api/Account.api';
+import { useLazySearchCustomerByUserIdQuery } from '../features/user/api/Customer.api';
+import { useLazyGetUserPrivacyQuery } from '../features/user/api/Identity.api';
+import { useLazyAuthenticationQuery } from '../features/user/api/User.api';
+import { updateCustomer } from '../features/user/store/CustomerSlice';
+import { updateUserPrivacy } from '../features/user/store/UserPrivacySlice';
+import { updateUser } from '../features/user/store/UserSlice';
 
 interface AuthContextType {
     isAuthenticated: boolean;

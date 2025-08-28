@@ -68,7 +68,7 @@ const UserInformation: React.FC<UserInformationProps> = ({ myself, personId, clo
             navigate("/chats");
         });
 
-        await chatHub.personalChatHubConnection?.invoke("CreateChat", myself?.id, targetUser.id);
+        await chatHub.personalChatHubConnectionRef.current?.invoke("CreateChat", myself?.id, targetUser.id);
     }
 
     const checkIfRequestExistAsync = async (targetUserId: string) => {

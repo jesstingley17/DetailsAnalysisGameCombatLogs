@@ -33,7 +33,7 @@ const useGroupChatData = (chatId: number, appUserId: string, pageSizeRef: RefObj
     }, [IasGroupChatUser]);
 
     useEffect(() => {
-        if (!countIsLoading && !findMeInChatLoading && !usersIsLoading && groupChatUsers) {
+        if (!countIsLoading && !findMeInChatLoading && !usersIsLoading && groupChatUsers && IasGroupChatUser) {
             setGroupChatData({
                 messages: chatMessages,
                 count: count ?? 0,
@@ -45,6 +45,10 @@ const useGroupChatData = (chatId: number, appUserId: string, pageSizeRef: RefObj
     }, [chatMessages, count, IasGroupChatUser, groupChatUsers, countIsLoading, findMeInChatLoading, usersIsLoading]);
 
     const getMessagesAsync = async () => {
+        if (!IasGroupChatUser) {
+            return;
+        }
+
         const arg = {
             chatId,
             groupChatUserId: IasGroupChatUser.id,
@@ -56,6 +60,10 @@ const useGroupChatData = (chatId: number, appUserId: string, pageSizeRef: RefObj
     }
 
     const getMoreMessagesAsync = async (offset: number): Promise<GroupChatMessageModel[]> => {
+        if (!IasGroupChatUser) {
+            return [];
+        }
+
         const arg = {
             chatId,
             groupChatUserId: IasGroupChatUser.id,

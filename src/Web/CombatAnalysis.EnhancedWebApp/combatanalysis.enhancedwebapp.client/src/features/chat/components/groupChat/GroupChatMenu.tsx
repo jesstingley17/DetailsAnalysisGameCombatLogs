@@ -191,7 +191,7 @@ const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ myself, setSelectedChat, 
             </div>
             {showAddPeople &&
                 <GroupChatAddUser
-                    me={myself}
+                    myself={myself}
                     chatId={chat?.id}
                     groupChatUsersId={groupChatUsersId}
                     setShowAddPeople={setShowAddPeople}
