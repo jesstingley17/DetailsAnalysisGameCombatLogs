@@ -98,6 +98,10 @@ const chatProxy = {
     [`^/api/${apiVersion}/VoiceChat`]: { target, secure: false },
 };
 
+const notificationProxy = {
+    [`^/api/${apiVersion}/Notification`]: { target, secure: false },
+};
+
 // https://vitejs.dev/config/
 export default defineConfig({
     plugins: [plugin()],
@@ -114,6 +118,7 @@ export default defineConfig({
             ...userProxy,
             ...feedProxy,
             ...chatProxy,
+            ...notificationProxy,
         },
         port: parseInt(env.DEV_SERVER_PORT || '65471'),
         https: {

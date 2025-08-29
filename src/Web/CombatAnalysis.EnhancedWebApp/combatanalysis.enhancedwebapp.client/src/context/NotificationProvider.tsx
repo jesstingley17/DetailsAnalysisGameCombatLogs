@@ -1,39 +1,18 @@
+import type { RootState } from '@/app/Store';
+import APP_CONFIG from '@/config/appConfig';
+import type { AppNotificationModel } from '@/features/notification/types/AppNotificationModel';
+import logger from '@/utils/Logger';
 import * as signalR from '@microsoft/signalr';
-import { createContext, useContext, useEffect, useState } from 'react';
+import { useRef } from 'react';
 import { useSelector } from 'react-redux';
-import { NotificationHubContextType } from '../types/context/NotificationHubContextType';
-
-const NotificationHubContext = createContext<NotificationHubContextType | null>(null);
+import { NotificationHubContext } from '../shared/hooks/useNotificationHub';
 
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const notificationHubURL = `${process.env.REACT_APP_HUBS_URL}${process.env.REACT_APP_HUBS_NOTIFICATION_ADDRESS}`;
+    const notificationHubURL = `${APP_CONFIG.hubs.url}${APP_CONFIG.hubs.notification}`;
 
-    const me = useSelector((state: any) => state.user.value);
+    const user = useSelector((state: RootState) => state.user.value);
 
-    const [notificationHubConnection, setNotificationHubConnection] = useState<signalR.HubConnection | null>(null);
-
-    useEffect(() => {
-        if (!me) {
-            return;
-        }
-
-        const connectToNotifications = async () => {
-            await connectToNotificationAsync();
-        }
-
-        connectToNotifications();
-
-        return () => {
-            const stopConnection = async () => {
-                if (notificationHubConnection) {
-                    await notificationHubConnection.stop();
-                    setNotificationHubConnection(null);
-                }
-            }
-
-            stopConnection();
-        }
-    }, [me]);
+    const notificationHubConnectionRef = useRef<signalR.HubConnection | null>(null);
 
     const createHubConnection = (url: string): signalR.HubConnection => {
         const hubConnection = new signalR.HubConnectionBuilder()
@@ -49,40 +28,41 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
     const connectToNotificationAsync = async () => {
         try {
-            if (notificationHubConnection) {
-                return;
-            }
-
             const connection = createHubConnection(notificationHubURL);
 
             await connection.start();
-            await connection.invoke("JoinRoom", me.id);
+            await connection.invoke("JoinRoom", user?.id);
 
-            setNotificationHubConnection(connection);
+            notificationHubConnectionRef.current = connection;
         } catch (e) {
-            console.error(e);
+            logger.error("Failed to connect to Notification hub", e);
         }
     }
 
-    const subscribeToNotifications = (callback: any) => {
-        notificationHubConnection?.on("ReceiveNotification", (notification) => {
+    const subscribeToNotifications = (callback: (notification: AppNotificationModel) => void) => {
+        notificationHubConnectionRef.current?.on("ReceiveNotification", (notification: AppNotificationModel) => {
             callback(notification);
         });
     }
 
-    const subscribeToRecipientNotifications = (callback: any) => {
-        notificationHubConnection?.on("ReceiveRequestRecipientNotifications", () => {
+    const subscribeToRecipientNotifications = (callback: () => void) => {
+        notificationHubConnectionRef.current?.on("ReceiveRequestRecipientNotifications", () => {
             callback();
         });
     }
 
+    const disconnectNotificationsHubAsync = async () => {
+        await notificationHubConnectionRef.current?.stop();
+        notificationHubConnectionRef.current = null;
+    }
+
     return (
         <NotificationHubContext.Provider value={{
-            notificationHubConnection, connectToNotificationAsync, subscribeToNotifications, subscribeToRecipientNotifications
+            notificationHubConnectionRef, connectToNotificationAsync, subscribeToNotifications, subscribeToRecipientNotifications, disconnectNotificationsHubAsync
         }}>
             {children}
         </NotificationHubContext.Provider>
     );
 }
 
-export const useNotificationHub = () => useContext(NotificationHubContext);
+export default NotificationProvider;

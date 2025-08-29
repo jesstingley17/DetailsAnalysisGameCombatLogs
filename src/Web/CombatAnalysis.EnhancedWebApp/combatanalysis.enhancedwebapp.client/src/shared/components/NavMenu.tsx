@@ -1,6 +1,7 @@
 import type { RootState } from '@/app/Store';
 import APP_CONFIG from "@/config/appConfig";
 import { useAuth } from '@/context/AuthProvider';
+import Notification from '@/features/notification/components/Notification';
 import logger from '@/utils/Logger';
 import { faMagnifyingGlassMinus, faMagnifyingGlassPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -11,7 +12,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Container, Navbar, NavbarBrand } from 'reactstrap';
 import { useLazyAuthorizationQuery } from '../../features/user/api/User.api';
 import LanguageSelector from './LanguageSelector';
-//import Notification from './Notification';
 //import Search from './Search';
 
 import './NavMenu.scss';
@@ -98,7 +98,7 @@ const NavMenu: React.FC = () => {
                     <div className="main-elements">
                         {auth?.isAuthenticated
                             ? <div className="authorized">
-                                {/*<Notification />*/}
+                                <Notification />
                                 <div className="username">{me?.username}</div>
                                 <div className="authorized__logout" onClick={handleLogoutClick}>{t("Logout")}</div>
                             </div>

@@ -13,7 +13,7 @@ export const NotificationApi = createApi({
     }),
     endpoints: builder => ({
         getNotificationsByRecipientId: builder.query<AppNotificationModel[], string>({
-            query: (recipientId) => ({
+            query: recipientId => ({
                 url: `/Notification/getByRecipientId/${recipientId}`,
             }),
             providesTags: result =>
@@ -22,7 +22,7 @@ export const NotificationApi = createApi({
                     : [{ type: 'Notification' }]
         }),
         getUnreadNotificationsByRecipientId: builder.query<AppNotificationModel[], string>({
-            query: (recipientId) => ({
+            query: recipientId => ({
                 url: `/Notification/getUnreadByRecipientId/${recipientId}`,
             }),
             providesTags: result =>

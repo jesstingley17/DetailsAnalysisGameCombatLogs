@@ -1,11 +1,11 @@
+import type { GroupChatMessageModel } from '@/features/chat/types/GroupChatMessageModel';
+import type { GroupChatUserModel } from '@/features/chat/types/GroupChatUserModel';
+import type { PersonalChatMessageModel } from '@/features/chat/types/PersonalChatMessageModel';
+import type { PersonalChatModel } from '@/features/chat/types/PersonalChatModel';
 import * as signalR from '@microsoft/signalr';
 import type { RefObject } from 'react';
-import type { GroupChatMessageModel } from '../../features/chat/types/GroupChatMessageModel';
-import type { GroupChatUserModel } from '../../features/chat/types/GroupChatUserModel';
-import type { PersonalChatMessageModel } from '../../features/chat/types/PersonalChatMessageModel';
-import type { PersonalChatModel } from '../../features/chat/types/PersonalChatModel';
 
-export type ChatHubModel = {
+export type ChatHubContextModel = {
     personalChatHubConnectionRef: RefObject<signalR.HubConnection | null>;
     personalChatMessagesHubConnectionRef: RefObject<signalR.HubConnection | null>;
     personalChatUnreadMessagesHubConnectionRef: RefObject<signalR.HubConnection | null>;
@@ -28,8 +28,8 @@ export type ChatHubModel = {
     subscribeToGroupMessageDelivered: (chatId: number) => void;
     subscribeToUnreadGroupMessagesUpdated: (callback: (targetChatId: number, targetMeInChatId: string, count: number) => void) => void;
     subscribeToGroupMessageHasBeenRead: (callback: (messageId: number) => void) => void;
-    disconnectFromPersonalChatHub: () => Promise<void>;
-    disconnectFromPersonalChatUnreadMessagesHub: () => Promise<void>;
-    disconnectFromGroupChatHub: () => Promise<void>;
-    disconnectFromGroupChatUnreadMessagesHub: () => Promise<void>;
+    disconnectFromPersonalChatHubAsync: () => Promise<void>;
+    disconnectFromPersonalChatUnreadMessagesHubAsync: () => Promise<void>;
+    disconnectFromGroupChatHubAsync: () => Promise<void>;
+    disconnectFromGroupChatUnreadMessagesHubAsync: () => Promise<void>;
 }

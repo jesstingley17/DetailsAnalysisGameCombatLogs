@@ -1,4 +1,5 @@
 import APP_CONFIG from '@/config/appConfig';
+import logger from '@/utils/Logger';
 import * as signalR from '@microsoft/signalr';
 import type { RefObject } from 'react';
 import type { PersonalChatMessageModel } from '../../features/chat/types/PersonalChatMessageModel';
@@ -36,7 +37,7 @@ const usePersonalChatHub = (
 
             personalChatHubConnectionRef.current = connection;
         } catch (e) {
-            console.error(e);
+            logger.error("Failed to connect to Personal chat hub", e);
         }
     }
 
@@ -49,7 +50,7 @@ const usePersonalChatHub = (
 
             personalChatMessagesHubConnectionRef.current = connection;
         } catch (e) {
-            console.error(e);
+            logger.error("Failed to connect to Personal chat messages hub", e);
         }
     }
 
@@ -64,7 +65,7 @@ const usePersonalChatHub = (
 
             personalChatUnreadMessagesHubConnectionRef.current = connection;
         } catch (e) {
-            console.error(e);
+            logger.error("Failed to connect to Personal chat unread messages hub", e);
         }
     }
 
@@ -92,7 +93,7 @@ const usePersonalChatHub = (
         });
     }
 
-    const disconnectFromPersonalChatHub = async () => {
+    const disconnectFromPersonalChatHubAsync = async () => {
         await personalChatHubConnectionRef.current?.stop();
         personalChatHubConnectionRef.current = null;
 
@@ -100,7 +101,7 @@ const usePersonalChatHub = (
         personalChatMessagesHubConnectionRef.current = null;
     }
 
-    const disconnectFromPersonalChatUnreadMessagesHub = async () => {
+    const disconnectFromPersonalChatUnreadMessagesHubAsync = async () => {
         await personalChatUnreadMessagesHubConnectionRef.current?.stop();
         personalChatUnreadMessagesHubConnectionRef.current = null;
     }
@@ -108,7 +109,7 @@ const usePersonalChatHub = (
     return {
         connectToPersonalChatAsync, connectToPersonalChatMessagesAsync, connectToPersonalChatUnreadMessagesAsync,
         subscribeToPersonalChat, subscribeToPersonalChatMessages, subscribeToPersonalMessageHasBeenRead, subscribeToUnreadPersonalMessagesUpdated,
-        disconnectFromPersonalChatHub, disconnectFromPersonalChatUnreadMessagesHub
+        disconnectFromPersonalChatHubAsync, disconnectFromPersonalChatUnreadMessagesHubAsync
     }
 }
 

@@ -62,7 +62,7 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
 
         return () => {
             (async () => {
-                await chatHub.disconnectFromGroupChatHub();
+                await chatHub.disconnectFromGroupChatHubAsync();
             })();
         }
     }, [chat]);

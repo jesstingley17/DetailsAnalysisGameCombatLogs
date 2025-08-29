@@ -3,11 +3,11 @@ import { ChatHubContext } from '@/shared/hooks/useChatHub';
 import useGroupChatHub from '@/shared/hooks/useGroupChatHub';
 import usePersonalChatHub from '@/shared/hooks/usePersonalChatHub';
 import * as signalR from '@microsoft/signalr';
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { useSelector } from 'react-redux';
 
 const ChatHubProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const myself = useSelector((state: RootState) => state.user.value);
+    const user = useSelector((state: RootState) => state.user.value);
 
     const personalChatHubConnectionRef = useRef<signalR.HubConnection | null>(null);
     const personalChatMessagesHubConnectionRef = useRef<signalR.HubConnection | null>(null);
@@ -19,48 +19,26 @@ const ChatHubProvider: React.FC<{ children: React.ReactNode }> = ({ children }) 
     const {
         connectToPersonalChatAsync, connectToPersonalChatMessagesAsync, connectToPersonalChatUnreadMessagesAsync,
         subscribeToPersonalChat, subscribeToPersonalChatMessages, subscribeToPersonalMessageHasBeenRead, subscribeToUnreadPersonalMessagesUpdated,
-        disconnectFromPersonalChatHub, disconnectFromPersonalChatUnreadMessagesHub
-    } = usePersonalChatHub(myself, personalChatHubConnectionRef, personalChatMessagesHubConnectionRef, personalChatUnreadMessagesHubConnectionRef);
+        disconnectFromPersonalChatHubAsync, disconnectFromPersonalChatUnreadMessagesHubAsync,
+    } = usePersonalChatHub(user, personalChatHubConnectionRef, personalChatMessagesHubConnectionRef, personalChatUnreadMessagesHubConnectionRef);
 
     const {
         connectToGroupChatAsync, connectToGroupChatMessagesAsync, connectToGroupChatUnreadMessagesAsync,
         subscribeToGroupChat, subscribeGroupChatUser, subscribeToGroupChatMessages, subscribeToGroupMessageDelivered,
         subscribeToUnreadGroupMessagesUpdated, subscribeToGroupMessageHasBeenRead,
-        disconnectFromGroupChatHub, disconnectFromGroupChatUnreadMessagesHub
-    } = useGroupChatHub(myself, groupChatHubConnectionRef, groupChatMessagesHubConnectionRef, groupChatUnreadMessagesHubConnectionRef);
-
-    useEffect(() => {
-        if (!myself) {
-            return;
-        }
-
-        return () => {
-            const stopConnection = async () => {
-                if (personalChatHubConnectionRef.current) {
-                    await personalChatHubConnectionRef.current.stop();
-                    personalChatHubConnectionRef.current = null;
-                }
-
-                if (groupChatHubConnectionRef.current) {
-                    await groupChatHubConnectionRef.current.stop();
-                    groupChatHubConnectionRef.current = null;
-                }
-            }
-
-            stopConnection();
-        }
-    }, [myself]);
+        disconnectFromGroupChatHubAsync, disconnectFromGroupChatUnreadMessagesHubAsync,
+    } = useGroupChatHub(user, groupChatHubConnectionRef, groupChatMessagesHubConnectionRef, groupChatUnreadMessagesHubConnectionRef);
 
     return (
         <ChatHubContext.Provider value={{
             personalChatHubConnectionRef, personalChatMessagesHubConnectionRef, personalChatUnreadMessagesHubConnectionRef,
             connectToPersonalChatAsync, connectToPersonalChatMessagesAsync, connectToPersonalChatUnreadMessagesAsync,
             subscribeToPersonalChat, subscribeToPersonalChatMessages, subscribeToPersonalMessageHasBeenRead, subscribeToUnreadPersonalMessagesUpdated,
-            disconnectFromPersonalChatHub, disconnectFromPersonalChatUnreadMessagesHub,
+            disconnectFromPersonalChatHubAsync, disconnectFromPersonalChatUnreadMessagesHubAsync,
             groupChatHubConnectionRef, groupChatMessagesHubConnectionRef, groupChatUnreadMessagesHubConnectionRef,
             connectToGroupChatAsync, connectToGroupChatMessagesAsync, connectToGroupChatUnreadMessagesAsync,
             subscribeToGroupChat, subscribeGroupChatUser, subscribeToGroupChatMessages, subscribeToGroupMessageHasBeenRead, subscribeToUnreadGroupMessagesUpdated, subscribeToGroupMessageDelivered,
-            disconnectFromGroupChatHub, disconnectFromGroupChatUnreadMessagesHub
+            disconnectFromGroupChatHubAsync, disconnectFromGroupChatUnreadMessagesHubAsync,
         }}>
             {children}
         </ChatHubContext.Provider>

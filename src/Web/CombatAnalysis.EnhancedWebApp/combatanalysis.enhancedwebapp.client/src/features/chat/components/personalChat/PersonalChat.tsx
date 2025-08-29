@@ -68,7 +68,7 @@ const PersonalChat: React.FC<PersonalChatProps> = ({ myself, chat, setSelectedCh
 
         return () => {
             (async () => {
-                await chatHub.disconnectFromPersonalChatHub();
+                await chatHub.disconnectFromPersonalChatHubAsync();
             })();
         }
     }, [chat]);

@@ -28,7 +28,7 @@ const GroupChatList: React.FC<GroupChatListProps> = ({ myselfId, selectedChat, s
     useEffect(() => {
         return () => {
             (async () => {
-                await chatHub?.disconnectFromGroupChatUnreadMessagesHub();
+                await chatHub?.disconnectFromGroupChatUnreadMessagesHubAsync();
             })();
         }
     }, []);

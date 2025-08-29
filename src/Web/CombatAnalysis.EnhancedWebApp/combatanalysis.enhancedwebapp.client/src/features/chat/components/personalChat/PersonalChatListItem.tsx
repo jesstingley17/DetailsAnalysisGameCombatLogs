@@ -1,4 +1,4 @@
-import type { ChatHubModel } from '@/shared/types/ChatHubModel';
+import type { ChatHubContextModel } from '@/shared/types/ChatHubModel';
 import { useEffect, useState, type SetStateAction } from 'react';
 import { useGetUserByIdQuery } from '../../../user/api/Account.api';
 import type { GroupChatModel } from '../../types/GroupChatModel';
@@ -9,7 +9,7 @@ interface PersonalChatListItemProps {
     setSelectedChat: (value: SetStateAction<PersonalChatModel | GroupChatModel | null>) => void;
     companionId: string;
     userId: string;
-    chatHub: ChatHubModel;
+    chatHub: ChatHubContextModel;
 }
 
 const PersonalChatListItem: React.FC<PersonalChatListItemProps> = ({ chat, setSelectedChat, companionId, userId, chatHub }) => {

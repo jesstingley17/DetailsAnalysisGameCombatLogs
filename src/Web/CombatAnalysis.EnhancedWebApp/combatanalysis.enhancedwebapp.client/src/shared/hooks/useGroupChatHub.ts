@@ -1,9 +1,10 @@
 import APP_CONFIG from '@/config/appConfig';
+import logger from '@/utils/Logger';
 import * as signalR from '@microsoft/signalr';
 import type { RefObject } from 'react';
-import type { AppUserModel } from '../../features/user/types/AppUserModel';
-import type { GroupChatUserModel } from '../../features/chat/types/GroupChatUserModel';
 import type { GroupChatMessageModel } from '../../features/chat/types/GroupChatMessageModel';
+import type { GroupChatUserModel } from '../../features/chat/types/GroupChatUserModel';
+import type { AppUserModel } from '../../features/user/types/AppUserModel';
 
 const messageType = {
     default: 0,
@@ -41,7 +42,7 @@ const useGroupChatHub = (
 
             groupChatHubConnectionRef.current = connection;
         } catch (e) {
-            console.error(e);
+            logger.error("Failed to connect to Group chat hub", e);
         }
     }
 
@@ -54,7 +55,7 @@ const useGroupChatHub = (
 
             groupChatMessagesHubConnectionRef.current = connection;
         } catch (e) {
-            console.error(e);
+            logger.error("Failed to connect to Group chat messages hub", e);
         }
     }
 
@@ -69,7 +70,7 @@ const useGroupChatHub = (
 
             groupChatUnreadMessagesHubConnectionRef.current = connection;
         } catch (e) {
-            console.error(e);
+            logger.error("Failed to connect to Group chat unread messages hub", e);
         }
     }
 
@@ -115,7 +116,7 @@ const useGroupChatHub = (
         });
     }
 
-    const disconnectFromGroupChatHub = async () => {
+    const disconnectFromGroupChatHubAsync = async () => {
         await groupChatHubConnectionRef.current?.stop();
         groupChatHubConnectionRef.current = null;
 
@@ -123,7 +124,7 @@ const useGroupChatHub = (
         groupChatMessagesHubConnectionRef.current = null;
     }
 
-    const disconnectFromGroupChatUnreadMessagesHub = async () => {
+    const disconnectFromGroupChatUnreadMessagesHubAsync = async () => {
         await groupChatUnreadMessagesHubConnectionRef.current?.stop();
         groupChatUnreadMessagesHubConnectionRef.current = null;
     }
@@ -132,7 +133,7 @@ const useGroupChatHub = (
         connectToGroupChatAsync, connectToGroupChatMessagesAsync, connectToGroupChatUnreadMessagesAsync,
         subscribeToGroupChat, subscribeGroupChatUser, subscribeToGroupChatMessages, subscribeToGroupMessageDelivered,
         subscribeToUnreadGroupMessagesUpdated, subscribeToGroupMessageHasBeenRead,
-        disconnectFromGroupChatHub, disconnectFromGroupChatUnreadMessagesHub
+        disconnectFromGroupChatHubAsync, disconnectFromGroupChatUnreadMessagesHubAsync
     }
 }
 
