@@ -109,6 +109,10 @@ public class VoiceChatHub : Hub
         {
             await Clients.Caller.SendAsync("ReceiveConnectedUsers", users);
         }
+        else
+        {
+            await Clients.Caller.SendAsync("ReceiveConnectedUsers", null);
+        }
     }
 
     public async Task LeaveRoom(string room)

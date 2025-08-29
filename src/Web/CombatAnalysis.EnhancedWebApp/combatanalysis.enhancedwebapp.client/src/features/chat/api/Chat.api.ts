@@ -14,7 +14,6 @@ export const ChatApi = createApi({
         'UnreadGroupChatMessage',
         'GroupChatUser',
         'GroupChatRules',
-        'VoiceChat',
     ],
     baseQuery: fetchBaseQuery({
         baseUrl: apiURL

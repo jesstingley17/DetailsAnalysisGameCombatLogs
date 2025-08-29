@@ -1,7 +1,16 @@
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import type { VoiceChatModel } from '../types/VoiceChatModel';
-import { ChatApi } from './Chat.api';
 
-export const VoiceChatApi = ChatApi.injectEndpoints({
+const apiURL = '/api/v1';
+
+export const VoiceChatApi = createApi({
+    reducerPath: 'voidChatApi',
+    tagTypes: [
+        'VoiceChat',
+    ],
+    baseQuery: fetchBaseQuery({
+        baseUrl: apiURL
+    }),
     endpoints: builder => ({
         createCall: builder.mutation<VoiceChatModel, VoiceChatModel>({
             query: groupChat => ({

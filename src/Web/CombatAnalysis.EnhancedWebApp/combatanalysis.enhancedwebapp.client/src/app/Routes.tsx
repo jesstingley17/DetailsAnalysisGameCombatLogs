@@ -1,5 +1,4 @@
 import Chats from '../features/chat/components/Chats';
-//import VoiceChat from '../features/chat/components/voiceChat/VoiceChat';
 import AllCommunities from '../features/community/components/AllCommunities';
 import SelectedCommunity from '../features/community/components/selectedCommunity/SelectedCommunity';
 import UserEnvironmentCommunities from '../features/community/components/userEnvironment/UserEnvironmentCommunities';
@@ -15,6 +14,7 @@ import SelectedUser from '../features/user/components/selectedUser/SelectedUser'
 import Friends from '../features/user/components/userEnvironment/Friends';
 import Profile from '../features/user/components/userEnvironment/Profile';
 import UserFeed from '../features/user/components/userEnvironment/UserFeed';
+import VoiceChat from '../features/voiceChat/components/VoiceChat';
 import Home from '../shared/components/Home';
 
 type Route = {
@@ -44,10 +44,10 @@ const AppRoutes: Route[] = [
         path: '/chats',
         element: <Chats />
     },
-    //{
-    //    path: '/chats/voice/:roomId/:chatName',
-    //    element: <VoiceChat />
-    //},
+    {
+        path: '/chats/voice/:roomId/:chatName',
+        element: <VoiceChat />
+    },
     {
         path: '/communities',
         element: <AllCommunities />
