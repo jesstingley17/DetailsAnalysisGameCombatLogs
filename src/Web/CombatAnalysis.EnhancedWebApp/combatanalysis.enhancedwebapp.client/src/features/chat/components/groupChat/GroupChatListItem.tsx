@@ -1,3 +1,4 @@
+import type { ChatHubModel } from '@/shared/types/ChatHubModel';
 import { useEffect, useState, type SetStateAction } from 'react';
 import { useGetGroupChatByIdQuery } from '../../api/GroupChat.api';
 import type { GroupChatModel } from '../../types/GroupChatModel';
@@ -5,32 +6,35 @@ import type { GroupChatUserModel } from '../../types/GroupChatUserModel';
 import type { PersonalChatModel } from '../../types/PersonalChatModel';
 
 interface GroupChatListItemProps {
-    meInChat: GroupChatUserModel;
+    myselfInChat: GroupChatUserModel;
     setSelectedGroupChat: (value: SetStateAction<GroupChatModel | PersonalChatModel | null>) => void;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    subscribeToUnreadGroupMessagesUpdated: (callback: any) => void;
+    chatHub: ChatHubModel;
 }
 
-const GroupChatListItem: React.FC<GroupChatListItemProps> = ({ meInChat, setSelectedGroupChat, subscribeToUnreadGroupMessagesUpdated }) => {
+const GroupChatListItem: React.FC<GroupChatListItemProps> = ({ myselfInChat, setSelectedGroupChat, chatHub }) => {
     const [unreadMessageCount, setUnreadMessageCount] = useState(-1);
 
-    const { data: chat, isLoading } = useGetGroupChatByIdQuery(meInChat.chatId);
+    const { data: chat, isLoading } = useGetGroupChatByIdQuery(myselfInChat.chatId);
 
     useEffect(() => {
-        subscribeToUnreadGroupMessagesUpdated((targetChatId: number, targetChatUserId: string, count: number) => {
-            if (targetChatId === meInChat.chatId && targetChatUserId === meInChat.id) {
-                setUnreadMessageCount(count);
-            }
-        });
-    }, []);
-
-    useEffect(() => {
-        if (!meInChat) {
+        if (!chatHub.groupChatUnreadMessagesHubConnectionRef.current) {
             return;
         }
 
-        setUnreadMessageCount(meInChat.unreadMessages);
-    }, [meInChat]);
+        chatHub.subscribeToUnreadGroupMessagesUpdated((targetChatId: number, targetChatUserId: string, count: number) => {
+            if (targetChatId === myselfInChat.chatId && targetChatUserId === myselfInChat.id) {
+                setUnreadMessageCount(count);
+            }
+        });
+    }, [chatHub.groupChatUnreadMessagesHubConnectionRef.current]);
+
+    useEffect(() => {
+        if (!myselfInChat) {
+            return;
+        }
+
+        setUnreadMessageCount(myselfInChat.unreadMessages);
+    }, [myselfInChat]);
 
     const selectChatHandle = () => {
         setSelectedGroupChat(null);

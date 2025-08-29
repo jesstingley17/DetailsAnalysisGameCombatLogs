@@ -64,17 +64,11 @@ public class PersonalChatMessagesHub : Hub
                 AppUserId = creatorId
             };
 
-            var response = await _httpClient.PostAsync("PersonalChatMessage", JsonContent.Create(personalMessage));
-            response.EnsureSuccessStatusCode();
+            var responseMessage = await _httpClient.PostAsync("PersonalChatMessage", JsonContent.Create(personalMessage));
+            responseMessage.EnsureSuccessStatusCode();
 
-            var createdMessage = await response.Content.ReadFromJsonAsync<PersonalChatMessageModel>();
+            var createdMessage = await responseMessage.Content.ReadFromJsonAsync<PersonalChatMessageModel>();
             ArgumentNullException.ThrowIfNull(createdMessage, nameof(createdMessage));
-
-            response = await _httpClient.GetAsync($"PersonalChat/{chatId}");
-            response.EnsureSuccessStatusCode();
-
-            var chat = await response.Content.ReadFromJsonAsync<PersonalChatModel>();
-            ArgumentNullException.ThrowIfNull(chat, nameof(chat));
 
             var chatAction = JsonSerializer.Serialize(new PersonalChatMessageAction
             {

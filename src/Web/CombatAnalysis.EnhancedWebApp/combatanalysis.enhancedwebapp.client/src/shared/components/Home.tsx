@@ -1,4 +1,6 @@
 ﻿import type { RootState } from '@/app/Store';
+import APP_CONFIG from '@/config/appConfig';
+import logger from '@/utils/Logger';
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useState } from 'react';
@@ -45,16 +47,14 @@ const Home: React.FC = () => {
         return () => clearTimeout(timeoutId);
     }, [shouldBeAuthorize]);
 
-    const loginAsync = async () => {
+    const loginHandle = async () => {
         try {
-            const identityServerAuthPath = process.env.REACT_APP_IDENTITY_SERVER_AUTH_PATH || "";
-
-            const identityRedirect: IdentityRedirect = await authorization(identityServerAuthPath).unwrap();
+            const identityRedirect: IdentityRedirect = await authorization(APP_CONFIG.identity.authPath).unwrap();
 
             const uri = identityRedirect.uri;
             window.location.href = uri;
         } catch (e) {
-            console.error(e);
+            logger.error("Failed to redirect to the Login page", e);
         }
     }
 
@@ -67,7 +67,7 @@ const Home: React.FC = () => {
                 <div className="title">
                     <div>{t("Communication")}</div>
                     {!myself &&
-                        <div className="btn-shadow authorize-alert" onClick={loginAsync} title={t("GoToLogin") || ""}>
+                        <div className="btn-shadow authorize-alert" onClick={loginHandle} title={t("GoToLogin") || ""}>
                             <FontAwesomeIcon
                                 icon={faTriangleExclamation}
                             />
@@ -124,7 +124,7 @@ const Home: React.FC = () => {
             {shouldBeAuthorize &&
                 <div className="should-be-authorize" data-testid="should-be-authorize">
                     <div className="alert alert-success" role="alert">
-                        {t("YouNeed")} <span onClick={loginAsync}>{t("Login")}</span> {t("InApp")}
+                        {t("YouNeed")} <span onClick={loginHandle}>{t("Login")}</span> {t("InApp")}
                     </div>
                 </div>
             }

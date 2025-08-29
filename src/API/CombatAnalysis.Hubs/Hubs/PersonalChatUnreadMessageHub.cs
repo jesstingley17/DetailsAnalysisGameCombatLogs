@@ -45,13 +45,12 @@ public class PersonalChatUnreadMessageHub : Hub
         try
         {
             ArgumentOutOfRangeException.ThrowIfLessThan(chatId, 1, nameof(chatId));
-
             ArgumentNullException.ThrowIfNullOrEmpty(appUserId, nameof(appUserId));
 
-            var response = await _httpClient.GetAsync($"PersonalChat/{chatId}");
-            response.EnsureSuccessStatusCode();
+            var responseMessage = await _httpClient.GetAsync($"PersonalChat/{chatId}");
+            responseMessage.EnsureSuccessStatusCode();
 
-            var personalChat = await response.Content.ReadFromJsonAsync<PersonalChatModel>();
+            var personalChat = await responseMessage.Content.ReadFromJsonAsync<PersonalChatModel>();
             ArgumentNullException.ThrowIfNull(personalChat, nameof(personalChat));
 
             var count = personalChat.InitiatorId == appUserId ? personalChat.InitiatorUnreadMessages : personalChat.CompanionUnreadMessages;

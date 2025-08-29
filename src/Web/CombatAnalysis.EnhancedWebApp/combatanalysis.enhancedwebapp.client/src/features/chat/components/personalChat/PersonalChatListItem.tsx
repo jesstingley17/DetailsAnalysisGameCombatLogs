@@ -1,3 +1,4 @@
+import type { ChatHubModel } from '@/shared/types/ChatHubModel';
 import { useEffect, useState, type SetStateAction } from 'react';
 import { useGetUserByIdQuery } from '../../../user/api/Account.api';
 import type { GroupChatModel } from '../../types/GroupChatModel';
@@ -5,32 +6,35 @@ import type { PersonalChatModel } from '../../types/PersonalChatModel';
 
 interface PersonalChatListItemProps {
     chat: PersonalChatModel;
-    setSelectedChat(value: SetStateAction<PersonalChatModel | GroupChatModel | null>): void;
+    setSelectedChat: (value: SetStateAction<PersonalChatModel | GroupChatModel | null>) => void;
     companionId: string;
-    meId: string;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    subscribeToUnreadPersonalMessagesUpdated(callback: any): void;
+    userId: string;
+    chatHub: ChatHubModel;
 }
 
-const PersonalChatListItem: React.FC<PersonalChatListItemProps> = ({ chat, setSelectedChat, companionId, meId, subscribeToUnreadPersonalMessagesUpdated }) => {
+const PersonalChatListItem: React.FC<PersonalChatListItemProps> = ({ chat, setSelectedChat, companionId, userId, chatHub }) => {
     const [unreadMessageCount, setUnreadMessageCount] = useState(-1);
 
     const { data: companion, isLoading } = useGetUserByIdQuery(companionId);
 
     useEffect(() => {
-        subscribeToUnreadPersonalMessagesUpdated((targetChatId: number, targetMeInChatId: string, count: number) => {
-            if (targetChatId === chat?.id && targetMeInChatId === meId) {
+        if (!chatHub.personalChatUnreadMessagesHubConnectionRef.current) {
+            return;
+        }
+
+        chatHub.subscribeToUnreadPersonalMessagesUpdated((targetChatId: number, taregtUserInChat: string, count: number) => {
+            if (targetChatId === chat?.id && taregtUserInChat === userId) {
                 setUnreadMessageCount(count);
             }
         });
-    }, []);
+    }, [chatHub.personalChatUnreadMessagesHubConnectionRef.current]);
 
     useEffect(() => {
         if (!chat) {
             return;
         }
 
-        setUnreadMessageCount(chat.initiatorId === meId ? chat.initiatorUnreadMessages : chat.companionUnreadMessages);
+        setUnreadMessageCount(chat.initiatorId === userId ? chat.initiatorUnreadMessages : chat.companionUnreadMessages);
     }, [chat]);
 
     if (isLoading) {
