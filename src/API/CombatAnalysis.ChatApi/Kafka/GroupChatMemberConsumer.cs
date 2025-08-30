@@ -67,6 +67,10 @@ public class GroupChatMemberConsumer(IOptions<KafkaSettings> kafkaSettings, ILog
         {
             _logger.LogError(ex, "Create group chat user failed:  Parameter '{ParamName}' was null.", ex.ParamName);
         }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
+        }
     }
 
     private async Task<GroupChatUserModel> CreateGroupChatUser(IServiceTransaction<GroupChatUserDto, string> chatUserService, GroupChatUserModel chatUser)

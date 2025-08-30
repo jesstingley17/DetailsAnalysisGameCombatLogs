@@ -30,14 +30,13 @@ const defaultPayload = {
 interface GroupChatMenuProps {
     myself: AppUserModel;
     setSelectedChat: (value: SetStateAction<PersonalChatModel | GroupChatModel | null>) => void;
-    groupChatUsers: GroupChatUserModel[];
     groupChatUsersId: string[];
     IasGroupChatUser: GroupChatUserModel;
     chat: GroupChatModel;
     t: (key: string) => string;
 }
 
-const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ myself, setSelectedChat, groupChatUsersId, groupChatUsers, IasGroupChatUser, chat, t }) => {
+const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ myself, setSelectedChat, groupChatUsersId, IasGroupChatUser, chat, t }) => {
     const [showAddPeople, setShowAddPeople] = useState(false);
     const [peopleInspectionModeOn, setPeopleInspectionModeOn] = useState(false);
     const [rulesInspectionModeOn, setRulesInspectionModeOn] = useState(false);
@@ -165,7 +164,7 @@ const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ myself, setSelectedChat, 
                             contentText={t("Leave")}
                             infoText={t("YouShouldTransferRights")}
                         />
-                        : <div className="btn-border-shadow" onClick={async () => await leaveFromChatAsync(IasGroupChatUser?.id)}>{t("Leave")}</div>
+                        : <div className="btn-border-shadow" onClick={async () => await leaveFromChatAsync(IasGroupChatUser?.id ?? "")}>{t("Leave")}</div>
                     }
                 </div>
             </div>
@@ -182,11 +181,12 @@ const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ myself, setSelectedChat, 
             {peopleInspectionModeOn &&
                 <GroupChatMembers
                     myself={myself}
-                    users={groupChatUsers}
+                    chatId={chat.id}
                     removeUsersAsync={removeGroupChatUsersAsync}
                     setShowMembers={setPeopleInspectionModeOn}
                     isPopup={true}
                     canRemovePeople={canRemovePeople}
+                    chatHub={chatHub}
                 />
             }
             {rulesInspectionModeOn &&

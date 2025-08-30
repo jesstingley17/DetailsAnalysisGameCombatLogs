@@ -6,11 +6,6 @@ import type { GroupChatMessageModel } from '../../features/chat/types/GroupChatM
 import type { GroupChatUserModel } from '../../features/chat/types/GroupChatUserModel';
 import type { AppUserModel } from '../../features/user/types/AppUserModel';
 
-const messageType = {
-    default: 0,
-    system: 1
-};
-
 const useGroupChatHub = (
     myself: AppUserModel | null,
     groupChatHubConnectionRef: RefObject<signalR.HubConnection | null>,
@@ -84,14 +79,6 @@ const useGroupChatHub = (
         });
     }
 
-    const subscribeGroupChatUser = () => {
-        groupChatHubConnectionRef.current?.on("ReceiveAddedUserToChat", async (groupChatUser) => {
-            const systemMessage = `'${myself?.username}' added '${groupChatUser.username}' to chat`;
-            await groupChatMessagesHubConnectionRef.current?.invoke("SendMessage", systemMessage, groupChatUser.chatId, messageType["system"], groupChatUser.id, groupChatUser.username);
-            await groupChatHubConnectionRef.current?.invoke("RequestJoinedUser", groupChatUser.chatId, groupChatUser.appUserId);
-        });
-    }
-
     const subscribeToGroupChatMessages = (callback: (message: GroupChatMessageModel) => void) => {
         groupChatMessagesHubConnectionRef.current?.on("ReceiveMessage", (message) => {
             callback(message);
@@ -116,6 +103,12 @@ const useGroupChatHub = (
         });
     }
 
+    const subscribeToGroupChatMembers = (callback: (members: GroupChatUserModel[]) => void) => {
+        groupChatHubConnectionRef.current?.on("ReceiveMembers", (message) => {
+            callback(message);
+        });
+    }
+
     const disconnectFromGroupChatHubAsync = async () => {
         await groupChatHubConnectionRef.current?.stop();
         groupChatHubConnectionRef.current = null;
@@ -131,9 +124,10 @@ const useGroupChatHub = (
 
     return {
         connectToGroupChatAsync, connectToGroupChatMessagesAsync, connectToGroupChatUnreadMessagesAsync,
-        subscribeToGroupChat, subscribeGroupChatUser, subscribeToGroupChatMessages, subscribeToGroupMessageDelivered,
+        subscribeToGroupChat, subscribeToGroupChatMessages, subscribeToGroupMessageDelivered,
         subscribeToUnreadGroupMessagesUpdated, subscribeToGroupMessageHasBeenRead,
-        disconnectFromGroupChatHubAsync, disconnectFromGroupChatUnreadMessagesHubAsync
+        disconnectFromGroupChatHubAsync, disconnectFromGroupChatUnreadMessagesHubAsync,
+        subscribeToGroupChatMembers,
     }
 }
 

@@ -223,7 +223,6 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
                 <GroupChatMenu
                     myself={myself}
                     setSelectedChat={setSelectedChat}
-                    groupChatUsers={groupChatData.groupChatUsers}
                     groupChatUsersId={groupChatUsersId}
                     IasGroupChatUser={groupChatData.IasGroupChatUser}
                     chat={chat}

@@ -99,6 +99,40 @@ public class GroupChatHub : Hub
         }
     }
 
+    public async Task RequestMembers(int chatId, string appUserId)
+    {
+        try
+        {
+            ArgumentOutOfRangeException.ThrowIfLessThan(chatId, 1, nameof(chatId));
+
+            ArgumentNullException.ThrowIfNullOrEmpty(appUserId, nameof(appUserId));
+
+            var response = await _httpClient.GetAsync($"GroupChatUser/findByChatId/{chatId}");
+            response.EnsureSuccessStatusCode();
+
+            var groupChatUsers = await response.Content.ReadFromJsonAsync<IEnumerable<GroupChatUserModel>>();
+            ArgumentNullException.ThrowIfNull(groupChatUsers, nameof(groupChatUsers));
+
+            await Clients.Group(appUserId).SendAsync("ReceiveMembers", groupChatUsers);
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
+        }
+        catch (ArgumentNullException ex)
+        {
+            _logger.LogError(ex, "Request joined users failed: Parameter '{ParamName}' was null.", ex.ParamName);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            _logger.LogError(ex, "Access denied: user should be authorized.");
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Request unsuccessful. Status code: '{StatusCode}'", ex.StatusCode);
+        }
+    }
+
     public async Task AddUserToChat(GroupChatUserModel groupChatUser)
     {
         try

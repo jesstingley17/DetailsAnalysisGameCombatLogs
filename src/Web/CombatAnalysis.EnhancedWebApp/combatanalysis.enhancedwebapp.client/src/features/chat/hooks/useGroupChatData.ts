@@ -51,7 +51,7 @@ const useGroupChatData = (chatId: number, appUserId: string, pageSizeRef: RefObj
 
         const arg = {
             chatId,
-            groupChatUserId: IasGroupChatUser.id,
+            groupChatUserId: IasGroupChatUser.id ?? "",
             pageSize: pageSizeRef.current
         };
 
@@ -66,7 +66,7 @@ const useGroupChatData = (chatId: number, appUserId: string, pageSizeRef: RefObj
 
         const arg = {
             chatId,
-            groupChatUserId: IasGroupChatUser.id,
+            groupChatUserId: IasGroupChatUser.id ?? "",
             offset,
             pageSize: pageSizeRef.current
         };

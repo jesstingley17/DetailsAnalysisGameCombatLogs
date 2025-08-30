@@ -24,9 +24,10 @@ const ChatHubProvider: React.FC<{ children: React.ReactNode }> = ({ children }) 
 
     const {
         connectToGroupChatAsync, connectToGroupChatMessagesAsync, connectToGroupChatUnreadMessagesAsync,
-        subscribeToGroupChat, subscribeGroupChatUser, subscribeToGroupChatMessages, subscribeToGroupMessageDelivered,
+        subscribeToGroupChat, subscribeToGroupChatMessages, subscribeToGroupMessageDelivered,
         subscribeToUnreadGroupMessagesUpdated, subscribeToGroupMessageHasBeenRead,
         disconnectFromGroupChatHubAsync, disconnectFromGroupChatUnreadMessagesHubAsync,
+        subscribeToGroupChatMembers,
     } = useGroupChatHub(user, groupChatHubConnectionRef, groupChatMessagesHubConnectionRef, groupChatUnreadMessagesHubConnectionRef);
 
     return (
@@ -37,8 +38,9 @@ const ChatHubProvider: React.FC<{ children: React.ReactNode }> = ({ children }) 
             disconnectFromPersonalChatHubAsync, disconnectFromPersonalChatUnreadMessagesHubAsync,
             groupChatHubConnectionRef, groupChatMessagesHubConnectionRef, groupChatUnreadMessagesHubConnectionRef,
             connectToGroupChatAsync, connectToGroupChatMessagesAsync, connectToGroupChatUnreadMessagesAsync,
-            subscribeToGroupChat, subscribeGroupChatUser, subscribeToGroupChatMessages, subscribeToGroupMessageHasBeenRead, subscribeToUnreadGroupMessagesUpdated, subscribeToGroupMessageDelivered,
+            subscribeToGroupChat, subscribeToGroupChatMessages, subscribeToGroupMessageHasBeenRead, subscribeToUnreadGroupMessagesUpdated, subscribeToGroupMessageDelivered,
             disconnectFromGroupChatHubAsync, disconnectFromGroupChatUnreadMessagesHubAsync,
+            subscribeToGroupChatMembers,
         }}>
             {children}
         </ChatHubContext.Provider>
