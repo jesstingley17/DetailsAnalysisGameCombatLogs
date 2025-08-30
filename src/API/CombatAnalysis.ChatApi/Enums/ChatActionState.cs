@@ -3,6 +3,4 @@
 internal enum ChatActionState
 {
     Created,
-    Read,
-    Edited,
 }

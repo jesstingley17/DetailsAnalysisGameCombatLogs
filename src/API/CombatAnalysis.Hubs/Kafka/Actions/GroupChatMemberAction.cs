@@ -2,9 +2,9 @@
 
 namespace CombatAnalysis.Hubs.Kafka.Actions;
 
-public class GroupChatMessageAction
+public class GroupChatMemberAction
 {
-    public GroupChatMessageModel Message { get; set; }
+    public GroupChatUserModel User { get; set; }
 
     public int State { get; set; }
 

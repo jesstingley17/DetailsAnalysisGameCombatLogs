@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CombatAnalysis.ChatApi.Consts;
+using CombatAnalysis.ChatApi.Enums;
 using CombatAnalysis.ChatApi.Interfaces;
 using CombatAnalysis.ChatApi.Kafka.Actions;
 using CombatAnalysis.ChatApi.Models;
@@ -11,8 +12,8 @@ using System.Text.Json;
 
 namespace CombatAnalysis.ChatApi.Kafka;
 
-public class GroupChatConsumer(IOptions<KafkaSettings> kafkaSettings, IOptions<Hubs> hubs, ILogger<GroupChatConsumer> logger, 
-    IServiceScopeFactory serviceScopeFactory, IMapper mapper) : KafkaConsumerBase(kafkaSettings, KafkaTopics.GroupChat, logger)
+public class GroupChatConsumer(IOptions<KafkaSettings> kafkaSettings, IOptions<Hubs> hubs, 
+    ILogger<GroupChatConsumer> logger, IServiceScopeFactory serviceScopeFactory, IMapper mapper) : KafkaConsumerBase(kafkaSettings, KafkaTopics.GroupChat, logger)
 {
     private readonly IOptions<Hubs> _hubs = hubs;
     private readonly ILogger<GroupChatConsumer> _logger = logger;
@@ -41,18 +42,24 @@ public class GroupChatConsumer(IOptions<KafkaSettings> kafkaSettings, IOptions<H
     {
         try
         {
-            await chatTransaction.BeginTransactionAsync();
+            var action = kafkaData.Message.Value.Deserialize<GroupChatAction>();
+            ArgumentNullException.ThrowIfNull(action, nameof(action));
+            ArgumentNullException.ThrowIfNull(action.Rules, nameof(action.Rules));
+            ArgumentNullException.ThrowIfNull(action.User, nameof(action.User));
 
-            var chatAction = kafkaData.Message.Value.Deserialize<GroupChatAction>();
-            ArgumentNullException.ThrowIfNull(chatAction, nameof(chatAction));
-            ArgumentNullException.ThrowIfNull(chatAction.Rules, nameof(chatAction.Rules));
-            ArgumentNullException.ThrowIfNull(chatAction.User, nameof(chatAction.User));
+            switch(action.State)
+            {
+                case (int)ChatActionState.Created:
+                    await chatTransaction.BeginTransactionAsync();
 
-            var chatId = await CreateChatRefsAsync(scope, chatAction.Chat, chatAction.Rules, chatAction.User);
+                    var chatId = await CreateChatRefsAsync(scope, action.Chat, action.Rules, action.User);
 
-            await chatTransaction.CommitTransactionAsync();
+                    await chatTransaction.CommitTransactionAsync();
 
-            await SendSignalAsync(scope, chatAction, chatId);
+                    await SendSignalRequestChatsAsync(scope, action, chatId);
+
+                    break;
+            }
         }
         catch (ArgumentNullException ex)
         {
@@ -98,7 +105,7 @@ public class GroupChatConsumer(IOptions<KafkaSettings> kafkaSettings, IOptions<H
         return createdChat.Id;
     }
 
-    private async Task SendSignalAsync(IServiceScope scope, GroupChatAction chatAction, int chatId)
+    private async Task SendSignalRequestChatsAsync(IServiceScope scope, GroupChatAction chatAction, int chatId)
     {
         var chatHubHelper = scope.ServiceProvider.GetService<IChatHubHelper>();
         ArgumentNullException.ThrowIfNull(chatHubHelper, nameof(chatHubHelper));

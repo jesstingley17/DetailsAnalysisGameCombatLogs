@@ -1,15 +1,13 @@
 import VerificationRestriction from '@/shared/components/VerificationRestriction';
+import { useChatHub } from '@/shared/hooks/useChatHub';
 import logger from '@/utils/Logger';
 import { useEffect, useState, type SetStateAction } from 'react';
-import { useLazyGetUserByIdQuery } from '../../../user/api/Account.api';
 import type { AppUserModel } from '../../../user/types/AppUserModel';
 import { useRemoveGroupChatAsyncMutation } from '../../api/GroupChat.api';
-import { useCreateGroupChatMessageMutation } from '../../api/GroupChatMessage.api';
 import { useGetGroupChatRulesByIdQuery, useUpdateGroupChatRulesAsyncMutation } from '../../api/GroupChatRules.api';
 import {
     useRemoveGroupChatUserAsyncMutation
 } from '../../api/GroupChatUser.api';
-import type { GroupChatMessageModel } from '../../types/GroupChatMessageModel';
 import type { GroupChatModel } from '../../types/GroupChatModel';
 import type { GroupChatUserModel } from '../../types/GroupChatUserModel';
 import type { PersonalChatModel } from '../../types/PersonalChatModel';
@@ -50,13 +48,13 @@ const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ myself, setSelectedChat, 
     const [announcements, setAnnouncements] = useState(1);
     const [payload, setPayload] = useState(defaultPayload);
 
+    const chatHub = useChatHub();
+
     const [removeGroupChatAsyncMut] = useRemoveGroupChatAsyncMutation();
     const [removeGroupChatUserAsyncMut] = useRemoveGroupChatUserAsyncMutation();
-    const [createGroupChatMessageAsync] = useCreateGroupChatMessageMutation();
-    const [getUserByIdAsync] = useLazyGetUserByIdQuery();
     const [updateGroupChatRulesMutAsync] = useUpdateGroupChatRulesAsyncMutation();
 
-    const { data: rules, isLoading } = useGetGroupChatRulesByIdQuery(chat?.id);
+    const { data: rules, isLoading } = useGetGroupChatRulesByIdQuery(chat.id);
 
     useEffect(() => {
         if (!rules) {
@@ -73,36 +71,18 @@ const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ myself, setSelectedChat, 
 
     const removeGroupChatUsersAsync = async (peopleToRemove: GroupChatUserModel[]) => {
         try {
-            for (let i = 0; i < peopleToRemove.length; i++) {
-                await removeGroupChatUserAsyncMut(peopleToRemove[i].id).unwrap();
+            if (!chatHub || !chatHub.groupChatHubConnectionRef.current) {
+                return;
+            }
 
-                const user = await getUserByIdAsync(peopleToRemove[i].appUserId);
-                if (user.data !== undefined) {
-                    const systemMessage = `'${myself?.username}' removed '${user.data.username}' from chat`;
-                    await createMessageAsync(chat?.id, systemMessage);
-                }
+            for (let i = 0; i < peopleToRemove.length; i++) {
+                await chatHub.groupChatHubConnectionRef.current.invoke("RemoveUserFromChat", chat.id, peopleToRemove[i].id, peopleToRemove[i].username);
             }
 
             setPeopleInspectionModeOn(false);
         } catch (e) {
             logger.error("Failed to remove group chat users", e);
         }
-    }
-
-    const createMessageAsync = async (chatId: number, message: string) => {
-        const today = new Date();
-        const newMessage: GroupChatMessageModel = {
-            id: 0,
-            username: myself.username,
-            message: message,
-            time: `${today.getUTCHours()}:${today.getUTCMinutes()}`,
-            status: 0,
-            type: 1,
-            chatId: chatId,
-            groupChatUserId: myself.id
-        };
-
-        await createGroupChatMessageAsync(newMessage);
     }
 
     const leaveFromChatAsync = async (groupChatUserId: string) => {
@@ -116,7 +96,7 @@ const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ myself, setSelectedChat, 
 
     const removeChatAsync = async () => {
         try {
-            await removeGroupChatAsyncMut(chat?.id);
+            await removeGroupChatAsyncMut(chat.id);
             setSelectedChat(null);
         } catch (e) {
             logger.error("Failed to remove group chat", e);
@@ -195,6 +175,7 @@ const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ myself, setSelectedChat, 
                     chatId={chat?.id}
                     groupChatUsersId={groupChatUsersId}
                     setShowAddPeople={setShowAddPeople}
+                    chatHub={chatHub}
                     t={t}
                 />
             }

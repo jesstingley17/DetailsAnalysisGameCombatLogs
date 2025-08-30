@@ -105,14 +105,45 @@ public class GroupChatHub : Hub
         {
             ArgumentNullException.ThrowIfNull(groupChatUser, nameof(groupChatUser));
 
-            var response = await _httpClient.PostAsync("GroupChatUser", JsonContent.Create(groupChatUser));
+            var chatAction = JsonSerializer.Serialize(new GroupChatMemberAction
+            {
+                User = groupChatUser,
+                State = (int)ChatMembersActionState.AddUser,
+                When = DateTime.UtcNow.ToString(),
+                RefreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty,
+                AccessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)] ?? string.Empty
+            });
+            await _kafkaProducer.ProduceAsync(KafkaTopics.GroupChatMember, Guid.NewGuid().ToString(), chatAction);
+        }
+        catch (ArgumentNullException ex)
+        {
+            _logger.LogError(ex, "Add user to chat failed: Parameter '{ParamName}' was null.", ex.ParamName);
+        }
+    }
+
+    public async Task RemoveUserFromChat(int chatId, string groupChatUserId, string groupChatUsername)
+    {
+        try
+        {
+            ArgumentNullException.ThrowIfNullOrEmpty(groupChatUserId, nameof(groupChatUserId));
+
+            var response = await _httpClient.DeletAsync($"GroupChatUser/{groupChatUserId}");
             response.EnsureSuccessStatusCode();
 
-            var createdGroupChatUser = await response.Content.ReadFromJsonAsync<GroupChatUserModel>();
-            ArgumentNullException.ThrowIfNull(createdGroupChatUser, nameof(createdGroupChatUser));
+            var chatAction = JsonSerializer.Serialize(new GroupChatAction
+            {
+                Chat = new GroupChatModel { Id = chatId },
+                Rules = new GroupChatRulesModel(),
+                User = new GroupChatUserModel { Id = groupChatUserId, Username = groupChatUsername },
+                State = (int)ChatActionState.RemoveUser,
+                When = DateTime.UtcNow.ToString(),
+                RefreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty,
+                AccessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)] ?? string.Empty
+            });
+            await _kafkaProducer.ProduceAsync(KafkaTopics.GroupChat, Guid.NewGuid().ToString(), chatAction);
 
-            await Clients.Caller.SendAsync("ReceiveAddedUserToChat", createdGroupChatUser);
-            await Clients.Group(groupChatUser.AppUserId).SendAsync("ReceiveAddedUserToChat", createdGroupChatUser);
+            //await Clients.Caller.SendAsync("ReceiveAddedUserToChat", createdGroupChatUser);
+            //await Clients.Group(groupChatUser.AppUserId).SendAsync("ReceiveAddedUserToChat", createdGroupChatUser);
         }
         catch (ArgumentNullException ex)
         {

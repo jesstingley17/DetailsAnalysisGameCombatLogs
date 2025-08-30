@@ -180,7 +180,7 @@ public class GroupChatUserController(IServiceTransaction<GroupChatUserDto, strin
         }
         catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, "Create group chat ser failed:  Parameter '{ParamName}' was null.", ex.ParamName);
+            _logger.LogError(ex, "Create group chat user failed:  Parameter '{ParamName}' was null.", ex.ParamName);
 
             return BadRequest();
         }

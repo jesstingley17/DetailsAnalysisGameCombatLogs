@@ -1,8 +1,7 @@
 ﻿namespace CombatAnalysis.Hubs.Enums;
 
-internal enum ChatActionState
+internal enum ChatMembersActionState
 {
-    Created,
     AddUser,
     RemoveUser,
 }

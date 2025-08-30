@@ -1,4 +1,6 @@
-﻿namespace CombatAnalysis.ChatApi.Interfaces;
+﻿using CombatAnalysis.ChatApi.Models;
+
+namespace CombatAnalysis.ChatApi.Interfaces;
 
 public interface IChatHubHelper
 {
@@ -11,4 +13,6 @@ public interface IChatHubHelper
     Task SendMessageAlreadyRead(int chatId, int chatMessageId);
 
     Task RequestsChats(int chatId, string appUserId);
+
+    Task RequestsMessage(int chatId, GroupChatMessageModel message);
 }

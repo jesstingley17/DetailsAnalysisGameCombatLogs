@@ -1,4 +1,5 @@
-﻿using CombatAnalysis.ChatApi.Consts;
+﻿using AutoMapper;
+using CombatAnalysis.ChatApi.Consts;
 using CombatAnalysis.ChatApi.Enums;
 using CombatAnalysis.ChatApi.Interfaces;
 using CombatAnalysis.ChatApi.Kafka.Actions;
@@ -11,11 +12,13 @@ using System.Text.Json;
 namespace CombatAnalysis.ChatApi.Kafka;
 
 public class GroupChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, IOptions<Hubs> hubs, ILogger<GroupChatMessageConsumer> logger, 
-    IServiceScopeFactory serviceScopeFactory) : KafkaConsumerBase(kafkaSettings, KafkaTopics.GroupChatMessage, logger)
+    IServiceScopeFactory serviceScopeFactory, IMapper mapper, IKafkaProducerService<string, string> kafkaProducer) : KafkaConsumerBase(kafkaSettings, KafkaTopics.GroupChatMessage, logger)
 {
     private readonly IOptions<Hubs> _hubs = hubs;
     private readonly ILogger<GroupChatMessageConsumer> _logger = logger;
     private readonly IServiceScopeFactory _serviceScopeFactory = serviceScopeFactory;
+    private readonly IMapper _mapper = mapper;
+    private readonly IKafkaProducerService<string, string> _kafkaProducer = kafkaProducer;
 
     protected override async Task ConsumeMessageAsync(ConsumeResult<string, JsonDocument> kafkaData, CancellationToken stoppingToken)
     {
@@ -24,10 +27,8 @@ public class GroupChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, IOp
             ArgumentNullException.ThrowIfNull(kafkaData, nameof(kafkaData));
 
             using var scope = _serviceScopeFactory.CreateScope();
-            var chatTransaction = scope.ServiceProvider.GetService<IChatTransactionService>();
-            ArgumentNullException.ThrowIfNull(chatTransaction, nameof(chatTransaction));
 
-            await ExecuteAsync(scope, chatTransaction, kafkaData);
+            await ExecuteAsync(scope, kafkaData);
         }
         catch (ArgumentNullException ex)
         {
@@ -35,122 +36,50 @@ public class GroupChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, IOp
         }
     }
 
-    private async Task ExecuteAsync(IServiceScope scope, IChatTransactionService chatTransaction, ConsumeResult<string, JsonDocument> kafkaData)
+    private async Task ExecuteAsync(IServiceScope scope, ConsumeResult<string, JsonDocument> kafkaData)
     {
         try
         {
-            await chatTransaction.BeginTransactionAsync();
-
-            var groupChatUser = scope.ServiceProvider.GetService<IServiceTransaction<GroupChatUserDto, string>>();
-            ArgumentNullException.ThrowIfNull(groupChatUser, nameof(groupChatUser));
-
-            var chatAction = kafkaData.Message.Value.Deserialize<GroupChatMessageAction>();
-            ArgumentNullException.ThrowIfNull(chatAction, nameof(chatAction));
+            var chatMessgaeService = scope.ServiceProvider.GetService<IGroupChatMessageService<GroupChatMessageDto, int>>();
+            ArgumentNullException.ThrowIfNull(chatMessgaeService, nameof(chatMessgaeService));
 
             var chatHubHelper = scope.ServiceProvider.GetService<IChatHubHelper>();
             ArgumentNullException.ThrowIfNull(chatHubHelper, nameof(chatHubHelper));
 
-            var unreadGroupChatMessageService = scope.ServiceProvider.GetService<IService<UnreadGroupChatMessageDto, int>>();
-            ArgumentNullException.ThrowIfNull(unreadGroupChatMessageService, nameof(unreadGroupChatMessageService));
+            var action = kafkaData.Message.Value.Deserialize<GroupChatMessageAction>();
+            ArgumentNullException.ThrowIfNull(action, nameof(action));
 
-            await chatHubHelper.ConnectToHubAsync($"{_hubs.Value.Server}{_hubs.Value.GroupChatUnreadMessageAddress}", chatAction.RefreshToken, chatAction.AccessToken);
-            await chatHubHelper.JoinRoomAsync(chatAction.ChatId);
+            var map = _mapper.Map<GroupChatMessageDto>(action.Message);
+            var createdMessage = await chatMessgaeService.CreateAsync(map);
+            ArgumentNullException.ThrowIfNull(createdMessage, nameof(createdMessage));
 
-            if (chatAction.State == (int)ChatActionState.Created)
+            await chatHubHelper.ConnectToHubAsync($"{_hubs.Value.Server}{_hubs.Value.GroupChatMessagesAddress}", action.RefreshToken, action.AccessToken);
+            await chatHubHelper.JoinRoomAsync(createdMessage.ChatId);
+
+            await chatHubHelper.RequestsMessage(createdMessage.ChatId, action.Message);
+
+            if (createdMessage.Type != (int)MessageType.System)
             {
-                await IncreaseCountAsync(chatHubHelper, chatAction, groupChatUser, unreadGroupChatMessageService);
+                await IncreaseUnreadMessageRequestAsync(createdMessage.Id, action);
             }
-            else if (chatAction.State == (int)ChatActionState.Read)
-            {
-                await DecreaseCountAsync(scope, chatHubHelper, chatAction, groupChatUser, unreadGroupChatMessageService);
-            }
-
-            await chatTransaction.CommitTransactionAsync();
         }
         catch (ArgumentNullException ex)
         {
             _logger.LogError(ex, "Consume Chat API data failed: Parameter '{ParamName}' was null.", ex.ParamName);
-
-            await chatTransaction.RollbackTransactionAsync();
-        }
-        catch (ArgumentOutOfRangeException ex)
-        {
-            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
-
-            await chatTransaction.RollbackTransactionAsync();
-        }
-        catch (Exception)
-        {
-            await chatTransaction.RollbackTransactionAsync();
-
-            throw;
         }
     }
 
-    private static async Task IncreaseCountAsync(IChatHubHelper chatHubHelper, GroupChatMessageAction chatAction, IServiceTransaction<GroupChatUserDto, string> groupChatUserService, IService<UnreadGroupChatMessageDto, int> unreadGroupChatMessageService)
+    private async Task IncreaseUnreadMessageRequestAsync(int messageId, GroupChatMessageAction action)
     {
-        var groupChatUsers = await groupChatUserService.GetByParamAsync(nameof(GroupChatMessageAction.ChatId), chatAction.ChatId);
-        ArgumentNullException.ThrowIfNull(groupChatUsers, nameof(groupChatUsers));
-
-        var otherGroupChatUsers = groupChatUsers.Where(x => x.Id != chatAction.GroupChatUserId).ToList();
-        ArgumentNullException.ThrowIfNull(otherGroupChatUsers, nameof(otherGroupChatUsers));
-
-        foreach (var groupChatUser in otherGroupChatUsers)
+        var unreadMessageAction = JsonSerializer.Serialize(new GroupChatUnreadMessageAction
         {
-            groupChatUser.UnreadMessages++;
-
-            var rowsAffected = await groupChatUserService.UpdateAsync(groupChatUser);
-            ArgumentOutOfRangeException.ThrowIfZero(rowsAffected, nameof(rowsAffected));
-
-            var createdUnreadGroupChatMessage = await unreadGroupChatMessageService.CreateAsync(new UnreadGroupChatMessageDto
-            {
-                GroupChatUserId = groupChatUser.Id,
-                GroupChatMessageId = chatAction.MessageId,
-            });
-            ArgumentNullException.ThrowIfNull(createdUnreadGroupChatMessage, nameof(createdUnreadGroupChatMessage));
-        }
-
-        await chatHubHelper.RequestUnreadMessagesAsync(chatAction.ChatId, chatAction.GroupChatUserId);
-    }
-
-    private async Task DecreaseCountAsync(IServiceScope scope, IChatHubHelper chatHubHelper, GroupChatMessageAction chatAction, IServiceTransaction<GroupChatUserDto, string> groupChatUserService, IService<UnreadGroupChatMessageDto, int> unreadGroupChatMessageServic)
-    {
-        var groupChatUsers = await groupChatUserService.GetByParamAsync(nameof(GroupChatMessageAction.ChatId), chatAction.ChatId);
-        ArgumentNullException.ThrowIfNull(groupChatUsers, nameof(groupChatUsers));
-
-        var meAsGroupChatUser = groupChatUsers.FirstOrDefault(x => x.Id == chatAction.GroupChatUserId);
-        ArgumentNullException.ThrowIfNull(meAsGroupChatUser, nameof(meAsGroupChatUser));
-
-        if (meAsGroupChatUser.UnreadMessages == 0)
-        {
-            return;
-        }
-
-        meAsGroupChatUser.UnreadMessages--;
-
-        var rowsAffected = await groupChatUserService.UpdateAsync(meAsGroupChatUser);
-        ArgumentOutOfRangeException.ThrowIfZero(rowsAffected, nameof(rowsAffected));
-
-        var getMyUnreadGroupChatMessages = await unreadGroupChatMessageServic.GetByParamAsync(nameof(UnreadGroupChatMessageDto.GroupChatUserId), chatAction.GroupChatUserId);
-        ArgumentNullException.ThrowIfNull(getMyUnreadGroupChatMessages, nameof(getMyUnreadGroupChatMessages));
-
-        if (getMyUnreadGroupChatMessages.Any())
-        {
-            var currentUnreadMessage = getMyUnreadGroupChatMessages.FirstOrDefault(m => m.GroupChatMessageId == chatAction.MessageId);
-            if (currentUnreadMessage != null)
-            {
-                rowsAffected = await unreadGroupChatMessageServic.DeleteAsync(currentUnreadMessage.Id);
-                ArgumentOutOfRangeException.ThrowIfZero(rowsAffected, nameof(rowsAffected));
-            }
-        }
-
-        var chatMessageHubHelper = scope.ServiceProvider.GetService<IChatHubHelper>();
-        ArgumentNullException.ThrowIfNull(chatMessageHubHelper, nameof(chatMessageHubHelper));
-
-        await chatMessageHubHelper.ConnectToHubAsync($"{_hubs.Value.Server}{_hubs.Value.GroupChatMessagesAddress}", chatAction.RefreshToken, chatAction.AccessToken);
-        await chatMessageHubHelper.JoinRoomAsync(chatAction.ChatId);
-        await chatMessageHubHelper.SendMessageAlreadyRead(chatAction.ChatId, chatAction.MessageId);
-        
-        await chatHubHelper.RequestUnreadMessagesAsync(chatAction.ChatId, chatAction.GroupChatUserId);
+            ChatId = action.Message.ChatId,
+            MessageId = messageId,
+            GroupChatUserId = action.Message.GroupChatUserId,
+            State = (int)ChatMessageActionState.Created,
+            RefreshToken = action.RefreshToken,
+            AccessToken = action.AccessToken,
+        });
+        await _kafkaProducer.ProduceAsync(KafkaTopics.GroupChatUnreadMessage, Guid.NewGuid().ToString(), unreadMessageAction);
     }
 }

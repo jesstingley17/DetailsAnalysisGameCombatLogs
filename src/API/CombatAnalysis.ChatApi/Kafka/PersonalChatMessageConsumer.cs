@@ -37,11 +37,11 @@ public class PersonalChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, 
             await chatHubHelper.ConnectToHubAsync($"{_hubs.Value.Server}{_hubs.Value.PersonalChatUnreadMessageAddress}", chatAction.RefreshToken, chatAction.AccessToken);
             await chatHubHelper.JoinRoomAsync(personalChat.Id);
 
-            if (chatAction.State == (int)ChatActionState.Created)
+            if (chatAction.State == (int)ChatMessageActionState.Created)
             {
                 await IncreaseCountAsync(chatHubHelper, personalChat, chatAction, personalChatService);
             }
-            else if (chatAction.State == (int)ChatActionState.Read)
+            else if (chatAction.State == (int)ChatMessageActionState.Read)
             {
                 await DecreaseCountAsync(chatHubHelper, personalChat, chatAction, personalChatService);
             }

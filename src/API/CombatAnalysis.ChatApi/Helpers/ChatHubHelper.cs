@@ -1,4 +1,5 @@
 ﻿using CombatAnalysis.ChatApi.Interfaces;
+using CombatAnalysis.ChatApi.Models;
 using Microsoft.AspNetCore.SignalR.Client;
 using System.Net;
 
@@ -39,6 +40,13 @@ public class ChatHubHelper : IChatHubHelper
         ArgumentNullException.ThrowIfNull(_chatHubConnection, nameof(_chatHubConnection));
 
         await _chatHubConnection.SendAsync("RequestJoinedUser", chatId, appUserId);
+    }
+
+    public async Task RequestsMessage(int chatId, GroupChatMessageModel message)
+    {
+        ArgumentNullException.ThrowIfNull(_chatHubConnection, nameof(_chatHubConnection));
+
+        await _chatHubConnection.SendAsync("RequestMessage", chatId, message);
     }
 
     private static async Task<HubConnection> CreateHubConnectionAsync(string hubURL, string refreshToken, string accessToken)
