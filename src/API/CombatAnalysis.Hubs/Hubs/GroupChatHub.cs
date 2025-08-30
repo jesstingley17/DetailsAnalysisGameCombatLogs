@@ -125,37 +125,32 @@ public class GroupChatHub : Hub
     {
         try
         {
+            ArgumentOutOfRangeException.ThrowIfLessThan(chatId, 1, nameof(chatId));
             ArgumentNullException.ThrowIfNullOrEmpty(groupChatUserId, nameof(groupChatUserId));
+            ArgumentNullException.ThrowIfNullOrEmpty(groupChatUsername, nameof(groupChatUsername));
 
-            var response = await _httpClient.DeletAsync($"GroupChatUser/{groupChatUserId}");
-            response.EnsureSuccessStatusCode();
-
-            var chatAction = JsonSerializer.Serialize(new GroupChatAction
+            var chatAction = JsonSerializer.Serialize(new GroupChatMemberAction
             {
-                Chat = new GroupChatModel { Id = chatId },
-                Rules = new GroupChatRulesModel(),
-                User = new GroupChatUserModel { Id = groupChatUserId, Username = groupChatUsername },
-                State = (int)ChatActionState.RemoveUser,
+                User = new GroupChatUserModel 
+                { 
+                    Id = groupChatUserId, 
+                    Username = groupChatUsername, 
+                    ChatId = chatId 
+                },
+                State = (int)ChatMembersActionState.RemoveUser,
                 When = DateTime.UtcNow.ToString(),
                 RefreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty,
                 AccessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)] ?? string.Empty
             });
-            await _kafkaProducer.ProduceAsync(KafkaTopics.GroupChat, Guid.NewGuid().ToString(), chatAction);
-
-            //await Clients.Caller.SendAsync("ReceiveAddedUserToChat", createdGroupChatUser);
-            //await Clients.Group(groupChatUser.AppUserId).SendAsync("ReceiveAddedUserToChat", createdGroupChatUser);
+            await _kafkaProducer.ProduceAsync(KafkaTopics.GroupChatMember, Guid.NewGuid().ToString(), chatAction);
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
         }
         catch (ArgumentNullException ex)
         {
             _logger.LogError(ex, "Add user to chat failed: Parameter '{ParamName}' was null.", ex.ParamName);
-        }
-        catch (UnauthorizedAccessException ex)
-        {
-            _logger.LogError(ex, "Access denied: user should be authorized.");
-        }
-        catch (HttpRequestException ex)
-        {
-            _logger.LogError(ex, "Request unsuccessful. Status code: '{StatusCode}'", ex.StatusCode);
         }
     }
 

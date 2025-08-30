@@ -3,6 +3,7 @@ using CombatAnalysis.Hubs.Enums;
 using CombatAnalysis.Hubs.Interfaces;
 using CombatAnalysis.Hubs.Kafka.Actions;
 using CombatAnalysis.Hubs.Models;
+using Confluent.Kafka;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
@@ -100,12 +101,12 @@ public class GroupChatMessagesHub : Hub
         }
     }
 
-    public async Task SendMessageHasBeenRead(int chatMessageId, string meInChatId)
+    public async Task SendMessageHasBeenRead(int chatMessageId, string myselfInChatId)
     {
         try
         {
             ArgumentOutOfRangeException.ThrowIfZero(chatMessageId, nameof(chatMessageId));
-            ArgumentNullException.ThrowIfNullOrEmpty(meInChatId, nameof(meInChatId));
+            ArgumentNullException.ThrowIfNullOrEmpty(myselfInChatId, nameof(myselfInChatId));
 
             var response = await _httpClient.GetAsync($"GroupChatMessage/{chatMessageId}");
             response.EnsureSuccessStatusCode();
@@ -118,17 +119,16 @@ public class GroupChatMessagesHub : Hub
                 return;
             }
 
-            //var chatAction = JsonSerializer.Serialize(new GroupChatMessageAction
-            //{
-            //    ChatId = chatMessage.ChatId,
-            //    MessageId = chatMessageId,
-            //    GroupChatUserId = meInChatId,
-            //    State = (int)ChatMessageActionState.Read,
-            //    When = DateTime.UtcNow.ToString(),
-            //    RefreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty,
-            //    AccessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)] ?? string.Empty
-            //});
-            //await _kafkaProducer.ProduceAsync(KafkaTopics.GroupChatMessage, chatMessage.Id.ToString(), chatAction);
+            var chatAction = JsonSerializer.Serialize(new GroupChatUnreadMessageAction
+            {
+                ChatId = chatMessage.ChatId,
+                MessageId = chatMessage.Id,
+                GroupChatUserId = myselfInChatId,
+                State = (int)ChatMessageActionState.Read,
+                RefreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty,
+                AccessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)] ?? string.Empty
+            });
+            await _kafkaProducer.ProduceAsync(KafkaTopics.GroupChatUnreadMessage, Guid.NewGuid().ToString(), chatAction);
         }
         catch (ArgumentOutOfRangeException ex)
         {
@@ -137,14 +137,6 @@ public class GroupChatMessagesHub : Hub
         catch (ArgumentNullException ex)
         {
             _logger.LogError(ex, "Send message has been read failed: Parameter '{ParamName}' was null.", ex.ParamName);
-        }
-        catch (UnauthorizedAccessException ex)
-        {
-            _logger.LogError(ex, "Access denied: user should be authorized.");
-        }
-        catch (HttpRequestException ex)
-        {
-            _logger.LogError(ex, "Request unsuccessful. Status code: '{StatusCode}'", ex.StatusCode);
         }
     }
 

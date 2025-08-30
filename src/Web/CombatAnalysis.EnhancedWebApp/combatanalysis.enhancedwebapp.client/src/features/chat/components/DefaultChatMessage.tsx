@@ -110,6 +110,32 @@ const DefaultChatMessage: React.FC<DefaultChatMessageProps> = ({ user, chatUserA
         window.open(url, "_blink");
     }
 
+    const getMessage = () => {
+        let isAlreadyRead = false;
+        if ("groupChatMessageId" in message) {
+            isAlreadyRead = message.groupChatMessageId === undefined || message.groupChatMessageId == null;
+        } else {
+            isAlreadyRead = message.status === messageStatus["read"];
+        }
+
+        return (
+            <div className={`text-of-message${isAlreadyRead ? "__read" : "__unread"} link 
+                            ${message.markedType === 1 ? 'not-relevant' : message.markedType === 2 ? 'with-emotions' : ''}
+                            ${openMessageMenu ? 'menu' : ''} `}
+                            onMouseOver={message.status !== messageStatus["read"] ? messageHasBeenReadHandle : () => { }}>
+                <div className="content" onClick={handleOpenMessageMenu}>{message?.message}</div>
+                {message?.message.startsWith("http") &&
+                    <FontAwesomeIcon
+                        icon={faUpRightFromSquare}
+                        className="open-link"
+                        onClick={() => openLink(message?.message)}
+                        title={t("OpenLink") || ""}
+                    />
+                }
+            </div>
+        );
+    }
+
     return (
         <div className={`chat-messages__content${reviewerId === messageOwnerId ? ' my-message' : ''}`}>
             <ChatMessageTitle
@@ -138,20 +164,7 @@ const DefaultChatMessage: React.FC<DefaultChatMessageProps> = ({ user, chatUserA
                             title={t("Delivered") || ""}
                         />
                     }
-                    <div className={`text-of-message${message.status !== messageStatus["read"] ? "__unread" : "__read"} link 
-                            ${message.markedType === 1 ? 'not-relevant' : message.markedType === 2 ? 'with-emotions' : ''}
-                            ${openMessageMenu ? 'menu' : ''} `}
-                            onMouseOver={message.status !== messageStatus["read"] ? messageHasBeenReadHandle : () => { }}>
-                        <div className="content" onClick={handleOpenMessageMenu}>{message?.message}</div>
-                        {message?.message.startsWith("http") &&
-                            <FontAwesomeIcon
-                                icon={faUpRightFromSquare}
-                                className="open-link"
-                                onClick={() => openLink(message?.message)}
-                                title={t("OpenLink") || ""}
-                            />
-                        }
-                    </div>
+                    {getMessage()}
                     {message.markedType === 1 &&
                         <FontAwesomeIcon
                             icon={faXmark}

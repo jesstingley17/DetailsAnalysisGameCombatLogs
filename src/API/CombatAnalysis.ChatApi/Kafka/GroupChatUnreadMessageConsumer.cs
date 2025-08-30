@@ -6,6 +6,7 @@ using CombatAnalysis.ChatBL.DTO;
 using CombatAnalysis.ChatBL.Interfaces;
 using Confluent.Kafka;
 using Microsoft.Extensions.Options;
+using System;
 using System.Text.Json;
 
 namespace CombatAnalysis.ChatApi.Kafka;
@@ -41,8 +42,11 @@ public class GroupChatUnreadMessageConsumer(IOptions<KafkaSettings> kafkaSetting
         {
             await chatTransaction.BeginTransactionAsync();
 
-            var groupChatUser = scope.ServiceProvider.GetService<IServiceTransaction<GroupChatUserDto, string>>();
-            ArgumentNullException.ThrowIfNull(groupChatUser, nameof(groupChatUser));
+            var groupChatMessageService = scope.ServiceProvider.GetService<IGroupChatMessageService<GroupChatMessageDto, int>>();
+            ArgumentNullException.ThrowIfNull(groupChatMessageService, nameof(groupChatMessageService));
+
+            var groupChatUserService = scope.ServiceProvider.GetService<IServiceTransaction<GroupChatUserDto, string>>();
+            ArgumentNullException.ThrowIfNull(groupChatUserService, nameof(groupChatUserService));
 
             var chatAction = kafkaData.Message.Value.Deserialize<GroupChatUnreadMessageAction>();
             ArgumentNullException.ThrowIfNull(chatAction, nameof(chatAction));
@@ -58,11 +62,11 @@ public class GroupChatUnreadMessageConsumer(IOptions<KafkaSettings> kafkaSetting
 
             if (chatAction.State == (int)ChatMessageActionState.Created)
             {
-                await IncreaseCountAsync(chatHubHelper, chatAction, groupChatUser, unreadGroupChatMessageService);
+                await IncreaseCountAsync(chatHubHelper, chatAction, groupChatUserService, unreadGroupChatMessageService);
             }
             else if (chatAction.State == (int)ChatMessageActionState.Read)
             {
-                await DecreaseCountAsync(scope, chatHubHelper, chatAction, groupChatUser, unreadGroupChatMessageService);
+                await DecreaseCountAsync(scope, chatHubHelper, chatAction, groupChatUserService, unreadGroupChatMessageService, groupChatMessageService);
             }
 
             await chatTransaction.CommitTransactionAsync();
@@ -113,13 +117,21 @@ public class GroupChatUnreadMessageConsumer(IOptions<KafkaSettings> kafkaSetting
         await chatHubHelper.RequestUnreadMessagesAsync(chatAction.ChatId, chatAction.GroupChatUserId);
     }
 
-    private async Task DecreaseCountAsync(IServiceScope scope, IChatHubHelper chatHubHelper, GroupChatUnreadMessageAction chatAction, IServiceTransaction<GroupChatUserDto, string> groupChatUserService, IService<UnreadGroupChatMessageDto, int> unreadGroupChatMessageServic)
+    private async Task DecreaseCountAsync(IServiceScope scope, IChatHubHelper chatHubHelper, GroupChatUnreadMessageAction chatAction, IServiceTransaction<GroupChatUserDto, string> groupChatUserService, IService<UnreadGroupChatMessageDto, int> unreadGroupChatMessageService, IGroupChatMessageService<GroupChatMessageDto, int> groupChatMessageService)
     {
         var groupChatUsers = await groupChatUserService.GetByParamAsync(nameof(GroupChatUnreadMessageAction.ChatId), chatAction.ChatId);
         ArgumentNullException.ThrowIfNull(groupChatUsers, nameof(groupChatUsers));
 
         var meAsGroupChatUser = groupChatUsers.FirstOrDefault(x => x.Id == chatAction.GroupChatUserId);
         ArgumentNullException.ThrowIfNull(meAsGroupChatUser, nameof(meAsGroupChatUser));
+
+        var message = await groupChatMessageService.GetByIdAsync(chatAction.MessageId);
+        ArgumentNullException.ThrowIfNull(message, nameof(message));
+
+        message.Status = 2;
+
+        var affectedRows = await groupChatMessageService.UpdateAsync(message);
+        ArgumentOutOfRangeException.ThrowIfLessThan(affectedRows, 1, nameof(affectedRows));
 
         if (meAsGroupChatUser.UnreadMessages == 0)
         {
@@ -131,7 +143,7 @@ public class GroupChatUnreadMessageConsumer(IOptions<KafkaSettings> kafkaSetting
         var rowsAffected = await groupChatUserService.UpdateAsync(meAsGroupChatUser);
         ArgumentOutOfRangeException.ThrowIfZero(rowsAffected, nameof(rowsAffected));
 
-        var getMyUnreadGroupChatMessages = await unreadGroupChatMessageServic.GetByParamAsync(nameof(UnreadGroupChatMessageDto.GroupChatUserId), chatAction.GroupChatUserId);
+        var getMyUnreadGroupChatMessages = await unreadGroupChatMessageService.GetByParamAsync(nameof(UnreadGroupChatMessageDto.GroupChatUserId), chatAction.GroupChatUserId);
         ArgumentNullException.ThrowIfNull(getMyUnreadGroupChatMessages, nameof(getMyUnreadGroupChatMessages));
 
         if (getMyUnreadGroupChatMessages.Any())
@@ -139,7 +151,7 @@ public class GroupChatUnreadMessageConsumer(IOptions<KafkaSettings> kafkaSetting
             var currentUnreadMessage = getMyUnreadGroupChatMessages.FirstOrDefault(m => m.GroupChatMessageId == chatAction.MessageId);
             if (currentUnreadMessage != null)
             {
-                rowsAffected = await unreadGroupChatMessageServic.DeleteAsync(currentUnreadMessage.Id);
+                rowsAffected = await unreadGroupChatMessageService.DeleteAsync(currentUnreadMessage.Id);
                 ArgumentOutOfRangeException.ThrowIfZero(rowsAffected, nameof(rowsAffected));
             }
         }

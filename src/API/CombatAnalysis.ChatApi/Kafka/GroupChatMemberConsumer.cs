@@ -44,15 +44,20 @@ public class GroupChatMemberConsumer(IOptions<KafkaSettings> kafkaSettings, ILog
             ArgumentNullException.ThrowIfNull(action, nameof(action));
             ArgumentNullException.ThrowIfNull(action.User, nameof(action.User));
 
+            var chatUserService = scope.ServiceProvider.GetService<IServiceTransaction<GroupChatUserDto, string>>();
+            ArgumentNullException.ThrowIfNull(chatUserService, nameof(chatUserService));
+
             switch (action.State)
             {
                 case (int)ChatMembersActionState.AddUser:
-                    var chatUser = await CreateGroupChatUser(scope, action.User);
+                    var chatUser = await CreateGroupChatUser(chatUserService, action.User);
 
                     await CreateSystemMessageAsync( $"Add user '{action.User.Username}' to chat", action);
 
                     break;
                 case (int)ChatMembersActionState.RemoveUser:
+                    await RemoveGroupChatUser(chatUserService, action.User.Id);
+
                     await CreateSystemMessageAsync($"Remove user '{action.User.Username}' from chat", action);
 
                     break;
@@ -64,11 +69,8 @@ public class GroupChatMemberConsumer(IOptions<KafkaSettings> kafkaSettings, ILog
         }
     }
 
-    private async Task<GroupChatUserModel> CreateGroupChatUser(IServiceScope scope, GroupChatUserModel chatUser)
+    private async Task<GroupChatUserModel> CreateGroupChatUser(IServiceTransaction<GroupChatUserDto, string> chatUserService, GroupChatUserModel chatUser)
     {
-        var chatUserService = scope.ServiceProvider.GetService<IServiceTransaction<GroupChatUserDto, string>>();
-        ArgumentNullException.ThrowIfNull(chatUserService, nameof(chatUserService));
-
         chatUser.Id = Guid.NewGuid().ToString();
 
         var map = _mapper.Map<GroupChatUserDto>(chatUser);
@@ -98,5 +100,11 @@ public class GroupChatMemberConsumer(IOptions<KafkaSettings> kafkaSettings, ILog
             AccessToken = chatAction.AccessToken
         });
         await _kafkaProducer.ProduceAsync(KafkaTopics.GroupChatMessage, Guid.NewGuid().ToString(), chatMessageAction);
+    }
+
+    private static async Task RemoveGroupChatUser(IServiceTransaction<GroupChatUserDto, string> chatUserService, string chatUserId)
+    {
+        var affectedRows = await chatUserService.DeleteAsync(chatUserId);
+        ArgumentOutOfRangeException.ThrowIfLessThan(affectedRows, 1, nameof(affectedRows));
     }
 }

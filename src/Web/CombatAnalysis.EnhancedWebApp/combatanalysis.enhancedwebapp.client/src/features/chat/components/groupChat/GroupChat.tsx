@@ -199,10 +199,10 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
                         <li className="message" key={message.id}>
                             <ChatMessage
                                 user={myself}
-                                reviewerId={groupChatData.IasGroupChatUser.id}
+                                reviewerId={groupChatData.IasGroupChatUser.id ?? ""}
                                 chatUserAsUserId={groupChatData.groupChatUsers.filter(u => u.id === message.groupChatUserId)[0]?.appUserId}
                                 chatUserUsername={groupChatData.groupChatUsers.filter(u => u.id === message.groupChatUserId)[0]?.username}
-                                messageOwnerId={groupChatData.groupChatUsers.filter(u => u.id === message.groupChatUserId)[0]?.id}
+                                messageOwnerId={groupChatData.groupChatUsers.filter(u => u.id === message.groupChatUserId)[0]?.id ?? ""}
                                 message={message}
                                 updateMessageAsync={updateMessageAsync}
                                 hubConnection={chatHub.groupChatMessagesHubConnectionRef.current}

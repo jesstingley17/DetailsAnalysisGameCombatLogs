@@ -53,6 +53,8 @@ public class GroupChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, IOp
             var createdMessage = await chatMessgaeService.CreateAsync(map);
             ArgumentNullException.ThrowIfNull(createdMessage, nameof(createdMessage));
 
+            action.Message.Id = createdMessage.Id;
+
             await chatHubHelper.ConnectToHubAsync($"{_hubs.Value.Server}{_hubs.Value.GroupChatMessagesAddress}", action.RefreshToken, action.AccessToken);
             await chatHubHelper.JoinRoomAsync(createdMessage.ChatId);
 

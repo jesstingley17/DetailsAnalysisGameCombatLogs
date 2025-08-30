@@ -61,7 +61,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ user, chatUserAsUserId, chatU
     }
 
     const groupChatMessageHasBeenReadHandle = async (): Promise<void> => {
-        if (!hubConnection || reviewerId === messageOwnerId || ('groupChatMessageId' in targetMessage && !targetMessage.groupChatMessageId)) {
+        if (!hubConnection || reviewerId === messageOwnerId || ("groupChatMessageId" in targetMessage && !targetMessage.groupChatMessageId)) {
             return;
         }
 
