@@ -1,6 +1,5 @@
 ﻿import type { RootState } from '@/app/Store';
 import CommunicationMenu from '@/shared/components/CommunicationMenu';
-import Loading from '@/shared/components/Loading';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { memo, useEffect, useMemo, useState } from 'react';
@@ -75,18 +74,6 @@ const Chats: React.FC = () => {
         return id;
     }
 
-    if (!myself) {
-        return (
-            <>
-                <CommunicationMenu
-                    currentMenuItem={1}
-                    hasSubMenu={false}
-                />
-                <Loading />
-            </>
-        );
-    }
-
     if (screenSize.width <= maxWidth) {
         return (
             <>
@@ -103,7 +90,7 @@ const Chats: React.FC = () => {
                                 onClick={() => setSelectedChat(null)}
                             />
                         </div>
-                        {selectedChat
+                        {(selectedChat && myself)
                             ? "appUserId" in selectedChat
                                 ? <GroupChat
                                     chat={selectedChat}
@@ -139,26 +126,28 @@ const Chats: React.FC = () => {
             }
             <div className="communication-content">
                 <div className="chats">
-                    <div className="chats__my-chats">
-                        <GroupChatList
-                            myselfId={myself.id}
-                            t={t}
-                            selectedChat={selectedChat}
-                            setSelectedChat={setSelectedChat}
-                            chatsHidden={groupChatsHidden}
-                            toggleChatsHidden={() => setGroupChatsHidden(prev => !prev)}
-                            setShowCreateGroupChat={setShowCreateGroupChat}
-                        />
-                        <PersonalChatList
-                            myselfId={myself.id}
-                            t={t}
-                            selectedChat={selectedChat}
-                            setSelectedChat={setSelectedChat}
-                            chatsHidden={personalChatsHidden}
-                            toggleChatsHidden={() => setPersonalChatsHidden(prev => !prev)}
-                        />
-                    </div>
-                    {selectedChat
+                    {myself &&
+                        <div className="chats__my-chats">
+                            <GroupChatList
+                                myselfId={myself.id}
+                                t={t}
+                                selectedChat={selectedChat}
+                                setSelectedChat={setSelectedChat}
+                                chatsHidden={groupChatsHidden}
+                                toggleChatsHidden={() => setGroupChatsHidden(prev => !prev)}
+                                setShowCreateGroupChat={setShowCreateGroupChat}
+                            />
+                            <PersonalChatList
+                                myselfId={myself.id}
+                                t={t}
+                                selectedChat={selectedChat}
+                                setSelectedChat={setSelectedChat}
+                                chatsHidden={personalChatsHidden}
+                                toggleChatsHidden={() => setPersonalChatsHidden(prev => !prev)}
+                            />
+                        </div>
+                    }
+                    {(selectedChat && myself)
                         ? "appUserId" in selectedChat
                             ? <GroupChat
                                 chat={selectedChat}

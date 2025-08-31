@@ -173,13 +173,13 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
         saveScrollState();
     }
 
-    if (!chatHub || !groupChatData || groupChatData.isLoading) {
-        return (
-            <div className="chats__selected-chat_loading">
-                <Loading />
-            </div>
-        );
-    }
+    //if (!chatHub || !groupChatData || groupChatData.isLoading) {
+    //    return (
+    //        <div className="chats__selected-chat_loading">
+    //            <Loading />
+    //        </div>
+    //    );
+    //}
 
     return (
         <div className="chats__selected-chat">
@@ -197,29 +197,34 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
                 <ul className="chat-messages" ref={chatContainerRef}>
                     {currentMessages?.map((message) => (
                         <li className="message" key={message.id}>
-                            <ChatMessage
-                                user={myself}
-                                reviewerId={groupChatData.IasGroupChatUser.id ?? ""}
-                                chatUserAsUserId={groupChatData.groupChatUsers.filter(u => u.id === message.groupChatUserId)[0]?.appUserId}
-                                chatUserUsername={groupChatData.groupChatUsers.filter(u => u.id === message.groupChatUserId)[0]?.username}
-                                messageOwnerId={groupChatData.groupChatUsers.filter(u => u.id === message.groupChatUserId)[0]?.id ?? ""}
-                                message={message}
-                                updateMessageAsync={updateMessageAsync}
-                                hubConnection={chatHub.groupChatMessagesHubConnectionRef.current}
-                                subscribeToChatMessageHasBeenRead={chatHub.subscribeToGroupMessageHasBeenRead}
-                            />
+                            {(!chatHub || !groupChatData || groupChatData.isLoading)
+                                ? <Loading />
+                                : <ChatMessage
+                                    user={myself}
+                                    reviewerId={groupChatData.IasGroupChatUser.id ?? ""}
+                                    chatUserAsUserId={groupChatData.groupChatUsers.filter(u => u.id === message.groupChatUserId)[0]?.appUserId}
+                                    chatUserUsername={groupChatData.groupChatUsers.filter(u => u.id === message.groupChatUserId)[0]?.username}
+                                    messageOwnerId={groupChatData.groupChatUsers.filter(u => u.id === message.groupChatUserId)[0]?.id ?? ""}
+                                    message={message}
+                                    updateMessageAsync={updateMessageAsync}
+                                    hubConnection={chatHub.groupChatMessagesHubConnectionRef.current}
+                                    subscribeToChatMessageHasBeenRead={chatHub.subscribeToGroupMessageHasBeenRead}
+                                />
+                            }
                         </li>
                     ))}
                 </ul>
-                <MessageInput
-                    chatId={chat.id}
-                    initiator={groupChatData.IasGroupChatUser}
-                    setAreLoadingOldMessages={setAreLoadingOldMessages}
-                    t={t}
-                    targetChatType={1}
-                />
+                {groupChatData &&
+                    <MessageInput
+                        chatId={chat.id}
+                        initiator={groupChatData.IasGroupChatUser}
+                        setAreLoadingOldMessages={setAreLoadingOldMessages}
+                        t={t}
+                        targetChatType={1}
+                    />
+                }
             </div>
-            {settingsIsShow &&
+            {(settingsIsShow && groupChatData) &&
                 <GroupChatMenu
                     myself={myself}
                     setSelectedChat={setSelectedChat}

@@ -19,7 +19,7 @@ const FeedParticipants: React.FC<FeedParticipantsProps> = ({ myself, t }) => {
     const [currentPosts, setCurrentPosts] = useState<UserPostModel[] | CommunityPostModel[]>([]);
     const [haveNewPosts, setHaveNewPosts] = useState(false);
 
-    const { userPosts, communityPosts, newPosts, newCommunityPosts, count, communityCount, isLoading, getMoreUserPostsAsync, getMoreCommunityPostsAsync, currentDateRef } = useFetchPosts(myself.id);
+    const { userPosts, communityPosts, newPosts, newCommunityPosts, count, communityCount, getMoreUserPostsAsync, getMoreCommunityPostsAsync, currentDateRef } = useFetchPosts(myself.id);
 
     useEffect(() => {
         if (!userPosts) {
@@ -93,10 +93,6 @@ const FeedParticipants: React.FC<FeedParticipantsProps> = ({ myself, t }) => {
         setHaveNewPosts(false);
     }
 
-    if (isLoading) {
-        return (<Loading />);
-    }
-
     return (
         <>
             {haveNewPosts &&
@@ -105,7 +101,9 @@ const FeedParticipants: React.FC<FeedParticipantsProps> = ({ myself, t }) => {
                 </div>
             }
             <ul className="posts">
-                {currentPosts?.map(post => (
+                {!currentPosts
+                    ? <Loading />
+                    : currentPosts?.map(post => (
                     <li key={post.id}>
                         {"communityId" in post
                             ? <CommunityPost

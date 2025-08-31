@@ -1,11 +1,11 @@
+import { useFriendSearchMyFriendsQuery } from '@/features/user/api/Friend.api';
+import { useGetUsersQuery } from '@/features/user/api/User.api';
+import type { AppUserModel } from '@/features/user/types/AppUserModel';
+import type { FriendModel } from '@/features/user/types/FriendModel';
 import { faEye, faEyeSlash, faMagnifyingGlassMinus, faMagnifyingGlassPlus, faPlus, faUserPlus, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useRef, useState, type ChangeEvent, type SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useFriendSearchMyFriendsQuery } from '../../features/user/api/Friend.api';
-import { useGetUsersQuery } from '../../features/user/api/User.api';
-import type { AppUserModel } from '../../features/user/types/AppUserModel';
-import type { FriendModel } from '../../features/user/types/FriendModel';
 import AddFriendItem from './AddFriendItem';
 
 import './AddPeople.scss';
@@ -16,7 +16,7 @@ interface AddPeopleProps {
     user: AppUserModel;
     usersId: string[];
     peopleToJoin: AppUserModel[];
-    setPeopleToJoin(value: SetStateAction<AppUserModel[]>): void;
+    setPeopleToJoin: (value: SetStateAction<AppUserModel[]>) => void;
 }
 
 const AddPeople: React.FC<AddPeopleProps> = ({ user, usersId, peopleToJoin, setPeopleToJoin }) => {
@@ -25,13 +25,13 @@ const AddPeople: React.FC<AddPeopleProps> = ({ user, usersId, peopleToJoin, setP
     const [maxPeopleItems, setMaxPeopleItems] = useState(defaultMaxItems);
     const [maxFriendsItems, setMaxFriendsItems] = useState(defaultMaxItems);
 
-    const { friends, isLoading: friendsIsLoading } = useFriendSearchMyFriendsQuery(user?.id, {
+    const { friends } = useFriendSearchMyFriendsQuery(user?.id, {
         selectFromResult: ({ data, isLoading }) => ({
             friends: data?.filter((item) => !usersId.includes(user?.id === item.whoFriendId ? item.forWhomId : item.whoFriendId)),
             isLoading,
         }),
     });
-    const { people, isLoading: peopleIsLoading } = useGetUsersQuery(undefined, {
+    const { people } = useGetUsersQuery(undefined, {
         selectFromResult: ({ data, isLoading }) => ({
             people: data?.filter((item) => !usersId.includes(item.id)),
             isLoading
@@ -78,10 +78,6 @@ const AddPeople: React.FC<AddPeopleProps> = ({ user, usersId, peopleToJoin, setP
         setFilteredPeople([]);
     }
 
-    if (friendsIsLoading || peopleIsLoading || !friends || !people) {
-        return (<></>);
-    }
-
     const renderFriendsList = (items: FriendModel[], maxItems: number) => {
         return (
             <ul className="add-new-people__list_active">
@@ -102,7 +98,6 @@ const AddPeople: React.FC<AddPeopleProps> = ({ user, usersId, peopleToJoin, setP
             </ul>
         );
     }
-
 
     const renderUserList = (items: AppUserModel[], maxItems: number) => {
         return (
@@ -169,7 +164,7 @@ const AddPeople: React.FC<AddPeopleProps> = ({ user, usersId, peopleToJoin, setP
                             onClick={() => setShowFriendList(!showFriendList)}
                         />
                     </div>
-                    {showFriendList &&
+                    {(showFriendList && friends) &&
                         <>
                             {renderFriendsList(friends, maxFriendsItems)}
                             {friends?.length > defaultMaxItems &&
