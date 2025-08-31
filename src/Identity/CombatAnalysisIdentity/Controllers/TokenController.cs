@@ -17,18 +17,15 @@ public class TokenController(IOptions<AuthenticationGrantType> authenticationGra
     private readonly ILogger<TokenController> _logger = logger;
 
     [HttpGet]
-    public async Task<IActionResult> GetAccessToken(string grantType, string clientId, string codeVerifier, string code, string redirectUri)
+    public async Task<IActionResult> GetJsonWebToken(string grantType, string clientId, string codeVerifier, string code, string redirectUri)
     {
         try
         {
-            if (string.IsNullOrEmpty(grantType)
-                || string.IsNullOrEmpty(clientId)
-                || string.IsNullOrEmpty(codeVerifier)
-                || string.IsNullOrEmpty(code)
-                || string.IsNullOrEmpty(redirectUri))
-            {
-                return BadRequest();
-            }
+            ArgumentNullException.ThrowIfNullOrEmpty(grantType, nameof(grantType));
+            ArgumentNullException.ThrowIfNullOrEmpty(clientId, nameof(clientId));
+            ArgumentNullException.ThrowIfNullOrEmpty(codeVerifier, nameof(codeVerifier));
+            ArgumentNullException.ThrowIfNullOrEmpty(code, nameof(code));
+            ArgumentNullException.ThrowIfNullOrEmpty(redirectUri, nameof(redirectUri));
 
             if (!grantType.Equals(_authenticationGrantType.Authorization))
             {
@@ -45,26 +42,15 @@ public class TokenController(IOptions<AuthenticationGrantType> authenticationGra
             var (authorizationCode, userId) = _oAuthCodeFlowService.DecryptAuthorizationCode(decodedAuthorizationCode, _authentication.IssuerSigningKey);
 
             var token = await GenerateTokenAsync(clientId, userId);
+            ArgumentNullException.ThrowIfNull(token, nameof(token));
 
             return Ok(token);
         }
         catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, ex.Message);
+            _logger.LogError(ex, "Failed to get JWT. Paramter '{ParamName} was null", ex.ParamName);
 
-            return BadRequest(ex.Message);
-        }
-        catch (ArgumentException ex)
-        {
-            _logger.LogError(ex, ex.Message);
-
-            return BadRequest(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
-
-            return BadRequest(ex.Message);
+            return BadRequest();
         }
     }
 
@@ -73,12 +59,9 @@ public class TokenController(IOptions<AuthenticationGrantType> authenticationGra
     {
         try
         {
-            if (string.IsNullOrEmpty(grantType)
-                || string.IsNullOrEmpty(refreshToken)
-                || string.IsNullOrEmpty(clientId))
-            {
-                return BadRequest();
-            }
+            ArgumentNullException.ThrowIfNullOrEmpty(grantType, nameof(grantType));
+            ArgumentNullException.ThrowIfNullOrEmpty(refreshToken, nameof(refreshToken));
+            ArgumentNullException.ThrowIfNullOrEmpty(clientId, nameof(clientId));
 
             if (!grantType.Equals(_authenticationGrantType.RefreshToken))
             {
@@ -86,20 +69,18 @@ public class TokenController(IOptions<AuthenticationGrantType> authenticationGra
             }
 
             var userId = await _oAuthCodeFlowService.ValidateRefreshTokenAsync(refreshToken, clientId);
-            if (string.IsNullOrEmpty(userId))
-            {
-                return BadRequest("Invalid refresh token");
-            }
+            ArgumentNullException.ThrowIfNullOrEmpty(userId, nameof(userId));
 
             var token = GenerateNewTokenWhenRefresh(clientId, userId, refreshToken);
+            ArgumentNullException.ThrowIfNull(token, nameof(token));
 
             return Ok(token);
         }
-        catch (Exception ex)
+        catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, "Error while refresh access token");
+            _logger.LogError(ex, "Failed to refresh JWT. Paramter '{ParamName} was null", ex.ParamName);
 
-            return BadRequest(ex.Message);
+            return BadRequest();
         }
     }
 

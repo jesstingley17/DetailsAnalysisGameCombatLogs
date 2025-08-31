@@ -1,7 +1,7 @@
 import type { RootState } from '@/app/Store';
 import APP_CONFIG from "@/config/appConfig";
-import { useAuth } from '@/context/AuthProvider';
 import Notification from '@/features/notification/components/Notification';
+import { useLazyAuthorizationQuery } from '@/features/user/api/User.api';
 import logger from '@/utils/Logger';
 import { faMagnifyingGlassMinus, faMagnifyingGlassPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -10,9 +10,8 @@ import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { Container, Navbar, NavbarBrand } from 'reactstrap';
-import { useLazyAuthorizationQuery } from '../../features/user/api/User.api';
+import { useAuth } from '../hooks/useAuth';
 import LanguageSelector from './LanguageSelector';
-//import Search from './Search';
 
 import './NavMenu.scss';
 
@@ -88,12 +87,6 @@ const NavMenu: React.FC = () => {
                                 />
                             }
                         </div>
-                        {/*{(me !== null && showSearchBar) &&*/}
-                        {/*    <Search*/}
-                        {/*        me={me}*/}
-                        {/*        t={t}*/}
-                        {/*    />*/}
-                        {/*}*/}
                     </div>
                     <div className="main-elements">
                         {auth?.isAuthenticated

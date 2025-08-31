@@ -6,6 +6,9 @@ export const IdentityApi = UserApi.injectEndpoints({
         authorizationCodeExchange: builder.query<void, string>({
             query: authorizationCode => `/Identity?authorizationCode=${authorizationCode}`
         }),
+        refreshToken: builder.query<void, void>({
+            query: () => `/Identity/refresh`
+        }),
         getUserPrivacy: builder.query<IdentityUserPrivacyModel, string>({
             query: id => `/Identity/userPrivacy/${id}`
         }),
@@ -14,5 +17,6 @@ export const IdentityApi = UserApi.injectEndpoints({
 
 export const {
     useLazyAuthorizationCodeExchangeQuery,
+    useLazyRefreshTokenQuery,
     useLazyGetUserPrivacyQuery,
 } = IdentityApi;

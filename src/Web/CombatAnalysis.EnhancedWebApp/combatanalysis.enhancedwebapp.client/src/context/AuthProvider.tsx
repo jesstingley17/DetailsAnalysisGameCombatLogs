@@ -1,28 +1,17 @@
-﻿import logger from '@/utils/Logger';
-import { createContext, useContext, useState, type ReactNode } from 'react';
+﻿import { useLogoutAsyncMutation } from '@/features/user/api/Account.api';
+import { useLazySearchCustomerByUserIdQuery } from '@/features/user/api/Customer.api';
+import { useLazyGetUserPrivacyQuery, useLazyRefreshTokenQuery } from '@/features/user/api/Identity.api';
+import { useLazyAuthenticationQuery } from '@/features/user/api/User.api';
+import { updateCustomer } from '@/features/user/store/CustomerSlice';
+import { updateUserPrivacy } from '@/features/user/store/UserPrivacySlice';
+import { updateUser } from '@/features/user/store/UserSlice';
+import { AuthContext } from '@/shared/hooks/useAuth';
+import logger from '@/utils/Logger';
+import { useState, type ReactNode } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { useLogoutAsyncMutation } from '../features/user/api/Account.api';
-import { useLazySearchCustomerByUserIdQuery } from '../features/user/api/Customer.api';
-import { useLazyGetUserPrivacyQuery } from '../features/user/api/Identity.api';
-import { useLazyAuthenticationQuery } from '../features/user/api/User.api';
-import { updateCustomer } from '../features/user/store/CustomerSlice';
-import { updateUserPrivacy } from '../features/user/store/UserPrivacySlice';
-import { updateUser } from '../features/user/store/UserSlice';
 
-interface AuthContextType {
-    isAuthenticated: boolean;
-    checkAuthAsync: () => Promise<void>;
-    logoutAsync: () => Promise<void>;
-}
-
-const AuthContext = createContext<AuthContextType | null>(null);
-
-interface AuthProviderProps {
-    children: ReactNode;
-}
-
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -32,10 +21,37 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [logout] = useLogoutAsyncMutation();
     const [searchCustomer] = useLazySearchCustomerByUserIdQuery();
 
-    const [getUserPrivacyAsyncMut] = useLazyGetUserPrivacyQuery();
+    const [getUserPrivacy] = useLazyGetUserPrivacyQuery();
+    const [refreshToken] = useLazyRefreshTokenQuery();
 
     const checkAuthAsync = async () => {
         try {
+            const response = await getAuth();
+            if (response.data) {
+                const user = response.data;
+                dispatch(updateUser(user));
+
+                await getCustomerDataAsync(user.id);
+                await getUserPrivacyAsync(user.identityUserId);
+
+                setIsAuthenticated(true);
+            }
+            else {
+                await refreshTokenAsync();
+            }
+        } catch (e) {
+            logger.error("Failed to check auth", e);
+
+            dispatch(updateUser(null));
+            dispatch(updateCustomer(null));
+            dispatch(updateUserPrivacy(null));
+        }
+    }
+
+    const refreshTokenAsync = async () => {
+        try {
+            await refreshToken().unwrap();
+
             const user = await getAuth().unwrap();
 
             dispatch(updateUser(user));
@@ -45,7 +61,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
             setIsAuthenticated(true);
         } catch (e) {
-            logger.error("Failed to check auth", e);
+            logger.error("Failed to refresh Auth token", e);
 
             dispatch(updateUser(null));
             dispatch(updateCustomer(null));
@@ -65,7 +81,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const getUserPrivacyAsync = async (id: string) => {
         try {
-            const userPrivacy = await getUserPrivacyAsyncMut(id).unwrap();
+            const userPrivacy = await getUserPrivacy(id).unwrap();
 
             dispatch(updateUserPrivacy(userPrivacy));
         } catch (e) {
@@ -89,13 +105,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             {children}
         </AuthContext.Provider>
     );
-};
+}
 
-// eslint-disable-next-line react-refresh/only-export-components
-export const useAuth = (): AuthContextType => {
-    const context = useContext(AuthContext);
-    if (!context) {
-        throw new Error('useAuth must be used within an AuthProvider');
-    }
-    return context;
-};
+export default AuthProvider;

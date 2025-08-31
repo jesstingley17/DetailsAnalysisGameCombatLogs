@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { pageWithoutAuth, statusCode, unautorizedRedirectTo } from '@/config';
+import { updateCustomer } from '@/features/user/store/CustomerSlice';
 import { isRejectedWithValue } from '@reduxjs/toolkit';
-import { pageWithoutAuth, statusCode, unautorizedRedirectTo } from '../config';
-import { updateCustomer } from '../features/user/store/CustomerSlice';
 
 const authenticationMiddleware = (store: any) => (next: any) => (action: any) => {
     const pathName = window.location.pathname;

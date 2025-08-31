@@ -1,5 +1,4 @@
-﻿/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useAuth } from '@/context/AuthProvider';
+﻿import { useAuth } from '@/shared/hooks/useAuth';
 import logger from '@/utils/Logger';
 import { memo, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -18,7 +17,7 @@ const AuthorizationCallback: React.FC = () => {
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
 
-    const { checkAuthAsync } = useAuth();
+    const auth = useAuth();
 
     const [stateIsValid, setStateIsValid] = useState(true);
     const [accessRestored, setAcessRestored] = useState(false);
@@ -28,25 +27,23 @@ const AuthorizationCallback: React.FC = () => {
     const [authorizationCodeExchange] = useLazyAuthorizationCodeExchangeQuery();
 
     useEffect(() => {
-        const accessRestored: any = queryParams.get("accessRestored");
+        const accessRestored = queryParams.get("accessRestored") === "true";
         setAcessRestored(accessRestored);
 
-        const verified: any = queryParams.get("verified");
+        const verified = queryParams.get("verified") === "true";
         setVerified(verified);
 
-        const code: any = queryParams.get("code");
-        const state: any = queryParams.get("state");
+        const code = queryParams.get("code") ?? "";
+        const state = queryParams.get("state") ?? "";
 
         if (!code && !state && !accessRestored && !verified) {
             navigate("/");
         }
 
-        const validateState = async () => {
-            await validateStateAsync(state, code);
-        }
-
         if (code && state) {
-            validateState();
+            (async () => {
+                await validateStateAsync(state, code);
+            })();
         }
     }, []);
 
@@ -66,7 +63,7 @@ const AuthorizationCallback: React.FC = () => {
     const navigateToTokenAsync = async (authorizationCode: string) => {
         try {
             await authorizationCodeExchange(authorizationCode).unwrap();
-            await checkAuthAsync();
+            await auth?.checkAuthAsync();
 
             navigate("/");
         } catch (e) {

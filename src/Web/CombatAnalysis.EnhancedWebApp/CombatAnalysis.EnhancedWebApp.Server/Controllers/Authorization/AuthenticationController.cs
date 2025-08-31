@@ -35,102 +35,139 @@ public class AuthenticationController : ControllerBase
 
     [ServiceFilter(typeof(RequireAccessTokenAttribute))]
     [HttpGet]
-    public async Task<IActionResult> RefreshAccessToken()
+    public async Task<IActionResult> GetUserFromAccessToken()
     {
         try
         {
             if (!HttpContext.Request.Cookies.TryGetValue(nameof(AuthenticationCookie.AccessToken), out var accessToken))
             {
-                throw new ArgumentNullException(nameof(accessToken));
+                ArgumentNullException.ThrowIfNullOrEmpty(accessToken, nameof(accessToken));
             }
 
-            var identityUserId = AccessTokenHelper.GetUserIdFromToken(accessToken);
-            var response = await _httpClient.GetAsync($"Account/find/{identityUserId}");
-            response.EnsureSuccessStatusCode();
+            var identityUserId = AccessTokenHelper.GetUserIdFromAccessToken(accessToken);
+            ArgumentNullException.ThrowIfNullOrEmpty(identityUserId, nameof(identityUserId));
 
-            var user = await response.Content.ReadFromJsonAsync<AppUserModel>();
+            var responseMessage = await _httpClient.GetAsync($"Account/find/{identityUserId}");
+            responseMessage.EnsureSuccessStatusCode();
+
+            var user = await responseMessage.Content.ReadFromJsonAsync<AppUserModel>();
+            ArgumentNullException.ThrowIfNull(user, nameof(user));
+
             return Ok(user);
         }
         catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, ex.Message);
+            _logger.LogError(ex, "Failed to refresh Authentication token. Paramter '{ParamName} was null", ex.ParamName);
 
             return BadRequest();
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogError(ex, "Authentication refresh was failed.");
+            _logger.LogError(ex, "Failed to refresh Authentication token");
 
-            return BadRequest($"Authentication refresh was failed. Error: {ex.Message}");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Authentication refresh was failed.");
-
-            return BadRequest($"Authentication refresh was failed. Error: {ex.Message}");
+            return BadRequest();
         }
     }
 
     [HttpGet("authorization")]
     public IActionResult Authorization(string identityPath)
     {
-        var codeVerifier = PKCEHelper.GenerateCodeVerifier();
-        var state = PKCEHelper.GenerateCodeVerifier();
-        var codeChallenge = PKCEHelper.GenerateCodeChallenge(codeVerifier);
-
-        var uri = $"{_server.Identity}{identityPath}?grantType={_authenticationGrantType.Code}" +
-            $"&clientId={_authenticationClient.ClientId}&redirectUri={_authentication.RedirectUri}" +
-            $"&scope={_authenticationClient.Scope}&state={state}&codeChallengeMethod={_authentication.CodeChallengeMethod}" +
-            $"&codeChallenge={codeChallenge}";
-
-        HttpContext.Response.Cookies.Append(nameof(AuthenticationCookie.CodeVerifier), codeVerifier, new CookieOptions
+        try
         {
-            Domain = _authentication.CookieDomain,
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.None,
-        });
-        HttpContext.Response.Cookies.Append(nameof(AuthenticationCookie.State), state, new CookieOptions
-        {
-            Domain = _authentication.CookieDomain,
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.None,
-        });
+            ArgumentNullException.ThrowIfNullOrEmpty(identityPath, nameof(identityPath));
 
-        return Ok(new { uri });
+            var codeVerifier = PKCEHelper.GenerateCodeVerifier();
+            ArgumentNullException.ThrowIfNullOrEmpty(codeVerifier, nameof(codeVerifier));
+
+            var state = PKCEHelper.GenerateCodeVerifier();
+            ArgumentNullException.ThrowIfNullOrEmpty(state, nameof(state));
+
+            var codeChallenge = PKCEHelper.GenerateCodeChallenge(codeVerifier);
+            ArgumentNullException.ThrowIfNullOrEmpty(codeChallenge, nameof(codeChallenge));
+
+            var uri = $"{_server.Identity}{identityPath}?grantType={_authenticationGrantType.Code}" +
+                $"&clientId={_authenticationClient.ClientId}&redirectUri={_authentication.RedirectUri}" +
+                $"&scope={_authenticationClient.Scope}&state={state}&codeChallengeMethod={_authentication.CodeChallengeMethod}" +
+                $"&codeChallenge={codeChallenge}";
+
+            HttpContext.Response.Cookies.Append(nameof(AuthenticationCookie.CodeVerifier), codeVerifier, new CookieOptions
+            {
+                Domain = _authentication.CookieDomain,
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+            });
+            HttpContext.Response.Cookies.Append(nameof(AuthenticationCookie.State), state, new CookieOptions
+            {
+                Domain = _authentication.CookieDomain,
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+            });
+
+            return Ok(new { uri });
+        }
+        catch (ArgumentNullException ex)
+        {
+            _logger.LogError(ex, "Failed to Authorize. Paramter '{ParamName} was null", ex.ParamName);
+
+            return BadRequest();
+        }
     }
 
     [HttpGet("verifyEmail")]
     public IActionResult VerifyEmail(string identityPath, string email)
     {
-        var uri = $"{_server.Identity}{identityPath}?email={email}&redirectUri={_authentication.RedirectUri}";
+        try
+        {
+            ArgumentNullException.ThrowIfNullOrEmpty(identityPath, nameof(identityPath));
+            ArgumentNullException.ThrowIfNullOrEmpty(email, nameof(email));
 
-        return Ok(new { uri });
+            var uri = $"{_server.Identity}{identityPath}?email={email}&redirectUri={_authentication.RedirectUri}";
+
+            return Ok(new { uri });
+        }
+        catch (ArgumentNullException ex)
+        {
+            _logger.LogError(ex, "Failed to Authorize. Paramter '{ParamName} was null", ex.ParamName);
+
+            return BadRequest();
+        }
     }
 
     [HttpGet("stateValidate")]
     public IActionResult StateValidate(string state)
     {
-        if (!HttpContext.Request.Cookies.TryGetValue(nameof(AuthenticationCookie.State), out var stateValue))
+        try
         {
+            ArgumentNullException.ThrowIfNullOrEmpty(state, nameof(state));
+
+            if (!HttpContext.Request.Cookies.TryGetValue(nameof(AuthenticationCookie.State), out var stateValue))
+            {
+                ArgumentNullException.ThrowIfNullOrEmpty(stateValue, nameof(stateValue));
+            }
+
+            HttpContext.Response.Cookies.Delete(nameof(AuthenticationCookie.State), new CookieOptions
+            {
+                Domain = _authentication.CookieDomain,
+                Path = "/",
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+            });
+
+            if (stateValue == state)
+            {
+                return Ok();
+            }
+
             return BadRequest();
         }
-
-        HttpContext.Response.Cookies.Delete(nameof(AuthenticationCookie.State), new CookieOptions
+        catch (ArgumentNullException ex)
         {
-            Domain = _authentication.CookieDomain,
-            Path = "/",
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.None,
-        });
+            _logger.LogError(ex, "Failed to State validate. Paramter '{ParamName} was null", ex.ParamName);
 
-        if (stateValue == state)
-        {
-            return Ok();
+            return BadRequest();
         }
-
-        return BadRequest();
     }
 }

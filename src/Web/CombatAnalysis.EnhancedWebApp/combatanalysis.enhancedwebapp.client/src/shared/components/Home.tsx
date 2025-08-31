@@ -1,5 +1,6 @@
 ﻿import type { RootState } from '@/app/Store';
 import APP_CONFIG from '@/config/appConfig';
+import { useLazyAuthorizationQuery } from '@/features/user/api/User.api';
 import logger from '@/utils/Logger';
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -7,8 +8,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useLazyAuthorizationQuery } from '../../features/user/api/User.api';
-import type { IdentityRedirect } from '../types/IdentityRedirect';
+import { useAuth } from '../hooks/useAuth';
 
 import './Home.scss';
 
@@ -19,21 +19,29 @@ const Home: React.FC = () => {
 
     const navigate = useNavigate();
     const location = useLocation();
+    const searchParams = new URLSearchParams(location.search);
 
     const myself = useSelector((state: RootState) => state.user.value);
+
+    const auth = useAuth();
 
     const [authorization] = useLazyAuthorizationQuery();
 
     const [shouldBeAuthorize, setShouldBeAuthorize] = useState(false);
 
     useEffect(() => {
-        const checkAuth = () => {
-            const searchParams = new URLSearchParams(location.search);
-            return searchParams.get("shouldBeAuthorize") !== null;
-        }
+        (async () => {
+            const shouldBeAuthorize = searchParams.get("shouldBeAuthorize") !== null;
+            if (!shouldBeAuthorize) {
+                return;
+            }
 
-        setShouldBeAuthorize(checkAuth());
-    }, []);
+            setShouldBeAuthorize(!auth?.isAuthenticated);
+            if (auth?.isAuthenticated) {
+                navigate("/");
+            }
+        })();
+    }, [auth?.isAuthenticated]);
 
     useEffect(() => {
         let timeoutId: NodeJS.Timeout;
@@ -49,7 +57,7 @@ const Home: React.FC = () => {
 
     const loginHandle = async () => {
         try {
-            const identityRedirect: IdentityRedirect = await authorization(APP_CONFIG.identity.authPath).unwrap();
+            const identityRedirect = await authorization(APP_CONFIG.identity.authPath).unwrap();
 
             const uri = identityRedirect.uri;
             window.location.href = uri;

@@ -13,35 +13,22 @@ using System.Text.RegularExpressions;
 
 namespace CombatAnalysisIdentity.Services;
 
-internal class UserAuthorizationService : IUserAuthorizationService
+internal class UserAuthorizationService(IMapper mapper, IOAuthCodeFlowService oAuthCodeFlowService, IOptions<Authentication> authentication, 
+    IOptions<API> api, IIdentityUserService identityUserService, ILogger<UserAuthorizationService> logger,
+    IUserService<AppUserDto> appUserService, IService<CustomerDto, string> customerService, ICustomerTransactionService customerTransactionService, 
+    IIdentityTransactionService identityTransactionService) : IUserAuthorizationService
 {
-    private readonly IMapper _mapper;
-    private readonly IOAuthCodeFlowService _oAuthCodeFlowService;
-    private readonly IIdentityUserService _identityUserService;
-    private readonly Authentication _authentication;
-    private readonly API _api;
-    private readonly IUserService<AppUserDto> _appUserService;
-    private readonly IService<CustomerDto, string> _customerService;
-    private readonly ICustomerTransactionService _userTransactionService;
-    private readonly IIdentityTransactionService _identityTransactionService;
-    private readonly ILogger<UserAuthorizationService> _logger;
+    private readonly IMapper _mapper = mapper;
+    private readonly IOAuthCodeFlowService _oAuthCodeFlowService = oAuthCodeFlowService;
+    private readonly IIdentityUserService _identityUserService = identityUserService;
+    private readonly Authentication _authentication = authentication.Value;
+    private readonly API _api = api.Value;
+    private readonly IUserService<AppUserDto> _appUserService = appUserService;
+    private readonly IService<CustomerDto, string> _customerService = customerService;
+    private readonly ICustomerTransactionService _userTransactionService = customerTransactionService;
+    private readonly IIdentityTransactionService _identityTransactionService = identityTransactionService;
+    private readonly ILogger<UserAuthorizationService> _logger = logger;
     private readonly AuthorizationRequestModel _authorizationRequest = new();
-
-    public UserAuthorizationService(IMapper mapper, IOAuthCodeFlowService oAuthCodeFlowService, IOptions<Authentication> authentication, IOptions<API> api, 
-        IIdentityUserService identityUserService, ILogger<UserAuthorizationService> logger,
-        IUserService<AppUserDto> appUserService, IService<CustomerDto, string> customerService, ICustomerTransactionService customerTransactionService, IIdentityTransactionService identityTransactionService)
-    {
-        _mapper = mapper;
-        _oAuthCodeFlowService = oAuthCodeFlowService;
-        _authentication = authentication.Value;
-        _api = api.Value;
-        _identityUserService = identityUserService;
-        _appUserService = appUserService;
-        _customerService = customerService;
-        _logger = logger;
-        _userTransactionService = customerTransactionService;
-        _identityTransactionService = identityTransactionService;
-    }
 
     async Task<string> IUserAuthorizationService.AuthorizationAsync(HttpRequest request, string email, string password)
     {

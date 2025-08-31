@@ -10,18 +10,11 @@ namespace CombatAnalysis.UserApi.Controllers;
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class AccountController : ControllerBase
+public class AccountController(IUserService<AppUserDto> service, IMapper mapper, ILogger<AccountController> logger) : ControllerBase
 {
-    private readonly IUserService<AppUserDto> _service;
-    private readonly IMapper _mapper;
-    private readonly ILogger<AccountController> _logger;
-
-    public AccountController(IUserService<AppUserDto> service, IMapper mapper, ILogger<AccountController> logger)
-    {
-        _service = service;
-        _mapper = mapper;
-        _logger = logger;
-    }
+    private readonly IUserService<AppUserDto> _service = service;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<AccountController> _logger = logger;
 
     [HttpGet]
     public async Task<IActionResult> GetAll()

@@ -1,4 +1,5 @@
-﻿using CombatAnalysis.EnhancedWebApp.Server.Consts;
+﻿using CombatAnalysis.EnhancedWebApp.Server.Attributes;
+using CombatAnalysis.EnhancedWebApp.Server.Consts;
 using CombatAnalysis.EnhancedWebApp.Server.Enums;
 using CombatAnalysis.EnhancedWebApp.Server.Interfaces;
 using CombatAnalysis.EnhancedWebApp.Server.Models.Identity;
@@ -35,7 +36,7 @@ public class IdentityController : ControllerBase
         {
             if (!HttpContext.Request.Cookies.TryGetValue(nameof(AuthenticationCookie.CodeVerifier), out var codeVerifier))
             {
-                return BadRequest();
+                ArgumentNullException.ThrowIfNullOrEmpty(codeVerifier, nameof(codeVerifier));
             }
 
             HttpContext.Response.Cookies.Delete(nameof(AuthenticationCookie.CodeVerifier), new CookieOptions
@@ -48,23 +49,13 @@ public class IdentityController : ControllerBase
             });
 
             var decodedAuthorizationCode = Uri.UnescapeDataString(authorizationCode);
-            string? url = $"Token?grantType={_authenticationGrantType.Authorization}&clientId={_authenticationClient.ClientId}&codeVerifier={codeVerifier}&code={decodedAuthorizationCode}&redirectUri={_authentication.RedirectUri}";
+            var url = $"Token?grantType={_authenticationGrantType.Authorization}&clientId={_authenticationClient.ClientId}&codeVerifier={codeVerifier}&code={decodedAuthorizationCode}&redirectUri={_authentication.RedirectUri}";
 
-            var response = await _httpClient.GetAsync(url);
-            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-            {
-                throw new UnauthorizedAccessException($"Authorization to Identity server is failed.");
-            }
-            else if (!response.IsSuccessStatusCode)
-            {
-                throw new HttpRequestException();
-            }
+            var responseMessage = await _httpClient.GetAsync(url);
+            responseMessage.EnsureSuccessStatusCode();
 
-            var token = await response.Content.ReadFromJsonAsync<AccessTokenModel>();
-            if (token == null)
-            {
-                return BadRequest();
-            }
+            var token = await responseMessage.Content.ReadFromJsonAsync<AccessTokenModel>();
+            ArgumentNullException.ThrowIfNull(token, nameof(token));
 
             HttpContext.Response.Cookies.Append(nameof(AuthenticationCookie.AccessToken), token.AccessToken, new CookieOptions
             {
@@ -85,41 +76,96 @@ public class IdentityController : ControllerBase
 
             return Ok();
         }
-        catch (UnauthorizedAccessException ex)
+        catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, ex.Message);
+            _logger.LogError(ex, "Failed to exchange to the Authorization code. Paramter '{ParamName} was null", ex.ParamName);
 
-            return BadRequest(ex.Message);
+            return BadRequest();
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogError(ex, ex.Message);
+            _logger.LogError(ex, "Failed to send HTTP Request to receive Authorization code");
 
-            return BadRequest(ex.Message);
+            return BadRequest();
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error during authorization code exchange");
+    }
 
-            return BadRequest(ex.Message);
+    [ServiceFilter(typeof(RequireRefreshTokenAttribute))]
+    [HttpGet("refresh")]
+    public async Task<IActionResult> RefreshJWT()
+    {
+        try
+        {
+            if (!HttpContext.Request.Cookies.TryGetValue(nameof(AuthenticationCookie.RefreshToken), out var refreshToken))
+            {
+                ArgumentNullException.ThrowIfNullOrEmpty(refreshToken, nameof(refreshToken));
+            }
+
+            var responseMessage = await _httpClient.GetAsync($"Token/refresh?grantType={_authenticationGrantType.RefreshToken}&refreshToken={refreshToken}&clientId={_authenticationClient.ClientId}");
+            responseMessage.EnsureSuccessStatusCode();
+
+            var token = await responseMessage.Content.ReadFromJsonAsync<AccessTokenModel>();
+            ArgumentNullException.ThrowIfNull(token, nameof(token));
+
+            HttpContext.Response.Cookies.Append(nameof(AuthenticationCookie.AccessToken), token.AccessToken, new CookieOptions
+            {
+                Domain = _authentication.CookieDomain,
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Expires = token.Expires,
+            });
+            HttpContext.Response.Cookies.Append(nameof(AuthenticationCookie.RefreshToken), token.RefreshToken, new CookieOptions
+            {
+                Domain = _authentication.CookieDomain,
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Expires = token.Expires.AddDays(_authentication.RefreshTokenExpiresDays)
+            });
+
+            return Ok();
+        }
+        catch (ArgumentNullException ex)
+        {
+            _logger.LogError(ex, "Failed to refresh JWT. Paramter '{ParamName} was null", ex.ParamName);
+
+            return BadRequest();
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Failed to refresh JWT");
+
+            return BadRequest();
         }
     }
 
     [HttpGet("userPrivacy/{id}")]
     public async Task<IActionResult> GetUserPrivacy(string id)
     {
-        var response = await _httpClient.GetAsync($"Identity/{id}");
-        if (response.StatusCode == System.Net.HttpStatusCode.InternalServerError)
+        try
         {
-            return StatusCode(500);
+            ArgumentNullException.ThrowIfNullOrEmpty(id, nameof(id));
+
+            var responseMessage = await _httpClient.GetAsync($"Identity/{id}");
+            responseMessage.EnsureSuccessStatusCode();
+
+            var userPrivacy = await responseMessage.Content.ReadFromJsonAsync<IdentityUserPrivacyModel>();
+            ArgumentNullException.ThrowIfNull(userPrivacy, nameof(userPrivacy));
+
+            return Ok(userPrivacy);
         }
-        else if (!response.IsSuccessStatusCode)
+        catch (ArgumentNullException ex)
         {
+            _logger.LogError(ex, "Failed to get user privacy. Paramter '{ParamName} was null", ex.ParamName);
+
             return BadRequest();
         }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Failed to send HTTP Request to receive user privacy");
 
-        var userPrivacy = await response.Content.ReadFromJsonAsync<IdentityUserPrivacyModel>();
-
-        return Ok(userPrivacy);
+            return BadRequest();
+        }
     }
 }

@@ -9,7 +9,9 @@ using CombatAnalysisIdentity.Core;
 using CombatAnalysisIdentity.Interfaces;
 using CombatAnalysisIdentity.Mapping;
 using CombatAnalysisIdentity.Services;
+using Microsoft.AspNetCore.Diagnostics;
 using Serilog;
+using Serilog.Events;
 using System.Security.Cryptography.X509Certificates;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -61,8 +63,8 @@ builder.Services.AddIdentityServer()
             .AddInMemoryApiScopes(Config.ApiScopes);
 
 Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Debug()
-    .WriteTo.Console()
+    .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Debug)
+    .WriteTo.File("logs/identity.log", rollingInterval: RollingInterval.Day, retainedFileCountLimit: 7, restrictedToMinimumLevel: LogEventLevel.Error)
     .CreateLogger();
 
 builder.Host.UseSerilog();
@@ -87,5 +89,26 @@ app.UseIdentityServer();
 app.MapRazorPages();
 
 app.MapControllers();
+
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.StatusCode = 500;
+        context.Response.ContentType = "application/json";
+
+        var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
+        var ex = exceptionHandlerPathFeature?.Error;
+
+        Log.Error(ex, "Unhandled exception occurred");
+
+        var result = new
+        {
+            message = "An unexpected error occurred. Please try again later."
+        };
+
+        await context.Response.WriteAsJsonAsync(result);
+    });
+});
 
 app.Run();
