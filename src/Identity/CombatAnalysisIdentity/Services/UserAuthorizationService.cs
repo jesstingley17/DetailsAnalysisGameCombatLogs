@@ -57,14 +57,6 @@ internal class UserAuthorizationService(IMapper mapper, IOAuthCodeFlowService oA
     async Task<bool> IUserAuthorizationService.ClientValidationAsync(HttpRequest request, bool isDevRequest = false)
     {
         GetAuthorizationRequestData(request);
-        //if (isDevRequest) 
-        //{
-        //    GetDevAuthorizationRequestData(request);
-        //}
-        //else
-        //{
-        //    GetAuthorizationRequestData(request);
-        //}
 
         var clientIsValid = await _oAuthCodeFlowService.ValidateClientAsync(_authorizationRequest.ClientTd, _authorizationRequest.RedirectUri, _authorizationRequest.Scope, isDevRequest);
 
