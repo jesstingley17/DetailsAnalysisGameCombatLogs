@@ -9,7 +9,7 @@ export const CommunityPostApi = PostApi.injectEndpoints({
                 url: '/CommunityPost',
                 method: 'POST'
             }),
-            invalidatesTags: result => [{ type: 'CommunityPost', result }],
+            invalidatesTags: result => result ? [{ type: 'CommunityPost', id: result.id }] : [],
         }),
         updateCommunityPost: builder.mutation<void, CommunityPostModel>({
             query: post => ({
@@ -17,21 +17,18 @@ export const CommunityPostApi = PostApi.injectEndpoints({
                 url: '/CommunityPost',
                 method: 'PUT'
             }),
-            invalidatesTags: result => [{ type: 'CommunityPost', result }],
+            invalidatesTags: (_result, _error, post) => [{ type: 'CommunityPost', id: post.id }],
         }),
         removeCommunityPost: builder.mutation<void, number>({
             query: id => ({
                 url: `/CommunityPost/${id}`,
                 method: 'DELETE'
             }),
-            invalidatesTags: (result, error, arg) => [{ type: 'CommunityPost', arg }]
+            invalidatesTags: (_result, _error, id) => [{ type: 'CommunityPost', id }]
         }),
         getCommunityPostById: builder.query<CommunityPostModel, number>({
             query: id => `/CommunityPost/${id}`,
-            providesTags: result =>
-                result
-                    ? [{ type: 'CommunityPost', id: result.id }]
-                    : [{ type: 'CommunityPost' }]
+            providesTags: result => result ? [{ type: 'CommunityPost', id: result.id }] : [],
         }),
         getCommunityPostCountByCommunityId: builder.query<number, number>({
             query: communityId => `/CommunityPost/count/${communityId}`,

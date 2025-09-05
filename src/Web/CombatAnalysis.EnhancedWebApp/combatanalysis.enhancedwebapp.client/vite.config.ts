@@ -120,7 +120,7 @@ export default defineConfig({
             ...chatProxy,
             ...notificationProxy,
         },
-        port: parseInt(env.DEV_SERVER_PORT || '65471'),
+        port: parseInt(env.DEV_SERVER_PORT || '5173'),
         https: {
             key: fs.readFileSync(keyFilePath),
             cert: fs.readFileSync(certFilePath),

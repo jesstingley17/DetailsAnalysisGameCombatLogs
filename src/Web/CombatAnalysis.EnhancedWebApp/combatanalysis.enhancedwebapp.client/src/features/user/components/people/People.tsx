@@ -1,9 +1,9 @@
+import type { RootState } from '@/app/Store';
+import CommunicationMenu from '@/shared/components/CommunicationMenu';
+import Loading from '@/shared/components/Loading';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
-import type { RootState } from '../../../../app/Store';
-import CommunicationMenu from '../../../../shared/components/CommunicationMenu';
-import Loading from '../../../../shared/components/Loading';
 import { useGetUsersQuery } from '../../api/User.api';
 import type { AppUserModel } from '../../types/AppUserModel';
 import PeopleItem from './PeopleItem';

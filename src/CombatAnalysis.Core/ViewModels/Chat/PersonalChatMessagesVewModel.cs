@@ -1,8 +1,8 @@
 ﻿using CombatAnalysis.Core.Consts;
 using CombatAnalysis.Core.Enums;
-using CombatAnalysis.Core.Extensions;
 using CombatAnalysis.Core.Helpers;
 using CombatAnalysis.Core.Interfaces;
+using CombatAnalysis.Core.Interfaces.Services;
 using CombatAnalysis.Core.Models.Chat;
 using CombatAnalysis.Core.Models.User;
 using Microsoft.Extensions.Caching.Memory;
@@ -10,15 +10,14 @@ using Microsoft.Extensions.Logging;
 using MvvmCross.Commands;
 using MvvmCross.ViewModels;
 using System.Collections.ObjectModel;
-using System.Net.Http.Json;
 
 namespace CombatAnalysis.Core.ViewModels.Chat;
 
 public class PersonalChatMessagesVewModel : MvxViewModel, IImprovedMvxViewModel
 {
-    private readonly IHttpClientHelper _httpClientHelper;
     private readonly IMemoryCache _memoryCache;
-    private readonly ILogger _logger;
+    private readonly ILogger<PersonalChatMessagesVewModel> _logger;
+    private readonly IPersonalChatService _groupChatService;
 
     private ObservableCollection<PersonalChatMessageViewModel>? _messages;
     private List<PersonalChatMessageViewModel>? _allMessages;
@@ -28,15 +27,15 @@ public class PersonalChatMessagesVewModel : MvxViewModel, IImprovedMvxViewModel
     private AppUserModel? _myAccount;
     private IChatHubHelper? _hubConnection;
 
-    public PersonalChatMessagesVewModel(IHttpClientHelper httpClientHelper, IMemoryCache memoryCache, ILogger logger)
+    public PersonalChatMessagesVewModel(IMemoryCache memoryCache, ILogger<PersonalChatMessagesVewModel> logger, IPersonalChatService groupChatService)
     {
         Handler = new VMHandler<PersonalChatMessagesVewModel>();
         Parent = this;
         SavedViewModel = this;
 
-        _httpClientHelper = httpClientHelper;
         _memoryCache = memoryCache;
         _logger = logger;
+        _groupChatService = groupChatService;
 
         SendMessageCommand = new MvxAsyncCommand(SendMessageAsync);
         MessageHasBeenReadCommand = new MvxAsyncCommand<PersonalChatMessageViewModel>(SendMessageHasBeenReadAsync);
@@ -118,6 +117,57 @@ public class PersonalChatMessagesVewModel : MvxViewModel, IImprovedMvxViewModel
 
     #endregion
 
+    #region Command Actions
+
+    private async Task SendMessageAsync()
+    {
+        try
+        {
+            ArgumentNullException.ThrowIfNull(Message, nameof(Message));
+            ArgumentNullException.ThrowIfNull(SelectedChat, nameof(SelectedChat));
+            ArgumentNullException.ThrowIfNull(MyAccount, nameof(MyAccount));
+            ArgumentNullException.ThrowIfNull(_hubConnection, nameof(_hubConnection));
+
+            await _hubConnection.SendMessageAsync(Message, SelectedChat.Id, MyAccount.Id, MyAccount.Username);
+
+            Message = string.Empty;
+        }
+        catch (ArgumentNullException ex)
+        {
+            _logger.LogError(ex, "Failed to send message: Parameter '{ParamName}' was null.", ex.ParamName);
+        }
+    }
+
+    private async Task SendMessageHasBeenReadAsync(PersonalChatMessageViewModel? message)
+    {
+        try
+        {
+            ArgumentNullException.ThrowIfNull(message, nameof(message));
+            ArgumentNullException.ThrowIfNull(_hubConnection, nameof(_hubConnection));
+            ArgumentNullException.ThrowIfNull(MyAccount, nameof(MyAccount));
+
+            if (message.AppUserId == MyAccount.Id)
+            {
+                return;
+            }
+
+            await _hubConnection.SubscribeMessageHasBeenReadAsync(message.Id, MyAccount.Id);
+        }
+        catch (ArgumentNullException ex)
+        {
+            _logger.LogError(ex, "Failed to send message has been read: Parameter '{ParamName}' was null.", ex.ParamName);
+        }
+    }
+
+    private async Task SendMessageKeyDownAsync(string? message)
+    {
+        Message = message;
+
+        await SendMessageAsync();
+    }
+
+    #endregion
+
     public override void ViewDestroy(bool viewFinishing = true)
     {
         if (_hubConnection != null)
@@ -132,55 +182,47 @@ public class PersonalChatMessagesVewModel : MvxViewModel, IImprovedMvxViewModel
     {
         try
         {
-            _hubConnection = hubConnection;
+            ArgumentNullException.ThrowIfNull(hubConnection, nameof(hubConnection));
+            ArgumentNullException.ThrowIfNull(SelectedChat, nameof(SelectedChat));
+            ArgumentNullException.ThrowIfNull(MyAccount, nameof(MyAccount));
+            ArgumentNullException.ThrowIfNull(Messages, nameof(Messages));
 
-            if (SelectedChat == null)
-            {
-                throw new ArgumentNullException(nameof(SelectedChat));
-            }
-            else if (MyAccount == null)
-            {
-                throw new ArgumentNullException(nameof(MyAccount));
-            }
+            _hubConnection = hubConnection;
 
             await hubConnection.ConnectToChatHubAsync($"{Hubs.Server}{Hubs.PersonalChatMessagesAddress}");
             await hubConnection.JoinChatRoomAsync(SelectedChat.Id);
 
             hubConnection.SubscribeMessagesUpdated<PersonalChatMessageModel>(SelectedChat.Id, MyAccount.Id, async (message) =>
             {
-                await AsyncDispatcher.ExecuteOnMainThreadAsync(() =>
+                await InvokeOnMainThreadAsync(() =>
                 {
-                    Messages?.Insert(0, new PersonalChatMessageViewModel(message));
+                    Messages.Insert(0, new PersonalChatMessageViewModel(message));
                 });
             });
 
-            hubConnection?.SubscribeReceiveMessageHasBeenRead<int>(async (messageId) =>
+            hubConnection.SubscribeReceiveMessageHasBeenRead<int>(async (messageId) =>
             {
-                await AsyncDispatcher.ExecuteOnMainThreadAsync(() =>
+                await InvokeOnMainThreadAsync(() =>
                 {
-                    var message = Messages?.FirstOrDefault(x => x.Id == messageId);
+                    var message = Messages.FirstOrDefault(x => x.Id == messageId);
+                    ArgumentNullException.ThrowIfNull(message, nameof(message));
+
                     message.Status = 2;
                 });
             });
         }
         catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, ex.Message);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
+            _logger.LogError(ex, "Failed to init Signal connection: Parameter '{ParamName}' was null.", ex.ParamName);
         }
     }
 
     private async Task FillAsync()
     {
-        await AsyncDispatcher.ExecuteOnMainThreadAsync(() =>
+        await InvokeOnMainThreadAsync(() =>
         {
-            if (_allMessages == null || Messages == null)
-            {
-                return;
-            }
+            ArgumentNullException.ThrowIfNull(_allMessages, nameof(_allMessages));
+            ArgumentNullException.ThrowIfNull(Messages, nameof(Messages));
 
             foreach (var item in _allMessages)
             {
@@ -193,87 +235,13 @@ public class PersonalChatMessagesVewModel : MvxViewModel, IImprovedMvxViewModel
         });
     }
 
-    private async Task SendMessageHasBeenReadAsync(PersonalChatMessageViewModel? message)
-    {
-        try
-        {
-            if (message == null)
-            {
-                throw new ArgumentNullException(nameof(message));
-            }
-            else if (_hubConnection == null)
-            {
-                throw new ArgumentNullException(nameof(_hubConnection));
-            }
-            else if (MyAccount == null)
-            {
-                throw new ArgumentNullException(nameof(MyAccount));
-            }
-
-            if (message.AppUserId == MyAccount.Id)
-            {
-                return;
-            }
-
-            await _hubConnection.SubscribeMessageHasBeenReadAsync(message.Id, MyAccount.Id);
-        }
-        catch (ArgumentNullException ex)
-        {
-            _logger.LogError(ex, ex.Message);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
-        }
-    }
-
-    private async Task SendMessageKeyDownAsync(string? message)
-    {
-        Message = message;
-
-        await SendMessageAsync();
-    }
-
-    private async Task SendMessageAsync()
-    {
-        try
-        {
-            if (Message == null)
-            {
-                throw new ArgumentNullException(nameof(Message));
-            }
-            else if (SelectedChat == null)
-            {
-                throw new ArgumentNullException(nameof(SelectedChat));
-            }
-            else if (MyAccount == null)
-            {
-                throw new ArgumentNullException(nameof(MyAccount));
-            }
-            else if (_hubConnection == null)
-            {
-                throw new ArgumentNullException(nameof(_hubConnection));
-            }
-
-            await _hubConnection.SendMessageAsync(Message, SelectedChat.Id, MyAccount.Id, MyAccount.Username);
-
-            Message = string.Empty;
-        }
-        catch (ArgumentNullException ex)
-        {
-            _logger.LogError(ex, ex.Message);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
-        }
-    }
-
     private async Task LoadMessagesForSelectedChatAsync()
     {
-        await AsyncDispatcher.ExecuteOnMainThreadAsync(() =>
+        ArgumentNullException.ThrowIfNull(Messages, nameof(Messages));
+
+        await InvokeOnMainThreadAsync(() =>
         {
-            Messages?.Clear();
+            Messages.Clear();
         });
 
         await LoadMessagesAsync();
@@ -283,23 +251,11 @@ public class PersonalChatMessagesVewModel : MvxViewModel, IImprovedMvxViewModel
     {
         try
         {
-            var refreshToken = _memoryCache.Get<string>(nameof(MemoryCacheValue.RefreshToken));
-            if (string.IsNullOrEmpty(refreshToken))
-            {
-                throw new ArgumentNullException(nameof(refreshToken));
-            }
+            ArgumentNullException.ThrowIfNull(SelectedChat, nameof(SelectedChat));
 
-            var response = await _httpClientHelper.GetAsync($"PersonalChatMessage/getByChatId?chatId={SelectedChat?.Id}&pageSize=20", refreshToken, API.ChatApi);
-            response.EnsureSuccessStatusCode();
-
-            var messages = await response.Content.ReadFromJsonAsync<IEnumerable<PersonalChatMessageModel>>();
-            if (messages == null)
-            {
-                throw new ArgumentNullException(nameof(_allMessages));
-            }
+            var messages = await _groupChatService.LoadMessagesAsync(SelectedChat.Id);
 
             _allMessages = [];
-
             foreach (var message in messages)
             {
                 _allMessages.Add(new PersonalChatMessageViewModel(message));
@@ -309,15 +265,7 @@ public class PersonalChatMessagesVewModel : MvxViewModel, IImprovedMvxViewModel
         }
         catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, ex.Message);
-        }
-        catch (HttpRequestException ex)
-        {
-            _logger.LogError(ex, ex.Message);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
+            _logger.LogError(ex, "Failed to load personal chat messages: Parameter '{ParamName}' was null.", ex.ParamName);
         }
     }
 

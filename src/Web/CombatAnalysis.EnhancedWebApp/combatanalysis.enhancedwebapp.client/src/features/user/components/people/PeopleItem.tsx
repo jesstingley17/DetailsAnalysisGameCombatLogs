@@ -1,14 +1,14 @@
-import { useState } from 'react';
+import { type JSX, useState } from 'react';
 import type { AppUserModel } from '../../types/AppUserModel';
 import User from '../User';
 
 interface PeopleItemProps {
-    myself: AppUserModel;
+    myself: AppUserModel | null;
     targetUser: AppUserModel;
 }
 
 const PeopleItem: React.FC<PeopleItemProps> = ({ myself, targetUser }) => {
-    const [userInformation, setUserInformation] = useState(null);
+    const [userInformation, setUserInformation] = useState<JSX.Element | null>(null);
 
     return (
         <>

@@ -1,5 +1,4 @@
 import AddPeople from '@/shared/components/AddPeople';
-import Loading from '@/shared/components/Loading';
 import logger from '@/utils/Logger';
 import { faCircleCheck, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -9,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import GroupChatMembers from '../../../chat/components/groupChat/GroupChatMembers';
 import type { AppUserModel } from '../../../user/types/AppUserModel';
 import { useRemoveCommunityAsyncMutation, useUpdateCommunityAsyncMutation } from '../../api/Community.api';
-import { useCommunityUserSearchByCommunityIdQuery, useLazyCommunityUserSearchByUserIdQuery, useRemoveCommunityUserMutation } from '../../api/CommunityUser.api';
+import { useLazyCommunityUserSearchByUserIdQuery, useRemoveCommunityUserMutation } from '../../api/CommunityUser.api';
 import { useCreateInviteAsyncMutation, useLazyInviteIsExistQuery } from '../../api/InviteToCommunity.api';
 import type { CommunityModel } from '../../types/CommunityModel';
 import type { CommunityUserModel } from '../../types/CommunityUserModel';
@@ -49,7 +48,6 @@ const CommunityMenu: React.FC<CommunityMenuProps> = ({ setShowMenu, user, commun
     const [createInviteAsyncMut] = useCreateInviteAsyncMutation();
     const [isInviteExistAsync] = useLazyInviteIsExistQuery();
     const [updateCommunityAsyncMut] = useUpdateCommunityAsyncMutation();
-    const { data: communityUsers, isLoading } = useCommunityUserSearchByCommunityIdQuery(community?.id);
 
     const leaveFromCommunityAsync = async () => {
         try {
@@ -149,11 +147,6 @@ const CommunityMenu: React.FC<CommunityMenuProps> = ({ setShowMenu, user, commun
     const canRemovePeople = () => {
         return false;
     }
-
-    if (isLoading) {
-        return (<Loading />);
-    }
-
 
     return (
         <div className="communication-content community-menu box-shadow">
@@ -257,10 +250,11 @@ const CommunityMenu: React.FC<CommunityMenuProps> = ({ setShowMenu, user, commun
                         <div className="members">
                             <GroupChatMembers
                                 myself={user}
-                                users={communityUsers}
+                                communicationId={community.id}
                                 isPopup={false}
                                 removeUsersAsync={removeUsersAsync}
                                 canRemovePeople={canRemovePeople}
+                                chatHub={null}
                             />
                         </div>
                     }

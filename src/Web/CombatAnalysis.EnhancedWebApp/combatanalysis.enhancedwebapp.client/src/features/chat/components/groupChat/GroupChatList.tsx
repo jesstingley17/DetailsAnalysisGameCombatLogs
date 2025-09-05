@@ -24,6 +24,7 @@ const GroupChatList: React.FC<GroupChatListProps> = ({ myselfId, selectedChat, s
     const chatHub = useChatHub();
 
     const [extendedMyselfInGroupChats, setExtendedMyselfInGroupChats] = useState<GroupChatUserModel[]>([]);
+    const [newChatUser, setNewChatUser] = useState<GroupChatUserModel | null>(null);
 
     useEffect(() => {
         return () => {
@@ -43,8 +44,22 @@ const GroupChatList: React.FC<GroupChatListProps> = ({ myselfId, selectedChat, s
         (async () => {
             const myGroupChatsId = myselfInGroupChats.map((key) => key.chatId);
             await chatHub.connectToGroupChatUnreadMessagesAsync(myGroupChatsId);
+
+            chatHub?.subscribeToGroupChat((groupChatUser) => {
+                setNewChatUser(groupChatUser);
+            });
         })();
     }, [myselfInGroupChats]);
+
+    useEffect(() => {
+        if (!newChatUser) {
+            return;
+        }
+
+        const updatedChatUsers = Array.from(extendedMyselfInGroupChats);
+        updatedChatUsers.push(newChatUser);
+        setExtendedMyselfInGroupChats(updatedChatUsers);
+    }, [newChatUser]);
 
     if (isLoading || !chatHub) {
         return (<div>Loading...</div>);

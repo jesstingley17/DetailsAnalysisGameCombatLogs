@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
-import { SelectedUserProfileProps } from '../../../types/components/communication/people/SelectedUserProfileProps';
+import type { AppUserModel } from '../../types/AppUserModel';
 
-const SelectedUserProfile: React.FC<SelectedUserProfileProps> = ({ person }) => {
+const SelectedUserProfile: React.FC<{ person: AppUserModel }> = ({ person }) => {
     const { t } = useTranslation("communication/people/user");
 
     return (

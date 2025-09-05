@@ -11,7 +11,7 @@ import { useCreateRequestAsyncMutation, useLazyRequestIsExistQuery } from '../ap
 import type { AppUserModel } from '../types/AppUserModel';
 import type { FriendModel } from '../types/FriendModel';
 import type { RequestToConnectModel } from '../types/RequestToConnectModel';
-import PeopleInvitesToCommunity from './PeopleInvitesToCommunity';
+import PeopleInvitesToCommunity from './people/PeopleInvitesToCommunity';
 import SelectedUserProfile from './selectedUser/SelectedUserProfile';
 
 import './UserInformation.scss';
@@ -62,6 +62,10 @@ const UserInformation: React.FC<UserInformationProps> = ({ myself, personId, clo
         if (isExist) {
             navigate("/chats");
             return;
+        }
+
+        if (!chatHub.personalChatHubConnectionRef.current) {
+            await chatHub.connectToPersonalChatAsync();
         }
 
         chatHub.subscribeToPersonalChat(() => {

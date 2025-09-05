@@ -7,9 +7,11 @@ using CombatAnalysis.Core.Core;
 using CombatAnalysis.Core.Enums;
 using CombatAnalysis.Core.Helpers;
 using CombatAnalysis.Core.Interfaces;
+using CombatAnalysis.Core.Interfaces.Services;
 using CombatAnalysis.Core.Mapping;
 using CombatAnalysis.Core.Security;
 using CombatAnalysis.Core.Services;
+using CombatAnalysis.Core.Services.Chat;
 using CombatAnalysis.Core.ViewModels.ViewModelTemplates;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
@@ -82,24 +84,53 @@ public class App : MvxApplication
         var memoryCacheOptions = new MemoryCacheOptions();
         var memoryCache = new MemoryCache(memoryCacheOptions);
 
-        if (Mvx.IoCProvider != null)
+        AppDomain.CurrentDomain.UnhandledException += CurrentDomainUnhandledException;
+        TaskScheduler.UnobservedTaskException += TaskSchedulerUnobservedTaskException;
+
+        if (Mvx.IoCProvider == null)
         {
-            Mvx.IoCProvider.RegisterType<IFileManager, FileManager>();
-            Mvx.IoCProvider.RegisterType<ICombatParserService, CombatParserService>();
-            Mvx.IoCProvider.RegisterType<ICombatParserAPIService, CombatParserAPIService>();
-            Mvx.IoCProvider.RegisterType<IMapper>(() => mappingConfig.CreateMapper());
-            Mvx.IoCProvider.RegisterType<ILogger>(() =>
-            {
-                var loggerFactory = new LoggerFactory();
-                return new Logger<ILogger>(loggerFactory);
-            });
-            Mvx.IoCProvider.RegisterType<IHttpClientHelper, HttpClientHelper>();
-            Mvx.IoCProvider.RegisterType<IIdentityService, IdentityService>();
-            Mvx.IoCProvider.RegisterType<ICacheService, CacheService>();
-            Mvx.IoCProvider.RegisterType<IChatHubHelper, ChatHubHelper>();
-            Mvx.IoCProvider.RegisterSingleton<IMemoryCache>(memoryCache);
+            RegisterAppStart<BasicTemplateViewModel>();
+
+            return;
         }
 
+        Mvx.IoCProvider.RegisterType<IFileManager, FileManager>();
+        Mvx.IoCProvider.RegisterType<ICombatParserService, CombatParserService>();
+        Mvx.IoCProvider.RegisterType<ICombatParserAPIService, CombatParserAPIService>();
+        Mvx.IoCProvider.RegisterType<IMapper>(() => mappingConfig.CreateMapper());
+        Mvx.IoCProvider.RegisterType<ILogger>(() =>
+        {
+            var loggerFactory = new LoggerFactory();
+            return new Logger<ILogger>(loggerFactory);
+        });
+        Mvx.IoCProvider.RegisterType<IHttpClientHelper, HttpClientHelper>();
+        Mvx.IoCProvider.RegisterType<IIdentityService, IdentityService>();
+        Mvx.IoCProvider.RegisterType<ICacheService, CacheService>();
+        Mvx.IoCProvider.RegisterType<IChatHubHelper, ChatHubHelper>();
+        Mvx.IoCProvider.RegisterType<IPersonalChatService, PersonalChatService>();
+        Mvx.IoCProvider.RegisterType<IGroupChatService, GroupChatService>();
+        Mvx.IoCProvider.RegisterType<IUserService, UserService>();
+
+        Mvx.IoCProvider.RegisterSingleton<IMemoryCache>(memoryCache);
+
         RegisterAppStart<BasicTemplateViewModel>();
+    }
+
+    private void CurrentDomainUnhandledException(object sender, UnhandledExceptionEventArgs e)
+    {
+        var ex = e.ExceptionObject as Exception;
+        LogError(ex, "Non-UI thread exception");
+    }
+
+    private void TaskSchedulerUnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
+    {
+        LogError(e.Exception, "Unobserved Task exception");
+        e.SetObserved();
+    }
+
+    private static void LogError(Exception? ex, string context)
+    {
+        var logger = Mvx.IoCProvider?.Resolve<ILogger>();
+        logger?.LogError($"{context}: {ex?.Message}");
     }
 }

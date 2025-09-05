@@ -8,8 +8,11 @@ export const ResourcesRecoveryApi = GameLogsApi.injectEndpoints({
             query: ({ combatPlayerId, page, pageSize }) => `/ResourceRecovery/getByCombatPlayerId?combatPlayerId=${combatPlayerId}&page=${page}&pageSize=${pageSize}`,
             providesTags: result =>
                 result
-                    ? [...result.map(({ id }) => ({ type: 'ResourceRecovery' as const, id })), 'ResourceRecovery']
-                    : ['ResourceRecovery'],
+                    ? [
+                        ...result.map(resourceRecoveryGeneral => ({ type: 'ResourceRecoveryGeneral' as const, id: resourceRecoveryGeneral.id })),
+                        { type: 'ResourceRecoveryGeneral', id: 'LIST' },
+                    ]
+                    : [{ type: 'ResourceRecoveryGeneral', id: 'LIST' }]
         }),
         getResourceRecoveryCountByCombatPlayerId: builder.query<number, number>({
             query: combatPlayerId => `/ResourceRecovery/count/${combatPlayerId}`,
@@ -21,8 +24,11 @@ export const ResourcesRecoveryApi = GameLogsApi.injectEndpoints({
             query: ({ combatPlayerId, filter, filterValue, page, pageSize }) => `/ResourceRecovery/getByFilter?combatPlayerId=${combatPlayerId}&filter=${filter}&filterValue=${filterValue}&page=${page}&pageSize=${pageSize}`,
             providesTags: result =>
                 result
-                    ? [...result.map(({ id }) => ({ type: 'ResourceRecovery' as const, id })), 'ResourceRecovery']
-                    : ['ResourceRecovery'],
+                    ? [
+                        ...result.map(resourceRecoveryGeneral => ({ type: 'ResourceRecoveryGeneral' as const, id: resourceRecoveryGeneral.id })),
+                        { type: 'ResourceRecoveryGeneral', id: 'LIST' },
+                    ]
+                    : [{ type: 'ResourceRecoveryGeneral', id: 'LIST' }]
         }),
         getResourceRecoveryCountByFilter: builder.query<number, { combatPlayerId: number, filter: string, filterValue: number }>({
             query: ({ combatPlayerId, filter, filterValue }) => `/ResourceRecovery/countByFilter?combatPlayerId=${combatPlayerId}&filter=${filter}&filterValue=${filterValue}`,
@@ -31,8 +37,11 @@ export const ResourcesRecoveryApi = GameLogsApi.injectEndpoints({
             query: combatPlayerId => `/ResourceRecoveryGeneral/getByCombatPlayerId/${combatPlayerId}`,
             providesTags: result =>
                 result
-                    ? [...result.map(({ id }) => ({ type: 'ResourceRecoveryGeneral' as const, id })), 'ResourceRecoveryGeneral']
-                    : ['ResourceRecoveryGeneral'],
+                    ? [
+                        ...result.map(resourceRecoveryGeneral => ({ type: 'ResourceRecoveryGeneral' as const, id: resourceRecoveryGeneral.id })),
+                        { type: 'ResourceRecoveryGeneral', id: 'LIST' },
+                    ]
+                    : [{ type: 'ResourceRecoveryGeneral', id: 'LIST' }]
         }),
     })
 })

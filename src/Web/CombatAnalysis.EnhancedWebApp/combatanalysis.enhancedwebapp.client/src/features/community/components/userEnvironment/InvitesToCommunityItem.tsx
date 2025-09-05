@@ -28,11 +28,15 @@ const InvitesToCommunityItem: React.FC<InvitesToCommunityItemProps>  = ({ user, 
 
     const acceptRequestAsync = async () => {
         try {
+            if (!user || !community) {
+                return;
+            }
+
             const newCommunityUser: CommunityUserModel = {
                 id: " ",
-                username: user?.username,
-                communityId: community?.id || 0,
-                appUserId: user?.id
+                username: user.username,
+                communityId: community.id,
+                appUserId: user.id
             };
 
             await createCommunityUserAsyn(newCommunityUser);

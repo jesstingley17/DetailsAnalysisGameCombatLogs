@@ -9,29 +9,32 @@ export const InviteToCommunityApi = CommunityApi.injectEndpoints({
                 url: '/InviteToCommunity',
                 method: 'POST'
             }),
-            invalidatesTags: (result) => [{ type: 'InviteToCommunity', result }],
+            invalidatesTags: result => result ? [{ type: 'InviteToCommunity', id: result.id }] : [],
         }),
         removeCommunityInvite: builder.mutation<void, number>({
             query: id => ({
                 url: `/InviteToCommunity/${id}`,
                 method: 'DELETE'
             }),
-            invalidatesTags: result => [{ type: 'InviteToCommunity', result }],
+            invalidatesTags: (_result, _error, id) => [{ type: 'InviteToCommunity', id }],
         }),
         getInviteToCommunityById: builder.query<InviteToCommunityModel, number>({
             query: id => `/InviteToCommunity/${id}`,
-            providesTags: result =>
-                result
-                    ? [{ type: 'InviteToCommunity', id: result.id }]
-                    : [{ type: 'InviteToCommunity' }]
+            providesTags: result => result ? [{ type: 'InviteToCommunity', id: result.id }] : [],
         }),
         inviteSearchByUserId: builder.query<InviteToCommunityModel[], string>({
             query: id => `/InviteToCommunity/searchByUserId/${id}`,
-            providesTags: (result, error, id) => [{ type: 'InviteToCommunity', id }],
+            providesTags: result =>
+                result
+                    ? [
+                        ...result.map(inviteToCommunity => ({ type: 'InviteToCommunity' as const, id: inviteToCommunity.id })),
+                        { type: 'InviteToCommunity', id: 'LIST' },
+                    ]
+                    : [{ type: 'InviteToCommunity', id: 'LIST' }]
         }),
         inviteIsExist: builder.query<boolean, { appUserId: string, communityId: number }>({
             query: ({ appUserId, communityId }) => `/InviteToCommunity/isExist?appUserId=${appUserId}&communityId=${communityId}`,
-            providesTags: (result, error, { appUserId, communityId }) => [{ type: 'InviteToCommunity', id: `${appUserId}-${communityId}` }]
+            providesTags: (_result, _error, { appUserId, communityId }) => [{ type: 'InviteToCommunity', id: `${appUserId}-${communityId}` }]
         }),
     })
 })

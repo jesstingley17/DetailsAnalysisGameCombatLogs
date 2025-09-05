@@ -12,7 +12,7 @@ import './GroupChatMembers.scss';
 
 interface GroupChatMembersProps {
     myself: AppUserModel;
-    chatId: number;
+    communicationId: number;
     isPopup: boolean;
     removeUsersAsync(peopleToRemove: (GroupChatUserModel | CommunityUserModel)[]): Promise<void>;
     setShowMembers?: (value: SetStateAction<boolean>) => void;
@@ -20,7 +20,7 @@ interface GroupChatMembersProps {
     chatHub: ChatHubContextModel | null;
 }
 
-const GroupChatMembers: React.FC<GroupChatMembersProps> = ({ myself, chatId, isPopup, removeUsersAsync, setShowMembers, canRemovePeople, chatHub }) => {
+const GroupChatMembers: React.FC<GroupChatMembersProps> = ({ myself, communicationId, isPopup, removeUsersAsync, setShowMembers, canRemovePeople, chatHub }) => {
     const { t } = useTranslation('communication/members');
 
     const [showRemoveUser, setShowRemoveUser] = useState(false);
@@ -35,7 +35,7 @@ const GroupChatMembers: React.FC<GroupChatMembersProps> = ({ myself, chatId, isP
         }
 
         (async () => {
-            await chatHub?.groupChatHubConnectionRef.current?.invoke("RequestMembers", chatId, myself.id);
+            await chatHub?.groupChatHubConnectionRef.current?.invoke("RequestMembers", communicationId, myself.id);
         })();
 
         chatHub.subscribeToGroupChatMembers((members: GroupChatUserModel[]) => {

@@ -8,20 +8,25 @@ export const UserPostDislikeApi = PostApi.injectEndpoints({
                 body: userPostDislike,
                 url: '/UserPostDislike',
                 method: 'POST'
-            })
+            }),
+            invalidatesTags: result => result ? [{ type: 'UserPostDislike', id: result.id }] : [],
         }),
         removeUserPostDislike: builder.mutation<void, number>({
             query: id => ({
                 url: `/UserPostDislike/${id}`,
                 method: 'DELETE'
-            })
+            }),
+            invalidatesTags: (_result, _error, id) => [{ type: 'UserPostDislike', id }],
         }),
         searchUserPostDislikeByPostId: builder.query<UserPostReactionModel[], number>({
             query: id => `/UserPostDislike/searchByPostId/${id}`,
             providesTags: result =>
                 result
-                    ? [...result.map(({ id }) => ({ type: 'UserPostDislike' as const, id })), { type: 'UserPostDislike' }]
-                    : [{ type: 'UserPostDislike' }]
+                    ? [
+                        ...result.map(userPostDislike => ({ type: 'UserPostDislike' as const, id: userPostDislike.id })),
+                        { type: 'UserPostDislike', id: 'LIST' },
+                    ]
+                    : [{ type: 'UserPostDislike', id: 'LIST' }]
         }),
     })
 })

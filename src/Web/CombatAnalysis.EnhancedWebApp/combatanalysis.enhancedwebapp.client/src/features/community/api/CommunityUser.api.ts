@@ -9,25 +9,34 @@ export const CommunityUserApi = CommunityApi.injectEndpoints({
                 url: '/CommunityUser',
                 method: 'POST'
             }),
-            invalidatesTags: (result, error, arg) => [{ type: 'CommunityUser', id: arg.id }]
+            invalidatesTags: result => result ? [{ type: 'CommunityUser', id: result.id }] : [],
         }),
         removeCommunityUser: builder.mutation<void, string>({
             query: id => ({
                 url: `/CommunityUser/${id}`,
                 method: 'DELETE'
             }),
-            invalidatesTags: (result, error, id) => [{ type: 'CommunityUser', id }]
+            invalidatesTags: (_result, _error, id) => [{ type: 'CommunityUser', id }]
         }),
         communityUserSearchByCommunityId: builder.query<CommunityUserModel[], number>({
             query: communityId => `/CommunityUser/searchByCommunityId/${communityId}`,
-            providesTags: (result) =>
+            providesTags: result =>
                 result
-                    ? [...result.map(({ id }) => ({ type: 'CommunityUser' as const, id })), { type: 'CommunityUser' }]
-                    : [{ type: 'CommunityUser' }]
+                    ? [
+                        ...result.map(communityUser => ({ type: 'CommunityUser' as const, id: communityUser.id })),
+                        { type: 'CommunityUser', id: 'LIST' },
+                    ]
+                    : [{ type: 'CommunityUser', id: 'LIST' }]
         }),
         communityUserSearchByUserId: builder.query<CommunityUserModel[], string>({
             query: userId => `/CommunityUser/searchByUserId/${userId}`,
-            providesTags: (result, error, id) => [{ type: 'CommunityUser', id }]
+            providesTags: result =>
+                result
+                    ? [
+                        ...result.map(communityUser => ({ type: 'CommunityUser' as const, id: communityUser.id })),
+                        { type: 'CommunityUser', id: 'LIST' },
+                    ]
+                    : [{ type: 'CommunityUser', id: 'LIST' }]
         }),
     })
 })

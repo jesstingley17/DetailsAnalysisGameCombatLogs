@@ -9,26 +9,26 @@ export const RequestToConnectApi = UserApi.injectEndpoints({
                 url: '/RequestToConnect',
                 method: 'POST'
             }),
-            invalidatesTags: (result, error, arg) => [{ type: 'RequestToConnect', arg }]
+            invalidatesTags: result => result ? [{ type: 'RequestToConnect', id: result.id }] : []
         }),
         removeRequestAsync: builder.mutation<number, number>({
             query: id => ({
                 url: `/RequestToConnect/${id}`,
                 method: 'DELETE'
             }),
-            invalidatesTags: (result, error, arg) => [{ type: 'RequestToConnect', arg }]
+            invalidatesTags: (_result, _error, id) => [{ type: 'RequestToConnect', id }]
         }),
         requestIsExist: builder.query<boolean, { userId: string, targetUserId: string }>({
             query: ({ userId, targetUserId }) => `/RequestToConnect/isExist?initiatorId=${userId}&companionId=${targetUserId}`,
-            providesTags: (result, error, { userId, targetUserId }) => [{ type: 'RequestToConnect', id: `${userId}-${targetUserId}` }]
+            providesTags: (_result, _error, { userId, targetUserId }) => [{ type: 'RequestToConnect', id: `${userId}-${targetUserId}` }]
         }),
         searchByOwnerId: builder.query<RequestToConnectModel[], string>({
             query: userId => `/RequestToConnect/searchByOwnerId/${userId}`,
-            providesTags: (result, error, id) => [{ type: 'RequestToConnect', id }]
+            providesTags: (_result, _error, userId) => [{ type: 'RequestToConnect', id: userId }]
         }),
         searchByToUserId: builder.query<RequestToConnectModel[], string>({
             query: userId => `/RequestToConnect/searchByToUserId/${userId}`,
-            providesTags: (result, error, id) => [{ type: 'RequestToConnect', id }],
+            providesTags: (_result, _error, userId) => [{ type: 'RequestToConnect', id: userId }],
         }),
     })
 })

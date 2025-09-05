@@ -173,14 +173,6 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
         saveScrollState();
     }
 
-    //if (!chatHub || !groupChatData || groupChatData.isLoading) {
-    //    return (
-    //        <div className="chats__selected-chat_loading">
-    //            <Loading />
-    //        </div>
-    //    );
-    //}
-
     return (
         <div className="chats__selected-chat">
             <div className="messages-container">

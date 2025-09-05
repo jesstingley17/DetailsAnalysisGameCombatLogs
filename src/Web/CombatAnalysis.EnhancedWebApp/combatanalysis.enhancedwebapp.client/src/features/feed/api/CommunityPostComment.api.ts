@@ -9,7 +9,7 @@ export const CommunityPostCommentApi = PostApi.injectEndpoints({
                 url: '/CommunityPostComment',
                 method: 'POST'
             }),
-            invalidatesTags: result => [{ type: 'CommunityPostComment', result }],
+            invalidatesTags: result => result ? [{ type: 'CommunityPostComment', id: result.id }] : [],
         }),
         updateCommunityPostComment: builder.mutation<void, CommunityPostCommentModel>({
             query: communityPostComment => ({
@@ -17,21 +17,24 @@ export const CommunityPostCommentApi = PostApi.injectEndpoints({
                 url: '/CommunityPostComment',
                 method: 'PUT'
             }),
-            invalidatesTags: result => [{ type: 'CommunityPostComment', result }],
+            invalidatesTags: (_result, _error, communityPostComment) => [{ type: 'CommunityPostComment', id: communityPostComment.id }],
         }),
         removeCommunityPostComment: builder.mutation<void, number>({
             query: id => ({
                 url: `/CommunityPostComment/${id}`,
                 method: 'DELETE'
             }),
-            invalidatesTags: result => [{ type: 'CommunityPostComment', result }],
+            invalidatesTags: (_result, _error, id) => [{ type: 'CommunityPostComment', id }],
         }),
         searchCommunityPostCommentByPostId: builder.query<CommunityPostCommentModel[], number>({
             query: id => `/CommunityPostComment/searchByPostId/${id}`,
             providesTags: result =>
                 result
-                    ? [...result.map(({ id }) => ({ type: 'CommunityPostComment' as const, id })), { type: 'CommunityPostComment' }]
-                    : [{ type: 'CommunityPostComment' }]
+                    ? [
+                        ...result.map(communityPostComment => ({ type: 'CommunityPostComment' as const, id: communityPostComment.id })),
+                        { type: 'CommunityPostComment', id: 'LIST' },
+                    ]
+                    : [{ type: 'CommunityPostComment', id: 'LIST' }]
         }),
     })
 });

@@ -14,7 +14,7 @@ const SelectedCommunityItem: React.FC<SelectedCommunityItemProps> = ({ myselfId,
     const [currentPosts, setCurrentPosts] = useState<CommunityPostModel[]>([]);
     const [haveNewPosts, setHaveNewPosts] = useState(false);
 
-    const { communityPosts, newCommunityPosts, communityCount, isLoading, getMoreCommunityPostsAsync, currentDateRef } = useFetchPosts(myselfId);
+    const { communityPosts, newCommunityPosts, communityCount, getMoreCommunityPostsAsync, currentDateRef } = useFetchPosts(myselfId);
 
     useEffect(() => {
         if (!communityPosts) {
@@ -59,7 +59,7 @@ const SelectedCommunityItem: React.FC<SelectedCommunityItemProps> = ({ myselfId,
         return uniqueNewElements;
     }
 
-    if (isLoading || !communityPosts) {
+    if (communityPosts === undefined) {
         return (<Loading />);
     }
 

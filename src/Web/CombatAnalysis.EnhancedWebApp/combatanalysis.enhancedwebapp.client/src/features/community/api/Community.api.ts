@@ -24,7 +24,7 @@ export const CommunityApi = createApi({
                 url: '/Community',
                 method: 'POST'
             }),
-            invalidatesTags: (result, error, arg) => [{ type: 'Community', arg }]
+            invalidatesTags: result => result ? [{ type: 'Community', id: result.id }] : [],
         }),
         updateCommunityAsync: builder.mutation<void, CommunityModel>({
             query: community => ({
@@ -32,46 +32,55 @@ export const CommunityApi = createApi({
                 url: '/Community',
                 method: 'PUT'
             }),
-            invalidatesTags: (result, error, arg) => [{ type: 'Community', arg }]
+            invalidatesTags: (_result, _error, community) => [{ type: 'Community', id: community.id }]
         }),
         removeCommunityAsync: builder.mutation<void, number>({
             query: id => ({
                 url: `/Community/${id}`,
                 method: 'DELETE'
             }),
-            invalidatesTags: (result, error, arg) => [{ type: 'Community', arg }]
+            invalidatesTags: (_result, _error, id) => [{ type: 'Community', id }]
         }),
         getCommunities: builder.query<CommunityModel[], void>({
             query: () => '/Community',
-            providesTags: (result) =>
+            providesTags: result =>
                 result
-                    ? [...result.map(({ id }) => ({ type: 'Community' as const, id })), { type: 'Community' }]
-                    : [{ type: 'Community' }]
+                    ? [
+                        ...result.map(community => ({ type: 'Community' as const, id: community.id })),
+                        { type: 'Community', id: 'LIST' },
+                    ]
+                    : [{ type: 'Community', id: 'LIST' }]
         }),
         getCommunityById: builder.query<CommunityModel, number>({
             query: id => `/Community/${id}`,
-            providesTags: (result, error, id) => [{ type: 'Community', id }]
+            providesTags: result => result ? [{ type: 'Community', id: result.id }] : [],
         }),
         getCommunitiesCount: builder.query<number, void>({
-            query: () => '/Community/count'
+            query: () => '/Community/count',
         }),
         getCommunitiesWithPagination: builder.query<CommunityModel[], number>({
             query: pageSize => `/Community/getWithPagination?pageSize=${pageSize}`,
-            providesTags: (result) =>
+            providesTags: result =>
                 result
-                    ? [...result.map(({ id }) => ({ type: 'Community' as const, id })), { type: 'Community' }]
-                    : [{ type: 'Community' }]
+                    ? [
+                        ...result.map(community => ({ type: 'Community' as const, id: community.id })),
+                        { type: 'Community', id: 'LIST' },
+                    ]
+                    : [{ type: 'Community', id: 'LIST' }]
         }),
         getMoreCommunitiesWithPagination: builder.query<CommunityModel[], { offset: number, pageSize: number }>({
             query: ({ offset, pageSize }) => `/Community/getMoreWithPagination?offset=${offset}&pageSize=${pageSize}`,
-            providesTags: (result) =>
+            providesTags: result =>
                 result
-                    ? [...result.map(({ id }) => ({ type: 'Community' as const, id })), { type: 'Community' }]
-                    : [{ type: 'Community' }]
+                    ? [
+                        ...result.map(community => ({ type: 'Community' as const, id: community.id })),
+                        { type: 'Community', id: 'LIST' },
+                    ]
+                    : [{ type: 'Community', id: 'LIST' }]
         }),
         getInviteToCommunityById: builder.query<InviteToCommunityModel, number>({
             query: id => `/InviteToCommunity/${id}`,
-            providesTags: (result, error, id) => [{ type: 'InviteToCommunity', id }]
+            providesTags: result => result ? [{ type: 'InviteToCommunity', id: result.id }] : [],
         }),
     })
 })

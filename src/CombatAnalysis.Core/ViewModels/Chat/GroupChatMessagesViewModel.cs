@@ -1,8 +1,9 @@
 ﻿using CombatAnalysis.Core.Consts;
 using CombatAnalysis.Core.Enums;
-using CombatAnalysis.Core.Extensions;
+using CombatAnalysis.Core.Exceptions;
 using CombatAnalysis.Core.Helpers;
 using CombatAnalysis.Core.Interfaces;
+using CombatAnalysis.Core.Interfaces.Services;
 using CombatAnalysis.Core.Models.Chat;
 using CombatAnalysis.Core.Models.User;
 using Microsoft.Extensions.Caching.Memory;
@@ -10,21 +11,21 @@ using Microsoft.Extensions.Logging;
 using MvvmCross.Commands;
 using MvvmCross.ViewModels;
 using System.Collections.ObjectModel;
-using System.Net.Http.Json;
 
 namespace CombatAnalysis.Core.ViewModels.Chat;
 
 public class GroupChatMessagesViewModel : MvxViewModel, IImprovedMvxViewModel
 {
-    private readonly IHttpClientHelper _httpClientHelper;
     private readonly IMemoryCache _memoryCache;
-    private readonly ILogger _logger;
+    private readonly ILogger<GroupChatMessagesViewModel> _logger;
+    private readonly IGroupChatService _groupChatService;
+    private readonly IUserService _userService;
 
     private ObservableCollection<GroupChatMessageViewModel>? _messages;
     private List<GroupChatMessageViewModel>? _allMessages;
     private ObservableCollection<AppUserModel>? _usersToInviteToChat;
     private ObservableCollection<AppUserModel>? _users;
-    private List<AppUserModel>? _usersExcludingInvitees;
+    private List<AppUserModel>? freeUsersToInvite;
     private GroupChatViewModel? _selectedChat;
     private string _meInChatId = string.Empty;
     private GroupChatMessageModel? _selectedMessage;
@@ -41,15 +42,17 @@ public class GroupChatMessagesViewModel : MvxViewModel, IImprovedMvxViewModel
     private bool _isRemoveMode;
     private IChatHubHelper? _hubConnection;
 
-    public GroupChatMessagesViewModel(IHttpClientHelper httpClientHelper, IMemoryCache memoryCache, ILogger logger)
+    public GroupChatMessagesViewModel(IMemoryCache memoryCache, ILogger<GroupChatMessagesViewModel> logger, IGroupChatService groupChatService, 
+        IUserService userService)
     {
         Handler = new VMHandler<GroupChatMessagesViewModel>();
         Parent = this;
         SavedViewModel = this;
 
-        _httpClientHelper = httpClientHelper;
         _memoryCache = memoryCache;
         _logger = logger;
+        _groupChatService = groupChatService;
+        _userService = userService;
 
         SendMessageCommand = new MvxAsyncCommand(SendMessageAsync);
         MessageHasBeenReadCommand = new MvxAsyncCommand<GroupChatMessageViewModel>(SendMessageHasBeenReadAsync);
@@ -260,6 +263,127 @@ public class GroupChatMessagesViewModel : MvxViewModel, IImprovedMvxViewModel
 
     #endregion
 
+    #region Command Actions
+
+    private async Task OpenInviteToChatAsync()
+    {
+        AddUserToChatResponse = LoadingStatus.None;
+
+        try
+        {
+            ArgumentNullException.ThrowIfNull(Users, nameof(Users));
+
+            var freeUsers = await _groupChatService.GetFreeUsersToInviteAsync([.. Users]);
+
+            freeUsersToInvite = [.. freeUsers];
+
+            UsersToInviteToChat = new ObservableCollection<AppUserModel>(freeUsersToInvite);
+
+            SwitchInviteToGroupChat();
+
+            AddUserToChatResponse = LoadingStatus.Successful;
+        }
+        catch (ArgumentNullException ex)
+        {
+            _logger.LogError(ex, "Failed to open invite to group chat: Parameter '{ParamName}' was null.", ex.ParamName);
+
+            AddUserToChatResponse = LoadingStatus.Failed;
+        }
+        catch (ChatServiceException)
+        {
+            AddUserToChatResponse = LoadingStatus.Failed;
+        }
+        catch (Exception)
+        {
+            AddUserToChatResponse = LoadingStatus.Failed;
+
+            throw;
+        }
+    }
+
+    private async Task InviteToChatAsync()
+    {
+        try
+        {
+            ArgumentNullException.ThrowIfNull(SelectedChat, nameof(SelectedChat));
+            ArgumentNullException.ThrowIfNull(UsersToInviteToChat, nameof(UsersToInviteToChat));
+
+            AddUserToChatResponse = LoadingStatus.Pending;
+
+            InputedUserEmailForInviteToChat = string.Empty;
+
+            var userId = UsersToInviteToChat[SelectedUsersForInviteToGroupChatIndex].Id;
+
+            await _groupChatService.InviteToChatAsync(SelectedChat.Id, userId);
+
+            SwitchInviteToGroupChat();
+
+            AddUserToChatResponse = LoadingStatus.Successful;
+        }
+        catch (ArgumentNullException ex)
+        {
+            _logger.LogError(ex, "Failed to invite to group chat: Parameter '{ParamName}' was null.", ex.ParamName);
+
+            AddUserToChatResponse = LoadingStatus.Failed;
+        }
+        catch (ChatServiceException)
+        {
+            AddUserToChatResponse = LoadingStatus.Failed;
+        }
+        catch (Exception)
+        {
+            AddUserToChatResponse = LoadingStatus.Failed;
+
+            throw;
+        }
+    }
+
+    private void SwitchInviteToGroupChat()
+    {
+        InviteToChatIsVisibly = !InviteToChatIsVisibly;
+    }
+
+    private async Task EditMessageAsync()
+    {
+        try
+        {
+            ArgumentNullException.ThrowIfNull(SelectedMessage, nameof(SelectedMessage));
+
+            await _groupChatService.EditChatMessageAsync(SelectedMessage);
+
+            IsEditMode = false;
+        }
+        catch (ArgumentNullException ex)
+        {
+            _logger.LogError(ex, "Failed to edit group chat message: Parameter '{ParamName}' was null.", ex.ParamName);
+
+            AddUserToChatResponse = LoadingStatus.Failed;
+        }
+    }
+
+    private async Task RemoveMessageAsync()
+    {
+        try
+        {
+            ArgumentNullException.ThrowIfNull(SelectedMessage, nameof(SelectedMessage));
+            ArgumentNullException.ThrowIfNull(Messages, nameof(Messages));
+
+            await _groupChatService.RemoveMessageAsync(SelectedMessage.Id);
+
+            await InvokeOnMainThreadAsync(() =>
+            {
+                Messages.Remove(Messages[SelectedMessageIndex]);
+                SelectedMessage = null;
+            });
+        }
+        catch (ArgumentNullException ex)
+        {
+            _logger.LogError(ex, "Failed to remove group chat message: Parameter '{ParamName}' was null.", ex.ParamName);
+        }
+    }
+
+    #endregion
+
     public override void ViewDestroy(bool viewFinishing = true)
     {
         if (_hubConnection != null)
@@ -274,71 +398,48 @@ public class GroupChatMessagesViewModel : MvxViewModel, IImprovedMvxViewModel
     {
         try
         {
-            await GetMeInGroupChatAsync();
+            ArgumentNullException.ThrowIfNull(hubConnection, nameof(hubConnection));
+            ArgumentNullException.ThrowIfNull(Messages, nameof(Messages));
+
+            await GetUserInGroupChatAsync();
             await LoadMessagesForSelectedChatAsync(SelectedChat?.Name ?? string.Empty);
 
             _hubConnection = hubConnection;
 
-            var refreshToken = _memoryCache.Get<string>(nameof(MemoryCacheValue.RefreshToken));
-            if (string.IsNullOrEmpty(refreshToken))
-            {
-                throw new ArgumentNullException(nameof(refreshToken));
-            }
-
-            if (SelectedChat == null)
-            {
-                throw new ArgumentNullException(nameof(SelectedChat));
-            }
-            else if (string.IsNullOrEmpty(MeInChatId))
-            {
-                throw new ArgumentNullException(nameof(MeInChatId));
-            }
+            ArgumentNullException.ThrowIfNullOrEmpty(MeInChatId, nameof(MeInChatId));
+            ArgumentNullException.ThrowIfNull(SelectedChat, nameof(SelectedChat));
 
             await hubConnection.ConnectToChatHubAsync($"{Hubs.Server}{Hubs.GroupChatMessagesAddress}");
             await hubConnection.JoinChatRoomAsync(SelectedChat.Id);
 
             hubConnection.SubscribeMessagesUpdated<GroupChatMessageModel>(SelectedChat.Id, MeInChatId, async (message) =>
             {
-                await AsyncDispatcher.ExecuteOnMainThreadAsync(() =>
+                await InvokeOnMainThreadAsync(() =>
                 {
-                    Messages?.Insert(0, new GroupChatMessageViewModel(message));
+                    Messages.Insert(0, new GroupChatMessageViewModel(message));
                 });
             });
 
-            hubConnection?.SubscribeReceiveMessageHasBeenRead<int>(async (messageId) =>
+            hubConnection.SubscribeReceiveMessageHasBeenRead<int>(async (messageId) =>
             {
-                await AsyncDispatcher.ExecuteOnMainThreadAsync(async () =>
+                await InvokeOnMainThreadAsync(async () =>
                 {
-                    var response = await _httpClientHelper.GetAsync($"UnreadGroupChatMessage/findByMessageId/{messageId}", refreshToken, API.ChatApi);
-                    response.EnsureSuccessStatusCode();
-
-                    var unreadGroupChatMessages = await response.Content.ReadFromJsonAsync<IEnumerable<UnreadGroupChatMessageModel>>();
-                    if (!unreadGroupChatMessages.Any())
-                    {
-                        var message = Messages?.FirstOrDefault(x => x.Id == messageId);
-                        message.IsRead = true;
-                    }
+                    await _groupChatService.LoadUnreadMessagesAsync(messageId);
                 });
             });
         }
         catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, ex.Message);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
+            _logger.LogError(ex, "Failed to init Signal connection: Parameter '{ParamName}' was null.", ex.ParamName);
         }
     }
 
     private async Task FillAsync()
     {
-        await AsyncDispatcher.ExecuteOnMainThreadAsync(() =>
+        await InvokeOnMainThreadAsync(() =>
         {
-            if (_allMessages == null || Messages == null)
-            {
-                return;
-            }
+            ArgumentNullException.ThrowIfNull(_allMessages, nameof(_allMessages));
+            ArgumentNullException.ThrowIfNull(Messages, nameof(Messages));
 
             foreach (var item in _allMessages)
             {
@@ -355,18 +456,9 @@ public class GroupChatMessagesViewModel : MvxViewModel, IImprovedMvxViewModel
     {
         try
         {
-            if (message == null)
-            {
-                throw new ArgumentNullException(nameof(message));
-            }
-            else if (_hubConnection == null)
-            {
-                throw new ArgumentNullException(nameof(_hubConnection));
-            }
-            else if (string.IsNullOrEmpty(MeInChatId))
-            {
-                throw new ArgumentNullException(nameof(MeInChatId));
-            }
+            ArgumentNullException.ThrowIfNull(message, nameof(message));
+            ArgumentNullException.ThrowIfNull(_hubConnection, nameof(_hubConnection));
+            ArgumentNullException.ThrowIfNullOrEmpty(MeInChatId, nameof(MeInChatId));
 
             if (message.GroupChatUserId == MeInChatId || message.IsRead)
             {
@@ -377,11 +469,7 @@ public class GroupChatMessagesViewModel : MvxViewModel, IImprovedMvxViewModel
         }
         catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, ex.Message);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
+            _logger.LogError(ex, "Failed to send message has been read: Parameter '{ParamName}' was null.", ex.ParamName);
         }
     }
 
@@ -396,26 +484,11 @@ public class GroupChatMessagesViewModel : MvxViewModel, IImprovedMvxViewModel
     {
         try
         {
-            if (Message == null)
-            {
-                throw new ArgumentNullException(nameof(Message));
-            }
-            else if (SelectedChat == null)
-            {
-                throw new ArgumentNullException(nameof(SelectedChat));
-            }
-            else if (MyAccount == null)
-            {
-                throw new ArgumentNullException(nameof(MyAccount));
-            }
-            else if (string.IsNullOrEmpty(MeInChatId))
-            {
-                throw new ArgumentNullException(nameof(MeInChatId));
-            }
-            else if (_hubConnection == null)
-            {
-                throw new ArgumentNullException(nameof(_hubConnection));
-            }
+            ArgumentNullException.ThrowIfNull(Message, nameof(Message));
+            ArgumentNullException.ThrowIfNull(SelectedChat, nameof(SelectedChat));
+            ArgumentNullException.ThrowIfNull(MyAccount, nameof(MyAccount));
+            ArgumentNullException.ThrowIfNull(_hubConnection, nameof(_hubConnection));
+            ArgumentNullException.ThrowIfNullOrEmpty(MeInChatId, nameof(MeInChatId));
 
             await _hubConnection.SendMessageAsync(Message, SelectedChat.Id, MeInChatId, MyAccount.Username, 0);
 
@@ -423,169 +496,13 @@ public class GroupChatMessagesViewModel : MvxViewModel, IImprovedMvxViewModel
         }
         catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, ex.Message);
-        }
-        catch (HttpRequestException ex)
-        {
-            _logger.LogError(ex, ex.Message);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
-        }
-    }
-
-    private async Task OpenInviteToChatAsync()
-    {
-        AddUserToChatResponse = LoadingStatus.None;
-
-        try
-        {
-            UsersToInviteToChat?.Clear();
-
-            var response = await _httpClientHelper.GetAsync("GroupChatUser", API.ChatApi);
-            response.EnsureSuccessStatusCode();
-
-            var groupChatUsers = await response.Content.ReadFromJsonAsync<IEnumerable<GroupChatUserModel>>();
-            if (groupChatUsers == null)
-            {
-                throw new ArgumentNullException(nameof(groupChatUsers));
-            }
-
-            _usersExcludingInvitees = Users?.Where(x => !groupChatUsers.Any(y => x.Id == y.AppUserId)).ToList();
-            if (_usersExcludingInvitees == null)
-            {
-                throw new ArgumentNullException(nameof(_usersExcludingInvitees));
-            }
-
-            UsersToInviteToChat = new ObservableCollection<AppUserModel>(_usersExcludingInvitees);
-
-            SwitchInviteToGroupChat();
-
-            AddUserToChatResponse = LoadingStatus.Successful;
-        }
-        catch (ArgumentNullException ex)
-        {
-            _logger.LogError(ex, ex.Message);
-
-            AddUserToChatResponse = LoadingStatus.Failed;
-        }
-        catch (HttpRequestException ex)
-        {
-            _logger.LogError(ex, ex.Message);
-
-            AddUserToChatResponse = LoadingStatus.Failed;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
-
-            AddUserToChatResponse = LoadingStatus.Failed;
-        }
-    }
-
-    private void SwitchInviteToGroupChat()
-    {
-        InviteToChatIsVisibly = !InviteToChatIsVisibly;
-    }
-
-    private async Task InviteToChatAsync()
-    {
-        try
-        {
-            if (SelectedChat == null)
-            {
-                throw new ArgumentNullException(nameof(SelectedChat));
-            }
-            else if (UsersToInviteToChat == null)
-            {
-                throw new ArgumentNullException(nameof(UsersToInviteToChat));
-            }
-
-            var userId = UsersToInviteToChat[SelectedUsersForInviteToGroupChatIndex].Id;
-
-            var groupChatUser = new GroupChatUserModel
-            {
-                ChatId = SelectedChat.Id,
-                AppUserId = userId,
-            };
-
-            InputedUserEmailForInviteToChat = string.Empty;
-
-            AddUserToChatResponse = LoadingStatus.Pending;
-
-            var response = await _httpClientHelper.PostAsync("GroupChatUser", JsonContent.Create(groupChatUser), CancellationToken.None);
-            response.EnsureSuccessStatusCode();
-
-            SwitchInviteToGroupChat();
-
-            AddUserToChatResponse = LoadingStatus.Successful;
-        }
-        catch (ArgumentNullException ex)
-        {
-            _logger.LogError(ex, ex.Message);
-
-            AddUserToChatResponse = LoadingStatus.Failed;
-        }
-        catch (HttpRequestException ex)
-        {
-            _logger.LogError(ex, ex.Message);
-
-            AddUserToChatResponse = LoadingStatus.Failed;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
-
-            AddUserToChatResponse = LoadingStatus.Failed;
-        }
-    }
-
-    private async Task EditMessageAsync()
-    {
-        try
-        {
-            var response = await _httpClientHelper.PutAsync("GroupChatMessage", JsonContent.Create(SelectedMessage), API.ChatApi);
-            response.EnsureSuccessStatusCode();
-
-            IsEditMode = false;
-        }
-        catch (HttpRequestException ex)
-        {
-            _logger.LogError(ex, ex.Message);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
-        }
-    }
-
-    private async Task RemoveMessageAsync()
-    {
-        try
-        {
-            var response = await _httpClientHelper.DeletAsync($"GroupChatMessage/{SelectedMessage?.Id}", API.ChatApi);
-            response.EnsureSuccessStatusCode();
-
-            await AsyncDispatcher.ExecuteOnMainThreadAsync(() =>
-            {
-                Messages?.Remove(Messages[SelectedMessageIndex]);
-                SelectedMessage = null;
-            });
-        }
-        catch (HttpRequestException ex)
-        {
-            _logger.LogError(ex, ex.Message);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
+            _logger.LogError(ex, "Failed to send message: Parameter '{ParamName}' was null.", ex.ParamName);
         }
     }
 
     private async Task LoadMessagesForSelectedChatAsync(string chatName)
     {
-        await AsyncDispatcher.ExecuteOnMainThreadAsync(() =>
+        await InvokeOnMainThreadAsync(() =>
         {
             Messages?.Clear();
         });
@@ -599,23 +516,12 @@ public class GroupChatMessagesViewModel : MvxViewModel, IImprovedMvxViewModel
     {
         try
         {
-            var refreshToken = _memoryCache.Get<string>(nameof(MemoryCacheValue.RefreshToken));
-            if (string.IsNullOrEmpty(refreshToken))
-            {
-                throw new ArgumentNullException(nameof(refreshToken));
-            }
+            ArgumentNullException.ThrowIfNull(SelectedChat, nameof(SelectedChat));
+            ArgumentNullException.ThrowIfNullOrEmpty(MeInChatId, nameof(MeInChatId));
 
-            var response = await _httpClientHelper.GetAsync($"GroupChatMessage/getByChatId?chatId={SelectedChat?.Id}&pageSize=20", refreshToken, API.ChatApi);
-            response.EnsureSuccessStatusCode();
-
-            var messages = await response.Content.ReadFromJsonAsync<IEnumerable<GroupChatMessageModel>>();
-            if (messages == null)
-            {
-                throw new ArgumentNullException(nameof(messages));
-            }
+            var messages = await _groupChatService.LoadMessagesAsync(SelectedChat.Id, MeInChatId);
 
             _allMessages = [];
-
             foreach (var item in messages)
             {
                 _allMessages.Add(new GroupChatMessageViewModel(item));
@@ -626,32 +532,17 @@ public class GroupChatMessagesViewModel : MvxViewModel, IImprovedMvxViewModel
         }
         catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, ex.Message);
-        }
-        catch (HttpRequestException ex)
-        {
-            _logger.LogError(ex, ex.Message);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
+            _logger.LogError(ex, "Failed to load group chat messages: Parameter '{ParamName}' was null.", ex.ParamName);
         }
     }
 
     private async Task LoadUnreadMessagesAsync()
     {
-        var refreshToken = _memoryCache.Get<string>(nameof(MemoryCacheValue.RefreshToken));
-        if (string.IsNullOrEmpty(refreshToken))
-        {
-            throw new ArgumentNullException(nameof(refreshToken));
-        }
+        ArgumentNullException.ThrowIfNull(_allMessages, nameof(_allMessages));
 
         foreach (var message in _allMessages)
         {
-            var response = await _httpClientHelper.GetAsync($"UnreadGroupChatMessage/findByMessageId/{message.Id}", refreshToken, API.ChatApi);
-            response.EnsureSuccessStatusCode();
-
-            var unreadGroupChatMessages = await response.Content.ReadFromJsonAsync<IEnumerable<UnreadGroupChatMessageModel>>();
+            var unreadGroupChatMessages = await _groupChatService.LoadUnreadMessagesAsync(message.Id);
             if (!unreadGroupChatMessages.Any())
             {
                 message.IsRead = true;
@@ -661,93 +552,41 @@ public class GroupChatMessagesViewModel : MvxViewModel, IImprovedMvxViewModel
 
     private async Task LoadUsersAsync()
     {
-        try
-        {
-            var response = await _httpClientHelper.GetAsync("Account", API.UserApi);
-            response.EnsureSuccessStatusCode();
+        var users = await _userService.LoadUsersAsync();
 
-            var users = await response.Content.ReadFromJsonAsync<IEnumerable<AppUserModel>>();
-            if (users == null)
-            {
-                throw new ArgumentNullException(nameof(users));
-            }
-
-            Users = new ObservableCollection<AppUserModel>(users.Where(x => x.Id != MyAccount?.Id).ToList());
-        }
-        catch (ArgumentNullException ex)
-        {
-            _logger.LogError(ex, ex.Message);
-        }
-        catch (HttpRequestException ex)
-        {
-            _logger.LogError(ex, ex.Message);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
-        }
+        Users = new ObservableCollection<AppUserModel>([.. users.Where(x => x.Id != MyAccount?.Id)]);
     }
 
     private void LoadUsernamesForInviteByStartChars(string startChars)
     {
-        if (!string.IsNullOrEmpty(startChars))
+        if (string.IsNullOrEmpty(startChars))
         {
-            var usersEmailByStartChars = Users?.Where(x => x.Username.StartsWith(startChars));
-            if (usersEmailByStartChars == null)
-            {
-                return;
-            }
+            UsersToInviteToChat = new ObservableCollection<AppUserModel>(freeUsersToInvite ?? []);
 
-            UsersToInviteToChat = new ObservableCollection<AppUserModel>(usersEmailByStartChars);
+            return;
         }
-        else
-        {
-            UsersToInviteToChat = new ObservableCollection<AppUserModel>(_usersExcludingInvitees ?? new List<AppUserModel>());
-        }
+
+        var usersEmailByStartChars = Users?.Where(x => x.Username.StartsWith(startChars));
+        ArgumentNullException.ThrowIfNull(usersEmailByStartChars, nameof(usersEmailByStartChars));
+
+        UsersToInviteToChat = new ObservableCollection<AppUserModel>(usersEmailByStartChars);
     }
 
-    private async Task GetMeInGroupChatAsync()
+    private async Task GetUserInGroupChatAsync()
     {
         try
         {
             MyAccount = _memoryCache.Get<AppUserModel>(nameof(MemoryCacheValue.User));
-            if (MyAccount == null)
-            {
-                throw new ArgumentNullException(nameof(MyAccount));
-            }
-            else if (SelectedChat == null)
-            {
-                throw new ArgumentNullException(nameof(SelectedChat));
-            }
+            ArgumentNullException.ThrowIfNull(MyAccount, nameof(MyAccount));
+            ArgumentNullException.ThrowIfNull(SelectedChat, nameof(SelectedChat));
 
-            var refreshToken = _memoryCache.Get<string>(nameof(MemoryCacheValue.RefreshToken));
-            if (string.IsNullOrEmpty(refreshToken))
-            {
-                throw new ArgumentNullException(nameof(refreshToken));
-            }
+            var userInChat = await _groupChatService.GetUserInGroupChatAsync(SelectedChat.Id, MyAccount.Id);
 
-            var response = await _httpClientHelper.GetAsync($"GroupChatUser/findMeInChat?chatId={SelectedChat.Id}&appUserId={MyAccount.Id}", refreshToken, API.ChatApi);
-            response.EnsureSuccessStatusCode();
-
-            var meInChat = await response.Content.ReadFromJsonAsync<GroupChatUserModel>();
-            if (meInChat == null)
-            {
-                throw new ArgumentNullException(nameof(meInChat));
-            }
-
-            MeInChatId = meInChat.Id;
+            MeInChatId = userInChat.Id;
         }
         catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, ex.Message);
-        }
-        catch (HttpRequestException ex)
-        {
-            _logger.LogError(ex, ex.Message);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
+            _logger.LogError(ex, "Failed to get user in chat: Parameter '{ParamName}' was null.", ex.ParamName);
         }
     }
 }

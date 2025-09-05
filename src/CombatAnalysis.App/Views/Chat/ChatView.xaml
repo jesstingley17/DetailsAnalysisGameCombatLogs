@@ -75,10 +75,10 @@
                     <StackPanel Visibility="{Binding GroupChatLoadingResponse, Converter={StaticResource IntToVisibility}, ConverterParameter='true:1:>'}">
                         <TextBlock Text="{loc:Loc NoGroupChats}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="12" Foreground="White" Margin="5"
                                Visibility="{Binding IsShowEmptyMyGroupChat, Converter={StaticResource BoolToVisibility}, ConverterParameter='true:false'}"/>
-                        <ListBox HorizontalContentAlignment="Stretch" Grid.Row="1" Margin="10 10 10 30"
-                             ItemsSource="{Binding MyGroupChats}" 
-                             SelectedItem="{Binding SelectedMyGroupChat}" Background="Transparent"
-                             Visibility="{Binding IsLoadMyGroupChatList, Converter={StaticResource BoolToVisibility}, ConverterParameter='true:false'}">
+                        <ListBox Grid.Row="1" Margin="10 10 10 30" Height="300" 
+                                     HorizontalContentAlignment="Stretch" ItemsSource="{Binding MyGroupChats}" 
+                                    SelectedItem="{Binding SelectedMyGroupChat}" Background="Transparent"
+                                    Visibility="{Binding IsLoadMyGroupChatList, Converter={StaticResource BoolToVisibility}, ConverterParameter='true:false'}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <uc:Item Title="{Binding Path=Name}" Color="White" TagName="{Binding Path=Name}" MessageCount="{Binding Path=UnreadMessages}" />

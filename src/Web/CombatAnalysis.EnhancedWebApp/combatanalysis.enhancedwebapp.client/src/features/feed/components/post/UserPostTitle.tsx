@@ -1,6 +1,6 @@
 import { faCircleXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { memo, useState } from 'react';
+import { type JSX, memo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGetUserByIdQuery } from '../../../user/api/Account.api';
 import User from '../../../user/components/User';
@@ -21,7 +21,7 @@ const UserPostTitle: React.FC<UserPostTitleProps> = ({ post, isMyPost, myself, d
     const { data: targetUser } = useGetUserByIdQuery(post.appUserId);
     const [removeUserPost] = useRemoveUserPostMutation();
 
-    const [userInformation, setUserInformation] = useState(null);
+    const [userInformation, setUserInformation] = useState<JSX.Element | null>(null);
 
     const removeUserPostAsync = async () => {
         await removeUserPost(post.id);

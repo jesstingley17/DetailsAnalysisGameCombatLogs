@@ -9,7 +9,7 @@ export const PersonalChatApi = ChatApi.injectEndpoints({
                 url: '/PersonalChat',
                 method: 'POST'
             }),
-            invalidatesTags: result => [{ type: 'PersonalChat', result }],
+            invalidatesTags: result => result ? [{ type: 'PersonalChat', id: result.id }] : [],
         }),
         updatePersonalChatAsync: builder.mutation<void, PersonalChatModel>({
             query: personalChat => ({
@@ -17,26 +17,32 @@ export const PersonalChatApi = ChatApi.injectEndpoints({
                 url: '/PersonalChat',
                 method: 'PUT'
             }),
-            invalidatesTags: result => [{ type: 'PersonalChat', result }],
+            invalidatesTags: (_result, _error, personalChat) => [{ type: 'PersonalChat', id: personalChat.id }],
         }),
         removePersonalChatAsync: builder.mutation<void, number>({
             query: id => ({
                 url: `/PersonalChat/${id}`,
                 method: 'DELETE'
             }),
-            invalidatesTags: result => [{ type: 'PersonalChat', result }],
+            invalidatesTags: (_result, _error, id) => [{ type: 'PersonalChat', id }],
         }),
         isExist: builder.query<boolean, { userId: string, targetUserId: string }>({
             query: ({ userId, targetUserId }) => `/PersonalChat/isExist?initiatorId=${userId}&companionId=${targetUserId}`,
-            providesTags: (result, error, { userId, targetUserId }) => [{ type: 'PersonalChat', id: `${userId}-${targetUserId}` }],
+            providesTags: (_result, _error, { userId, targetUserId }) => [{ type: 'PersonalChat', id: `${userId}-${targetUserId}` }],
         }),
         getPersonalChatById: builder.query<PersonalChatModel, number>({
             query: id => `/PersonalChat/${id}`,
-            providesTags: (result, error, id) => [{ type: 'PersonalChat', id }],
+            providesTags: result => result ? [{ type: 'PersonalChat', id: result.id }] : [],
         }),
         getPersonalChatsByUserId: builder.query<PersonalChatModel[], string>({
             query: userId => `/PersonalChat/getByUserId/${userId}`,
-            providesTags: (result, error, id) => [{ type: 'PersonalChat', id }],
+            providesTags: result =>
+                result
+                    ? [
+                        ...result.map(chat => ({ type: 'PersonalChat' as const, id: chat.id })),
+                        { type: 'PersonalChat', id: 'LIST' },
+                    ]
+                    : [{ type: 'PersonalChat', id: 'LIST' }]
         }),
     })
 })

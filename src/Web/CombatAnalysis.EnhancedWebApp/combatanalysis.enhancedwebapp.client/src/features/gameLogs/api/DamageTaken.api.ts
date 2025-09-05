@@ -8,8 +8,11 @@ export const DamageTakenApi = GameLogsApi.injectEndpoints({
             query: ({ combatPlayerId, page, pageSize }) => `/DamageTaken/getByCombatPlayerId?combatPlayerId=${combatPlayerId}&page=${page}&pageSize=${pageSize}`,
             providesTags: result =>
                 result
-                    ? [...result.map(({ id }) => ({ type: 'DamageTaken' as const, id })), 'DamageTaken']
-                    : ['DamageTaken'],
+                    ? [
+                        ...result.map(damageTakenGeneral => ({ type: 'DamageTakenGeneral' as const, id: damageTakenGeneral.id })),
+                        { type: 'DamageTakenGeneral', id: 'LIST' },
+                    ]
+                    : [{ type: 'DamageTakenGeneral', id: 'LIST' }]
         }),
         getDamageTakenCountByCombatPlayerId: builder.query<number, number>({
             query: combatPlayerId => `/DamageTaken/count/${combatPlayerId}`,
@@ -21,8 +24,11 @@ export const DamageTakenApi = GameLogsApi.injectEndpoints({
             query: ({ combatPlayerId, filter, filterValue, page, pageSize }) => `/DamageTaken/getByFilter?combatPlayerId=${combatPlayerId}&filter=${filter}&filterValue=${filterValue}&page=${page}&pageSize=${pageSize}`,
             providesTags: result =>
                 result
-                    ? [...result.map(({ id }) => ({ type: 'DamageTaken' as const, id })), 'DamageTaken']
-                    : ['DamageTaken'],
+                    ? [
+                        ...result.map(damageTakenGeneral => ({ type: 'DamageTakenGeneral' as const, id: damageTakenGeneral.id })),
+                        { type: 'DamageTakenGeneral', id: 'LIST' },
+                    ]
+                    : [{ type: 'DamageTakenGeneral', id: 'LIST' }]
         }),
         getDamageTakenCountByFilter: builder.query<number, { combatPlayerId: number, filter: string, filterValue: number }>({
             query: ({ combatPlayerId, filter, filterValue }) => `/DamageTaken/countByFilter?combatPlayerId=${combatPlayerId}&filter=${filter}&filterValue=${filterValue}`,
@@ -31,8 +37,11 @@ export const DamageTakenApi = GameLogsApi.injectEndpoints({
             query: combatPlayerId => `/DamageTakenGeneral/getByCombatPlayerId/${combatPlayerId}`,
             providesTags: result =>
                 result
-                    ? [...result.map(({ id }) => ({ type: 'DamageTakenGeneral' as const, id })), 'DamageTakenGeneral']
-                    : ['DamageTakenGeneral'],
+                    ? [
+                        ...result.map(damageTakenGeneral => ({ type: 'DamageTakenGeneral' as const, id: damageTakenGeneral.id })),
+                        { type: 'DamageTakenGeneral', id: 'LIST' },
+                    ]
+                    : [{ type: 'DamageTakenGeneral', id: 'LIST' }]
         }),
     })
 })

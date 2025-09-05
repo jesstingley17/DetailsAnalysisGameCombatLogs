@@ -1,4 +1,5 @@
-﻿import { faUserXmark } from '@fortawesome/free-solid-svg-icons';
+﻿import logger from '@/utils/Logger';
+import { faUserXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState, type SetStateAction } from 'react';
 import { useRemovePersonalChatAsyncMutation } from '../../api/PersonalChat.api';
@@ -8,11 +9,11 @@ import type { PersonalChatModel } from '../../types/PersonalChatModel';
 interface PersonalChatTitleProps {
     chat: PersonalChatModel;
     companionUsername: string;
-    setSelectedChat(value: SetStateAction<PersonalChatModel | GroupChatModel | null>): void;
+    setSelectedChat: (value: SetStateAction<PersonalChatModel | GroupChatModel | null>) => void;
     haveMoreMessages: boolean;
-    setHaveMoreMessage(value: SetStateAction<boolean>): void;
-    loadMoreMessagesAsync(): Promise<void>;
-    t(key: string): string;
+    setHaveMoreMessage: (value: SetStateAction<boolean>) => void;
+    loadMoreMessagesAsync: () => Promise<void>;
+    t: (key: string) => string;
 }
 
 const PersonalChatTitle: React.FC<PersonalChatTitleProps> = ({ chat, companionUsername, setSelectedChat, haveMoreMessages, setHaveMoreMessage, loadMoreMessagesAsync, t }) => {
@@ -25,7 +26,7 @@ const PersonalChatTitle: React.FC<PersonalChatTitleProps> = ({ chat, companionUs
             await removePersonalChatAsync(chat.id).unwrap();
             setSelectedChat(null);
         } catch (e) {
-            console.error(e);
+            logger.error("Failed to remove personal chat", e);
         }
     }
 

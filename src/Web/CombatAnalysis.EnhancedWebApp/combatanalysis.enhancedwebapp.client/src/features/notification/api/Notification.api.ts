@@ -18,8 +18,11 @@ export const NotificationApi = createApi({
             }),
             providesTags: result =>
                 result
-                    ? [...result.map(({ id }) => ({ type: 'Notification' as const, id })), { type: 'Notification' }]
-                    : [{ type: 'Notification' }]
+                    ? [
+                        ...result.map(notification => ({ type: 'Notification' as const, id: notification.id })),
+                        { type: 'Notification', id: 'LIST' },
+                    ]
+                    : [{ type: 'Notification', id: 'LIST' }]
         }),
         getUnreadNotificationsByRecipientId: builder.query<AppNotificationModel[], string>({
             query: recipientId => ({
@@ -27,8 +30,11 @@ export const NotificationApi = createApi({
             }),
             providesTags: result =>
                 result
-                    ? [...result.map(({ id }) => ({ type: 'Notification' as const, id })), { type: 'Notification' }]
-                    : [{ type: 'Notification' }]
+                    ? [
+                        ...result.map(notification => ({ type: 'Notification' as const, id: notification.id })),
+                        { type: 'Notification', id: 'LIST' },
+                    ]
+                    : [{ type: 'Notification', id: 'LIST' }]
         }),
     })
 })

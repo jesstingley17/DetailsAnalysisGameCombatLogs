@@ -9,7 +9,6 @@ import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useLazyGetUnreadNotificationsByRecipientIdQuery } from '../api/Notification.api';
 import type { AppNotificationModel } from '../types/AppNotificationModel';
-import type { NotificationHubContextModel } from '../types/NotificationHubContextModel';
 
 const Notification: React.FC = () => {
     const { t } = useTranslation('notification');
@@ -79,8 +78,8 @@ const Notification: React.FC = () => {
         });
     }, [notificationHub?.notificationHubConnectionRef.current]);
 
-    const personalChatNotifications = (notificationHub: NotificationHubContextModel | null, notification: AppNotificationModel) => {
-        const navigateToChats = async () => await seeNotificationAsync(notificationHub, notification);
+    const personalChatNotifications = (notification: AppNotificationModel) => {
+        const navigateToChats = async () => await seeNotificationAsync(notification);
         const removeNotification = async () => await removeNotificationAsync(notification);
 
         return (
@@ -103,7 +102,7 @@ const Notification: React.FC = () => {
         return time;
     }
 
-    const seeNotificationAsync = async (notification1Hub: NotificationHubContextModel | null, notification: AppNotificationModel) => {
+    const seeNotificationAsync = async (notification: AppNotificationModel) => {
         if (!notificationHub || !user) {
             return;
         }
@@ -149,7 +148,7 @@ const Notification: React.FC = () => {
                     <ul className="notifications-container__content">
                         {notifications.length === 0
                             ? <li className="notifications-container__empty">{t("Empty")}</li>
-                            : notifications.map((notification) => personalChatNotifications(notificationHub, notification))}
+                            : notifications.map((notification) => personalChatNotifications(notification))}
                     </ul>
                     {notifications?.length > 0 &&
                         <div className="notifications-container__read-all" onClick={readAllNotifications}>{t("ClearAll")}</div>

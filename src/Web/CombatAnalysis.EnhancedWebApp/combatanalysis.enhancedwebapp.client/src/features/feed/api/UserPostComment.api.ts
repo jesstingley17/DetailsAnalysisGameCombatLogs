@@ -9,7 +9,7 @@ export const UserPostCommentApi = PostApi.injectEndpoints({
                 url: '/UserPostComment',
                 method: 'POST'
             }),
-            invalidatesTags: result => [{ type: 'UserPostComment', result }],
+            invalidatesTags: result => result ? [{ type: 'UserPostComment', id: result.id }] : [],
         }),
         updateUserPostComment: builder.mutation<void, UserPostCommentModel>({
             query: userPostComment => ({
@@ -17,21 +17,24 @@ export const UserPostCommentApi = PostApi.injectEndpoints({
                 url: '/UserPostComment',
                 method: 'PUT'
             }),
-            invalidatesTags: result => [{ type: 'UserPostComment', result }],
+            invalidatesTags: (_result, _error, userPostComment) => [{ type: 'UserPostComment', id: userPostComment.id }],
         }),
         removeUserPostComment: builder.mutation<void, number>({
             query: id => ({
                 url: `/UserPostComment/${id}`,
                 method: 'DELETE'
             }),
-            invalidatesTags: result => [{ type: 'UserPostComment', result }],
+            invalidatesTags: (_result, _error, id) => [{ type: 'UserPostComment', id }],
         }),
         searchUserPostCommentByPostId: builder.query<UserPostCommentModel[], number>({
             query: id => `/UserPostComment/searchByPostId/${id}`,
             providesTags: result =>
                 result
-                    ? [...result.map(({ id }) => ({ type: 'UserPostComment' as const, id })), { type: 'UserPostComment' }]
-                    : [{ type: 'UserPostComment' }]
+                    ? [
+                        ...result.map(userPostComment => ({ type: 'UserPostComment' as const, id: userPostComment.id })),
+                        { type: 'UserPostComment', id: 'LIST' },
+                    ]
+                    : [{ type: 'UserPostComment', id: 'LIST' }]
         }),
     })
 });

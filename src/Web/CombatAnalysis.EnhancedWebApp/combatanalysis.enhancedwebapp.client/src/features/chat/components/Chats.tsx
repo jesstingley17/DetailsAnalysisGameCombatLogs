@@ -1,5 +1,6 @@
 ﻿import type { RootState } from '@/app/Store';
 import CommunicationMenu from '@/shared/components/CommunicationMenu';
+import { useChatHub } from '@/shared/hooks/useChatHub';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { memo, useEffect, useMemo, useState } from 'react';
@@ -23,6 +24,8 @@ const Chats: React.FC = () => {
 
     const location = useLocation();
 
+    const chatHub = useChatHub();
+
     const myself = useSelector((state: RootState) => state.user.value);
 
     const [getPersonalChatByIdAsync] = useLazyGetPersonalChatByIdQuery();
@@ -40,7 +43,7 @@ const Chats: React.FC = () => {
     }), []);
 
     useEffect(() => {
-        const checkSelectedChat = () => {
+        (() => {
             const searchParams = new URLSearchParams(location.search);
             if (searchParams.get("personal") !== null) {
                 const getPersonalChatById = async () => {
@@ -48,7 +51,7 @@ const Chats: React.FC = () => {
                     const chat = await getPersonalChatByIdAsync(id).unwrap();
                     setSelectedChat(chat);
                 }
-  
+
                 getPersonalChatById();
             } else if (searchParams.get("group") !== null) {
                 const getPersonalChatById = async () => {
@@ -59,10 +62,19 @@ const Chats: React.FC = () => {
 
                 getPersonalChatById();
             }
+        })();
+    }, []);
+
+    useEffect(() => {
+        if (!myself) {
+            return;
         }
 
-        checkSelectedChat();
-    }, []);
+        (async () => {
+            await chatHub?.connectToGroupChatAsync();
+            await chatHub?.connectToPersonalChatAsync();
+        })();
+    }, [myself]);
 
     const getCompanionId = (chat: PersonalChatModel | null) => {
         if (!chat) {

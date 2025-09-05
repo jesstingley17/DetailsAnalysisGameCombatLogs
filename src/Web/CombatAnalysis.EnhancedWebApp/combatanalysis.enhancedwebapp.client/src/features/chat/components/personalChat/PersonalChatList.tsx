@@ -17,11 +17,14 @@ interface PersonalChatListProps {
 }
 
 const PersonalChatList: React.FC<PersonalChatListProps> = ({ myselfId, t, selectedChat, setSelectedChat, chatsHidden, toggleChatsHidden }) => {
-    const { data: personalChats, isLoading } = useGetPersonalChatsByUserIdQuery(myselfId);
+    const { data: personalChats, isLoading } = useGetPersonalChatsByUserIdQuery(myselfId, {
+        refetchOnMountOrArgChange: true
+    });
 
     const chatHub = useChatHub();
 
     const [chats, setChats] = useState<PersonalChatModel[]>([]);
+    const [newChat, setNewChat] = useState<PersonalChatModel | null>(null);
 
     useEffect(() => {
         return () => {
@@ -41,8 +44,22 @@ const PersonalChatList: React.FC<PersonalChatListProps> = ({ myselfId, t, select
         (async () => {
             const myChatsId = personalChats.map((key) => key.id);
             await chatHub.connectToPersonalChatUnreadMessagesAsync(myChatsId);
+
+            chatHub?.subscribeToPersonalChat((chat) => {
+                setNewChat(chat);
+            });
         })();
     }, [personalChats]);
+
+    useEffect(() => {
+        if (!newChat) {
+            return;
+        }
+
+        const updatedChats = Array.from(chats);
+        updatedChats.push(newChat);
+        setChats(updatedChats);
+    }, [newChat]);
 
     if (!chatHub || isLoading) {
         return (<div>Loading...</div>);

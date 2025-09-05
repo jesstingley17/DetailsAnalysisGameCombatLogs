@@ -9,18 +9,18 @@ export const FriendApi = UserApi.injectEndpoints({
                 url: '/Friend',
                 method: 'POST'
             }),
-            invalidatesTags: (result, error, arg) => [{ type: 'Friend', arg }]
+            invalidatesTags: result => result ? [{ type: 'Friend', id: result.id }] : [],
         }),
         removeFriendAsync: builder.mutation<void, number>({
             query: id => ({
                 url: `/Friend/${id}`,
                 method: 'DELETE'
             }),
-            invalidatesTags: (result) => [{ type: 'Friend', result }],
+            invalidatesTags: (_result, _error, id) => [{ type: 'Friend', id }]
         }),
         friendSearchMyFriends: builder.query<FriendModel[], string>({
-            query: (currentUserId) => `/Friend/searchMyFriends/${currentUserId}`,
-            providesTags: (result, error, id) => [{ type: 'Friend', id }],
+            query: currentUserId => `/Friend/searchMyFriends/${currentUserId}`,
+            providesTags: (_result, _error, currentUserId) => [{ type: 'Friend', id: currentUserId }],
         }),
     })
 })

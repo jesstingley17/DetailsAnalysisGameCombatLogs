@@ -13,4 +13,6 @@ public class PersonalChatModel
     public string CompanionId { get; set; }
 
     public int CompanionUnreadMessages { get; set; }
+
+    public int CurrentUnreadMessages { get; set; }
 }

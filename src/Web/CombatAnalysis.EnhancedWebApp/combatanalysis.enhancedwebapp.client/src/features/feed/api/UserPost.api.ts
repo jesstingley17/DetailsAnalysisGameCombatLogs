@@ -9,7 +9,7 @@ export const UserPostApi = PostApi.injectEndpoints({
                 url: '/UserPost',
                 method: 'POST'
             }),
-            invalidatesTags: result => [{ type: 'UserPost', result }],
+            invalidatesTags: result => result ? [{ type: 'UserPost', id: result.id }] : [],
         }),
         updateUserPost: builder.mutation<void, UserPostModel>({
             query: post => ({
@@ -17,21 +17,18 @@ export const UserPostApi = PostApi.injectEndpoints({
                 url: '/UserPost',
                 method: 'PUT'
             }),
-            invalidatesTags: result => [{ type: 'UserPost', result }],
+            invalidatesTags: (_result, _error, post) => [{ type: 'UserPost', id: post.id }],
         }),
         removeUserPost: builder.mutation<void, number>({
             query: id => ({
                 url: `/UserPost/${id}`,
                 method: 'DELETE'
             }),
-            invalidatesTags: (result, error, arg) => [{ type: 'UserPost', arg }]
+            invalidatesTags: (_result, _error, id) => [{ type: 'UserPost', id }]
         }),
         getUserPostById: builder.query<UserPostModel, number>({
             query: id => `/UserPost/${id}`,
-            providesTags: result =>
-                result
-                    ? [{ type: 'UserPost', id: result.id }]
-                    : [{ type: 'UserPost' }]
+            providesTags: result => result ? [{ type: 'UserPost', id: result.id }] : [],
         }),
         getUserPostCountByUserId: builder.query<number, string>({
             query: appUserId => `/UserPost/count/${appUserId}`,

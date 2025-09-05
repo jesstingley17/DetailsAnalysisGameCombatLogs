@@ -8,20 +8,25 @@ export const CommunityPostDislikeApi = PostApi.injectEndpoints({
                 body: communityPostDislike,
                 url: '/CommunityPostDislike',
                 method: 'POST'
-            })
+            }),
+            invalidatesTags: result => result ? [{ type: 'CommunityPostDislike', id: result.id }] : [],
         }),
         removeCommunityPostDislike: builder.mutation<void, number>({
             query: id => ({
                 url: `/CommunityPostDislike/${id}`,
                 method: 'DELETE'
-            })
+            }),
+            invalidatesTags: (_result, _error, id) => [{ type: 'CommunityPostDislike', id }],
         }),
         searchCommunityPostDislikeByPostId: builder.query<CommunityPostReactionModel[], number>({
             query: id => `/CommunityPostDislike/searchByPostId/${id}`,
             providesTags: result =>
                 result
-                    ? [...result.map(({ id }) => ({ type: 'CommunityPostDislike' as const, id })), { type: 'CommunityPostDislike' }]
-                    : [{ type: 'CommunityPostDislike' }]
+                    ? [
+                        ...result.map(communityPostDislike => ({ type: 'CommunityPostDislike' as const, id: communityPostDislike.id })),
+                        { type: 'CommunityPostDislike', id: 'LIST' },
+                    ]
+                    : [{ type: 'CommunityPostDislike', id: 'LIST' }]
         }),
     })
 })

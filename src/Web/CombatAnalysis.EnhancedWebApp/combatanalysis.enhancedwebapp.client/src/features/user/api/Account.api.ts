@@ -5,16 +5,14 @@ export const AccountApi = UserApi.injectEndpoints({
     endpoints: builder => ({
         getUserById: builder.query<AppUserModel, string>({
             query: id => `/Account/${id}`,
-            providesTags: (result, error, id) =>
-                result ? [{ type: 'Account', id }] : ['Account'],
+            providesTags: result => result ? [{ type: 'Account', id: result.id }] : [],
         }),
         findByIdenityUserId: builder.query<AppUserModel, string>({
             query: identityUserId => `/Account/find/${identityUserId}`,
-            providesTags: (result, error, id) =>
-                result ? [{ type: 'Account', id }] : ['Account'],
+            providesTags: result => result ? [{ type: 'Account', id: result.id }] : [],
         }),
         checkIfUserExist: builder.query<boolean, string>({
-            query: email => `/Account/checkIfUserExist/${email}`
+            query: email => `/Account/checkIfUserExist/${email}`,
         }),
         editAsync: builder.mutation<boolean, AppUserModel>({
             query: user => ({
@@ -22,14 +20,14 @@ export const AccountApi = UserApi.injectEndpoints({
                 url: '/Account',
                 method: 'PUT'
             }),
-            invalidatesTags: (result, error, arg) => [{ type: 'Account', id: arg.id }],
+            invalidatesTags: (_result, _error, user) => [{ type: 'Account', id: user.id }],
         }),
         logoutAsync: builder.mutation<void, void>({
             query: () => ({
                 url: '/Account/logout',
                 method: 'POST'
             }),
-            invalidatesTags: ['Account'],
+            invalidatesTags: [{ type: 'Account' }]
         }),
     })
 })

@@ -61,7 +61,7 @@ const CreateGroupChat: React.FC<{ setShowCreateGroupChat: (value: SetStateAction
             groupChatRules
         };
 
-        await chatHub.groupChatHubConnection?.invoke("CreateGroupChat", container);
+        await chatHub.groupChatHubConnectionRef.current?.invoke("CreateGroupChat", container);
     }
 
     const handleCreateNewGroupChatAsync = async () => {

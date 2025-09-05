@@ -7,19 +7,13 @@ using System.Net;
 
 namespace CombatAnalysis.Core.Helpers;
 
-internal class ChatHubHelper : IChatHubHelper
+internal class ChatHubHelper(IMemoryCache memoryCache, ILogger logger) : IChatHubHelper
 {
-    private readonly IMemoryCache _memoryCache;
-    private readonly ILogger _logger;
+    private readonly IMemoryCache _memoryCache = memoryCache;
+    private readonly ILogger _logger = logger;
 
     private HubConnection? _chatMessagesHubConnection;
     private HubConnection? _chatMessagesCountHubConnection;
-     
-    public ChatHubHelper(IMemoryCache memoryCache, ILogger logger)
-    {
-        _memoryCache = memoryCache;
-        _logger = logger;
-    }
 
     public async Task ConnectToChatHubAsync(string hubURL)
     {

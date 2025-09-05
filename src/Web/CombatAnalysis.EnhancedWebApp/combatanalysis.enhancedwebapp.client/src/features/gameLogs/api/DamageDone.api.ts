@@ -9,8 +9,11 @@ export const DamageDoneApi = GameLogsApi.injectEndpoints({
             query: ({ combatPlayerId, page, pageSize }) => `/DamageDone/getByCombatPlayerId?combatPlayerId=${combatPlayerId}&page=${page}&pageSize=${pageSize}`,
             providesTags: result =>
                 result
-                    ? [...result.map(({ id }) => ({ type: 'DamageDone' as const, id })), 'DamageDone']
-                    : ['DamageDone'],
+                    ? [
+                        ...result.map(damageDone => ({ type: 'DamageDone' as const, id: damageDone.id })),
+                        { type: 'DamageDone', id: 'LIST' },
+                    ]
+                    : [{ type: 'DamageDone', id: 'LIST' }]
         }),
         getDamageDoneCountByCombatPlayerId: builder.query<number, number>({
             query: combatPlayerId => `/DamageDone/count/${combatPlayerId}`,
@@ -22,8 +25,11 @@ export const DamageDoneApi = GameLogsApi.injectEndpoints({
             query: ({ combatPlayerId, filter, filterValue, page, pageSize }) => `/DamageDone/getByFilter?combatPlayerId=${combatPlayerId}&filter=${filter}&filterValue=${filterValue}&page=${page}&pageSize=${pageSize}`,
             providesTags: result =>
                 result
-                    ? [...result.map(({ id }) => ({ type: 'DamageDone' as const, id })), 'DamageDone']
-                    : ['DamageDone'],
+                    ? [
+                        ...result.map(damageDone => ({ type: 'DamageDone' as const, id: damageDone.id })),
+                        { type: 'DamageDone', id: 'LIST' },
+                    ]
+                    : [{ type: 'DamageDone', id: 'LIST' }]
         }),
         getDamageDoneValueByTarget: builder.query<number, { combatPlayerId: number, target: string }>({
             query: ({ combatPlayerId, target }) => `/DamageDone/getValueByTarget?combatPlayerId=${combatPlayerId}&target=${target}`,
@@ -38,8 +44,11 @@ export const DamageDoneApi = GameLogsApi.injectEndpoints({
             query: combatPlayerId => `/DamageDoneGeneral/getByCombatPlayerId/${combatPlayerId}`,
             providesTags: result =>
                 result
-                    ? [...result.map(({ id }) => ({ type: 'DamageDoneGeneral' as const, id })), 'DamageDoneGeneral']
-                    : ['DamageDoneGeneral'],
+                    ? [
+                        ...result.map(damageDone => ({ type: 'DamageDone' as const, id: damageDone.id })),
+                        { type: 'DamageDone', id: 'LIST' },
+                    ]
+                    : [{ type: 'DamageDone', id: 'LIST' }]
         }),
     })
 })

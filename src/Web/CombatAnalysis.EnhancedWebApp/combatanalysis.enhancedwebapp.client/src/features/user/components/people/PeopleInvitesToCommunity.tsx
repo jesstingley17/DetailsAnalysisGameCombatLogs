@@ -6,20 +6,20 @@ import { useCommunityUserSearchByUserIdQuery } from '../../../community/api/Comm
 import { useCreateInviteAsyncMutation, useLazyInviteIsExistQuery } from '../../../community/api/InviteToCommunity.api';
 import type { InviteToCommunityModel } from '../../../community/types/InviteToCommunityModel';
 import type { AppUserModel } from '../../types/AppUserModel';
-import TargetCommunity from './TargetCommunity';
+import TargetCommunity from '../TargetCommunity';
 
 import './PeopleInvitesToCommunity.scss';
 
 interface PeopleInvitesToCommunityProps {
-    me: AppUserModel;
+    myself: AppUserModel | null;
     targetUser: AppUserModel;
-    setOpenInviteToCommunity(value: SetStateAction<boolean>): void;
+    setOpenInviteToCommunity: (value: SetStateAction<boolean>) => void;
 }
 
-const PeopleInvitesToCommunity: React.FC<PeopleInvitesToCommunityProps> = ({ me, targetUser, setOpenInviteToCommunity }) => {
+const PeopleInvitesToCommunity: React.FC<PeopleInvitesToCommunityProps> = ({ myself, targetUser, setOpenInviteToCommunity }) => {
     const { t } = useTranslation('communication/people/people');
 
-    const { data: communityUsers, isLoading } = useCommunityUserSearchByUserIdQuery(me?.id);
+    const { data: communityUsers, isLoading } = useCommunityUserSearchByUserIdQuery(myself?.id ?? "");
 
     const [communityIdToInvite, setCommunityIdToInvite] = useState<number[]>([]);
 
@@ -45,9 +45,9 @@ const PeopleInvitesToCommunity: React.FC<PeopleInvitesToCommunityProps> = ({ me,
             const newInviteToCommunity: InviteToCommunityModel = {
                 id: 0,
                 communityId: communityIdToInvite[i],
-                toAppUserId: targetUser?.id,
+                toAppUserId: targetUser.id,
                 when: new Date(),
-                appUserId: me?.id
+                appUserId: myself?.id ?? "",
             }
 
             await createInviteAsyncMut(newInviteToCommunity);

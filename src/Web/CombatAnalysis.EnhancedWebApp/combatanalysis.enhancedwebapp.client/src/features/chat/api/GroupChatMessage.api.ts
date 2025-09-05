@@ -9,7 +9,7 @@ export const GroupChatMessageApi = ChatApi.injectEndpoints({
                 url: '/GroupChatMessage',
                 method: 'POST'
             }),
-            invalidatesTags: result => [{ type: 'GroupChatMessage', result }],
+            invalidatesTags: result => result ? [{ type: 'GroupChatMessage', id: result.id }] : [],
         }),
         updateGroupChatMessage: builder.mutation<void, GroupChatMessageModel>({
             query: message => ({
@@ -17,21 +17,21 @@ export const GroupChatMessageApi = ChatApi.injectEndpoints({
                 url: '/GroupChatMessage',
                 method: 'PUT'
             }),
-            invalidatesTags: result => [{ type: 'GroupChatMessage', result }],
+            invalidatesTags: (_result, _error, message) => [{ type: 'GroupChatMessage', id: message.id }],
         }),
         removeGroupChatMessage: builder.mutation<void, number>({
             query: id => ({
                 url: `/GroupChatMessage/${id}`,
                 method: 'DELETE'
             }),
-            invalidatesTags: result => [{ type: 'GroupChatMessage', result }],
+            invalidatesTags: (_result, _error, id) => [{ type: 'GroupChatMessage', id }],
         }),
         removeGroupChatMessageByChatId: builder.mutation<void, number>({
             query: id => ({
                 url: `/GroupChatMessage/deleteByChatId/${id}`,
                 method: 'DELETE'
             }),
-            invalidatesTags: result => [{ type: 'GroupChatMessage', result }],
+            invalidatesTags: (_result, _error, id) => [{ type: 'GroupChatMessage', id }],
         }),
         getGroupChatMessageCountByChatId: builder.query<number, number>({
             query: chatId => `/GroupChatMessage/count/${chatId}`,

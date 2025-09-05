@@ -9,7 +9,7 @@ export const CommunityDiscussionCommentApi = CommunityApi.injectEndpoints({
                 url: '/CommunityDiscussionComment',
                 method: 'POST'
             }),
-            invalidatesTags: (result, error, arg) => [{ type: 'CommunityDiscussionComment', arg }]
+            invalidatesTags: result => result ? [{ type: 'CommunityDiscussionComment', id: result.id }] : [],
         }),
         updateCommunityDiscussionCommentAsync: builder.mutation<void, CommunityDiscussionCommentModel>({
             query: discussion => ({
@@ -17,22 +17,22 @@ export const CommunityDiscussionCommentApi = CommunityApi.injectEndpoints({
                 url: '/CommunityDiscussionComment',
                 method: 'PUT'
             }),
-            invalidatesTags: (result, error, arg) => [{ type: 'CommunityDiscussionComment', arg }]
+            invalidatesTags: (_result, _error, discussion) => [{ type: 'CommunityDiscussionComment', id: discussion.id }]
         }),
         removeCommunityDiscussionCommentAsync: builder.mutation<void, number>({
             query: id => ({
                 url: `/CommunityDiscussionComment/${id}`,
                 method: 'DELETE'
             }),
-            invalidatesTags: (result, error, arg) => [{ type: 'CommunityDiscussionComment', arg }]
+            invalidatesTags: (_result, _error, id) => [{ type: 'CommunityDiscussionComment', id }]
         }),
         getCommunityDiscussionCommentById: builder.query<CommunityDiscussionCommentModel, number>({
             query: id => `/CommunityDiscussionComment/${id}`,
-            providesTags: (result, error, id) => [{ type: 'CommunityDiscussionComment', id }]
+            providesTags: result => result ? [{ type: 'CommunityDiscussionComment', id: result.id }] : [],
         }),
         getCommunityDiscussionCommentByDiscussionId: builder.query<CommunityDiscussionCommentModel[], number>({
             query: id => `/CommunityDiscussionComment/findByDiscussionId/${id}`,
-            providesTags: (result, error, id) => [{ type: 'CommunityDiscussionComment', id }]
+            providesTags: (_result, _error, id) => [{ type: 'CommunityDiscussionComment', id }]
         }),
     })
 })

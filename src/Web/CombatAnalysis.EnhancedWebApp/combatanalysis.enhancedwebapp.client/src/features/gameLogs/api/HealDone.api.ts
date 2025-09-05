@@ -8,8 +8,11 @@ export const HealDoneApi = GameLogsApi.injectEndpoints({
             query: ({ combatPlayerId, page, pageSize }) => `/HealDone/getByCombatPlayerId?combatPlayerId=${combatPlayerId}&page=${page}&pageSize=${pageSize}`,
             providesTags: result =>
                 result
-                    ? [...result.map(({ id }) => ({ type: 'HealDone' as const, id })), 'HealDone']
-                    : ['HealDone'],
+                    ? [
+                        ...result.map(healDone => ({ type: 'HealDone' as const, id: healDone.id })),
+                        { type: 'HealDone', id: 'LIST' },
+                    ]
+                    : [{ type: 'HealDone', id: 'LIST' }]
         }),
         getHealDoneCountByCombatPlayerId: builder.query<number, number>({
             query: combatPlayerId => `/HealDone/count/${combatPlayerId}`,
@@ -21,8 +24,11 @@ export const HealDoneApi = GameLogsApi.injectEndpoints({
             query: ({ combatPlayerId, filter, filterValue, page, pageSize }) => `/HealDone/getByFilter?combatPlayerId=${combatPlayerId}&filter=${filter}&filterValue=${filterValue}&page=${page}&pageSize=${pageSize}`,
             providesTags: result =>
                 result
-                    ? [...result.map(({ id }) => ({ type: 'HealDone' as const, id })), 'HealDone']
-                    : ['HealDone'],
+                    ? [
+                        ...result.map(healDone => ({ type: 'HealDone' as const, id: healDone.id })),
+                        { type: 'HealDone', id: 'LIST' },
+                    ]
+                    : [{ type: 'HealDone', id: 'LIST' }]
         }),
         getHealDoneCountByFilter: builder.query<number, { combatPlayerId: number, filter: string, filterValue: number }>({
             query: ({ combatPlayerId, filter, filterValue }) => `/HealDone/countByFilter?combatPlayerId=${combatPlayerId}&filter=${filter}&filterValue=${filterValue}`,
@@ -31,8 +37,11 @@ export const HealDoneApi = GameLogsApi.injectEndpoints({
             query: combatPlayerId => `/HealDoneGeneral/getByCombatPlayerId/${combatPlayerId}`,
             providesTags: result =>
                 result
-                    ? [...result.map(({ id }) => ({ type: 'HealDoneGeneral' as const, id })), 'HealDoneGeneral']
-                    : ['HealDoneGeneral'],
+                    ? [
+                        ...result.map(healDone => ({ type: 'HealDone' as const, id: healDone.id })),
+                        { type: 'HealDone', id: 'LIST' },
+                    ]
+                    : [{ type: 'HealDone', id: 'LIST' }]
         }),
     })
 })

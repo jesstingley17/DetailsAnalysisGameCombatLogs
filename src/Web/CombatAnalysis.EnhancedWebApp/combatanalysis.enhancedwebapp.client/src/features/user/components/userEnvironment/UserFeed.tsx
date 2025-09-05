@@ -22,7 +22,7 @@ const UserFeed: React.FC = () => {
 
     const [currentPosts, setCurrentPosts] = useState<PostModel[]>([]);
 
-    const { userPosts, communityPosts, count, communityCount, isLoading, getMoreUserPostsAsync, getMoreCommunityPostsAsync } = useFetchPosts(myself?.id ?? "");
+    const { userPosts, communityPosts, count, communityCount, getMoreUserPostsAsync, getMoreCommunityPostsAsync } = useFetchPosts(myself?.id ?? "");
 
     useEffect(() => {
         if (!userPosts) {
@@ -62,17 +62,7 @@ const UserFeed: React.FC = () => {
         setCurrentPosts(totalPosts);
     }
 
-    const dateFormatting = (stringOfDate: string): string => {
-        const date = new Date(stringOfDate);
-        const month = date.getMonth();
-        const monthes = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-
-        const formatted = `${date.getDate()} ${monthes[month]}, ${date.getHours()}:${date.getMinutes()}`;
-
-        return formatted;
-    }
-
-    if (!myself || isLoading) {
+    if (!myself) {
         return (
             <>
                 <CommunicationMenu
@@ -100,12 +90,10 @@ const UserFeed: React.FC = () => {
                                     userId={myself.id}
                                     communityId={(post as CommunityPostModel).communityId}
                                     post={(post as CommunityPostModel)}
-                                    dateFormatting={dateFormatting}
                                 />
                                 : <UserPost
                                     myself={myself}
                                     post={(post as UserPostModel)}
-                                    dateFormatting={dateFormatting}
                                 />
                             }
                         </li>

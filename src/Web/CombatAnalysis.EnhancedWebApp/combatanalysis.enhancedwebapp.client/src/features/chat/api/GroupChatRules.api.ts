@@ -9,7 +9,7 @@ export const GroupChatRulesApi = ChatApi.injectEndpoints({
                 url: '/GroupChatRules',
                 method: 'POST'
             }),
-            invalidatesTags: result => [{ type: 'GroupChatRules', result }],
+            invalidatesTags: result => result ? [{ type: 'GroupChatRules', id: result.id }] : [],
         }),
         updateGroupChatRulesAsync: builder.mutation<void, GroupChatRulesModel>({
             query: groupChatRules => ({
@@ -17,18 +17,18 @@ export const GroupChatRulesApi = ChatApi.injectEndpoints({
                 url: '/GroupChatRules',
                 method: 'PUT'
             }),
-            invalidatesTags: result => [{ type: 'GroupChatRules', result }],
+            invalidatesTags: (_result, _error, groupChatRules) => [{ type: 'GroupChatRules', id: groupChatRules.id }],
         }),
         removeGroupChatRulesAsync: builder.mutation<void, number>({
             query: id => ({
                 url: `/GroupChatRules/${id}`,
                 method: 'DELETE'
             }),
-            invalidatesTags: (result, error, arg) => [{ type: 'GroupChatRules', arg }]
+            invalidatesTags: (_result, _error, id) => [{ type: 'GroupChatRules', id }]
         }),
         getGroupChatRulesById: builder.query<GroupChatRulesModel, number>({
             query: id => `/GroupChatRules/findByChatId/${id}`,
-            providesTags: (result, error, id) => [{ type: 'GroupChatRules', id }],
+            providesTags: result => result ? [{ type: 'GroupChatRules', id: result.id }] : [],
         }),
     })
 })

@@ -23,20 +23,25 @@ export const UserApi = createApi({
             query: () => '/Account',
             providesTags: result =>
                 result
-                    ? [...result.map(({ id }) => ({ type: 'Account' as const, id })), 'Account']
-                    : ['Account'],
+                    ? [
+                        ...result.map(account => ({ type: 'Account' as const, id: account.id })),
+                        { type: 'Account', id: 'LIST' },
+                    ]
+                    : [{ type: 'Account', id: 'LIST' }]
         }),
         getCustomers: builder.query<CustomerModel[], void>({
             query: () => '/Customer',
             providesTags: result =>
                 result
-                    ? [...result.map(({ id }) => ({ type: 'Customer' as const, id })), 'Customer']
-                    : ['Customer'],
+                    ? [
+                        ...result.map(customer => ({ type: 'Customer' as const, id: customer.id })),
+                        { type: 'Customer', id: 'LIST' },
+                    ]
+                    : [{ type: 'Customer', id: 'LIST' }]
         }),
         authentication: builder.query<AppUserModel, void>({
             query: () => '/Authentication',
-            providesTags: result =>
-                result ? [{ type: 'Authentication', id: result.id }] : ['Authentication'],
+            providesTags: result => result ? [{ type: 'RequestToConnect', id: result.id }] : []
         }),
         authorization: builder.query<{ uri: string }, string>({
             query: identityPath => `/Authentication/authorization?identityPath=${identityPath}`,

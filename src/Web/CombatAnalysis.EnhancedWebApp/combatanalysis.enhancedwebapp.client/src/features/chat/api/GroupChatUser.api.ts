@@ -9,30 +9,42 @@ export const GroupChatUserApi = ChatApi.injectEndpoints({
                 url: '/GroupChatUser',
                 method: 'POST'
             }),
-            invalidatesTags: result => [{ type: 'GroupChatUser', result }]
+            invalidatesTags: result => result ? [{ type: 'GroupChatUser', id: result.id }] : [],
         }),
         removeGroupChatUserAsync: builder.mutation<void, string>({
             query: id => ({
                 url: `/GroupChatUser/${id}`,
                 method: 'DELETE'
             }),
-            invalidatesTags: result => [{ type: 'GroupChatUser', result }],
+            invalidatesTags: (_result, _error, id) => [{ type: 'GroupChatUser', id }],
         }),
         getGroupChatUserById: builder.query<GroupChatUserModel, string>({
             query: id => `/GroupChatUser/${id}`,
-            providesTags: (result, error, id) => [{ type: 'GroupChatUser', id }],
+            providesTags: result => result ? [{ type: 'GroupChatUser', id: result.id }] : [],
         }),
         findMeInChat: builder.query<GroupChatUserModel, { chatId: number, appUserId: string }>({
             query: ({ chatId, appUserId }) => `/GroupChatUser/findMeInChat?chatId=${chatId}&appUserId=${appUserId}`,
-            providesTags: (result, error, { chatId, appUserId }) => [{ type: 'GroupChatUser', id: `${chatId}-${appUserId}` }],
+            providesTags: result => result ? [{ type: 'GroupChatUser', id: result.id }] : [],
         }),
         findGroupChatUsersByUserId: builder.query<GroupChatUserModel[], string>({
             query: userId => `/GroupChatUser/findByUserId/${userId}`,
-            providesTags: (result, error, id) => [{ type: 'GroupChatUser', id }],
+            providesTags: result =>
+                result
+                    ? [
+                        ...result.map(chatUser => ({ type: 'GroupChatUser' as const, id: chatUser.id })),
+                        { type: 'GroupChatUser', id: 'LIST' },
+                    ]
+                    : [{ type: 'GroupChatUser', id: 'LIST' }],
         }),
         findGroupChatUsersByChatId: builder.query<GroupChatUserModel[], number>({
             query: chatId => `/GroupChatUser/findByChatId/${chatId}`,
-            providesTags: (result, error, id) => [{ type: 'GroupChatUser', id }],
+            providesTags: result =>
+                result
+                    ? [
+                        ...result.map(chatUser => ({ type: 'GroupChatUser' as const, id: chatUser.id })),
+                        { type: 'GroupChatUser', id: 'LIST' },
+                    ]
+                    : [{ type: 'GroupChatUser', id: 'LIST' }],
         }),
     })
 })
