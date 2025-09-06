@@ -23,6 +23,7 @@ builder.Configuration.Bind("Authentication", authenticationOptions);
 var authenticationClientOptions = new AuthenticationClient();
 builder.Configuration.Bind("Authentication:Client", authenticationClientOptions);
 
+var audiences = authenticationClientOptions.Audiences.Split(',');
 builder.Services.AddAuthentication("Bearer")
     .AddJwtBearer(options =>
     {
@@ -34,21 +35,12 @@ builder.Services.AddAuthentication("Bearer")
             ValidateIssuer = true,
             ValidIssuer = authenticationOptions.Issuer,
             ValidateAudience = true,
-            ValidAudiences = [authenticationClientOptions.WebClientId, authenticationClientOptions.DesktopClientId],
+            ValidAudiences = audiences,
             ClockSkew = TimeSpan.Zero
         };
         // Skip checking HTTPS (should be HTTPS in production)
         options.RequireHttpsMetadata = false;
     });
-
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("ApiScope", builder =>
-    {
-        builder.RequireAuthenticatedUser();
-        builder.RequireClaim("scope", "api1");
-    });
-});
 
 builder.Services.AddSingleton<IKafkaProducerService<string, string>, KafkaProducer<string, string>>();
 
@@ -71,15 +63,12 @@ builder.Services.AddSignalR()
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Debug)
-    .WriteTo.File("logs/chatapi.log", rollingInterval: RollingInterval.Day, retainedFileCountLimit: 7, restrictedToMinimumLevel: LogEventLevel.Error)
+    .WriteTo.File("logs/hubs.log", rollingInterval: RollingInterval.Day, retainedFileCountLimit: 7, restrictedToMinimumLevel: LogEventLevel.Error)
     .CreateLogger();
 
 var app = builder.Build();
 
 app.UseCors("CorsPolicy");
-
-app.UseAuthentication(); // Enable authentication middleware
-app.UseAuthorization();
 
 app.UseRouting().UseEndpoints(endpoints =>
 {

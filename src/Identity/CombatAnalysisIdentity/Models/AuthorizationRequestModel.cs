@@ -8,7 +8,7 @@ public class AuthorizationRequestModel
 
     public string ClientTd { get; set; }
 
-    public string Scope { get; set; }
+    public string Scopes { get; set; }
 
     public string State { get; set; }
 

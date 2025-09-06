@@ -7,9 +7,9 @@ namespace CombatAnalysis.IdentityDAL.Repositories;
 
 internal class VerifyEmailTokenRepository : IVerifyEmailTokenRepository
 {
-    private readonly CombatAnalysisIdentityContext _context;
+    private readonly IdentityContext _context;
 
-    public VerifyEmailTokenRepository(CombatAnalysisIdentityContext dbContext)
+    public VerifyEmailTokenRepository(IdentityContext dbContext)
     {
         _context = dbContext;
     }

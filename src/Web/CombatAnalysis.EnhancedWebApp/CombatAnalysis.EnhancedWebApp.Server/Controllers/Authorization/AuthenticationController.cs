@@ -87,7 +87,7 @@ public class AuthenticationController : ControllerBase
 
             var uri = $"{_server.Identity}{identityPath}?grantType={_authenticationGrantType.Code}" +
                 $"&clientId={_authenticationClient.ClientId}&redirectUri={_authentication.RedirectUri}" +
-                $"&scope={_authenticationClient.Scope}&state={state}&codeChallengeMethod={_authentication.CodeChallengeMethod}" +
+                $"&scopes={_authenticationClient.Scopes}&state={state}&codeChallengeMethod={_authentication.CodeChallengeMethod}" +
                 $"&codeChallenge={codeChallenge}";
 
             HttpContext.Response.Cookies.Append(nameof(AuthenticationCookie.CodeVerifier), codeVerifier, new CookieOptions

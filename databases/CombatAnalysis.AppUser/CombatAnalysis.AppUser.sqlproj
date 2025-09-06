@@ -3,15 +3,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <Name>CombatAnalysis.CombatLog</Name>
+    <Name>CombatAnalysis.User</Name>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectVersion>4.1</ProjectVersion>
-    <ProjectGuid>{c77f3c4b-2daf-4052-ba45-af528734aa85}</ProjectGuid>
+    <ProjectGuid>{b9c4d114-ddc5-45e7-920b-46904b003746}</ProjectGuid>
     <DSP>Microsoft.Data.Tools.Schema.Sql.Sql160DatabaseSchemaProvider</DSP>
     <OutputType>Database</OutputType>
-    <RootPath />
-    <RootNamespace>CombatAnalysis.CombatLog</RootNamespace>
-    <AssemblyName>CombatAnalysis.CombatLog</AssemblyName>
+    <RootPath>
+    </RootPath>
+    <RootNamespace>CombatAnalysis.User</RootNamespace>
+    <AssemblyName>CombatAnalysis.User</AssemblyName>
     <ModelCollation>1033, CI</ModelCollation>
     <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
     <DeployToDatabase>True</DeployToDatabase>
@@ -47,6 +48,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
+    <!-- Default to the v11.0 targets path if the targets file for the current VS version is not found -->
     <SSDTExists Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets')">True</SSDTExists>
     <VisualStudioVersion Condition="'$(SSDTExists)' == ''">11.0</VisualStudioVersion>
   </PropertyGroup>
@@ -57,6 +59,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="InitialCreate.sql" />
-    <None Include="CombatAnalysis.CombatLog.publish.xml" />
+    <None Include="CombatAnalysis.AppUser.publish.xml" />
   </ItemGroup>
 </Project>

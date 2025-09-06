@@ -6,10 +6,10 @@ namespace CombatAnalysis.IdentityDAL.Services;
 
 internal class ContextService : IContextService
 {
-    private readonly CombatAnalysisIdentityContext _context;
+    private readonly IdentityContext _context;
     private IDbContextTransaction _transaction;
 
-    public ContextService(CombatAnalysisIdentityContext context)
+    public ContextService(IdentityContext context)
     {
         _context = context;
     }

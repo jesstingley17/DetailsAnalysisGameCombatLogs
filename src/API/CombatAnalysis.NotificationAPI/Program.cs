@@ -37,6 +37,7 @@ builder.Configuration.Bind("Authentication:Client", authenticationClientOptions)
 var apiOptions = new API();
 builder.Configuration.Bind("API", apiOptions);
 
+var audiences = authenticationClientOptions.Audiences.Split(',');
 builder.Services.AddAuthentication("Bearer")
     .AddJwtBearer(options =>
     {
@@ -48,21 +49,19 @@ builder.Services.AddAuthentication("Bearer")
             ValidateIssuer = true,
             ValidIssuer = authenticationOptions.Issuer,
             ValidateAudience = true,
-            ValidAudiences = [authenticationClientOptions.WebClientId, authenticationClientOptions.DesktopClientId],
+            ValidAudiences = audiences,
             ClockSkew = TimeSpan.Zero
         };
         // Skip checking HTTPS (should be HTTPS in production)
         options.RequireHttpsMetadata = false;
     });
 
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("ApiScope", builder =>
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("ApiScope", builder =>
     {
         builder.RequireAuthenticatedUser();
-        builder.RequireClaim("scope", authenticationClientOptions.Scope);
+        builder.RequireClaim("scope", authenticationClientOptions.Scopes);
     });
-});
 
 builder.Services.AddTransient<IChatHubHelper, ChatHubHelper>();
 builder.Services.AddHostedService<PersonalChatMessageNotificationConsumer>();
@@ -88,7 +87,7 @@ builder.Services.AddSwaggerGen(options =>
                 TokenUrl = new Uri($"{apiOptions.Identity}connect/token"),
                 Scopes = new Dictionary<string, string>
                 {
-                    { authenticationClientOptions.Scope, "Request API #1" }
+                    { authenticationClientOptions.Scopes, "Request API #1" }
                 }
             }
         }
@@ -105,14 +104,14 @@ builder.Services.AddSwaggerGen(options =>
                         Id = "oauth2"
                     },
                 },
-                new[] { authenticationClientOptions.Scope }
+                new[] { authenticationClientOptions.Scopes }
             }
         });
 });
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Debug)
-    .WriteTo.File("logs/chatapi.log", rollingInterval: RollingInterval.Day, retainedFileCountLimit: 7, restrictedToMinimumLevel: LogEventLevel.Error)
+    .WriteTo.File("logs/notificationapi.log", rollingInterval: RollingInterval.Day, retainedFileCountLimit: 7, restrictedToMinimumLevel: LogEventLevel.Error)
     .CreateLogger();
 
 builder.Host.UseSerilog();
@@ -129,14 +128,14 @@ app.UseSwaggerUI(options =>
 {
     options.SwaggerEndpoint("/swagger/v1/swagger.json", "Notification API v1");
     options.InjectStylesheet("/swagger/swagger-dark.css");
-    options.OAuthClientId(authenticationClientOptions.WebClientId);
-    options.OAuthScopes(authenticationClientOptions.Scope);
+    //options.OAuthClientId(authenticationClientOptions.WebClientId);
+    //options.OAuthScopes(authenticationClientOptions.Scope);
 });
 
 app.UseStaticFiles();
 app.UseHttpsRedirection();
 
-app.MapControllers();
+app.MapControllers().RequireAuthorization("ApiScope");
 
 app.UseExceptionHandler(errorApp =>
 {

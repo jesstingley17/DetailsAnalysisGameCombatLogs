@@ -6,7 +6,8 @@ internal class Config
 {
     public static IEnumerable<ApiScope> ApiScopes =>
         [
-            new ApiScope("client3scope", "My Scope 3")
+            new ApiScope("api.read", "Allow read to API"),
+            new ApiScope("api.write", "Allow write to API"),
         ];
 
     public static IEnumerable<Client> GetClients()
@@ -15,7 +16,7 @@ internal class Config
         [
             new Client
             {
-                ClientId = "client3",
+                ClientId = "desktop-app",
                 AllowedGrantTypes = GrantTypes.Code,
 
                 RedirectUris = { "https://localhost:5003/swagger/oauth2-redirect.html" },
@@ -23,9 +24,22 @@ internal class Config
                 RequirePkce = true,
                 RequireClientSecret = false,
 
-                AllowedScopes = { "client3scope" },
+                AllowedScopes = { "api.read", "api.write" },
                 AllowAccessTokensViaBrowser = true,
-            }
+            },
+            new Client
+            {
+                ClientId = "web-app",
+                AllowedGrantTypes = GrantTypes.Code,
+
+                RedirectUris = { "https://localhost:5003/swagger/oauth2-redirect.html" },
+
+                RequirePkce = true,
+                RequireClientSecret = false,
+
+                AllowedScopes = { "api.read", "api.write" },
+                AllowAccessTokensViaBrowser = true,
+            },
         ];
     }
 
@@ -42,7 +56,16 @@ internal class Config
     {
         return
         [
-            new ApiResource("client3scope", "My Scope 3"),
+            new ApiResource("userapi", "Protected User API")
+            {
+                Scopes = { "api.read", "api.write" },
+                UserClaims = { "aud" }
+            },
+            new ApiResource("chatapi", "Protected Chat API")
+            {
+                Scopes = { "api.read", "api.write" },
+                UserClaims = { "aud" }
+            },
         ];
     }
 }

@@ -5,14 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.IdentityDAL.Repositories;
 
-internal class TokenRepository : ITokenRepository
+internal class TokenRepository(IdentityContext dbContext) : ITokenRepository
 {
-    private readonly CombatAnalysisIdentityContext _context;
-
-    public TokenRepository(CombatAnalysisIdentityContext dbContext)
-    {
-        _context = dbContext;
-    }
+    private readonly IdentityContext _context = dbContext;
 
     public async Task SaveAsync(string token, int refreshTokenExpiresDays, string clientId, string userId)
     {
@@ -20,7 +15,7 @@ internal class TokenRepository : ITokenRepository
         {
             Id = Guid.NewGuid().ToString(),
             Token = token,
-            ExpiryTime = DateTimeOffset.UtcNow.AddDays(refreshTokenExpiresDays),
+            ExpiresAt = DateTimeOffset.UtcNow.AddDays(refreshTokenExpiresDays),
             ClientId = clientId,
             UserId = userId,
         };
@@ -34,17 +29,17 @@ internal class TokenRepository : ITokenRepository
     {
         var tokenEntry = await _context.RefreshToken
             .FirstOrDefaultAsync(t => t.Token == refreshToken && t.ClientId == clientId);
-        if (tokenEntry != null && tokenEntry.ExpiryTime > DateTime.UtcNow)
+        if (tokenEntry != null && tokenEntry.ExpiresAt > DateTime.UtcNow)
         {
             return tokenEntry.UserId;
         }
 
-        return null;
+        return string.Empty;
     }
 
     public async Task RemoveExpiredTokensAsync()
     {
-        var expiredTokens = _context.RefreshToken.Where(t => t.ExpiryTime < DateTime.UtcNow);
+        var expiredTokens = _context.RefreshToken.Where(t => t.ExpiresAt < DateTime.UtcNow);
         _context.RefreshToken.RemoveRange(expiredTokens);
 
         await _context.SaveChangesAsync();

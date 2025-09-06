@@ -6,16 +6,10 @@ using CombatAnalysis.IdentityDAL.Interfaces;
 
 namespace CombatAnalysis.Identity.Services;
 
-internal class ClientService : IClientService
+internal class ClientService(IClientRepository clientRepository, IMapper mapper) : IClientService
 {
-    private readonly IClientRepository _clientRepository;
-    private readonly IMapper _mapper;
-
-    public ClientService(IClientRepository clientRepository, IMapper mapper)
-    {
-        _clientRepository = clientRepository;
-        _mapper = mapper;
-    }
+    private readonly IClientRepository _clientRepository = clientRepository;
+    private readonly IMapper _mapper = mapper;
 
     public async Task CreateAsync(ClientDto user)
     {

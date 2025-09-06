@@ -18,6 +18,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<API>(builder.Configuration.GetSection("API"));
 builder.Services.Configure<Authentication>(builder.Configuration.GetSection("Authentication"));
+builder.Services.Configure<AuthenticationClient>(builder.Configuration.GetSection("Authentication:Client"));
 builder.Services.Configure<AuthenticationGrantType>(builder.Configuration.GetSection("Authentication:GrantType"));
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("Smtp"));
 

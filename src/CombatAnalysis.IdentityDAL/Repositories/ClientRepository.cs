@@ -5,14 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.IdentityDAL.Repositories;
 
-internal class ClientRepository : IClientRepository
+internal class ClientRepository(IdentityContext dbContext) : IClientRepository
 {
-    private readonly CombatAnalysisIdentityContext _context;
-
-    public ClientRepository(CombatAnalysisIdentityContext dbContext)
-    {
-        _context = dbContext;
-    }
+    private readonly IdentityContext _context = dbContext;
 
     public async Task SaveAsync(Client identityUser)
     {

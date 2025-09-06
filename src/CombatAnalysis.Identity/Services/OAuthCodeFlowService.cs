@@ -11,9 +11,11 @@ using System.Text;
 
 namespace CombatAnalysis.Identity.Services;
 
-internal class OAuthCodeFlowService(IOptions<Authentication> authentication, IPkeRepository pkeRepository, IClientRepository clientRepository, ITokenRepository tokenRepository) : IOAuthCodeFlowService
+internal class OAuthCodeFlowService(IOptions<Authentication> authentication, IOptions<AuthenticationClient> authenticationClient, IPkeRepository pkeRepository,
+    IClientRepository clientRepository, ITokenRepository tokenRepository) : IOAuthCodeFlowService
 {
     private readonly Authentication _authentication = authentication.Value;
+    private readonly AuthenticationClient _authenticationClient = authenticationClient.Value;
     private readonly IPkeRepository _pkeRepository = pkeRepository;
     private readonly IClientRepository _clientRepository = clientRepository;
     private readonly ITokenRepository _tokenRepository = tokenRepository;
@@ -74,10 +76,10 @@ internal class OAuthCodeFlowService(IOptions<Authentication> authentication, IPk
         return true;
     }
 
-    async Task<bool> IOAuthCodeFlowService.ValidateClientAsync(string clientId, string redirectUri, string clientScope, bool isDevRequest)
+    async Task<bool> IOAuthCodeFlowService.ValidateClientAsync(string clientId, string redirectUri, string clientScopes, bool isDevRequest)
     {
         if (string.IsNullOrEmpty(clientId)
-            || string.IsNullOrEmpty(clientScope)
+            || string.IsNullOrEmpty(clientScopes)
             || string.IsNullOrEmpty(redirectUri))
         {
             return false;
@@ -101,7 +103,7 @@ internal class OAuthCodeFlowService(IOptions<Authentication> authentication, IPk
             return false;
         }
 
-        var scopeIsValid = client.Scope == clientScope;
+        var scopeIsValid = client.AllowedScopes == clientScopes;
 
         return scopeIsValid;
     }
@@ -140,27 +142,47 @@ internal class OAuthCodeFlowService(IOptions<Authentication> authentication, IPk
         await _tokenRepository.SaveAsync(token, refreshTokenExpiresDays, clientId, userId);
     }
 
-    string IOAuthCodeFlowService.GenerateToken(string clientId, string userId = "")
+    string IOAuthCodeFlowService.GenerateToken(string userId, string clientId, string[] scopes)
     {
         var key = new SymmetricSecurityKey(_authentication.IssuerSigningKey);
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        var claims = new[]
+        var now = DateTime.UtcNow;
+
+        var claims = new List<Claim>
         {
-            new Claim(JwtRegisteredClaimNames.Sub, userId), 
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new(JwtRegisteredClaimNames.Iat,
+                  new DateTimeOffset(now).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
+            new(JwtRegisteredClaimNames.Sub, userId),
+            new("scope", string.Join(",", scopes)),
+            new("client_id", clientId),
         };
 
-        var jwySecurityToken = new JwtSecurityToken(
+        var audiences = _authenticationClient.Audiences.Split(',');
+        var payload = new JwtPayload(
             issuer: _authentication.Issuer,
-            audience: clientId,
-            claims: !string.IsNullOrEmpty(userId) ? claims : [],
-            expires: DateTime.Now.AddMinutes(_authentication.AccessTokenExpiresMins),
-            signingCredentials: creds
-        );
+            audience: null,
+            claims: claims,
+            notBefore: now,
+            expires: now.AddMinutes(_authentication.AccessTokenExpiresMins)
+        )
+        {
+            ["aud"] = audiences
+        };
+
+        var jwySecurityToken = new JwtSecurityToken(new JwtHeader(creds), payload);
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var token = tokenHandler.WriteToken(jwySecurityToken);
+
+        return token;
+    }
+
+    string IOAuthCodeFlowService.GenerateRefreshToken()
+    {
+        var randomNumber = RandomNumberGenerator.GetBytes(64);
+        var token = Convert.ToBase64String(randomNumber);
 
         return token;
     }
@@ -203,7 +225,7 @@ internal class OAuthCodeFlowService(IOptions<Authentication> authentication, IPk
     private static string GenerateAuthorizationCode()
     {
         using var randomNumberGenerator = RandomNumberGenerator.Create();
-        var randomBytes = new byte[32]; // 256 bits
+        var randomBytes = new byte[32];
         randomNumberGenerator.GetBytes(randomBytes);
 
         var code = Convert.ToBase64String(randomBytes);

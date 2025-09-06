@@ -4,19 +4,16 @@ using CombatAnalysis.IdentityDAL.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
 namespace CombatAnalysis.IdentityDAL.Migrations
 {
-    [DbContext(typeof(CombatAnalysisIdentityContext))]
-    [Migration("20250122095633_InitialCreate")]
-    partial class InitialCreate
+    [DbContext(typeof(IdentityContext))]
+    partial class IdentityContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -65,22 +62,31 @@ namespace CombatAnalysis.IdentityDAL.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("AllowedAudiences")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AllowedScopes")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ClientName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ClientType")
-                        .IsRequired()
+                    b.Property<string>("ClientSecret")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ClientType")
+                        .HasColumnType("int");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<string>("RedirectUrl")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
 
-                    b.Property<string>("Scope")
+                    b.Property<string>("RedirectUrl")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -94,33 +100,27 @@ namespace CombatAnalysis.IdentityDAL.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "client1",
-                            ClientName = "web",
-                            ClientType = "public",
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 1, 22, 10, 56, 33, 302, DateTimeKind.Unspecified).AddTicks(6555), new TimeSpan(0, 1, 0, 0, 0)),
-                            RedirectUrl = "encounters.analysis.com/callback",
-                            Scope = "client1scope",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2025, 1, 22, 10, 56, 33, 304, DateTimeKind.Unspecified).AddTicks(3452), new TimeSpan(0, 1, 0, 0, 0))
-                        },
-                        new
-                        {
-                            Id = "client2",
+                            Id = "33e2e3d3-9923-4e1b-a207-957b5f0063bb",
+                            AllowedAudiences = "user-api,chat-api,communication-api,hubs,notification-api",
+                            AllowedScopes = "api.read,api.write",
                             ClientName = "desktop",
-                            ClientType = "public",
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 1, 22, 10, 56, 33, 304, DateTimeKind.Unspecified).AddTicks(3652), new TimeSpan(0, 1, 0, 0, 0)),
+                            ClientType = 0,
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 9, 6, 23, 44, 56, 506, DateTimeKind.Unspecified).AddTicks(6071), new TimeSpan(0, 3, 0, 0, 0)),
+                            IsActive = true,
                             RedirectUrl = "localhost:45571/callback",
-                            Scope = "client2scope",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2025, 1, 22, 10, 56, 33, 304, DateTimeKind.Unspecified).AddTicks(3657), new TimeSpan(0, 1, 0, 0, 0))
+                            UpdatedAt = new DateTimeOffset(new DateTime(2025, 9, 6, 23, 44, 56, 510, DateTimeKind.Unspecified).AddTicks(1533), new TimeSpan(0, 3, 0, 0, 0))
                         },
                         new
                         {
-                            Id = "client3",
-                            ClientName = "devWeb",
-                            ClientType = "public",
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 1, 22, 10, 56, 33, 304, DateTimeKind.Unspecified).AddTicks(3659), new TimeSpan(0, 1, 0, 0, 0)),
-                            RedirectUrl = "localhost:44479/callback",
-                            Scope = "client3scope",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2025, 1, 22, 10, 56, 33, 304, DateTimeKind.Unspecified).AddTicks(3661), new TimeSpan(0, 1, 0, 0, 0))
+                            Id = "f04fb51f-ff00-416f-80e0-40fdc508ece2",
+                            AllowedAudiences = "user-api,chat-api,communication-api,hubs,notification-api",
+                            AllowedScopes = "api.read,api.write",
+                            ClientName = "web",
+                            ClientType = 0,
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 9, 6, 23, 44, 56, 510, DateTimeKind.Unspecified).AddTicks(1774), new TimeSpan(0, 3, 0, 0, 0)),
+                            IsActive = true,
+                            RedirectUrl = "localhost:5173/callback",
+                            UpdatedAt = new DateTimeOffset(new DateTime(2025, 9, 6, 23, 44, 56, 510, DateTimeKind.Unspecified).AddTicks(1777), new TimeSpan(0, 3, 0, 0, 0))
                         });
                 });
 
@@ -158,7 +158,10 @@ namespace CombatAnalysis.IdentityDAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTimeOffset>("ExpiryTime")
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset?>("RevokedAt")
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Token")

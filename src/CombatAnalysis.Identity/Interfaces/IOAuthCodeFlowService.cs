@@ -12,7 +12,9 @@ public interface IOAuthCodeFlowService
 
     Task SaveRefreshTokenAsync(string token, int refreshTokenExpiresDays, string clientId, string userId);
 
-    string GenerateToken(string clientId, string userId = "");
+    string GenerateToken(string userId, string clientId, string[] scopes);
+
+    string GenerateRefreshToken();
 
     Task<string> ValidateRefreshTokenAsync(string refreshToken, string clientId);
 }

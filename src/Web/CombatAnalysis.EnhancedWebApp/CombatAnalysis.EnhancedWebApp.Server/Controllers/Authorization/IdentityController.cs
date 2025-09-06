@@ -49,7 +49,12 @@ public class IdentityController : ControllerBase
             });
 
             var decodedAuthorizationCode = Uri.UnescapeDataString(authorizationCode);
-            var url = $"Token?grantType={_authenticationGrantType.Authorization}&clientId={_authenticationClient.ClientId}&codeVerifier={codeVerifier}&code={decodedAuthorizationCode}&redirectUri={_authentication.RedirectUri}";
+            var url = $"Token?grantType={_authenticationGrantType.Authorization}" +
+                $"&clientId={_authenticationClient.ClientId}" +
+                $"&clientScopes={_authenticationClient.Scopes}" +
+                $"&codeVerifier={codeVerifier}" +
+                $"&code={decodedAuthorizationCode}" +
+                $"&redirectUri={_authentication.RedirectUri}";
 
             var responseMessage = await _httpClient.GetAsync(url);
             responseMessage.EnsureSuccessStatusCode();

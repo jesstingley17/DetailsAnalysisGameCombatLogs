@@ -19,4 +19,7 @@
   <ItemGroup>
     <Folder Include="src\features\gameLogs\types\dashboard\" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include=".vscode\launch.json" />
+  </ItemGroup>
 </Project>

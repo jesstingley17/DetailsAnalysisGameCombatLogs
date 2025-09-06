@@ -58,7 +58,7 @@ internal class UserAuthorizationService(IMapper mapper, IOAuthCodeFlowService oA
     {
         GetAuthorizationRequestData(request);
 
-        var clientIsValid = await _oAuthCodeFlowService.ValidateClientAsync(_authorizationRequest.ClientTd, _authorizationRequest.RedirectUri, _authorizationRequest.Scope, isDevRequest);
+        var clientIsValid = await _oAuthCodeFlowService.ValidateClientAsync(_authorizationRequest.ClientTd, _authorizationRequest.RedirectUri, _authorizationRequest.Scopes, isDevRequest);
 
         return clientIsValid;
     }
@@ -188,9 +188,9 @@ internal class UserAuthorizationService(IMapper mapper, IOAuthCodeFlowService oA
             _authorizationRequest.ClientTd = clientId;
         }
 
-        if (request.Query.TryGetValue(AuthorizationRequest.Scope.ToString(), out var scope))
+        if (request.Query.TryGetValue(AuthorizationRequest.Scopes.ToString(), out var scopes))
         {
-            _authorizationRequest.Scope = scope;
+            _authorizationRequest.Scopes = scopes;
         }
 
         if (request.Query.TryGetValue(AuthorizationRequest.State.ToString(), out var state))
@@ -234,9 +234,9 @@ internal class UserAuthorizationService(IMapper mapper, IOAuthCodeFlowService oA
             _authorizationRequest.ClientTd = clientId;
         }
 
-        if (innerParams.TryGetValue(AuthorizationRequest.Scope.ToString(), out var scope))
+        if (innerParams.TryGetValue(AuthorizationRequest.Scopes.ToString(), out var scope))
         {
-            _authorizationRequest.Scope = scope;
+            _authorizationRequest.Scopes = scope;
         }
 
         if (innerParams.TryGetValue(AuthorizationRequest.State.ToString(), out var state))

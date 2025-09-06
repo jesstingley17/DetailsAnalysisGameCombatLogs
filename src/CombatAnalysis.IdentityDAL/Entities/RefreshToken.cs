@@ -6,7 +6,9 @@ public class RefreshToken
 
     public string Token { get; set; }
 
-    public DateTimeOffset ExpiryTime { get; set; }
+    public DateTimeOffset ExpiresAt { get; set; }
+
+    public DateTimeOffset? RevokedAt { get; set; }
 
     public string ClientId { get; set; }
 

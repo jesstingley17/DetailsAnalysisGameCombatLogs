@@ -4,9 +4,11 @@ using CombatAnalysis.CommunicationAPI.Enums;
 using CombatAnalysis.CommunicationAPI.Mapping;
 using CombatAnalysis.CommunicationBL.Extensions;
 using CombatAnalysis.CommunicationBL.Mapping;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using Serilog.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +35,7 @@ builder.Configuration.Bind("Authentication:Client", authenticationClientOptions)
 var apiOptions = new API();
 builder.Configuration.Bind("API", apiOptions);
 
+var audiences = authenticationClientOptions.Audiences.Split(',');
 builder.Services.AddAuthentication("Bearer")
     .AddJwtBearer(options =>
     {
@@ -44,21 +47,19 @@ builder.Services.AddAuthentication("Bearer")
             ValidateIssuer = true,
             ValidIssuer = authenticationOptions.Issuer,
             ValidateAudience = true,
-            ValidAudiences = [authenticationClientOptions.WebClientId, authenticationClientOptions.DesktopClientId],
+            ValidAudiences = audiences,
             ClockSkew = TimeSpan.Zero
         };
         // Skip checking HTTPS (should be HTTPS in production)
         options.RequireHttpsMetadata = false;
     });
 
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("ApiScope", builder =>
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("ApiScope", builder =>
     {
         builder.RequireAuthenticatedUser();
-        builder.RequireClaim("scope", "api1");
+        builder.RequireClaim("scope", authenticationClientOptions.Scopes);
     });
-});
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -80,7 +81,7 @@ builder.Services.AddSwaggerGen(options =>
                 TokenUrl = new Uri($"{apiOptions.Identity}connect/token"),
                 Scopes = new Dictionary<string, string>
                 {
-                    { authenticationClientOptions.Scope, "Request API #1" }
+                    { authenticationClientOptions.Scopes, "Request API #1" }
                 }
             }
         }
@@ -97,14 +98,14 @@ builder.Services.AddSwaggerGen(options =>
                         Id = "oauth2"
                     },
                 },
-                new[] { authenticationClientOptions.Scope }
+                new[] { authenticationClientOptions.Scopes }
             }
         });
 });
 
 Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Debug()
-    .WriteTo.Console()
+    .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Debug)
+    .WriteTo.File("logs/communicationapi.log", rollingInterval: RollingInterval.Day, retainedFileCountLimit: 7, restrictedToMinimumLevel: LogEventLevel.Error)
     .CreateLogger();
 
 builder.Host.UseSerilog();
@@ -113,7 +114,7 @@ var app = builder.Build();
 
 app.UseRouting();
 
-app.UseAuthentication(); // Enable authentication middleware
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseSwagger();
@@ -121,13 +122,34 @@ app.UseSwaggerUI(options =>
 {
     options.SwaggerEndpoint("/swagger/v1/swagger.json", "Communication API v1");
     options.InjectStylesheet("/swagger-ui/swaggerDark.css");
-    options.OAuthClientId(authenticationClientOptions.WebClientId);
-    options.OAuthScopes(authenticationClientOptions.Scope);
+    //options.OAuthClientId(authenticationClientOptions.WebClientId);
+    //options.OAuthScopes(authenticationClientOptions.Scopes);
 });
 
 app.UseStaticFiles();
 app.UseHttpsRedirection();
 
-app.MapControllers();
+app.MapControllers().RequireAuthorization("ApiScope");
+
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.StatusCode = 500;
+        context.Response.ContentType = "application/json";
+
+        var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
+        var ex = exceptionHandlerPathFeature?.Error;
+
+        Log.Error(ex, "Unhandled exception occurred");
+
+        var result = new
+        {
+            message = "An unexpected error occurred. Please try again later."
+        };
+
+        await context.Response.WriteAsJsonAsync(result);
+    });
+});
 
 app.Run();

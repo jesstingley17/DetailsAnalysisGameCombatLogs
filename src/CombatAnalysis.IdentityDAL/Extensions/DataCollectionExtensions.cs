@@ -11,7 +11,7 @@ public static class DataCollectionExtensions
 {
     public static void RegisterDependenciesForDAL(this IServiceCollection services, string connectionString)
     {
-        services.AddDbContext<CombatAnalysisIdentityContext>(options =>
+        services.AddDbContext<IdentityContext>(options =>
         {
             options.UseSqlServer(connectionString);
         });

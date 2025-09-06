@@ -1,14 +1,11 @@
 ﻿using CombatAnalysis.IdentityDAL.Entities;
+using CombatAnalysis.IdentityDAL.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.IdentityDAL.Data;
 
-public class CombatAnalysisIdentityContext : DbContext
+public class IdentityContext(DbContextOptions<IdentityContext> options) : DbContext(options)
 {
-    public CombatAnalysisIdentityContext(DbContextOptions<CombatAnalysisIdentityContext> options) : base(options)
-    {
-    }
-
     public DbSet<AuthorizationCodeChallenge> AuthorizationCodeChallenge { get; set; }
 
     public DbSet<RefreshToken> RefreshToken { get; set; }
@@ -28,31 +25,25 @@ public class CombatAnalysisIdentityContext : DbContext
         modelBuilder.Entity<Client>().HasData(
             new Client
             {
-                Id = "client1",
-                RedirectUrl = "encounters.analysis.com/callback",
-                Scope = "client1scope",
-                ClientName = "web",
-                ClientType = "public",
-                CreatedAt = DateTimeOffset.Now,
-                UpdatedAt = DateTimeOffset.Now
-            },
-            new Client
-            {
-                Id = "client2",
+                Id = Guid.NewGuid().ToString(),
                 RedirectUrl = "localhost:45571/callback",
-                Scope = "client2scope",
+                AllowedScopes = "api.read,api.write",
+                AllowedAudiences = "user-api,chat-api,communication-api,hubs,notification-api",
                 ClientName = "desktop",
-                ClientType = "public",
+                ClientType = (int)ClientType.Public,
+                IsActive = true,
                 CreatedAt = DateTimeOffset.Now,
                 UpdatedAt = DateTimeOffset.Now
             },
             new Client
             {
-                Id = "client3",
-                RedirectUrl = "localhost:44479/callback",
-                Scope = "client3scope",
-                ClientName = "devWeb",
-                ClientType = "public",
+                Id = Guid.NewGuid().ToString(),
+                RedirectUrl = "localhost:5173/callback",
+                AllowedScopes = "api.read,api.write",
+                AllowedAudiences = "user-api,chat-api,communication-api,hubs,notification-api",
+                ClientName = "web",
+                ClientType = (int)ClientType.Public,
+                IsActive = true,
                 CreatedAt = DateTimeOffset.Now,
                 UpdatedAt = DateTimeOffset.Now
             }

@@ -4,5 +4,5 @@ public class AuthenticationClient
 {
     public string ClientId { get; set; } = string.Empty;
 
-    public string Scope { get; set; } = string.Empty;
+    public string Scopes { get; set; } = string.Empty;
 }

@@ -9,7 +9,8 @@ namespace CombatAnalysisIdentity.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-public class TokenController(IOptions<AuthenticationGrantType> authenticationGrantType, IOptions<Authentication> authentication, IOAuthCodeFlowService oAuthCodeFlowService, ILogger<TokenController> logger) : ControllerBase
+public class TokenController(IOptions<AuthenticationGrantType> authenticationGrantType, IOptions<Authentication> authentication, IOAuthCodeFlowService oAuthCodeFlowService,
+    ILogger<TokenController> logger) : ControllerBase
 {
     private readonly AuthenticationGrantType _authenticationGrantType = authenticationGrantType.Value;
     private readonly Authentication _authentication = authentication.Value;
@@ -17,12 +18,13 @@ public class TokenController(IOptions<AuthenticationGrantType> authenticationGra
     private readonly ILogger<TokenController> _logger = logger;
 
     [HttpGet]
-    public async Task<IActionResult> GetJsonWebToken(string grantType, string clientId, string codeVerifier, string code, string redirectUri)
+    public async Task<IActionResult> GetJsonWebToken(string grantType, string clientId, string clientScopes, string codeVerifier, string code, string redirectUri)
     {
         try
         {
             ArgumentNullException.ThrowIfNullOrEmpty(grantType, nameof(grantType));
             ArgumentNullException.ThrowIfNullOrEmpty(clientId, nameof(clientId));
+            ArgumentNullException.ThrowIfNullOrEmpty(clientScopes, nameof(clientScopes));
             ArgumentNullException.ThrowIfNullOrEmpty(codeVerifier, nameof(codeVerifier));
             ArgumentNullException.ThrowIfNullOrEmpty(code, nameof(code));
             ArgumentNullException.ThrowIfNullOrEmpty(redirectUri, nameof(redirectUri));
@@ -41,7 +43,7 @@ public class TokenController(IOptions<AuthenticationGrantType> authenticationGra
 
             var (authorizationCode, userId) = _oAuthCodeFlowService.DecryptAuthorizationCode(decodedAuthorizationCode, _authentication.IssuerSigningKey);
 
-            var token = await GenerateTokenAsync(clientId, userId);
+            var token = await GenerateTokenAsync(userId, clientId, clientScopes);
             ArgumentNullException.ThrowIfNull(token, nameof(token));
 
             return Ok(token);
@@ -55,7 +57,7 @@ public class TokenController(IOptions<AuthenticationGrantType> authenticationGra
     }
 
     [HttpGet("refresh")]
-    public async Task<IActionResult> RefreshAccessToken(string grantType, string refreshToken, string clientId)
+    public async Task<IActionResult> RefreshAccessToken(string grantType, string clientId, string clientScopes, string refreshToken)
     {
         try
         {
@@ -71,7 +73,7 @@ public class TokenController(IOptions<AuthenticationGrantType> authenticationGra
             var userId = await _oAuthCodeFlowService.ValidateRefreshTokenAsync(refreshToken, clientId);
             ArgumentNullException.ThrowIfNullOrEmpty(userId, nameof(userId));
 
-            var token = GenerateNewTokenWhenRefresh(clientId, userId, refreshToken);
+            var token = GenerateNewTokenWhenRefresh(userId, clientId, clientScopes, refreshToken);
             ArgumentNullException.ThrowIfNull(token, nameof(token));
 
             return Ok(token);
@@ -84,10 +86,12 @@ public class TokenController(IOptions<AuthenticationGrantType> authenticationGra
         }
     }
 
-    private async Task<AccessTokenDto> GenerateTokenAsync(string clientId, string userId)
+    private async Task<AccessTokenDto> GenerateTokenAsync(string userId, string clientId, string clientScopes)
     {
-        var accessToken = _oAuthCodeFlowService.GenerateToken(clientId, userId);
-        var refreshToken = _oAuthCodeFlowService.GenerateToken(clientId);
+        var scopes = clientScopes.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        var accessToken = _oAuthCodeFlowService.GenerateToken(userId, clientId, scopes);
+        var refreshToken = _oAuthCodeFlowService.GenerateRefreshToken();
 
         await _oAuthCodeFlowService.SaveRefreshTokenAsync(refreshToken, _authentication.RefreshTokenExpiresDays, clientId, userId);
 
@@ -102,9 +106,11 @@ public class TokenController(IOptions<AuthenticationGrantType> authenticationGra
         return token;
     }
 
-    private AccessTokenDto GenerateNewTokenWhenRefresh(string clientId, string userId, string refreshToken)
+    private AccessTokenDto GenerateNewTokenWhenRefresh(string userId, string clientId, string clientScopes, string refreshToken)
     {
-        var accessToken = _oAuthCodeFlowService.GenerateToken(clientId, userId);
+        var scopes = clientScopes.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        var accessToken = _oAuthCodeFlowService.GenerateToken(userId, clientId, scopes);
 
         var token = new AccessTokenDto
         {

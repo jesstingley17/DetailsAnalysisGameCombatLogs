@@ -24,11 +24,14 @@ CREATE TABLE [AuthorizationCodeChallenge] (
 CREATE TABLE [Client] (
     [Id] nvarchar(450) NOT NULL,
     [RedirectUrl] nvarchar(max) NOT NULL,
-    [Scope] nvarchar(max) NOT NULL,
+    [AllowedScopes] nvarchar(max) NOT NULL,
+    [AllowedAudiences] nvarchar(max) NOT NULL,
     [ClientName] nvarchar(max) NOT NULL,
-    [ClientType] nvarchar(max) NOT NULL,
+    [ClientType] int NOT NULL,
+    [IsActive] bit NOT NULL,
     [CreatedAt] datetimeoffset NOT NULL,
     [UpdatedAt] datetimeoffset NOT NULL,
+    [ClientSecret] nvarchar(max) NULL,
     CONSTRAINT [PK_Client] PRIMARY KEY ([Id])
 );
 
@@ -44,7 +47,8 @@ CREATE TABLE [IdentityUser] (
 CREATE TABLE [RefreshToken] (
     [Id] nvarchar(450) NOT NULL,
     [Token] nvarchar(max) NOT NULL,
-    [ExpiryTime] datetimeoffset NOT NULL,
+    [ExpiresAt] datetimeoffset NOT NULL,
+    [RevokedAt] datetimeoffset NULL,
     [ClientId] nvarchar(max) NOT NULL,
     [UserId] nvarchar(max) NOT NULL,
     CONSTRAINT [PK_RefreshToken] PRIMARY KEY ([Id])
@@ -68,17 +72,16 @@ CREATE TABLE [VerifyEmailToken] (
     CONSTRAINT [PK_VerifyEmailToken] PRIMARY KEY ([Id])
 );
 
-IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'ClientName', N'ClientType', N'CreatedAt', N'RedirectUrl', N'Scope', N'UpdatedAt') AND [object_id] = OBJECT_ID(N'[Client]'))
+IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'AllowedAudiences', N'AllowedScopes', N'ClientName', N'ClientSecret', N'ClientType', N'CreatedAt', N'IsActive', N'RedirectUrl', N'UpdatedAt') AND [object_id] = OBJECT_ID(N'[Client]'))
     SET IDENTITY_INSERT [Client] ON;
-INSERT INTO [Client] ([Id], [ClientName], [ClientType], [CreatedAt], [RedirectUrl], [Scope], [UpdatedAt])
-VALUES (N'client1', N'web', N'public', '2025-01-22T10:56:33.3026555+01:00', N'encounters.analysis.com/callback', N'client1scope', '2025-01-22T10:56:33.3043452+01:00'),
-(N'client2', N'desktop', N'public', '2025-01-22T10:56:33.3043652+01:00', N'localhost:45571/callback', N'client2scope', '2025-01-22T10:56:33.3043657+01:00'),
-(N'client3', N'devWeb', N'public', '2025-01-22T10:56:33.3043659+01:00', N'localhost:44479/callback', N'client3scope', '2025-01-22T10:56:33.3043661+01:00');
-IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'ClientName', N'ClientType', N'CreatedAt', N'RedirectUrl', N'Scope', N'UpdatedAt') AND [object_id] = OBJECT_ID(N'[Client]'))
+INSERT INTO [Client] ([Id], [AllowedAudiences], [AllowedScopes], [ClientName], [ClientSecret], [ClientType], [CreatedAt], [IsActive], [RedirectUrl], [UpdatedAt])
+VALUES (N'33e2e3d3-9923-4e1b-a207-957b5f0063bb', N'user-api,chat-api,communication-api,hubs,notification-api', N'api.read,api.write', N'desktop', NULL, 0, '2025-09-06T23:44:56.5066071+03:00', CAST(1 AS bit), N'localhost:45571/callback', '2025-09-06T23:44:56.5101533+03:00'),
+(N'f04fb51f-ff00-416f-80e0-40fdc508ece2', N'user-api,chat-api,communication-api,hubs,notification-api', N'api.read,api.write', N'web', NULL, 0, '2025-09-06T23:44:56.5101774+03:00', CAST(1 AS bit), N'localhost:5173/callback', '2025-09-06T23:44:56.5101777+03:00');
+IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'AllowedAudiences', N'AllowedScopes', N'ClientName', N'ClientSecret', N'ClientType', N'CreatedAt', N'IsActive', N'RedirectUrl', N'UpdatedAt') AND [object_id] = OBJECT_ID(N'[Client]'))
     SET IDENTITY_INSERT [Client] OFF;
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'20250122095633_InitialCreate', N'9.0.1');
+VALUES (N'20250906204456_InitialCreate', N'9.0.1');
 
 COMMIT;
 GO

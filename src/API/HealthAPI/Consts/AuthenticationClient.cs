@@ -2,7 +2,7 @@
 
 internal class AuthenticationClient
 {
-    public string ClientId { get; set; }
+    public string Audiences { get; set; }
 
-    public string Scope { get; set; }
+    public string Scopes { get; set; }
 }

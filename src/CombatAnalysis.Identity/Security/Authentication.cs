@@ -2,9 +2,9 @@
 
 public class Authentication
 {
-    public byte[] IssuerSigningKey { get; set; }
-
     public string Issuer { get; set; }
+
+    public byte[] IssuerSigningKey { get; set; }
 
     public int AccessTokenExpiresMins { get; set; }
 

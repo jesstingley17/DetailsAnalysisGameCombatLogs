@@ -25,11 +25,11 @@ builder.Configuration.Bind("Authentication", authenticationOptions);
 var authenticationClientOptions = new AuthenticationClient();
 builder.Configuration.Bind("Authentication:Client", authenticationClientOptions);
 
+var audiences = authenticationClientOptions.Audiences.Split(',');
 builder.Services.AddAuthentication("Bearer")
         .AddJwtBearer(options =>
         {
             options.Authority = authenticationOptions.Authority;
-            options.Audience = authenticationClientOptions.ClientId;
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
@@ -37,20 +37,12 @@ builder.Services.AddAuthentication("Bearer")
                 ValidateIssuer = true,
                 ValidIssuer = authenticationOptions.Issuer,
                 ValidateAudience = true,
+                ValidAudiences = audiences,
                 ClockSkew = TimeSpan.Zero
             };
             // Skip checking HTTPS (should be HTTPS in production)
             options.RequireHttpsMetadata = false;
         });
-
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("ApiScope", policyBuilder =>
-    {
-        policyBuilder.RequireAuthenticatedUser();
-        policyBuilder.RequireClaim("scope", authenticationClientOptions.Scope);
-    });
-});
 
 builder.Services.AddHostedService<RefreshTokenCleanupService>();
 builder.Services.AddHostedService<AuthCodeCleanupService>();
@@ -62,16 +54,13 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-app.UseAuthentication(); // Enable authentication middleware
-app.UseAuthorization();
-
 app.UseSwagger();
 app.UseSwaggerUI(options =>
 {
     options.SwaggerEndpoint("/swagger/v1/swagger.json", "Health API v1");
     options.InjectStylesheet("/swagger-ui/swaggerDark.css");
-    options.OAuthClientId(authenticationClientOptions.ClientId);
-    options.OAuthScopes(authenticationClientOptions.Scope);
+    //options.OAuthClientId(authenticationClientOptions.Audiences);
+    //options.OAuthScopes(authenticationClientOptions.Scopes);
 });
 
 app.UseStaticFiles();

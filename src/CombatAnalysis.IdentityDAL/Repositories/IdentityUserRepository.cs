@@ -7,9 +7,9 @@ namespace CombatAnalysis.IdentityDAL.Repositories;
 
 internal class IdentityUserRepository : IIdentityUserRepository
 {
-    private readonly CombatAnalysisIdentityContext _context;
+    private readonly IdentityContext _context;
 
-    public IdentityUserRepository(CombatAnalysisIdentityContext dbContext)
+    public IdentityUserRepository(IdentityContext dbContext)
     {
         _context = dbContext;
     }

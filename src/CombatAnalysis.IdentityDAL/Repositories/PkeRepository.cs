@@ -7,9 +7,9 @@ namespace CombatAnalysis.IdentityDAL.Repositories;
 
 internal class PkeRepository : IPkeRepository
 {
-    private readonly CombatAnalysisIdentityContext _context;
+    private readonly IdentityContext _context;
 
-    public PkeRepository(CombatAnalysisIdentityContext context)
+    public PkeRepository(IdentityContext context)
     {
         _context = context;
     }
