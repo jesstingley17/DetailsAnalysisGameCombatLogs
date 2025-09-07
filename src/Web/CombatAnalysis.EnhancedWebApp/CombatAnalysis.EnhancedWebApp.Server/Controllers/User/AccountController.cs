@@ -97,29 +97,6 @@ public class AccountController : ControllerBase
         return BadRequest();
     }
 
-    [HttpPost("logout")]
-    public IActionResult Logout()
-    {
-        HttpContext.Response.Cookies.Delete(nameof(AuthenticationCookie.RefreshToken), new CookieOptions
-        {
-            Domain = _authentication.CookieDomain,
-            Path = "/",
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.None,
-        });
-        HttpContext.Response.Cookies.Delete(nameof(AuthenticationCookie.AccessToken), new CookieOptions
-        {
-            Domain = _authentication.CookieDomain,
-            Path = "/",
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.None,
-        });
-
-        return Ok();
-    }
-
     [ServiceFilter(typeof(RequireRefreshTokenAttribute))]
     [HttpPut]
     public async Task<IActionResult> Update(AppUserModel model)

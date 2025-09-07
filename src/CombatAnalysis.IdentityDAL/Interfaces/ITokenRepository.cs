@@ -1,10 +1,14 @@
-﻿namespace CombatAnalysis.IdentityDAL.Interfaces;
+﻿using CombatAnalysis.IdentityDAL.Entities;
+
+namespace CombatAnalysis.IdentityDAL.Interfaces;
 
 public interface ITokenRepository
 {
-    Task SaveAsync(string token, int refreshTokenExpiresDays, string clientId, string userId);
+    Task<RefreshToken> CreateAsync(string token, int refreshTokenExpiresDays, string clientId, string userId);
 
-    Task<string> ValidateRefreshTokenAsync(string refreshToken, string clientId);
+    Task<int> RotateAsync(string oldRefreshTokenId, string newRefreshTokenId);
 
-    Task RemoveExpiredTokensAsync();
+    Task<int> RevokeAsync(string refreshTokenId);
+
+    Task<string> ValidateRefreshTokenAsync(string refreshTokenId, string refreshToken, string clientId);
 }

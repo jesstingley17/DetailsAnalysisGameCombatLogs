@@ -29,6 +29,54 @@ public class IdentityController : ControllerBase
         _httpClient.APIUrl = cluster.Value.Identity;
     }
 
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout()
+    {
+        try
+        {
+            if (!HttpContext.Request.Cookies.TryGetValue(nameof(AuthenticationCookie.RefreshToken), out var refreshToken))
+            {
+                ArgumentException.ThrowIfNullOrEmpty(refreshToken, nameof(refreshToken));
+            }
+
+            var refreshTokenParts = refreshToken.Split(':', 2);
+            var logout = new LogoutModel { RefreshTokenId = refreshTokenParts[0] };
+            var responseMessage = await _httpClient.PostAsync("Token/logout", JsonContent.Create(logout));
+            responseMessage.EnsureSuccessStatusCode();
+
+            HttpContext.Response.Cookies.Delete(nameof(AuthenticationCookie.RefreshToken), new CookieOptions
+            {
+                Domain = _authentication.CookieDomain,
+                Path = "/",
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+            });
+            HttpContext.Response.Cookies.Delete(nameof(AuthenticationCookie.AccessToken), new CookieOptions
+            {
+                Domain = _authentication.CookieDomain,
+                Path = "/",
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+            });
+
+            return Ok();
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogError(ex, "Failed to logout. Paramter '{ParamName} was incorrect", ex.ParamName);
+
+            return BadRequest();
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Failed to send HTTP Request to logout");
+
+            return BadRequest();
+        }
+    }
+
     [HttpGet]
     public async Task<IActionResult> AuthorizationCodeExchange(string authorizationCode)
     {
@@ -59,7 +107,7 @@ public class IdentityController : ControllerBase
             var responseMessage = await _httpClient.GetAsync(url);
             responseMessage.EnsureSuccessStatusCode();
 
-            var token = await responseMessage.Content.ReadFromJsonAsync<AccessTokenModel>();
+            var token = await responseMessage.Content.ReadFromJsonAsync<TokenResponseModel>();
             ArgumentNullException.ThrowIfNull(token, nameof(token));
 
             HttpContext.Response.Cookies.Append(nameof(AuthenticationCookie.AccessToken), token.AccessToken, new CookieOptions
@@ -70,7 +118,7 @@ public class IdentityController : ControllerBase
                 SameSite = SameSiteMode.None,
                 Expires = token.Expires,
             });
-            HttpContext.Response.Cookies.Append(nameof(AuthenticationCookie.RefreshToken), token.RefreshToken, new CookieOptions
+            HttpContext.Response.Cookies.Append(nameof(AuthenticationCookie.RefreshToken), $"{token.RefreshToken.Id}:{token.RefreshToken.Token}", new CookieOptions
             {
                 Domain = _authentication.CookieDomain,
                 HttpOnly = true,
@@ -106,10 +154,16 @@ public class IdentityController : ControllerBase
                 ArgumentNullException.ThrowIfNullOrEmpty(refreshToken, nameof(refreshToken));
             }
 
-            var responseMessage = await _httpClient.GetAsync($"Token/refresh?grantType={_authenticationGrantType.RefreshToken}&refreshToken={refreshToken}&clientId={_authenticationClient.ClientId}");
+            var refreshTokenParts = refreshToken.Split(':', 2);
+            var responseMessage = await _httpClient.GetAsync($"Token/refresh?" +
+                $"grantType={_authenticationGrantType.RefreshToken}" +
+                $"&clientId={_authenticationClient.ClientId}" +
+                $"&clientScopes={_authenticationClient.Scopes}" +
+                $"&refreshTokenId={refreshTokenParts[0]}" +
+                $"&refreshToken={refreshTokenParts[1]}");
             responseMessage.EnsureSuccessStatusCode();
 
-            var token = await responseMessage.Content.ReadFromJsonAsync<AccessTokenModel>();
+            var token = await responseMessage.Content.ReadFromJsonAsync<TokenResponseModel>();
             ArgumentNullException.ThrowIfNull(token, nameof(token));
 
             HttpContext.Response.Cookies.Append(nameof(AuthenticationCookie.AccessToken), token.AccessToken, new CookieOptions
@@ -120,7 +174,7 @@ public class IdentityController : ControllerBase
                 SameSite = SameSiteMode.None,
                 Expires = token.Expires,
             });
-            HttpContext.Response.Cookies.Append(nameof(AuthenticationCookie.RefreshToken), token.RefreshToken, new CookieOptions
+            HttpContext.Response.Cookies.Append(nameof(AuthenticationCookie.RefreshToken), $"{token.RefreshToken.Id}:{token.RefreshToken.Token}", new CookieOptions
             {
                 Domain = _authentication.CookieDomain,
                 HttpOnly = true,

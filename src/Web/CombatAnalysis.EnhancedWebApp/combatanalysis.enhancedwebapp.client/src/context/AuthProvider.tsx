@@ -1,4 +1,4 @@
-﻿import { useLogoutAsyncMutation } from '@/features/user/api/Account.api';
+﻿import { useLogoutMutation } from '@/features/user/api/Identity.api';
 import { useLazySearchCustomerByUserIdQuery } from '@/features/user/api/Customer.api';
 import { useLazyGetUserPrivacyQuery, useLazyRefreshTokenQuery } from '@/features/user/api/Identity.api';
 import { useLazyAuthenticationQuery } from '@/features/user/api/User.api';
@@ -18,7 +18,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const [isAuthenticated, setIsAuthenticated] = useState(false);
 
     const [getAuth] = useLazyAuthenticationQuery();
-    const [logout] = useLogoutAsyncMutation();
+    const [logout] = useLogoutMutation();
     const [searchCustomer] = useLazySearchCustomerByUserIdQuery();
 
     const [getUserPrivacy] = useLazyGetUserPrivacyQuery();
@@ -95,9 +95,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         dispatch(updateUser(null));
         dispatch(updateUserPrivacy(null));
 
-        navigate("/");
-
         await logout();
+
+        navigate("/");
     };
 
     return (

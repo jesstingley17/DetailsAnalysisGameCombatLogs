@@ -4,7 +4,7 @@ namespace CombatAnalysis.EnhancedWebApp.Server.Interfaces;
 
 public interface ITokenService
 {
-    Task<AccessTokenModel> RefreshAccessTokenAsync(string refreshToken);
+    Task<TokenResponseModel> RefreshAccessTokenAsync(string refreshToken);
 
     bool IsAccessTokenCloseToExpiry(string accessToken);
 }

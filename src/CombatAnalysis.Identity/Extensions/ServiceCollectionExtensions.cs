@@ -17,7 +17,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IIdentityUserService, IdentityUserService>();
         services.AddScoped<IClientService, ClientService>();
 
-        services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IAuthCodeService, AuthCodeService>();
 
         services.AddScoped<IUserVerification, UserVerificationService>();

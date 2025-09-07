@@ -137,9 +137,25 @@ internal class OAuthCodeFlowService(IOptions<Authentication> authentication, IOp
         return decryptedAuthorizationKey;
     }
 
-    async Task IOAuthCodeFlowService.SaveRefreshTokenAsync(string token, int refreshTokenExpiresDays, string clientId, string userId)
+    async Task<string> IOAuthCodeFlowService.CreateRefreshTokenAsync(string token, int refreshTokenExpiresDays, string clientId, string userId)
     {
-        await _tokenRepository.SaveAsync(token, refreshTokenExpiresDays, clientId, userId);
+        var refreshToken = await _tokenRepository.CreateAsync(token, refreshTokenExpiresDays, clientId, userId);
+
+        return refreshToken.Id;
+    }
+
+    async Task<int> IOAuthCodeFlowService.RotateRefreshTokenAsync(string oldRefreshTokenId, string newRefreshTokenId)
+    {
+        var rowsAffected = await _tokenRepository.RotateAsync(oldRefreshTokenId, newRefreshTokenId);
+
+        return rowsAffected;
+    }
+
+    async Task<int> IOAuthCodeFlowService.RevokeRefreshTokenAsync(string refreshTokenId)
+    {
+        var rowsAffected = await _tokenRepository.RevokeAsync(refreshTokenId);
+
+        return rowsAffected;
     }
 
     string IOAuthCodeFlowService.GenerateToken(string userId, string clientId, string[] scopes)
@@ -182,14 +198,16 @@ internal class OAuthCodeFlowService(IOptions<Authentication> authentication, IOp
     string IOAuthCodeFlowService.GenerateRefreshToken()
     {
         var randomNumber = RandomNumberGenerator.GetBytes(64);
-        var token = Convert.ToBase64String(randomNumber);
+        var token = Convert.ToBase64String(randomNumber)
+                                .Replace('+', '-')
+                                .Replace('/', '_');
 
         return token;
     }
 
-    async Task<string> IOAuthCodeFlowService.ValidateRefreshTokenAsync(string refreshToken, string clientId)
+    async Task<string> IOAuthCodeFlowService.ValidateRefreshTokenAsync(string refreshTokenId, string refreshToken, string clientId)
     {
-        var userId = await _tokenRepository.ValidateRefreshTokenAsync(refreshToken, clientId);
+        var userId = await _tokenRepository.ValidateRefreshTokenAsync(refreshTokenId, refreshToken, clientId);
         return userId;
     }
 

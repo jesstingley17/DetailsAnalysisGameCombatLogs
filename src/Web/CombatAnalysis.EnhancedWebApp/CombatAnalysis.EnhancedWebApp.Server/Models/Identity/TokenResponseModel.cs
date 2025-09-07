@@ -1,6 +1,6 @@
 ﻿namespace CombatAnalysis.EnhancedWebApp.Server.Models.Identity;
 
-public class AccessTokenModel
+public class TokenResponseModel
 {
     public string AccessToken { get; set; } = string.Empty;
 
@@ -8,5 +8,5 @@ public class AccessTokenModel
 
     public DateTimeOffset Expires { get; set; }
 
-    public string RefreshToken { get; set; } = string.Empty;
+    public RefreshTokenResponseModel RefreshToken { get; set; }
 }

@@ -1,6 +1,7 @@
 ﻿using CombatAnalysis.IdentityDAL.Data;
 using CombatAnalysis.IdentityDAL.Entities;
 using CombatAnalysis.IdentityDAL.Interfaces;
+using CombatAnalysis.IdentityDAL.Security;
 using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.IdentityDAL.Repositories;
@@ -9,12 +10,16 @@ internal class TokenRepository(IdentityContext dbContext) : ITokenRepository
 {
     private readonly IdentityContext _context = dbContext;
 
-    public async Task SaveAsync(string token, int refreshTokenExpiresDays, string clientId, string userId)
+    public async Task<RefreshToken> CreateAsync(string token, int refreshTokenExpiresDays, string clientId, string userId)
     {
+        var (hash, salt) = PasswordHashing.HashPasswordWithSalt(token);
+
         var refreshToken = new RefreshToken
         {
             Id = Guid.NewGuid().ToString(),
-            Token = token,
+            TokenHash = hash,
+            TokenSalt = salt,
+            CreatedAt = DateTimeOffset.UtcNow,
             ExpiresAt = DateTimeOffset.UtcNow.AddDays(refreshTokenExpiresDays),
             ClientId = clientId,
             UserId = userId,
@@ -23,25 +28,58 @@ internal class TokenRepository(IdentityContext dbContext) : ITokenRepository
         _context.RefreshToken.Add(refreshToken);
 
         await _context.SaveChangesAsync();
+
+        return refreshToken;
     }
 
-    public async Task<string> ValidateRefreshTokenAsync(string refreshToken, string clientId)
+    public async Task<int> RotateAsync(string oldRefreshTokenId, string newRefreshTokenId)
     {
-        var tokenEntry = await _context.RefreshToken
-            .FirstOrDefaultAsync(t => t.Token == refreshToken && t.ClientId == clientId);
-        if (tokenEntry != null && tokenEntry.ExpiresAt > DateTime.UtcNow)
+        var token = await _context.RefreshToken
+            .FirstOrDefaultAsync(t => t.Id == oldRefreshTokenId);
+        if (token == null)
         {
-            return tokenEntry.UserId;
+            return 0;
+        }
+
+        token.RevokedAt = DateTime.UtcNow;
+        token.ReplacedByTokenId = newRefreshTokenId;
+
+        _context.Entry(token).State = EntityState.Modified;
+        var rowsAffected = await _context.SaveChangesAsync();
+
+        return rowsAffected;
+    }
+
+    public async Task<int> RevokeAsync(string refreshTokenId)
+    {
+        var token = await _context.RefreshToken
+            .FirstOrDefaultAsync(t => t.Id == refreshTokenId);
+        if (token == null)
+        {
+            return 0;
+        }
+
+        token.RevokedAt = DateTime.UtcNow;
+
+        _context.Entry(token).State = EntityState.Modified;
+        var rowsAffected = await _context.SaveChangesAsync();
+
+        return rowsAffected;
+    }
+
+    public async Task<string> ValidateRefreshTokenAsync(string refreshTokenId, string refreshToken, string clientId)
+    {
+        var token = await _context.RefreshToken
+              .FirstOrDefaultAsync(t => t.Id == refreshTokenId && t.ClientId == clientId);
+        if (token != null && token.ExpiresAt > DateTime.UtcNow && token.RevokedAt == null)
+        {
+            var tokenIsValid = PasswordHashing.VerifyPassword(refreshToken, token.TokenHash, token.TokenSalt);
+            if (tokenIsValid)
+            {
+                return token.UserId;
+            }
         }
 
         return string.Empty;
-    }
-
-    public async Task RemoveExpiredTokensAsync()
-    {
-        var expiredTokens = _context.RefreshToken.Where(t => t.ExpiresAt < DateTime.UtcNow);
-        _context.RefreshToken.RemoveRange(expiredTokens);
-
-        await _context.SaveChangesAsync();
     }
 }

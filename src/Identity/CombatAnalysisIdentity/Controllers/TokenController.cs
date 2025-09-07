@@ -2,6 +2,7 @@
 using CombatAnalysis.Identity.Interfaces;
 using CombatAnalysis.Identity.Security;
 using CombatAnalysisIdentity.Consts;
+using CombatAnalysisIdentity.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -17,17 +18,43 @@ public class TokenController(IOptions<AuthenticationGrantType> authenticationGra
     private readonly IOAuthCodeFlowService _oAuthCodeFlowService = oAuthCodeFlowService;
     private readonly ILogger<TokenController> _logger = logger;
 
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout(LogoutModel logout)
+    {
+        try
+        {
+            ArgumentNullException.ThrowIfNull(logout, nameof(logout));
+
+            var rowsAffected = await _oAuthCodeFlowService.RevokeRefreshTokenAsync(logout.RefreshTokenId);
+            ArgumentOutOfRangeException.ThrowIfZero(rowsAffected, nameof(rowsAffected));
+
+            return Ok();
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            _logger.LogError(ex, "Failed to revoke JWT. Parameter '{ParamName}' should be more then zero", ex.ParamName);
+
+            return BadRequest();
+        }
+        catch (ArgumentNullException ex)
+        {
+            _logger.LogError(ex, "Failed to revoke JWT. Parameter '{ParamName}' was null", ex.ParamName);
+
+            return BadRequest();
+        }
+    }
+
     [HttpGet]
     public async Task<IActionResult> GetJsonWebToken(string grantType, string clientId, string clientScopes, string codeVerifier, string code, string redirectUri)
     {
         try
         {
-            ArgumentNullException.ThrowIfNullOrEmpty(grantType, nameof(grantType));
-            ArgumentNullException.ThrowIfNullOrEmpty(clientId, nameof(clientId));
-            ArgumentNullException.ThrowIfNullOrEmpty(clientScopes, nameof(clientScopes));
-            ArgumentNullException.ThrowIfNullOrEmpty(codeVerifier, nameof(codeVerifier));
-            ArgumentNullException.ThrowIfNullOrEmpty(code, nameof(code));
-            ArgumentNullException.ThrowIfNullOrEmpty(redirectUri, nameof(redirectUri));
+            ArgumentException.ThrowIfNullOrEmpty(grantType, nameof(grantType));
+            ArgumentException.ThrowIfNullOrEmpty(clientId, nameof(clientId));
+            ArgumentException.ThrowIfNullOrEmpty(clientScopes, nameof(clientScopes));
+            ArgumentException.ThrowIfNullOrEmpty(codeVerifier, nameof(codeVerifier));
+            ArgumentException.ThrowIfNullOrEmpty(code, nameof(code));
+            ArgumentException.ThrowIfNullOrEmpty(redirectUri, nameof(redirectUri));
 
             if (!grantType.Equals(_authenticationGrantType.Authorization))
             {
@@ -48,7 +75,7 @@ public class TokenController(IOptions<AuthenticationGrantType> authenticationGra
 
             return Ok(token);
         }
-        catch (ArgumentNullException ex)
+        catch (ArgumentException ex)
         {
             _logger.LogError(ex, "Failed to get JWT. Paramter '{ParamName} was null", ex.ParamName);
 
@@ -57,67 +84,89 @@ public class TokenController(IOptions<AuthenticationGrantType> authenticationGra
     }
 
     [HttpGet("refresh")]
-    public async Task<IActionResult> RefreshAccessToken(string grantType, string clientId, string clientScopes, string refreshToken)
+    public async Task<IActionResult> RefreshAccessToken(string grantType, string clientId, string clientScopes, string refreshTokenId, string refreshToken)
     {
         try
         {
-            ArgumentNullException.ThrowIfNullOrEmpty(grantType, nameof(grantType));
-            ArgumentNullException.ThrowIfNullOrEmpty(refreshToken, nameof(refreshToken));
-            ArgumentNullException.ThrowIfNullOrEmpty(clientId, nameof(clientId));
+            ArgumentException.ThrowIfNullOrEmpty(grantType, nameof(grantType));
+            ArgumentException.ThrowIfNullOrEmpty(clientId, nameof(clientId));
+            ArgumentException.ThrowIfNullOrEmpty(clientScopes, nameof(clientScopes));
+            ArgumentException.ThrowIfNullOrEmpty(refreshTokenId, nameof(refreshTokenId));
+            ArgumentException.ThrowIfNullOrEmpty(refreshToken, nameof(refreshToken));
 
             if (!grantType.Equals(_authenticationGrantType.RefreshToken))
             {
                 return BadRequest();
             }
 
-            var userId = await _oAuthCodeFlowService.ValidateRefreshTokenAsync(refreshToken, clientId);
-            ArgumentNullException.ThrowIfNullOrEmpty(userId, nameof(userId));
+            var userId = await _oAuthCodeFlowService.ValidateRefreshTokenAsync(refreshTokenId, refreshToken, clientId);
+            ArgumentException.ThrowIfNullOrEmpty(userId, nameof(userId));
 
-            var token = GenerateNewTokenWhenRefresh(userId, clientId, clientScopes, refreshToken);
+            var token = await RotateTokenAsync(userId, clientId, clientScopes, refreshTokenId);
             ArgumentNullException.ThrowIfNull(token, nameof(token));
 
             return Ok(token);
         }
         catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, "Failed to refresh JWT. Paramter '{ParamName} was null", ex.ParamName);
+            _logger.LogError(ex, "Failed to refresh JWT. Parameter '{ParamName}' was null", ex.ParamName);
+
+            return BadRequest();
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogError(ex, "Failed to refresh JWT. Parameter '{ParamName}' was incorrect", ex.ParamName);
 
             return BadRequest();
         }
     }
 
-    private async Task<AccessTokenDto> GenerateTokenAsync(string userId, string clientId, string clientScopes)
+    private async Task<TokenResponseDto> GenerateTokenAsync(string userId, string clientId, string clientScopes)
     {
         var scopes = clientScopes.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
         var accessToken = _oAuthCodeFlowService.GenerateToken(userId, clientId, scopes);
         var refreshToken = _oAuthCodeFlowService.GenerateRefreshToken();
 
-        await _oAuthCodeFlowService.SaveRefreshTokenAsync(refreshToken, _authentication.RefreshTokenExpiresDays, clientId, userId);
+        var refreshTokenId = await _oAuthCodeFlowService.CreateRefreshTokenAsync(refreshToken, _authentication.RefreshTokenExpiresDays, clientId, userId);
 
-        var token = new AccessTokenDto
+        var token = new TokenResponseDto
         {
             AccessToken = accessToken,
             TokenType = "Bearer",
             Expires = DateTimeOffset.UtcNow.AddMinutes(_authentication.AccessTokenExpiresMins),
-            RefreshToken = refreshToken
+            RefreshToken = new RefreshTokenResponseDto
+            {
+                Id = refreshTokenId,
+                Token = refreshToken,
+                ExpiresAt = DateTimeOffset.UtcNow.AddDays(_authentication.RefreshTokenExpiresDays)
+            }
         };
 
         return token;
     }
 
-    private AccessTokenDto GenerateNewTokenWhenRefresh(string userId, string clientId, string clientScopes, string refreshToken)
+    private async Task<TokenResponseDto> RotateTokenAsync(string userId, string clientId, string clientScopes, string oldRefreshTokenId)
     {
         var scopes = clientScopes.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
         var accessToken = _oAuthCodeFlowService.GenerateToken(userId, clientId, scopes);
+        var refreshToken = _oAuthCodeFlowService.GenerateRefreshToken();
 
-        var token = new AccessTokenDto
+        var newRefreshTokenId = await _oAuthCodeFlowService.CreateRefreshTokenAsync(refreshToken, _authentication.RefreshTokenExpiresDays, clientId, userId);
+        await _oAuthCodeFlowService.RotateRefreshTokenAsync(oldRefreshTokenId, newRefreshTokenId);
+
+        var token = new TokenResponseDto
         {
             AccessToken = accessToken,
             TokenType = "Bearer",
             Expires = DateTimeOffset.UtcNow.AddMinutes(_authentication.AccessTokenExpiresMins),
-            RefreshToken = refreshToken
+            RefreshToken = new RefreshTokenResponseDto
+            {
+                Id = newRefreshTokenId,
+                Token = refreshToken,
+                ExpiresAt = DateTimeOffset.UtcNow.AddDays(_authentication.RefreshTokenExpiresDays)
+            }
         };
 
         return token;

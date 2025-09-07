@@ -22,13 +22,6 @@ export const AccountApi = UserApi.injectEndpoints({
             }),
             invalidatesTags: (_result, _error, user) => [{ type: 'Account', id: user.id }],
         }),
-        logoutAsync: builder.mutation<void, void>({
-            query: () => ({
-                url: '/Account/logout',
-                method: 'POST'
-            }),
-            invalidatesTags: [{ type: 'Account' }]
-        }),
     })
 })
 
@@ -38,5 +31,4 @@ export const {
     useLazyFindByIdenityUserIdQuery,
     useLazyCheckIfUserExistQuery,
     useEditAsyncMutation,
-    useLogoutAsyncMutation
 } = AccountApi;
