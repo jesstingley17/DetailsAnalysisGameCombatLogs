@@ -16,8 +16,6 @@ public class NewPasswordModel(IOptions<Authentication> authentication, IUserAuth
     [BindProperty]
     public PasswordResetModel PasswordReset{ get; set; }
 
-    public string Protocol { get; } = authentication.Value.Protocol;
-
     public IActionResult OnGet(string token)
     {
         PasswordReset = new PasswordResetModel
@@ -48,7 +46,7 @@ public class NewPasswordModel(IOptions<Authentication> authentication, IUserAuth
         var wasReseted = await _userVerification.ResetPasswordAsync(PasswordReset.Token, PasswordReset.Password);
         if (wasReseted)
         {
-            var redirectUri = $"{Protocol}://{Request.Query["redirectUri"]}?accessRestored=true";
+            var redirectUri = $"{Request.Query["redirectUri"]}?accessRestored=true";
 
             return Redirect(redirectUri);
         }

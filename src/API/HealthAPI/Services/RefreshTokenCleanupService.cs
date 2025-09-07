@@ -22,10 +22,10 @@ public class RefreshTokenCleanupService : IHostedService, IDisposable
 
     private async Task DoCleanupAsync(object? state)
     {
-        using var scope = _serviceProvider.CreateScope();
-        var tokenService = scope.ServiceProvider.GetRequiredService<ITokenService>();
+        //using var scope = _serviceProvider.CreateScope();
+        //var tokenService = scope.ServiceProvider.GetRequiredService<ITokenService>();
 
-        await tokenService.RemoveExpiredTokensAsync();
+        //await tokenService.RemoveExpiredTokensAsync();
     }
 
     public Task StopAsync(CancellationToken cancellationToken)

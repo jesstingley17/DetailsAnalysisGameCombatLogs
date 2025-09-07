@@ -16,8 +16,6 @@ public class LoginModel(IOptions<API> api, IOptions<Authentication> authenticati
 
     public string AppUrl { get; } = api.Value.Identity;
 
-    public string Protocol { get; set; } = authentication.Value.Protocol;
-
     [BindProperty]
     public AuthorizationDataModel? Authorization { get; set; }
 

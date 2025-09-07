@@ -9,6 +9,4 @@ public class Authentication
     public int AccessTokenExpiresMins { get; set; }
 
     public int RefreshTokenExpiresDays { get; set; }
-
-    public string Protocol { get; set; }
 }

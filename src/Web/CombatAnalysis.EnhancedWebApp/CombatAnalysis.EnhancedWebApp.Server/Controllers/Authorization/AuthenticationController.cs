@@ -85,9 +85,13 @@ public class AuthenticationController : ControllerBase
             var codeChallenge = PKCEHelper.GenerateCodeChallenge(codeVerifier);
             ArgumentNullException.ThrowIfNullOrEmpty(codeChallenge, nameof(codeChallenge));
 
-            var uri = $"{_server.Identity}{identityPath}?grantType={_authenticationGrantType.Code}" +
-                $"&clientId={_authenticationClient.ClientId}&redirectUri={_authentication.RedirectUri}" +
-                $"&scopes={_authenticationClient.Scopes}&state={state}&codeChallengeMethod={_authentication.CodeChallengeMethod}" +
+            var uri = $"{_server.Identity}{identityPath}?" +
+                $"grantType={_authenticationGrantType.Code}" +
+                $"&clientId={_authenticationClient.ClientId}" +
+                $"&redirectUri={_authentication.RedirectUri}" +
+                $"&scopes={_authenticationClient.Scopes}" +
+                $"&state={state}" +
+                $"&codeChallengeMethod={_authentication.CodeChallengeMethod}" +
                 $"&codeChallenge={codeChallenge}";
 
             HttpContext.Response.Cookies.Append(nameof(AuthenticationCookie.CodeVerifier), codeVerifier, new CookieOptions

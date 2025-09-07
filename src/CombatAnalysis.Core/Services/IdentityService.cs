@@ -12,25 +12,16 @@ using System.Net.Http.Json;
 
 namespace CombatAnalysis.Core.Services;
 
-internal class IdentityService : IIdentityService
+internal class IdentityService(IMemoryCache memoryCache, IHttpClientHelper httpClient, ILogger logger) : IIdentityService
 {
-    private readonly IMemoryCache _memoryCache;
-    private readonly IHttpClientHelper _httpClient;
-    private readonly ILogger _logger;
-    private readonly SecurityStorage _securityStorage;
+    private readonly IMemoryCache _memoryCache = memoryCache;
+    private readonly IHttpClientHelper _httpClient = httpClient;
+    private readonly ILogger _logger = logger;
+    private readonly SecurityStorage _securityStorage = new(memoryCache, httpClient, logger);
 
     private string? _codeVerifier;
     private string? _code;
     private HttpListenerService? _httpListenerService;
-
-    public IdentityService(IMemoryCache memoryCache, IHttpClientHelper httpClient, ILogger logger)
-    {
-        _memoryCache = memoryCache;
-        _httpClient = httpClient;
-        _logger = logger;
-
-        _securityStorage = new SecurityStorage(memoryCache, httpClient, logger);
-    }
 
     public async Task SendAuthorizationRequestAsync(string authorizationRequestType)
     {
@@ -39,13 +30,13 @@ internal class IdentityService : IIdentityService
         var codeChallenge = PKCEHelper.GenerateCodeChallenge(_codeVerifier);
 
         var authorizationUrl = $"{API.Identity}{authorizationRequestType}?" +
-            $"grantType={AuthenticationGrantType.Code}&" +
-            $"clientId={Authentication.ClientId}&" +
-            $"redirectUri={Authentication.RedirectUri}&" +
-            $"scope={Authentication.Scope}&" +
-            $"state={state}&" +
-            "codeChallengeMethod=SHA-256&" +
-            $"codeChallenge={codeChallenge}";
+            $"grantType={AuthenticationGrantType.Code}" +
+            $"&clientId={Authentication.ClientId}" +
+            $"&redirectUri={Authentication.RedirectUri}" +
+            $"&scopes={Authentication.Scopes}" +
+            $"&state={state}" +
+            "&codeChallengeMethod=SHA-256" +
+            $"&codeChallenge={codeChallenge}";
 
         var psi = new ProcessStartInfo
         {
@@ -54,7 +45,7 @@ internal class IdentityService : IIdentityService
         };
         Process.Start(psi);
 
-        _httpListenerService = new HttpListenerService($"{Authentication.Protocol}://{Authentication.Listener}", _logger);
+        _httpListenerService = new HttpListenerService(Authentication.Listener, _logger);
         await _httpListenerService.StartListeningAsync(OnCallbackReceived);
     }
 
@@ -68,7 +59,7 @@ internal class IdentityService : IIdentityService
                 throw new ArgumentNullException(nameof(token));
             }
 
-            await SetMemoryCacheAsync(token.RefreshToken, token.AccessToken);
+            await SetMemoryCacheAsync(token.RefreshToken.Token, token.AccessToken);
         }
         catch (ArgumentNullException ex)
         {
@@ -85,7 +76,7 @@ internal class IdentityService : IIdentityService
         _code = authorizationCode;
     }
 
-    private async Task<AccessTokenModel> GetTokenAsync()
+    private async Task<TokenResponseModel> GetTokenAsync()
     {
         try
         {
@@ -95,12 +86,18 @@ internal class IdentityService : IIdentityService
             }
 
             var encodedAuthorizationCode = Uri.EscapeDataString(_code);
-            var url = $"Token?grantType={AuthenticationGrantType.Authorization}&clientId={Authentication.ClientId}&codeVerifier={_codeVerifier}&code={encodedAuthorizationCode}&redirectUri={Authentication.RedirectUri}";
+            var url = $"Token?" +
+                $"grantType={AuthenticationGrantType.Authorization}" +
+                $"&clientId={Authentication.ClientId}" +
+                $"&clientScopes={Authentication.Scopes}" +
+                $"&codeVerifier={_codeVerifier}" +
+                $"&code={encodedAuthorizationCode}" +
+                $"&redirectUri={Authentication.RedirectUri}";
 
             var response = await _httpClient.GetAsync(url, API.Identity);
             response.EnsureSuccessStatusCode();
 
-            var token = await response.Content.ReadFromJsonAsync<AccessTokenModel>();
+            var token = await response.Content.ReadFromJsonAsync<TokenResponseModel>();
             if (token == null)
             {
                 throw new ArgumentNullException(nameof(token));
@@ -112,19 +109,19 @@ internal class IdentityService : IIdentityService
         {
             _logger.LogError(ex, ex.Message);
 
-            return new AccessTokenModel();
+            return new TokenResponseModel();
         }
         catch (HttpRequestException ex)
         {
             _logger.LogError(ex, "HTTP request error: {Message}", ex.Message);
 
-            return new AccessTokenModel();
+            return new TokenResponseModel();
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, ex.Message);
 
-            return new AccessTokenModel();
+            return new TokenResponseModel();
         }
     }
 

@@ -61,9 +61,8 @@ public class App : MvxApplication
         Hubs.VoiceChatAddress = Configuration["Hubs:VoiceChatAddress"] ?? string.Empty;
 
         Authentication.ClientId = Configuration["App:Auth:ClientId"] ?? string.Empty;
-        Authentication.Scope = Configuration["App:Auth:Scope"] ?? string.Empty;
+        Authentication.Scopes = Configuration["App:Auth:Scopes"] ?? string.Empty;
         Authentication.RedirectUri = Configuration["App:Auth:RedirectUri"] ?? string.Empty;
-        Authentication.Protocol = Configuration["App:Auth:Protocol"] ?? string.Empty;
         Authentication.Listener = Configuration["App:Auth:Listener"] ?? string.Empty;
 
         AuthenticationGrantType.Code = Configuration["App:Auth:GrantType:Code"] ?? string.Empty;

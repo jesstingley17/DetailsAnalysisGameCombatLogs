@@ -20,8 +20,6 @@ public class RegistrationModel(IOptions<API> api, IOptions<Authentication> authe
 
     public string AppUrl { get; } = api.Value.Identity;
 
-    public string Protocol { get; } = authentication.Value.Protocol;
-
     [BindProperty]
     public RegistrationDataModel Registration { get; set; }
 

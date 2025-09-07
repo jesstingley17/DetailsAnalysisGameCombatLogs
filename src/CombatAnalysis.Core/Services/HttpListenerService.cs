@@ -19,33 +19,31 @@ internal class HttpListenerService
         try
         {
             _listener.Start();
-            while (_listener.IsListening)
+
+            var context = await _listener.GetContextAsync();
+            var request = context.Request;
+            var response = context.Response;
+
+            var authorizationCode = request.QueryString["code"];
+            var state = request.QueryString["state"];
+            if (authorizationCode == null || state == null)
             {
-                var context = await _listener.GetContextAsync();
-                var request = context.Request;
-                var response = context.Response;
-
-                var authorizationCode = request.QueryString["code"];
-                var state = request.QueryString["state"];
-                if (authorizationCode == null || state == null)
-                {
-                    StopListening();
-
-                    return;
-                }
-
-                onCallbackReceived(authorizationCode, state);
-
-                string responseString = "<html><body>You can close this window.</body></html>";
-                byte[] buffer = System.Text.Encoding.UTF8.GetBytes(responseString);
-                response.ContentLength64 = buffer.Length;
-
-                var responseOutput = response.OutputStream;
-                responseOutput.Write(buffer, 0, buffer.Length);
-                responseOutput.Close();
-
                 StopListening();
+
+                return;
             }
+
+            onCallbackReceived(authorizationCode, state);
+
+            string responseString = "<html><body>You can close this window.</body></html>";
+            byte[] buffer = System.Text.Encoding.UTF8.GetBytes(responseString);
+            response.ContentLength64 = buffer.Length;
+
+            var responseOutput = response.OutputStream;
+            responseOutput.Write(buffer, 0, buffer.Length);
+            responseOutput.Close();
+
+            StopListening();
         }
         catch (Exception ex)
         {
@@ -58,5 +56,6 @@ internal class HttpListenerService
     private void StopListening()
     {
         _listener.Stop();
+        _listener.Close();
     }
 }

@@ -17,8 +17,6 @@ public class RestoreModel(IOptions<Authentication> authentication, EmailService 
     private readonly IUserVerification _userVerification = userVerification;
     private readonly ILogger<RestoreModel> _logger = logger;
 
-    public string Protocol { get; } = authentication.Value.Protocol;
-
     public int SendEmailRespond { get; private set; }
 
     [BindProperty]
