@@ -1,19 +1,16 @@
 ﻿using CombatAnalysis.Core.Consts;
-using CombatAnalysis.Core.Enums;
 using CombatAnalysis.Core.Exceptions;
 using CombatAnalysis.Core.Extensions;
 using CombatAnalysis.Core.Interfaces;
 using CombatAnalysis.Core.Interfaces.Services;
 using CombatAnalysis.Core.Models.User;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using System.Net.Http.Json;
 
 namespace CombatAnalysis.Core.Services.Chat;
 
-internal class UserService(IMemoryCache memoryCache, IHttpClientHelper httpClientHelper, ILogger<UserService> logger) : IUserService
+internal class UserService(IHttpClientHelper httpClientHelper, ILogger<UserService> logger) : IUserService
 {
-    private readonly IMemoryCache _memoryCache = memoryCache;
     private readonly IHttpClientHelper _httpClientHelper = httpClientHelper;
     private readonly ILogger<UserService> _logger = logger;
 
@@ -21,10 +18,7 @@ internal class UserService(IMemoryCache memoryCache, IHttpClientHelper httpClien
     {
         try
         {
-            var refreshToken = _memoryCache.Get<string>(nameof(MemoryCacheValue.RefreshToken));
-            ArgumentNullException.ThrowIfNullOrEmpty(refreshToken, nameof(refreshToken));
-
-            var response = await _httpClientHelper.GetAsync("Account", refreshToken, API.UserApi);
+            var response = await _httpClientHelper.GetAsync("Account", API.UserApi, true);
             response.EnsureSuccessStatusCode();
 
             var users = await response.Content.ReadFromJsonAsync<IEnumerable<AppUserModel>>();

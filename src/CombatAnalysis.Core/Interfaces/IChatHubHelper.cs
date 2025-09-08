@@ -1,16 +1,24 @@
-﻿namespace CombatAnalysis.Core.Interfaces;
+﻿using CombatAnalysis.Core.Models.Chat;
+
+namespace CombatAnalysis.Core.Interfaces;
 
 public interface IChatHubHelper
 {
     Task ConnectToChatHubAsync(string hubURL);
 
-    Task JoinChatRoomAsync(int chatId);
+    Task JoinChatRoomAsync(string appUserId);
+
+    Task ConnectToChatMessagesHubAsync(string hubURL);
+
+    Task JoinChatMessagesRoomAsync(int chatId);
 
     Task SendMessageAsync(string message, int chatId, string appUserId, string username, int type = -1);
 
-    Task ConnectToUnreadMessageHubAsync(string hubURL);
+    Task ConnectToUnreadMessagesHubAsync(string hubURL);
 
-    Task JoinUnreadMessageRoomAsync(int chatId);
+    Task JoinUnreadMessagesRoomAsync(int chatId);
+
+    void SubscribeToChat(Action<PersonalChatModel> callback);
 
     void SubscribeUnreadMessagesUpdated(Action<int, string, int> receiveUnreadMessageAction);
 

@@ -1,31 +1,25 @@
 ﻿using CombatAnalysis.Core.Consts;
-using CombatAnalysis.Core.Enums;
 using CombatAnalysis.Core.Exceptions;
 using CombatAnalysis.Core.Extensions;
 using CombatAnalysis.Core.Interfaces;
 using CombatAnalysis.Core.Interfaces.Services;
 using CombatAnalysis.Core.Models.Chat;
 using CombatAnalysis.Core.Models.User;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using System.Net.Http.Json;
 
 namespace CombatAnalysis.Core.Services.Chat;
 
-internal class GroupChatService(IMemoryCache memoryCache, IHttpClientHelper httpClientHelper, ILogger<GroupChatService> logger) : IGroupChatService
+internal class GroupChatService(IHttpClientHelper httpClientHelper, ILogger<GroupChatService> logger) : IGroupChatService
 {
-    private readonly IMemoryCache _memoryCache = memoryCache;
     private readonly IHttpClientHelper _httpClientHelper = httpClientHelper;
     private readonly ILogger<GroupChatService> _logger = logger;
 
     public async Task<IEnumerable<AppUserModel>> GetFreeUsersToInviteAsync(List<AppUserModel> users)
     {
-        var refreshToken = _memoryCache.Get<string>(nameof(MemoryCacheValue.RefreshToken));
-        ArgumentNullException.ThrowIfNullOrEmpty(refreshToken, nameof(refreshToken));
-
         try
         {
-            var response = await _httpClientHelper.GetAsync($"GroupChatUser", refreshToken, API.ChatApi);
+            var response = await _httpClientHelper.GetAsync($"GroupChatUser", API.ChatApi, true);
             response.EnsureSuccessStatusCode();
 
             var groupChatUsers = await response.Content.ReadFromJsonAsync<IEnumerable<GroupChatUserModel>>();
@@ -46,12 +40,9 @@ internal class GroupChatService(IMemoryCache memoryCache, IHttpClientHelper http
 
     public async Task<IEnumerable<GroupChatUserModel>> LoadChatUsersByUserIdAsync(string accountId)
     {
-        var refreshToken = _memoryCache.Get<string>(nameof(MemoryCacheValue.RefreshToken));
-        ArgumentNullException.ThrowIfNullOrEmpty(refreshToken, nameof(refreshToken));
-
         try
         {
-            var response = await _httpClientHelper.GetAsync($"GroupChatUser/findByUserId/{accountId}", refreshToken, API.ChatApi);
+            var response = await _httpClientHelper.GetAsync($"GroupChatUser/findByUserId/{accountId}", API.ChatApi, true);
             response.EnsureSuccessStatusCode();
 
             var myGroupChatUsers = await response.Content.ReadFromJsonAsync<IEnumerable<GroupChatUserModel>>();
@@ -69,15 +60,12 @@ internal class GroupChatService(IMemoryCache memoryCache, IHttpClientHelper http
 
     public async Task<IEnumerable<GroupChatModel>> LoadChatsAsync(IEnumerable<GroupChatUserModel> groupChatUsers)
     {
-        var refreshToken = _memoryCache.Get<string>(nameof(MemoryCacheValue.RefreshToken));
-        ArgumentNullException.ThrowIfNullOrEmpty(refreshToken, nameof(refreshToken));
-
         try
         {
             var groupChats = new List<GroupChatModel>();
             foreach (var groupChatUser in groupChatUsers)
             {
-                var response = await _httpClientHelper.GetAsync($"GroupChat/{groupChatUser.ChatId}", refreshToken, API.ChatApi);
+                var response = await _httpClientHelper.GetAsync($"GroupChat/{groupChatUser.ChatId}", API.ChatApi, true);
                 response.EnsureSuccessStatusCode();
 
                 var groupChat = await response.Content.ReadFromJsonAsync<GroupChatModel>();
@@ -98,12 +86,9 @@ internal class GroupChatService(IMemoryCache memoryCache, IHttpClientHelper http
 
     public async Task<IEnumerable<GroupChatMessageModel>> LoadMessagesAsync(int chatId, string groupChatUserId)
     {
-        var refreshToken = _memoryCache.Get<string>(nameof(MemoryCacheValue.RefreshToken));
-        ArgumentNullException.ThrowIfNullOrEmpty(refreshToken, nameof(refreshToken));
-
         try
         {
-            var response = await _httpClientHelper.GetAsync($"GroupChatMessage/getByChatId?chatId={chatId}&groupChatUserId={groupChatUserId}&pageSize=20", refreshToken, API.ChatApi);
+            var response = await _httpClientHelper.GetAsync($"GroupChatMessage/getByChatId?chatId={chatId}&groupChatUserId={groupChatUserId}&pageSize=20", API.ChatApi, true);
             response.EnsureSuccessStatusCode();
 
             var messages = await response.Content.ReadFromJsonAsync<IEnumerable<GroupChatMessageModel>>();
@@ -121,12 +106,9 @@ internal class GroupChatService(IMemoryCache memoryCache, IHttpClientHelper http
 
     public async Task<IEnumerable<UnreadGroupChatMessageModel>> LoadUnreadMessagesAsync(int messageId)
     {
-        var refreshToken = _memoryCache.Get<string>(nameof(MemoryCacheValue.RefreshToken));
-        ArgumentNullException.ThrowIfNullOrEmpty(refreshToken, nameof(refreshToken));
-
         try
         {
-            var response = await _httpClientHelper.GetAsync($"UnreadGroupChatMessage/findByMessageId/{messageId}", refreshToken, API.ChatApi);
+            var response = await _httpClientHelper.GetAsync($"UnreadGroupChatMessage/findByMessageId/{messageId}", API.ChatApi, true);
             response.EnsureSuccessStatusCode();
 
             var unreadGroupChatMessages = await response.Content.ReadFromJsonAsync<IEnumerable<UnreadGroupChatMessageModel>>();
@@ -144,9 +126,6 @@ internal class GroupChatService(IMemoryCache memoryCache, IHttpClientHelper http
 
     public async Task InviteToChatAsync(int chatId, string userId)
     {
-        var refreshToken = _memoryCache.Get<string>(nameof(MemoryCacheValue.RefreshToken));
-        ArgumentNullException.ThrowIfNullOrEmpty(refreshToken, nameof(refreshToken));
-
         try
         {
             var groupChatUser = new GroupChatUserModel
@@ -155,7 +134,7 @@ internal class GroupChatService(IMemoryCache memoryCache, IHttpClientHelper http
                 AppUserId = userId,
             };
 
-            var response = await _httpClientHelper.PostAsync("GroupChatUser", JsonContent.Create(groupChatUser), refreshToken, API.ChatApi);
+            var response = await _httpClientHelper.PostAsync("GroupChatUser", JsonContent.Create(groupChatUser), API.ChatApi, true);
             response.EnsureSuccessStatusCode();
         }
         catch (HttpRequestException ex)
@@ -168,12 +147,9 @@ internal class GroupChatService(IMemoryCache memoryCache, IHttpClientHelper http
 
     public async Task EditChatMessageAsync(GroupChatMessageModel message)
     {
-        var refreshToken = _memoryCache.Get<string>(nameof(MemoryCacheValue.RefreshToken));
-        ArgumentNullException.ThrowIfNullOrEmpty(refreshToken, nameof(refreshToken));
-
         try
         {
-            var response = await _httpClientHelper.PutAsync("GroupChatMessage", JsonContent.Create(message), refreshToken, API.ChatApi);
+            var response = await _httpClientHelper.PutAsync("GroupChatMessage", JsonContent.Create(message), API.ChatApi, true);
             response.EnsureSuccessStatusCode();
         }
         catch (HttpRequestException ex)
@@ -186,12 +162,9 @@ internal class GroupChatService(IMemoryCache memoryCache, IHttpClientHelper http
 
     public async Task RemoveMessageAsync(int messageId)
     {
-        var refreshToken = _memoryCache.Get<string>(nameof(MemoryCacheValue.RefreshToken));
-        ArgumentNullException.ThrowIfNullOrEmpty(refreshToken, nameof(refreshToken));
-
         try
         {
-            var response = await _httpClientHelper.DeletAsync($"GroupChatMessage/{messageId}", refreshToken, API.ChatApi);
+            var response = await _httpClientHelper.DeletAsync($"GroupChatMessage/{messageId}", API.ChatApi, true);
             response.EnsureSuccessStatusCode();
         }
         catch (HttpRequestException ex)
@@ -204,12 +177,9 @@ internal class GroupChatService(IMemoryCache memoryCache, IHttpClientHelper http
 
     public async Task<GroupChatUserModel> GetUserInGroupChatAsync(int chatId, string accountId)
     {
-        var refreshToken = _memoryCache.Get<string>(nameof(MemoryCacheValue.RefreshToken));
-        ArgumentNullException.ThrowIfNullOrEmpty(refreshToken, nameof(refreshToken));
-
         try
         {
-            var response = await _httpClientHelper.GetAsync($"GroupChatUser/findMeInChat?chatId={chatId}&appUserId={accountId}", refreshToken, API.ChatApi);
+            var response = await _httpClientHelper.GetAsync($"GroupChatUser/findMeInChat?chatId={chatId}&appUserId={accountId}", API.ChatApi, true);
             response.EnsureSuccessStatusCode();
 
             var userInChat = await response.Content.ReadFromJsonAsync<GroupChatUserModel>();

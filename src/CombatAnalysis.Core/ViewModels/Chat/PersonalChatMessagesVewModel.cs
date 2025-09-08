@@ -189,8 +189,8 @@ public class PersonalChatMessagesVewModel : MvxViewModel, IImprovedMvxViewModel
 
             _hubConnection = hubConnection;
 
-            await hubConnection.ConnectToChatHubAsync($"{Hubs.Server}{Hubs.PersonalChatMessagesAddress}");
-            await hubConnection.JoinChatRoomAsync(SelectedChat.Id);
+            await hubConnection.ConnectToChatMessagesHubAsync($"{Hubs.Server}{Hubs.PersonalChatMessagesAddress}");
+            await hubConnection.JoinChatMessagesRoomAsync(SelectedChat.Id);
 
             hubConnection.SubscribeMessagesUpdated<PersonalChatMessageModel>(SelectedChat.Id, MyAccount.Id, async (message) =>
             {

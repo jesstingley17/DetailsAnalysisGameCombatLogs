@@ -1,9 +1,12 @@
 ﻿using CombatAnalysis.Core.Consts;
+using CombatAnalysis.Core.Core;
 using CombatAnalysis.Core.Enums;
 using CombatAnalysis.Core.Extensions;
 using CombatAnalysis.Core.Helpers;
 using CombatAnalysis.Core.Interfaces;
+using CombatAnalysis.Core.Models.Identity;
 using CombatAnalysis.Core.Models.User;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using System.Net.Http.Json;
@@ -12,22 +15,32 @@ namespace CombatAnalysis.Core.Security;
 
 internal class SecurityStorage
 {
-    private readonly ILogger _logger;
+    private const string RefreshTokenSecret = "refresh.token";
+    private const string AccessTokenSecret = "access.token";
+    private const string RefreshTokenPurpose = "RefreshTokenProtector";
+    private const string AccessTokenPurpose = "AccessTokenProtector";
+
     private readonly IMemoryCache _memoryCache;
     private readonly IHttpClientHelper _httpClient;
+    private readonly ILogger _logger;
+    private readonly IDataProtector _refreshTokenProtector;
+    private readonly IDataProtector _accessTokenProtector;
+    private static readonly string _directoryPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), AppInformation.Name);
+    private static readonly string _refreshTokenFilePath = Path.Combine(_directoryPath, RefreshTokenSecret);
+    private static readonly string _accessTokenFilePath = Path.Combine(_directoryPath, AccessTokenSecret);
 
     public SecurityStorage(IMemoryCache memoryCache, IHttpClientHelper httpClient, ILogger logger)
     {
         _memoryCache = memoryCache;
         _httpClient = httpClient;
         _logger = logger;
+
+        var protectionProvider = DataProtectionProvider.Create(AppInformation.Name);
+        _refreshTokenProtector = protectionProvider.CreateProtector(RefreshTokenPurpose, RefreshTokenSecret);
+        _accessTokenProtector = protectionProvider.CreateProtector(AccessTokenPurpose, AccessTokenSecret);
     }
 
-    private static readonly string _directoryPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "CombatAnalysis");
-    private static readonly string _refreshTokenFilePath = Path.Combine(_directoryPath, "refreshToken.dat");
-    private static readonly string _accessTokenFilePath = Path.Combine(_directoryPath, "accessToken.dat");
-
-    public void SaveTokens(string refreshToken, string accessToken)
+    public void SaveTokens(TokenResponseModel token)
     {
         try
         {
@@ -36,11 +49,15 @@ internal class SecurityStorage
                 Directory.CreateDirectory(_directoryPath);
             }
 
-            var encryptedRefreshToken = AESEncryption.EncryptStringToBytes(refreshToken);
-            File.WriteAllBytes(_refreshTokenFilePath, encryptedRefreshToken);
+            var encryptedRefreshToken = _refreshTokenProtector.Protect(token.RefreshToken.Token);
+            File.WriteAllText(_refreshTokenFilePath, encryptedRefreshToken);
 
-            var encryptedAccessToken = AESEncryption.EncryptStringToBytes(accessToken);
-            File.WriteAllBytes(_accessTokenFilePath, encryptedAccessToken);
+            _memoryCache.Set(nameof(MemoryCacheValue.RefreshToken), token.RefreshToken.Token, token.RefreshToken.ExpiresAt);
+
+            var encryptedAccessToken = _accessTokenProtector.Protect(token.AccessToken);
+            File.WriteAllText(_accessTokenFilePath, encryptedAccessToken);
+
+            _memoryCache.Set(nameof(MemoryCacheValue.AccessToken), token.AccessToken, token.Expires);
         }
         catch (Exception ex)
         {
@@ -77,16 +94,11 @@ internal class SecurityStorage
                 return null;
             }
 
-            var encryptedData = File.ReadAllBytes(_refreshTokenFilePath);
-            var decryptedData = AESEncryption.DecryptStringFromBytes(encryptedData);
-            _memoryCache.Set(nameof(MemoryCacheValue.RefreshToken), decryptedData, TimeSpan.FromDays(1));
+            var encryptedAccessToken = File.ReadAllText(_accessTokenFilePath);
+            var decryptedAccessToken = _accessTokenProtector.Unprotect(encryptedAccessToken);
 
-            encryptedData = File.ReadAllBytes(_accessTokenFilePath);
-            decryptedData = AESEncryption.DecryptStringFromBytes(encryptedData);
-            _memoryCache.Set(nameof(MemoryCacheValue.AccessToken), decryptedData, TimeSpan.FromDays(1));
-
-            var user = await GetUserByAccessTokenAsync(decryptedData);
-            _memoryCache.Set(nameof(MemoryCacheValue.User), user, TimeSpan.FromDays(1));
+            var user = await GetUserByAccessTokenAsync(decryptedAccessToken);
+            _memoryCache.Set(nameof(MemoryCacheValue.User), user, TimeSpan.FromDays(3));
 
             return user;
         }
@@ -95,6 +107,29 @@ internal class SecurityStorage
             _logger.LogError(ex, ex.Message);
 
             return null;
+        }
+    }
+
+    public void GetTokens()
+    {
+        try
+        {
+            if (!File.Exists(_accessTokenFilePath) || !File.Exists(_refreshTokenFilePath))
+            {
+                return;
+            }
+
+            var encryptedAccessToken = File.ReadAllText(_accessTokenFilePath);
+            var decryptedAccessToken = _accessTokenProtector.Unprotect(encryptedAccessToken);
+            _memoryCache.Set(nameof(MemoryCacheValue.AccessToken), decryptedAccessToken, DateTimeOffset.Now.AddMinutes(60));
+
+            var encryptedRefreshToken = File.ReadAllText(_refreshTokenFilePath);
+            var decryptedRefresahToken = _refreshTokenProtector.Unprotect(encryptedAccessToken);
+            _memoryCache.Set(nameof(MemoryCacheValue.RefreshToken), decryptedRefresahToken, DateTimeOffset.Now.AddDays(3));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, ex.Message);
         }
     }
 
@@ -108,7 +143,7 @@ internal class SecurityStorage
                 throw new ArgumentNullException(nameof(identityUserId));
             }
 
-            var response = await _httpClient.GetAsync($"Account/find/{identityUserId}", accessToken, API.UserApi);
+            var response = await _httpClient.GetAsync($"Account/find/{identityUserId}", API.UserApi, true);
             response.EnsureSuccessStatusCode();
 
             var user = await response.Content.ReadFromJsonAsync<AppUserModel>();
@@ -128,12 +163,6 @@ internal class SecurityStorage
         catch (HttpRequestException ex)
         {
             _logger.LogError(ex, "HTTP request error: {Message}", ex.Message);
-
-            return null;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
 
             return null;
         }

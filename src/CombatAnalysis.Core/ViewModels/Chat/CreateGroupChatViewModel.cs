@@ -82,12 +82,6 @@ public class CreateGroupChatViewModel : MvxViewModel
 
             UpdateGroupChatModel(user);
 
-            var refreshToken = _memoryCache.Get<string>(nameof(MemoryCacheValue.RefreshToken));
-            if (string.IsNullOrEmpty(refreshToken))
-            {
-                throw new ArgumentNullException(nameof(refreshToken));
-            }
-
             var groupChatUser = new GroupChatUserModel
             {
                 Username = user.Username,
@@ -109,7 +103,7 @@ public class CreateGroupChatViewModel : MvxViewModel
                 GroupChatRules = groupChatRules,
             };
 
-            var response = await _httpClientHelper.PostAsync("GroupChat", JsonContent.Create(container), refreshToken, API.ChatApi);
+            var response = await _httpClientHelper.PostAsync("GroupChat", JsonContent.Create(container), API.ChatApi, true);
             response.EnsureSuccessStatusCode();
 
             CloseCreateChatWindow?.Invoke();

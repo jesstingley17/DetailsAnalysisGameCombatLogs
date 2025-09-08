@@ -4,6 +4,7 @@ using CombatAnalysis.Core.Exceptions;
 using CombatAnalysis.Core.Interfaces;
 using CombatAnalysis.Core.Interfaces.Services;
 using CombatAnalysis.Core.Models.User;
+using CombatAnalysis.Core.Services.Chat;
 using CombatAnalysis.Core.ViewModels.Base;
 using CombatAnalysis.Core.ViewModels.ViewModelTemplates;
 using Microsoft.Extensions.Caching.Memory;
@@ -355,6 +356,17 @@ public class ChatViewModel : ParentTemplate
 
             await LoadUsersAsync();
 
+
+            await _personalChatHubConnection.JoinChatRoomAsync(MyAccount.Id);
+            _personalChatHubConnection.SubscribeToChat(async (personalChat) =>
+            {
+                await _personalChatService.UpdatePersonalChatAsync(personalChat, MyAccount.Id);
+                await InvokeOnMainThreadAsync(() =>
+                {
+                    MyPersonalChats.Add(new PersonalChatViewModel(personalChat));
+                });
+            });
+
             PersonalChatLoadingResponse = LoadingStatus.Successful;
         }
         catch (ArgumentNullException ex)
@@ -428,7 +440,7 @@ public class ChatViewModel : ParentTemplate
     {
         ArgumentNullException.ThrowIfNull(_groupChatHubConnection, nameof(_groupChatHubConnection));
 
-        await _groupChatHubConnection.JoinUnreadMessageRoomAsync(chatId);
+        await _groupChatHubConnection.JoinUnreadMessagesRoomAsync(chatId);
         _groupChatHubConnection.SubscribeUnreadMessagesUpdated(async (chatId, meInChatId, count) =>
         {
             if (meInChatId == groupChatUserId)
@@ -443,7 +455,7 @@ public class ChatViewModel : ParentTemplate
         ArgumentNullException.ThrowIfNull(MyAccount, nameof(MyAccount));
         ArgumentNullException.ThrowIfNull(_personalChatHubConnection, nameof(_personalChatHubConnection));
 
-        await _personalChatHubConnection.JoinUnreadMessageRoomAsync(chatId);
+        await _personalChatHubConnection.JoinUnreadMessagesRoomAsync(chatId);
         _personalChatHubConnection.SubscribeUnreadMessagesUpdated(async (chatId, meInChatId, count) =>
         {
             if (MyAccount.Id == meInChatId)
@@ -543,8 +555,9 @@ public class ChatViewModel : ParentTemplate
         {
             ArgumentNullException.ThrowIfNull(MyAccount, nameof(MyAccount));
 
-            await _personalChatHubConnection.ConnectToUnreadMessageHubAsync($"{Hubs.Server}{Hubs.PersonalChatUnreadMessageAddress}");
-            await _groupChatHubConnection.ConnectToUnreadMessageHubAsync($"{Hubs.Server}{Hubs.GroupChatUnreadMessageAddress}");
+            await _personalChatHubConnection.ConnectToChatHubAsync($"{Hubs.Server}{Hubs.PersonalChatAddress}");
+            await _personalChatHubConnection.ConnectToUnreadMessagesHubAsync($"{Hubs.Server}{Hubs.PersonalChatUnreadMessageAddress}");
+            await _groupChatHubConnection.ConnectToUnreadMessagesHubAsync($"{Hubs.Server}{Hubs.GroupChatUnreadMessageAddress}");
         }
         catch (ArgumentNullException ex)
         {

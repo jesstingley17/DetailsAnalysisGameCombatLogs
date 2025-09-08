@@ -409,8 +409,8 @@ public class GroupChatMessagesViewModel : MvxViewModel, IImprovedMvxViewModel
             ArgumentNullException.ThrowIfNullOrEmpty(MeInChatId, nameof(MeInChatId));
             ArgumentNullException.ThrowIfNull(SelectedChat, nameof(SelectedChat));
 
-            await hubConnection.ConnectToChatHubAsync($"{Hubs.Server}{Hubs.GroupChatMessagesAddress}");
-            await hubConnection.JoinChatRoomAsync(SelectedChat.Id);
+            await hubConnection.ConnectToChatMessagesHubAsync($"{Hubs.Server}{Hubs.GroupChatMessagesAddress}");
+            await hubConnection.JoinChatMessagesRoomAsync(SelectedChat.Id);
 
             hubConnection.SubscribeMessagesUpdated<GroupChatMessageModel>(SelectedChat.Id, MeInChatId, async (message) =>
             {

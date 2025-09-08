@@ -101,6 +101,8 @@ public class AuthorizationViewModel : ParentTemplate
             return;
         }
 
+        _securityStorage.GetTokens();
+
         Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.Username), user.Username);
         Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.IsAuth), true);
 

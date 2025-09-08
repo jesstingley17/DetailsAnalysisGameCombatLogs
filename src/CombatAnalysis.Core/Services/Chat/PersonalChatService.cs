@@ -1,5 +1,4 @@
 ﻿using CombatAnalysis.Core.Consts;
-using CombatAnalysis.Core.Enums;
 using CombatAnalysis.Core.Exceptions;
 using CombatAnalysis.Core.Extensions;
 using CombatAnalysis.Core.Interfaces;
@@ -14,18 +13,14 @@ namespace CombatAnalysis.Core.Services.Chat;
 
 internal class PersonalChatService(IMemoryCache memoryCache, IHttpClientHelper httpClientHelper, ILogger<PersonalChatService> logger) : IPersonalChatService
 {
-    private readonly IMemoryCache _memoryCache = memoryCache;
     private readonly IHttpClientHelper _httpClientHelper = httpClientHelper;
     private readonly ILogger<PersonalChatService> _logger = logger;
 
     public async Task<IEnumerable<PersonalChatMessageModel>> LoadMessagesAsync(int chatId)
     {
-        var refreshToken = _memoryCache.Get<string>(nameof(MemoryCacheValue.RefreshToken));
-        ArgumentNullException.ThrowIfNullOrEmpty(refreshToken, nameof(refreshToken));
-
         try
         {
-            var response = await _httpClientHelper.GetAsync($"PersonalChatMessage/getByChatId?chatId={chatId}&pageSize=20", refreshToken, API.ChatApi);
+            var response = await _httpClientHelper.GetAsync($"PersonalChatMessage/getByChatId?chatId={chatId}&pageSize=20", API.ChatApi, true);
             response.EnsureSuccessStatusCode();
 
             var messages = await response.Content.ReadFromJsonAsync<IEnumerable<PersonalChatMessageModel>>();
@@ -43,9 +38,6 @@ internal class PersonalChatService(IMemoryCache memoryCache, IHttpClientHelper h
 
     public async Task CreateNewPersonalChatAsync(string accountId, string companionId)
     {
-        var refreshToken = _memoryCache.Get<string>(nameof(MemoryCacheValue.RefreshToken));
-        ArgumentNullException.ThrowIfNullOrEmpty(refreshToken, nameof(refreshToken));
-
         try
         {
             var personalChat = new PersonalChatModel
@@ -54,7 +46,7 @@ internal class PersonalChatService(IMemoryCache memoryCache, IHttpClientHelper h
                 CompanionId = companionId,
             };
 
-            var response = await _httpClientHelper.PostAsync("PersonalChat", JsonContent.Create(personalChat), refreshToken, API.ChatApi);
+            var response = await _httpClientHelper.PostAsync("PersonalChat", JsonContent.Create(personalChat), API.ChatApi, true);
             response.EnsureSuccessStatusCode();
         }
         catch (HttpRequestException ex)
@@ -67,12 +59,9 @@ internal class PersonalChatService(IMemoryCache memoryCache, IHttpClientHelper h
 
     public async Task<IEnumerable<PersonalChatModel>> LoadPersonalChatsAsync(string accountId)
     {
-        var refreshToken = _memoryCache.Get<string>(nameof(MemoryCacheValue.RefreshToken));
-        ArgumentNullException.ThrowIfNullOrEmpty(refreshToken, nameof(refreshToken));
-
         try
         {
-            var response = await _httpClientHelper.GetAsync("PersonalChat", refreshToken, API.ChatApi);
+            var response = await _httpClientHelper.GetAsync("PersonalChat", API.ChatApi, true);
             response.EnsureSuccessStatusCode();
 
             var personalChats = await response.Content.ReadFromJsonAsync<IEnumerable<PersonalChatModel>>();
@@ -81,7 +70,10 @@ internal class PersonalChatService(IMemoryCache memoryCache, IHttpClientHelper h
                 .ToList();
             ArgumentNullException.ThrowIfNull(myPersonalChats, nameof(myPersonalChats));
 
-            await UpdatePersonalChatsAsync(myPersonalChats, accountId, refreshToken);
+            foreach (var chat in myPersonalChats)
+            {
+                await UpdatePersonalChatAsync(chat, accountId);
+            }
 
             return myPersonalChats;
         }
@@ -93,18 +85,15 @@ internal class PersonalChatService(IMemoryCache memoryCache, IHttpClientHelper h
         }
     }
 
-    private async Task UpdatePersonalChatsAsync(IEnumerable<PersonalChatModel> myPersonalChats, string accountId, string refreshToken)
+    public async Task UpdatePersonalChatAsync(PersonalChatModel chat, string accountId)
     {
-        foreach (var chat in myPersonalChats)
-        {
-            var companionId = chat.CompanionId == accountId ? chat.InitiatorId : chat.CompanionId;
-            var response = await _httpClientHelper.GetAsync($"Account/{companionId}", refreshToken, API.UserApi);
-            response.EnsureSuccessStatusCode();
+        var companionId = chat.CompanionId == accountId ? chat.InitiatorId : chat.CompanionId;
+        var response = await _httpClientHelper.GetAsync($"Account/{companionId}", API.UserApi, true);
+        response.EnsureSuccessStatusCode();
 
-            var companion = await response.Content.ReadFromJsonAsync<AppUserModel>();
-            ArgumentNullException.ThrowIfNull(companion, nameof(companion));
+        var companion = await response.Content.ReadFromJsonAsync<AppUserModel>();
+        ArgumentNullException.ThrowIfNull(companion, nameof(companion));
 
-            chat.Username = companion?.Username ?? string.Empty;
-        }
+        chat.Username = companion?.Username ?? string.Empty;
     }
 }

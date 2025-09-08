@@ -5,6 +5,7 @@ using CombatAnalysis.CombatParser.Services;
 using CombatAnalysis.Core.Consts;
 using CombatAnalysis.Core.Core;
 using CombatAnalysis.Core.Enums;
+using CombatAnalysis.Core.Extensions;
 using CombatAnalysis.Core.Helpers;
 using CombatAnalysis.Core.Interfaces;
 using CombatAnalysis.Core.Interfaces.Services;
@@ -69,6 +70,7 @@ public class App : MvxApplication
         AuthenticationGrantType.Authorization = Configuration["App:Auth:GrantType:Authorization"] ?? string.Empty;
         AuthenticationGrantType.RefreshToken = Configuration["App:Auth:GrantType:RefreshToken"] ?? string.Empty;
 
+        AppInformation.Name = Configuration["App:Name"] ?? string.Empty;
         AppInformation.Version = Configuration["App:Version"] ?? string.Empty;
         if (Enum.TryParse(Configuration["App:VersionType"], out AppVersionType appVersionType))
         {
@@ -112,18 +114,21 @@ public class App : MvxApplication
 
         Mvx.IoCProvider.RegisterSingleton<IMemoryCache>(memoryCache);
 
+        var logger = Mvx.IoCProvider.Resolve<IMemoryCache>();
+        HttpClientHelperExtensions.Initialize(logger);
+
         RegisterAppStart<BasicTemplateViewModel>();
     }
 
     private void CurrentDomainUnhandledException(object sender, UnhandledExceptionEventArgs e)
     {
         var ex = e.ExceptionObject as Exception;
-        LogError(ex, "Non-UI thread exception");
+        LogError(ex, $"Non-UI thread exception: {ex?.InnerException}");
     }
 
     private void TaskSchedulerUnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
     {
-        LogError(e.Exception, "Unobserved Task exception");
+        LogError(e.Exception, $"Unobserved Task exception: {e.Exception.InnerException}");
         e.SetObserved();
     }
 

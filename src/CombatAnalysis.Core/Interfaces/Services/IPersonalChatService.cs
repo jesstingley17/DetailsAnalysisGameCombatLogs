@@ -9,4 +9,6 @@ public interface IPersonalChatService
     Task CreateNewPersonalChatAsync(string accountId, string companionId);
 
     Task<IEnumerable<PersonalChatModel>> LoadPersonalChatsAsync(string accountId);
+
+    Task UpdatePersonalChatAsync(PersonalChatModel chat, string accountId);
 }

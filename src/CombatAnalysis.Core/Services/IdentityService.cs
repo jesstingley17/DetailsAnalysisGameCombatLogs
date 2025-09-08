@@ -1,5 +1,4 @@
 ﻿using CombatAnalysis.Core.Consts;
-using CombatAnalysis.Core.Enums;
 using CombatAnalysis.Core.Extensions;
 using CombatAnalysis.Core.Helpers;
 using CombatAnalysis.Core.Interfaces;
@@ -14,7 +13,6 @@ namespace CombatAnalysis.Core.Services;
 
 internal class IdentityService(IMemoryCache memoryCache, IHttpClientHelper httpClient, ILogger logger) : IIdentityService
 {
-    private readonly IMemoryCache _memoryCache = memoryCache;
     private readonly IHttpClientHelper _httpClient = httpClient;
     private readonly ILogger _logger = logger;
     private readonly SecurityStorage _securityStorage = new(memoryCache, httpClient, logger);
@@ -59,13 +57,9 @@ internal class IdentityService(IMemoryCache memoryCache, IHttpClientHelper httpC
                 throw new ArgumentNullException(nameof(token));
             }
 
-            await SetMemoryCacheAsync(token.RefreshToken.Token, token.AccessToken);
+            await SaveAccountDataAsync(token);
         }
         catch (ArgumentNullException ex)
-        {
-            _logger.LogError(ex, ex.Message);
-        }
-        catch (Exception ex)
         {
             _logger.LogError(ex, ex.Message);
         }
@@ -76,7 +70,7 @@ internal class IdentityService(IMemoryCache memoryCache, IHttpClientHelper httpC
         _code = authorizationCode;
     }
 
-    private async Task<TokenResponseModel> GetTokenAsync()
+    private async Task<TokenResponseModel?> GetTokenAsync()
     {
         try
         {
@@ -109,29 +103,19 @@ internal class IdentityService(IMemoryCache memoryCache, IHttpClientHelper httpC
         {
             _logger.LogError(ex, ex.Message);
 
-            return new TokenResponseModel();
+            return null;
         }
         catch (HttpRequestException ex)
         {
             _logger.LogError(ex, "HTTP request error: {Message}", ex.Message);
 
-            return new TokenResponseModel();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
-
-            return new TokenResponseModel();
+            return null;
         }
     }
 
-    private async Task SetMemoryCacheAsync(string refreshToken, string aceessToken)
+    private async Task SaveAccountDataAsync(TokenResponseModel token)
     {
-        _securityStorage.SaveTokens(refreshToken, aceessToken);
-        var user = await _securityStorage.GetUserAsync();
-
-        _memoryCache.Set(nameof(MemoryCacheValue.RefreshToken), refreshToken, new MemoryCacheEntryOptions { Size = 10 });
-        _memoryCache.Set(nameof(MemoryCacheValue.AccessToken), aceessToken, new MemoryCacheEntryOptions { Size = 10 });
-        _memoryCache.Set(nameof(MemoryCacheValue.User), user, new MemoryCacheEntryOptions { Size = 50 });
+        _securityStorage.SaveTokens(token);
+        await _securityStorage.GetUserAsync();
     }
 }
