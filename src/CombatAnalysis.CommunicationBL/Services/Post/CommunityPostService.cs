@@ -85,7 +85,7 @@ internal class CommunityPostService : ICommunityPostService
 
     public async Task<IEnumerable<CommunityPostDto>> GetByParamAsync(string paramName, object value)
     {
-        var result = await Task.Run(() => _repository.GetByParam(paramName, value));
+        var result = await _repository.GetByParamAsync(paramName, value);
         var resultMap = _mapper.Map<IEnumerable<CommunityPostDto>>(result);
 
         return resultMap;

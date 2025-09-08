@@ -7,16 +7,10 @@ using CombatAnalysis.DAL.Interfaces.Generic;
 
 namespace CombatAnalysis.BL.Services;
 
-internal class DamageDoneService : QueryService<DamageDoneDto, DamageDone>, IMutationService<DamageDoneDto>
+internal class DamageDoneService(IGenericRepository<DamageDone> repository, IMapper mapper) : QueryService<DamageDoneDto, DamageDone>(repository, mapper), IMutationService<DamageDoneDto>
 {
-    private readonly IGenericRepository<DamageDone> _repository;
-    private readonly IMapper _mapper;
-
-    public DamageDoneService(IGenericRepository<DamageDone> repository, IMapper mapper) : base(repository, mapper)
-    {
-        _repository = repository;
-        _mapper = mapper;
-    }
+    private readonly IGenericRepository<DamageDone> _repository = repository;
+    private readonly IMapper _mapper = mapper;
 
     public Task<DamageDoneDto> CreateAsync(DamageDoneDto item)
     {
@@ -28,6 +22,13 @@ internal class DamageDoneService : QueryService<DamageDoneDto, DamageDone>, IMut
         return CreateInternalAsync(item);
     }
 
+    public async Task<int> DeleteAsync(int id)
+    {
+        var affectedRows = await _repository.DeleteAsync(id);
+
+        return affectedRows;
+    }
+
     public Task<int> UpdateAsync(DamageDoneDto item)
     {
         if (item == null)
@@ -36,16 +37,6 @@ internal class DamageDoneService : QueryService<DamageDoneDto, DamageDone>, IMut
         }
 
         return UpdateInternalAsync(item);
-    }
-
-    public Task<int> DeleteAsync(DamageDoneDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(DamageDoneDto), $"The {nameof(DamageDoneDto)} can't be null");
-        }
-
-        return DeleteInternalAsync(item);
     }
 
     private async Task<DamageDoneDto> CreateInternalAsync(DamageDoneDto item)
@@ -67,16 +58,6 @@ internal class DamageDoneService : QueryService<DamageDoneDto, DamageDone>, IMut
         var rowsAffected = await _repository.UpdateAsync(map);
 
         return rowsAffected;
-    }
-
-    private async Task<int> DeleteInternalAsync(DamageDoneDto item)
-    {
-        CheckParams(item);
-
-        var map = _mapper.Map<DamageDone>(item);
-        var affectedRows = await _repository.DeleteAsync(map);
-
-        return affectedRows;
     }
 
     private void CheckParams(DamageDoneDto item)

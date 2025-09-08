@@ -4,16 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.CommunicationDAL.Repositories.SQL;
 
-internal class SQLRepository<TModel, TIdType> : IGenericRepository<TModel, TIdType>
+internal class SQLRepository<TModel, TIdType>(CommunicationSQLContext context) : IGenericRepository<TModel, TIdType>
     where TModel : class
     where TIdType : notnull
 {
-    private readonly CommunicationSQLContext _context;
-
-    public SQLRepository(CommunicationSQLContext context)
-    {
-        _context = context;
-    }
+    private readonly CommunicationSQLContext _context = context;
 
     public async Task<TModel> CreateAsync(TModel item)
     {
@@ -26,17 +21,22 @@ internal class SQLRepository<TModel, TIdType> : IGenericRepository<TModel, TIdTy
     public async Task<int> DeleteAsync(TIdType id)
     {
         var model = Activator.CreateInstance<TModel>();
-        model.GetType().GetProperty("Id").SetValue(model, id);
+        typeof(TModel).GetProperty("Id")?.SetValue(model, id);
 
+        _context.Attach(model);
         _context.Set<TModel>().Remove(model);
         var rowsAffected = await _context.SaveChangesAsync();
 
         return rowsAffected;
     }
 
-    public async Task<IEnumerable<TModel>> GetAllAsync() => await _context.Set<TModel>().AsNoTracking().ToListAsync();
+    public async Task<IEnumerable<TModel>> GetAllAsync()
+    {
+        var result = await _context.Set<TModel>().AsNoTracking().ToListAsync();
+        return result.Count != 0 ? result : [];
+    }
 
-    public async Task<TModel> GetByIdAsync(TIdType id)
+    public async Task<TModel?> GetByIdAsync(TIdType id)
     {
         var entity = await _context.Set<TModel>().FindAsync(id);
         if (entity != null)
@@ -47,12 +47,16 @@ internal class SQLRepository<TModel, TIdType> : IGenericRepository<TModel, TIdTy
         return entity;
     }
 
-    public IEnumerable<TModel> GetByParam(string paramName, object value)
+    public async Task<IEnumerable<TModel>> GetByParamAsync(string paramName, object value)
     {
-        var collection = _context.Set<TModel>().AsNoTracking().AsEnumerable();
-        var data = collection.Where(x => x.GetType().GetProperty(paramName).GetValue(x).Equals(value));
+        var query = _context.Set<TModel>().AsNoTracking();
 
-        return data;
+        var filteredQuery = query.Where(x => EF.Property<object>(x, paramName).Equals(value));
+        var any = await filteredQuery.AnyAsync();
+
+        var result = any ? filteredQuery.AsEnumerable() : [];
+
+        return result;
     }
 
     public async Task<int> UpdateAsync(TModel item)

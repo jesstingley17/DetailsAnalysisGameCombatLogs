@@ -8,21 +8,13 @@ namespace CombatAnalysis.CombatParserAPI.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-public class CombatPlayerPositionController : ControllerBase
+public class CombatPlayerPositionController(IQueryService<CombatPlayerPositionDto> queryCombatPlayerPosition, IMutationService<CombatPlayerPositionDto> mutationCombatPlayerService,
+    IMapper mapper, ILogger<CombatPlayerPositionController> logger) : ControllerBase
 {
-    private readonly IQueryService<CombatPlayerPositionDto> _queryCombatPlayerPosition;
-    private readonly IMutationService<CombatPlayerPositionDto> _mutationCombatPlayerService;
-    private readonly IMapper _mapper;
-    private readonly ILogger<CombatPlayerPositionController> _logger;
-
-    public CombatPlayerPositionController(IQueryService<CombatPlayerPositionDto> queryCombatPlayerPosition, IMutationService<CombatPlayerPositionDto> mutationCombatPlayerService,
-        IMapper mapper, ILogger<CombatPlayerPositionController> logger)
-    {
-        _queryCombatPlayerPosition = queryCombatPlayerPosition;
-        _mutationCombatPlayerService = mutationCombatPlayerService;
-        _mapper = mapper;
-        _logger = logger;
-    }
+    private readonly IQueryService<CombatPlayerPositionDto> _queryCombatPlayerPosition = queryCombatPlayerPosition;
+    private readonly IMutationService<CombatPlayerPositionDto> _mutationCombatPlayerService = mutationCombatPlayerService;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<CombatPlayerPositionController> _logger = logger;
 
     [HttpGet("getByCombatId/{combatId:int:min(1)}")]
     public async Task<IActionResult> GetByCombatId(int combatId)
@@ -87,10 +79,7 @@ public class CombatPlayerPositionController : ControllerBase
     {
         try
         {
-            var item = await GetById(id);
-            var map = _mapper.Map<CombatPlayerPositionDto>(item);
-
-            var rowsAffected = await _mutationCombatPlayerService.DeleteAsync(map);
+            var rowsAffected = await _mutationCombatPlayerService.DeleteAsync(id);
 
             return Ok(rowsAffected);
         }

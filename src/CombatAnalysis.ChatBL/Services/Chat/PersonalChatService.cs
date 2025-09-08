@@ -66,7 +66,7 @@ internal class PersonalChatService(IGenericRepository<PersonalChat, int> reposit
 
     public async Task<IEnumerable<PersonalChatDto>> GetByParamAsync(string paramName, object value)
     {
-        var result = await Task.Run(() => _repository.GetByParam(paramName, value));
+        var result = await _repository.GetByParamAsync(paramName, value);
         var resultMap = _mapper.Map<IEnumerable<PersonalChatDto>>(result);
 
         return resultMap;

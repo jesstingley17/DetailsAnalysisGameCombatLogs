@@ -7,16 +7,10 @@ using CombatAnalysis.DAL.Interfaces.Generic;
 
 namespace CombatAnalysis.BL.Services;
 
-internal class PlayerParseInfoService : QueryService<PlayerParseInfoDto, PlayerParseInfo>, IMutationService<PlayerParseInfoDto>
+internal class PlayerParseInfoService(IGenericRepository<PlayerParseInfo> repository, IMapper mapper) : QueryService<PlayerParseInfoDto, PlayerParseInfo>(repository, mapper), IMutationService<PlayerParseInfoDto>
 {
-    private readonly IGenericRepository<PlayerParseInfo> _repository;
-    private readonly IMapper _mapper;
-
-    public PlayerParseInfoService(IGenericRepository<PlayerParseInfo> repository, IMapper mapper) : base(repository, mapper)
-    {
-        _repository = repository;
-        _mapper = mapper;
-    }
+    private readonly IGenericRepository<PlayerParseInfo> _repository = repository;
+    private readonly IMapper _mapper = mapper;
 
     public Task<PlayerParseInfoDto> CreateAsync(PlayerParseInfoDto item)
     {
@@ -28,6 +22,13 @@ internal class PlayerParseInfoService : QueryService<PlayerParseInfoDto, PlayerP
         return CreateInternalAsync(item);
     }
 
+    public async Task<int> DeleteAsync(int id)
+    {
+        var affectedRows = await _repository.DeleteAsync(id);
+
+        return affectedRows;
+    }
+
     public Task<int> UpdateAsync(PlayerParseInfoDto item)
     {
         if (item == null)
@@ -36,16 +37,6 @@ internal class PlayerParseInfoService : QueryService<PlayerParseInfoDto, PlayerP
         }
 
         return UpdateInternalAsync(item);
-    }
-
-    public Task<int> DeleteAsync(PlayerParseInfoDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(PlayerParseInfoDto), $"The {nameof(PlayerParseInfoDto)} can't be null");
-        }
-
-        return DeleteInternalAsync(item);
     }
 
     private async Task<PlayerParseInfoDto> CreateInternalAsync(PlayerParseInfoDto item)
@@ -63,16 +54,6 @@ internal class PlayerParseInfoService : QueryService<PlayerParseInfoDto, PlayerP
         var rowsAffected = await _repository.UpdateAsync(map);
 
         return rowsAffected;
-    }
-
-    private async Task<int> DeleteInternalAsync(PlayerParseInfoDto item)
-    {
-        CheckParams(item);
-
-        var map = _mapper.Map<PlayerParseInfo>(item);
-        var affectedRows = await _repository.DeleteAsync(map);
-
-        return affectedRows;
     }
 
     private void CheckParams(PlayerParseInfoDto item)

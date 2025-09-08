@@ -2,7 +2,6 @@
 using CombatAnalysis.ChatDAL.DTO;
 using CombatAnalysis.ChatDAL.Entities;
 using CombatAnalysis.ChatDAL.Interfaces;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.ChatDAL.Repositories.SQL.StoredProcedure;
@@ -14,31 +13,22 @@ internal class SQLSPGroupChatMessageRepository<TIdType>(ChatSQLContext context) 
 
     public async Task<IEnumerable<GroupChatMessageDto>> GetByChatIdAsyn(int chatId, string groupChatUserId, int pageSize)
     {
-        var chatIdParam = new SqlParameter("ChatId", chatId);
-        var groupChatUserIdParam = new SqlParameter("GroupChatUserId", groupChatUserId);
-        var pageSizeParam = new SqlParameter("PageSize", pageSize);
-
+        var procName = $"Get{nameof(GroupChatMessage)}ByChatIdPagination";
         var data = await Task.Run(() => _context.Set<GroupChatMessageDto>()
-                            .FromSqlRaw($"Get{nameof(GroupChatMessage)}ByChatIdPagination @chatId, @groupChatUserId, @pageSize",
-                                            chatIdParam, groupChatUserIdParam, pageSizeParam)
+                            .FromSql($"{procName} @chatId={chatId}, @groupChatUserId={groupChatUserId}, @pageSize={pageSize}")
                             .AsEnumerable());
 
-        return data;
+        return data.Any() ? data : [];
     }
 
     public async Task<IEnumerable<GroupChatMessageDto>> GetMoreByChatIdAsyn(int chatId, string groupChatUserId, int offset, int pageSize)
     {
-        var chatIdParam = new SqlParameter("ChatId", chatId);
-        var groupChatUserIdParam = new SqlParameter("GroupChatUserId", groupChatUserId);
-        var offsetParam = new SqlParameter("Offset", offset);
-        var pageSizeParam = new SqlParameter("PageSize", pageSize);
-
+        var procName = $"Get{nameof(GroupChatMessage)}ByChatIdMore";
         var data = await Task.Run(() => _context.Set<GroupChatMessageDto>()
-                            .FromSqlRaw($"Get{nameof(GroupChatMessage)}ByChatIdMore @chatId, @groupChatUserId, @offset, @pageSize",
-                                            chatIdParam, groupChatUserIdParam, offsetParam, pageSizeParam)
+                            .FromSql($"{procName} @chatId={chatId}, @groupChatUserId={groupChatUserId}, @offset={offset}, @pageSize={pageSize}")
                             .AsEnumerable());
 
-        return data;
+        return data.Any() ? data : [];
     }
 
     public async Task<int> CountByChatIdAsync(int chatId)

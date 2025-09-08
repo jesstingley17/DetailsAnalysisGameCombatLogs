@@ -7,16 +7,10 @@ using CombatAnalysis.DAL.Interfaces.Generic;
 
 namespace CombatAnalysis.BL.Services;
 
-internal class CombatService : QueryService<CombatDto, Combat>, IMutationService<CombatDto>
+internal class CombatService(IGenericRepository<Combat> repository, IMapper mapper) : QueryService<CombatDto, Combat>(repository, mapper), IMutationService<CombatDto>
 {
-    private readonly IGenericRepository<Combat> _repository;
-    private readonly IMapper _mapper;
-
-    public CombatService(IGenericRepository<Combat> repository, IMapper mapper) : base(repository, mapper)
-    {
-        _repository = repository;
-        _mapper = mapper;
-    }
+    private readonly IGenericRepository<Combat> _repository = repository;
+    private readonly IMapper _mapper = mapper;
 
     public Task<CombatDto> CreateAsync(CombatDto item)
     {
@@ -28,6 +22,13 @@ internal class CombatService : QueryService<CombatDto, Combat>, IMutationService
         return CreateInternalAsync(item);
     }
 
+    public async Task<int> DeleteAsync(int id)
+    {
+        var affectedRows = await _repository.DeleteAsync(id);
+
+        return affectedRows;
+    }
+
     public Task<int> UpdateAsync(CombatDto item)
     {
         if (item == null)
@@ -36,16 +37,6 @@ internal class CombatService : QueryService<CombatDto, Combat>, IMutationService
         }
 
         return UpdateInternalAsync(item);
-    }
-
-    public Task<int> DeleteAsync(CombatDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(CombatDto), $"The {nameof(CombatDto)} can't be null");
-        }
-
-        return DeleteInternalAsync(item);
     }
 
     private async Task<CombatDto> CreateInternalAsync(CombatDto item)
@@ -67,16 +58,6 @@ internal class CombatService : QueryService<CombatDto, Combat>, IMutationService
         var rowsAffected = await _repository.UpdateAsync(map);
 
         return rowsAffected;
-    }
-
-    private async Task<int> DeleteInternalAsync(CombatDto item)
-    {
-        CheckParams(item);
-
-        var map = _mapper.Map<Combat>(item);
-        var affectedRows = await _repository.DeleteAsync(map);
-
-        return affectedRows;
     }
 
     private void CheckParams(CombatDto item)

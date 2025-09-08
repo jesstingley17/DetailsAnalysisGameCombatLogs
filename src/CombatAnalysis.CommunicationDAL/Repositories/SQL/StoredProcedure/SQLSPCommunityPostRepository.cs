@@ -1,98 +1,72 @@
 ﻿using CombatAnalysis.CommunicationDAL.Data;
 using CombatAnalysis.CommunicationDAL.Entities.Post;
 using CombatAnalysis.CommunicationDAL.Interfaces;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.CommunicationDAL.Repositories.SQL.StoredProcedure;
 
-internal class SQLSPCommunityPostRepository : SQLRepository<CommunityPost, int>, ICommunityPostRepository
+internal class SQLSPCommunityPostRepository(CommunicationSQLContext context) : SQLRepository<CommunityPost, int>(context), ICommunityPostRepository
 {
-    private readonly CommunicationSQLContext _context;
-
-    public SQLSPCommunityPostRepository(CommunicationSQLContext context) : base(context)
-    {
-        _context = context;
-    }
+    private readonly CommunicationSQLContext _context = context;
 
     public async Task<IEnumerable<CommunityPost>> GetByCommunityIdAsync(int communityId, int pageSize)
     {
-        var communityIdParam = new SqlParameter("CommunityId", communityId);
-        var pageSizeParam = new SqlParameter("PageSize", pageSize);
-
+        var procName = $"Get{nameof(CommunityPost)}ByCommunityIdPagination";
         var data = await Task.Run(() => _context.Set<CommunityPost>()
-                            .FromSqlRaw($"Get{nameof(CommunityPost)}ByCommunityIdPagination @communityId, @pageSize",
-                                            communityIdParam, pageSizeParam)
+                            .FromSql($"{procName} @communityId={communityId}, @pageSize={pageSize}")
                             .AsEnumerable());
 
-        return data;
+        return data.Any() ? data : [];
     }
 
     public async Task<IEnumerable<CommunityPost>> GetMoreByCommunityIdAsync(int communityId, int offset, int pageSize)
     {
-        var communityIdParam = new SqlParameter("CommunityId", communityId);
-        var offsetParam = new SqlParameter("Offset", offset);
-        var pageSizeParam = new SqlParameter("PageSize", pageSize);
-
+        var procName = $"GetMore{nameof(CommunityPost)}ByCommunityId";
         var data = await Task.Run(() => _context.Set<CommunityPost>()
-                            .FromSqlRaw($"GetMore{nameof(CommunityPost)}ByCommunityId @communityId, @offset, @pageSize",
-                                            communityIdParam, offsetParam, pageSizeParam)
+                            .FromSql($"GetMore{nameof(CommunityPost)}ByCommunityId @communityId={communityId}, @offset={offset}, @pageSize={pageSize}")
                             .AsEnumerable());
 
-        return data;
+        return data.Any() ? data : [];
     }
 
     public async Task<IEnumerable<CommunityPost>> GetNewByCommunityIdAsync(int communityId, DateTimeOffset checkFrom)
     {
-        var communityIdParam = new SqlParameter("CommunityId", communityId);
-        var checkFromParam = new SqlParameter("CheckFrom", checkFrom);
-
+        var procName = $"GetNew{nameof(CommunityPost)}ByCommunityId";
         var data = await Task.Run(() => _context.Set<CommunityPost>()
-                            .FromSqlRaw($"GetNew{nameof(CommunityPost)}ByCommunityId @communityId, @checkFrom",
-                                            communityIdParam, checkFromParam)
+                            .FromSql($"{procName} @communityId={communityId}, @checkFrom={checkFrom}")
                             .AsEnumerable());
 
-        return data;
+        return data.Any() ? data : [];
     }
 
     public async Task<IEnumerable<CommunityPost>> GetByListOfCommunityIdAsync(string communityIds, int pageSize)
     {
-        var communityIdsParam = new SqlParameter("CommunityIds", communityIds);
-        var pageSizeParam = new SqlParameter("PageSize", pageSize);
-
+        var procName = $"Get{nameof(CommunityPost)}ByListOfCommunityIdPagination";
         var data = await Task.Run(() => _context.Set<CommunityPost>()
-                            .FromSqlRaw($"Get{nameof(CommunityPost)}ByListOfCommunityIdPagination @communityIds, @pageSize",
-                                            communityIdsParam, pageSizeParam)
+                            .FromSql($"{procName} @communityIds={communityIds}, @pageSize={pageSize}")
                             .AsEnumerable());
 
-        return data;
+        return data.Any() ? data : [];
     }
 
     public async Task<IEnumerable<CommunityPost>> GetMoreByListOfCommunityIdAsync(string communityIds, int offset, int pageSize)
     {
-        var communityIdsParam = new SqlParameter("CommunityIds", communityIds);
-        var offsetParam = new SqlParameter("Offset", offset);
-        var pageSizeParam = new SqlParameter("PageSize", pageSize);
-
+        var procName = $"GetMore{nameof(CommunityPost)}ByListOfCommunityId";
         var data = await Task.Run(() => _context.Set<CommunityPost>()
-                            .FromSqlRaw($"GetMore{nameof(CommunityPost)}ByListOfCommunityId @communityIds, @offset, @pageSize",
-                                            communityIdsParam, offsetParam, pageSizeParam)
+                            .FromSql($"{procName} @communityIds={communityIds}, @offset={offset}, @pageSize={pageSize}")
                             .AsEnumerable());
 
-        return data;
+        return data.Any() ? data : [];
     }
 
     public async Task<IEnumerable<CommunityPost>> GetNewByListOfCommunityIdAsync(string communityIds, DateTimeOffset checkFrom)
     {
-        var communityIdsParam = new SqlParameter("CommunityIds", communityIds);
-        var checkFromParam = new SqlParameter("CheckFrom", checkFrom);
-
+        var procName = $"GetNew{nameof(CommunityPost)}ByListOfCommunityId";
         var data = await Task.Run(() => _context.Set<CommunityPost>()
-                            .FromSqlRaw($"GetNew{nameof(CommunityPost)}ByListOfCommunityId @communityIds, @checkFrom",
-                                            communityIdsParam, checkFromParam)
+                            .FromSql($"{procName} @communityIds={communityIds}, @checkFrom={checkFrom}")
                             .AsEnumerable());
 
-        return data;
+        return data.Any() ? data : [];
     }
 
     public async Task<int> CountByCommunityIdAsync(int communityId)

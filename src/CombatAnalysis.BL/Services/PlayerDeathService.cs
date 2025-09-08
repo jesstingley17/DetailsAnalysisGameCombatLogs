@@ -6,16 +6,10 @@ using CombatAnalysis.DAL.Interfaces.Generic;
 
 namespace CombatAnalysis.BL.Services;
 
-internal class PlayerDeathService : QueryService<PlayerDeathDto, PlayerDeath>, IMutationService<PlayerDeathDto>
+internal class PlayerDeathService(IGenericRepository<PlayerDeath> repository, IMapper mapper) : QueryService<PlayerDeathDto, PlayerDeath>(repository, mapper), IMutationService<PlayerDeathDto>
 {
-    private readonly IGenericRepository<PlayerDeath> _repository;
-    private readonly IMapper _mapper;
-
-    public PlayerDeathService(IGenericRepository<PlayerDeath> repository, IMapper mapper) : base(repository, mapper)
-    {
-        _repository = repository;
-        _mapper = mapper;
-    }
+    private readonly IGenericRepository<PlayerDeath> _repository = repository;
+    private readonly IMapper _mapper = mapper;
 
     public Task<PlayerDeathDto> CreateAsync(PlayerDeathDto item)
     {
@@ -27,6 +21,13 @@ internal class PlayerDeathService : QueryService<PlayerDeathDto, PlayerDeath>, I
         return CreateInternalAsync(item);
     }
 
+    public async Task<int> DeleteAsync(int id)
+    {
+        var affectedRows = await _repository.DeleteAsync(id);
+
+        return affectedRows;
+    }
+
     public Task<int> UpdateAsync(PlayerDeathDto item)
     {
         if (item == null)
@@ -35,16 +36,6 @@ internal class PlayerDeathService : QueryService<PlayerDeathDto, PlayerDeath>, I
         }
 
         return UpdateInternalAsync(item);
-    }
-
-    public Task<int> DeleteAsync(PlayerDeathDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(PlayerDeathDto), $"The {nameof(PlayerDeathDto)} can't be null");
-        }
-
-        return DeleteInternalAsync(item);
     }
 
     private async Task<PlayerDeathDto> CreateInternalAsync(PlayerDeathDto item)
@@ -66,16 +57,6 @@ internal class PlayerDeathService : QueryService<PlayerDeathDto, PlayerDeath>, I
         var rowsAffected = await _repository.UpdateAsync(map);
 
         return rowsAffected;
-    }
-
-    private async Task<int> DeleteInternalAsync(PlayerDeathDto item)
-    {
-        CheckParams(item);
-
-        var map = _mapper.Map<PlayerDeath>(item);
-        var affectedRows = await _repository.DeleteAsync(map);
-
-        return affectedRows;
     }
 
     private void CheckParams(PlayerDeathDto item)

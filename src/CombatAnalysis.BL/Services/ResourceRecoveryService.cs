@@ -7,16 +7,10 @@ using CombatAnalysis.DAL.Interfaces.Generic;
 
 namespace CombatAnalysis.BL.Services;
 
-internal class ResourceRecoveryService : QueryService<ResourceRecoveryDto, ResourceRecovery>, IMutationService<ResourceRecoveryDto>
+internal class ResourceRecoveryService(IGenericRepository<ResourceRecovery> repository, IMapper mapper) : QueryService<ResourceRecoveryDto, ResourceRecovery>(repository, mapper), IMutationService<ResourceRecoveryDto>
 {
-    private readonly IGenericRepository<ResourceRecovery> _repository;
-    private readonly IMapper _mapper;
-
-    public ResourceRecoveryService(IGenericRepository<ResourceRecovery> repository, IMapper mapper) : base(repository, mapper)
-    {
-        _repository = repository;
-        _mapper = mapper;
-    }
+    private readonly IGenericRepository<ResourceRecovery> _repository = repository;
+    private readonly IMapper _mapper = mapper;
 
     public Task<ResourceRecoveryDto> CreateAsync(ResourceRecoveryDto item)
     {
@@ -28,6 +22,13 @@ internal class ResourceRecoveryService : QueryService<ResourceRecoveryDto, Resou
         return CreateInternalAsync(item);
     }
 
+    public async Task<int> DeleteAsync(int id)
+    {
+        var affectedRows = await _repository.DeleteAsync(id);
+
+        return affectedRows;
+    }
+
     public Task<int> UpdateAsync(ResourceRecoveryDto item)
     {
         if (item == null)
@@ -36,16 +37,6 @@ internal class ResourceRecoveryService : QueryService<ResourceRecoveryDto, Resou
         }
 
         return UpdateInternalAsync(item);
-    }
-
-    public Task<int> DeleteAsync(ResourceRecoveryDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(ResourceRecoveryDto), $"The {nameof(ResourceRecoveryDto)} can't be null");
-        }
-
-        return DeleteInternalAsync(item);
     }
 
     private async Task<ResourceRecoveryDto> CreateInternalAsync(ResourceRecoveryDto item)
@@ -67,16 +58,6 @@ internal class ResourceRecoveryService : QueryService<ResourceRecoveryDto, Resou
         var rowsAffected = await _repository.UpdateAsync(map);
 
         return rowsAffected;
-    }
-
-    private async Task<int> DeleteInternalAsync(ResourceRecoveryDto item)
-    {
-        CheckParams(item);
-
-        var map = _mapper.Map<ResourceRecovery>(item);
-        var affectedRows = await _repository.DeleteAsync(map);
-
-        return affectedRows;
     }
 
     private void CheckParams(ResourceRecoveryDto item)

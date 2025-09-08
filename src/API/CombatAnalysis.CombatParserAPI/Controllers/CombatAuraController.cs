@@ -8,21 +8,13 @@ namespace CombatAnalysis.CombatParserAPI.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-public class CombatAuraController : ControllerBase
+public class CombatAuraController(IQueryService<CombatAuraDto> queryService, IMutationService<CombatAuraDto> mutationService,
+    IMapper mapper, ILogger<CombatAuraController> logger) : ControllerBase
 {
-    private readonly IQueryService<CombatAuraDto> _queryService;
-    private readonly IMutationService<CombatAuraDto> _mutationService;
-    private readonly IMapper _mapper;
-    private readonly ILogger<CombatAuraController> _logger;
-
-    public CombatAuraController(IQueryService<CombatAuraDto> queryService, IMutationService<CombatAuraDto> mutationService, 
-        IMapper mapper, ILogger<CombatAuraController> logger)
-    {
-        _queryService = queryService;
-        _mutationService = mutationService;
-        _mapper = mapper;
-        _logger = logger;
-    }
+    private readonly IQueryService<CombatAuraDto> _queryService = queryService;
+    private readonly IMutationService<CombatAuraDto> _mutationService = mutationService;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<CombatAuraController> _logger = logger;
 
     [HttpGet("getByCombatId/{combatId:int:min(1)}")]
     public async Task<IActionResult> GetByCombatId(int combatId)
@@ -87,10 +79,7 @@ public class CombatAuraController : ControllerBase
     {
         try
         {
-            var item = await GetById(id);
-            var map = _mapper.Map<CombatAuraDto>(item);
-
-            var rowsAffected = await _mutationService.DeleteAsync(map);
+            var rowsAffected = await _mutationService.DeleteAsync(id);
 
             return Ok(rowsAffected);
         }

@@ -7,16 +7,10 @@ using CombatAnalysis.DAL.Interfaces.Generic;
 
 namespace CombatAnalysis.BL.Services;
 
-internal class CombatLogService : QueryService<CombatLogDto, CombatLog>, IMutationService<CombatLogDto>
+internal class CombatLogService(IGenericRepository<CombatLog> userRepository, IMapper mapper) : QueryService<CombatLogDto, CombatLog>(userRepository, mapper), IMutationService<CombatLogDto>
 {
-    private readonly IGenericRepository<CombatLog> _repository;
-    private readonly IMapper _mapper;
-
-    public CombatLogService(IGenericRepository<CombatLog> userRepository, IMapper mapper) : base(userRepository, mapper)
-    {
-        _repository = userRepository;
-        _mapper = mapper;
-    }
+    private readonly IGenericRepository<CombatLog> _repository = userRepository;
+    private readonly IMapper _mapper = mapper;
 
     public Task<CombatLogDto> CreateAsync(CombatLogDto item)
     {
@@ -28,6 +22,13 @@ internal class CombatLogService : QueryService<CombatLogDto, CombatLog>, IMutati
         return CreateInternalAsync(item);
     }
 
+    public async Task<int> DeleteAsync(int id)
+    {
+        var affectedRows = await _repository.DeleteAsync(id);
+
+        return affectedRows;
+    }
+
     public Task<int> UpdateAsync(CombatLogDto item)
     {
         if (item == null)
@@ -36,16 +37,6 @@ internal class CombatLogService : QueryService<CombatLogDto, CombatLog>, IMutati
         }
 
         return UpdateInternalAsync(item);
-    }
-
-    public Task<int> DeleteAsync(CombatLogDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(CombatLogDto), $"The {nameof(CombatLogDto)} can't be null");
-        }
-
-        return DeleteInternalAsync(item);
     }
 
     private async Task<CombatLogDto> CreateInternalAsync(CombatLogDto item)
@@ -67,16 +58,6 @@ internal class CombatLogService : QueryService<CombatLogDto, CombatLog>, IMutati
         var rowsAffected = await _repository.UpdateAsync(map);
 
         return rowsAffected;
-    }
-
-    private async Task<int> DeleteInternalAsync(CombatLogDto item)
-    {
-        CheckParams(item);
-
-        var map = _mapper.Map<CombatLog>(item);
-        var affectedRows = await _repository.DeleteAsync(map);
-
-        return affectedRows;
     }
 
     private void CheckParams(CombatLogDto item)

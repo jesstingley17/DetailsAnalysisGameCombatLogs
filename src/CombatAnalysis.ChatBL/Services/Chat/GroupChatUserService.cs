@@ -92,7 +92,7 @@ internal class GroupChatUserService : IServiceTransaction<GroupChatUserDto, stri
 
     public async Task<IEnumerable<GroupChatUserDto>> GetByParamAsync(string paramName, object value)
     {
-        var result = await Task.Run(() => _repository.GetByParam(paramName, value));
+        var result = await _repository.GetByParamAsync(paramName, value);
         var resultMap = _mapper.Map<IEnumerable<GroupChatUserDto>>(result);
 
         return resultMap;

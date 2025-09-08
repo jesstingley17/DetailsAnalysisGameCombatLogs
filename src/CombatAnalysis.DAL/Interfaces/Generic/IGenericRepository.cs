@@ -9,9 +9,9 @@ public interface IGenericRepository<TModel>
 
     Task<int> UpdateAsync(TModel item);
 
-    Task<int> DeleteAsync(TModel item);
+    Task<int> DeleteAsync(int id);
 
-    Task<TModel> GetByIdAsync(int id);
+    Task<TModel?> GetByIdAsync(int id);
 
     Task<IEnumerable<TModel>> GetByParamAsync(string paramName, object value);
 

@@ -4,16 +4,11 @@ using Firebase.Database.Query;
 
 namespace CombatAnalysis.CommunicationDAL.Repositories.Firebase;
 
-internal class FirebaseRepository<TModel, TIdType> : IGenericRepository<TModel, TIdType>
+internal class FirebaseRepository<TModel, TIdType>(FirebaseContext context) : IGenericRepository<TModel, TIdType>
     where TModel : class
     where TIdType : notnull
 {
-    private readonly FirebaseContext _context;
-
-    public FirebaseRepository(FirebaseContext context)
-    {
-        _context = context;
-    }
+    private readonly FirebaseContext _context = context;
 
     public async Task<TModel> CreateAsync(TModel item)
     {
@@ -39,7 +34,7 @@ internal class FirebaseRepository<TModel, TIdType> : IGenericRepository<TModel, 
 
         var result = data.Select(x => new KeyValuePair<string, TModel>(x.Key, x.Object))
             .AsEnumerable()
-            .FirstOrDefault(x => x.Value.GetType().GetProperty("Id").GetValue(x.Value).Equals(id));
+            .FirstOrDefault(x => x.Value.GetType().GetProperty("Id")?.GetValue(x.Value) == (object)id);
 
         await _context.FirebaseClient
                      .Child(typeof(TModel).Name)
@@ -64,7 +59,7 @@ internal class FirebaseRepository<TModel, TIdType> : IGenericRepository<TModel, 
         return result;
     }
 
-    public async Task<TModel> GetByIdAsync(TIdType id)
+    public async Task<TModel?> GetByIdAsync(TIdType id)
     {
         var data = await _context.FirebaseClient
               .Child(typeof(TModel).Name)
@@ -72,22 +67,20 @@ internal class FirebaseRepository<TModel, TIdType> : IGenericRepository<TModel, 
 
         var result = data.Select(x => x.Object)
             .AsEnumerable()
-            .FirstOrDefault(x => x.GetType().GetProperty("Id").GetValue(x).Equals(id));
+            .FirstOrDefault(x => x.GetType().GetProperty("Id")?.GetValue(x) == (object)id);
 
         return result;
     }
 
-    public IEnumerable<TModel> GetByParam(string paramName, object value)
+    public async Task<IEnumerable<TModel>> GetByParamAsync(string paramName, object value)
     {
-        var data = _context.FirebaseClient
+        var data = await _context.FirebaseClient
               .Child(typeof(TModel).Name)
-              .OnceAsync<TModel>()
-              .GetAwaiter()
-              .GetResult();
+              .OnceAsync<TModel>();
 
         var result = data.Select(x => x.Object)
             .AsEnumerable()
-            .Where(x => x.GetType().GetProperty(paramName).GetValue(x).Equals(value));
+            .Where(x => x.GetType().GetProperty(paramName)?.GetValue(x) == value);
 
         return result;
     }
@@ -101,7 +94,7 @@ internal class FirebaseRepository<TModel, TIdType> : IGenericRepository<TModel, 
         var id = item.GetType().GetProperty("Id")?.GetValue(item);
         var result = data.Select(x => new KeyValuePair<string, TModel>(x.Key, x.Object))
             .AsEnumerable()
-            .FirstOrDefault(x => x.Value.GetType().GetProperty("Id").GetValue(x.Value).Equals(id));
+            .FirstOrDefault(x => x.Value.GetType().GetProperty("Id")?.GetValue(x.Value) == id);
 
         await _context.FirebaseClient
                      .Child(item.GetType().Name)

@@ -1,7 +1,6 @@
 ﻿using CombatAnalysis.ChatDAL.Data;
 using CombatAnalysis.ChatDAL.Interfaces;
 using CombatAnalysis.ChatDAL.Interfaces.Entities;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.ChatDAL.Repositories.SQL.StoredProcedure;
@@ -14,29 +13,22 @@ internal class SQLSPPersonalChatMessageRepository<TModel, TIdType>(ChatSQLContex
 
     public async Task<IEnumerable<TModel>> GetByChatIdAsyn(int chatId, int pageSize)
     {
-        var chatIdParam = new SqlParameter("ChatId", chatId);
-        var pageSizeParam = new SqlParameter("PageSize", pageSize);
-
+        var procName = $"Get{typeof(TModel).Name}ByChatIdPagination";
         var data = await Task.Run(() => _context.Set<TModel>()
-                            .FromSqlRaw($"Get{typeof(TModel).Name}ByChatIdPagination @chatId, @pageSize",
-                                            chatIdParam, pageSizeParam)
+                            .FromSql($"{procName} @chatId={chatId}, @pageSize={pageSize}")
                             .AsEnumerable());
 
-        return data;
+        return data.Any() ? data : [];
     }
 
     public async Task<IEnumerable<TModel>> GetMoreByChatIdAsyn(int chatId, int offset, int pageSize)
     {
-        var chatIdParam = new SqlParameter("ChatId", chatId);
-        var offsetParam = new SqlParameter("Offset", offset);
-        var pageSizeParam = new SqlParameter("PageSize", pageSize);
-
+        var procName = $"Get{typeof(TModel).Name}ByChatIdMore";
         var data = await Task.Run(() => _context.Set<TModel>()
-                            .FromSqlRaw($"Get{typeof(TModel).Name}ByChatIdMore @chatId, @offset, @pageSize",
-                                            chatIdParam, offsetParam, pageSizeParam)
+                            .FromSql($"{procName} @chatId={chatId}, @offset={offset}, @pageSize={pageSize}")
                             .AsEnumerable());
 
-        return data;
+        return data.Any() ? data : [];
     }
 
     public async Task<int> CountByChatIdAsync(int chatId)

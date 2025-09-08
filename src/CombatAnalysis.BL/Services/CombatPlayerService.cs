@@ -7,16 +7,10 @@ using CombatAnalysis.DAL.Interfaces.Generic;
 
 namespace CombatAnalysis.BL.Services;
 
-internal class CombatPlayerService : QueryService<CombatPlayerDto, CombatPlayer>, IMutationService<CombatPlayerDto>
+internal class CombatPlayerService(IGenericRepository<CombatPlayer> repository, IMapper mapper) : QueryService<CombatPlayerDto, CombatPlayer>(repository, mapper), IMutationService<CombatPlayerDto>
 {
-    private readonly IGenericRepository<CombatPlayer> _repository;
-    private readonly IMapper _mapper;
-
-    public CombatPlayerService(IGenericRepository<CombatPlayer> repository, IMapper mapper) : base(repository, mapper)
-    {
-        _repository = repository;
-        _mapper = mapper;
-    }
+    private readonly IGenericRepository<CombatPlayer> _repository = repository;
+    private readonly IMapper _mapper = mapper;
 
     public Task<CombatPlayerDto> CreateAsync(CombatPlayerDto item)
     {
@@ -28,6 +22,13 @@ internal class CombatPlayerService : QueryService<CombatPlayerDto, CombatPlayer>
         return CreateInternalAsync(item);
     }
 
+    public async Task<int> DeleteAsync(int id)
+    {
+        var affectedRows = await _repository.DeleteAsync(id);
+
+        return affectedRows;
+    }
+
     public Task<int> UpdateAsync(CombatPlayerDto item)
     {
         if (item == null)
@@ -36,16 +37,6 @@ internal class CombatPlayerService : QueryService<CombatPlayerDto, CombatPlayer>
         }
 
         return UpdateInternalAsync(item);
-    }
-
-    public Task<int> DeleteAsync(CombatPlayerDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(CombatPlayerDto), $"The {nameof(CombatPlayerDto)} can't be null");
-        }
-
-        return DeleteInternalAsync(item);
     }
 
     private async Task<CombatPlayerDto> CreateInternalAsync(CombatPlayerDto item)
@@ -67,16 +58,6 @@ internal class CombatPlayerService : QueryService<CombatPlayerDto, CombatPlayer>
         var rowsAffected = await _repository.UpdateAsync(map);
 
         return rowsAffected;
-    }
-
-    private async Task<int> DeleteInternalAsync(CombatPlayerDto item)
-    {
-        CheckParams(item);
-
-        var map = _mapper.Map<CombatPlayer>(item);
-        var affectedRows = await _repository.DeleteAsync(map);
-
-        return affectedRows;
     }
 
     private void CheckParams(CombatPlayerDto item)

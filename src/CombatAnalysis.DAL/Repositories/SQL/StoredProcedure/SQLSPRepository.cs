@@ -1,67 +1,63 @@
 ﻿using CombatAnalysis.DAL.Data;
 using CombatAnalysis.DAL.Interfaces.Entities;
 using CombatAnalysis.DAL.Interfaces.Generic;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
 
 namespace CombatAnalysis.DAL.Repositories.SQL.StoredProcedure;
 
-internal class SQLSPRepository<TModel> : IGenericRepository<TModel>
+internal class SQLSPRepository<TModel>(CombatParserSQLContext context) : IGenericRepository<TModel>
     where TModel : class, IEntity
 {
-    private readonly CombatParserSQLContext _context;
-
-    public SQLSPRepository(CombatParserSQLContext context)
-    {
-        _context = context;
-    }
+    private readonly CombatParserSQLContext _context = context;
 
     public async Task<TModel> CreateAsync(TModel item)
     {
         var properties = item.GetType().GetProperties();
-        var procedureParams = new List<SqlParameter>();
         var procedureParamNames = new StringBuilder();
 
         for (var i = 1; i < properties.Length; i++)
         {
             if (properties[i].CanWrite)
             {
-                procedureParams.Add(new SqlParameter(properties[i].Name, properties[i].GetValue(item)));
-                procedureParamNames.Append($"@{properties[i].Name},");
+                procedureParamNames.Append($"@{properties[i].Name}={properties[i].GetValue(item)},");
             }
         }
 
         procedureParamNames.Remove(procedureParamNames.Length - 1, 1);
 
-        var data = await Task.Run(() => _context.Set<TModel>().FromSqlRaw($"InsertInto{item.GetType().Name} {procedureParamNames}", procedureParams.ToArray())
+        var procName = $"InsertInto{item.GetType().Name}";
+        var data = await Task.Run(() => _context.Set<TModel>().FromSql($"{procName} {procedureParamNames}")
                                             .AsEnumerable()
                                             .FirstOrDefault());
 
         return data;
     }
 
-    public async Task<int> DeleteAsync(TModel item)
+    public async Task<int> DeleteAsync(int id)
     {
+        var procName = $"Delete{typeof(TModel).Name}ById";
         var rowsAffected = await _context.Database
-                            .ExecuteSqlRawAsync($"Delete{typeof(TModel).Name}ById @Id", new SqlParameter("Id", item.Id));
+                            .ExecuteSqlAsync($"{procName} @id={id}");
 
         return rowsAffected;
     }
 
     public async Task<IEnumerable<TModel>> GetAllAsync()
     {
+        var procName = $"GetAll{typeof(TModel).Name}";
         var data = await Task.Run(() => _context.Set<TModel>()
-                            .FromSqlRaw($"GetAll{typeof(TModel).Name}")
+                            .FromSql($"{procName}")
                             .AsEnumerable());
 
-        return data;
+        return data.Any() ? data : [];
     }
 
-    public async Task<TModel> GetByIdAsync(int id)
+    public async Task<TModel?> GetByIdAsync(int id)
     {
+        var procName = $"Get{typeof(TModel).Name}ById";
         var data = await Task.Run(() => _context.Set<TModel>()
-                            .FromSqlRaw($"Get{typeof(TModel).Name}ById @Id", new SqlParameter("Id", id))
+                            .FromSql($"{procName} @id={id}")
                             .AsEnumerable()
                             .FirstOrDefault());
 
@@ -74,27 +70,26 @@ internal class SQLSPRepository<TModel> : IGenericRepository<TModel>
                     .Where(x => EF.Property<object>(x, paramName).Equals(value))
                     .ToListAsync();
 
-        return data;
+        return data.Count != 0 ? data : [];
     }
 
     public async Task<int> UpdateAsync(TModel item)
     {
         var properties = item.GetType().GetProperties();
-        var procedureParams = new List<SqlParameter>();
         var procedureParamNames = new StringBuilder();
         for (var i = 0; i < properties.Length; i++)
         {
             if (properties[i].CanWrite)
             {
-                procedureParams.Add(new SqlParameter(properties[i].Name, properties[i].GetValue(item)));
-                procedureParamNames.Append($"@{properties[i].Name},");
+                procedureParamNames.Append($"@{properties[i].Name}={properties[i].GetValue(item)},");
             }
         }
 
         procedureParamNames.Remove(procedureParamNames.Length - 1, 1);
 
+        var procName = $"Update{item.GetType().Name}";
         var rowsAffected = await _context.Database
-                            .ExecuteSqlRawAsync($"Update{item.GetType().Name} {procedureParamNames}", procedureParams);
+                            .ExecuteSqlAsync($"{procName} {procedureParamNames}");
 
         return rowsAffected;
     }

@@ -10,7 +10,7 @@ public interface IGenericRepository<TModel, TIdType>
 
     Task<int> DeleteAsync(TIdType id);
 
-    Task<TModel> GetByIdAsync(TIdType id);
+    Task<TModel?> GetByIdAsync(TIdType id);
 
     IEnumerable<TModel> GetByParam(string paramName, object value);
 

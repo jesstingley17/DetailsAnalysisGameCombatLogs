@@ -6,15 +6,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.DAL.Repositories.Firebase;
 
-internal class FirebaseRepository<TModel> : IGenericRepository<TModel>
+internal class FirebaseRepository<TModel>(FirebaseContext context) : IGenericRepository<TModel>
     where TModel : class, IEntity
 {
-    private readonly FirebaseContext _context;
-
-    public FirebaseRepository(FirebaseContext context)
-    {
-        _context = context;
-    }
+    private readonly FirebaseContext _context = context;
 
     public async Task<TModel> CreateAsync(TModel item)
     {
@@ -24,7 +19,7 @@ internal class FirebaseRepository<TModel> : IGenericRepository<TModel>
         return result.Object;
     }
 
-    public async Task<int> DeleteAsync(TModel item)
+    public async Task<int> DeleteAsync(int id)
     {
         var data = await _context.FirebaseClient
               .Child(typeof(TModel).Name)
@@ -32,7 +27,7 @@ internal class FirebaseRepository<TModel> : IGenericRepository<TModel>
 
         var result = data.Select(x => new KeyValuePair<string, TModel>(x.Key, x.Object))
             .AsEnumerable()
-            .FirstOrDefault(x => x.Value.Id == item.Id);
+            .FirstOrDefault(x => x.Value.Id == id);
 
         await _context.FirebaseClient
                      .Child(typeof(TModel).Name)
@@ -57,7 +52,7 @@ internal class FirebaseRepository<TModel> : IGenericRepository<TModel>
         return result;
     }
 
-    public async Task<TModel> GetByIdAsync(int id)
+    public async Task<TModel?> GetByIdAsync(int id)
     {
         var data = await _context.FirebaseClient
               .Child(typeof(TModel).Name)

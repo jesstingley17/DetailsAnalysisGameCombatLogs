@@ -7,16 +7,10 @@ using CombatAnalysis.DAL.Interfaces.Generic;
 
 namespace CombatAnalysis.BL.Services;
 
-internal class HealDoneGeneralService : QueryService<HealDoneGeneralDto, HealDoneGeneral>, IMutationService<HealDoneGeneralDto>
+internal class HealDoneGeneralService(IGenericRepository<HealDoneGeneral> repository, IMapper mapper) : QueryService<HealDoneGeneralDto, HealDoneGeneral>(repository, mapper), IMutationService<HealDoneGeneralDto>
 {
-    private readonly IGenericRepository<HealDoneGeneral> _repository;
-    private readonly IMapper _mapper;
-
-    public HealDoneGeneralService(IGenericRepository<HealDoneGeneral> repository, IMapper mapper) : base(repository, mapper)
-    {
-        _repository = repository;
-        _mapper = mapper;
-    }
+    private readonly IGenericRepository<HealDoneGeneral> _repository = repository;
+    private readonly IMapper _mapper = mapper;
 
     public Task<HealDoneGeneralDto> CreateAsync(HealDoneGeneralDto item)
     {
@@ -28,6 +22,13 @@ internal class HealDoneGeneralService : QueryService<HealDoneGeneralDto, HealDon
         return CreateInternalAsync(item);
     }
 
+    public async Task<int> DeleteAsync(int id)
+    {
+        var affectedRows = await _repository.DeleteAsync(id);
+
+        return affectedRows;
+    }
+
     public Task<int> UpdateAsync(HealDoneGeneralDto item)
     {
         if (item == null)
@@ -36,16 +37,6 @@ internal class HealDoneGeneralService : QueryService<HealDoneGeneralDto, HealDon
         }
 
         return UpdateInternalAsync(item);
-    }
-
-    public Task<int> DeleteAsync(HealDoneGeneralDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(HealDoneGeneralDto), $"The {nameof(HealDoneGeneralDto)} can't be null");
-        }
-
-        return DeleteInternalAsync(item);
     }
 
     private async Task<HealDoneGeneralDto> CreateInternalAsync(HealDoneGeneralDto item)
@@ -67,16 +58,6 @@ internal class HealDoneGeneralService : QueryService<HealDoneGeneralDto, HealDon
         var rowsAffected = await _repository.UpdateAsync(map);
 
         return rowsAffected;
-    }
-
-    private async Task<int> DeleteInternalAsync(HealDoneGeneralDto item)
-    {
-        CheckParams(item);
-
-        var map = _mapper.Map<HealDoneGeneral>(item);
-        var affectedRows = await _repository.DeleteAsync(map);
-
-        return affectedRows;
     }
 
     private void CheckParams(HealDoneGeneralDto item)

@@ -52,7 +52,7 @@ internal class CommunityPostDislikeService : IService<CommunityPostDislikeDto, i
 
     public async Task<IEnumerable<CommunityPostDislikeDto>> GetByParamAsync(string paramName, object value)
     {
-        var result = await Task.Run(() => _repository.GetByParam(paramName, value));
+        var result = await _repository.GetByParamAsync(paramName, value);
         var resultMap = _mapper.Map<IEnumerable<CommunityPostDislikeDto>>(result);
 
         return resultMap;

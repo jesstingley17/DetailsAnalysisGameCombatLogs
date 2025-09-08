@@ -7,16 +7,10 @@ using CombatAnalysis.DAL.Interfaces.Generic;
 
 namespace CombatAnalysis.BL.Services;
 
-internal class CombatAuraService : QueryService<CombatAuraDto, CombatAura>, IMutationService<CombatAuraDto>
+internal class CombatAuraService(IGenericRepository<CombatAura> repository, IMapper mapper) : QueryService<CombatAuraDto, CombatAura>(repository, mapper), IMutationService<CombatAuraDto>
 {
-    private readonly IGenericRepository<CombatAura> _repository;
-    private readonly IMapper _mapper;
-
-    public CombatAuraService(IGenericRepository<CombatAura> repository, IMapper mapper) : base(repository, mapper)
-    {
-        _repository = repository;
-        _mapper = mapper;
-    }
+    private readonly IGenericRepository<CombatAura> _repository = repository;
+    private readonly IMapper _mapper = mapper;
 
     public Task<CombatAuraDto> CreateAsync(CombatAuraDto item)
     {
@@ -28,6 +22,13 @@ internal class CombatAuraService : QueryService<CombatAuraDto, CombatAura>, IMut
         return CreateInternalAsync(item);
     }
 
+    public async Task<int> DeleteAsync(int id)
+    {
+        var affectedRows = await _repository.DeleteAsync(id);
+
+        return affectedRows;
+    }
+
     public Task<int> UpdateAsync(CombatAuraDto item)
     {
         if (item == null)
@@ -36,16 +37,6 @@ internal class CombatAuraService : QueryService<CombatAuraDto, CombatAura>, IMut
         }
 
         return UpdateInternalAsync(item);
-    }
-
-    public Task<int> DeleteAsync(CombatAuraDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(CombatAuraDto), $"The {nameof(CombatAuraDto)} can't be null");
-        }
-
-        return DeleteInternalAsync(item);
     }
 
     private async Task<CombatAuraDto> CreateInternalAsync(CombatAuraDto item)
@@ -67,16 +58,6 @@ internal class CombatAuraService : QueryService<CombatAuraDto, CombatAura>, IMut
         var rowsAffected = await _repository.UpdateAsync(map);
 
         return rowsAffected;
-    }
-
-    private async Task<int> DeleteInternalAsync(CombatAuraDto item)
-    {
-        CheckParams(item);
-
-        var map = _mapper.Map<CombatAura>(item);
-        var affectedRows = await _repository.DeleteAsync(map);
-
-        return affectedRows;
     }
 
     private void CheckParams(CombatAuraDto item)

@@ -9,18 +9,11 @@ using CombatAnalysis.DAL.Interfaces.Generic;
 
 namespace CombatAnalysis.BL.Services;
 
-internal class SpecializationScoreService : QueryService<SpecializationScoreDto, SpecializationScore>, IMutationService<SpecializationScoreDto>, ISpecScoreService
+internal class SpecializationScoreService(ISpecScore specRepository, IGenericRepository<SpecializationScore> repository, IMapper mapper) : QueryService<SpecializationScoreDto, SpecializationScore>(repository, mapper), IMutationService<SpecializationScoreDto>, ISpecScoreService
 {
-    private readonly IGenericRepository<SpecializationScore> _repository;
-    private readonly ISpecScore _specRepository;
-    private readonly IMapper _mapper;
-
-    public SpecializationScoreService(ISpecScore specRepository, IGenericRepository<SpecializationScore> repository, IMapper mapper) : base(repository, mapper)
-    {
-        _specRepository = specRepository;
-        _repository = repository;
-        _mapper = mapper;
-    }
+    private readonly IGenericRepository<SpecializationScore> _repository = repository;
+    private readonly ISpecScore _specRepository = specRepository;
+    private readonly IMapper _mapper = mapper;
 
     public Task<SpecializationScoreDto> CreateAsync(SpecializationScoreDto item)
     {
@@ -32,6 +25,13 @@ internal class SpecializationScoreService : QueryService<SpecializationScoreDto,
         return CreateInternalAsync(item);
     }
 
+    public async Task<int> DeleteAsync(int id)
+    {
+        var affectedRows = await _repository.DeleteAsync(id);
+
+        return affectedRows;
+    }
+
     public Task<int> UpdateAsync(SpecializationScoreDto item)
     {
         if (item == null)
@@ -40,16 +40,6 @@ internal class SpecializationScoreService : QueryService<SpecializationScoreDto,
         }
 
         return UpdateInternalAsync(item);
-    }
-
-    public Task<int> DeleteAsync(SpecializationScoreDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(SpecializationScoreDto), $"The {nameof(SpecializationScoreDto)} can't be null");
-        }
-
-        return DeleteInternalAsync(item);
     }
 
     public async Task<IEnumerable<SpecializationScoreDto>> GetBySpecIdAsync(int specId, int bossId, int difficult)
@@ -75,24 +65,5 @@ internal class SpecializationScoreService : QueryService<SpecializationScoreDto,
         var rowsAffected = await _repository.UpdateAsync(map);
 
         return rowsAffected;
-    }
-
-    private async Task<int> DeleteInternalAsync(SpecializationScoreDto item)
-    {
-        CheckParams(item);
-
-        var map = _mapper.Map<SpecializationScore>(item);
-        var affectedRows = await _repository.DeleteAsync(map);
-
-        return affectedRows;
-    }
-
-    private void CheckParams(SpecializationScoreDto item)
-    {
-        if (item.Difficult < 0)
-        {
-            throw new ArgumentNullException(nameof(SpecializationScoreDto.Difficult),
-                $"The property {nameof(SpecializationScoreDto.Difficult)} of the {nameof(SpecializationScoreDto)} should be positive");
-        }
     }
 }

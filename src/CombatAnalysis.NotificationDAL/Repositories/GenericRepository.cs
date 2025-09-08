@@ -21,7 +21,7 @@ internal class GenericRepository<TModel, TIdType>(NotificationContext context) :
     public async Task<int> DeleteAsync(TIdType id)
     {
         var model = Activator.CreateInstance<TModel>();
-        model.GetType().GetProperty("Id").SetValue(model, id);
+        model.GetType().GetProperty("Id")?.SetValue(model, id);
 
         _context.Set<TModel>().Remove(model);
         var rowsAffected = await _context.SaveChangesAsync();
@@ -29,9 +29,13 @@ internal class GenericRepository<TModel, TIdType>(NotificationContext context) :
         return rowsAffected;
     }
 
-    public async Task<IEnumerable<TModel>> GetAllAsync() => await _context.Set<TModel>().AsNoTracking().ToListAsync();
+    public async Task<IEnumerable<TModel>> GetAllAsync()
+    {
+        var collection = await _context.Set<TModel>().AsNoTracking().ToListAsync();
+        return collection.Count != 0 ? collection : [];
+    }
 
-    public async Task<TModel> GetByIdAsync(TIdType id)
+    public async Task<TModel?> GetByIdAsync(TIdType id)
     {
         var entity = await _context.Set<TModel>().FindAsync(id);
         if (entity != null)
@@ -45,9 +49,9 @@ internal class GenericRepository<TModel, TIdType>(NotificationContext context) :
     public IEnumerable<TModel> GetByParam(string paramName, object value)
     {
         var collection = _context.Set<TModel>().AsNoTracking().AsEnumerable();
-        var data = collection.Where(x => x.GetType().GetProperty(paramName).GetValue(x).Equals(value));
+        var data = collection.Where(x => x.GetType().GetProperty(paramName)?.GetValue(x) == value);
 
-        return data;
+        return data.Any() ? data : [];
     }
 
     public async Task<int> UpdateAsync(TModel item)

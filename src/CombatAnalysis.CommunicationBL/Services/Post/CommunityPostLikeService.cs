@@ -52,7 +52,7 @@ internal class CommunityPostLikeService : IService<CommunityPostLikeDto, int>
 
     public async Task<IEnumerable<CommunityPostLikeDto>> GetByParamAsync(string paramName, object value)
     {
-        var result = await Task.Run(() => _repository.GetByParam(paramName, value));
+        var result = await _repository.GetByParamAsync(paramName, value);
         var resultMap = _mapper.Map<IEnumerable<CommunityPostLikeDto>>(result);
 
         return resultMap;

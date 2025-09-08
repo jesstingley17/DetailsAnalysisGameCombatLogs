@@ -10,7 +10,7 @@ internal class SQLFriendRepository(UserSQLContext context) : IFriendRepository
 {
     private readonly UserSQLContext _context = context;
 
-    public async Task<FriendDto> CreateAsync(Friend friend)
+    public async Task<FriendDto?> CreateAsync(Friend friend)
     {
         var entityEntry = await _context.Set<Friend>().AddAsync(friend);
         await _context.SaveChangesAsync();
@@ -46,7 +46,7 @@ internal class SQLFriendRepository(UserSQLContext context) : IFriendRepository
     public async Task<int> DeleteAsync(int id)
     {
         var model = Activator.CreateInstance<Friend>();
-        model.GetType().GetProperty("Id").SetValue(model, id);
+        model.GetType().GetProperty(nameof(Friend.Id))?.SetValue(model, id);
 
         _context.Set<Friend>().Remove(model);
         var rowsAffected = await _context.SaveChangesAsync();
@@ -81,10 +81,10 @@ internal class SQLFriendRepository(UserSQLContext context) : IFriendRepository
                           .Select(x => new FriendDto { Id = x.Id, WhoFriendId = x.WhoFriendId, WhoFriendUsername = x.WhoFriendUsername, ForWhomId = x.ForWhomId, ForWhomUsername = x.ForWhomUsername })
                           .ToListAsync();
 
-        return friends;
+        return friends.Count != 0 ? friends : [];
     }
 
-    public async Task<FriendDto> GetByIdAsync(int id)
+    public async Task<FriendDto?> GetByIdAsync(int id)
     {
         var entity = await _context.Set<Friend>()
                          .Join(_context.Set<AppUser>(),
@@ -146,7 +146,7 @@ internal class SQLFriendRepository(UserSQLContext context) : IFriendRepository
                           .Select(x => new FriendDto { Id = x.Id, WhoFriendId = x.WhoFriendId, WhoFriendUsername = x.WhoFriendUsername, ForWhomId = x.ForWhomId, ForWhomUsername = x.ForWhomUsername })
                           .AsEnumerable();
 
-        var data = friends.Where(x => x.GetType().GetProperty(paramName).GetValue(x).Equals(value));
+        var data = friends.Where(x => x.GetType().GetProperty(paramName)?.GetValue(x) == value);
 
         return data;
     }

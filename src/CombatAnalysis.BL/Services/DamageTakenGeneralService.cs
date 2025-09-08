@@ -7,16 +7,10 @@ using CombatAnalysis.DAL.Interfaces.Generic;
 
 namespace CombatAnalysis.BL.Services;
 
-internal class DamageTakenGeneralService : QueryService<DamageTakenGeneralDto, DamageTakenGeneral>, IMutationService<DamageTakenGeneralDto>
+internal class DamageTakenGeneralService(IGenericRepository<DamageTakenGeneral> repository, IMapper mapper) : QueryService<DamageTakenGeneralDto, DamageTakenGeneral>(repository, mapper), IMutationService<DamageTakenGeneralDto>
 {
-    private readonly IGenericRepository<DamageTakenGeneral> _repository;
-    private readonly IMapper _mapper;
-
-    public DamageTakenGeneralService(IGenericRepository<DamageTakenGeneral> repository, IMapper mapper) : base(repository, mapper)
-    {
-        _repository = repository;
-        _mapper = mapper;
-    }
+    private readonly IGenericRepository<DamageTakenGeneral> _repository = repository;
+    private readonly IMapper _mapper = mapper;
 
     public Task<DamageTakenGeneralDto> CreateAsync(DamageTakenGeneralDto item)
     {
@@ -28,6 +22,13 @@ internal class DamageTakenGeneralService : QueryService<DamageTakenGeneralDto, D
         return CreateInternalAsync(item);
     }
 
+    public async Task<int> DeleteAsync(int id)
+    {
+        var affectedRows = await _repository.DeleteAsync(id);
+
+        return affectedRows;
+    }
+
     public Task<int> UpdateAsync(DamageTakenGeneralDto item)
     {
         if (item == null)
@@ -36,16 +37,6 @@ internal class DamageTakenGeneralService : QueryService<DamageTakenGeneralDto, D
         }
 
         return UpdateInternalAsync(item);
-    }
-
-    public Task<int> DeleteAsync(DamageTakenGeneralDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(DamageTakenGeneralDto), $"The {nameof(DamageTakenGeneralDto)} can't be null");
-        }
-
-        return DeleteInternalAsync(item);
     }
 
     private async Task<DamageTakenGeneralDto> CreateInternalAsync(DamageTakenGeneralDto item)
@@ -67,16 +58,6 @@ internal class DamageTakenGeneralService : QueryService<DamageTakenGeneralDto, D
         var rowsAffected = await _repository.UpdateAsync(map);
 
         return rowsAffected;
-    }
-
-    private async Task<int> DeleteInternalAsync(DamageTakenGeneralDto item)
-    {
-        CheckParams(item);
-
-        var map = _mapper.Map<DamageTakenGeneral>(item);
-        var affectedRows = await _repository.DeleteAsync(map);
-
-        return affectedRows;
     }
 
     private void CheckParams(DamageTakenGeneralDto item)

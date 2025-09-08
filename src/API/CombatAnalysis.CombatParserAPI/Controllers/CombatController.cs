@@ -10,34 +10,21 @@ namespace CombatAnalysis.CombatParserAPI.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-public class CombatController : ControllerBase
+public class CombatController(IQueryService<CombatDto> queryCombatService, IMutationService<CombatDto> mutationCombatService,
+    IQueryService<CombatLogDto> queryCombatLogService, IMutationService<CombatLogDto> mutationCombatLogService,
+    IMutationService<CombatPlayerDto> mutationCombatPlayerService, IMapper mapper,
+    ILogger<CombatController> logger, ICombatDataHelper saveCombatDataHelper,
+    ICombatTransactionService combatTransactionService) : ControllerBase
 {
-    private readonly IQueryService<CombatDto> _queryCombatService;
-    private readonly IMutationService<CombatDto> _mutationCombatService;
-    private readonly IQueryService<CombatLogDto> _queryCombatLogService;
-    private readonly IMutationService<CombatLogDto> _mutationCombatLogService;
-    private readonly IMutationService<CombatPlayerDto> _mutationCombatPlayerService;
-    private readonly IMapper _mapper;
-    private readonly ILogger<CombatController> _logger;
-    private readonly ICombatDataHelper _saveCombatDataHelper;
-    private readonly ICombatTransactionService _combatTransactionService;
-
-    public CombatController(IQueryService<CombatDto> queryCombatService, IMutationService<CombatDto> mutationCombatService,
-        IQueryService<CombatLogDto> queryCombatLogService, IMutationService<CombatLogDto> mutationCombatLogService, 
-        IMutationService<CombatPlayerDto> mutationCombatPlayerService, IMapper mapper, 
-        ILogger<CombatController> logger, ICombatDataHelper saveCombatDataHelper,
-        ICombatTransactionService combatTransactionService)
-    {
-        _queryCombatService = queryCombatService;
-        _mutationCombatService = mutationCombatService;
-        _queryCombatLogService = queryCombatLogService;
-        _mutationCombatLogService = mutationCombatLogService;
-        _mutationCombatPlayerService = mutationCombatPlayerService;
-        _mapper = mapper;
-        _logger = logger;
-        _saveCombatDataHelper = saveCombatDataHelper;
-        _combatTransactionService = combatTransactionService;
-    }
+    private readonly IQueryService<CombatDto> _queryCombatService = queryCombatService;
+    private readonly IMutationService<CombatDto> _mutationCombatService = mutationCombatService;
+    private readonly IQueryService<CombatLogDto> _queryCombatLogService = queryCombatLogService;
+    private readonly IMutationService<CombatLogDto> _mutationCombatLogService = mutationCombatLogService;
+    private readonly IMutationService<CombatPlayerDto> _mutationCombatPlayerService = mutationCombatPlayerService;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<CombatController> _logger = logger;
+    private readonly ICombatDataHelper _saveCombatDataHelper = saveCombatDataHelper;
+    private readonly ICombatTransactionService _combatTransactionService = combatTransactionService;
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
@@ -177,10 +164,7 @@ public class CombatController : ControllerBase
     {
         try
         {
-            var item = await GetById(id);
-            var map = _mapper.Map<CombatDto>(item);
-
-            var deletedId = await _mutationCombatService.DeleteAsync(map);
+            var deletedId = await _mutationCombatService.DeleteAsync(id);
 
             return Ok(deletedId);
         }

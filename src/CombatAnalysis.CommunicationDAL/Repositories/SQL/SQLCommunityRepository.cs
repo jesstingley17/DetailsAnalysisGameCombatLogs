@@ -5,14 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.CommunicationDAL.Repositories.SQL;
 
-internal class SQLCommunityRepository : SQLRepository<Community, int>, ICommunityRepository
+internal class SQLCommunityRepository(CommunicationSQLContext context) : SQLRepository<Community, int>(context), ICommunityRepository
 {
-    private readonly CommunicationSQLContext _context;
-
-    public SQLCommunityRepository(CommunicationSQLContext context) : base(context)
-    {
-        _context = context;
-    }
+    private readonly CommunicationSQLContext _context = context;
 
     public async Task<IEnumerable<Community>> GetAllWithPaginationAsync(int pageSize)
     {
@@ -21,7 +16,7 @@ internal class SQLCommunityRepository : SQLRepository<Community, int>, ICommunit
             .Take(pageSize)
             .ToListAsync();
 
-        return result;
+        return result.Count == 0 ? result : [];
     }
 
     public async Task<IEnumerable<Community>> GetMoreWithPaginationAsync(int offset, int pageSize)
@@ -32,7 +27,7 @@ internal class SQLCommunityRepository : SQLRepository<Community, int>, ICommunit
             .Take(pageSize)
             .ToListAsync();
 
-        return result;
+        return result.Count == 0 ? result : [];
     }
 
     public async Task<int> CountAsync()

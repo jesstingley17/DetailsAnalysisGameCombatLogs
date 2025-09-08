@@ -7,16 +7,10 @@ using CombatAnalysis.DAL.Interfaces.Generic;
 
 namespace CombatAnalysis.BL.Services;
 
-internal class CombatPlayerPositionService : QueryService<CombatPlayerPositionDto, CombatPlayerPosition>, IMutationService<CombatPlayerPositionDto>
+internal class CombatPlayerPositionService(IGenericRepository<CombatPlayerPosition> repository, IMapper mapper) : QueryService<CombatPlayerPositionDto, CombatPlayerPosition>(repository, mapper), IMutationService<CombatPlayerPositionDto>
 {
-    private readonly IGenericRepository<CombatPlayerPosition> _repository;
-    private readonly IMapper _mapper;
-
-    public CombatPlayerPositionService(IGenericRepository<CombatPlayerPosition> repository, IMapper mapper) : base(repository, mapper)
-    {
-        _repository = repository;
-        _mapper = mapper;
-    }
+    private readonly IGenericRepository<CombatPlayerPosition> _repository = repository;
+    private readonly IMapper _mapper = mapper;
 
     public Task<CombatPlayerPositionDto> CreateAsync(CombatPlayerPositionDto item)
     {
@@ -28,6 +22,13 @@ internal class CombatPlayerPositionService : QueryService<CombatPlayerPositionDt
         return CreateInternalAsync(item);
     }
 
+    public async Task<int> DeleteAsync(int id)
+    {
+        var affectedRows = await _repository.DeleteAsync(id);
+
+        return affectedRows;
+    }
+
     public Task<int> UpdateAsync(CombatPlayerPositionDto item)
     {
         if (item == null)
@@ -36,16 +37,6 @@ internal class CombatPlayerPositionService : QueryService<CombatPlayerPositionDt
         }
 
         return UpdateInternalAsync(item);
-    }
-
-    public Task<int> DeleteAsync(CombatPlayerPositionDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(CombatPlayerPositionDto), $"The {nameof(CombatPlayerPositionDto)} can't be null");
-        }
-
-        return DeleteInternalAsync(item);
     }
 
     private async Task<CombatPlayerPositionDto> CreateInternalAsync(CombatPlayerPositionDto item)
@@ -63,13 +54,5 @@ internal class CombatPlayerPositionService : QueryService<CombatPlayerPositionDt
         var rowsAffected = await _repository.UpdateAsync(map);
 
         return rowsAffected;
-    }
-
-    private async Task<int> DeleteInternalAsync(CombatPlayerPositionDto item)
-    {
-        var map = _mapper.Map<CombatPlayerPosition>(item);
-        var affectedRows = await _repository.DeleteAsync(map);
-
-        return affectedRows;
     }
 }

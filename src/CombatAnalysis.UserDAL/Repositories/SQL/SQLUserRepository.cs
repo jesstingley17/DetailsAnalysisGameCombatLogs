@@ -5,14 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.UserDAL.Repositories.SQL;
 
-internal class SQLUserRepository : IUserRepository
+internal class SQLUserRepository(UserSQLContext context) : IUserRepository
 {
-    private readonly UserSQLContext _context;
-
-    public SQLUserRepository(UserSQLContext context)
-    {
-        _context = context;
-    }
+    private readonly UserSQLContext _context = context;
 
     public async Task<AppUser> CreateAsync(AppUser item)
     {
@@ -30,9 +25,13 @@ internal class SQLUserRepository : IUserRepository
         return rowsAffected;
     }
 
-    public async Task<IEnumerable<AppUser>> GetAllAsync() => await _context.Set<AppUser>().AsNoTracking().ToListAsync();
+    public async Task<IEnumerable<AppUser>> GetAllAsync()
+    {
+        var collection = await _context.Set<AppUser>().AsNoTracking().ToListAsync();
+        return collection.Count != 0 ? collection : [];
+    }
 
-    public async Task<AppUser> GetByIdAsync(string id)
+    public async Task<AppUser?> GetByIdAsync(string id)
     {
         var entity = await _context.Set<AppUser>().FindAsync(id);
 
@@ -44,7 +43,7 @@ internal class SQLUserRepository : IUserRepository
         return entity;
     }
 
-    public async Task<AppUser> GetAsync(string identityUserId)
+    public async Task<AppUser?> GetAsync(string identityUserId)
     {
         var entity = await _context.Set<AppUser>().FirstOrDefaultAsync(x => x.IdentityUserId == identityUserId);
 

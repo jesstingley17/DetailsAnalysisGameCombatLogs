@@ -10,9 +10,9 @@ public interface IUserRepository
 
     Task<int> DeleteAsync(AppUser item);
 
-    Task<AppUser> GetByIdAsync(string id);
+    Task<AppUser?> GetByIdAsync(string id);
 
-    Task<AppUser> GetAsync(string identityUserId);
+    Task<AppUser?> GetAsync(string identityUserId);
 
     Task<IEnumerable<AppUser>> GetAllAsync();
 }

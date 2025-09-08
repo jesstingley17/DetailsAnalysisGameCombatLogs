@@ -7,16 +7,10 @@ using CombatAnalysis.DAL.Interfaces.Generic;
 
 namespace CombatAnalysis.BL.Services;
 
-internal class ResourceRecoveryGeneralService : QueryService<ResourceRecoveryGeneralDto, ResourceRecoveryGeneral>, IMutationService<ResourceRecoveryGeneralDto>
+internal class ResourceRecoveryGeneralService(IGenericRepository<ResourceRecoveryGeneral> repository, IMapper mapper) : QueryService<ResourceRecoveryGeneralDto, ResourceRecoveryGeneral>(repository, mapper), IMutationService<ResourceRecoveryGeneralDto>
 {
-    private readonly IGenericRepository<ResourceRecoveryGeneral> _repository;
-    private readonly IMapper _mapper;
-
-    public ResourceRecoveryGeneralService(IGenericRepository<ResourceRecoveryGeneral> repository, IMapper mapper) : base(repository, mapper)
-    {
-        _repository = repository;
-        _mapper = mapper;
-    }
+    private readonly IGenericRepository<ResourceRecoveryGeneral> _repository = repository;
+    private readonly IMapper _mapper = mapper;
 
     public Task<ResourceRecoveryGeneralDto> CreateAsync(ResourceRecoveryGeneralDto item)
     {
@@ -28,6 +22,13 @@ internal class ResourceRecoveryGeneralService : QueryService<ResourceRecoveryGen
         return CreateInternalAsync(item);
     }
 
+    public async Task<int> DeleteAsync(int id)
+    {
+        var affectedRows = await _repository.DeleteAsync(id);
+
+        return affectedRows;
+    }
+
     public Task<int> UpdateAsync(ResourceRecoveryGeneralDto item)
     {
         if (item == null)
@@ -36,16 +37,6 @@ internal class ResourceRecoveryGeneralService : QueryService<ResourceRecoveryGen
         }
 
         return UpdateInternalAsync(item);
-    }
-
-    public Task<int> DeleteAsync(ResourceRecoveryGeneralDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(ResourceRecoveryGeneralDto), $"The {nameof(ResourceRecoveryGeneralDto)} can't be null");
-        }
-
-        return DeleteInternalAsync(item);
     }
 
     private async Task<ResourceRecoveryGeneralDto> CreateInternalAsync(ResourceRecoveryGeneralDto item)
@@ -75,16 +66,6 @@ internal class ResourceRecoveryGeneralService : QueryService<ResourceRecoveryGen
         var rowsAffected = await _repository.UpdateAsync(map);
 
         return rowsAffected;
-    }
-
-    private async Task<int> DeleteInternalAsync(ResourceRecoveryGeneralDto item)
-    {
-        CheckParams(item);
-
-        var map = _mapper.Map<ResourceRecoveryGeneral>(item);
-        var affectedRows = await _repository.DeleteAsync(map);
-
-        return affectedRows;
     }
 
     private void CheckParams(ResourceRecoveryGeneralDto item)
