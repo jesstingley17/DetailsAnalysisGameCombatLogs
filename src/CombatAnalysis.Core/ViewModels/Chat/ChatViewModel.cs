@@ -3,8 +3,8 @@ using CombatAnalysis.Core.Enums;
 using CombatAnalysis.Core.Exceptions;
 using CombatAnalysis.Core.Interfaces;
 using CombatAnalysis.Core.Interfaces.Services;
+using CombatAnalysis.Core.Models.Chat;
 using CombatAnalysis.Core.Models.User;
-using CombatAnalysis.Core.Services.Chat;
 using CombatAnalysis.Core.ViewModels.Base;
 using CombatAnalysis.Core.ViewModels.ViewModelTemplates;
 using Microsoft.Extensions.Caching.Memory;
@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using MvvmCross;
 using MvvmCross.Commands;
 using MvvmCross.ViewModels;
+using System.Collections.ObjectModel;
 
 namespace CombatAnalysis.Core.ViewModels.Chat;
 
@@ -28,8 +29,8 @@ public class ChatViewModel : ParentTemplate
     private bool _isChatSelected;
     private IImprovedMvxViewModel? _personalChatMessagesTemplate;
     private IImprovedMvxViewModel? _groupChatMessagesTemplate;
-    private MvxObservableCollection<GroupChatViewModel>? _myGroupChats;
-    private MvxObservableCollection<PersonalChatViewModel>? _personalChats;
+    private MvxObservableCollection<GroupChatViewModel> _myGroupChats = [];
+    private ObservableCollection<PersonalChatViewModel> _personalChats = [];
     private MvxObservableCollection<AppUserModel>? _users;
     private List<AppUserModel>? _allUsers;
     private string? _inputedUsername;
@@ -113,7 +114,7 @@ public class ChatViewModel : ParentTemplate
         }
     }
 
-    public MvxObservableCollection<GroupChatViewModel>? MyGroupChats
+    public MvxObservableCollection<GroupChatViewModel> MyGroupChats
     {
         get { return _myGroupChats; }
         set
@@ -122,7 +123,7 @@ public class ChatViewModel : ParentTemplate
         }
     }
 
-    public MvxObservableCollection<PersonalChatViewModel>? MyPersonalChats
+    public ObservableCollection<PersonalChatViewModel> MyPersonalChats
     {
         get { return _personalChats; }
         set
@@ -225,7 +226,6 @@ public class ChatViewModel : ParentTemplate
         {
             SetProperty(ref _groupChatLoadingResponse, value);
 
-            RaisePropertyChanged(() => IsShowEmptyMyGroupChat);
             RaisePropertyChanged(() => IsLoadMyGroupChatList);
         }
     }
@@ -237,17 +237,7 @@ public class ChatViewModel : ParentTemplate
         {
             SetProperty(ref _personalChatLoadingResponse, value);
 
-            RaisePropertyChanged(() => IsShowEmptyPersonalChat);
             RaisePropertyChanged(() => IsLoadPersonalChatList);
-        }
-    }
-
-    public bool IsShowEmptyMyGroupChat
-    {
-        get
-        {
-            return (int)GroupChatLoadingResponse > 0 && (int)GroupChatLoadingResponse < 3
-                        && MyGroupChats?.Count == 0;
         }
     }
 
@@ -257,15 +247,6 @@ public class ChatViewModel : ParentTemplate
         {
             return (int)GroupChatLoadingResponse > 0 && (int)GroupChatLoadingResponse < 3
                         && MyGroupChats?.Count > 0;
-        }
-    }
-
-    public bool IsShowEmptyPersonalChat
-    {
-        get
-        {
-            return (int)PersonalChatLoadingResponse > 0 && (int)PersonalChatLoadingResponse < 3
-                        && MyPersonalChats?.Count == 0;
         }
     }
 
@@ -300,7 +281,11 @@ public class ChatViewModel : ParentTemplate
 
             var groupChats = await _groupChatService.LoadChatsAsync(groupChatUsers);
 
-            MyGroupChats = [];
+            await InvokeOnMainThreadAsync(() =>
+            {
+                MyGroupChats.Clear();
+            });
+
             foreach (var groupChat in groupChats)
             {
                 await InvokeOnMainThreadAsync(() =>
@@ -345,7 +330,11 @@ public class ChatViewModel : ParentTemplate
                 await SubscribeToPersonalChatUnreadMessagesAsync(chat.Id);
             }
 
-            MyPersonalChats = [];
+            await InvokeOnMainThreadAsync(() =>
+            {
+                MyPersonalChats.Clear();
+            });
+
             foreach (var personalChat in personalChats)
             {
                 await InvokeOnMainThreadAsync(() =>
@@ -355,17 +344,6 @@ public class ChatViewModel : ParentTemplate
             }
 
             await LoadUsersAsync();
-
-
-            await _personalChatHubConnection.JoinChatRoomAsync(MyAccount.Id);
-            _personalChatHubConnection.SubscribeToChat(async (personalChat) =>
-            {
-                await _personalChatService.UpdatePersonalChatAsync(personalChat, MyAccount.Id);
-                await InvokeOnMainThreadAsync(() =>
-                {
-                    MyPersonalChats.Add(new PersonalChatViewModel(personalChat));
-                });
-            });
 
             PersonalChatLoadingResponse = LoadingStatus.Successful;
         }
@@ -556,8 +534,28 @@ public class ChatViewModel : ParentTemplate
             ArgumentNullException.ThrowIfNull(MyAccount, nameof(MyAccount));
 
             await _personalChatHubConnection.ConnectToChatHubAsync($"{Hubs.Server}{Hubs.PersonalChatAddress}");
-            await _personalChatHubConnection.ConnectToUnreadMessagesHubAsync($"{Hubs.Server}{Hubs.PersonalChatUnreadMessageAddress}");
+            await _personalChatHubConnection.JoinChatRoomAsync(MyAccount.Id);
+            await _groupChatHubConnection.ConnectToUnreadMessagesHubAsync($"{Hubs.Server}{Hubs.PersonalChatUnreadMessageAddress}");
+            _personalChatHubConnection.SubscribeToChat<PersonalChatModel>("ReceivePersonalChat", async (chat) =>
+            {
+                await _personalChatService.UpdatePersonalChatAsync(chat, MyAccount.Id);
+                await InvokeOnMainThreadAsync(() =>
+                {
+                    MyPersonalChats.Add(new PersonalChatViewModel(chat));
+                });
+            });
+
+            await _groupChatHubConnection.ConnectToChatHubAsync($"{Hubs.Server}{Hubs.GroupChatAddress}");
+            await _groupChatHubConnection.JoinChatRoomAsync(MyAccount.Id);
             await _groupChatHubConnection.ConnectToUnreadMessagesHubAsync($"{Hubs.Server}{Hubs.GroupChatUnreadMessageAddress}");
+            _groupChatHubConnection.SubscribeToChat<GroupChatUserModel>("ReceiveJoinedUser", async (user) =>
+            {
+                var groupChat = await _groupChatService.LoadChatAsync(user);
+                await InvokeOnMainThreadAsync(() =>
+                {
+                    MyGroupChats.Add(new GroupChatViewModel(groupChat));
+                });
+            });
         }
         catch (ArgumentNullException ex)
         {

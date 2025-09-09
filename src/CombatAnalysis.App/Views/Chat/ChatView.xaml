@@ -73,12 +73,35 @@
                     <TextBlock Text="{loc:Loc LoadingFailed}" Foreground="Red" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="12" Margin="5"
                                Visibility="{Binding GroupChatLoadingResponse, Converter={StaticResource IntToVisibility}, ConverterParameter='true:3:='}"/>
                     <StackPanel Visibility="{Binding GroupChatLoadingResponse, Converter={StaticResource IntToVisibility}, ConverterParameter='true:1:>'}">
-                        <TextBlock Text="{loc:Loc NoGroupChats}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="12" Foreground="White" Margin="5"
-                               Visibility="{Binding IsShowEmptyMyGroupChat, Converter={StaticResource BoolToVisibility}, ConverterParameter='true:false'}"/>
-                        <ListBox Grid.Row="1" Margin="10 10 10 30" Height="300" 
-                                     HorizontalContentAlignment="Stretch" ItemsSource="{Binding MyGroupChats}" 
-                                    SelectedItem="{Binding SelectedMyGroupChat}" Background="Transparent"
-                                    Visibility="{Binding IsLoadMyGroupChatList, Converter={StaticResource BoolToVisibility}, ConverterParameter='true:false'}">
+                        <TextBlock Text="{loc:Loc NoGroupChats}" VerticalAlignment="Center" HorizontalAlignment="Center" 
+                                   FontSize="12" Foreground="White" Margin="5">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding MyGroupChats.Count}" Value="0">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+
+                        <ListBox HorizontalContentAlignment="Stretch" Margin="10 10 10 30" MaxHeight="300" 
+                                 ItemsSource="{Binding MyGroupChats}" SelectedItem="{Binding SelectedMyGroupChat}" Background="Transparent">
+                            <ListBox.Style>
+                                <Style TargetType="ListBox">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding MyGroupChats.Count}" Value="0">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding MyGroupChats.Count}" Value="1">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ListBox.Style>
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <uc:Item Title="{Binding Path=Name}" Color="White" TagName="{Binding Path=Name}" MessageCount="{Binding Path=UnreadMessages}" />
@@ -101,15 +124,35 @@
                     <TextBlock Text="{loc:Loc LoadingFailed}" Foreground="Red" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="12" Margin="5"
                                Visibility="{Binding PersonalChatLoadingResponse, Converter={StaticResource IntToVisibility}, ConverterParameter='true:3:='}"/>
                     <StackPanel Visibility="{Binding PersonalChatLoadingResponse, Converter={StaticResource IntToVisibility}, ConverterParameter='true:1:>'}">
-                        <TextBlock Text="{loc:Loc NoPersonalMessages}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="12" Foreground="White" Margin="5"
-                               Visibility="{Binding IsShowEmptyPersonalChat, Converter={StaticResource BoolToVisibility}, ConverterParameter='true:false'}"/>
+                        <TextBlock Text="{loc:Loc NoPersonalMessages}" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                   FontSize="12" Foreground="White" Margin="5">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding MyPersonalChats.Count}" Value="0">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
 
-                        <TextBlock Name="myAccountId" Text="{Binding MyAccount.Id}" Visibility="Collapsed"/>
-                        
-                        <ListBox HorizontalContentAlignment="Stretch" Grid.Row="1" Margin="10 10 10 30"
-                             ItemsSource="{Binding MyPersonalChats}" Background="Transparent"
-                             SelectedItem="{Binding SelectedPersonalChat}"
-                             Visibility="{Binding IsLoadPersonalChatList, Converter={StaticResource BoolToVisibility}, ConverterParameter='true:false'}">
+                        <ListBox HorizontalContentAlignment="Stretch" Margin="10 10 10 30" MaxHeight="300"
+                             ItemsSource="{Binding MyPersonalChats}" Background="Transparent" SelectedItem="{Binding SelectedPersonalChat}">
+                            <ListBox.Style>
+                                <Style TargetType="ListBox">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding MyPersonalChats.Count}" Value="0">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding MyPersonalChats.Count}" Value="1">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ListBox.Style>
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel>

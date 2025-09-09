@@ -5,13 +5,12 @@ using CombatAnalysis.Core.Interfaces;
 using CombatAnalysis.Core.Interfaces.Services;
 using CombatAnalysis.Core.Models.Chat;
 using CombatAnalysis.Core.Models.User;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using System.Net.Http.Json;
 
 namespace CombatAnalysis.Core.Services.Chat;
 
-internal class PersonalChatService(IMemoryCache memoryCache, IHttpClientHelper httpClientHelper, ILogger<PersonalChatService> logger) : IPersonalChatService
+internal class PersonalChatService(IHttpClientHelper httpClientHelper, ILogger<PersonalChatService> logger) : IPersonalChatService
 {
     private readonly IHttpClientHelper _httpClientHelper = httpClientHelper;
     private readonly ILogger<PersonalChatService> _logger = logger;

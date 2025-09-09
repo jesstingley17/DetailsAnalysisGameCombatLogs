@@ -84,6 +84,26 @@ internal class GroupChatService(IHttpClientHelper httpClientHelper, ILogger<Grou
         }
     }
 
+    public async Task<GroupChatModel> LoadChatAsync(GroupChatUserModel groupChatUser)
+    {
+        try
+        {
+            var response = await _httpClientHelper.GetAsync($"GroupChat/{groupChatUser.ChatId}", API.ChatApi, true);
+            response.EnsureSuccessStatusCode();
+
+            var groupChat = await response.Content.ReadFromJsonAsync<GroupChatModel>();
+            ArgumentNullException.ThrowIfNull(groupChat, nameof(groupChat));
+
+            return groupChat;
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Error while loading group chat");
+
+            throw new ChatServiceException("Failed to load group chat", ex);
+        }
+    }
+
     public async Task<IEnumerable<GroupChatMessageModel>> LoadMessagesAsync(int chatId, string groupChatUserId)
     {
         try

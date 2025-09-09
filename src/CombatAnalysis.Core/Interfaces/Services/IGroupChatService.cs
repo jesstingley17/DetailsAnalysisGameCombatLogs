@@ -11,6 +11,8 @@ public interface IGroupChatService
 
     Task<IEnumerable<GroupChatModel>> LoadChatsAsync(IEnumerable<GroupChatUserModel> groupChatUsers);
 
+    Task<GroupChatModel> LoadChatAsync(GroupChatUserModel groupChatUser);
+
     Task<IEnumerable<GroupChatMessageModel>> LoadMessagesAsync(int chatId, string groupChatUserId);
 
     Task<IEnumerable<UnreadGroupChatMessageModel>> LoadUnreadMessagesAsync(int messageId);

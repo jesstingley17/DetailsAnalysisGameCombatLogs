@@ -15,7 +15,7 @@ namespace CombatAnalysis.ChatApi.Kafka;
 public class GroupChatConsumer(IOptions<KafkaSettings> kafkaSettings, IOptions<Hubs> hubs, 
     ILogger<GroupChatConsumer> logger, IServiceScopeFactory serviceScopeFactory, IMapper mapper) : KafkaConsumerBase(kafkaSettings, KafkaTopics.GroupChat, logger)
 {
-    private readonly IOptions<Hubs> _hubs = hubs;
+    private readonly Hubs _hubs = hubs.Value;
     private readonly ILogger<GroupChatConsumer> _logger = logger;
     private readonly IServiceScopeFactory _serviceScopeFactory = serviceScopeFactory;
     private readonly IMapper _mapper = mapper;
@@ -110,7 +110,7 @@ public class GroupChatConsumer(IOptions<KafkaSettings> kafkaSettings, IOptions<H
         var chatHubHelper = scope.ServiceProvider.GetService<IChatHubHelper>();
         ArgumentNullException.ThrowIfNull(chatHubHelper, nameof(chatHubHelper));
 
-        await chatHubHelper.ConnectToHubAsync($"{_hubs.Value.Server}{_hubs.Value.GroupChatAddress}", chatAction.RefreshToken, chatAction.AccessToken);
+        await chatHubHelper.ConnectToHubAsync($"{_hubs.Server}{_hubs.GroupChatAddress}", chatAction.RefreshToken, chatAction.AccessToken);
         await chatHubHelper.JoinRoomAsync(chatId);
         await chatHubHelper.RequestsChats(chatId, chatAction.User.AppUserId);
     }

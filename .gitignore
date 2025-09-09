@@ -45,6 +45,9 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
+# Razer libs
+**/wwwroot/lib/
+
 # Ignore keys
 keys
 

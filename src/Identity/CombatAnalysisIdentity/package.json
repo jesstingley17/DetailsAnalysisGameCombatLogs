@@ -11,6 +11,13 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "eslint": "^9.35.0",
     "sass": "^1.77.6"
+  },
+  "dependencies": {
+    "bootstrap": "^5.3.8",
+    "jquery": "^3.7.1",
+    "jquery-validation": "^1.21.0",
+    "jquery-validation-unobtrusive": "^4.0.0"
   }
 }

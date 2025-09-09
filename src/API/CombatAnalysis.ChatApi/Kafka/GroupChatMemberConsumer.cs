@@ -12,9 +12,10 @@ using System.Text.Json;
 
 namespace CombatAnalysis.ChatApi.Kafka;
 
-public class GroupChatMemberConsumer(IOptions<KafkaSettings> kafkaSettings, ILogger<GroupChatMemberConsumer> logger, IServiceScopeFactory serviceScopeFactory,
+public class GroupChatMemberConsumer(IOptions<KafkaSettings> kafkaSettings, IOptions<Hubs> hubs, ILogger<GroupChatMemberConsumer> logger, IServiceScopeFactory serviceScopeFactory,
     IMapper mapper, IKafkaProducerService<string, string> kafkaProducer) : KafkaConsumerBase(kafkaSettings, KafkaTopics.GroupChatMember, logger)
 {
+    private readonly Hubs _hubs = hubs.Value;
     private readonly ILogger<GroupChatMemberConsumer> _logger = logger;
     private readonly IServiceScopeFactory _serviceScopeFactory = serviceScopeFactory;
     private readonly IMapper _mapper = mapper;
@@ -52,6 +53,7 @@ public class GroupChatMemberConsumer(IOptions<KafkaSettings> kafkaSettings, ILog
                 case (int)ChatMembersActionState.AddUser:
                     var chatUser = await CreateGroupChatUser(chatUserService, action.User);
 
+                    await SendSignalRequestChatsAsync(scope, action);
                     await CreateSystemMessageAsync( $"Add user '{action.User.Username}' to chat", action);
 
                     break;
@@ -82,6 +84,16 @@ public class GroupChatMemberConsumer(IOptions<KafkaSettings> kafkaSettings, ILog
         ArgumentNullException.ThrowIfNull(createdGroupChatUser, nameof(createdGroupChatUser));
 
         return chatUser;
+    }
+
+    private async Task SendSignalRequestChatsAsync(IServiceScope scope, GroupChatMemberAction chatAction)
+    {
+        var chatHubHelper = scope.ServiceProvider.GetService<IChatHubHelper>();
+        ArgumentNullException.ThrowIfNull(chatHubHelper, nameof(chatHubHelper));
+
+        await chatHubHelper.ConnectToHubAsync($"{_hubs.Server}{_hubs.GroupChatAddress}", chatAction.RefreshToken, chatAction.AccessToken);
+        await chatHubHelper.JoinRoomAsync(chatAction.User.ChatId);
+        await chatHubHelper.RequestsChats(chatAction.User.ChatId, chatAction.User.AppUserId);
     }
 
     private async Task CreateSystemMessageAsync(string systemMessage, GroupChatMemberAction chatAction)

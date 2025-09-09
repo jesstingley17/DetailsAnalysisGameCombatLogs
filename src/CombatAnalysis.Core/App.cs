@@ -107,7 +107,7 @@ public class App : MvxApplication
         Mvx.IoCProvider.RegisterType<IHttpClientHelper, HttpClientHelper>();
         Mvx.IoCProvider.RegisterType<IIdentityService, IdentityService>();
         Mvx.IoCProvider.RegisterType<ICacheService, CacheService>();
-        Mvx.IoCProvider.RegisterType<IChatHubHelper, ChatHubHelper>();
+        Mvx.IoCProvider.RegisterType<IChatHubHelper, GroupChatHubHelper>();
         Mvx.IoCProvider.RegisterType<IPersonalChatService, PersonalChatService>();
         Mvx.IoCProvider.RegisterType<IGroupChatService, GroupChatService>();
         Mvx.IoCProvider.RegisterType<IUserService, UserService>();

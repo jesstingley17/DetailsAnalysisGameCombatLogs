@@ -18,7 +18,7 @@ public interface IChatHubHelper
 
     Task JoinUnreadMessagesRoomAsync(int chatId);
 
-    void SubscribeToChat(Action<PersonalChatModel> callback);
+    void SubscribeToChat<T>(string methodName, Action<T> callback) where T : class;
 
     void SubscribeUnreadMessagesUpdated(Action<int, string, int> receiveUnreadMessageAction);
 

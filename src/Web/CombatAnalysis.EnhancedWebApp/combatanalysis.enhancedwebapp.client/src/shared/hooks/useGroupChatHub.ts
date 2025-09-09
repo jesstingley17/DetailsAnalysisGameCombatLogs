@@ -70,10 +70,6 @@ const useGroupChatHub = (
     }
 
     const subscribeToGroupChat = (callback: (groupChatUser: GroupChatUserModel) => void) => {
-        groupChatHubConnectionRef.current?.on("ReceiveGroupChat", async (chatId: number, appUserId: string) => {
-            await groupChatHubConnectionRef.current?.invoke("RequestJoinedUser", chatId, appUserId);
-        });
-
         groupChatHubConnectionRef.current?.on("ReceiveJoinedUser", (groupChatUser) => {
             callback(groupChatUser);
         });

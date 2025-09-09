@@ -8,10 +8,10 @@ using System.Net;
 
 namespace CombatAnalysis.Core.Helpers;
 
-internal class ChatHubHelper(IMemoryCache memoryCache, ILogger<ChatHubHelper> logger) : IChatHubHelper
+internal class GroupChatHubHelper(IMemoryCache memoryCache, ILogger<GroupChatHubHelper> logger) : IChatHubHelper
 {
     private readonly IMemoryCache _memoryCache = memoryCache;
-    private readonly ILogger<ChatHubHelper> _logger = logger;
+    private readonly ILogger<GroupChatHubHelper> _logger = logger;
 
     private HubConnection? _chatHubConnection;
     private HubConnection? _chatMessagesHubConnection;
@@ -136,14 +136,15 @@ internal class ChatHubHelper(IMemoryCache memoryCache, ILogger<ChatHubHelper> lo
         await _unreadMessagesHubConnection.SendAsync("JoinRoom", chatId);
     }
 
-    public void SubscribeToChat(Action<PersonalChatModel> callback)
+    public void SubscribeToChat<T>(string methodName, Action<T> callback)
+        where T : class
     {
         if (_chatHubConnection == null)
         {
             return;
         }
 
-        _chatHubConnection.On("ReceivePersonalChat", callback);
+        _chatHubConnection.On(methodName, callback);
     }
 
     public void SubscribeUnreadMessagesUpdated(Action<int, string, int> receiveUnreadMessageAction)
