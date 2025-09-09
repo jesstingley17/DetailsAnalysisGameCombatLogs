@@ -65,7 +65,7 @@ internal static class HttpClientHelperExtensions
 
     private static void GetAccessToken(IHttpClientHelper clientHelper)
     {
-        if (_memoryCache != null && !_memoryCache.TryGetValue<string>(nameof(MemoryCacheValue.RefreshToken), out _))
+        if (_memoryCache == null || !_memoryCache.TryGetValue<string>(nameof(MemoryCacheValue.RefreshToken), out _))
         {
             return;
         }

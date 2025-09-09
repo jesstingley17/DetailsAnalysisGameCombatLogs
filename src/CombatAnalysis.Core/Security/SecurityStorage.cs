@@ -9,6 +9,7 @@ using CombatAnalysis.Core.Models.User;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
 namespace CombatAnalysis.Core.Security;
@@ -89,15 +90,9 @@ internal class SecurityStorage
     {
         try
         {
-            if (!File.Exists(_refreshTokenFilePath))
-            {
-                return null;
-            }
+            GetTokens();
 
-            var encryptedAccessToken = File.ReadAllText(_accessTokenFilePath);
-            var decryptedAccessToken = _accessTokenProtector.Unprotect(encryptedAccessToken);
-
-            var user = await GetUserByAccessTokenAsync(decryptedAccessToken);
+            var user = await GetUserByAccessTokenAsync();
             _memoryCache.Set(nameof(MemoryCacheValue.User), user, TimeSpan.FromDays(3));
 
             return user;
@@ -124,7 +119,7 @@ internal class SecurityStorage
             _memoryCache.Set(nameof(MemoryCacheValue.AccessToken), decryptedAccessToken, DateTimeOffset.Now.AddMinutes(60));
 
             var encryptedRefreshToken = File.ReadAllText(_refreshTokenFilePath);
-            var decryptedRefresahToken = _refreshTokenProtector.Unprotect(encryptedAccessToken);
+            var decryptedRefresahToken = _refreshTokenProtector.Unprotect(encryptedRefreshToken);
             _memoryCache.Set(nameof(MemoryCacheValue.RefreshToken), decryptedRefresahToken, DateTimeOffset.Now.AddDays(3));
         }
         catch (Exception ex)
@@ -133,28 +128,33 @@ internal class SecurityStorage
         }
     }
 
-    private async Task<AppUserModel?> GetUserByAccessTokenAsync(string accessToken)
+    private async Task<AppUserModel?> GetUserByAccessTokenAsync()
     {
         try
         {
-            var identityUserId = AccessTokenHelper.GetUserIdFromToken(accessToken);
-            if (identityUserId == null)
+            if (!_memoryCache.TryGetValue<string>(nameof(MemoryCacheValue.AccessToken), out var accessToken))
             {
-                throw new ArgumentNullException(nameof(identityUserId));
+                ArgumentException.ThrowIfNullOrEmpty(accessToken, nameof(accessToken));
             }
+
+            var identityUserId = AccessTokenHelper.GetUserIdFromToken(accessToken);
+            ArgumentException.ThrowIfNullOrEmpty(identityUserId, nameof(identityUserId));
 
             var response = await _httpClient.GetAsync($"Account/find/{identityUserId}", API.UserApi, true);
             response.EnsureSuccessStatusCode();
 
             var user = await response.Content.ReadFromJsonAsync<AppUserModel>();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            ArgumentNullException.ThrowIfNull(user, nameof(user));
 
             return user;
         }
         catch (ArgumentNullException ex)
+        {
+            _logger.LogError(ex, ex.Message);
+
+            return null;
+        }
+        catch (ArgumentException ex)
         {
             _logger.LogError(ex, ex.Message);
 
