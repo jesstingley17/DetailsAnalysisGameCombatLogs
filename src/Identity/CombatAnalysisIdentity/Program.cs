@@ -38,6 +38,7 @@ var mapper = mappingConfig.CreateMapper();
 builder.Services.AddSingleton(mapper);
 
 builder.Services.AddTransient<IUserAuthorizationService, UserAuthorizationService>();
+builder.Services.AddTransient<IEmailService, EmailService>();
 
 builder.Services.AddRazorPages()
     .AddRazorRuntimeCompilation();

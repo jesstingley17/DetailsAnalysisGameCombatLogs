@@ -12,13 +12,12 @@ using System.Text;
 namespace CombatAnalysis.Identity.Services;
 
 internal class OAuthCodeFlowService(IOptions<Authentication> authentication, IOptions<AuthenticationClient> authenticationClient, IPkeRepository pkeRepository,
-    IClientRepository clientRepository, ITokenRepository tokenRepository) : IOAuthCodeFlowService
+    IClientRepository clientRepository) : IOAuthCodeFlowService
 {
     private readonly Authentication _authentication = authentication.Value;
     private readonly AuthenticationClient _authenticationClient = authenticationClient.Value;
     private readonly IPkeRepository _pkeRepository = pkeRepository;
     private readonly IClientRepository _clientRepository = clientRepository;
-    private readonly ITokenRepository _tokenRepository = tokenRepository;
 
     async Task<string> IOAuthCodeFlowService.GenerateAuthorizationCodeAsync(string userId, string clientId, string codeChallenge, string codeChallengeMethod, string redirectUri)
     {
@@ -137,27 +136,6 @@ internal class OAuthCodeFlowService(IOptions<Authentication> authentication, IOp
         return decryptedAuthorizationKey;
     }
 
-    async Task<string> IOAuthCodeFlowService.CreateRefreshTokenAsync(string token, int refreshTokenExpiresDays, string clientId, string userId)
-    {
-        var refreshToken = await _tokenRepository.CreateAsync(token, refreshTokenExpiresDays, clientId, userId);
-
-        return refreshToken.Id;
-    }
-
-    async Task<int> IOAuthCodeFlowService.RotateRefreshTokenAsync(string oldRefreshTokenId, string newRefreshTokenId)
-    {
-        var rowsAffected = await _tokenRepository.RotateAsync(oldRefreshTokenId, newRefreshTokenId);
-
-        return rowsAffected;
-    }
-
-    async Task<int> IOAuthCodeFlowService.RevokeRefreshTokenAsync(string refreshTokenId)
-    {
-        var rowsAffected = await _tokenRepository.RevokeAsync(refreshTokenId);
-
-        return rowsAffected;
-    }
-
     string IOAuthCodeFlowService.GenerateToken(string userId, string clientId, string[] scopes)
     {
         var key = new SymmetricSecurityKey(_authentication.IssuerSigningKey);
@@ -203,12 +181,6 @@ internal class OAuthCodeFlowService(IOptions<Authentication> authentication, IOp
                                 .Replace('/', '_');
 
         return token;
-    }
-
-    async Task<string> IOAuthCodeFlowService.ValidateRefreshTokenAsync(string refreshTokenId, string refreshToken, string clientId)
-    {
-        var userId = await _tokenRepository.ValidateRefreshTokenAsync(refreshTokenId, refreshToken, clientId);
-        return userId;
     }
 
     private static string EncryptAuthorizationCode(string authorizationCode, string customData, byte[] encryptionKey)

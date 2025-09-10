@@ -82,4 +82,13 @@ internal class TokenRepository(IdentityContext dbContext) : ITokenRepository
 
         return string.Empty;
     }
+
+    public async Task<IEnumerable<RefreshToken>?> GetLegitimateTokenByUserIdAsync(string userId)
+    {
+        var tokens = await _context.RefreshToken
+            .Where(t => t.UserId == userId && t.RevokedAt == null && t.ExpiresAt > DateTimeOffset.UtcNow)
+            .ToListAsync();
+
+        return tokens;
+    }
 }

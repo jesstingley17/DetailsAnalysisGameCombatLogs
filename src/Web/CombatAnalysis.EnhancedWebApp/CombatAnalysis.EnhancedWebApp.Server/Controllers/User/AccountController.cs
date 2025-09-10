@@ -1,6 +1,5 @@
 ﻿using CombatAnalysis.EnhancedWebApp.Server.Attributes;
 using CombatAnalysis.EnhancedWebApp.Server.Consts;
-using CombatAnalysis.EnhancedWebApp.Server.Enums;
 using CombatAnalysis.EnhancedWebApp.Server.Interfaces;
 using CombatAnalysis.EnhancedWebApp.Server.Models.User;
 using Microsoft.AspNetCore.Mvc;
@@ -12,12 +11,10 @@ namespace CombatAnalysis.EnhancedWebApp.Server.Controllers.User;
 [ApiController]
 public class AccountController : ControllerBase
 {
-    private readonly Authentication _authentication;
     private readonly IHttpClientHelper _httpClient;
 
-    public AccountController(IOptions<Cluster> cluster, IOptions<Authentication> authentication, IHttpClientHelper httpClient)
+    public AccountController(IOptions<Cluster> cluster, IHttpClientHelper httpClient)
     {
-        _authentication = authentication.Value;
         _httpClient = httpClient;
         _httpClient.APIUrl = cluster.Value.User;
     }

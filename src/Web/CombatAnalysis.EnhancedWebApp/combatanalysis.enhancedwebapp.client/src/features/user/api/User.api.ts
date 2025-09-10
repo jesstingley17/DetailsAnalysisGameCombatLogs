@@ -52,6 +52,9 @@ export const UserApi = createApi({
         stateValidate: builder.query <void, string>({
             query: state => `/Authentication/stateValidate?state=${state}`,
         }),
+        cancelAuthorization: builder.query<void, void>({
+            query: () => "/Authentication/cancel",
+        }),
     })
 })
 
@@ -65,4 +68,5 @@ export const {
     useLazyAuthorizationQuery,
     useLazyVerifyEmailQuery,
     useLazyStateValidateQuery,
+    useLazyCancelAuthorizationQuery,
 } = UserApi;

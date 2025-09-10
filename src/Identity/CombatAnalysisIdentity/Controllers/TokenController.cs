@@ -11,11 +11,12 @@ namespace CombatAnalysisIdentity.Controllers;
 [Route("api/v1/[controller]")]
 [ApiController]
 public class TokenController(IOptions<AuthenticationGrantType> authenticationGrantType, IOptions<Authentication> authentication, IOAuthCodeFlowService oAuthCodeFlowService,
-    ILogger<TokenController> logger) : ControllerBase
+    IRefreshTokenService refreshTokenService, ILogger<TokenController> logger) : ControllerBase
 {
     private readonly AuthenticationGrantType _authenticationGrantType = authenticationGrantType.Value;
     private readonly Authentication _authentication = authentication.Value;
     private readonly IOAuthCodeFlowService _oAuthCodeFlowService = oAuthCodeFlowService;
+    private readonly IRefreshTokenService _refreshTokenService = refreshTokenService;
     private readonly ILogger<TokenController> _logger = logger;
 
     [HttpPost("logout")]
@@ -25,7 +26,7 @@ public class TokenController(IOptions<AuthenticationGrantType> authenticationGra
         {
             ArgumentNullException.ThrowIfNull(logout, nameof(logout));
 
-            var rowsAffected = await _oAuthCodeFlowService.RevokeRefreshTokenAsync(logout.RefreshTokenId);
+            var rowsAffected = await _refreshTokenService.RevokeRefreshTokenAsync(logout.RefreshTokenId);
             ArgumentOutOfRangeException.ThrowIfZero(rowsAffected, nameof(rowsAffected));
 
             return Ok();
@@ -99,7 +100,7 @@ public class TokenController(IOptions<AuthenticationGrantType> authenticationGra
                 return BadRequest();
             }
 
-            var userId = await _oAuthCodeFlowService.ValidateRefreshTokenAsync(refreshTokenId, refreshToken, clientId);
+            var userId = await _refreshTokenService.ValidateRefreshTokenAsync(refreshTokenId, refreshToken, clientId);
             ArgumentException.ThrowIfNullOrEmpty(userId, nameof(userId));
 
             var token = await RotateTokenAsync(userId, clientId, clientScopes, refreshTokenId);
@@ -128,7 +129,7 @@ public class TokenController(IOptions<AuthenticationGrantType> authenticationGra
         var accessToken = _oAuthCodeFlowService.GenerateToken(userId, clientId, scopes);
         var refreshToken = _oAuthCodeFlowService.GenerateRefreshToken();
 
-        var refreshTokenId = await _oAuthCodeFlowService.CreateRefreshTokenAsync(refreshToken, _authentication.RefreshTokenExpiresDays, clientId, userId);
+        var refreshTokenId = await _refreshTokenService.CreateRefreshTokenAsync(refreshToken, _authentication.RefreshTokenExpiresDays, clientId, userId);
 
         var token = new TokenResponseDto
         {
@@ -153,8 +154,8 @@ public class TokenController(IOptions<AuthenticationGrantType> authenticationGra
         var accessToken = _oAuthCodeFlowService.GenerateToken(userId, clientId, scopes);
         var refreshToken = _oAuthCodeFlowService.GenerateRefreshToken();
 
-        var newRefreshTokenId = await _oAuthCodeFlowService.CreateRefreshTokenAsync(refreshToken, _authentication.RefreshTokenExpiresDays, clientId, userId);
-        await _oAuthCodeFlowService.RotateRefreshTokenAsync(oldRefreshTokenId, newRefreshTokenId);
+        var newRefreshTokenId = await _refreshTokenService.CreateRefreshTokenAsync(refreshToken, _authentication.RefreshTokenExpiresDays, clientId, userId);
+        await _refreshTokenService.RotateRefreshTokenAsync(oldRefreshTokenId, newRefreshTokenId);
 
         var token = new TokenResponseDto
         {

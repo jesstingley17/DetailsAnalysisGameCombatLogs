@@ -1,18 +1,14 @@
 ﻿using CombatAnalysisIdentity.Consts;
+using CombatAnalysisIdentity.Interfaces;
 using Microsoft.Extensions.Options;
 using System.Net;
 using System.Net.Mail;
 
 namespace CombatAnalysisIdentity.Services;
 
-public class EmailService
+internal class EmailService(IOptions<SmtpSettings> smtpSettings) : IEmailService
 {
-    private readonly SmtpSettings _smtpSettings;
-
-    public EmailService(IOptions<SmtpSettings> smtpSettings)
-    {
-        _smtpSettings = smtpSettings.Value;
-    }
+    private readonly SmtpSettings _smtpSettings = smtpSettings.Value;
 
     public async Task SendResetPasswordEmailAsync(string email, string subject, string body, bool isBodyHtml = true)
     {

@@ -3,8 +3,8 @@ import logger from '@/utils/Logger';
 import { memo, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useLazyAuthorizationCodeExchangeQuery } from '../../api/Identity.api';
-import { useLazyStateValidateQuery } from '../../api/User.api';
+import { useLazyAuthorizationCodeExchangeQuery, useLazyRefreshTokenQuery } from '../../api/Identity.api';
+import { useLazyCancelAuthorizationQuery, useLazyStateValidateQuery } from '../../api/User.api';
 
 import './AuthorizationCallback.scss';
 
@@ -23,10 +23,14 @@ const AuthorizationCallback: React.FC = () => {
     const [accessRestored, setAcessRestored] = useState(false);
     const [verified, setVerified] = useState(false);
 
+    const [cancelAuthorization] = useLazyCancelAuthorizationQuery();
     const [stateValidate] = useLazyStateValidateQuery();
     const [authorizationCodeExchange] = useLazyAuthorizationCodeExchangeQuery();
+    const [refreshJWT] = useLazyRefreshTokenQuery();
 
     useEffect(() => {
+        const authorizationCanceled = queryParams.get("cancel") === "true";
+
         const accessRestored = queryParams.get("accessRestored") === "true";
         setAcessRestored(accessRestored);
 
@@ -43,6 +47,21 @@ const AuthorizationCallback: React.FC = () => {
         if (code && state) {
             (async () => {
                 await validateStateAsync(state, code);
+            })();
+        }
+
+        if (accessRestored) {
+            (async () => {
+                await refreshJWTAsync();
+            })();
+        }
+
+
+        if (authorizationCanceled) {
+            (async () => {
+                await cancelAuthorizationAsync();
+
+                navigate("/");
             })();
         }
     }, []);
@@ -81,6 +100,22 @@ const AuthorizationCallback: React.FC = () => {
             logger.error("Failed to validate the authorzation state", e);
 
             setStateIsValid(false);
+        }
+    }
+
+    const refreshJWTAsync = async () => {
+        try {
+            await refreshJWT().unwrap();
+        } catch (e) {
+            logger.error("Failed to refresh JWT token", e);
+        }
+    }
+
+    const cancelAuthorizationAsync = async () => {
+        try {
+            await cancelAuthorization().unwrap();
+        } catch (e) {
+            logger.error("Failed to cancel authorization", e);
         }
     }
 

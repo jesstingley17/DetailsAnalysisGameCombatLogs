@@ -11,4 +11,6 @@ public interface ITokenRepository
     Task<int> RevokeAsync(string refreshTokenId);
 
     Task<string> ValidateRefreshTokenAsync(string refreshTokenId, string refreshToken, string clientId);
+
+    Task<IEnumerable<RefreshToken>?> GetLegitimateTokenByUserIdAsync(string userId);
 }

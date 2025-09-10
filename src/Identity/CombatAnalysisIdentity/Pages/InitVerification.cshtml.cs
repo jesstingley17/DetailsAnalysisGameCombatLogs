@@ -1,15 +1,15 @@
 using CombatAnalysis.Identity.Interfaces;
-using CombatAnalysisIdentity.Services;
+using CombatAnalysisIdentity.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Net.Mail;
 
 namespace CombatAnalysisIdentity.Pages;
 
-public class InitVerificationModel(EmailService emailService, IUserVerification userVerification, ILogger<InitVerificationModel> logger) : PageModel
+public class InitVerificationModel(IEmailService emailService, IUserVerification userVerification, ILogger<InitVerificationModel> logger) : PageModel
 {
     private readonly IUserVerification _userVerification = userVerification;
-    private readonly EmailService _emailService = emailService;
+    private readonly IEmailService _emailService = emailService;
     private readonly ILogger<InitVerificationModel> _logger = logger;
 
     public async Task<IActionResult> OnGet(string email)

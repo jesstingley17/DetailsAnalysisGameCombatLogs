@@ -14,6 +14,8 @@ public class AuthorizationModel(IOptions<API> api, IOptions<Authentication> auth
 
     public bool QueryIsValid { get; set; }
 
+    public string CancelRequestAddress { get; set; } = "cancel=true";
+
     public string AppUrl { get; } = api.Value.Identity;
 
     [BindProperty]

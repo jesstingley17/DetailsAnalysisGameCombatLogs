@@ -2,23 +2,20 @@
 using CombatAnalysis.Identity.Security;
 using CombatAnalysis.IdentityDAL.Entities;
 using CombatAnalysis.IdentityDAL.Interfaces;
+using Microsoft.Extensions.Logging;
 using System.Security.Cryptography;
 using System.Transactions;
 
 namespace CombatAnalysis.Identity.Services;
 
-internal class UserVerificationService : IUserVerification
+internal class UserVerificationService(IResetTokenRepository resetTokenRepository, IVerifyEmailTokenRepository verifyEmailRepository, IIdentityUserService identityUserService,
+    IRefreshTokenService refreshTokenService, ILogger<UserVerificationService> logger) : IUserVerification
 {
-    private readonly IResetTokenRepository _resetTokenRepository;
-    private readonly IVerifyEmailTokenRepository _verifyEmailRepository;
-    private readonly IIdentityUserService _identityUserService;
-
-    public UserVerificationService(IResetTokenRepository resetTokenRepository, IVerifyEmailTokenRepository verifyEmailRepository, IIdentityUserService identityUserService)
-    {
-        _resetTokenRepository = resetTokenRepository;
-        _verifyEmailRepository = verifyEmailRepository;
-        _identityUserService = identityUserService;
-    }
+    private readonly IResetTokenRepository _resetTokenRepository = resetTokenRepository;
+    private readonly IVerifyEmailTokenRepository _verifyEmailRepository = verifyEmailRepository;
+    private readonly IIdentityUserService _identityUserService = identityUserService;
+    private readonly IRefreshTokenService _refreshTokenService = refreshTokenService;
+    private readonly ILogger<UserVerificationService> _logger = logger;
 
     public async Task<string> GenerateResetTokenAsync(string email)
     {
@@ -57,27 +54,58 @@ internal class UserVerificationService : IUserVerification
     public async Task<bool> ResetPasswordAsync(string token, string password)
     {
         using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
-
-        var resetToken = await _resetTokenRepository.GetByTokenAsync(token);
-        if (resetToken == null || resetToken.IsUsed || resetToken.ExpirationTime < DateTime.UtcNow)
+        try
         {
+            var resetToken = await _resetTokenRepository.GetByTokenAsync(token);
+            ArgumentNullException.ThrowIfNull(resetToken, nameof(resetToken));
+            ArgumentOutOfRangeException.ThrowIfEqual(resetToken.IsUsed, true, nameof(resetToken.IsUsed));
+            ArgumentOutOfRangeException.ThrowIfLessThan(resetToken.ExpirationTime, DateTime.UtcNow, nameof(resetToken.ExpirationTime));
+
+            var (hash, salt) = PasswordHashing.HashPasswordWithSalt(password);
+
+            var identityUser = await _identityUserService.GetByEmailAsync(resetToken.Email);
+            identityUser.PasswordHash = hash;
+            identityUser.Salt = salt;
+
+            await _identityUserService.UpdateAsync(identityUser);
+
+            resetToken.IsUsed = true;
+            await _resetTokenRepository.UpdateAsync(resetToken);
+
+            var tokens = await _refreshTokenService.GetLegitimateTokensByUserIdAsync(identityUser.Id);
+            ArgumentNullException.ThrowIfNull(tokens, nameof(tokens));
+
+            foreach (var refreshToken in tokens)
+            {
+                await _refreshTokenService.RevokeRefreshTokenAsync(refreshToken.Id);
+            }
+
+            scope.Complete();
+
+            return true;
+        }
+        catch (ArgumentNullException ex)
+        {
+            _logger.LogError(ex, ex.Message);
+
+            scope.Dispose();
+
             return false;
         }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            _logger.LogError(ex, ex.Message);
 
-        var (hash, salt) = PasswordHashing.HashPasswordWithSalt(password);
+            scope.Dispose();
 
-        var identityUser = await _identityUserService.GetByEmailAsync(resetToken.Email);
-        identityUser.PasswordHash = hash;
-        identityUser.Salt = salt;
+            return false;
+        }
+        catch (Exception) 
+        {
+            scope.Dispose();
 
-        await _identityUserService.UpdateAsync(identityUser);
-
-        resetToken.IsUsed = true;
-        await _resetTokenRepository.UpdateAsync(resetToken);
-
-        scope.Complete();
-
-        return true;
+            return false;
+        }
     }
 
     public async Task<bool> VerifyEmailAsync(string token)

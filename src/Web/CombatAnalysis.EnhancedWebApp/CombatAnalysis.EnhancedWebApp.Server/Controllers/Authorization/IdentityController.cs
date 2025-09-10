@@ -195,6 +195,23 @@ public class IdentityController : ControllerBase
         {
             _logger.LogError(ex, "Failed to refresh JWT");
 
+            HttpContext.Response.Cookies.Delete(nameof(AuthenticationCookie.RefreshToken), new CookieOptions
+            {
+                Domain = _authentication.CookieDomain,
+                Path = "/",
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+            });
+            HttpContext.Response.Cookies.Delete(nameof(AuthenticationCookie.AccessToken), new CookieOptions
+            {
+                Domain = _authentication.CookieDomain,
+                Path = "/",
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+            });
+
             return BadRequest();
         }
     }

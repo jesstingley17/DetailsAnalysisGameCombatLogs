@@ -1,18 +1,16 @@
 using CombatAnalysis.Identity.Interfaces;
-using CombatAnalysis.Identity.Security;
 using CombatAnalysisIdentity.Interfaces;
 using CombatAnalysisIdentity.Models;
-using CombatAnalysisIdentity.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Options;
 using System.Net.Mail;
 
 namespace CombatAnalysisIdentity.Pages;
 
-public class RestoreModel(IOptions<Authentication> authentication, EmailService emailService, IUserAuthorizationService authorizationService, IUserVerification userVerification, ILogger<RestoreModel> logger) : PageModel
+public class RestoreModel(IEmailService emailService, IUserAuthorizationService authorizationService, IUserVerification userVerification, 
+    ILogger<RestoreModel> logger) : PageModel
 {
-    private readonly EmailService _emailService = emailService;
+    private readonly IEmailService _emailService = emailService;
     private readonly IUserAuthorizationService _authorizationService = authorizationService;
     private readonly IUserVerification _userVerification = userVerification;
     private readonly ILogger<RestoreModel> _logger = logger;
@@ -20,7 +18,7 @@ public class RestoreModel(IOptions<Authentication> authentication, EmailService 
     public int SendEmailRespond { get; private set; }
 
     [BindProperty]
-    public RestoreDataModel Restore { get; set; }
+    public RestoreDataModel Restore { get; set; } = new RestoreDataModel();
 
     public async Task<IActionResult> OnPostAsync()
     {

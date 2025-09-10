@@ -119,6 +119,30 @@ public class AuthenticationController : ControllerBase
         }
     }
 
+    [HttpGet("cancel")]
+    public IActionResult CancelAuthorization()
+    {
+        HttpContext.Response.Cookies.Delete(nameof(AuthenticationCookie.State), new CookieOptions
+        {
+            Domain = _authentication.CookieDomain,
+            Path = "/",
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.None,
+        });
+
+        HttpContext.Response.Cookies.Delete(nameof(AuthenticationCookie.CodeVerifier), new CookieOptions
+        {
+            Domain = _authentication.CookieDomain,
+            Path = "/",
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.None,
+        });
+
+        return Ok();
+    }
+
     [HttpGet("verifyEmail")]
     public IActionResult VerifyEmail(string identityPath, string email)
     {
@@ -144,11 +168,11 @@ public class AuthenticationController : ControllerBase
     {
         try
         {
-            ArgumentNullException.ThrowIfNullOrEmpty(state, nameof(state));
+            ArgumentException.ThrowIfNullOrEmpty(state, nameof(state));
 
             if (!HttpContext.Request.Cookies.TryGetValue(nameof(AuthenticationCookie.State), out var stateValue))
             {
-                ArgumentNullException.ThrowIfNullOrEmpty(stateValue, nameof(stateValue));
+                ArgumentException.ThrowIfNullOrEmpty(stateValue, nameof(stateValue));
             }
 
             HttpContext.Response.Cookies.Delete(nameof(AuthenticationCookie.State), new CookieOptions
@@ -170,6 +194,12 @@ public class AuthenticationController : ControllerBase
         catch (ArgumentNullException ex)
         {
             _logger.LogError(ex, "Failed to State validate. Paramter '{ParamName} was null", ex.ParamName);
+
+            return BadRequest();
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogError(ex, "Failed to State validate. Paramter '{ParamName} was failed", ex.ParamName);
 
             return BadRequest();
         }

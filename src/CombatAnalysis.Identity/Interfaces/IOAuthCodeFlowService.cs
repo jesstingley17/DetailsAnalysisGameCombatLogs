@@ -10,15 +10,7 @@ public interface IOAuthCodeFlowService
 
     (string AuthorizationCode, string UserData) DecryptAuthorizationCode(string encryptedDataWithCustomData, byte[] encryptionKey);
 
-    Task<string> CreateRefreshTokenAsync(string token, int refreshTokenExpiresDays, string clientId, string userId);
-
-    Task<int> RotateRefreshTokenAsync(string oldRefreshTokenId, string newRefreshTokenId);
-
-    Task<int> RevokeRefreshTokenAsync(string refreshTokenId);
-
     string GenerateToken(string userId, string clientId, string[] scopes);
 
     string GenerateRefreshToken();
-
-    Task<string> ValidateRefreshTokenAsync(string refreshTokenId,string refreshToken, string clientId);
 }

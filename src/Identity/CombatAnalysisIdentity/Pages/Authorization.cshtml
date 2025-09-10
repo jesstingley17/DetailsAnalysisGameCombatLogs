@@ -45,8 +45,9 @@ else
         const queryString = window.location.search;
         const queryparams = new URLSearchParams(queryString);
         const redirectUri = queryparams.get("redirectUri");
+        const cancelRequestAddress = `@Model.CancelRequestAddress`;
 
-        window.location.href = redirectUri;
+        window.location.href = `${redirectUri}?${cancelRequestAddress}`;
     }
 
     function goToRestore() {

@@ -1,14 +1,12 @@
 using CombatAnalysis.Identity.Interfaces;
-using CombatAnalysis.Identity.Security;
 using CombatAnalysisIdentity.Interfaces;
 using CombatAnalysisIdentity.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Options;
 
 namespace CombatAnalysisIdentity.Pages;
 
-public class NewPasswordModel(IOptions<Authentication> authentication, IUserAuthorizationService authorizationService, IUserVerification userVerification) : PageModel
+public class NewPasswordModel(IUserAuthorizationService authorizationService, IUserVerification userVerification) : PageModel
 {
     private readonly IUserAuthorizationService _authorizationService = authorizationService;
     private readonly IUserVerification _userVerification = userVerification;
