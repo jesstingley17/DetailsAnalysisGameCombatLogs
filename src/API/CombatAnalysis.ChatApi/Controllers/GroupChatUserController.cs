@@ -64,7 +64,7 @@ public class GroupChatUserController(IServiceTransaction<GroupChatUserDto, strin
 
             ArgumentNullException.ThrowIfNull(appUserId, nameof(appUserId));
 
-            var groupChatUsers = await _chatUserService.GetByParamAsync(nameof(GroupChatUserModel.ChatId), chatId);
+            var groupChatUsers = await _chatUserService.GetByParamAsync(u => u.ChatId, chatId);
             ArgumentNullException.ThrowIfNull(groupChatUsers, nameof(groupChatUsers));
 
             var groupChatUser = groupChatUsers.FirstOrDefault(x => x.AppUserId == appUserId);
@@ -93,7 +93,7 @@ public class GroupChatUserController(IServiceTransaction<GroupChatUserDto, strin
         {
             ArgumentNullException.ThrowIfNull(id, nameof(id));
 
-            var groupChatUsers = await _chatUserService.GetByParamAsync(nameof(GroupChatUserModel.AppUserId), id);
+            var groupChatUsers = await _chatUserService.GetByParamAsync(u => u.AppUserId, id);
             ArgumentNullException.ThrowIfNull(groupChatUsers, nameof(groupChatUsers));
 
             return Ok(groupChatUsers);
@@ -113,7 +113,7 @@ public class GroupChatUserController(IServiceTransaction<GroupChatUserDto, strin
         {
             ArgumentOutOfRangeException.ThrowIfZero(id, nameof(id));
 
-            var groupChatUsers = await _chatUserService.GetByParamAsync(nameof(GroupChatUserModel.ChatId), id);
+            var groupChatUsers = await _chatUserService.GetByParamAsync(u => u.ChatId, id);
             ArgumentNullException.ThrowIfNull(groupChatUsers, nameof(groupChatUsers));
 
             return Ok(groupChatUsers);
@@ -141,7 +141,7 @@ public class GroupChatUserController(IServiceTransaction<GroupChatUserDto, strin
 
             ArgumentNullException.ThrowIfNull(appUserId, nameof(appUserId));
 
-            var groupChatUsers = await _chatUserService.GetByParamAsync(nameof(GroupChatUserModel.ChatId), chatId);
+            var groupChatUsers = await _chatUserService.GetByParamAsync(u => u.ChatId, chatId);
             ArgumentNullException.ThrowIfNull(groupChatUsers, nameof(groupChatUsers));
 
             var meInChat = groupChatUsers.FirstOrDefault(x => x.AppUserId == appUserId);

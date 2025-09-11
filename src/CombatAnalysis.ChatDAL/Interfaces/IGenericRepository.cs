@@ -1,4 +1,6 @@
-﻿namespace CombatAnalysis.ChatDAL.Interfaces;
+﻿using System.Linq.Expressions;
+
+namespace CombatAnalysis.ChatDAL.Interfaces;
 
 public interface IGenericRepository<TModel, TIdType>
     where TModel : class
@@ -12,7 +14,7 @@ public interface IGenericRepository<TModel, TIdType>
 
     Task<TModel?> GetByIdAsync(TIdType id);
 
-    Task<IEnumerable<TModel>> GetByParamAsync(string paramName, object value);
+    Task<IEnumerable<TModel>> GetByParamAsync<TValue>(Expression<Func<TModel, TValue>> property, TValue value);
 
     Task<IEnumerable<TModel>> GetAllAsync();
 }

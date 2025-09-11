@@ -10,9 +10,9 @@ namespace CombatAnalysis.UserApi.Controllers;
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class FriendController(IService<FriendDto, int> service, IMapper mapper, ILogger<FriendController> logger) : ControllerBase
+public class FriendController(IFriendService service, IMapper mapper, ILogger<FriendController> logger) : ControllerBase
 {
-    private readonly IService<FriendDto, int> _service = service;
+    private readonly IFriendService _service = service;
     private readonly IMapper _mapper = mapper;
     private readonly ILogger<FriendController> _logger = logger;
 

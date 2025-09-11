@@ -7,8 +7,6 @@ namespace CombatAnalysis.CommunicationDAL.Repositories.SQL;
 
 internal class SQLCommunityRepository(CommunicationSQLContext context) : SQLRepository<Community, int>(context), ICommunityRepository
 {
-    private readonly CommunicationSQLContext _context = context;
-
     public async Task<IEnumerable<Community>> GetAllWithPaginationAsync(int pageSize)
     {
         var result = await _context.Set<Community>()
@@ -16,7 +14,7 @@ internal class SQLCommunityRepository(CommunicationSQLContext context) : SQLRepo
             .Take(pageSize)
             .ToListAsync();
 
-        return result.Count == 0 ? result : [];
+        return result;
     }
 
     public async Task<IEnumerable<Community>> GetMoreWithPaginationAsync(int offset, int pageSize)
@@ -27,7 +25,7 @@ internal class SQLCommunityRepository(CommunicationSQLContext context) : SQLRepo
             .Take(pageSize)
             .ToListAsync();
 
-        return result.Count == 0 ? result : [];
+        return result;
     }
 
     public async Task<int> CountAsync()

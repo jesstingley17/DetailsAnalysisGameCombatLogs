@@ -18,7 +18,7 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IService<CustomerDto, string>, CustomerService>();
         services.AddScoped<IService<RequestToConnectDto, int>, RequestToConnectService>();
-        services.AddScoped<IService<FriendDto, int>, FriendService>();
         services.AddScoped<IService<BannedUserDto, int>, BannedUserService>();
+        services.AddScoped<IFriendService, FriendService>();
     }
 }

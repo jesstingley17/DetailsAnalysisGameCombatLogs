@@ -10,18 +10,11 @@ namespace CombatAnalysis.CommunicationAPI.Controllers.Community;
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class InviteToCommunityController : ControllerBase
+public class InviteToCommunityController(IService<InviteToCommunityDto, int> service, IMapper mapper, ILogger<InviteToCommunityController> logger) : ControllerBase
 {
-    private readonly IService<InviteToCommunityDto, int> _service;
-    private readonly IMapper _mapper;
-    private readonly ILogger<InviteToCommunityController> _logger;
-
-    public InviteToCommunityController(IService<InviteToCommunityDto, int> service, IMapper mapper, ILogger<InviteToCommunityController> logger)
-    {
-        _service = service;
-        _mapper = mapper;
-        _logger = logger;
-    }
+    private readonly IService<InviteToCommunityDto, int> _service = service;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<InviteToCommunityController> _logger = logger;
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
@@ -42,7 +35,7 @@ public class InviteToCommunityController : ControllerBase
     [HttpGet("searchByUserId/{id}")]
     public async Task<IActionResult> SearchByUserId(string id)
     {
-        var result = await _service.GetByParamAsync(nameof(InviteToCommunityModel.ToAppUserId), id);
+        var result = await _service.GetByParamAsync(c => c.ToAppUserId, id);
 
         return Ok(result);
     }

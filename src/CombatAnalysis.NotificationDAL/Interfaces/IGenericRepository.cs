@@ -1,4 +1,6 @@
-﻿namespace CombatAnalysis.NotificationDAL.Interfaces;
+﻿using System.Linq.Expressions;
+
+namespace CombatAnalysis.NotificationDAL.Interfaces;
 
 public interface IGenericRepository<TModel, TIdType>
     where TModel : class
@@ -12,7 +14,7 @@ public interface IGenericRepository<TModel, TIdType>
 
     Task<TModel?> GetByIdAsync(TIdType id);
 
-    IEnumerable<TModel> GetByParam(string paramName, object value);
+    Task<IEnumerable<TModel>> GetByParamAsync<TValue>(Expression<Func<TModel, TValue>> property, TValue value);
 
     Task<IEnumerable<TModel>> GetAllAsync();
 }

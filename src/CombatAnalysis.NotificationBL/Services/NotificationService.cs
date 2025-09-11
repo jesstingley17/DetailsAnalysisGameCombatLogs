@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using AutoMapper.Extensions.ExpressionMapping;
 using CombatAnalysis.NotificationBL.DTO;
 using CombatAnalysis.NotificationBL.Interfaces;
 using CombatAnalysis.NotificationDAL.Entities;
 using CombatAnalysis.NotificationDAL.Interfaces;
+using System.Linq.Expressions;
 
 namespace CombatAnalysis.NotificationBL.Services;
 
@@ -55,9 +57,10 @@ internal class NotificationService(IGenericRepository<Notification, int> reposit
         return resultMap;
     }
 
-    public async Task<IEnumerable<NotificationDto>> GetByParamAsync(string paramName, object value)
+    public async Task<IEnumerable<NotificationDto>> GetByParamAsync<TValue>(Expression<Func<NotificationDto, TValue>> property, TValue value)
     {
-        var result = await Task.Run(() => _repository.GetByParam(paramName, value));
+        var map = _mapper.MapExpression<Expression<Func<Notification, TValue>>>(property);
+        var result = await _repository.GetByParamAsync(map, value);
         var resultMap = _mapper.Map<IEnumerable<NotificationDto>>(result);
 
         return resultMap;

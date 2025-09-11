@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CombatAnalysis.ChatApi.Models;
+using CombatAnalysis.ChatApi.Requests;
 using CombatAnalysis.ChatBL.DTO;
 using CombatAnalysis.ChatBL.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -16,13 +17,11 @@ public class GroupChatMessageController(IGroupChatMessageService<GroupChatMessag
     private readonly IMapper _mapper = mapper;
     private readonly ILogger<GroupChatMessageController> _logger = logger;
 
-    [HttpGet("count/{chatId}")]
+    [HttpGet("count/{chatId:int:min(1)}")]
     public async Task<IActionResult> Count(int chatId)
     {
         try
         {
-            ArgumentOutOfRangeException.ThrowIfZero(chatId, nameof(chatId));
-
             var count = await _chatMessageService.CountByChatIdAsync(chatId);
             ArgumentOutOfRangeException.ThrowIfLessThan(count, 0, nameof(count));
 
@@ -59,8 +58,6 @@ public class GroupChatMessageController(IGroupChatMessageService<GroupChatMessag
     {
         try
         {
-            ArgumentOutOfRangeException.ThrowIfZero(id, nameof(id));
-
             var groupChatMessage = await _chatMessageService.GetByIdAsync(id);
             ArgumentNullException.ThrowIfNull(groupChatMessage, nameof(groupChatMessage));
 
@@ -81,31 +78,17 @@ public class GroupChatMessageController(IGroupChatMessageService<GroupChatMessag
     }
 
     [HttpGet("getByChatId")]
-    public async Task<IActionResult> GetByChatId(int chatId, string groupChatUserId, int pageSize)
+    public async Task<IActionResult> GetByChatId([FromQuery] ChatMessageRequest request)
     {
-        try
+        if (!ModelState.IsValid)
         {
-            ArgumentOutOfRangeException.ThrowIfZero(chatId, nameof(chatId));
-            ArgumentNullException.ThrowIfNullOrEmpty(groupChatUserId, nameof(groupChatUserId));
-            ArgumentOutOfRangeException.ThrowIfLessThan(pageSize, 1, nameof(pageSize));
-
-            var messages = await _chatMessageService.GetByChatIdAsync(chatId, groupChatUserId, pageSize);
-            ArgumentNullException.ThrowIfNull(messages, nameof(messages));
-
-            return Ok(messages);
+            _logger.LogWarning("Invalid ChatMessageRequest received: {@Request}", request);
+            return ValidationProblem(ModelState);
         }
-        catch (ArgumentOutOfRangeException ex)
-        {
-            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
 
-            return BadRequest();
-        }
-        catch (ArgumentNullException ex)
-        {
-            _logger.LogError(ex, "Get group chat messages by chat id failed: Parameter '{ParamName}' was null.", ex.ParamName);
+        var messages = await _chatMessageService.GetByChatIdAsync(request.ChatId, request.GroupChatUserId, request.PageSize);
 
-            return BadRequest();
-        }
+        return Ok(messages);
     }
 
     [HttpGet("getMoreByChatId")]

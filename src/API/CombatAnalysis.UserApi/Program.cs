@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using AutoMapper.Extensions.ExpressionMapping;
 using CombatAnalysis.UserApi.Consts;
 using CombatAnalysis.UserApi.Enums;
 using CombatAnalysis.UserApi.Mapping;
@@ -22,9 +23,11 @@ builder.Services.UserBLDependencies(databasePropsOptions.Name, connection);
 
 var mappingConfig = new MapperConfiguration(mc =>
 {
+    mc.AddExpressionMapping();
     mc.AddProfile(new UserApiMapper());
     mc.AddProfile(new UserBLMapper());
 });
+
 var mapper = mappingConfig.CreateMapper();
 builder.Services.AddSingleton(mapper);
 

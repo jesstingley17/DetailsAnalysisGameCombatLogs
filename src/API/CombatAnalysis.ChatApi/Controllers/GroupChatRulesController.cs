@@ -68,7 +68,7 @@ public class GroupChatRulesController(IService<GroupChatRulesDto, int> groupChat
         {
             ArgumentOutOfRangeException.ThrowIfZero(id, nameof(id));
 
-            var groupChatRules = await _groupChatRulesService.GetByParamAsync(nameof(GroupChatRulesModel.ChatId), id);
+            var groupChatRules = await _groupChatRulesService.GetByParamAsync(u => u.ChatId, id);
             ArgumentNullException.ThrowIfNull(groupChatRules, nameof(groupChatRules));
 
             return Ok(groupChatRules);

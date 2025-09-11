@@ -1,4 +1,5 @@
-﻿import { useEffect, useState, type RefObject } from 'react';
+﻿import logger from '@/utils/Logger';
+import { useEffect, useState, type RefObject } from 'react';
 import { useLazyGetMessagesByGroupChatIdQuery, useLazyGetMoreMessagesByGroupChatIdQuery } from '../api/Chat.api';
 import { useGetGroupChatMessageCountByChatIdQuery } from '../api/GroupChatMessage.api';
 import { useFindGroupChatUsersByChatIdQuery, useFindMeInChatQuery } from '../api/GroupChatUser.api';
@@ -49,14 +50,18 @@ const useGroupChatData = (chatId: number, appUserId: string, pageSizeRef: RefObj
             return;
         }
 
-        const arg = {
-            chatId,
-            groupChatUserId: IasGroupChatUser.id ?? "",
-            pageSize: pageSizeRef.current
-        };
+        try {
+            const arg = {
+                chatId,
+                groupChatUserId: IasGroupChatUser.id ?? "",
+                pageSize: pageSizeRef.current
+            };
 
-        const messages = await getMessagesByGroupChatIdAsync(arg).unwrap();
-        setChatMessages(messages);
+            const messages = await getMessagesByGroupChatIdAsync(arg).unwrap();
+            setChatMessages(messages);
+        } catch (e) {
+            logger.error("Failed get chat messages", e);
+        }
     }
 
     const getMoreMessagesAsync = async (offset: number): Promise<GroupChatMessageModel[]> => {

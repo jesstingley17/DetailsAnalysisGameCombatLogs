@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using AutoMapper.Extensions.ExpressionMapping;
 using CombatAnalysis.CommunicationBL.DTO.Community;
 using CombatAnalysis.CommunicationBL.Interfaces;
 using CombatAnalysis.CommunicationDAL.Entities.Community;
 using CombatAnalysis.CommunicationDAL.Interfaces;
+using System.Linq.Expressions;
 
 namespace CombatAnalysis.CommunicationBL.Services.Community;
 
@@ -50,9 +52,10 @@ internal class CommunityUserService : IService<CommunityUserDto, string>
         return resultMap;
     }
 
-    public async Task<IEnumerable<CommunityUserDto>> GetByParamAsync(string paramName, object value)
+    public async Task<IEnumerable<CommunityUserDto>> GetByParamAsync<TValue>(Expression<Func<CommunityUserDto, TValue>> property, TValue value)
     {
-        var result = await _repository.GetByParamAsync(paramName, value);
+        var map = _mapper.MapExpression<Expression<Func<CommunityUser, TValue>>>(property);
+        var result = await _repository.GetByParamAsync(map, value);
         var resultMap = _mapper.Map<IEnumerable<CommunityUserDto>>(result);
 
         return resultMap;

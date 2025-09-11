@@ -19,7 +19,7 @@ builder.Services.Configure<AuthenticationGrantType>(builder.Configuration.GetSec
 builder.Services.Configure<AuthenticationClient>(builder.Configuration.GetSection("Authentication:Client"));
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

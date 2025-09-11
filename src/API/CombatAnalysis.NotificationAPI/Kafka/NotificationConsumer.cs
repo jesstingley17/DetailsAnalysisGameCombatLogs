@@ -86,7 +86,7 @@ public class NotificationConsumer(IOptions<KafkaSettings> kafkaSettings, IOption
 
     private static async Task ReadRecipientNotificationsAsync(IChatHubHelper chatHubHelper, NotificationAction notificationAction, IService<NotificationDto, int> notificationService)
     {
-        var notifications = await notificationService.GetByParamAsync(nameof(NotificationModel.RecipientId), notificationAction.RecipientId);
+        var notifications = await notificationService.GetByParamAsync(n => n.RecipientId, notificationAction.RecipientId);
         ArgumentNullException.ThrowIfNull(notifications, nameof(notifications));
 
         foreach (var notification in notifications)

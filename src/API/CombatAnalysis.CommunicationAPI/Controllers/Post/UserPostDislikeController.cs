@@ -10,18 +10,11 @@ namespace CombatAnalysis.CommunicationAPI.Controllers.Post;
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class UserPostDislikeController : ControllerBase
+public class UserPostDislikeController(IService<UserPostDislikeDto, int> service, IMapper mapper, ILogger<UserPostDislikeController> logger) : ControllerBase
 {
-    private readonly IService<UserPostDislikeDto, int> _service;
-    private readonly IMapper _mapper;
-    private readonly ILogger<UserPostDislikeController> _logger;
-
-    public UserPostDislikeController(IService<UserPostDislikeDto, int> service, IMapper mapper, ILogger<UserPostDislikeController> logger)
-    {
-        _service = service;
-        _mapper = mapper;
-        _logger = logger;
-    }
+    private readonly IService<UserPostDislikeDto, int> _service = service;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<UserPostDislikeController> _logger = logger;
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
@@ -42,7 +35,7 @@ public class UserPostDislikeController : ControllerBase
     [HttpGet("searchByPostId/{id:int:min(1)}")]
     public async Task<IActionResult> SearchByPostId(int id)
     {
-        var result = await _service.GetByParamAsync(nameof(UserPostDislikeModel.UserPostId), id);
+        var result = await _service.GetByParamAsync(c => c.UserPostId, id);
 
         return Ok(result);
     }

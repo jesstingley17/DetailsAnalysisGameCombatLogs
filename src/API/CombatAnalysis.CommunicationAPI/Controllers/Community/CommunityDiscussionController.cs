@@ -10,18 +10,11 @@ namespace CombatAnalysis.CommunicationAPI.Controllers.Community;
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class CommunityDiscussionController : ControllerBase
+public class CommunityDiscussionController(IService<CommunityDiscussionDto, int> service, IMapper mapper, ILogger<CommunityDiscussionController> logger) : ControllerBase
 {
-    private readonly IService<CommunityDiscussionDto, int> _service;
-    private readonly IMapper _mapper;
-    private readonly ILogger<CommunityDiscussionController> _logger;
-
-    public CommunityDiscussionController(IService<CommunityDiscussionDto, int> service, IMapper mapper, ILogger<CommunityDiscussionController> logger)
-    {
-        _service = service;
-        _mapper = mapper;
-        _logger = logger;
-    }
+    private readonly IService<CommunityDiscussionDto, int> _service = service;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<CommunityDiscussionController> _logger = logger;
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
@@ -42,7 +35,7 @@ public class CommunityDiscussionController : ControllerBase
     [HttpGet("findByCommunityId/{id:int:min(1)}")]
     public async Task<IActionResult> FindByCommunityId(int id)
     {
-        var result = await _service.GetByParamAsync(nameof(CommunityDiscussionModel.CommunityId), id);
+        var result = await _service.GetByParamAsync(c => c.CommunityId, id);
 
         return Ok(result);
     }

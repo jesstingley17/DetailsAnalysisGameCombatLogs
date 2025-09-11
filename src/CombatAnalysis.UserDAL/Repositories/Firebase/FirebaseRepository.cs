@@ -1,6 +1,7 @@
 ﻿using CombatAnalysis.UserDAL.Data;
 using CombatAnalysis.UserDAL.Interfaces;
 using Firebase.Database.Query;
+using System.Linq.Expressions;
 
 namespace CombatAnalysis.UserDAL.Repositories.Firebase;
 
@@ -77,17 +78,15 @@ internal class FirebaseRepository<TModel, TIdType> : IGenericRepository<TModel, 
         return result;
     }
 
-    public IEnumerable<TModel> GetByParam(string paramName, object value)
+    public async Task<IEnumerable<TModel>> GetByParamAsync<TValue>(Expression<Func<TModel, TValue>> property, TValue value)
     {
-        var data = _context.FirebaseClient
+        var data = await _context.FirebaseClient
               .Child(typeof(TModel).Name)
-              .OnceAsync<TModel>()
-              .GetAwaiter()
-              .GetResult();
+              .OnceAsync<TModel>();
 
         var result = data.Select(x => x.Object)
             .AsEnumerable()
-            .Where(x => x.GetType().GetProperty(paramName).GetValue(x).Equals(value));
+            .Where(x => property.Compile()(x).Equals(value));
 
         return result;
     }

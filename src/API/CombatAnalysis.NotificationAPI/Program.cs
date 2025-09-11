@@ -1,4 +1,5 @@
 using AutoMapper;
+using AutoMapper.Extensions.ExpressionMapping;
 using CombatAnalysis.NotificationAPI.Consts;
 using CombatAnalysis.NotificationAPI.Helpers;
 using CombatAnalysis.NotificationAPI.Interfaces;
@@ -24,9 +25,11 @@ builder.Services.NotificationBLDependencies(databasePropsOptions.DefaultConnecti
 
 var mappingConfig = new MapperConfiguration(mc =>
 {
+    mc.AddExpressionMapping();
     mc.AddProfile(new NotificationMapper());
     mc.AddProfile(new NotificationBLMapper());
 });
+
 var mapper = mappingConfig.CreateMapper();
 builder.Services.AddSingleton(mapper);
 

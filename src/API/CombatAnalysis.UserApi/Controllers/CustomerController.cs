@@ -10,18 +10,11 @@ namespace CombatAnalysis.UserApi.Controllers;
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class CustomerController : ControllerBase
+public class CustomerController(IService<CustomerDto, string> service, IMapper mapper, ILogger<CustomerController> logger) : ControllerBase
 {
-    private readonly IService<CustomerDto, string> _service;
-    private readonly IMapper _mapper;
-    private readonly ILogger<CustomerController> _logger;
-
-    public CustomerController(IService<CustomerDto, string> service, IMapper mapper, ILogger<CustomerController> logger)
-    {
-        _service = service;
-        _mapper = mapper;
-        _logger = logger;
-    }
+    private readonly IService<CustomerDto, string> _service = service;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<CustomerController> _logger = logger;
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
@@ -40,9 +33,10 @@ public class CustomerController : ControllerBase
     }
 
     [HttpGet("searchByUserId/{id}")]
+    [AllowAnonymous]
     public async Task<IActionResult> SearchByUserId(string id)
     {
-        var result = await _service.GetByParamAsync(nameof(CustomerModel.AppUserId), id);
+        var result = await _service.GetByParamAsync(c => c.AppUserId, id);
 
         return Ok(result);
     }

@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using AutoMapper.Extensions.ExpressionMapping;
 using CombatAnalysis.UserBL.DTO;
 using CombatAnalysis.UserBL.Interfaces;
 using CombatAnalysis.UserDAL.Entities;
 using CombatAnalysis.UserDAL.Interfaces;
+using System.Linq.Expressions;
 
 namespace CombatAnalysis.UserBL.Services;
 
@@ -50,9 +52,10 @@ internal class RequestToConnectService : IService<RequestToConnectDto, int>
         return resultMap;
     }
 
-    public async Task<IEnumerable<RequestToConnectDto>> GetByParamAsync(string paramName, object value)
+    public async Task<IEnumerable<RequestToConnectDto>> GetByParamAsync<TValue>(Expression<Func<RequestToConnectDto, TValue>> property, TValue value)
     {
-        var result = await Task.Run(() => _repository.GetByParam(paramName, value));
+        var map = _mapper.MapExpression<Expression<Func<RequestToConnect, TValue>>>(property);
+        var result = await _repository.GetByParamAsync(map, value);
         var resultMap = _mapper.Map<IEnumerable<RequestToConnectDto>>(result);
 
         return resultMap;

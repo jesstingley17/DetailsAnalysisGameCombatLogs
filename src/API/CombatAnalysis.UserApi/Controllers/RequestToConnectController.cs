@@ -10,18 +10,11 @@ namespace CombatAnalysis.UserApi.Controllers;
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class RequestToConnectController : ControllerBase
+public class RequestToConnectController(IService<RequestToConnectDto, int> service, IMapper mapper, ILogger<RequestToConnectController> logger) : ControllerBase
 {
-    private readonly IService<RequestToConnectDto, int> _service;
-    private readonly IMapper _mapper;
-    private readonly ILogger<RequestToConnectController> _logger;
-
-    public RequestToConnectController(IService<RequestToConnectDto, int> service, IMapper mapper, ILogger<RequestToConnectController> logger)
-    {
-        _service = service;
-        _mapper = mapper;
-        _logger = logger;
-    }
+    private readonly IService<RequestToConnectDto, int> _service = service;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<RequestToConnectController> _logger = logger;
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
@@ -42,7 +35,7 @@ public class RequestToConnectController : ControllerBase
     [HttpGet("searchByOwnerId/{id}")]
     public async Task<IActionResult> SearchByOwnerId(string id)
     {
-        var result = await _service.GetByParamAsync(nameof(RequestToConnectModel.AppUserId), id);
+        var result = await _service.GetByParamAsync(c => c.AppUserId, id);
 
         return Ok(result);
     }
@@ -50,7 +43,7 @@ public class RequestToConnectController : ControllerBase
     [HttpGet("searchByToUserId/{id}")]
     public async Task<IActionResult> SearchByToUserId(string id)
     {
-        var result = await _service.GetByParamAsync(nameof(RequestToConnectModel.ToAppUserId), id);
+        var result = await _service.GetByParamAsync(c => c.ToAppUserId, id);
 
         return Ok(result);
     }

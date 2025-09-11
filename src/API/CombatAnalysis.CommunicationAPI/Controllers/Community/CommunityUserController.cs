@@ -10,18 +10,11 @@ namespace CombatAnalysis.CommunicationAPI.Controllers.Community;
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class CommunityUserController : ControllerBase
+public class CommunityUserController(IService<CommunityUserDto, string> service, IMapper mapper, ILogger<CommunityUserController> logger) : ControllerBase
 {
-    private readonly IService<CommunityUserDto, string> _service;
-    private readonly IMapper _mapper;
-    private readonly ILogger<CommunityUserController> _logger;
-
-    public CommunityUserController(IService<CommunityUserDto, string> service, IMapper mapper, ILogger<CommunityUserController> logger)
-    {
-        _service = service;
-        _mapper = mapper;
-        _logger = logger;
-    }
+    private readonly IService<CommunityUserDto, string> _service = service;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<CommunityUserController> _logger = logger;
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
@@ -42,7 +35,7 @@ public class CommunityUserController : ControllerBase
     [HttpGet("searchByCommunityId/{communityId:int:min(1)}")]
     public async Task<IActionResult> SearchByCommunityId(int communityId)
     {
-        var result = await _service.GetByParamAsync(nameof(CommunityUserModel.CommunityId), communityId);
+        var result = await _service.GetByParamAsync(c => c.CommunityId, communityId);
 
         return Ok(result);
     }
@@ -50,7 +43,7 @@ public class CommunityUserController : ControllerBase
     [HttpGet("searchByUserId/{userId}")]
     public async Task<IActionResult> SearchByUserId(string userId)
     {
-        var result = await _service.GetByParamAsync(nameof(CommunityUserModel.AppUserId), userId);
+        var result = await _service.GetByParamAsync(c => c.AppUserId, userId);
 
         return Ok(result);
     }

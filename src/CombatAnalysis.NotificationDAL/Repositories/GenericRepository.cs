@@ -1,6 +1,7 @@
 ﻿using CombatAnalysis.NotificationDAL.Data;
 using CombatAnalysis.NotificationDAL.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace CombatAnalysis.NotificationDAL.Repositories;
 
@@ -32,7 +33,7 @@ internal class GenericRepository<TModel, TIdType>(NotificationContext context) :
     public async Task<IEnumerable<TModel>> GetAllAsync()
     {
         var collection = await _context.Set<TModel>().AsNoTracking().ToListAsync();
-        return collection.Count != 0 ? collection : [];
+        return collection;
     }
 
     public async Task<TModel?> GetByIdAsync(TIdType id)
@@ -46,12 +47,23 @@ internal class GenericRepository<TModel, TIdType>(NotificationContext context) :
         return entity;
     }
 
-    public IEnumerable<TModel> GetByParam(string paramName, object value)
+    public async Task<IEnumerable<TModel>> GetByParamAsync<TValue>(Expression<Func<TModel, TValue>> property, TValue value)
     {
-        var collection = _context.Set<TModel>().AsNoTracking().AsEnumerable();
-        var data = collection.Where(x => x.GetType().GetProperty(paramName)?.GetValue(x) == value);
+        var parameter = Expression.Parameter(typeof(TModel), "param");
 
-        return data.Any() ? data : [];
+        var body = Expression.Equal(
+            Expression.Invoke(property, parameter),
+            Expression.Constant(value, typeof(TValue))
+        );
+
+        var lambda = Expression.Lambda<Func<TModel, bool>>(body, parameter);
+
+        var query = await _context.Set<TModel>()
+                                .AsNoTracking()
+                                .Where(lambda)
+                                .ToListAsync();
+
+        return query;
     }
 
     public async Task<int> UpdateAsync(TModel item)

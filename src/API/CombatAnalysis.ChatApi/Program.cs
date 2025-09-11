@@ -1,4 +1,5 @@
 using AutoMapper;
+using AutoMapper.Extensions.ExpressionMapping;
 using CombatAnalysis.ChatApi.Consts;
 using CombatAnalysis.ChatApi.Enums;
 using CombatAnalysis.ChatApi.Helpers;
@@ -28,9 +29,11 @@ builder.Services.ChatBLDependencies(databasePropsOptions.Name, connectionString)
 
 var mappingConfig = new MapperConfiguration(mc =>
 {
+    mc.AddExpressionMapping();
     mc.AddProfile(new ChatMapper());
     mc.AddProfile(new ChatBLMapper());
 });
+
 var mapper = mappingConfig.CreateMapper();
 builder.Services.AddSingleton(mapper);
 
@@ -76,7 +79,11 @@ builder.Services.AddHostedService<GroupChatUnreadMessageConsumer>();
 
 builder.Services.AddSingleton<IKafkaProducerService<string, string>, KafkaProducer<string, string>>();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {

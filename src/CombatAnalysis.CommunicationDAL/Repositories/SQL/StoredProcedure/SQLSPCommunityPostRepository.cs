@@ -7,66 +7,64 @@ namespace CombatAnalysis.CommunicationDAL.Repositories.SQL.StoredProcedure;
 
 internal class SQLSPCommunityPostRepository(CommunicationSQLContext context) : SQLRepository<CommunityPost, int>(context), ICommunityPostRepository
 {
-    private readonly CommunicationSQLContext _context = context;
-
     public async Task<IEnumerable<CommunityPost>> GetByCommunityIdAsync(int communityId, int pageSize)
     {
         var procName = $"Get{nameof(CommunityPost)}ByCommunityIdPagination";
-        var data = await Task.Run(() => _context.Set<CommunityPost>()
+        var data = await _context.Set<CommunityPost>()
                             .FromSql($"{procName} @communityId={communityId}, @pageSize={pageSize}")
-                            .AsEnumerable());
+                            .ToListAsync();
 
-        return data.Any() ? data : [];
+        return data;
     }
 
     public async Task<IEnumerable<CommunityPost>> GetMoreByCommunityIdAsync(int communityId, int offset, int pageSize)
     {
         var procName = $"GetMore{nameof(CommunityPost)}ByCommunityId";
-        var data = await Task.Run(() => _context.Set<CommunityPost>()
+        var data = await _context.Set<CommunityPost>()
                             .FromSql($"GetMore{nameof(CommunityPost)}ByCommunityId @communityId={communityId}, @offset={offset}, @pageSize={pageSize}")
-                            .AsEnumerable());
+                            .ToListAsync();
 
-        return data.Any() ? data : [];
+        return data;
     }
 
     public async Task<IEnumerable<CommunityPost>> GetNewByCommunityIdAsync(int communityId, DateTimeOffset checkFrom)
     {
         var procName = $"GetNew{nameof(CommunityPost)}ByCommunityId";
-        var data = await Task.Run(() => _context.Set<CommunityPost>()
+        var data = await _context.Set<CommunityPost>()
                             .FromSql($"{procName} @communityId={communityId}, @checkFrom={checkFrom}")
-                            .AsEnumerable());
+                            .ToListAsync();
 
-        return data.Any() ? data : [];
+        return data;
     }
 
     public async Task<IEnumerable<CommunityPost>> GetByListOfCommunityIdAsync(string communityIds, int pageSize)
     {
         var procName = $"Get{nameof(CommunityPost)}ByListOfCommunityIdPagination";
-        var data = await Task.Run(() => _context.Set<CommunityPost>()
+        var data = await _context.Set<CommunityPost>()
                             .FromSql($"{procName} @communityIds={communityIds}, @pageSize={pageSize}")
-                            .AsEnumerable());
+                            .ToListAsync();
 
-        return data.Any() ? data : [];
+        return data;
     }
 
     public async Task<IEnumerable<CommunityPost>> GetMoreByListOfCommunityIdAsync(string communityIds, int offset, int pageSize)
     {
         var procName = $"GetMore{nameof(CommunityPost)}ByListOfCommunityId";
-        var data = await Task.Run(() => _context.Set<CommunityPost>()
+        var data = await _context.Set<CommunityPost>()
                             .FromSql($"{procName} @communityIds={communityIds}, @offset={offset}, @pageSize={pageSize}")
-                            .AsEnumerable());
+                            .ToListAsync();
 
-        return data.Any() ? data : [];
+        return data;
     }
 
     public async Task<IEnumerable<CommunityPost>> GetNewByListOfCommunityIdAsync(string communityIds, DateTimeOffset checkFrom)
     {
         var procName = $"GetNew{nameof(CommunityPost)}ByListOfCommunityId";
-        var data = await Task.Run(() => _context.Set<CommunityPost>()
+        var data = await _context.Set<CommunityPost>()
                             .FromSql($"{procName} @communityIds={communityIds}, @checkFrom={checkFrom}")
-                            .AsEnumerable());
+                            .ToListAsync();
 
-        return data.Any() ? data : [];
+        return data;
     }
 
     public async Task<int> CountByCommunityIdAsync(int communityId)

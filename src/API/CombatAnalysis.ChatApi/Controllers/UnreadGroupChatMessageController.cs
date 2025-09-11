@@ -67,7 +67,7 @@ public class UnreadGroupChatMessageController(IService<UnreadGroupChatMessageDto
         {
             ArgumentOutOfRangeException.ThrowIfZero(id, nameof(id));
 
-            var unreadGroupChatMessages = await _service.GetByParamAsync(nameof(UnreadGroupChatMessageModel.GroupChatMessageId), id);
+            var unreadGroupChatMessages = await _service.GetByParamAsync(u => u.GroupChatMessageId, id);
             ArgumentNullException.ThrowIfNull(unreadGroupChatMessages, nameof(unreadGroupChatMessages));
 
             return Ok(unreadGroupChatMessages);

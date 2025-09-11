@@ -1,6 +1,7 @@
 ﻿using CombatAnalysis.CommunicationDAL.Data;
 using CombatAnalysis.CommunicationDAL.Interfaces;
 using Firebase.Database.Query;
+using System.Linq.Expressions;
 
 namespace CombatAnalysis.CommunicationDAL.Repositories.Firebase;
 
@@ -72,7 +73,7 @@ internal class FirebaseRepository<TModel, TIdType>(FirebaseContext context) : IG
         return result;
     }
 
-    public async Task<IEnumerable<TModel>> GetByParamAsync(string paramName, object value)
+    public async Task<IEnumerable<TModel>> GetByParamAsync<TValue>(Expression<Func<TModel, TValue>> property, TValue value)
     {
         var data = await _context.FirebaseClient
               .Child(typeof(TModel).Name)
@@ -80,7 +81,7 @@ internal class FirebaseRepository<TModel, TIdType>(FirebaseContext context) : IG
 
         var result = data.Select(x => x.Object)
             .AsEnumerable()
-            .Where(x => x.GetType().GetProperty(paramName)?.GetValue(x) == value);
+            .Where(x => property.Compile()(x).Equals(value));
 
         return result;
     }

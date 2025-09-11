@@ -33,9 +33,10 @@ public class NotificationController(IService<NotificationDto, int> notificationS
     }
 
     [HttpGet("getByRecipientId/{recipientId}")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetByRecipientId(string recipientId)
     {
-        var recipientNotifications = await _notificationService.GetByParamAsync(nameof(NotificationModel.RecipientId), recipientId);
+        var recipientNotifications = await _notificationService.GetByParamAsync(n => n.RecipientId, recipientId);
 
         return Ok(recipientNotifications);
     }
@@ -43,7 +44,7 @@ public class NotificationController(IService<NotificationDto, int> notificationS
     [HttpGet("getUnreadByRecipientId/{recipientId}")]
     public async Task<IActionResult> GetUnreadByRecipientId(string recipientId)
     {
-        var recipientNotifications = await _notificationService.GetByParamAsync(nameof(NotificationModel.RecipientId), recipientId);
+        var recipientNotifications = await _notificationService.GetByParamAsync(n => n.RecipientId, recipientId);
         var unreadNotifications = recipientNotifications.Where(n => n.Status == 0).ToList();
 
         return Ok(unreadNotifications);

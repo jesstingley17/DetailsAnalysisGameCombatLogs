@@ -10,18 +10,11 @@ namespace CombatAnalysis.CommunicationAPI.Controllers.Post;
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class CommunityPostController : ControllerBase
+public class CommunityPostController(ICommunityPostService service, IMapper mapper, ILogger<CommunityPostController> logger) : ControllerBase
 {
-    private readonly ICommunityPostService _service;
-    private readonly IMapper _mapper;
-    private readonly ILogger<CommunityPostController> _logger;
-
-    public CommunityPostController(ICommunityPostService service, IMapper mapper, ILogger<CommunityPostController> logger)
-    {
-        _service = service;
-        _mapper = mapper;
-        _logger = logger;
-    }
+    private readonly ICommunityPostService _service = service;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<CommunityPostController> _logger = logger;
 
     [HttpGet("count/{communityId}")]
     public async Task<IActionResult> Count(int communityId)

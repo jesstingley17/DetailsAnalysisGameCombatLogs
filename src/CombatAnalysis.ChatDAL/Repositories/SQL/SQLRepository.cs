@@ -1,6 +1,7 @@
 ﻿using CombatAnalysis.ChatDAL.Data;
 using CombatAnalysis.ChatDAL.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace CombatAnalysis.ChatDAL.Repositories.SQL;
 
@@ -8,7 +9,7 @@ internal class SQLRepository<TModel, TIdType>(ChatSQLContext context) : IGeneric
     where TModel : class
     where TIdType : notnull
 {
-    private readonly ChatSQLContext _context = context;
+    protected readonly ChatSQLContext _context = context;
 
     public async Task<TModel> CreateAsync(TModel item)
     {
@@ -33,7 +34,7 @@ internal class SQLRepository<TModel, TIdType>(ChatSQLContext context) : IGeneric
     public async Task<IEnumerable<TModel>> GetAllAsync()
     {
         var result = await _context.Set<TModel>().AsNoTracking().ToListAsync();
-        return result.Count != 0 ? result : [];
+        return result;
     }
 
     public async Task<TModel?> GetByIdAsync(TIdType id)
@@ -47,16 +48,23 @@ internal class SQLRepository<TModel, TIdType>(ChatSQLContext context) : IGeneric
         return entity;
     }
 
-    public async Task<IEnumerable<TModel>> GetByParamAsync(string paramName, object value)
+    public async Task<IEnumerable<TModel>> GetByParamAsync<TValue>(Expression<Func<TModel, TValue>> property, TValue value)
     {
-        var query = _context.Set<TModel>().AsNoTracking();
+        var parameter = Expression.Parameter(typeof(TModel), "param");
 
-        var filteredQuery = query.Where(x => EF.Property<object>(x, paramName).Equals(value));
-        var any = await filteredQuery.AnyAsync();
+        var body = Expression.Equal(
+            Expression.Invoke(property, parameter),
+            Expression.Constant(value, typeof(TValue))
+        );
 
-        var result = any ? filteredQuery.AsEnumerable() : Enumerable.Empty<TModel>();
+        var lambda = Expression.Lambda<Func<TModel, bool>>(body, parameter);
 
-        return result;
+        var query = await _context.Set<TModel>()
+                                .AsNoTracking()
+                                .Where(lambda)
+                                .ToListAsync();
+
+        return query;
     }
 
     public async Task<int> UpdateAsync(TModel item)

@@ -6,7 +6,7 @@ using CombatAnalysis.UserDAL.Interfaces;
 
 namespace CombatAnalysis.UserBL.Services;
 
-internal class FriendService(IFriendRepository repository, IMapper mapper) : IService<FriendDto, int>
+internal class FriendService(IFriendRepository repository, IMapper mapper) : IFriendService
 {
     private readonly IFriendRepository _repository = repository;
     private readonly IMapper _mapper = mapper;
@@ -46,7 +46,7 @@ internal class FriendService(IFriendRepository repository, IMapper mapper) : ISe
 
     public async Task<IEnumerable<FriendDto>> GetByParamAsync(string paramName, object value)
     {
-        var result = await Task.Run(() => _repository.GetByParam(paramName, value));
+        var result = await _repository.GetByParamAsync(paramName, value);
         var resultMap = _mapper.Map<IEnumerable<FriendDto>>(result);
 
         return resultMap;

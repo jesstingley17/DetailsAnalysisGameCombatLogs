@@ -9,26 +9,25 @@ namespace CombatAnalysis.ChatDAL.Repositories.SQL.StoredProcedure;
 internal class SQLSPGroupChatMessageRepository<TIdType>(ChatSQLContext context) : SQLRepository<GroupChatMessage, TIdType>(context), IGroupChatMessageRepository<TIdType>
     where TIdType : notnull
 {
-    private readonly ChatSQLContext _context = context;
 
     public async Task<IEnumerable<GroupChatMessageDto>> GetByChatIdAsyn(int chatId, string groupChatUserId, int pageSize)
     {
         var procName = $"Get{nameof(GroupChatMessage)}ByChatIdPagination";
-        var data = await Task.Run(() => _context.Set<GroupChatMessageDto>()
+        var data = await _context.Set<GroupChatMessageDto>()
                             .FromSql($"{procName} @chatId={chatId}, @groupChatUserId={groupChatUserId}, @pageSize={pageSize}")
-                            .AsEnumerable());
+                            .ToListAsync();
 
-        return data.Any() ? data : [];
+        return data;
     }
 
     public async Task<IEnumerable<GroupChatMessageDto>> GetMoreByChatIdAsyn(int chatId, string groupChatUserId, int offset, int pageSize)
     {
         var procName = $"Get{nameof(GroupChatMessage)}ByChatIdMore";
-        var data = await Task.Run(() => _context.Set<GroupChatMessageDto>()
+        var data = await _context.Set<GroupChatMessageDto>()
                             .FromSql($"{procName} @chatId={chatId}, @groupChatUserId={groupChatUserId}, @offset={offset}, @pageSize={pageSize}")
-                            .AsEnumerable());
+                            .ToListAsync();
 
-        return data.Any() ? data : [];
+        return data;
     }
 
     public async Task<int> CountByChatIdAsync(int chatId)

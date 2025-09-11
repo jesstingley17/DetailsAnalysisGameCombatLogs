@@ -48,7 +48,7 @@ public class PersonalChatMessageNotificationConsumer(IOptions<KafkaSettings> kaf
 
     private static async Task CreateNotificationAsync(IChatHubHelper chatHubHelper, PersonalChatMessageAction chatAction, IService<NotificationDto, int> notificationService)
     {
-        var similarNotifcation = await notificationService.GetByParamAsync(nameof(NotificationDto.InitiatorId), chatAction.ChatId.ToString());
+        var similarNotifcation = await notificationService.GetByParamAsync(n => n.InitiatorId, chatAction.ChatId.ToString());
         var notifcationExist = similarNotifcation.Any(n => n.RecipientId == chatAction.RecipientId 
                                                         && n.Type == (int)NotificationType.PersonalChatMessage
                                                         && n.Status == (int)NotificationStatus.Unread);

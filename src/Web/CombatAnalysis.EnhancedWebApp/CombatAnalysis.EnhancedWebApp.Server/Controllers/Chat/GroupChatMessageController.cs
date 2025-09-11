@@ -32,19 +32,27 @@ public class GroupChatMessageController : ControllerBase
     [HttpGet("getByChatId")]
     public async Task<IActionResult> GetByChatId(int chatId, string groupChatUserId, int pageSize)
     {
-        var responseMessage = await _httpClient.GetAsync($"GroupChatMessage/getByChatId?chatId={chatId}&groupChatUserId={groupChatUserId}&pageSize={pageSize}");
-        if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        try
         {
-            return Unauthorized();
+            var responseMessage = await _httpClient.GetAsync($"GroupChatMessage/getByChatId?chatId={chatId}&groupChatUserId={groupChatUserId}&pageSize={pageSize}");
+            if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                return Unauthorized();
+            }
+            else if (responseMessage.IsSuccessStatusCode)
+            {
+                var messages = await responseMessage.Content.ReadFromJsonAsync<IEnumerable<GroupChatMessageModel>>();
+
+                return Ok(messages);
+            }
+
+            return BadRequest();
         }
-        else if (responseMessage.IsSuccessStatusCode)
+        catch (Exception ex)
         {
-            var messages = await responseMessage.Content.ReadFromJsonAsync<IEnumerable<GroupChatMessageModel>>();
-
-            return Ok(messages);
+            var msg = ex.Message;
+            throw;
         }
-
-        return BadRequest();
     }
 
     [HttpGet("getMoreByChatId")]

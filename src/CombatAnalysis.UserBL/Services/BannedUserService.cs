@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using AutoMapper.Extensions.ExpressionMapping;
 using CombatAnalysis.UserBL.DTO;
 using CombatAnalysis.UserBL.Interfaces;
 using CombatAnalysis.UserDAL.Entities;
 using CombatAnalysis.UserDAL.Interfaces;
+using System.Linq.Expressions;
 
 namespace CombatAnalysis.UserBL.Services;
 
@@ -50,9 +52,10 @@ internal class BannedUserService : IService<BannedUserDto, int>
         return resultMap;
     }
 
-    public async Task<IEnumerable<BannedUserDto>> GetByParamAsync(string paramName, object value)
+    public async Task<IEnumerable<BannedUserDto>> GetByParamAsync<TValue>(Expression<Func<BannedUserDto, TValue>> property, TValue value)
     {
-        var result = await Task.Run(() => _repository.GetByParam(paramName, value));
+        var map = _mapper.MapExpression<Expression<Func<BannedUser, TValue>>>(property);
+        var result = await _repository.GetByParamAsync(map, value);
         var resultMap = _mapper.Map<IEnumerable<BannedUserDto>>(result);
 
         return resultMap;

@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using AutoMapper.Extensions.ExpressionMapping;
 using CombatAnalysis.CommunicationBL.DTO.Post;
 using CombatAnalysis.CommunicationBL.Interfaces;
 using CombatAnalysis.CommunicationDAL.Entities.Post;
 using CombatAnalysis.CommunicationDAL.Interfaces;
+using System.Linq.Expressions;
 
 namespace CombatAnalysis.CommunicationBL.Services.Post;
 
@@ -50,9 +52,10 @@ internal class CommunityPostLikeService : IService<CommunityPostLikeDto, int>
         return resultMap;
     }
 
-    public async Task<IEnumerable<CommunityPostLikeDto>> GetByParamAsync(string paramName, object value)
+    public async Task<IEnumerable<CommunityPostLikeDto>> GetByParamAsync<TValue>(Expression<Func<CommunityPostLikeDto, TValue>> property, TValue value)
     {
-        var result = await _repository.GetByParamAsync(paramName, value);
+        var map = _mapper.MapExpression<Expression<Func<CommunityPostLike, TValue>>>(property);
+        var result = await _repository.GetByParamAsync(map, value);
         var resultMap = _mapper.Map<IEnumerable<CommunityPostLikeDto>>(result);
 
         return resultMap;

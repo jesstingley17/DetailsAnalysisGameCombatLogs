@@ -9,26 +9,24 @@ internal class SQLSPPersonalChatMessageRepository<TModel, TIdType>(ChatSQLContex
     where TModel : class, IChatEntity
     where TIdType : notnull
 {
-    private readonly ChatSQLContext _context = context;
-
     public async Task<IEnumerable<TModel>> GetByChatIdAsyn(int chatId, int pageSize)
     {
         var procName = $"Get{typeof(TModel).Name}ByChatIdPagination";
-        var data = await Task.Run(() => _context.Set<TModel>()
+        var data = await _context.Set<TModel>()
                             .FromSql($"{procName} @chatId={chatId}, @pageSize={pageSize}")
-                            .AsEnumerable());
+                            .ToListAsync();
 
-        return data.Any() ? data : [];
+        return data;
     }
 
     public async Task<IEnumerable<TModel>> GetMoreByChatIdAsyn(int chatId, int offset, int pageSize)
     {
         var procName = $"Get{typeof(TModel).Name}ByChatIdMore";
-        var data = await Task.Run(() => _context.Set<TModel>()
+        var data = await _context.Set<TModel>()
                             .FromSql($"{procName} @chatId={chatId}, @offset={offset}, @pageSize={pageSize}")
-                            .AsEnumerable());
+                            .ToListAsync();
 
-        return data.Any() ? data : [];
+        return data;
     }
 
     public async Task<int> CountByChatIdAsync(int chatId)

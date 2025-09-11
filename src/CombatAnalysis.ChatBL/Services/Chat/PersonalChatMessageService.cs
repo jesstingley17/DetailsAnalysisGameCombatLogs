@@ -1,21 +1,17 @@
 ﻿using AutoMapper;
+using AutoMapper.Extensions.ExpressionMapping;
 using CombatAnalysis.ChatBL.DTO;
 using CombatAnalysis.ChatBL.Interfaces;
 using CombatAnalysis.ChatDAL.Entities;
 using CombatAnalysis.ChatDAL.Interfaces;
+using System.Linq.Expressions;
 
 namespace CombatAnalysis.ChatBL.Services.Chat;
 
-internal class PersonalChatMessageService : IPersonalChatMessageService<PersonalChatMessageDto, int>
+internal class PersonalChatMessageService(IPersonalChatMessageRepository<PersonalChatMessage, int> repository, IMapper mapper) : IPersonalChatMessageService<PersonalChatMessageDto, int>
 {
-    private readonly IPersonalChatMessageRepository<PersonalChatMessage, int> _repository;
-    private readonly IMapper _mapper;
-
-    public PersonalChatMessageService(IPersonalChatMessageRepository<PersonalChatMessage, int> repository, IMapper mapper)
-    {
-        _repository = repository;
-        _mapper = mapper;
-    }
+    private readonly IPersonalChatMessageRepository<PersonalChatMessage, int> _repository = repository;
+    private readonly IMapper _mapper = mapper;
 
     public Task<PersonalChatMessageDto> CreateAsync(PersonalChatMessageDto item)
     {
@@ -50,9 +46,10 @@ internal class PersonalChatMessageService : IPersonalChatMessageService<Personal
         return resultMap;
     }
 
-    public async Task<IEnumerable<PersonalChatMessageDto>> GetByParamAsync(string paramName, object value)
+    public async Task<IEnumerable<PersonalChatMessageDto>> GetByParamAsync<TValue>(Expression<Func<PersonalChatMessageDto, TValue>> property, TValue value)
     {
-        var result = await _repository.GetByParamAsync(paramName, value);
+        var map = _mapper.MapExpression<Expression<Func<PersonalChatMessage, TValue>>>(property);
+        var result = await _repository.GetByParamAsync(map, value);
         var resultMap = _mapper.Map<IEnumerable<PersonalChatMessageDto>>(result);
 
         return resultMap;

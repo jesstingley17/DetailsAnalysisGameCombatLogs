@@ -10,18 +10,11 @@ namespace CombatAnalysis.CommunicationAPI.Controllers.Community;
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class CommunityDiscussionCommentController : ControllerBase
+public class CommunityDiscussionCommentController(IService<CommunityDiscussionCommentDto, int> service, IMapper mapper, ILogger<CommunityDiscussionCommentController> logger) : ControllerBase
 {
-    private readonly IService<CommunityDiscussionCommentDto, int> _service;
-    private readonly IMapper _mapper;
-    private readonly ILogger<CommunityDiscussionCommentController> _logger;
-
-    public CommunityDiscussionCommentController(IService<CommunityDiscussionCommentDto, int> service, IMapper mapper, ILogger<CommunityDiscussionCommentController> logger)
-    {
-        _service = service;
-        _mapper = mapper;
-        _logger = logger;
-    }
+    private readonly IService<CommunityDiscussionCommentDto, int> _service = service;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<CommunityDiscussionCommentController> _logger = logger;
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
@@ -42,7 +35,7 @@ public class CommunityDiscussionCommentController : ControllerBase
     [HttpGet("findByDiscussionId/{id:int:min(1)}")]
     public async Task<IActionResult> FindByDiscussionId(int id)
     {
-        var result = await _service.GetByParamAsync(nameof(CommunityDiscussionCommentModel.CommunityDiscussionId), id);
+        var result = await _service.GetByParamAsync(c => c.CommunityDiscussionId, id);
 
         return Ok(result);
     }

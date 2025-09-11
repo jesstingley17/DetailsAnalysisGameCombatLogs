@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using AutoMapper.Extensions.ExpressionMapping;
 using CombatAnalysis.CommunicationBL.DTO.Post;
 using CombatAnalysis.CommunicationBL.Interfaces;
 using CombatAnalysis.CommunicationDAL.Entities.Post;
 using CombatAnalysis.CommunicationDAL.Interfaces;
+using System.Linq.Expressions;
 
 namespace CombatAnalysis.CommunicationBL.Services.Post;
 
@@ -83,9 +85,10 @@ internal class UserPostService : IUserPostService
         return resultMap;
     }
 
-    public async Task<IEnumerable<UserPostDto>> GetByParamAsync(string paramName, object value)
+    public async Task<IEnumerable<UserPostDto>> GetByParamAsync<TValue>(Expression<Func<UserPostDto, TValue>> property, TValue value)
     {
-        var result = await _repository.GetByParamAsync(paramName, value);
+        var map = _mapper.MapExpression<Expression<Func<UserPost, TValue>>>(property);
+        var result = await _repository.GetByParamAsync(map, value);
         var resultMap = _mapper.Map<IEnumerable<UserPostDto>>(result);
 
         return resultMap;
@@ -200,7 +203,7 @@ internal class UserPostService : IUserPostService
 
     private async Task DeletePostLikesAsync(int postId)
     {
-        var postLikes = await _postLikeService.GetByParamAsync(nameof(UserPostLikeDto.UserPostId), postId);
+        var postLikes = await _postLikeService.GetByParamAsync(c => c.UserPostId, postId);
         foreach (var item in postLikes)
         {
             var rowsAffected = await _postLikeService.DeleteAsync(item.Id);
@@ -213,7 +216,7 @@ internal class UserPostService : IUserPostService
 
     private async Task DeletePostDislikesAsync(int postId)
     {
-        var postDislikes = await _postDislikeService.GetByParamAsync(nameof(UserPostDislikeDto.UserPostId), postId);
+        var postDislikes = await _postDislikeService.GetByParamAsync(c => c.UserPostId, postId);
         foreach (var item in postDislikes)
         {
             var rowsAffected = await _postDislikeService.DeleteAsync(item.Id);
@@ -226,7 +229,7 @@ internal class UserPostService : IUserPostService
 
     private async Task DeletePostComentsAsync(int postId)
     {
-        var postComments = await _postCommentService.GetByParamAsync(nameof(UserPostCommentDto.UserPostId), postId);
+        var postComments = await _postCommentService.GetByParamAsync(c => c.UserPostId, postId);
         foreach (var item in postComments)
         {
             var rowsAffected = await _postCommentService.DeleteAsync(item.Id);

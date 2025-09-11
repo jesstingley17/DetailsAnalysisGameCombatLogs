@@ -1,4 +1,5 @@
 using AutoMapper;
+using AutoMapper.Extensions.ExpressionMapping;
 using CombatAnalysis.CommunicationAPI.Consts;
 using CombatAnalysis.CommunicationAPI.Enums;
 using CombatAnalysis.CommunicationAPI.Mapping;
@@ -22,9 +23,11 @@ builder.Services.CommunicationBLDependencies(databasePropsOptions.Name, connecti
 
 var mappingConfig = new MapperConfiguration(mc =>
 {
+    mc.AddExpressionMapping();
     mc.AddProfile(new CommunicationMapper());
     mc.AddProfile(new BLMapper());
 });
+
 var mapper = mappingConfig.CreateMapper();
 builder.Services.AddSingleton(mapper);
 

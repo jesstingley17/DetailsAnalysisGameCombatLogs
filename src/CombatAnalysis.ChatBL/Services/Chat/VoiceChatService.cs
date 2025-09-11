@@ -1,21 +1,17 @@
 ﻿using AutoMapper;
+using AutoMapper.Extensions.ExpressionMapping;
 using CombatAnalysis.ChatBL.DTO;
 using CombatAnalysis.ChatBL.Interfaces;
 using CombatAnalysis.ChatDAL.Entities;
 using CombatAnalysis.ChatDAL.Interfaces;
+using System.Linq.Expressions;
 
 namespace CombatAnalysis.ChatBL.Services.Chat;
 
-internal class VoiceChatService : IService<VoiceChatDto, string>
+internal class VoiceChatService(IGenericRepository<VoiceChat, string> repository, IMapper mapper) : IService<VoiceChatDto, string>
 {
-    private readonly IGenericRepository<VoiceChat, string> _repository;
-    private readonly IMapper _mapper;
-
-    public VoiceChatService(IGenericRepository<VoiceChat, string> repository, IMapper mapper)
-    {
-        _repository = repository;
-        _mapper = mapper;
-    }
+    private readonly IGenericRepository<VoiceChat, string> _repository = repository;
+    private readonly IMapper _mapper = mapper;
 
     public Task<VoiceChatDto> CreateAsync(VoiceChatDto item)
     {
@@ -50,9 +46,10 @@ internal class VoiceChatService : IService<VoiceChatDto, string>
         return resultMap;
     }
 
-    public async Task<IEnumerable<VoiceChatDto>> GetByParamAsync(string paramName, object value)
+    public async Task<IEnumerable<VoiceChatDto>> GetByParamAsync<TValue>(Expression<Func<VoiceChatDto, TValue>> property, TValue value)
     {
-        var result = await _repository.GetByParamAsync(paramName, value);
+        var map = _mapper.MapExpression<Expression<Func<VoiceChat, TValue>>>(property);
+        var result = await _repository.GetByParamAsync(map, value);
         var resultMap = _mapper.Map<IEnumerable<VoiceChatDto>>(result);
 
         return resultMap;

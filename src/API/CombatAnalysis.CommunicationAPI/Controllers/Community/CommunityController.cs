@@ -10,21 +10,13 @@ namespace CombatAnalysis.CommunicationAPI.Controllers.Community;
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class CommunityController : ControllerBase
+public class CommunityController(ICommunityService service, IMapper mapper, ILogger<CommunityController> logger) : ControllerBase
 {
-    private readonly ICommunityService _service;
-    private readonly IMapper _mapper;
-    private readonly ILogger<CommunityController> _logger;
-
-    public CommunityController(ICommunityService service, IMapper mapper, ILogger<CommunityController> logger)
-    {
-        _service = service;
-        _mapper = mapper;
-        _logger = logger;
-    }
+    private readonly ICommunityService _service = service;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<CommunityController> _logger = logger;
 
     [HttpGet]
-    [AllowAnonymous]
     public async Task<IActionResult> GetAll()
     {
         var result = await _service.GetAllAsync();
@@ -33,7 +25,6 @@ public class CommunityController : ControllerBase
     }
 
     [HttpGet("{id:int:min(1)}")]
-    [AllowAnonymous]
     public async Task<IActionResult> GetById(int id)
     {
         var result = await _service.GetByIdAsync(id);

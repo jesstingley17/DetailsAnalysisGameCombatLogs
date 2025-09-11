@@ -10,18 +10,11 @@ namespace CombatAnalysis.UserApi.Controllers;
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class BannedUserController : ControllerBase
+public class BannedUserController(IService<BannedUserDto, int> service, IMapper mapper, ILogger<BannedUserController> logger) : ControllerBase
 {
-    private readonly IService<BannedUserDto, int> _service;
-    private readonly IMapper _mapper;
-    private readonly ILogger<BannedUserController> _logger;
-
-    public BannedUserController(IService<BannedUserDto, int> service, IMapper mapper, ILogger<BannedUserController> logger)
-    {
-        _service = service;
-        _mapper = mapper;
-        _logger = logger;
-    }
+    private readonly IService<BannedUserDto, int> _service = service;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<BannedUserController> _logger = logger;
 
     [HttpGet]
     public async Task<IActionResult> GetAll()

@@ -1,21 +1,17 @@
 ﻿using AutoMapper;
+using AutoMapper.Extensions.ExpressionMapping;
 using CombatAnalysis.ChatBL.DTO;
 using CombatAnalysis.ChatBL.Interfaces;
 using CombatAnalysis.ChatDAL.Entities;
 using CombatAnalysis.ChatDAL.Interfaces;
+using System.Linq.Expressions;
 
 namespace CombatAnalysis.ChatBL.Services.Chat;
 
-internal class UnreadGroupChatMessageService : IService<UnreadGroupChatMessageDto, int>
+internal class UnreadGroupChatMessageService(IGenericRepository<UnreadGroupChatMessage, int> repository, IMapper mapper) : IService<UnreadGroupChatMessageDto, int>
 {
-    private readonly IGenericRepository<UnreadGroupChatMessage, int> _repository;
-    private readonly IMapper _mapper;
-
-    public UnreadGroupChatMessageService(IGenericRepository<UnreadGroupChatMessage, int> repository, IMapper mapper)
-    {
-        _repository = repository;
-        _mapper = mapper;
-    }
+    private readonly IGenericRepository<UnreadGroupChatMessage, int> _repository = repository;
+    private readonly IMapper _mapper = mapper;
 
     public Task<UnreadGroupChatMessageDto> CreateAsync(UnreadGroupChatMessageDto item)
     {
@@ -50,9 +46,10 @@ internal class UnreadGroupChatMessageService : IService<UnreadGroupChatMessageDt
         return resultMap;
     }
 
-    public async Task<IEnumerable<UnreadGroupChatMessageDto>> GetByParamAsync(string paramName, object value)
+    public async Task<IEnumerable<UnreadGroupChatMessageDto>> GetByParamAsync<TValue>(Expression<Func<UnreadGroupChatMessageDto, TValue>> property, TValue value)
     {
-        var result = await _repository.GetByParamAsync(paramName, value);
+        var map = _mapper.MapExpression<Expression<Func<UnreadGroupChatMessage, TValue>>>(property);
+        var result = await _repository.GetByParamAsync(map, value);
         var resultMap = _mapper.Map<IEnumerable<UnreadGroupChatMessageDto>>(result);
 
         return resultMap;

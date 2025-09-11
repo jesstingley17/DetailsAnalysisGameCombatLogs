@@ -1,32 +1,24 @@
 ﻿using AutoMapper;
+using AutoMapper.Extensions.ExpressionMapping;
 using CombatAnalysis.ChatBL.DTO;
 using CombatAnalysis.ChatBL.Interfaces;
 using CombatAnalysis.ChatDAL.Entities;
 using CombatAnalysis.ChatDAL.Interfaces;
 using Microsoft.Extensions.Logging;
+using System.Linq.Expressions;
 using System.Transactions;
 
 namespace CombatAnalysis.ChatBL.Services.Chat;
 
-internal class GroupChatService : IService<GroupChatDto, int>
+internal class GroupChatService(IGenericRepository<GroupChat, int> repository, IMapper mapper, IGroupChatMessageService<GroupChatMessageDto, int> groupChatMessageService,
+    IServiceTransaction<GroupChatUserDto, string> groupChatUserService, IService<GroupChatRulesDto, int> groupChatRulesService, ILogger<GroupChatService> logger) : IService<GroupChatDto, int>
 {
-    private readonly IGenericRepository<GroupChat, int> _repository;
-    private readonly IMapper _mapper;
-    private readonly IGroupChatMessageService<GroupChatMessageDto, int> _groupChatMessageService;
-    private readonly IServiceTransaction<GroupChatUserDto, string> _groupChatUserService;
-    private readonly IService<GroupChatRulesDto, int> _groupChatRulesService;
-    private readonly ILogger<GroupChatService> _logger;
-
-    public GroupChatService(IGenericRepository<GroupChat, int> repository, IMapper mapper, IGroupChatMessageService<GroupChatMessageDto, int> groupChatMessageService,
-        IServiceTransaction<GroupChatUserDto, string> groupChatUserService, IService<GroupChatRulesDto, int> groupChatRulesService, ILogger<GroupChatService> logger)
-    {
-        _repository = repository;
-        _mapper = mapper;
-        _groupChatMessageService = groupChatMessageService;
-        _groupChatUserService = groupChatUserService;
-        _groupChatRulesService = groupChatRulesService;
-        _logger = logger;
-    }
+    private readonly IGenericRepository<GroupChat, int> _repository = repository;
+    private readonly IMapper _mapper = mapper;
+    private readonly IGroupChatMessageService<GroupChatMessageDto, int> _groupChatMessageService = groupChatMessageService;
+    private readonly IServiceTransaction<GroupChatUserDto, string> _groupChatUserService = groupChatUserService;
+    private readonly IService<GroupChatRulesDto, int> _groupChatRulesService = groupChatRulesService;
+    private readonly ILogger<GroupChatService> _logger = logger;
 
     public Task<GroupChatDto> CreateAsync(GroupChatDto item)
     {
@@ -85,9 +77,10 @@ internal class GroupChatService : IService<GroupChatDto, int>
         return resultMap;
     }
 
-    public async Task<IEnumerable<GroupChatDto>> GetByParamAsync(string paramName, object value)
+    public async Task<IEnumerable<GroupChatDto>> GetByParamAsync<TValue>(Expression<Func<GroupChatDto, TValue>> property, TValue value)
     {
-        var result = await _repository.GetByParamAsync(paramName, value);
+        var map = _mapper.MapExpression<Expression<Func<GroupChat, TValue>>>(property);
+        var result = await _repository.GetByParamAsync(map, value);
         var resultMap = _mapper.Map<IEnumerable<GroupChatDto>>(result);
 
         return resultMap;
@@ -140,7 +133,7 @@ internal class GroupChatService : IService<GroupChatDto, int>
 
     private async Task DeleteGroupChatMessagesAsync(int chatId)
     {
-        var groupChatMessages = await _groupChatMessageService.GetByParamAsync(nameof(GroupChatMessageDto.ChatId), chatId);
+        var groupChatMessages = await _groupChatMessageService.GetByParamAsync(u => u.ChatId, chatId);
         foreach (var item in groupChatMessages)
         {
             var rowsAffected = await _groupChatMessageService.DeleteAsync(item.Id);
@@ -155,7 +148,7 @@ internal class GroupChatService : IService<GroupChatDto, int>
 
     private async Task DeleteGroupChatUsersAsync(int chatId)
     {
-        var groupChatUsers = await _groupChatUserService.GetByParamAsync(nameof(GroupChatUserDto.ChatId), chatId);
+        var groupChatUsers = await _groupChatUserService.GetByParamAsync(u => u.ChatId, chatId);
         foreach (var item in groupChatUsers)
         {
             var rowsAffected = await _groupChatUserService.DeleteUseExistTransactionAsync(item.Id);
@@ -170,7 +163,7 @@ internal class GroupChatService : IService<GroupChatDto, int>
 
     private async Task DeleteGroupChatRulesAsync(int chatId)
     {
-        var groupChatRules = await _groupChatRulesService.GetByParamAsync(nameof(GroupChatRulesDto.ChatId), chatId);
+        var groupChatRules = await _groupChatRulesService.GetByParamAsync(u => u.ChatId, chatId);
         foreach (var item in groupChatRules)
         {
             var rowsAffected = await _groupChatRulesService.DeleteAsync(item.Id);

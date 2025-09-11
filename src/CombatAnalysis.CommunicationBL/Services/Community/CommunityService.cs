@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using AutoMapper.Extensions.ExpressionMapping;
 using CombatAnalysis.CommunicationBL.DTO.Community;
 using CombatAnalysis.CommunicationBL.DTO.Post;
 using CombatAnalysis.CommunicationBL.Interfaces;
 using CombatAnalysis.CommunicationDAL.Interfaces;
+using System.Linq.Expressions;
 
 namespace CombatAnalysis.CommunicationBL.Services.Community;
 
@@ -95,9 +97,10 @@ internal class CommunityService : ICommunityService
         return resultMap;
     }
 
-    public async Task<IEnumerable<CommunityDto>> GetByParamAsync(string paramName, object value)
+    public async Task<IEnumerable<CommunityDto>> GetByParamAsync<TValue>(Expression<Func<CommunityDto, TValue>> property, TValue value)
     {
-        var result = await _repository.GetByParamAsync(paramName, value);
+        var map = _mapper.MapExpression<Expression<Func<CommunicationDAL.Entities.Community.Community, TValue>>>(property);
+        var result = await _repository.GetByParamAsync(map, value);
         var resultMap = _mapper.Map<IEnumerable<CommunityDto>>(result);
 
         return resultMap;
@@ -177,7 +180,7 @@ internal class CommunityService : ICommunityService
 
     private async Task DeleteCommunityPostsAsync(int communityId)
     {
-        var posts = await _postService.GetByParamAsync(nameof(CommunityPostDto.CommunityId), communityId);
+        var posts = await _postService.GetByParamAsync(c => c.CommunityId, communityId);
         foreach (var item in posts)
         {
             await DeleteCommunityPostCommentsAsync(item.Id);
@@ -194,7 +197,7 @@ internal class CommunityService : ICommunityService
 
     private async Task DeleteCommunityPostCommentsAsync(int communityPostId)
     {
-        var postComments = await _postCommentService.GetByParamAsync(nameof(CommunityPostCommentDto.CommunityPostId), communityPostId);
+        var postComments = await _postCommentService.GetByParamAsync(c => c.CommunityPostId, communityPostId);
         foreach (var item in postComments)
         {
             var rowsAffected = await _postService.DeleteAsync(item.Id);
@@ -207,7 +210,7 @@ internal class CommunityService : ICommunityService
 
     private async Task DeleteCommunityPostLikesAsync(int communityPostId)
     {
-        var postLikes = await _postLikeService.GetByParamAsync(nameof(CommunityPostLikeDto.CommunityPostId), communityPostId);
+        var postLikes = await _postLikeService.GetByParamAsync(c => c.CommunityPostId, communityPostId);
         foreach (var item in postLikes)
         {
             var rowsAffected = await _postService.DeleteAsync(item.Id);
@@ -220,7 +223,7 @@ internal class CommunityService : ICommunityService
 
     private async Task DeleteCommunityPostDislikesAsync(int communityPostId)
     {
-        var postDislikes = await _postDislikeService.GetByParamAsync(nameof(CommunityPostDislikeDto.CommunityPostId), communityPostId);
+        var postDislikes = await _postDislikeService.GetByParamAsync(c => c.CommunityPostId, communityPostId);
         foreach (var item in postDislikes)
         {
             var rowsAffected = await _postService.DeleteAsync(item.Id);
@@ -233,7 +236,7 @@ internal class CommunityService : ICommunityService
 
     private async Task DeleteCommunityDiscussionsAsync(int communityId)
     {
-        var communityDiscussions = await _communityDiscussionService.GetByParamAsync(nameof(CommunityDiscussionDto.CommunityId), communityId);
+        var communityDiscussions = await _communityDiscussionService.GetByParamAsync(c => c.CommunityId, communityId);
         foreach (var item in communityDiscussions)
         {
             var rowsAffected = await _communityDiscussionService.DeleteAsync(item.Id);
@@ -246,7 +249,7 @@ internal class CommunityService : ICommunityService
 
     private async Task DeleteInvitesToCommunityAsync(int communityId)
     {
-        var invitesToCommunity = await _inviteToCommunityService.GetByParamAsync(nameof(InviteToCommunityDto.CommunityId), communityId);
+        var invitesToCommunity = await _inviteToCommunityService.GetByParamAsync(c => c.CommunityId, communityId);
         foreach (var item in invitesToCommunity)
         {
             var rowsAffected = await _inviteToCommunityService.DeleteAsync(item.Id);
@@ -259,7 +262,7 @@ internal class CommunityService : ICommunityService
 
     private async Task DeleteCommunityUsersAsync(int communityId)
     {
-        var communityUsers = await _communityUserService.GetByParamAsync(nameof(CommunityUserDto.CommunityId), communityId);
+        var communityUsers = await _communityUserService.GetByParamAsync(c => c.CommunityId, communityId);
         foreach (var item in communityUsers)
         {
             var rowsAffected = await _communityUserService.DeleteAsync(item.Id);

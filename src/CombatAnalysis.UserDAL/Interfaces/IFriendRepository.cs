@@ -13,7 +13,7 @@ public interface IFriendRepository
 
     Task<FriendDto?> GetByIdAsync(int id);
 
-    IEnumerable<FriendDto> GetByParam(string paramName, object value);
+    Task<IEnumerable<FriendDto>> GetByParamAsync(string paramName, object value);
 
     Task<IEnumerable<FriendDto>> GetAllAsync();
 }

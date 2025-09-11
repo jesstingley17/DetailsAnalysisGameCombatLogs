@@ -10,18 +10,11 @@ namespace CombatAnalysis.CommunicationAPI.Controllers.Post;
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class UserPostLikeController : ControllerBase
+public class UserPostLikeController(IService<UserPostLikeDto, int> service, IMapper mapper, ILogger<UserPostLikeController> logger) : ControllerBase
 {
-    private readonly IService<UserPostLikeDto, int> _service;
-    private readonly IMapper _mapper;
-    private readonly ILogger<UserPostLikeController> _logger;
-
-    public UserPostLikeController(IService<UserPostLikeDto, int> service, IMapper mapper, ILogger<UserPostLikeController> logger)
-    {
-        _service = service;
-        _mapper = mapper;
-        _logger = logger;
-    }
+    private readonly IService<UserPostLikeDto, int> _service = service;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<UserPostLikeController> _logger = logger;
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
@@ -42,7 +35,7 @@ public class UserPostLikeController : ControllerBase
     [HttpGet("searchByPostId/{id:int:min(1)}")]
     public async Task<IActionResult> SearchByPostId(int id)
     {
-        var result = await _service.GetByParamAsync(nameof(UserPostLikeModel.UserPostId), id);
+        var result = await _service.GetByParamAsync(c => c.UserPostId, id);
 
         return Ok(result);
     }

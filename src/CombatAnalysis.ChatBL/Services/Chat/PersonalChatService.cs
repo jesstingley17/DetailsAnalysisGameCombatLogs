@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using AutoMapper.Extensions.ExpressionMapping;
 using CombatAnalysis.ChatBL.DTO;
 using CombatAnalysis.ChatBL.Interfaces;
 using CombatAnalysis.ChatDAL.Entities;
 using CombatAnalysis.ChatDAL.Interfaces;
+using System.Linq.Expressions;
 using System.Transactions;
 
 namespace CombatAnalysis.ChatBL.Services.Chat;
@@ -64,9 +66,10 @@ internal class PersonalChatService(IGenericRepository<PersonalChat, int> reposit
         return resultMap;
     }
 
-    public async Task<IEnumerable<PersonalChatDto>> GetByParamAsync(string paramName, object value)
+    public async Task<IEnumerable<PersonalChatDto>> GetByParamAsync<TValue>(Expression<Func<PersonalChatDto, TValue>> property, TValue value)
     {
-        var result = await _repository.GetByParamAsync(paramName, value);
+        var map = _mapper.MapExpression<Expression<Func<PersonalChat, TValue>>>(property);
+        var result = await _repository.GetByParamAsync(map, value);
         var resultMap = _mapper.Map<IEnumerable<PersonalChatDto>>(result);
 
         return resultMap;
@@ -101,7 +104,7 @@ internal class PersonalChatService(IGenericRepository<PersonalChat, int> reposit
 
     private async Task DeletePersonalChatMessagesAsync(int chatId)
     {
-        var perosnalChatMessages = await _personalChatMessageService.GetByParamAsync(nameof(PersonalChatMessageDto.ChatId), chatId);
+        var perosnalChatMessages = await _personalChatMessageService.GetByParamAsync(u => u.ChatId, chatId);
         foreach (var item in perosnalChatMessages)
         {
             var rowsAffected = await _personalChatMessageService.DeleteAsync(item.Id);

@@ -1,4 +1,6 @@
-﻿namespace CombatAnalysis.UserBL.Interfaces;
+﻿using System.Linq.Expressions;
+
+namespace CombatAnalysis.UserBL.Interfaces;
 
 public interface IService<TModel, TIdType>
     where TModel : class
@@ -12,7 +14,7 @@ public interface IService<TModel, TIdType>
 
     Task<IEnumerable<TModel>> GetAllAsync();
 
-    Task<IEnumerable<TModel>> GetByParamAsync(string paramName, object value);
+    Task<IEnumerable<TModel>> GetByParamAsync<TValue>(Expression<Func<TModel, TValue>> property, TValue value);
 
     Task<TModel> GetByIdAsync(TIdType id);
 }

@@ -10,18 +10,11 @@ namespace CombatAnalysis.CommunicationAPI.Controllers.Post;
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class CommunityPostCommentController : ControllerBase
+public class CommunityPostCommentController(IService<CommunityPostCommentDto, int> service, IMapper mapper, ILogger<CommunityPostCommentController> logger) : ControllerBase
 {
-    private readonly IService<CommunityPostCommentDto, int> _service;
-    private readonly IMapper _mapper;
-    private readonly ILogger<CommunityPostCommentController> _logger;
-
-    public CommunityPostCommentController(IService<CommunityPostCommentDto, int> service, IMapper mapper, ILogger<CommunityPostCommentController> logger)
-    {
-        _service = service;
-        _mapper = mapper;
-        _logger = logger;
-    }
+    private readonly IService<CommunityPostCommentDto, int> _service = service;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<CommunityPostCommentController> _logger = logger;
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
@@ -42,7 +35,7 @@ public class CommunityPostCommentController : ControllerBase
     [HttpGet("searchByPostId/{id}")]
     public async Task<IActionResult> SearchByPostId(int id)
     {
-        var result = await _service.GetByParamAsync(nameof(CommunityPostCommentModel.CommunityPostId), id);
+        var result = await _service.GetByParamAsync(c => c.CommunityPostId, id);
 
         return Ok(result);
     }

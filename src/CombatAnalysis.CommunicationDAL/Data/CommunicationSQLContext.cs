@@ -4,11 +4,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.CommunicationDAL.Data;
 
-public class CommunicationSQLContext : DbContext
+public class CommunicationSQLContext(DbContextOptions<CommunicationSQLContext> options) : DbContext(options)
 {
-    public CommunicationSQLContext(DbContextOptions<CommunicationSQLContext> options) : base(options)
-    {
-    }
 
     #region Community
 

@@ -119,9 +119,9 @@ internal class SQLFriendRepository(UserSQLContext context) : IFriendRepository
         return entity;
     }
 
-    public IEnumerable<FriendDto> GetByParam(string paramName, object value)
+    public async Task<IEnumerable<FriendDto>> GetByParamAsync(string paramName, object value)
     {
-        var friends = _context.Set<Friend>()
+        var friends = await _context.Set<Friend>()
                          .Join(_context.Set<AppUser>(),
                             f => f.WhoFriendId,
                             u => u.Id,
@@ -144,9 +144,11 @@ internal class SQLFriendRepository(UserSQLContext context) : IFriendRepository
                                 ForWhomUsername = u.Username
                             })
                           .Select(x => new FriendDto { Id = x.Id, WhoFriendId = x.WhoFriendId, WhoFriendUsername = x.WhoFriendUsername, ForWhomId = x.ForWhomId, ForWhomUsername = x.ForWhomUsername })
-                          .AsEnumerable();
+                          .ToListAsync();
 
-        var data = friends.Where(x => x.GetType().GetProperty(paramName)?.GetValue(x) == value);
+        var data = friends
+                    .Where(x => x.GetType().GetProperty(paramName)?.GetValue(x) == value)
+                    .ToList();
 
         return data;
     }
