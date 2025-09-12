@@ -9,5 +9,6 @@
   "Users": "Пользователи",
   "Empty": "Пусто",
   "Close": "Закрыть",
-  "UsersSearch": "Поиск пользователей"
+  "UsersSearch": "Поиск пользователей",
+  "LoginInProgress": "Вход..."
 }

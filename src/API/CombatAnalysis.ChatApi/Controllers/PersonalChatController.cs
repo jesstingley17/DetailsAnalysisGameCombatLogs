@@ -61,28 +61,6 @@ public class PersonalChatController(IService<PersonalChatDto, int> chatService, 
         }
     }
 
-    [HttpPost("personalChatIsAlreadyExists")]
-    public async Task<IActionResult> PersonalChatCheck([FromBody] PersonalChatModel personalChat)
-    {
-        if (!ModelState.IsValid)
-        {
-            _logger.LogWarning("Invalid PersonalChat check received: {@ChatMessage}", personalChat);
-            return ValidationProblem(ModelState);
-        }
-
-        var allData = await _chatService.GetAllAsync();
-        foreach (var item in allData)
-        {
-            if ((item.InitiatorId == personalChat.InitiatorId && item.CompanionId == personalChat.CompanionId)
-                || (item.InitiatorId == personalChat.CompanionId && item.CompanionId == personalChat.InitiatorId))
-            {
-                return Ok(item.Id);
-            }
-        }
-
-        return NotFound();
-    }
-
     [HttpPut("{id:int:min(1)}")]
     public async Task<IActionResult> Update(int id, [FromBody] PersonalChatModel chat)
     {

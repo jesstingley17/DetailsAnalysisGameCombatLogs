@@ -28,7 +28,7 @@ interface DefaultChatMessageProps {
 }
 
 const DefaultChatMessage: React.FC<DefaultChatMessageProps> = ({ user, chatUserAsUserId, chatUserUsername, reviewerId, messageOwnerId, message, updateMessageAsync, subscribeToChatMessageHasBeenRead, chatMessageHasMessageBeenRead, messageHasBeenReadHandle }) => {
-    const { t } = useTranslation("communication/chats/chatMessage");
+    const { t } = useTranslation('communication/chats/chatMessage');
 
     const [openMessageMenu, setOpenMessageMenu] = useState(false);
     const [editModeIsOn, setEditModeIsOn] = useState(false);

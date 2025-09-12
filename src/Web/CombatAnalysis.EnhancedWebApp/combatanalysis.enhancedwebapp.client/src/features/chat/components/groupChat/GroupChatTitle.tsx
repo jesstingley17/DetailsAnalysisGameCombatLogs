@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useRef, useState, type SetStateAction } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { AppUserModel } from '../../../user/types/AppUserModel';
-import { useUpdateGroupChatAsyncMutation } from '../../api/GroupChat.api';
+import { useUpdateGroupChatMutation } from '../../api/GroupChat.api';
 import type { GroupChatModel } from '../../types/GroupChatModel';
 
 interface GroupChatTitleProps {
@@ -26,7 +26,7 @@ const GroupChatTitle: React.FC<GroupChatTitleProps> = ({ myself, chat, settingsI
 
     const chatNameInput = useRef<HTMLInputElement | null>(null);
 
-    const [updateGroupChatAsyncMut] = useUpdateGroupChatAsyncMutation();
+    const [updateGroupChatAsync] = useUpdateGroupChatMutation();
 
     useEffect(() => {
         if (chat) {
@@ -41,10 +41,10 @@ const GroupChatTitle: React.FC<GroupChatTitleProps> = ({ myself, chat, settingsI
                 return;
             }
 
-            const unblockedObject = Object.assign({}, chat);
-            unblockedObject.name = chatNameInput.current.value;
+            const updatedChat = Object.assign({}, chat);
+            updatedChat.name = chatNameInput.current.value;
 
-            await updateGroupChatAsyncMut(unblockedObject).unwrap();
+            await updateGroupChatAsync({ id: updatedChat.id, groupChat: updatedChat }).unwrap();
             setChatName(chatNameInput.current.value);
 
             setEditNameOn(false);

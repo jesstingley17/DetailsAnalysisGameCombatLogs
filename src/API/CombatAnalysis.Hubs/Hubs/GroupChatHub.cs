@@ -143,7 +143,7 @@ public class GroupChatHub : Hub
             {
                 User = groupChatUser,
                 State = (int)ChatMembersActionState.AddUser,
-                When = DateTime.UtcNow.ToString(),
+                When = DateTime.UtcNow,
                 RefreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty,
                 AccessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)] ?? string.Empty
             });
@@ -172,7 +172,7 @@ public class GroupChatHub : Hub
                     ChatId = chatId 
                 },
                 State = (int)ChatMembersActionState.RemoveUser,
-                When = DateTime.UtcNow.ToString(),
+                When = DateTime.UtcNow,
                 RefreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty,
                 AccessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)] ?? string.Empty
             });

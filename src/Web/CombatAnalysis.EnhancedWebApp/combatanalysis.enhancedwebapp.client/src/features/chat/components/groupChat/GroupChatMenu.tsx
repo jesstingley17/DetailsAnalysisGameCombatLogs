@@ -3,7 +3,7 @@ import { useChatHub } from '@/shared/hooks/useChatHub';
 import logger from '@/utils/Logger';
 import { useEffect, useState, type SetStateAction } from 'react';
 import type { AppUserModel } from '../../../user/types/AppUserModel';
-import { useRemoveGroupChatAsyncMutation } from '../../api/GroupChat.api';
+import { useRemoveGroupChatMutation } from '../../api/GroupChat.api';
 import { useGetGroupChatRulesByIdQuery, useUpdateGroupChatRulesAsyncMutation } from '../../api/GroupChatRules.api';
 import {
     useRemoveGroupChatUserAsyncMutation
@@ -49,7 +49,7 @@ const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ myself, setSelectedChat, 
 
     const chatHub = useChatHub();
 
-    const [removeGroupChatAsyncMut] = useRemoveGroupChatAsyncMutation();
+    const [removeGroupChatAsync] = useRemoveGroupChatMutation();
     const [removeGroupChatUserAsyncMut] = useRemoveGroupChatUserAsyncMutation();
     const [updateGroupChatRulesMutAsync] = useUpdateGroupChatRulesAsyncMutation();
 
@@ -95,7 +95,7 @@ const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ myself, setSelectedChat, 
 
     const removeChatAsync = async () => {
         try {
-            await removeGroupChatAsyncMut(chat.id);
+            await removeGroupChatAsync(chat.id);
             setSelectedChat(null);
         } catch (e) {
             logger.error("Failed to remove group chat", e);
@@ -103,9 +103,13 @@ const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ myself, setSelectedChat, 
     }
 
     const updateGroupChatRulesAsync = async () => {
+        if (!rules) {
+            return;
+        }
+
         try {
             const groupChatRules = {
-                id: rules?.id ?? 0,
+                id: rules.id,
                 invitePeople: invitePeople,
                 removePeople: removePeople,
                 pinMessage: pinMessage,
@@ -113,7 +117,7 @@ const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ myself, setSelectedChat, 
                 chatId: rules?.chatId ?? 0
             };
 
-            await updateGroupChatRulesMutAsync(groupChatRules).unwrap();
+            await updateGroupChatRulesMutAsync({ id: rules.id, groupChatRules }).unwrap();
             setRulesInspectionModeOn((item) => !item);
         } catch (e) {
             logger.error("Failed to update group chat rules", e);

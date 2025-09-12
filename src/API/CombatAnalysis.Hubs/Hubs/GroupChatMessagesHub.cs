@@ -63,10 +63,11 @@ public class GroupChatMessagesHub : Hub
                     ChatId = chatId,
                     Type = type,
                     GroupChatUserId = groupChatUserId,
-                    Username = username
+                    Username = username,
+                    Time = DateTimeOffset.UtcNow
                 },
                 State = (int)ChatMessageActionState.Created,
-                When = DateTime.UtcNow.ToString(),
+                When = DateTimeOffset.UtcNow,
                 RefreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty,
                 AccessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)] ?? string.Empty
             });

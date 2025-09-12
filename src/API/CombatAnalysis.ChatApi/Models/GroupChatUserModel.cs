@@ -11,7 +11,7 @@ public class GroupChatUserModel
     [StringLength(8)]
     public string Username { get; set; } = string.Empty;
 
-    [Range(1, int.MaxValue)]
+    [Range(0, int.MaxValue)]
     public int UnreadMessages { get; set; }
 
     [Range(1, int.MaxValue)]

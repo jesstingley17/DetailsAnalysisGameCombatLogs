@@ -70,7 +70,7 @@ public class UnreadGroupChatMessageController(IService<UnreadGroupChatMessageDto
     }
 
     [HttpPut("{id:int:min(1)}")]
-    public async Task<IActionResult> Update(int id, UnreadGroupChatMessageModel unreadGroupChatMessage)
+    public async Task<IActionResult> Update(int id, [FromBody] UnreadGroupChatMessageModel unreadGroupChatMessage)
     {
         try
         {

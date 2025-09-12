@@ -1,6 +1,7 @@
 ﻿import APP_CONFIG from '@/config/appConfig';
 import Loading from '@/shared/components/Loading';
 import { useChatHub } from '@/shared/hooks/useChatHub';
+import logger from '@/utils/Logger';
 import { memo, useEffect, useRef, useState, type SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { AppUserModel } from '../../../user/types/AppUserModel';
@@ -137,8 +138,10 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
     }, [groupChatData?.groupChatUsers]);
 
     const updateMessageAsync = async (message: PersonalChatMessageModel | GroupChatMessageModel) => {
-        if ("groupChatUserId" in message) {
-            await updateGroupChatMessage({ id: message.id, message });
+        try {
+            await updateGroupChatMessage({ id: message.id, message: message as GroupChatMessageModel }).unwrap();
+        } catch (e) {
+            logger.error("Failed to update group chat message", e);
         }
     }
 

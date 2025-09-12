@@ -58,7 +58,7 @@ public class PersonalChatMessagesHub : Hub
             {
                 Username = username,
                 Message = message,
-                Time = TimeSpan.Parse($"{DateTimeOffset.UtcNow.Hour}:{DateTimeOffset.UtcNow.Minute}").ToString(),
+                Time = DateTimeOffset.Parse($"{DateTimeOffset.UtcNow.Hour}:{DateTimeOffset.UtcNow.Minute}"),
                 Status = 0,
                 ChatId = chatId,
                 AppUserId = creatorId
@@ -77,7 +77,7 @@ public class PersonalChatMessagesHub : Hub
                 InititatorId = creatorId,
                 RecipientId = companionId,
                 State = (int)ChatMessageActionState.Created,
-                When = DateTime.UtcNow.ToString(),
+                When = DateTimeOffset.UtcNow,
                 RefreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty,
                 AccessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)] ?? string.Empty
             });
@@ -128,7 +128,7 @@ public class PersonalChatMessagesHub : Hub
                 ChatId = chatMessage.ChatId,
                 InititatorId = meId,
                 State = (int)ChatMessageActionState.Read,
-                When = DateTime.UtcNow.ToString(),
+                When = DateTimeOffset.UtcNow,
                 RefreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty,
                 AccessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)] ?? string.Empty
             });

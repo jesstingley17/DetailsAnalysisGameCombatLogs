@@ -1,6 +1,7 @@
 ﻿import APP_CONFIG from '@/config/appConfig';
 import Loading from '@/shared/components/Loading';
 import { useChatHub } from '@/shared/hooks/useChatHub';
+import logger from '@/utils/Logger';
 import { memo, useEffect, useRef, useState, type SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGetUserByIdQuery } from '../../../user/api/Account.api';
@@ -128,8 +129,10 @@ const PersonalChat: React.FC<PersonalChatProps> = ({ myself, chat, setSelectedCh
     }, [currentMessages]);
 
     const updateMessageAsync = async (message: PersonalChatMessageModel | GroupChatMessageModel) => {
-        if ("isRead" in message) {
-            await updatePersonalChatMessage(message);
+        try {
+            await updatePersonalChatMessage({ id: message.id, message: message as PersonalChatMessageModel }).unwrap();
+        } catch (e) {
+            logger.error("Failed to update personal chat message", e);
         }
     }
 

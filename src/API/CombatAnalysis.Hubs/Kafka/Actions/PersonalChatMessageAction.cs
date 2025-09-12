@@ -12,7 +12,7 @@ public class PersonalChatMessageAction
 
     public int State { get; set; }
 
-    public string When { get; set; } = string.Empty;
+    public DateTimeOffset When { get; set; }
 
     public string RefreshToken { get; set; } = string.Empty;
 

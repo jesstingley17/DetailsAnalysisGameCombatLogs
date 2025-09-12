@@ -5,7 +5,6 @@ using CombatAnalysis.ChatBL.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
 
 namespace CombatAnalysis.ChatApi.Controllers;
 
@@ -28,7 +27,7 @@ public class VoiceChatController(IService<VoiceChatDto, string> service, IMapper
     }
 
     [HttpGet("{id:minlength(8)}")]
-    public async Task<IActionResult> GetById([Required] string id)
+    public async Task<IActionResult> GetById(string id)
     {
         var voiceChat = await _service.GetByIdAsync(id);
         if (voiceChat == null)

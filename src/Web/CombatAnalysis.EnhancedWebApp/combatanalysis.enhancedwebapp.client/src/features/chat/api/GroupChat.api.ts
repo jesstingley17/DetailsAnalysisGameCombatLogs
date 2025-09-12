@@ -11,15 +11,15 @@ export const GroupChatApi = ChatApi.injectEndpoints({
             }),
             invalidatesTags: result => result ? [{ type: 'GroupChat', id: result.id }] : [],
         }),
-        updateGroupChatAsync: builder.mutation<void, GroupChatModel>({
-            query: groupChat => ({
+        updateGroupChat: builder.mutation<void, { id: number, groupChat: GroupChatModel }>({
+            query: ({ id, groupChat }) => ({
                 body: groupChat,
-                url: '/GroupChat',
+                url: `/GroupChat/${id}`,
                 method: 'PUT'
             }),
-            invalidatesTags: (_result, _error, groupChat) => [{ type: 'GroupChat', id: groupChat.id }],
+            invalidatesTags: (_result, _error, args) => [{ type: 'GroupChat', id: args.id }],
         }),
-        removeGroupChatAsync: builder.mutation<void, number>({
+        removeGroupChat: builder.mutation<void, number>({
             query: id => ({
                 url: `/GroupChat/${id}`,
                 method: 'DELETE'
@@ -35,8 +35,8 @@ export const GroupChatApi = ChatApi.injectEndpoints({
 
 export const {
     useCreateGroupChatMutation,
-    useUpdateGroupChatAsyncMutation,
-    useRemoveGroupChatAsyncMutation,
+    useUpdateGroupChatMutation,
+    useRemoveGroupChatMutation,
     useGetGroupChatByIdQuery,
     useLazyGetGroupChatByIdQuery,
 } = GroupChatApi;

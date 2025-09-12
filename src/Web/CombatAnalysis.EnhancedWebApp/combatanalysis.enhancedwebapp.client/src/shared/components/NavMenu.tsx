@@ -3,9 +3,7 @@ import APP_CONFIG from "@/config/appConfig";
 import Notification from '@/features/notification/components/Notification';
 import { useLazyAuthorizationQuery } from '@/features/user/api/User.api';
 import logger from '@/utils/Logger';
-import { faMagnifyingGlassMinus, faMagnifyingGlassPlus } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
@@ -25,8 +23,6 @@ const NavMenu: React.FC = () => {
     const [authorization] = useLazyAuthorizationQuery();
 
     const navigate = useNavigate();
-
-    const [showSearchBar, setShowSearchBar] = useState(false);
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -79,28 +75,24 @@ const NavMenu: React.FC = () => {
                             >
                                 Wow Analysis
                             </NavbarBrand>
-                            {me !== null &&
-                                <FontAwesomeIcon
-                                    icon={showSearchBar ? faMagnifyingGlassMinus : faMagnifyingGlassPlus}
-                                    title={(showSearchBar ? t("HideSearchCommunity") : t("ShowSearchCommunity")) || ""}
-                                    onClick={() => setShowSearchBar(!showSearchBar)}
-                                />
-                            }
                         </div>
                     </div>
-                    <div className="main-elements">
-                        {auth?.isAuthenticated
-                            ? <div className="authorized">
-                                <Notification />
-                                <div className="username">{me?.username}</div>
-                                <div className="authorized__logout" onClick={handleLogoutClick}>{t("Logout")}</div>
-                            </div>
-                            : <div className="authorization">
-                                <div className="authorization__login" onClick={handleLoginClick}>{t("Login")}</div>
-                                <div className="authorization__registration" onClick={handleRegistrationClick}>{t("Registration")}</div>
-                            </div>
-                        }
-                    </div>
+                    {auth?.authInProgress
+                        ? <div>{t("LoginInProgress")}</div>
+                        : <div className="main-elements">
+                            {auth?.isAuthenticated
+                                ? <div className="authorized">
+                                    <Notification />
+                                    <div className="username">{me?.username}</div>
+                                    <div className="authorized__logout" onClick={handleLogoutClick}>{t("Logout")}</div>
+                                </div>
+                                : <div className="authorization">
+                                    <div className="authorization__login" onClick={handleLoginClick}>{t("Login")}</div>
+                                    <div className="authorization__registration" onClick={handleRegistrationClick}>{t("Registration")}</div>
+                                </div>
+                            }
+                        </div>
+                    }
                 </Container>
             </Navbar>
         </header>

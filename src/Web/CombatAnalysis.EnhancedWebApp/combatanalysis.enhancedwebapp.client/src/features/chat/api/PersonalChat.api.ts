@@ -11,13 +11,13 @@ export const PersonalChatApi = ChatApi.injectEndpoints({
             }),
             invalidatesTags: result => result ? [{ type: 'PersonalChat', id: result.id }] : [],
         }),
-        updatePersonalChatAsync: builder.mutation<void, PersonalChatModel>({
-            query: personalChat => ({
+        updatePersonalChatAsync: builder.mutation<void, { id: number, personalChat: PersonalChatModel }>({
+            query: ({ id, personalChat }) => ({
                 body: personalChat,
-                url: '/PersonalChat',
+                url: `/PersonalChat/${id}`,
                 method: 'PUT'
             }),
-            invalidatesTags: (_result, _error, personalChat) => [{ type: 'PersonalChat', id: personalChat.id }],
+            invalidatesTags: (_result, _error, args) => [{ type: 'PersonalChat', id: args.id }],
         }),
         removePersonalChatAsync: builder.mutation<void, number>({
             query: id => ({

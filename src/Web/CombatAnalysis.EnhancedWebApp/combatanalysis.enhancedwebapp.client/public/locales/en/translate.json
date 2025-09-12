@@ -9,5 +9,6 @@
   "Users": "Users",
   "Empty": "Empty",
   "Close": "Close",
-  "UsersSearch": "Search users"
+  "UsersSearch": "Search users",
+  "LoginInProgress": "Login..."
 }

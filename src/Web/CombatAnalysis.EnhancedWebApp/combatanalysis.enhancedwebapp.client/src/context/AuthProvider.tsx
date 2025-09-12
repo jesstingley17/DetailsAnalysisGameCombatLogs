@@ -16,6 +16,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const navigate = useNavigate();
 
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [authInProgress, setAuthInProgress] = useState(false);
 
     const [getAuth] = useLazyAuthenticationQuery();
     const [logout] = useLogoutMutation();
@@ -26,6 +27,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const checkAuthAsync = async () => {
         try {
+            setAuthInProgress(true);
+
             const response = await getAuth();
             if (response.data) {
                 const user = response.data;
@@ -39,12 +42,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             else {
                 await refreshTokenAsync();
             }
+
+            setAuthInProgress(false);
         } catch (e) {
             logger.error("Failed to check auth", e);
 
             dispatch(updateUser(null));
             dispatch(updateCustomer(null));
             dispatch(updateUserPrivacy(null));
+
+            setAuthInProgress(false);
         }
     }
 
@@ -101,7 +108,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, checkAuthAsync, logoutAsync }}>
+        <AuthContext.Provider value={{ isAuthenticated, authInProgress, checkAuthAsync, logoutAsync }}>
             {children}
         </AuthContext.Provider>
     );

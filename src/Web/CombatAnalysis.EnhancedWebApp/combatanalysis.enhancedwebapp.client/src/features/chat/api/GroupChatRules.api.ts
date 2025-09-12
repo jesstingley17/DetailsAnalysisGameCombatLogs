@@ -11,13 +11,13 @@ export const GroupChatRulesApi = ChatApi.injectEndpoints({
             }),
             invalidatesTags: result => result ? [{ type: 'GroupChatRules', id: result.id }] : [],
         }),
-        updateGroupChatRulesAsync: builder.mutation<void, GroupChatRulesModel>({
-            query: groupChatRules => ({
+        updateGroupChatRulesAsync: builder.mutation<void, { id: number, groupChatRules: GroupChatRulesModel }>({
+            query: ({ id, groupChatRules }) => ({
                 body: groupChatRules,
-                url: '/GroupChatRules',
+                url: `/GroupChatRules/${id}`,
                 method: 'PUT'
             }),
-            invalidatesTags: (_result, _error, groupChatRules) => [{ type: 'GroupChatRules', id: groupChatRules.id }],
+            invalidatesTags: (_result, _error, args) => [{ type: 'GroupChatRules', id: args.id }],
         }),
         removeGroupChatRulesAsync: builder.mutation<void, number>({
             query: id => ({

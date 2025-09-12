@@ -8,7 +8,7 @@ public class GroupChatMessageAction
 
     public int State { get; set; }
 
-    public string When { get; set; }
+    public DateTimeOffset When { get; set; }
 
     public string RefreshToken { get; set; }
 
