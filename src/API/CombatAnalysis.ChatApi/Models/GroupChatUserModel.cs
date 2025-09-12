@@ -1,14 +1,23 @@
-﻿namespace CombatAnalysis.ChatApi.Models;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace CombatAnalysis.ChatApi.Models;
 
 public class GroupChatUserModel
 {
-    public string Id { get; set; }
+    [Required]
+    public string Id { get; set; } = string.Empty;
 
-    public string Username { get; set; }
+    [Required]
+    [StringLength(8)]
+    public string Username { get; set; } = string.Empty;
 
+    [Range(1, int.MaxValue)]
     public int UnreadMessages { get; set; }
 
+    [Range(1, int.MaxValue)]
     public int ChatId { get; set; }
 
-    public string AppUserId { get; set; }
+    [Required]
+    [StringLength(8)]
+    public string AppUserId { get; set; } = string.Empty;
 }

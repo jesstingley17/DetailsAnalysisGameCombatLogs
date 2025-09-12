@@ -138,7 +138,7 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
 
     const updateMessageAsync = async (message: PersonalChatMessageModel | GroupChatMessageModel) => {
         if ("groupChatUserId" in message) {
-            await updateGroupChatMessage(message);
+            await updateGroupChatMessage({ id: message.id, message });
         }
     }
 

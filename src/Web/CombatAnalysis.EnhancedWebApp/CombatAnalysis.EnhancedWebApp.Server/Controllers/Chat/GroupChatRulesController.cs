@@ -4,6 +4,7 @@ using CombatAnalysis.EnhancedWebApp.Server.Interfaces;
 using CombatAnalysis.EnhancedWebApp.Server.Models.Chat;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using System.Net;
 
 namespace CombatAnalysis.EnhancedWebApp.Server.Controllers.Chat;
 
@@ -13,115 +14,161 @@ namespace CombatAnalysis.EnhancedWebApp.Server.Controllers.Chat;
 public class GroupChatRulesController : ControllerBase
 {
     private readonly IHttpClientHelper _httpClient;
+    private readonly ILogger<GroupChatRulesController> _logger;
 
-    public GroupChatRulesController(IOptions<Cluster> cluster, IHttpClientHelper httpClient)
+    public GroupChatRulesController(IOptions<Cluster> cluster, IHttpClientHelper httpClient, ILogger<GroupChatRulesController> logger)
     {
         _httpClient = httpClient;
+        _logger = logger;
+
         _httpClient.APIUrl = cluster.Value.Chat;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var responseMessage = await _httpClient.GetAsync("GroupChatRules");
-        if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        try
         {
-            return Unauthorized();
-        }
-        else if (responseMessage.IsSuccessStatusCode)
-        {
+            var responseMessage = await _httpClient.GetAsync("GroupChatRules");
+            responseMessage.EnsureSuccessStatusCode();
+
             var groupChatsRules = await responseMessage.Content.ReadFromJsonAsync<IEnumerable<GroupChatRulesModel>>();
 
             return Ok(groupChatsRules);
-        }
 
-        return BadRequest();
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            _logger.LogError(ex, "Get all chat rules failed. User should be authorize to get all chat rules");
+            return Unauthorized();
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Get all chat rules failed: received unsuccessful request");
+            return StatusCode((int)(ex.StatusCode ?? HttpStatusCode.InternalServerError), ex.Message);
+        }
     }
 
     [HttpGet("{id:int:min(1)}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var responseMessage = await _httpClient.GetAsync($"GroupChatRules/{id}");
-        if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        try
         {
-            return Unauthorized();
-        }
-        else if (responseMessage.IsSuccessStatusCode)
-        {
+            var responseMessage = await _httpClient.GetAsync($"GroupChatRules/{id}");
+            responseMessage.EnsureSuccessStatusCode();
+
             var groupChatRules = await responseMessage.Content.ReadFromJsonAsync<GroupChatRulesModel>();
 
             return Ok(groupChatRules);
+
         }
-
-        return BadRequest();
-    }
-
-    [HttpGet("findByChatId/{id:int:min(1)}")]
-    public async Task<IActionResult> FindByChatId(int id)
-    {
-        var responseMessage = await _httpClient.GetAsync($"GroupChatRules/findByChatId/{id}");
-        if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
         {
+            _logger.LogError(ex, "Get chat rules {Id} failed. User should be authorize to get chat rules", id);
             return Unauthorized();
         }
-        else if (responseMessage.IsSuccessStatusCode)
+        catch (HttpRequestException ex)
         {
+            _logger.LogError(ex, "Get chat rules {Id} failed: received unsuccessful request", id);
+            return StatusCode((int)(ex.StatusCode ?? HttpStatusCode.InternalServerError), ex.Message);
+        }
+    }
+
+    [HttpGet("findByChatId/{chatId:int:min(1)}")]
+    public async Task<IActionResult> FindByChatId(int chatId)
+    {
+        try
+        {
+            var responseMessage = await _httpClient.GetAsync($"GroupChatRules/findByChatId/{chatId}");
+            responseMessage.EnsureSuccessStatusCode();
+
             var groupChatsRules = await responseMessage.Content.ReadFromJsonAsync<IEnumerable<GroupChatRulesModel>>();
-            var groupChatRules = groupChatsRules.FirstOrDefault();
+            var groupChatRules = groupChatsRules?.FirstOrDefault();
 
             return Ok(groupChatRules);
         }
-
-        return BadRequest();
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            _logger.LogError(ex, "Get chat rules by chat {ChatId} failed. User should be authorize to get chat rules by chat", chatId);
+            return Unauthorized();
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Get chat rules by chat {ChatId} failed: received unsuccessful request", chatId);
+            return StatusCode((int)(ex.StatusCode ?? HttpStatusCode.InternalServerError), ex.Message);
+        }
     }
 
     [HttpPost]
     public async Task<IActionResult> Create(GroupChatRulesModel rules)
     {
-        var responseMessage = await _httpClient.PostAsync("GroupChatRules", JsonContent.Create(rules));
-        if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        try
         {
-            return Unauthorized();
-        }
-        else if (responseMessage.IsSuccessStatusCode)
-        {
+            var responseMessage = await _httpClient.PostAsync("GroupChatRules", JsonContent.Create(rules));
+            responseMessage.EnsureSuccessStatusCode();
+
             var groupChatRules = await responseMessage.Content.ReadFromJsonAsync<GroupChatRulesModel>();
 
             return Ok(groupChatRules);
         }
-
-        return BadRequest();
-    }
-
-    [HttpPut]
-    public async Task<IActionResult> Update(GroupChatRulesModel rules)
-    {
-        var responseMessage = await _httpClient.PutAsync("GroupChatRules", JsonContent.Create(rules));
-        if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
         {
+            _logger.LogError(ex, "Create chat rules failed. User should be authorize to create chat rules");
             return Unauthorized();
         }
-        else if (responseMessage.IsSuccessStatusCode)
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.BadRequest)
         {
+            _logger.LogError(ex, "Create chat rules failed. The specified parameters are incorrect");
+            return BadRequest();
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Create chat rules failed: received unsuccessful request");
+            return StatusCode((int)(ex.StatusCode ?? HttpStatusCode.InternalServerError), ex.Message);
+        }
+    }
+
+    [HttpPut("{id:int:min(1)}")]
+    public async Task<IActionResult> Update(int id, GroupChatRulesModel rules)
+    {
+        try
+        {
+            var responseMessage = await _httpClient.PutAsync($"GroupChatRules/{id}", JsonContent.Create(rules));
+            responseMessage.EnsureSuccessStatusCode();
+
             return Ok();
         }
-
-        return BadRequest();
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            _logger.LogError(ex, "Update chat rules {Id} failed. User should be authorize to update chat rules", id);
+            return Unauthorized();
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Update chat rules {Id} failed. Chat not found or modified.", id);
+            return StatusCode((int)(ex.StatusCode ?? HttpStatusCode.InternalServerError), ex.Message);
+        }
     }
 
     [HttpDelete("{id:int:min(1)}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var responseMessage = await _httpClient.DeletAsync($"GroupChatRules/{id}");
-        if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        try
         {
-            return Unauthorized();
-        }
-        else if (responseMessage.IsSuccessStatusCode)
-        {
+            var responseMessage = await _httpClient.DeletAsync($"GroupChatRules/{id}");
+            responseMessage.EnsureSuccessStatusCode();
+
             return Ok();
         }
-
-        return BadRequest();
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            _logger.LogError(ex, "Delete chat rules {Id} failed. User should be authorize to delete chat rules", id);
+            return Unauthorized();
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Delete chat rules {Id} failed. Chat not found or modified.", id);
+            return StatusCode((int)(ex.StatusCode ?? HttpStatusCode.InternalServerError), ex.Message);
+        }
     }
 }

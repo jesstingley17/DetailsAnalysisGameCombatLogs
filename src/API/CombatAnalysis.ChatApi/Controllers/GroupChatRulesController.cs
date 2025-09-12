@@ -4,6 +4,7 @@ using CombatAnalysis.ChatBL.DTO;
 using CombatAnalysis.ChatBL.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.ChatApi.Controllers;
 
@@ -20,138 +21,96 @@ public class GroupChatRulesController(IService<GroupChatRulesDto, int> groupChat
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        try
-        {
-            var groupChatRules = await _groupChatRulesService.GetAllAsync();
-            ArgumentNullException.ThrowIfNull(groupChatRules, nameof(groupChatRules));
+        var groupChatRules = await _groupChatRulesService.GetAllAsync();
 
-            return Ok(groupChatRules);
-        }
-        catch (ArgumentNullException ex)
-        {
-            _logger.LogError(ex, "Get all group chat rules failed: Parameter '{ParamName}' was null.", ex.ParamName);
-
-            return BadRequest();
-        }
+        return Ok(groupChatRules);
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:int:min(1)}")]
     public async Task<IActionResult> GetById(int id)
     {
-        try
+        var groupChatRules = await _groupChatRulesService.GetByIdAsync(id);
+        if (groupChatRules == null)
         {
-            ArgumentOutOfRangeException.ThrowIfZero(id, nameof(id));
-
-            var groupChatRules = await _groupChatRulesService.GetByIdAsync(id);
-            ArgumentNullException.ThrowIfNull(groupChatRules, nameof(groupChatRules));
-
-            return Ok(groupChatRules);
+            _logger.LogWarning("Get group chat rules by id failed: Group chat rules with id {Id} not found.", id);
+            return NotFound();
         }
-        catch (ArgumentOutOfRangeException ex)
-        {
-            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
 
-            return BadRequest();
-        }
-        catch (ArgumentNullException ex)
-        {
-            _logger.LogError(ex, "Get group chat rules by id failed: Parameter '{ParamName}' was null.", ex.ParamName);
-
-            return BadRequest();
-        }
+        return Ok(groupChatRules);
     }
 
     [HttpGet("findByChatId/{id:int:min(1)}")]
     public async Task<IActionResult> FindByChatId(int id)
     {
-        try
-        {
-            ArgumentOutOfRangeException.ThrowIfZero(id, nameof(id));
+        var groupChatRules = await _groupChatRulesService.GetByParamAsync(u => u.ChatId, id);
 
-            var groupChatRules = await _groupChatRulesService.GetByParamAsync(u => u.ChatId, id);
-            ArgumentNullException.ThrowIfNull(groupChatRules, nameof(groupChatRules));
-
-            return Ok(groupChatRules);
-        }
-        catch (ArgumentOutOfRangeException ex)
-        {
-            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
-
-            return BadRequest();
-        }
-        catch (ArgumentNullException ex)
-        {
-            _logger.LogError(ex, "Find group chat rules by chat id failed: Parameter '{ParamName}' was null.", ex.ParamName);
-
-            return BadRequest();
-        }
+        return Ok(groupChatRules);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(GroupChatRulesModel groupChatRules)
+    public async Task<IActionResult> Create([FromBody] GroupChatRulesModel groupChatRules)
     {
         try
         {
-            ArgumentNullException.ThrowIfNull(groupChatRules, nameof(groupChatRules));
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid GroupChatRules create received: {@ChatMessage}", groupChatRules);
+                return ValidationProblem(ModelState);
+            }
 
             var map = _mapper.Map<GroupChatRulesDto>(groupChatRules);
             var createdGroupChatRules = await _groupChatRulesService.CreateAsync(map);
-            ArgumentNullException.ThrowIfNull(createdGroupChatRules, nameof(createdGroupChatRules));
 
             return Ok(createdGroupChatRules);
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, "Create group chat rules failed: Parameter '{ParamName}' was null.", ex.ParamName);
-
-            return BadRequest();
+            _logger.LogError(ex, "Failed to create chat rules.");
+            return StatusCode(500, "Internal server error.");
         }
     }
 
-    [HttpPut]
-    public async Task<IActionResult> Update(GroupChatRulesModel groupChatRules)
+    [HttpPut("{id:int:min(1)}")]
+    public async Task<IActionResult> Update(int id, [FromBody] GroupChatRulesModel groupChatRules)
     {
         try
         {
-            ArgumentNullException.ThrowIfNull(groupChatRules, nameof(groupChatRules));
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid GroupChatRules update request received: {@GroupChatRules}", groupChatRules);
+                return ValidationProblem(ModelState);
+            }
+
+            if (id != groupChatRules.Id)
+            {
+                return BadRequest("Route ID and body ID do not match.");
+            }
 
             var map = _mapper.Map<GroupChatRulesDto>(groupChatRules);
-            var rowsAffected = await _groupChatRulesService.UpdateAsync(map);
-            ArgumentOutOfRangeException.ThrowIfZero(rowsAffected, nameof(rowsAffected));
+            await _groupChatRulesService.UpdateAsync(map);
 
             return Ok();
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateConcurrencyException ex)
         {
-            _logger.LogError(ex, "Update group chat rules failed: Parameter '{ParamName}' was null.", ex.ParamName);
-
-            return BadRequest();
-        }
-        catch (ArgumentOutOfRangeException ex)
-        {
-            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
-
-            return BadRequest();
+            _logger.LogWarning(ex, "Update failed. Chat rules {Id} not found or modified.", id);
+            return NotFound();
         }
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int:min(1)}")]
     public async Task<IActionResult> Delete(int id)
     {
         try
         {
-            ArgumentOutOfRangeException.ThrowIfZero(id, nameof(id));
+            await _groupChatRulesService.DeleteAsync(id);
 
-            var rowsAffected = await _groupChatRulesService.DeleteAsync(id);
-            ArgumentOutOfRangeException.ThrowIfZero(rowsAffected, nameof(rowsAffected));
-
-            return Ok();
+            return NoContent();
         }
-        catch (ArgumentOutOfRangeException ex)
+        catch (DbUpdateConcurrencyException ex)
         {
-            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
-
-            return BadRequest();
+            _logger.LogWarning(ex, "Delete failed. Chat {Id} not found or modified.", id);
+            return NotFound();
         }
     }
 }

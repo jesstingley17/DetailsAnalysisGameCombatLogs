@@ -2,7 +2,7 @@
 
 namespace CombatAnalysis.ChatApi.Requests;
 
-public class ChatMessageRequest
+public class GroupChatMessageRequest
 {
     [Range(1, int.MaxValue)]
     public int ChatId { get; set; }

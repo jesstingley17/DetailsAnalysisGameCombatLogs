@@ -102,8 +102,7 @@ public class GroupChatUnreadMessageConsumer(IOptions<KafkaSettings> kafkaSetting
         {
             groupChatUser.UnreadMessages++;
 
-            var rowsAffected = await groupChatUserService.UpdateAsync(groupChatUser);
-            ArgumentOutOfRangeException.ThrowIfZero(rowsAffected, nameof(rowsAffected));
+            await groupChatUserService.UpdateAsync(groupChatUser);
 
             var createdUnreadGroupChatMessage = await unreadGroupChatMessageService.CreateAsync(new UnreadGroupChatMessageDto
             {
@@ -129,8 +128,7 @@ public class GroupChatUnreadMessageConsumer(IOptions<KafkaSettings> kafkaSetting
 
         message.Status = 2;
 
-        var affectedRows = await groupChatMessageService.UpdateAsync(message);
-        ArgumentOutOfRangeException.ThrowIfLessThan(affectedRows, 1, nameof(affectedRows));
+        await groupChatMessageService.UpdateAsync(message);
 
         if (meAsGroupChatUser.UnreadMessages == 0)
         {
@@ -139,8 +137,7 @@ public class GroupChatUnreadMessageConsumer(IOptions<KafkaSettings> kafkaSetting
 
         meAsGroupChatUser.UnreadMessages--;
 
-        var rowsAffected = await groupChatUserService.UpdateAsync(meAsGroupChatUser);
-        ArgumentOutOfRangeException.ThrowIfZero(rowsAffected, nameof(rowsAffected));
+        await groupChatUserService.UpdateAsync(meAsGroupChatUser);
 
         var getMyUnreadGroupChatMessages = await unreadGroupChatMessageService.GetByParamAsync(u => u.GroupChatUserId, chatAction.GroupChatUserId);
         ArgumentNullException.ThrowIfNull(getMyUnreadGroupChatMessages, nameof(getMyUnreadGroupChatMessages));
@@ -150,8 +147,7 @@ public class GroupChatUnreadMessageConsumer(IOptions<KafkaSettings> kafkaSetting
             var currentUnreadMessage = getMyUnreadGroupChatMessages.FirstOrDefault(m => m.GroupChatMessageId == chatAction.MessageId);
             if (currentUnreadMessage != null)
             {
-                rowsAffected = await unreadGroupChatMessageService.DeleteAsync(currentUnreadMessage.Id);
-                ArgumentOutOfRangeException.ThrowIfZero(rowsAffected, nameof(rowsAffected));
+                await unreadGroupChatMessageService.DeleteAsync(currentUnreadMessage.Id);
             }
         }
 

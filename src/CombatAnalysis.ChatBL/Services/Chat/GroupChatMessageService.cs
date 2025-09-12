@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using AutoMapper.Extensions.ExpressionMapping;
 using CombatAnalysis.ChatBL.DTO;
+using CombatAnalysis.ChatBL.Exceptions;
 using CombatAnalysis.ChatBL.Interfaces;
 using CombatAnalysis.ChatDAL.Entities;
 using CombatAnalysis.ChatDAL.Interfaces;
@@ -13,21 +14,33 @@ internal class GroupChatMessageService(IGroupChatMessageRepository<int> reposito
     private readonly IGroupChatMessageRepository<int> _repository = repository;
     private readonly IMapper _mapper = mapper;
 
-    public Task<GroupChatMessageDto> CreateAsync(GroupChatMessageDto item)
+    public async Task<GroupChatMessageDto?> CreateAsync(GroupChatMessageDto item)
     {
-        if (item == null)
+        if (string.IsNullOrWhiteSpace(item.Message))
         {
-            throw new ArgumentNullException(nameof(GroupChatMessageDto), $"The {nameof(GroupChatMessageDto)} can't be null");
+            throw new BusinessValidationException("Group chat message content is required.");
         }
 
-        return CreateInternalAsync(item);
+        if (string.IsNullOrWhiteSpace(item.Username))
+        {
+            throw new BusinessValidationException("Group chat message username is required.");
+        }
+
+        var map = _mapper.Map<GroupChatMessage>(item);
+        var createdItem = await _repository.CreateAsync(map);
+        if (createdItem == null)
+        {
+            return null;
+        }
+
+        var resultMap = _mapper.Map<GroupChatMessageDto>(createdItem);
+
+        return resultMap;
     }
 
-    public async Task<int> DeleteAsync(int id)
+    public async Task DeleteAsync(int id)
     {
-        var rowsAffected = await _repository.DeleteAsync(id);
-
-        return rowsAffected;
+        await _repository.DeleteAsync(id);
     }
 
     public async Task<IEnumerable<GroupChatMessageDto>> GetAllAsync()
@@ -38,9 +51,14 @@ internal class GroupChatMessageService(IGroupChatMessageRepository<int> reposito
         return result;
     }
 
-    public async Task<GroupChatMessageDto> GetByIdAsync(int id)
+    public async Task<GroupChatMessageDto?> GetByIdAsync(int id)
     {
         var result = await _repository.GetByIdAsync(id);
+        if (result == null)
+        {
+            return null;
+        }
+
         var resultMap = _mapper.Map<GroupChatMessageDto>(result);
 
         return resultMap;
@@ -78,52 +96,19 @@ internal class GroupChatMessageService(IGroupChatMessageRepository<int> reposito
         return count;
     }
 
-    public Task<int> UpdateAsync(GroupChatMessageDto item)
+    public async Task UpdateAsync(GroupChatMessageDto item)
     {
-        if (item == null)
+        if (string.IsNullOrWhiteSpace(item.Message))
         {
-            throw new ArgumentNullException(nameof(GroupChatMessageDto), $"The {nameof(GroupChatMessageDto)} can't be null");
+            throw new BusinessValidationException("Group chat message content is required.");
         }
 
-        return UpdateInternalAsync(item);
-    }
-
-    private async Task<GroupChatMessageDto> CreateInternalAsync(GroupChatMessageDto item)
-    {
-        if (string.IsNullOrEmpty(item.Message))
+        if (string.IsNullOrWhiteSpace(item.Username))
         {
-            throw new ArgumentNullException(nameof(GroupChatMessageDto),
-                $"The property {nameof(GroupChatMessageDto.Message)} of the {nameof(GroupChatMessageDto)} object can't be null or empty");
-        }
-        else if (string.IsNullOrEmpty(item.Username))
-        {
-            throw new ArgumentNullException(nameof(GroupChatMessageDto),
-                $"The property {nameof(GroupChatMessageDto.Username)} of the {nameof(GroupChatMessageDto)} object can't be null or empty");
+            throw new BusinessValidationException("Group chat message username is required.");
         }
 
         var map = _mapper.Map<GroupChatMessage>(item);
-        var createdItem = await _repository.CreateAsync(map);
-        var resultMap = _mapper.Map<GroupChatMessageDto>(createdItem);
-
-        return resultMap;
-    }
-
-    private async Task<int> UpdateInternalAsync(GroupChatMessageDto item)
-    {
-        if (string.IsNullOrEmpty(item.Message))
-        {
-            throw new ArgumentNullException(nameof(GroupChatMessageDto),
-                $"The property {nameof(GroupChatMessageDto.Message)} of the {nameof(GroupChatMessageDto)} object can't be null or empty");
-        }
-        else if (string.IsNullOrEmpty(item.Username))
-        {
-            throw new ArgumentNullException(nameof(GroupChatMessageDto),
-                $"The property {nameof(GroupChatMessageDto.Username)} of the {nameof(GroupChatMessageDto)} object can't be null or empty");
-        }
-
-        var map = _mapper.Map<GroupChatMessage>(item);
-        var rowsAffected = await _repository.UpdateAsync(map);
-
-        return rowsAffected;
+        await _repository.UpdateAsync(map);
     }
 }

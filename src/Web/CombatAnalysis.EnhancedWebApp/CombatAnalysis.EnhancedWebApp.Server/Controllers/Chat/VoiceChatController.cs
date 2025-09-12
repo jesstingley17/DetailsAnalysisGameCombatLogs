@@ -4,6 +4,7 @@ using CombatAnalysis.EnhancedWebApp.Server.Interfaces;
 using CombatAnalysis.EnhancedWebApp.Server.Models.Chat;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using System.Net;
 
 namespace CombatAnalysis.EnhancedWebApp.Server.Controllers.Chat;
 
@@ -13,96 +14,141 @@ namespace CombatAnalysis.EnhancedWebApp.Server.Controllers.Chat;
 public class VoiceChatController : ControllerBase
 {
     private readonly IHttpClientHelper _httpClient;
+    private readonly ILogger<VoiceChatController> _logger;
 
-    public VoiceChatController(IOptions<Cluster> cluster, IHttpClientHelper httpClient)
+    public VoiceChatController(IOptions<Cluster> cluster, IHttpClientHelper httpClient, ILogger<VoiceChatController> logger)
     {
         _httpClient = httpClient;
+        _logger = logger;
+
         _httpClient.APIUrl = cluster.Value.Chat;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var responseMessage = await _httpClient.GetAsync("VoiceChat");
-        if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        try
         {
+            var responseMessage = await _httpClient.GetAsync("VoiceChat");
+            if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                return Unauthorized();
+            }
+            else if (responseMessage.IsSuccessStatusCode)
+            {
+                var groupChats = await responseMessage.Content.ReadFromJsonAsync<IEnumerable<VoiceChatModel>>();
+
+                return Ok(groupChats);
+            }
+
+            return BadRequest();
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            _logger.LogError(ex, "Get all voice chats failed. User should be authorize to get all voice chats");
             return Unauthorized();
         }
-        else if (responseMessage.IsSuccessStatusCode)
+        catch (HttpRequestException ex)
         {
-            var groupChats = await responseMessage.Content.ReadFromJsonAsync<IEnumerable<VoiceChatModel>>();
-
-            return Ok(groupChats);
+            _logger.LogError(ex, "Get all voice chats failed: received unsuccessful request");
+            return StatusCode((int)(ex.StatusCode ?? HttpStatusCode.InternalServerError), ex.Message);
         }
-
-        return BadRequest();
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:minlength(8)}")]
     public async Task<IActionResult> GetById(string id)
     {
-        var responseMessage = await _httpClient.GetAsync($"VoiceChat/{id}");
-        if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        try
         {
+            var responseMessage = await _httpClient.GetAsync($"VoiceChat/{id}");
+            responseMessage.EnsureSuccessStatusCode();
+
+            var voiceChat = await responseMessage.Content.ReadFromJsonAsync<VoiceChatModel>();
+
+            return Ok(voiceChat);
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            _logger.LogError(ex, "Get voice chat {Id} failed. User should be authorize to get voice chat", id);
             return Unauthorized();
         }
-        else if (responseMessage.IsSuccessStatusCode)
+        catch (HttpRequestException ex)
         {
-            var groupChat = await responseMessage.Content.ReadFromJsonAsync<VoiceChatModel>();
-
-            return Ok(groupChat);
+            _logger.LogError(ex, "Get voice chat {Id} failed: received unsuccessful request", id);
+            return StatusCode((int)(ex.StatusCode ?? HttpStatusCode.InternalServerError), ex.Message);
         }
-
-        return BadRequest();
     }
 
     [HttpPost]
     public async Task<IActionResult> Create(VoiceChatModel chat)
     {
-        var responseMessage = await _httpClient.PostAsync("VoiceChat", JsonContent.Create(chat));
-        if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        try
         {
+            var responseMessage = await _httpClient.PostAsync("VoiceChat", JsonContent.Create(chat));
+            responseMessage.EnsureSuccessStatusCode();
+
+            var vocieChat = await responseMessage.Content.ReadFromJsonAsync<VoiceChatModel>();
+
+            return Ok(vocieChat);
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            _logger.LogError(ex, "Create voice chat failed. User should be authorize to create voice chat");
             return Unauthorized();
         }
-        else if (responseMessage.IsSuccessStatusCode)
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.BadRequest)
         {
-            var groupChat = await responseMessage.Content.ReadFromJsonAsync<VoiceChatModel>();
-
-            return Ok(groupChat);
+            _logger.LogError(ex, "Create voice chat failed. The specified parameters are incorrect");
+            return BadRequest();
         }
-
-        return BadRequest();
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Create voice chat failed: received unsuccessful request");
+            return StatusCode((int)(ex.StatusCode ?? HttpStatusCode.InternalServerError), ex.Message);
+        }
     }
 
-    [HttpPut]
-    public async Task<IActionResult> Update(VoiceChatModel chat)
+    [HttpPut("{id:minlength(8)}")]
+    public async Task<IActionResult> Update(string id, VoiceChatModel chat)
     {
-        var responseMessage = await _httpClient.PutAsync("VoiceChat", JsonContent.Create(chat));
-        if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        try
         {
-            return Unauthorized();
-        }
-        else if (responseMessage.IsSuccessStatusCode)
-        {
+            var responseMessage = await _httpClient.PutAsync($"VoiceChat/{id}", JsonContent.Create(chat));
+            responseMessage.EnsureSuccessStatusCode();
+
             return Ok();
         }
-
-        return BadRequest();
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            _logger.LogError(ex, "Update voice chat {Id} failed. User should be authorize to voice chat", id);
+            return Unauthorized();
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Update voice chat {Id} failed. Chat not found or modified.", id);
+            return StatusCode((int)(ex.StatusCode ?? HttpStatusCode.InternalServerError), ex.Message);
+        }
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:minlength(8)}")]
     public async Task<IActionResult> Delete(string id)
     {
-        var responseMessage = await _httpClient.DeletAsync($"VoiceChat/{id}");
-        if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        try
         {
-            return Unauthorized();
-        }
-        else if (responseMessage.IsSuccessStatusCode)
-        {
+            var responseMessage = await _httpClient.DeletAsync($"VoiceChat/{id}");
+            responseMessage.EnsureSuccessStatusCode();
+
             return Ok();
         }
-
-        return BadRequest();
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            _logger.LogError(ex, "Delete voice chat {Id} failed. User should be authorize to delete voice chat", id);
+            return Unauthorized();
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Delete voice chat {Id} failed. Chat not found or modified.", id);
+            return StatusCode((int)(ex.StatusCode ?? HttpStatusCode.InternalServerError), ex.Message);
+        }
     }
 }

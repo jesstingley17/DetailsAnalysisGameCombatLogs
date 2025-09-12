@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using AutoMapper.Extensions.ExpressionMapping;
 using CombatAnalysis.ChatBL.DTO;
+using CombatAnalysis.ChatBL.Exceptions;
 using CombatAnalysis.ChatBL.Interfaces;
 using CombatAnalysis.ChatDAL.Entities;
 using CombatAnalysis.ChatDAL.Interfaces;
@@ -15,58 +16,43 @@ internal class GroupChatUserService(IGenericRepository<GroupChatUser, string> re
     private readonly IService<UnreadGroupChatMessageDto, int> _unreadGroupChatMessageService = unreadGroupChatMessageService;
     private readonly IMapper _mapper = mapper;
 
-    public Task<GroupChatUserDto> CreateAsync(GroupChatUserDto item)
+    public async Task<GroupChatUserDto?> CreateAsync(GroupChatUserDto item)
     {
-        if (item == null)
+        if (string.IsNullOrWhiteSpace(item.Username))
         {
-            throw new ArgumentNullException(nameof(GroupChatUserDto), $"The {nameof(GroupChatUserDto)} can't be null");
+            throw new BusinessValidationException("Group chat user username is required.");
         }
 
-        return CreateInternalAsync(item);
+        item.Id = Guid.NewGuid().ToString();
+
+        var map = _mapper.Map<GroupChatUser>(item);
+        var createdItem = await _repository.CreateAsync(map);
+        if (createdItem == null)
+        {
+            return null;
+        }
+
+        var resultMap = _mapper.Map<GroupChatUserDto>(createdItem);
+
+        return resultMap;
     }
 
-    public async Task<int> DeleteAsync(string id)
+    public async Task DeleteAsync(string id)
     {
-        try
-        {
-            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+        using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
-            await DeleteUnreadGroupChatMessageAsync(id);
+        await DeleteUnreadGroupChatMessageAsync(id);
 
-            var rowsAffected = await _repository.DeleteAsync(id);
+        await _repository.DeleteAsync(id);
 
-            scope.Complete();
-
-            return rowsAffected;
-        }
-        catch (ArgumentException ex)
-        {
-            return 0;
-        }
-        catch (Exception ex)
-        {
-            return 0;
-        }
+        scope.Complete();
     }
 
-    public async Task<int> DeleteUseExistTransactionAsync(string id)
+    public async Task DeleteUseExistTransactionAsync(string id)
     {
-        try
-        {
-            await DeleteUnreadGroupChatMessageAsync(id);
+        await DeleteUnreadGroupChatMessageAsync(id);
 
-            var rowsAffected = await _repository.DeleteAsync(id);
-
-            return rowsAffected;
-        }
-        catch (ArgumentException ex)
-        {
-            return 0;
-        }
-        catch (Exception ex)
-        {
-            return 0;
-        }
+        await _repository.DeleteAsync(id);
     }
 
     public async Task<IEnumerable<GroupChatUserDto>> GetAllAsync()
@@ -77,9 +63,14 @@ internal class GroupChatUserService(IGenericRepository<GroupChatUser, string> re
         return result;
     }
 
-    public async Task<GroupChatUserDto> GetByIdAsync(string id)
+    public async Task<GroupChatUserDto?> GetByIdAsync(string id)
     {
         var result = await _repository.GetByIdAsync(id);
+        if (result == null)
+        {
+            return null;
+        }
+
         var resultMap = _mapper.Map<GroupChatUserDto>(result);
 
         return resultMap;
@@ -94,45 +85,15 @@ internal class GroupChatUserService(IGenericRepository<GroupChatUser, string> re
         return resultMap;
     }
 
-    public Task<int> UpdateAsync(GroupChatUserDto item)
+    public async Task UpdateAsync(GroupChatUserDto item)
     {
-        if (item == null)
+        if (string.IsNullOrWhiteSpace(item.Username))
         {
-            throw new ArgumentNullException(nameof(GroupChatUserDto), $"The {nameof(GroupChatUserDto)} can't be null");
-        }
-
-        return UpdateInternalAsync(item);
-    }
-
-    private async Task<GroupChatUserDto> CreateInternalAsync(GroupChatUserDto item)
-    {
-        if (string.IsNullOrEmpty(item.Username))
-        {
-            throw new ArgumentNullException(nameof(GroupChatUserDto),
-                $"The property {nameof(GroupChatUserDto.Username)} of the {nameof(GroupChatUserDto)} object can't be null or empty");
-        }
-
-        item.Id = Guid.NewGuid().ToString();
-
-        var map = _mapper.Map<GroupChatUser>(item);
-        var createdItem = await _repository.CreateAsync(map);
-        var resultMap = _mapper.Map<GroupChatUserDto>(createdItem);
-
-        return resultMap;
-    }
-
-    private async Task<int> UpdateInternalAsync(GroupChatUserDto item)
-    {
-        if (string.IsNullOrEmpty(item.Username))
-        {
-            throw new ArgumentNullException(nameof(GroupChatUserDto),
-                $"The property {nameof(GroupChatUserDto.Username)} of the {nameof(GroupChatUserDto)} object can't be null or empty");
+            throw new BusinessValidationException("Group chat user username is required.");
         }
 
         var map = _mapper.Map<GroupChatUser>(item);
-        var rowsAffected = await _repository.UpdateAsync(map);
-
-        return rowsAffected;
+        await _repository.UpdateAsync(map);
     }
 
     private async Task DeleteUnreadGroupChatMessageAsync(string userId)
@@ -140,11 +101,7 @@ internal class GroupChatUserService(IGenericRepository<GroupChatUser, string> re
         var unreadGroupChatMessage = await _unreadGroupChatMessageService.GetByParamAsync(u => u.GroupChatUserId, userId);
         foreach (var item in unreadGroupChatMessage)
         {
-            var rowsAffected = await _unreadGroupChatMessageService.DeleteAsync(item.Id);
-            if (rowsAffected == 0)
-            {
-                throw new ArgumentException("Unread group chat message didn't removed");
-            }
+            await _unreadGroupChatMessageService.DeleteAsync(item.Id);
         }
     }
 }

@@ -11,13 +11,13 @@ export const GroupChatMessageApi = ChatApi.injectEndpoints({
             }),
             invalidatesTags: result => result ? [{ type: 'GroupChatMessage', id: result.id }] : [],
         }),
-        updateGroupChatMessage: builder.mutation<void, GroupChatMessageModel>({
-            query: message => ({
+        updateGroupChatMessage: builder.mutation<void, { id: number, message: GroupChatMessageModel }>({
+            query: ({ id, message }) => ({
                 body: message,
-                url: '/GroupChatMessage',
+                url: `/GroupChatMessage/${id}`,
                 method: 'PUT'
             }),
-            invalidatesTags: (_result, _error, message) => [{ type: 'GroupChatMessage', id: message.id }],
+            invalidatesTags: (_result, _error, args) => [{ type: 'GroupChatMessage', id: args.id }],
         }),
         removeGroupChatMessage: builder.mutation<void, number>({
             query: id => ({

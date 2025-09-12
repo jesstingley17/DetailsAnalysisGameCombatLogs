@@ -8,7 +8,7 @@ public class GroupChatMessageModel
 
     public string Message { get; set; } = string.Empty;
 
-    public string Time { get; set; } = string.Empty;
+    public DateTimeOffset Time { get; set; }
 
     public int Status { get; set; }
 

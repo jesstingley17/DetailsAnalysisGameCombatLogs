@@ -33,7 +33,6 @@ public class NotificationController(IService<NotificationDto, int> notificationS
     }
 
     [HttpGet("getByRecipientId/{recipientId}")]
-    [AllowAnonymous]
     public async Task<IActionResult> GetByRecipientId(string recipientId)
     {
         var recipientNotifications = await _notificationService.GetByParamAsync(n => n.RecipientId, recipientId);

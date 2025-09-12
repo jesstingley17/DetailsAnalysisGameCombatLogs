@@ -6,7 +6,7 @@ public interface IGenericRepository<TModel, TIdType>
     where TModel : class
     where TIdType : notnull
 {
-    Task<TModel> CreateAsync(TModel item);
+    Task<TModel?> CreateAsync(TModel item);
 
     Task<int> UpdateAsync(TModel item);
 

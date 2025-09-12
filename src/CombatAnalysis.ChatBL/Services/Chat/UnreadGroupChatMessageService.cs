@@ -13,21 +13,23 @@ internal class UnreadGroupChatMessageService(IGenericRepository<UnreadGroupChatM
     private readonly IGenericRepository<UnreadGroupChatMessage, int> _repository = repository;
     private readonly IMapper _mapper = mapper;
 
-    public Task<UnreadGroupChatMessageDto> CreateAsync(UnreadGroupChatMessageDto item)
+    public async Task<UnreadGroupChatMessageDto?> CreateAsync(UnreadGroupChatMessageDto item)
     {
-        if (item == null)
+        var map = _mapper.Map<UnreadGroupChatMessage>(item);
+        var createdItem = await _repository.CreateAsync(map);
+        if (createdItem == null)
         {
-            throw new ArgumentNullException(nameof(UnreadGroupChatMessageDto), $"The {nameof(UnreadGroupChatMessageDto)} can't be null");
+            return null;
         }
 
-        return CreateInternalAsync(item);
+        var resultMap = _mapper.Map<UnreadGroupChatMessageDto>(createdItem);
+
+        return resultMap;
     }
 
-    public async Task<int> DeleteAsync(int id)
+    public async Task DeleteAsync(int id)
     {
-        var rowsAffected = await _repository.DeleteAsync(id);
-
-        return rowsAffected;
+        await _repository.DeleteAsync(id);
     }
 
     public async Task<IEnumerable<UnreadGroupChatMessageDto>> GetAllAsync()
@@ -38,9 +40,14 @@ internal class UnreadGroupChatMessageService(IGenericRepository<UnreadGroupChatM
         return result;
     }
 
-    public async Task<UnreadGroupChatMessageDto> GetByIdAsync(int id)
+    public async Task<UnreadGroupChatMessageDto?> GetByIdAsync(int id)
     {
         var result = await _repository.GetByIdAsync(id);
+        if (result == null)
+        {
+            return null;
+        }
+
         var resultMap = _mapper.Map<UnreadGroupChatMessageDto>(result);
 
         return resultMap;
@@ -55,30 +62,9 @@ internal class UnreadGroupChatMessageService(IGenericRepository<UnreadGroupChatM
         return resultMap;
     }
 
-    public Task<int> UpdateAsync(UnreadGroupChatMessageDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(UnreadGroupChatMessageDto), $"The {nameof(UnreadGroupChatMessageDto)} can't be null");
-        }
-
-        return UpdateInternalAsync(item);
-    }
-
-    private async Task<UnreadGroupChatMessageDto> CreateInternalAsync(UnreadGroupChatMessageDto item)
+    public async Task UpdateAsync(UnreadGroupChatMessageDto item)
     {
         var map = _mapper.Map<UnreadGroupChatMessage>(item);
-        var createdItem = await _repository.CreateAsync(map);
-        var resultMap = _mapper.Map<UnreadGroupChatMessageDto>(createdItem);
-
-        return resultMap;
-    }
-
-    private async Task<int> UpdateInternalAsync(UnreadGroupChatMessageDto item)
-    {
-        var map = _mapper.Map<UnreadGroupChatMessage>(item);
-        var rowsAffected = await _repository.UpdateAsync(map);
-
-        return rowsAffected;
+        await _repository.UpdateAsync(map);
     }
 }

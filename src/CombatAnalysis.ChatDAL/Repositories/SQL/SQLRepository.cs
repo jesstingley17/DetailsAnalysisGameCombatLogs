@@ -11,7 +11,7 @@ internal class SQLRepository<TModel, TIdType>(ChatSQLContext context) : IGeneric
 {
     protected readonly ChatSQLContext _context = context;
 
-    public async Task<TModel> CreateAsync(TModel item)
+    public async Task<TModel?> CreateAsync(TModel item)
     {
         var entityEntry = await _context.Set<TModel>().AddAsync(item);
         await _context.SaveChangesAsync();

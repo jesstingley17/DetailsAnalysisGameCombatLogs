@@ -16,38 +16,29 @@ internal class PersonalChatService(IGenericRepository<PersonalChat, int> reposit
     private readonly IPersonalChatMessageService<PersonalChatMessageDto, int> _personalChatMessageService = personalChatMessageService;
     private readonly IMapper _mapper = mapper;
 
-    public Task<PersonalChatDto> CreateAsync(PersonalChatDto item)
+    public async Task<PersonalChatDto?> CreateAsync(PersonalChatDto item)
     {
-        if (item == null)
+        var map = _mapper.Map<PersonalChat>(item);
+        var createdItem = await _repository.CreateAsync(map);
+        if (createdItem == null)
         {
-            throw new ArgumentNullException(nameof(PersonalChatDto), $"The {nameof(PersonalChatDto)} can't be null");
+            return null;
         }
 
-        return CreateInternalAsync(item);
+        var resultMap = _mapper.Map<PersonalChatDto>(createdItem);
+
+        return resultMap;
     }
 
-    public async Task<int> DeleteAsync(int id)
+    public async Task DeleteAsync(int id)
     {
-        try
-        {
-            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+        using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
-            await DeletePersonalChatMessagesAsync(id);
+        await DeletePersonalChatMessagesAsync(id);
 
-            var rowsAffected = await _repository.DeleteAsync(id);
+        await _repository.DeleteAsync(id);
 
-            scope.Complete();
-
-            return rowsAffected;
-        }
-        catch (ArgumentException ex)
-        {
-            return 0;
-        }
-        catch (Exception ex)
-        {
-            return 0;
-        }
+        scope.Complete();
     }
 
     public async Task<IEnumerable<PersonalChatDto>> GetAllAsync()
@@ -58,9 +49,14 @@ internal class PersonalChatService(IGenericRepository<PersonalChat, int> reposit
         return result;
     }
 
-    public async Task<PersonalChatDto> GetByIdAsync(int id)
+    public async Task<PersonalChatDto?> GetByIdAsync(int id)
     {
         var result = await _repository.GetByIdAsync(id);
+        if (result == null)
+        {
+            return null;
+        }
+
         var resultMap = _mapper.Map<PersonalChatDto>(result);
 
         return resultMap;
@@ -75,31 +71,10 @@ internal class PersonalChatService(IGenericRepository<PersonalChat, int> reposit
         return resultMap;
     }
 
-    public Task<int> UpdateAsync(PersonalChatDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(PersonalChatDto), $"The {nameof(PersonalChatDto)} can't be null");
-        }
-
-        return UpdateInternalAsync(item);
-    }
-
-    private async Task<PersonalChatDto> CreateInternalAsync(PersonalChatDto item)
+    public async Task UpdateAsync(PersonalChatDto item)
     {
         var map = _mapper.Map<PersonalChat>(item);
-        var createdItem = await _repository.CreateAsync(map);
-        var resultMap = _mapper.Map<PersonalChatDto>(createdItem);
-
-        return resultMap;
-    }
-
-    private async Task<int> UpdateInternalAsync(PersonalChatDto item)
-    {
-        var map = _mapper.Map<PersonalChat>(item);
-        var rowsAffected = await _repository.UpdateAsync(map);
-
-        return rowsAffected;
+        await _repository.UpdateAsync(map);
     }
 
     private async Task DeletePersonalChatMessagesAsync(int chatId)
@@ -107,11 +82,7 @@ internal class PersonalChatService(IGenericRepository<PersonalChat, int> reposit
         var perosnalChatMessages = await _personalChatMessageService.GetByParamAsync(u => u.ChatId, chatId);
         foreach (var item in perosnalChatMessages)
         {
-            var rowsAffected = await _personalChatMessageService.DeleteAsync(item.Id);
-            if (rowsAffected == 0)
-            {
-                throw new ArgumentException("Personal chat message didn't removed");
-            }
+            await _personalChatMessageService.DeleteAsync(item.Id);
         }
     }
 }

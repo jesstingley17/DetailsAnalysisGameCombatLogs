@@ -4,6 +4,7 @@ using CombatAnalysis.EnhancedWebApp.Server.Interfaces;
 using CombatAnalysis.EnhancedWebApp.Server.Models.Chat;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using System.Net;
 
 namespace CombatAnalysis.EnhancedWebApp.Server.Controllers.Chat;
 
@@ -13,123 +14,174 @@ namespace CombatAnalysis.EnhancedWebApp.Server.Controllers.Chat;
 public class PersonalChatController : ControllerBase
 {
     private readonly IHttpClientHelper _httpClient;
+    private readonly ILogger<PersonalChatController> _logger;
 
-    public PersonalChatController(IOptions<Cluster> cluster, IHttpClientHelper httpClient)
+    public PersonalChatController(IOptions<Cluster> cluster, IHttpClientHelper httpClient, ILogger<PersonalChatController> logger)
     {
         _httpClient = httpClient;
+        _logger = logger;
+
         _httpClient.APIUrl = cluster.Value.Chat;
     }
 
     [HttpGet("{id:int:min(1)}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var responseMessage = await _httpClient.GetAsync($"PersonalChat/{id}");
-        if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        try
         {
-            return Unauthorized();
-        }
-        else if (responseMessage.IsSuccessStatusCode)
-        {
+            var responseMessage = await _httpClient.GetAsync($"PersonalChat/{id}");
+            responseMessage.EnsureSuccessStatusCode();
+
             var personalChat = await responseMessage.Content.ReadFromJsonAsync<PersonalChatModel>();
 
             return Ok(personalChat);
         }
-
-        return BadRequest();
-    }
-
-    [HttpGet("getByUserId/{userId}")]
-    public async Task<IActionResult> GetByUserId(string userId)
-    {
-        var responseMessage = await _httpClient.GetAsync("PersonalChat");
-        if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
         {
+            _logger.LogError(ex, "Get personal chat {Id} failed. User should be authorize to get personal chat", id);
             return Unauthorized();
         }
-        else if (responseMessage.IsSuccessStatusCode)
+        catch (HttpRequestException ex)
         {
+            _logger.LogError(ex, "Get personal chat {Id} failed: received unsuccessful request", id);
+            return StatusCode((int)(ex.StatusCode ?? HttpStatusCode.InternalServerError), ex.Message);
+        }
+    }
+
+    [HttpGet("getByUserId/{userId:minlength(8)}")]
+    public async Task<IActionResult> GetByUserId(string userId)
+    {
+        try
+        {
+            var responseMessage = await _httpClient.GetAsync("PersonalChat");
+            responseMessage.EnsureSuccessStatusCode();
+
             var personalChats = await responseMessage.Content.ReadFromJsonAsync<IEnumerable<PersonalChatModel>>();
             var myPersonalChats = personalChats?.Where(x => x.InitiatorId == userId || x.CompanionId == userId).ToList();
 
             return Ok(myPersonalChats);
         }
-
-        return BadRequest();
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            _logger.LogError(ex, "Get personal chat by user {UserId} failed. User should be authorize to get personal chat by user", userId);
+            return Unauthorized();
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Get personal chat by user {UserId} failed: received unsuccessful request", userId);
+            return StatusCode((int)(ex.StatusCode ?? HttpStatusCode.InternalServerError), ex.Message);
+        }
     }
 
     [HttpGet("isExist")]
     public async Task<IActionResult> IsExist(string initiatorId, string companionId)
     {
-        var responseMessage = await _httpClient.GetAsync("PersonalChat");
-        if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        try
         {
+            var responseMessage = await _httpClient.GetAsync("PersonalChat");
+            responseMessage.EnsureSuccessStatusCode();
+
+            var personalChats = await responseMessage.Content.ReadFromJsonAsync<IEnumerable<PersonalChatModel>>();
+            var chats = personalChats?.Where(x => x.InitiatorId == initiatorId && x.CompanionId == companionId).ToList();
+            if (chats != null && chats.Count == 0)
+            {
+                chats = personalChats?.Where(x => x.CompanionId == companionId && x.InitiatorId == initiatorId).ToList();
+                if (chats != null && chats.Count == 0)
+                {
+                    return Ok(false);
+                }
+            }
+
+            return Ok(true);
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            _logger.LogError(ex, "Check if personal chat already exist failed. User should be authorize to check if personal chat already exist");
             return Unauthorized();
         }
-        else if (!responseMessage.IsSuccessStatusCode)
+        catch (HttpRequestException ex)
         {
-            return BadRequest();
+            _logger.LogError(ex, "Check if personal chat already exist failed: received unsuccessful request");
+            return StatusCode((int)(ex.StatusCode ?? HttpStatusCode.InternalServerError), ex.Message);
         }
-
-        var personalChats = await responseMessage.Content.ReadFromJsonAsync<IEnumerable<PersonalChatModel>>();
-        var chats = personalChats?.Where(x => x.InitiatorId == initiatorId && x.CompanionId == companionId).ToList();
-        if (chats != null && !chats.Any())
-        {
-            chats = personalChats?.Where(x => x.CompanionId == companionId && x.InitiatorId == initiatorId).ToList();
-            if (chats != null && !chats.Any())
-            {
-                return Ok(false);
-            }
-        }
-
-        return Ok(true);
     }
 
     [HttpPost]
     public async Task<IActionResult> Create(PersonalChatModel chat)
     {
-        var responseMessage = await _httpClient.PostAsync("PersonalChat", JsonContent.Create(chat));
-        if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        try
         {
-            return Unauthorized();
-        }
-        else if (responseMessage.IsSuccessStatusCode)
-        {
+            var responseMessage = await _httpClient.PostAsync("PersonalChat", JsonContent.Create(chat));
+            responseMessage.EnsureSuccessStatusCode();
+
             var personalChat = await responseMessage.Content.ReadFromJsonAsync<PersonalChatModel>();
             return Ok(personalChat);
         }
-
-        return BadRequest();
-    }
-
-    [HttpPut]
-    public async Task<IActionResult> Update(PersonalChatModel chat)
-    {
-        var responseMessage = await _httpClient.PutAsync("PersonalChat", JsonContent.Create(chat));
-        if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
         {
+            _logger.LogError(ex, "Create personal chat failed. User should be authorize to create personal chat");
             return Unauthorized();
         }
-        else if (responseMessage.IsSuccessStatusCode)
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.BadRequest)
         {
-            return Ok();
+            _logger.LogError(ex, "Create personal chat failed. The specified parameters are incorrect");
+            return BadRequest();
         }
-
-        return BadRequest();
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Create chat failed: received unsuccessful request");
+            return StatusCode((int)(ex.StatusCode ?? HttpStatusCode.InternalServerError), ex.Message);
+        }
     }
 
-    [HttpDelete("{chatId:int:min(1)}")]
-    public async Task<IActionResult> Delete(int chatId)
+    [HttpPut("{id:int:min(1)}")]
+    public async Task<IActionResult> Update(int id, PersonalChatModel chat)
     {
-        var responseMessage = await _httpClient.DeletAsync($"PersonalChat/{chatId}");
-        if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        try
         {
-            return Unauthorized();
-        }
-        else if (responseMessage.IsSuccessStatusCode)
-        {
+            var responseMessage = await _httpClient.PutAsync($"PersonalChat/{id}", JsonContent.Create(chat));
+            responseMessage.EnsureSuccessStatusCode();
+
             return Ok();
         }
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            _logger.LogError(ex, "Update personal chat {Id} failed. User should be authorize to update personal chat", id);
+            return Unauthorized();
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Update personal chat {Id} failed. Chat not found or modified.", id);
+            return StatusCode((int)(ex.StatusCode ?? HttpStatusCode.InternalServerError), ex.Message);
+        }
+    }
 
-        return BadRequest();
+    [HttpDelete("{id:int:min(1)}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        try
+        {
+            var responseMessage = await _httpClient.DeletAsync($"PersonalChat/{id}");
+            if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                return Unauthorized();
+            }
+            else if (responseMessage.IsSuccessStatusCode)
+            {
+                return Ok();
+            }
+
+            return BadRequest();
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            _logger.LogError(ex, "Delete personal chat {Id} failed. User should be authorize to delete personal chat", id);
+            return Unauthorized();
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Delete personal chat {Id} failed. Chat not found or modified.", id);
+            return StatusCode((int)(ex.StatusCode ?? HttpStatusCode.InternalServerError), ex.Message);
+        }
     }
 }

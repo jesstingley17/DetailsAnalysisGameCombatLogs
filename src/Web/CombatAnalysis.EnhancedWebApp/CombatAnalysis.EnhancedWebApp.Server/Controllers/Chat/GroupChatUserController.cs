@@ -4,6 +4,7 @@ using CombatAnalysis.EnhancedWebApp.Server.Interfaces;
 using CombatAnalysis.EnhancedWebApp.Server.Models.Chat;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using System.Net;
 
 namespace CombatAnalysis.EnhancedWebApp.Server.Controllers.Chat;
 
@@ -13,117 +14,167 @@ namespace CombatAnalysis.EnhancedWebApp.Server.Controllers.Chat;
 public class GroupChatUserController : ControllerBase
 {
     private readonly IHttpClientHelper _httpClient;
+    private readonly ILogger<GroupChatUserController> _logger;
 
-    public GroupChatUserController(IOptions<Cluster> cluster, IHttpClientHelper httpClient)
+    public GroupChatUserController(IOptions<Cluster> cluster, IHttpClientHelper httpClient, ILogger<GroupChatUserController> logger)
     {
         _httpClient = httpClient;
+        _logger = logger;
+
         _httpClient.APIUrl = cluster.Value.Chat;
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:minlength(8)}")]
     public async Task<IActionResult> GetById(string id)
     {
-        var responseMessage = await _httpClient.GetAsync($"GroupChatUser/{id}");
-        if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        try
         {
+            var responseMessage = await _httpClient.GetAsync($"GroupChatUser/{id}");
+            responseMessage.EnsureSuccessStatusCode();
+
+            var groupChatUser = await responseMessage.Content.ReadFromJsonAsync<GroupChatUserModel>();
+
+            return Ok(groupChatUser);
+
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            _logger.LogError(ex, "Get chat user {Id} failed. User should be authorize to get chat user", id);
             return Unauthorized();
         }
-        else if (!responseMessage.IsSuccessStatusCode)
+        catch (HttpRequestException ex)
         {
-            return BadRequest();
+            _logger.LogError(ex, "Get chat user {Id} failed: received unsuccessful request", id);
+            return StatusCode((int)(ex.StatusCode ?? HttpStatusCode.InternalServerError), ex.Message);
         }
-
-        var groupChatUser = await responseMessage.Content.ReadFromJsonAsync<GroupChatUserModel>();
-
-        return Ok(groupChatUser);
     }
 
     [HttpGet("findMeInChat")]
     public async Task<IActionResult> Find(int chatId, string appUserId)
     {
-        var responseMessage = await _httpClient.GetAsync($"GroupChatUser/findMeInChat?chatId={chatId}&appUserId={appUserId}");
-        if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        try
         {
+            var responseMessage = await _httpClient.GetAsync($"GroupChatUser/findMeInChat?chatId={chatId}&appUserId={appUserId}");
+            responseMessage.EnsureSuccessStatusCode();
+
+            var meInChat = await responseMessage.Content.ReadFromJsonAsync<GroupChatUserModel>();
+
+            return Ok(meInChat);
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            _logger.LogError(ex, "Find chat user by app user {AppUserId} for chat {ChatId} failed. User should be authorize to find chat user by app user id", appUserId, chatId);
             return Unauthorized();
         }
-        else if (!responseMessage.IsSuccessStatusCode)
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.BadRequest)
         {
+            _logger.LogError(ex, "Find chat user by app user {AppUserId} for chat {ChatId} failed. The specified parameters are incorrect", appUserId, chatId);
             return BadRequest();
         }
-
-        var meInChat = await responseMessage.Content.ReadFromJsonAsync<GroupChatUserModel>();
-
-        return Ok(meInChat);
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Find chat user by app user {AppUserId} for chat {ChatId} failed: received unsuccessful request", appUserId, chatId);
+            return StatusCode((int)(ex.StatusCode ?? HttpStatusCode.InternalServerError), ex.Message);
+        }
     }
 
-    [HttpGet("findByChatId/{id:int:min(1)}")]
-    public async Task<IActionResult> FindByChatId(int id)
+    [HttpGet("findByChatId/{chatId:int:min(1)}")]
+    public async Task<IActionResult> FindByChatId(int chatId)
     {
-        var responseMessage = await _httpClient.GetAsync($"GroupChatUser/findByChatId/{id}");
-        if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        try
         {
-            return Unauthorized();
-        }
-        else if (responseMessage.IsSuccessStatusCode)
-        {
+            var responseMessage = await _httpClient.GetAsync($"GroupChatUser/findByChatId/{chatId}");
+            responseMessage.EnsureSuccessStatusCode();
+
             var groupChatUsers = await responseMessage.Content.ReadFromJsonAsync<IEnumerable<GroupChatUserModel>>();
 
             return Ok(groupChatUsers);
         }
-
-        return BadRequest();
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            _logger.LogError(ex, "Find all users in chat {ChatId} failed. User should be authorize to find all users in chat", chatId);
+            return Unauthorized();
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Find all users in chat {ChatId} failed: received unsuccessful request", chatId);
+            return StatusCode((int)(ex.StatusCode ?? HttpStatusCode.InternalServerError), ex.Message);
+        }
     }
 
 
-    [HttpGet("findByUserId/{id}")]
-    public async Task<IActionResult> FindByUserId(string id)
+    [HttpGet("findByUserId/{appUserId:minlength(8)}")]
+    public async Task<IActionResult> FindByUserId(string appUserId)
     {
-        var responseMessage = await _httpClient.GetAsync($"GroupChatUser/findByUserId/{id}");
-        if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        try
         {
-            return Unauthorized();
-        }
-        else if (responseMessage.IsSuccessStatusCode)
-        {
+            var responseMessage = await _httpClient.GetAsync($"GroupChatUser/findByUserId/{appUserId}");
+            responseMessage.EnsureSuccessStatusCode();
+
             var groupChatUsers = await responseMessage.Content.ReadFromJsonAsync<IEnumerable<GroupChatUserModel>>();
 
             return Ok(groupChatUsers);
         }
-
-        return BadRequest();
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            _logger.LogError(ex, "Find chat users by app user {AppUserId} failed. User should be authorize to find chat users by app user id", appUserId);
+            return Unauthorized();
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Find chat users by app user {AppUserId} failed: received unsuccessful request", appUserId);
+            return StatusCode((int)(ex.StatusCode ?? HttpStatusCode.InternalServerError), ex.Message);
+        }
     }
 
     [HttpPost]
     public async Task<IActionResult> Create(GroupChatUserModel user)
     {
-        var responseMessage = await _httpClient.PostAsync("GroupChatUser", JsonContent.Create(user));
-        if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        try
         {
-            return Unauthorized();
-        }
-        else if (responseMessage.IsSuccessStatusCode)
-        {
+            var responseMessage = await _httpClient.PostAsync("GroupChatUser", JsonContent.Create(user));
+            responseMessage.EnsureSuccessStatusCode();
+
             var groupChatUser = await responseMessage.Content.ReadFromJsonAsync<GroupChatUserModel>();
 
             return Ok(groupChatUser);
         }
-
-        return BadRequest();
-    }
-
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(string id)
-    {
-        var responseMessage = await _httpClient.DeletAsync($"GroupChatUser/{id}");
-        if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
         {
+            _logger.LogError(ex, "Create chat user failed. User should be authorize to create chat user");
             return Unauthorized();
         }
-        else if (responseMessage.IsSuccessStatusCode)
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.BadRequest)
         {
+            _logger.LogError(ex, "Create chat user failed. The specified parameters are incorrect");
+            return BadRequest();
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Create chat user failed: received unsuccessful request");
+            return StatusCode((int)(ex.StatusCode ?? HttpStatusCode.InternalServerError), ex.Message);
+        }
+    }
+
+    [HttpDelete("{id:minlength(8)}")]
+    public async Task<IActionResult> Delete(string id)
+    {
+        try
+        {
+            var responseMessage = await _httpClient.DeletAsync($"GroupChatUser/{id}");
+            responseMessage.EnsureSuccessStatusCode();
+
             return Ok();
         }
-
-        return BadRequest();
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            _logger.LogError(ex, "Delete chat user {Id} failed. User should be authorize to delete chat user", id);
+            return Unauthorized();
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Delete chat user {Id} failed. Chat not found or modified.", id);
+            return StatusCode((int)(ex.StatusCode ?? HttpStatusCode.InternalServerError), ex.Message);
+        }
     }
 }

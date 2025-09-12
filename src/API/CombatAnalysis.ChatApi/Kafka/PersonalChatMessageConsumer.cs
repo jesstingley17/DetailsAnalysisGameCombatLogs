@@ -63,8 +63,7 @@ public class PersonalChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, 
             personalChat.CompanionUnreadMessages++;
         }
 
-        var affectedRows = await chatMessageCountService.UpdateAsync(personalChat);
-        ArgumentOutOfRangeException.ThrowIfLessThan(affectedRows, 1, nameof(affectedRows));
+        await chatMessageCountService.UpdateAsync(personalChat);
 
         await chatHubHelper.RequestUnreadMessagesAsync(personalChat.Id, chatAction.InititatorId == personalChat.CompanionId ? personalChat.InitiatorId : personalChat.CompanionId);
     }
@@ -80,8 +79,7 @@ public class PersonalChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, 
             personalChat.InitiatorUnreadMessages--;
         }
 
-        var affectedRows = await chatMessageCountService.UpdateAsync(personalChat);
-        ArgumentOutOfRangeException.ThrowIfLessThan(affectedRows, 1, nameof(affectedRows));
+        await chatMessageCountService.UpdateAsync(personalChat);
 
         await chatHubHelper.RequestUnreadMessagesAsync(personalChat.Id, chatAction.InititatorId == personalChat.CompanionId ? personalChat.CompanionId : personalChat.InitiatorId);
     }

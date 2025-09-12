@@ -111,7 +111,7 @@ public class GroupChatMemberConsumer(IOptions<KafkaSettings> kafkaSettings, IOpt
                 Username = "System"
             },
             State = (int)ChatMessageActionState.Created,
-            When = DateTime.UtcNow.ToString(),
+            When = DateTimeOffset.UtcNow,
             RefreshToken = chatAction.RefreshToken,
             AccessToken = chatAction.AccessToken
         });
@@ -120,7 +120,6 @@ public class GroupChatMemberConsumer(IOptions<KafkaSettings> kafkaSettings, IOpt
 
     private static async Task RemoveGroupChatUser(IServiceTransaction<GroupChatUserDto, string> chatUserService, string chatUserId)
     {
-        var affectedRows = await chatUserService.DeleteAsync(chatUserId);
-        ArgumentOutOfRangeException.ThrowIfLessThan(affectedRows, 1, nameof(affectedRows));
+        await chatUserService.DeleteAsync(chatUserId);
     }
 }
