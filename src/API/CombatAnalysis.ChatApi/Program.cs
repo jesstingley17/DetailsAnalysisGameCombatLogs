@@ -1,5 +1,6 @@
 using AutoMapper;
 using AutoMapper.Extensions.ExpressionMapping;
+using Chat.Application.Mappers.Profiles;
 using CombatAnalysis.ChatApi.Consts;
 using CombatAnalysis.ChatApi.Enums;
 using CombatAnalysis.ChatApi.Helpers;
@@ -13,6 +14,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using Serilog.Events;
+using Chat.Application.Extensions;
+using Chat.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,12 +29,14 @@ var connectionString = databasePropsOptions.Name == nameof(DatabaseType.MSSQL)
     ? databasePropsOptions.DefaultConnection
     : databasePropsOptions.FirebaseConnection;
 builder.Services.ChatBLDependencies(databasePropsOptions.Name, connectionString);
+builder.Services.AddChatApplication();
+builder.Services.AddChatInfrastructure(connectionString);
 
 var mappingConfig = new MapperConfiguration(mc =>
 {
     mc.AddExpressionMapping();
     mc.AddProfile(new ChatMapper());
-    mc.AddProfile(new ChatBLMapper());
+    mc.AddProfile(new ChatProfile());
 });
 
 var mapper = mappingConfig.CreateMapper();
@@ -71,11 +76,11 @@ builder.Services.AddAuthorizationBuilder()
     });
 
 builder.Services.AddTransient<IChatHubHelper, ChatHubHelper>();
-builder.Services.AddHostedService<PersonalChatMessageConsumer>();
-builder.Services.AddHostedService<GroupChatConsumer>();
-builder.Services.AddHostedService<GroupChatMemberConsumer>();
-builder.Services.AddHostedService<GroupChatMessageConsumer>();
-builder.Services.AddHostedService<GroupChatUnreadMessageConsumer>();
+//builder.Services.AddHostedService<PersonalChatMessageConsumer>();
+//builder.Services.AddHostedService<GroupChatConsumer>();
+//builder.Services.AddHostedService<GroupChatMemberConsumer>();
+//builder.Services.AddHostedService<GroupChatMessageConsumer>();
+//builder.Services.AddHostedService<GroupChatUnreadMessageConsumer>();
 
 builder.Services.AddSingleton<IKafkaProducerService<string, string>, KafkaProducer<string, string>>();
 

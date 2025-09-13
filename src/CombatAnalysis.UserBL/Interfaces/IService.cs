@@ -6,7 +6,7 @@ public interface IService<TModel, TIdType>
     where TModel : class
     where TIdType : notnull
 {
-    Task<TModel> CreateAsync(TModel item);
+    Task<TModel?> CreateAsync(TModel item);
 
     Task<int> UpdateAsync(TModel item);
 
@@ -16,5 +16,5 @@ public interface IService<TModel, TIdType>
 
     Task<IEnumerable<TModel>> GetByParamAsync<TValue>(Expression<Func<TModel, TValue>> property, TValue value);
 
-    Task<TModel> GetByIdAsync(TIdType id);
+    Task<TModel?> GetByIdAsync(TIdType id);
 }

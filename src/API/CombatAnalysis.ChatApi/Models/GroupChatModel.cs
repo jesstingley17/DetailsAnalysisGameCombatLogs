@@ -12,5 +12,5 @@ public class GroupChatModel
     public string Name { get; set; } = string.Empty;
 
     [Required]
-    public string AppUserId { get; set; } = string.Empty;
+    public string OwnerId { get; set; } = string.Empty;
 }

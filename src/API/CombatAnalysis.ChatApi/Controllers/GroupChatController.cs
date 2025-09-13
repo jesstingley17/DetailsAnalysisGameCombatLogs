@@ -1,8 +1,7 @@
 ﻿using AutoMapper;
+using Chat.Application.DTOs;
 using CombatAnalysis.ChatApi.Models;
-using CombatAnalysis.ChatBL.DTO;
 using CombatAnalysis.ChatBL.Exceptions;
-using CombatAnalysis.ChatBL.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,10 +10,10 @@ namespace CombatAnalysis.ChatApi.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-[Authorize]
-public class GroupChatController(IService<GroupChatDto, int> chatService, IMapper mapper, ILogger<GroupChatController> logger) : ControllerBase
+[AllowAnonymous]
+public class GroupChatController(Chat.Application.Interfaces.IService<GroupChatDto, int> chatService, IMapper mapper, ILogger<GroupChatController> logger) : ControllerBase
 {
-    private readonly IService<GroupChatDto, int> _chatService = chatService;
+    private readonly Chat.Application.Interfaces.IService<GroupChatDto, int> _chatService = chatService;
     private readonly IMapper _mapper = mapper;
     private readonly ILogger<GroupChatController> _logger = logger;
 
@@ -37,6 +36,29 @@ public class GroupChatController(IService<GroupChatDto, int> chatService, IMappe
         }
 
         return Ok(groupChat);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] GroupChatModel chatMessage)
+    {
+        try
+        {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid GroupChatModel create received: {@ChatMessage}", chatMessage);
+                return ValidationProblem(ModelState);
+            }
+
+            var map = _mapper.Map<GroupChatDto>(chatMessage);
+            var createdGroupChat = await _chatService.CreateAsync(map);
+
+            return Ok(createdGroupChat);
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex, "Failed to create group chat.");
+            return StatusCode(500, "Internal server error.");
+        }
     }
 
     [HttpPut("{id:int:min(1)}")]
@@ -77,7 +99,7 @@ public class GroupChatController(IService<GroupChatDto, int> chatService, IMappe
     {
         try
         {
-            await _chatService.DeleteAsync(id);
+            //await _chatService.DeleteAsync(id);
 
             return NoContent();
         }
