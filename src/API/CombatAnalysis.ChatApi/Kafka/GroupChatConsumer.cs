@@ -90,7 +90,7 @@ public class GroupChatConsumer(IOptions<KafkaSettings> kafkaSettings, IOptions<H
         var createdChat = await chatService.CreateAsync(map);
         ArgumentNullException.ThrowIfNull(createdChat, nameof(createdChat));
 
-        chatRules.ChatId = createdChat.Id;
+        chatRules.GroupChatId = createdChat.Id;
 
         var chatRulesMap = _mapper.Map<GroupChatRulesDto>(chatRules);
         var createdChatRules = await chatRulesService.CreateAsync(chatRulesMap);

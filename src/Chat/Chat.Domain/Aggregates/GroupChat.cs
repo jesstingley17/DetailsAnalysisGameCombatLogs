@@ -1,39 +1,56 @@
 ﻿using Chat.Domain.Entities;
-using Chat.Domain.Enums;
 using Chat.Domain.Enums.GroupChatRules;
+using Chat.Domain.Interfaces;
 using Chat.Domain.ValueObjects;
 
 namespace Chat.Domain.Aggregates;
 
-public class GroupChat
+public class GroupChat : IRepositoryEntity<GroupChatId>
 {
     private readonly List<GroupChatMessage> _messages = [];
     private readonly List<GroupChatUser> _users = [];
 
+    public const int MaxNameLength = 128;
+
     private GroupChat() { }
 
-    public GroupChat(string name, UserId ownerId)
+    public GroupChat(int id, string name, UserId ownerId)
     {
-        if (string.IsNullOrWhiteSpace(name))
-        {
-            throw new ArgumentException("Name cannot be empty");
-        }
+        ArgumentException.ThrowIfNullOrWhiteSpace(name, nameof(name));
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(name.Length, MaxNameLength, nameof(name));
 
+        Id = id;
         Name = name;
         OwnerId = ownerId;
     }
 
-    public GroupChatId Id { get; }
+    public GroupChatId Id { get; private set; }
 
-    public string Name { get; }
+    public string Name { get; private set; }
 
-    public UserId OwnerId { get; }
+    public UserId OwnerId { get; private set; }
 
     public GroupChatRules? Rules { get; private set; }
 
     public IReadOnlyCollection<GroupChatMessage> Messages => _messages.AsReadOnly();
 
     public IReadOnlyCollection<GroupChatUser> Users => _users.AsReadOnly();
+
+    public void ApplyUpdates(GroupChat updated)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(updated.Name, nameof(updated.Name));
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(updated.Name.Length, MaxNameLength, nameof(updated.Name));
+
+        if (!string.Equals(Name, updated.Name, StringComparison.Ordinal))
+        {
+            Name = updated.Name;
+        }
+
+        if (!OwnerId.Equals(updated.OwnerId))
+        {
+            OwnerId = updated.OwnerId;
+        }
+    }
 
     public void AddRules(int chatId,
         InvitePeopleRestrictions invitePeople = InvitePeopleRestrictions.Anyone,
@@ -44,51 +61,20 @@ public class GroupChat
         Rules = new GroupChatRules(chatId, invitePeople, removePeople, pinMessage, announcements);
     }
 
-    public void AddUser(string username, int chatId, UserId userId)
+    public void RemoveRules()
     {
-        if (string.IsNullOrWhiteSpace(username))
-        {
-            throw new InvalidOperationException("Username cannot be empty");
-        }
-
-        _users.Add(new GroupChatUser(Guid.NewGuid().ToString(), username, chatId, userId));
+        Rules = null;
     }
 
-    public void AddMessage(string username, string message, int chatId, GroupChatUserId senderId)
+    public void UpdateRules(GroupChatRules rules)
     {
-        if (string.IsNullOrWhiteSpace(username))
-        {
-            throw new InvalidOperationException("Username cannot be empty");
-        }
+        ArgumentNullException.ThrowIfNull(Rules, nameof(Rules));
 
-        if (string.IsNullOrWhiteSpace(message))
-        {
-            throw new InvalidOperationException("Message cannot be empty");
-        }
-
-        _messages.Add(new GroupChatMessage(username, message, chatId, senderId));
+        Rules.Update(rules.InvitePeople, rules.RemovePeople, rules.PinMessage, rules.Announcements);
     }
 
-    public void EditMessage(int messageId, string newMessage)
+    public void EnsureUserIsMember(GroupChatUser user)
     {
-        var user = _messages.Single(u => u.Id == messageId);
-        user.EditMessage(newMessage);
-    }
-
-    public void UpdateStatus(int messageId, MessageStatus newStatus)
-    {
-        var user = _messages.Single(u => u.Id == messageId);
-        user.UpdateStatus(newStatus);
-    }
-
-    public void MarkAsRead(string userId, int messageId)
-    {
-        var user = _users.Single(u => u.Id == userId);
-        user.MarkAsRead(messageId);
-    }
-
-    public bool HasMessageBeenReadByAll(int messageId)
-    {
-        return _users.All(u => u.LastReadMessageId >= messageId);
+        ArgumentOutOfRangeException.ThrowIfNotEqual(user.GroupChatId, Id, nameof(user));
     }
 }

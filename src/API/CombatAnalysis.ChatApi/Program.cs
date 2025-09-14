@@ -76,11 +76,11 @@ builder.Services.AddAuthorizationBuilder()
     });
 
 builder.Services.AddTransient<IChatHubHelper, ChatHubHelper>();
-//builder.Services.AddHostedService<PersonalChatMessageConsumer>();
-//builder.Services.AddHostedService<GroupChatConsumer>();
-//builder.Services.AddHostedService<GroupChatMemberConsumer>();
-//builder.Services.AddHostedService<GroupChatMessageConsumer>();
-//builder.Services.AddHostedService<GroupChatUnreadMessageConsumer>();
+builder.Services.AddHostedService<PersonalChatMessageConsumer>();
+builder.Services.AddHostedService<GroupChatConsumer>();
+builder.Services.AddHostedService<GroupChatMemberConsumer>();
+builder.Services.AddHostedService<GroupChatMessageConsumer>();
+builder.Services.AddHostedService<GroupChatUnreadMessageConsumer>();
 
 builder.Services.AddSingleton<IKafkaProducerService<string, string>, KafkaProducer<string, string>>();
 

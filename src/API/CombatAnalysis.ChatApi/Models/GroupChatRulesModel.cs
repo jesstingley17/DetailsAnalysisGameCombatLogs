@@ -20,5 +20,5 @@ public class GroupChatRulesModel
     public int Announcements { get; set; }
 
     [Range(1, int.MaxValue)]
-    public int ChatId { get; set; }
+    public int GroupChatId { get; set; }
 }

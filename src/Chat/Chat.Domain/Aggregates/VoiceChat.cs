@@ -1,17 +1,15 @@
-﻿using Chat.Domain.ValueObjects;
+﻿using Chat.Domain.Interfaces;
+using Chat.Domain.ValueObjects;
 
 namespace Chat.Domain.Aggregates;
 
-public class VoiceChat
+public class VoiceChat: IRepositoryEntity<VoiceChatId>
 {
     private VoiceChat() { }
 
     public VoiceChat(string id, UserId userId)
     {
-        if (string.IsNullOrWhiteSpace(userId))
-        {
-            throw new ArgumentException("UserId cannot be empty");
-        }
+        ArgumentException.ThrowIfNullOrWhiteSpace(id, nameof(id));
 
         Id = id;
         AppUserId = userId;

@@ -1,10 +1,10 @@
 ﻿using Chat.Domain.Entities;
-using Chat.Domain.Enums;
+using Chat.Domain.Interfaces;
 using Chat.Domain.ValueObjects;
 
 namespace Chat.Domain.Aggregates;
 
-public class PersonalChat
+public class PersonalChat : IRepositoryEntity<PersonalChatId>
 {
     private readonly List<PersonalChatMessage> _messages = [];
 
@@ -30,30 +30,23 @@ public class PersonalChat
 
     public IReadOnlyCollection<PersonalChatMessage> Messages => _messages.AsReadOnly();
 
-    public void AddMessage(string username, string message, int chatId, UserId senderId)
+    public void UpdateInitiatorUnreadMessageCount(int count)
     {
-        if (string.IsNullOrWhiteSpace(username))
+        ArgumentOutOfRangeException.ThrowIfLessThan(count, 0, nameof(count));
+
+        if (InitiatorUnreadMessages != count)
         {
-            throw new InvalidOperationException("Username cannot be empty");
+            InitiatorUnreadMessages = count;
         }
+    }
+    public void UpdateCompanionUnreadMessageCount(int count)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(count, 0, nameof(count));
 
-        if (string.IsNullOrWhiteSpace(message))
+        if (CompanionUnreadMessages != count)
         {
-            throw new InvalidOperationException("Message cannot be empty");
+            CompanionUnreadMessages = count;
         }
-
-        _messages.Add(new PersonalChatMessage(username, message, chatId, senderId));
     }
 
-    public void EditMessage(int messageId, string newMessage)
-    {
-        var user = _messages.Single(u => u.Id == messageId);
-        user.EditMessage(newMessage);
-    }
-
-    public void UpdateStatus(int messageId, MessageStatus newStatus)
-    {
-        var user = _messages.Single(u => u.Id == messageId);
-        user.UpdateStatus(newStatus);
-    }
 }

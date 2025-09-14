@@ -31,4 +31,15 @@ public class GroupChatRules
     public AnnouncementsRestrictions Announcements { get; private set; }
 
     public GroupChatId GroupChatId { get; private set; }
+
+    public void Update(InvitePeopleRestrictions invitePeople,
+        RemovePeopleRestrictions removePeople,
+        PinMessageRestrictions pinMessage,
+        AnnouncementsRestrictions announcements)
+    {
+        InvitePeople = invitePeople;
+        RemovePeople = removePeople;
+        PinMessage = pinMessage;
+        Announcements = announcements;
+    }
 }

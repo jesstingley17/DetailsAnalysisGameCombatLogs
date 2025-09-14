@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using Chat.Application.DTOs;
+using Chat.Application.Interfaces;
+using Chat.Domain.Exceptions;
+using Chat.Infrastructure.Exceptions;
 using CombatAnalysis.ChatApi.Models;
-using CombatAnalysis.ChatBL.DTO;
-using CombatAnalysis.ChatBL.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,10 +13,10 @@ namespace CombatAnalysis.ChatApi.Controllers;
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class VoiceChatController(IService<VoiceChatDto, string> service, IMapper mapper, ILogger<VoiceChatController> logger)
+public class VoiceChatController(IVoiceChatService service, IMapper mapper, ILogger<VoiceChatController> logger)
     : ControllerBase
 {
-    private readonly IService<VoiceChatDto, string> _service = service;
+    private readonly IVoiceChatService _service = service;
     private readonly IMapper _mapper = mapper;
     private readonly ILogger<VoiceChatController> _logger = logger;
 
@@ -29,14 +31,18 @@ public class VoiceChatController(IService<VoiceChatDto, string> service, IMapper
     [HttpGet("{id:minlength(8)}")]
     public async Task<IActionResult> GetById(string id)
     {
-        var voiceChat = await _service.GetByIdAsync(id);
-        if (voiceChat == null)
+        try
         {
-            _logger.LogWarning("Get voice chat by id failed: Voice chat with id {Id} not found.", id);
+            var voiceChat = await _service.GetByIdAsync(id);
+
+            return Ok(voiceChat);
+        }
+        catch (VoiceChatNotFoundException ex)
+        {
+            _logger.LogWarning("Get voice chat by id failed: Voice chat with id {Id} not found.", ex.VoiceChatId);
+
             return NotFound();
         }
-
-        return Ok(voiceChat);
     }
 
     [HttpPost]
@@ -47,6 +53,7 @@ public class VoiceChatController(IService<VoiceChatDto, string> service, IMapper
             if (!ModelState.IsValid)
             {
                 _logger.LogWarning("Invalid VoiceChat create received: {@VoiceChat}", voiceChat);
+
                 return ValidationProblem(ModelState);
             }
 
@@ -62,34 +69,6 @@ public class VoiceChatController(IService<VoiceChatDto, string> service, IMapper
         }
     }
 
-    [HttpPut("{id:minlength(8)}")]
-    public async Task<IActionResult> Update(string id, [FromBody] VoiceChatModel voiceChat)
-    {
-        try
-        {
-            if (!ModelState.IsValid)
-            {
-                _logger.LogWarning("Invalid VoiceChat update received: {@VoiceChat}", voiceChat);
-                return ValidationProblem(ModelState);
-            }
-
-            if (id != voiceChat.Id)
-            {
-                return BadRequest("Route ID and body ID do not match.");
-            }
-
-            var map = _mapper.Map<VoiceChatDto>(voiceChat);
-            await _service.UpdateAsync(map);
-
-            return Ok();
-        }
-        catch (DbUpdateConcurrencyException ex)
-        {
-            _logger.LogWarning(ex, "Update failed. Voice chat {Id} not found or modified.", id);
-            return NotFound();
-        }
-    }
-
     [HttpDelete("{id:minlength(8)}")]
     public async Task<IActionResult> Delete(string id)
     {
@@ -99,9 +78,15 @@ public class VoiceChatController(IService<VoiceChatDto, string> service, IMapper
 
             return Ok();
         }
+        catch (EntityNotFoundException ex)
+        {
+            _logger.LogWarning("Delete voice chat {Id} failed. Voice chat not found.", ex.EntityId);
+
+            return NotFound();
+        }
         catch (DbUpdateConcurrencyException ex)
         {
-            _logger.LogWarning(ex, "Delete failed. Voice chat {Id} not found or modified.", id);
+            _logger.LogWarning(ex, "Delete voice chat {Id} failed. Voice chat not found or modified.", id);
             return NotFound();
         }
     }

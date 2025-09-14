@@ -20,9 +20,7 @@ public class GroupChatMessageDto
 
     public bool IsEdited { get; set; }
 
-    public int ChatId { get; set; }
+    public int GroupChatId { get; set; }
 
     public string GroupChatUserId { get; set; } = string.Empty;
-
-    public int? GroupChatMessageId { get; set; }
 }

@@ -20,7 +20,7 @@ public class PersonalChatMessageDto
 
     public bool IsEdited { get; set; }
 
-    public int ChatId { get; set; }
+    public int PersonalChatId { get; set; }
 
     public string AppUserId { get; set; }
 }

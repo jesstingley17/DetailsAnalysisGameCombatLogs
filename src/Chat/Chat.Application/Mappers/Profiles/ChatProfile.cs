@@ -25,7 +25,7 @@ public class ChatProfile : Profile
                  .ConstructUsing(dto => new PersonalChatMessage(
                      dto.Username,
                      dto.Message,
-                     dto.ChatId,
+                     dto.PersonalChatId,
                      dto.AppUserId,
                      dto.Status,
                      dto.Type,
@@ -33,12 +33,13 @@ public class ChatProfile : Profile
                  )).ReverseMap();
         CreateMap<GroupChatDto, GroupChat>()
                  .ConstructUsing(dto => new GroupChat(
+                     dto.Id,
                      dto.Name,
                      dto.OwnerId
                  )).ReverseMap();
         CreateMap<GroupChatRulesDto, GroupChatRules>()
                  .ConstructUsing(dto => new GroupChatRules(
-                     dto.ChatId,
+                     dto.GroupChatId,
                      dto.InvitePeople,
                      dto.RemovePeople,
                      dto.PinMessage,
@@ -48,7 +49,7 @@ public class ChatProfile : Profile
                  .ConstructUsing(dto => new GroupChatMessage(
                      dto.Username,
                      dto.Message,
-                     dto.ChatId,
+                     dto.GroupChatId,
                      dto.GroupChatUserId,
                      dto.Status,
                      dto.Type,

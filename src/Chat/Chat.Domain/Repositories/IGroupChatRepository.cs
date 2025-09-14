@@ -1,19 +1,16 @@
 ﻿using Chat.Domain.Aggregates;
 using Chat.Domain.Entities;
+using Chat.Domain.ValueObjects;
 
 namespace Chat.Domain.Repositories;
 
-public interface IGroupChatRepository
+public interface IGroupChatRepository : IGenericRepository<GroupChat, GroupChatId>
 {
-    Task<GroupChat?> CreateAsync(GroupChat item);
+    Task UpdateAsync(GroupChat updated);
 
-    Task UpdateAsync(GroupChat item);
+    Task<GroupChatRules?> AddRulesAsync(GroupChatRules rules);
 
-    Task DeleteAsync(GroupChat item);
+    Task RemoveRulesAsync(int chatId);
 
-    Task<IEnumerable<GroupChat>> GetAllAsync();
-
-    Task<GroupChat?> GetByIdAsync(int id);
-
-    Task<IEnumerable<GroupChatMessage>> GetChatMessagesAsync(int chatId, int page, int pageSize);
+    Task UpdateRulesAsync(GroupChatRules updateRules);
 }

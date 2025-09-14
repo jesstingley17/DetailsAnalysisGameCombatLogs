@@ -1,16 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Chat.Domain.Aggregates;
+using System.ComponentModel.DataAnnotations;
 
 namespace CombatAnalysis.ChatApi.Models;
 
-public class GroupChatModel
-{
-    [Range(0, int.MaxValue)]
-    public int Id { get; set; }
-
-    [Required]
-    [StringLength(128)]
-    public string Name { get; set; } = string.Empty;
-
-    [Required]
-    public string OwnerId { get; set; } = string.Empty;
-}
+public record GroupChatModel(
+    [Range(0, int.MaxValue)] int Id, 
+    [Required][StringLength(GroupChat.MaxNameLength)] string Name,
+    [Required] string OwnerId
+    );

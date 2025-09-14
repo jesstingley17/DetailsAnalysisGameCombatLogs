@@ -11,6 +11,8 @@ public class ChatContext(DbContextOptions<ChatContext> options) : DbContext(opti
 
     public DbSet<PersonalChat> PersonalChat { get; set; } = null!;
 
+    public DbSet<PersonalChatMessage> PersonalChatMessage { get; set; } = null!;
+
     public DbSet<GroupChat> GroupChat { get; set; } = null!;
 
     public DbSet<GroupChatMessage> GroupChatMessage { get; set; } = null!;
@@ -132,26 +134,31 @@ public class ChatContext(DbContextOptions<ChatContext> options) : DbContext(opti
                             value => new UserId(value)
                         );
 
-            builder.OwnsMany(c => c.Messages, m =>
-            {
-                m.HasKey(c => c.Id);
+            builder.HasMany(c => c.Messages)
+                   .WithOne(m => m.PersonalChat)
+                   .HasForeignKey(m => m.PersonalChatId)
+                   .OnDelete(DeleteBehavior.Cascade);
+        });
 
-                m.WithOwner().HasForeignKey(k => k.PersonalChatId);
+        modelBuilder.Entity<PersonalChatMessage>(builder =>
+        {
+            builder.HasKey(c => c.Id);
 
-                m.Property(msg => msg.Message).IsRequired();
+            builder.Property(msg => msg.Message).IsRequired().HasMaxLength(256);
 
-                m.Property(x => x.Id)
+            builder.Property(m => m.Time).IsRequired();
+
+            builder.Property(x => x.Id)
                      .HasConversion(
                          id => id.Value,
                          value => new PersonalChatMessageId(value)
                      ).ValueGeneratedOnAdd();
 
-                m.Property(x => x.AppUserId)
+            builder.Property(x => x.AppUserId)
                      .HasConversion(
                          id => id.Value,
                          value => new UserId(value)
                      );
-            });
         });
 
         modelBuilder.Entity<VoiceChat>(builder =>

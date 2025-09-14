@@ -1,10 +1,11 @@
 ﻿using Chat.Domain.Aggregates;
 using Chat.Domain.Enums;
+using Chat.Domain.Interfaces;
 using Chat.Domain.ValueObjects;
 
 namespace Chat.Domain.Entities;
 
-public class GroupChatMessage
+public class GroupChatMessage : IRepositoryEntity<GroupChatMessageId>, IChatEntity
 {
     private GroupChatMessage() { }
 
@@ -13,15 +14,8 @@ public class GroupChatMessage
                     MessageType type = MessageType.Default,
                     MessageMarkedType markedType = MessageMarkedType.None)
     {
-        if (string.IsNullOrWhiteSpace(username))
-        {
-            throw new ArgumentException("Username cannot be empty");
-        }
-
-        if (string.IsNullOrWhiteSpace(message))
-        {
-            throw new ArgumentException("Message cannot be empty");
-        }
+        ArgumentException.ThrowIfNullOrWhiteSpace(username, nameof(username));
+        ArgumentException.ThrowIfNullOrWhiteSpace(message, nameof(message));
 
         Username = username;
         Message = message;
@@ -55,20 +49,38 @@ public class GroupChatMessage
 
     public GroupChat GroupChat { get; private set; } = null!;
 
+    public void ApplyUpdates(GroupChatMessage updated)
+    {
+        EditMessage(updated.Message);
+        UpdateStatus(updated.Status);
+        UpdateMarker(updated.MarkedType);
+    }
+
     public void EditMessage(string newMessage)
     {
-        if (string.IsNullOrWhiteSpace(newMessage))
-        {
-            throw new ArgumentException("Message cannot be empty");
-        }
+        ArgumentException.ThrowIfNullOrWhiteSpace(newMessage, nameof(newMessage));
 
-        Message = newMessage;
-        IsEdited = true;
-        Time = DateTimeOffset.UtcNow;
+        if (!string.Equals(Message, newMessage, StringComparison.Ordinal))
+        {
+            Message = newMessage;
+            IsEdited = true;
+            Time = DateTimeOffset.UtcNow;
+        }
     }
 
     public void UpdateStatus(MessageStatus newStatus)
     {
-        Status = newStatus;
+        if (!Status.Equals(newStatus))
+        {
+            Status = newStatus;
+        }
+    }
+
+    public void UpdateMarker(MessageMarkedType newMarkedType)
+    {
+        if (!MarkedType.Equals(newMarkedType))
+        {
+            MarkedType = newMarkedType;
+        }
     }
 }

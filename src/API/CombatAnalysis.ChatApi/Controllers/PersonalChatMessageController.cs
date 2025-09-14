@@ -1,9 +1,10 @@
 ﻿using AutoMapper;
+using Chat.Application.DTOs;
+using Chat.Application.Services;
+using Chat.Domain.Exceptions;
+using Chat.Infrastructure.Exceptions;
 using CombatAnalysis.ChatApi.Models;
 using CombatAnalysis.ChatApi.Requests;
-using CombatAnalysis.ChatBL.DTO;
-using CombatAnalysis.ChatBL.Exceptions;
-using CombatAnalysis.ChatBL.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,10 +14,10 @@ namespace CombatAnalysis.ChatApi.Controllers;
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class PersonalChatMessageController(IPersonalChatMessageService<PersonalChatMessageDto, int> chatMessageService, IMapper mapper, ILogger<PersonalChatMessageController> logger) 
+public class PersonalChatMessageController(IPersonalChatMessageService chatMessageService, IMapper mapper, ILogger<PersonalChatMessageController> logger) 
     : ControllerBase
 {
-    private readonly IPersonalChatMessageService<PersonalChatMessageDto, int> _chatMessageService = chatMessageService;
+    private readonly IPersonalChatMessageService _chatMessageService = chatMessageService;
     private readonly IMapper _mapper = mapper;
     private readonly ILogger<PersonalChatMessageController> _logger = logger;
 
@@ -39,14 +40,18 @@ public class PersonalChatMessageController(IPersonalChatMessageService<PersonalC
     [HttpGet("{id:int:min(1)}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var personalChatMessage = await _chatMessageService.GetByIdAsync(id);
-        if (personalChatMessage == null)
+        try
         {
-            _logger.LogWarning("Get personal chat message by id failed: Personal chat message with id {Id} not found.", id);
+            var personalChatMessage = await _chatMessageService.GetByIdAsync(id);
+
+            return Ok(personalChatMessage);
+        }
+        catch (PersonalChatMessageNotFoundException ex)
+        {
+            _logger.LogWarning("Get personal chat message {Id} failed: Personal chat message not found.", ex.MessageId);
+
             return NotFound();
         }
-
-        return Ok(personalChatMessage);
     }
 
     [HttpGet("getByChatId")]
@@ -58,21 +63,7 @@ public class PersonalChatMessageController(IPersonalChatMessageService<PersonalC
             return ValidationProblem(ModelState);
         }
 
-        var personalChatMessages = await _chatMessageService.GetByChatIdAsync(request.ChatId, request.PageSize);
-
-        return Ok(personalChatMessages);
-    }
-
-    [HttpGet("getMoreByChatId")]
-    public async Task<IActionResult> GetMoreByChatId([FromQuery] MorePersonalChatRequest request)
-    {
-        if (!ModelState.IsValid)
-        {
-            _logger.LogWarning("Invalid MorePersonalChatMessageRequest received: {@Request}", request);
-            return ValidationProblem(ModelState);
-        }
-
-        var personalChatMessages = await _chatMessageService.GetMoreByChatIdAsync(request.ChatId, request.Offset, request.PageSize);
+        var personalChatMessages = await _chatMessageService.GetByChatIdAsync(request.ChatId, request.Page, request.PageSize);
 
         return Ok(personalChatMessages);
     }
@@ -93,9 +84,16 @@ public class PersonalChatMessageController(IPersonalChatMessageService<PersonalC
 
             return Ok(createdPersonalChatMessage);
         }
+        catch (PersonalChatNotFoundException ex)
+        {
+            _logger.LogWarning("Create personal chat message {Id} failed: Personal chat not found.", ex.PersonalChatId);
+
+            return NotFound();
+        }
         catch (DbUpdateException ex)
         {
             _logger.LogError(ex, "Failed to create chat message.");
+
             return StatusCode(500, "Internal server error.");
         }
     }
@@ -121,15 +119,16 @@ public class PersonalChatMessageController(IPersonalChatMessageService<PersonalC
 
             return Ok();
         }
-        catch (DbUpdateConcurrencyException ex)
+        catch (EntityNotFoundException ex)
         {
-            _logger.LogWarning(ex, "Update failed. Personal chat message {Id} not found or modified.", id);
+            _logger.LogWarning("Update personal chat message {Id} failed. Personal chat message not found.", ex.EntityId);
+
             return NotFound();
         }
-        catch (BusinessValidationException ex)
+        catch (DbUpdateConcurrencyException ex)
         {
-            _logger.LogWarning("Business validation failed: {Message}", ex.Message);
-            return BadRequest(new { error = ex.Message });
+            _logger.LogWarning(ex, "Update personal chat message {Id} failed. Personal chat message not found or modified.", id);
+            return NotFound();
         }
     }
 
@@ -142,9 +141,15 @@ public class PersonalChatMessageController(IPersonalChatMessageService<PersonalC
 
             return Ok();
         }
+        catch (EntityNotFoundException ex)
+        {
+            _logger.LogWarning(ex, "Delete personal chat message {Id} failed. Personal chat message not found.", ex.EntityId);
+
+            return NotFound();
+        }
         catch (DbUpdateConcurrencyException ex)
         {
-            _logger.LogWarning(ex, "Delete failed. Personal chat message {Id} not found or modified.", id);
+            _logger.LogWarning(ex, "Delete personal chat message {Id} failed. Personal chat message not found or modified.", id);
             return NotFound();
         }
     }

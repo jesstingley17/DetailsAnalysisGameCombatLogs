@@ -9,6 +9,8 @@ public class GroupChatMessageId
 
     public int Value { get; }
 
+    public bool HasValue => Value > 0;
+
     public static implicit operator int(GroupChatMessageId id) => id.Value;
 
     public static implicit operator GroupChatMessageId(int value) => new(value);

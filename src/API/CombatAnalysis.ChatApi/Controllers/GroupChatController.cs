@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using Chat.Application.DTOs;
+using Chat.Application.Interfaces;
+using Chat.Domain.Exceptions;
+using Chat.Infrastructure.Exceptions;
 using CombatAnalysis.ChatApi.Models;
-using CombatAnalysis.ChatBL.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,10 +12,10 @@ namespace CombatAnalysis.ChatApi.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-[AllowAnonymous]
-public class GroupChatController(Chat.Application.Interfaces.IService<GroupChatDto, int> chatService, IMapper mapper, ILogger<GroupChatController> logger) : ControllerBase
+[Authorize]
+public class GroupChatController(IService<GroupChatDto, int> chatService, IMapper mapper, ILogger<GroupChatController> logger) : ControllerBase
 {
-    private readonly Chat.Application.Interfaces.IService<GroupChatDto, int> _chatService = chatService;
+    private readonly IService<GroupChatDto, int> _chatService = chatService;
     private readonly IMapper _mapper = mapper;
     private readonly ILogger<GroupChatController> _logger = logger;
 
@@ -28,14 +30,18 @@ public class GroupChatController(Chat.Application.Interfaces.IService<GroupChatD
     [HttpGet("{id:int:min(1)}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var groupChat = await _chatService.GetByIdAsync(id);
-        if (groupChat == null)
+        try
         {
-            _logger.LogWarning("Get group chat {Id} failed: Group chat not found.", id);
+            var groupChat = await _chatService.GetByIdAsync(id);
+
+            return Ok(groupChat);
+        }
+        catch (GroupChatNotFoundException ex)
+        {
+            _logger.LogWarning("Get group chat {Id} failed: Group chat not found.", ex.GroupChatId);
+
             return NotFound();
         }
-
-        return Ok(groupChat);
     }
 
     [HttpPost]
@@ -46,6 +52,7 @@ public class GroupChatController(Chat.Application.Interfaces.IService<GroupChatD
             if (!ModelState.IsValid)
             {
                 _logger.LogWarning("Invalid GroupChatModel create received: {@ChatMessage}", chatMessage);
+
                 return ValidationProblem(ModelState);
             }
 
@@ -57,6 +64,7 @@ public class GroupChatController(Chat.Application.Interfaces.IService<GroupChatD
         catch (DbUpdateException ex)
         {
             _logger.LogError(ex, "Failed to create group chat.");
+
             return StatusCode(500, "Internal server error.");
         }
     }
@@ -69,6 +77,7 @@ public class GroupChatController(Chat.Application.Interfaces.IService<GroupChatD
             if (!ModelState.IsValid)
             {
                 _logger.LogWarning("Invalid GroupChat update request received: {@Chat}", chat);
+
                 return ValidationProblem(ModelState);
             }
 
@@ -82,15 +91,17 @@ public class GroupChatController(Chat.Application.Interfaces.IService<GroupChatD
 
             return NoContent();
         }
-        catch (DbUpdateConcurrencyException ex)
+        catch (EntityNotFoundException ex)
         {
-            _logger.LogWarning(ex, "Update group chat {Id} failed. Group chat not found or modified.", id);
+            _logger.LogWarning("Update group chat {Id} failed. Group chat not found.", ex.EntityId);
+
             return NotFound();
         }
-        catch (BusinessValidationException ex)
+        catch (DbUpdateConcurrencyException ex)
         {
-            _logger.LogWarning("Business validation failed: {Message}", ex.Message);
-            return BadRequest(new { error = ex.Message });
+            _logger.LogError(ex, "Update group chat {Id} failed. Something wrong during update group chat.", id);
+
+            return NotFound();
         }
     }
 
@@ -99,13 +110,20 @@ public class GroupChatController(Chat.Application.Interfaces.IService<GroupChatD
     {
         try
         {
-            //await _chatService.DeleteAsync(id);
+            await _chatService.DeleteAsync(id);
 
             return NoContent();
         }
+        catch (EntityNotFoundException ex)
+        {
+            _logger.LogWarning("Delete group chat {Id} failed. Group chat not found.", ex.EntityId);
+
+            return NotFound();
+        }
         catch (DbUpdateConcurrencyException ex)
         {
-            _logger.LogWarning(ex, "Delete group chat {Id} failed. Group chat not found or modified.", id);
+            _logger.LogError(ex, "Delete group chat {Id} failed. Something wrong during delete group chat.", id);
+
             return NotFound();
         }
     }

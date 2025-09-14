@@ -8,5 +8,8 @@ public class PersonalChatRequest
     public int ChatId { get; set; }
 
     [Range(1, 100)]
+    public int Page { get; set; }
+
+    [Range(1, 100)]
     public int PageSize { get; set; }
 }
