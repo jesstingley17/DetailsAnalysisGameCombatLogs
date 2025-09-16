@@ -75,7 +75,7 @@ const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ myself, setSelectedChat, 
             }
 
             for (let i = 0; i < peopleToRemove.length; i++) {
-                await chatHub.groupChatHubConnectionRef.current.invoke("RemoveUserFromChat", chat.id, peopleToRemove[i].id, peopleToRemove[i].username);
+                await chatHub.groupChatHubConnectionRef.current.invoke("RemoveUserFromChat", chat.ownerId, chat.id, peopleToRemove[i].id, peopleToRemove[i].username);
             }
 
             setPeopleInspectionModeOn(false);
@@ -175,7 +175,7 @@ const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ myself, setSelectedChat, 
             {showAddPeople &&
                 <GroupChatAddUser
                     myself={myself}
-                    chatId={chat?.id}
+                    chat={chat}
                     groupChatUsersId={groupChatUsersId}
                     setShowAddPeople={setShowAddPeople}
                     chatHub={chatHub}

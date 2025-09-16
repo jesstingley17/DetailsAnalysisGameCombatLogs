@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Chat.Application.DTOs;
 using Chat.Application.Interfaces;
-using Chat.Application.Mappers;
 using Chat.Domain.Enums;
 using CombatAnalysis.ChatApi.Consts;
 using CombatAnalysis.ChatApi.Enums;
@@ -50,19 +49,21 @@ public class GroupChatMemberConsumer(IOptions<KafkaSettings> kafkaSettings, IOpt
             var chatUserService = scope.ServiceProvider.GetService<IGroupChatUserService>();
             ArgumentNullException.ThrowIfNull(chatUserService, nameof(chatUserService));
 
+            var chatOwnerUser = await chatUserService.FindByAppUserIdAsync(action.User.GroupChatId, action.ChatOwnerId);
+
             switch (action.State)
             {
                 case (int)ChatMembersActionState.AddUser:
-                    var chatUser = await CreateGroupChatUser(chatUserService, action.User);
+                    await CreateGroupChatUser(chatUserService, action.User);
 
                     await SendSignalRequestChatsAsync(scope, action);
-                    await CreateSystemMessageAsync( $"Add user '{action.User.Username}' to chat", action, chatUser.Id);
+                    await CreateSystemMessageAsync( $"Add user '{action.User.Username}' to chat", action, chatOwnerUser.Id);
 
                     break;
                 case (int)ChatMembersActionState.RemoveUser:
                     await RemoveGroupChatUser(chatUserService, action.User.Id);
 
-                    await CreateSystemMessageAsync($"Remove user '{action.User.Username}' from chat", action, action.User.Id);
+                    await CreateSystemMessageAsync($"Remove user '{action.User.Username}' from chat", action, chatOwnerUser.Id);
 
                     break;
             }
@@ -97,11 +98,11 @@ public class GroupChatMemberConsumer(IOptions<KafkaSettings> kafkaSettings, IOpt
         await chatHubHelper.RequestsChats(chatAction.User.GroupChatId, chatAction.User.AppUserId);
     }
 
-    private async Task CreateSystemMessageAsync(string systemMessage, GroupChatMemberAction chatAction, string groupChatUserId)
+    private async Task CreateSystemMessageAsync(string systemMessage, GroupChatMemberAction chatAction, string chatOwnerUserId)
     {
         var chatMessageAction = JsonSerializer.Serialize(new GroupChatMessageAction
         {
-            Message = new GroupChatMessageModel(0, "System", systemMessage, chatAction.When, MessageStatus.Sent, MessageType.System, MessageMarkedType.None, false, chatAction.User.GroupChatId, groupChatUserId),
+            Message = new GroupChatMessageModel(0, "System", systemMessage, chatAction.When, MessageStatus.Sent, MessageType.System, MessageMarkedType.None, false, chatAction.User.GroupChatId, chatOwnerUserId),
             State = (int)ChatMessageActionState.Created,
             When = DateTimeOffset.UtcNow,
             RefreshToken = chatAction.RefreshToken,

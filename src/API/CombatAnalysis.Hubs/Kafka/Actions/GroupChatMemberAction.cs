@@ -6,6 +6,8 @@ public class GroupChatMemberAction
 {
     public GroupChatUserModel User { get; set; }
 
+    public string ChatOwnerId { get; set; }
+
     public int State { get; set; }
 
     public DateTimeOffset When { get; set; }

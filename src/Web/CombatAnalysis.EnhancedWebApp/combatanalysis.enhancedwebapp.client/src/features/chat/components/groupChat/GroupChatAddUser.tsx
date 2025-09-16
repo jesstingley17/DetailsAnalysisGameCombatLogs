@@ -4,17 +4,18 @@ import logger from '@/utils/Logger';
 import { useState, type SetStateAction } from 'react';
 import type { AppUserModel } from '../../../user/types/AppUserModel';
 import type { GroupChatUserModel } from '../../types/GroupChatUserModel';
+import type { GroupChatModel } from '../../types/GroupChatModel';
 
 interface GroupChatAddUserProps {
     myself: AppUserModel;
-    chatId: number;
+    chat: GroupChatModel;
     groupChatUsersId: string[];
     setShowAddPeople: (value: SetStateAction<boolean>) => void;
     chatHub: ChatHubContextModel | null;
     t: (key: string) => string;
 }
 
-const GroupChatAddUser: React.FC<GroupChatAddUserProps> = ({ myself, chatId, groupChatUsersId, setShowAddPeople, chatHub, t }) => {
+const GroupChatAddUser: React.FC<GroupChatAddUserProps> = ({ myself, chat, groupChatUsersId, setShowAddPeople, chatHub, t }) => {
     const [peopleToJoin, setPeopleToJoin] = useState<AppUserModel[]>([]);
 
     const createGroupChatUserAsync = async () => {
@@ -27,11 +28,11 @@ const GroupChatAddUser: React.FC<GroupChatAddUserProps> = ({ myself, chatId, gro
                 const newGroupChatUser: GroupChatUserModel = {
                     username: peopleToJoin[i].username,
                     unreadMessages: 0,
-                    groupChatId: chatId,
+                    groupChatId: chat.id,
                     appUserId: peopleToJoin[i].id,
                 };
 
-                await chatHub.groupChatHubConnectionRef.current.invoke("AddUserToChat", newGroupChatUser);
+                await chatHub.groupChatHubConnectionRef.current.invoke("AddUserToChat", chat.ownerId, newGroupChatUser);
             }
 
             setPeopleToJoin([]);

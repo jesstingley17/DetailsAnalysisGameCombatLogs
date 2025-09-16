@@ -133,15 +133,17 @@ public class GroupChatHub : Hub
         }
     }
 
-    public async Task AddUserToChat(GroupChatUserModel groupChatUser)
+    public async Task AddUserToChat(string chatOwnerId, GroupChatUserModel groupChatUser)
     {
         try
         {
+            ArgumentNullException.ThrowIfNullOrEmpty(chatOwnerId, nameof(chatOwnerId));
             ArgumentNullException.ThrowIfNull(groupChatUser, nameof(groupChatUser));
 
             var chatAction = JsonSerializer.Serialize(new GroupChatMemberAction
             {
                 User = groupChatUser,
+                ChatOwnerId = chatOwnerId,
                 State = (int)ChatMembersActionState.AddUser,
                 When = DateTime.UtcNow,
                 RefreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty,
@@ -155,7 +157,7 @@ public class GroupChatHub : Hub
         }
     }
 
-    public async Task RemoveUserFromChat(int chatId, string groupChatUserId, string groupChatUsername)
+    public async Task RemoveUserFromChat(string chatOwnerId, int chatId, string groupChatUserId, string groupChatUsername)
     {
         try
         {
@@ -165,6 +167,7 @@ public class GroupChatHub : Hub
 
             var chatAction = JsonSerializer.Serialize(new GroupChatMemberAction
             {
+                ChatOwnerId = chatOwnerId,
                 User = new GroupChatUserModel 
                 { 
                     Id = groupChatUserId, 
