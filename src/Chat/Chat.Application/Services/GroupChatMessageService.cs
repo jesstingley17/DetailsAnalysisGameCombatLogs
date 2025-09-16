@@ -28,7 +28,7 @@ internal class GroupChatMessageService(IGroupChatMessageRepository repository, I
 
         chat.EnsureUserIsMember(user);
 
-        var groupChatMessage = new GroupChatMessage(user.Username, createMessage.Message, chat.Id, user.Id);
+        var groupChatMessage = new GroupChatMessage(user.Username, createMessage.Message, chat.Id, user.Id, createMessage.Status, createMessage.Type, createMessage.MarkedType);
 
         var createdMessage = await _repository.CreateAsync(groupChatMessage);
 

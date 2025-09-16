@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const API_URL = "/api/v1/logs";
+const API_URL = "/api/v1/Logs";
 
 const sendLog = async (level: string, message: string, context?: any) => {
     try {

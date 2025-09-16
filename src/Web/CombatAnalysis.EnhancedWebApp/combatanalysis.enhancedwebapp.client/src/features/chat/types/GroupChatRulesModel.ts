@@ -4,5 +4,5 @@ export type GroupChatRulesModel = {
     removePeople: number;
     pinMessage: number;
     announcements: number;
-    chatId: number;
+    groupChatId: number;
 }

@@ -2,4 +2,8 @@
 
 namespace CombatAnalysis.ChatApi.Requests;
 
-public record GroupChatMessageRequest([Range(1, int.MaxValue)] int ChatId, [Range(1, 100)] int Page, [Range(1, 100)] int PageSize);
+public record GroupChatMessageRequest(
+    [Range(1, int.MaxValue)] int ChatId,
+    [Range(1, 100)] int Page,
+    [Range(1, 100)] int PageSize
+    );

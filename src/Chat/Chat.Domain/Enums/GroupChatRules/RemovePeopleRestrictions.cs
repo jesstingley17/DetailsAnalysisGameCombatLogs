@@ -3,4 +3,5 @@
 public enum RemovePeopleRestrictions
 {
     Anyone,
+    Owner
 }

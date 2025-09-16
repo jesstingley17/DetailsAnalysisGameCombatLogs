@@ -76,7 +76,7 @@ public class VoiceChatController(IVoiceChatService service, IMapper mapper, ILog
         {
             await _service.DeleteAsync(id);
 
-            return Ok();
+            return NoContent();
         }
         catch (EntityNotFoundException ex)
         {

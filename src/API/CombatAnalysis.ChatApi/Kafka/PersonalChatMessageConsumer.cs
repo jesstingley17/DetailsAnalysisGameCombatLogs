@@ -1,9 +1,9 @@
-﻿using CombatAnalysis.ChatApi.Consts;
+﻿using Chat.Application.DTOs;
+using Chat.Application.Interfaces;
+using CombatAnalysis.ChatApi.Consts;
 using CombatAnalysis.ChatApi.Enums;
 using CombatAnalysis.ChatApi.Interfaces;
 using CombatAnalysis.ChatApi.Kafka.Actions;
-using CombatAnalysis.ChatBL.DTO;
-using CombatAnalysis.ChatBL.Interfaces;
 using Confluent.Kafka;
 using Microsoft.Extensions.Options;
 using System.Text.Json;

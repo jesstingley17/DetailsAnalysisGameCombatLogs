@@ -3,7 +3,6 @@ using CombatAnalysis.Hubs.Enums;
 using CombatAnalysis.Hubs.Interfaces;
 using CombatAnalysis.Hubs.Kafka.Actions;
 using CombatAnalysis.Hubs.Models;
-using Confluent.Kafka;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
@@ -60,7 +59,7 @@ public class GroupChatMessagesHub : Hub
                 Message = new GroupChatMessageModel
                 {
                     Message = message,
-                    ChatId = chatId,
+                    GroupChatId = chatId,
                     Type = type,
                     GroupChatUserId = groupChatUserId,
                     Username = username,
@@ -122,7 +121,7 @@ public class GroupChatMessagesHub : Hub
 
             var chatAction = JsonSerializer.Serialize(new GroupChatUnreadMessageAction
             {
-                ChatId = chatMessage.ChatId,
+                ChatId = chatMessage.GroupChatId,
                 MessageId = chatMessage.Id,
                 GroupChatUserId = myselfInChatId,
                 State = (int)ChatMessageActionState.Read,

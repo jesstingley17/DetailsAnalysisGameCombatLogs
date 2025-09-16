@@ -26,7 +26,7 @@ export const GroupChatRulesApi = ChatApi.injectEndpoints({
             }),
             invalidatesTags: (_result, _error, id) => [{ type: 'GroupChatRules', id }]
         }),
-        getGroupChatRulesById: builder.query<GroupChatRulesModel, number>({
+        getGroupChatRulesByChatId: builder.query<GroupChatRulesModel, number>({
             query: id => `/GroupChatRules/findByChatId/${id}`,
             providesTags: result => result ? [{ type: 'GroupChatRules', id: result.id }] : [],
         }),
@@ -37,5 +37,5 @@ export const {
     useCreateGroupChatRulesAsyncMutation,
     useUpdateGroupChatRulesAsyncMutation,
     useRemoveGroupChatRulesAsyncMutation,
-    useGetGroupChatRulesByIdQuery,
+    useGetGroupChatRulesByChatIdQuery,
 } = GroupChatRulesApi;

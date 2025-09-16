@@ -54,7 +54,7 @@ public class GroupChatUserController : ControllerBase
     {
         try
         {
-            var responseMessage = await _httpClient.GetAsync($"GroupChatUser/findMeInChat?chatId={chatId}&appUserId={appUserId}");
+            var responseMessage = await _httpClient.GetAsync($"GroupChatUser/findByAppUserId?chatId={chatId}&appUserId={appUserId}");
             responseMessage.EnsureSuccessStatusCode();
 
             var meInChat = await responseMessage.Content.ReadFromJsonAsync<GroupChatUserModel>();
@@ -83,7 +83,7 @@ public class GroupChatUserController : ControllerBase
     {
         try
         {
-            var responseMessage = await _httpClient.GetAsync($"GroupChatUser/findByChatId/{chatId}");
+            var responseMessage = await _httpClient.GetAsync($"GroupChatUser/findAll/{chatId}");
             responseMessage.EnsureSuccessStatusCode();
 
             var groupChatUsers = await responseMessage.Content.ReadFromJsonAsync<IEnumerable<GroupChatUserModel>>();
@@ -108,7 +108,7 @@ public class GroupChatUserController : ControllerBase
     {
         try
         {
-            var responseMessage = await _httpClient.GetAsync($"GroupChatUser/findByUserId/{appUserId}");
+            var responseMessage = await _httpClient.GetAsync($"GroupChatUser/findAllByAppUserId/{appUserId}");
             responseMessage.EnsureSuccessStatusCode();
 
             var groupChatUsers = await responseMessage.Content.ReadFromJsonAsync<IEnumerable<GroupChatUserModel>>();

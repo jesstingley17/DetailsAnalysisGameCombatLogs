@@ -1,6 +1,6 @@
 ﻿import logger from '@/utils/Logger';
 import { useEffect, useState, type RefObject } from 'react';
-import { useLazyGetMessagesByGroupChatIdQuery, useLazyGetMoreMessagesByGroupChatIdQuery } from '../api/Chat.api';
+import { useLazyGetMessagesByGroupChatIdQuery } from '../api/Chat.api';
 import { useGetGroupChatMessageCountByChatIdQuery } from '../api/GroupChatMessage.api';
 import { useFindGroupChatUsersByChatIdQuery, useFindMeInChatQuery } from '../api/GroupChatUser.api';
 import type { GroupChatDataModel } from '../types/GroupChatDataModel';
@@ -8,14 +8,13 @@ import type { GroupChatMessageModel } from '../types/GroupChatMessageModel';
 
 interface UseGroupChatDataResult {
     groupChatData: GroupChatDataModel | null;
-    getMoreMessagesAsync: (offset: number) => Promise<GroupChatMessageModel[]>;
+    getMessagesAsync: (page: number) => Promise<GroupChatMessageModel[]>;
 }
 
 const useGroupChatData = (chatId: number, appUserId: string, pageSizeRef: RefObject<number>): UseGroupChatDataResult => {
     const [groupChatData, setGroupChatData] = useState<GroupChatDataModel | null>(null);
     const [chatMessages, setChatMessages] = useState<GroupChatMessageModel[]>([]);
 
-    const [getMoreMessagesByGroupChatIdAsync] = useLazyGetMoreMessagesByGroupChatIdQuery();
     const [getMessagesByGroupChatIdAsync] = useLazyGetMessagesByGroupChatIdQuery();
     const { data: count, isLoading: countIsLoading } = useGetGroupChatMessageCountByChatIdQuery(chatId);
     const { data: IasGroupChatUser, isLoading: findMeInChatLoading } = useFindMeInChatQuery({ chatId, appUserId });
@@ -27,7 +26,8 @@ const useGroupChatData = (chatId: number, appUserId: string, pageSizeRef: RefObj
         }
 
         const getMessages = async () => {
-            await getMessagesAsync();
+            const messages = await getMessagesAsync(1);
+            setChatMessages(messages);
         }
 
         getMessages();
@@ -45,43 +45,29 @@ const useGroupChatData = (chatId: number, appUserId: string, pageSizeRef: RefObj
         }
     }, [chatMessages, count, IasGroupChatUser, groupChatUsers, countIsLoading, findMeInChatLoading, usersIsLoading]);
 
-    const getMessagesAsync = async () => {
+    const getMessagesAsync = async (page: number): Promise<GroupChatMessageModel[]> => {
         if (!IasGroupChatUser) {
-            return;
+            return [];
         }
 
         try {
             const arg = {
                 chatId,
-                groupChatUserId: IasGroupChatUser.id ?? "",
+                page,
                 pageSize: pageSizeRef.current
             };
 
             const messages = await getMessagesByGroupChatIdAsync(arg).unwrap();
-            setChatMessages(messages);
+
+            return messages;
         } catch (e) {
             logger.error("Failed get chat messages", e);
-        }
-    }
 
-    const getMoreMessagesAsync = async (offset: number): Promise<GroupChatMessageModel[]> => {
-        if (!IasGroupChatUser) {
             return [];
         }
-
-        const arg = {
-            chatId,
-            groupChatUserId: IasGroupChatUser.id ?? "",
-            offset,
-            pageSize: pageSizeRef.current
-        };
-
-        const moreMessages = await getMoreMessagesByGroupChatIdAsync(arg).unwrap();
-
-        return moreMessages;
     }
 
-    return { groupChatData, getMoreMessagesAsync };
+    return { groupChatData, getMessagesAsync };
 }
 
 export default useGroupChatData;

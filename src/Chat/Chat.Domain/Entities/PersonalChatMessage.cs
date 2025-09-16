@@ -9,8 +9,17 @@ public class PersonalChatMessage : IRepositoryEntity<PersonalChatMessageId>
 {
     private PersonalChatMessage() { }
 
-    public PersonalChatMessage(string username, string message, PersonalChatId chatId, UserId appUserId,
-                    MessageStatus status = MessageStatus.Sent,
+    public PersonalChatMessage(int id, string username, string message, DateTimeOffset time, PersonalChatId chatId, UserId appUserId,
+                MessageStatus status = MessageStatus.Sending,
+                MessageType type = MessageType.Default,
+                MessageMarkedType markedType = MessageMarkedType.None)
+        : this(username, message, time, chatId, appUserId, status, type, markedType)
+    {
+        Id = id;
+    }
+
+    public PersonalChatMessage(string username, string message, DateTimeOffset time, PersonalChatId chatId, UserId appUserId,
+                    MessageStatus status = MessageStatus.Sending,
                     MessageType type = MessageType.Default,
                     MessageMarkedType markedType = MessageMarkedType.None)
     {
@@ -19,6 +28,7 @@ public class PersonalChatMessage : IRepositoryEntity<PersonalChatMessageId>
 
         Username = username;
         Message = message;
+        Time = time;
         PersonalChatId = chatId;
         Status = status;
         Type = type;

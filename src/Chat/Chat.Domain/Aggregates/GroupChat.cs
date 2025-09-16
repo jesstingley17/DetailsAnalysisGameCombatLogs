@@ -14,12 +14,16 @@ public class GroupChat : IRepositoryEntity<GroupChatId>
 
     private GroupChat() { }
 
-    public GroupChat(int id, string name, UserId ownerId)
+    public GroupChat(int id, string name, UserId ownerId) : this(name, ownerId)
+    {
+        Id = id;
+    }
+
+    public GroupChat(string name, UserId ownerId)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name, nameof(name));
         ArgumentOutOfRangeException.ThrowIfGreaterThan(name.Length, MaxNameLength, nameof(name));
 
-        Id = id;
         Name = name;
         OwnerId = ownerId;
     }

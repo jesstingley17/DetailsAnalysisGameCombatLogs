@@ -107,7 +107,7 @@ public class GroupChatHub : Hub
 
             ArgumentNullException.ThrowIfNullOrEmpty(appUserId, nameof(appUserId));
 
-            var response = await _httpClient.GetAsync($"GroupChatUser/findByChatId/{chatId}");
+            var response = await _httpClient.GetAsync($"GroupChatUser/findAll/{chatId}");
             response.EnsureSuccessStatusCode();
 
             var groupChatUsers = await response.Content.ReadFromJsonAsync<IEnumerable<GroupChatUserModel>>();
@@ -169,7 +169,7 @@ public class GroupChatHub : Hub
                 { 
                     Id = groupChatUserId, 
                     Username = groupChatUsername, 
-                    ChatId = chatId 
+                    GroupChatId = chatId 
                 },
                 State = (int)ChatMembersActionState.RemoveUser,
                 When = DateTime.UtcNow,

@@ -47,41 +47,11 @@ public class PersonalChatMessageController : ControllerBase
     }
 
     [HttpGet("getByChatId")]
-    public async Task<IActionResult> GetByChatId(int chatId, int pageSize)
+    public async Task<IActionResult> GetByChatId(int chatId, int page, int pageSize)
     {
         try
         {
-            var responseMessage = await _httpClient.GetAsync($"PersonalChatMessage/getByChatId?chatId={chatId}&pageSize={pageSize}");
-            responseMessage.EnsureSuccessStatusCode();
-
-            var messages = await responseMessage.Content.ReadFromJsonAsync<IEnumerable<PersonalChatMessageModel>>();
-
-            return Ok(messages);
-
-        }
-        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
-        {
-            _logger.LogError(ex, "Get personal chat messages for chat {ChatId} failed. User should be authorize to get personal chat messages", chatId);
-            return Unauthorized();
-        }
-        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.BadRequest)
-        {
-            _logger.LogError(ex, "Get personal chat messages for chat {ChatId} failed. The specified parameters are incorrect", chatId);
-            return BadRequest();
-        }
-        catch (HttpRequestException ex)
-        {
-            _logger.LogError(ex, "Get personal chat messages for chat {ChatId} failed: received unsuccessful request", chatId);
-            return StatusCode((int)(ex.StatusCode ?? HttpStatusCode.InternalServerError), ex.Message);
-        }
-    }
-
-    [HttpGet("getMoreByChatId")]
-    public async Task<IActionResult> GetMoreByChatId(int chatId, int offset, int pageSize)
-    {
-        try
-        {
-            var responseMessage = await _httpClient.GetAsync($"PersonalChatMessage/getMoreByChatId?chatId={chatId}&offset={offset}&pageSize={pageSize}");
+            var responseMessage = await _httpClient.GetAsync($"PersonalChatMessage/getByChatId?chatId={chatId}&page={page}&pageSize={pageSize}");
             responseMessage.EnsureSuccessStatusCode();
 
             var messages = await responseMessage.Content.ReadFromJsonAsync<IEnumerable<PersonalChatMessageModel>>();

@@ -8,7 +8,7 @@ namespace Chat.Infrastructure.Repositories;
 
 internal class PersonalChatRepository(ChatContext context) : GenericRepository<PersonalChat, PersonalChatId>(context), IPersonalChatRepository
 {
-    public async Task UpdateInitiatorUnreadMessageCount(int chatId, int count)
+    public async Task UpdateInitiatorUnreadMessageCountAsync(int chatId, int count)
     {
         var personalChat = await GetByIdAsync(chatId)
                     ?? throw new EntityNotFoundException(typeof(PersonalChat), chatId);
@@ -18,7 +18,7 @@ internal class PersonalChatRepository(ChatContext context) : GenericRepository<P
         await _context.SaveChangesAsync();
     }
 
-    public async Task UpdateCompanionUnreadMessageCount(int chatId, int count)
+    public async Task UpdateCompanionUnreadMessageCountAsync(int chatId, int count)
     {
         var personalChat = await GetByIdAsync(chatId)
                     ?? throw new EntityNotFoundException(typeof(PersonalChat), chatId);

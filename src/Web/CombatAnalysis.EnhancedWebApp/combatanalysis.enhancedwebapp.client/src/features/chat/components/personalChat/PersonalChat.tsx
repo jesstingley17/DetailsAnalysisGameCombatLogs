@@ -6,7 +6,7 @@ import { memo, useEffect, useRef, useState, type SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGetUserByIdQuery } from '../../../user/api/Account.api';
 import type { AppUserModel } from '../../../user/types/AppUserModel';
-import { useGetMessagesByPersonalChatIdQuery, useLazyGetMoreMessagesByPersonalChatIdQuery } from '../../api/Chat.api';
+import { useGetMessagesByPersonalChatIdQuery, useLazyGetMessagesByPersonalChatIdQuery } from '../../api/Chat.api';
 import {
     useGetPersonalChatMessageCountByChatIdQuery,
     useUpdatePersonalChatMessageMutation
@@ -33,6 +33,8 @@ const PersonalChat: React.FC<PersonalChatProps> = ({ myself, chat, setSelectedCh
 
     const chatHub = useChatHub();
 
+    let page = 1;
+
     const chatContainerRef = useRef<HTMLUListElement | null>(null);
     const pageSizeRef = useRef<number>(APP_CONFIG.communication.chatPageSize ? +APP_CONFIG.communication.chatPageSize : 5);
 
@@ -44,9 +46,10 @@ const PersonalChat: React.FC<PersonalChatProps> = ({ myself, chat, setSelectedCh
     const { data: count, isLoading: countIsLoading } = useGetPersonalChatMessageCountByChatIdQuery(chat.id);
     const { data: messages, isLoading } = useGetMessagesByPersonalChatIdQuery({
         chatId: chat.id,
+        page: 1,
         pageSize: pageSizeRef.current
     });
-    const [getMoreMessagesByPersonalChatIdAsync] = useLazyGetMoreMessagesByPersonalChatIdQuery();
+    const [getMessagesByPersonalChatIdAsync] = useLazyGetMessagesByPersonalChatIdQuery();
 
     const { data: companion, isLoading: companionIsLoading } = useGetUserByIdQuery(companionId);
     const [updatePersonalChatMessage] = useUpdatePersonalChatMessageMutation();
@@ -157,14 +160,14 @@ const PersonalChat: React.FC<PersonalChatProps> = ({ myself, chat, setSelectedCh
         }
     }
 
-    const getMoreMessagesAsync = async (offset: number) => {
+    const getMoreMessagesAsync = async (page: number) => {
         const arg = {
             chatId: chat.id,
-            offset,
+            page,
             pageSize: pageSizeRef.current
         };
 
-        const response = await getMoreMessagesByPersonalChatIdAsync(arg);
+        const response = await getMessagesByPersonalChatIdAsync(arg);
         if (response.data) {
             return response.data;
         }
@@ -175,7 +178,9 @@ const PersonalChat: React.FC<PersonalChatProps> = ({ myself, chat, setSelectedCh
     const handleLoadMoreMessagesAsync = async () => {
         setAreLoadingOldMessages(true);
 
-        const moreMessages = await getMoreMessagesAsync(currentMessages.length);
+        page++;
+
+        const moreMessages = await getMoreMessagesAsync(page);
 
         setCurrentMessages(prevMessages => [...moreMessages, ...prevMessages]);
 

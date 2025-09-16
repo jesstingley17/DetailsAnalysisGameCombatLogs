@@ -47,11 +47,11 @@ public class GroupChatMessageController : ControllerBase
     }
 
     [HttpGet("getByChatId")]
-    public async Task<IActionResult> GetByChatId(int chatId, string groupChatUserId, int pageSize)
+    public async Task<IActionResult> GetByChatId(int chatId, int page, int pageSize)
     {
         try
         {
-            var responseMessage = await _httpClient.GetAsync($"GroupChatMessage/getByChatId?chatId={chatId}&groupChatUserId={groupChatUserId}&pageSize={pageSize}");
+            var responseMessage = await _httpClient.GetAsync($"GroupChatMessage/getByChatId?chatId={chatId}&page={page}&pageSize={pageSize}");
             responseMessage.EnsureSuccessStatusCode();
 
             var messages = await responseMessage.Content.ReadFromJsonAsync<IEnumerable<GroupChatMessageModel>>();
@@ -71,35 +71,6 @@ public class GroupChatMessageController : ControllerBase
         catch (HttpRequestException ex)
         {
             _logger.LogError(ex, "Get group chat messages for chat {ChatId} failed: received unsuccessful request", chatId);
-            return StatusCode((int)(ex.StatusCode ?? HttpStatusCode.InternalServerError), ex.Message);
-        }
-    }
-
-    [HttpGet("getMoreByChatId")]
-    public async Task<IActionResult> GetMoreByChatId(int chatId, string groupChatUserId,int offset, int pageSize)
-    {
-        try
-        {
-            var responseMessage = await _httpClient.GetAsync($"GroupChatMessage/getMoreByChatId?chatId={chatId}&groupChatUserId={groupChatUserId}&offset={offset}&pageSize={pageSize}");
-            responseMessage.EnsureSuccessStatusCode();
-
-            var messages = await responseMessage.Content.ReadFromJsonAsync<IEnumerable<GroupChatMessageModel>>();
-
-            return Ok(messages);
-        }
-        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
-        {
-            _logger.LogError(ex, "Get more group chat messages for chat {ChatId} failed. User should be authorize to get more group chat messages", chatId);
-            return Unauthorized();
-        }
-        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.BadRequest)
-        {
-            _logger.LogError(ex, "Get more group chat messages for chat {ChatId} failed. The specified parameters are incorrect", chatId);
-            return BadRequest();
-        }
-        catch (HttpRequestException ex)
-        {
-            _logger.LogError(ex, "Get more group chat messages for chat {ChatId} failed: received unsuccessful request", chatId);
             return StatusCode((int)(ex.StatusCode ?? HttpStatusCode.InternalServerError), ex.Message);
         }
     }

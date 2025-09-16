@@ -11,13 +11,21 @@ namespace CombatAnalysis.ChatApi.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-[Authorize]
+[AllowAnonymous]
 public class GroupChatRulesController(IGroupChatRulesService chatRulesService, IMapper mapper, ILogger<GroupChatRulesController> logger) 
     : ControllerBase
 {
     private readonly IGroupChatRulesService _chatRulesService = chatRulesService;
     private readonly IMapper _mapper = mapper;
     private readonly ILogger<GroupChatRulesController> _logger = logger;
+
+    [HttpGet("findByChatId/{chatId:int:min(1)}")]
+    public async Task<IActionResult> FindByChatId(int chatId)
+    {
+        var rules = await _chatRulesService.GetByChatIdAsync(chatId);
+
+        return Ok(rules);
+    }
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] GroupChatRulesModel groupChatRules)
@@ -76,7 +84,7 @@ public class GroupChatRulesController(IGroupChatRulesService chatRulesService, I
             var map = _mapper.Map<GroupChatRulesDto>(groupChatRules);
             await _chatRulesService.UpdateAsync(map);
 
-            return Ok();
+            return NoContent();
         }
         catch (GroupChatNotFoundException ex)
         {

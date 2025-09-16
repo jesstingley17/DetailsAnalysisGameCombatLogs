@@ -29,6 +29,8 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
 
     const chatHub = useChatHub();
 
+    let page = 1;
+
     const [settingsIsShow, setSettingsIsShow] = useState(false);
     const [groupChatUsersId, setGroupChatUsersId] = useState<string[]>([]);
 
@@ -40,7 +42,7 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
     const chatContainerRef = useRef<HTMLUListElement | null>(null);
     const pageSizeRef = useRef<number>(APP_CONFIG.communication.chatPageSize ? +APP_CONFIG.communication.chatPageSize : 5);
 
-    const { groupChatData, getMoreMessagesAsync } = useGroupChatData(chat.id, myself.id, pageSizeRef);
+    const { groupChatData, getMessagesAsync } = useGroupChatData(chat.id, myself.id, pageSizeRef);
 
     const [updateGroupChatMessage] = useUpdateGroupChatMessageMutation();
 
@@ -169,7 +171,9 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
     const handleLoadMoreMessagesAsync = async () => {
         setAreLoadingOldMessages(true);
 
-        const moreMessages = await getMoreMessagesAsync(currentMessages.length);
+        page++;
+
+        const moreMessages = await getMessagesAsync(page);
 
         setCurrentMessages(prevMessages => [...moreMessages, ...prevMessages]);
 

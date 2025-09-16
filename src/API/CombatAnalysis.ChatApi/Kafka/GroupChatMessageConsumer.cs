@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
+using Chat.Application.DTOs;
+using Chat.Application.Interfaces;
+using Chat.Domain.Enums;
 using CombatAnalysis.ChatApi.Consts;
 using CombatAnalysis.ChatApi.Enums;
 using CombatAnalysis.ChatApi.Interfaces;
 using CombatAnalysis.ChatApi.Kafka.Actions;
-using CombatAnalysis.ChatBL.DTO;
-using CombatAnalysis.ChatBL.Interfaces;
+using CombatAnalysis.ChatApi.Models;
 using Confluent.Kafka;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
@@ -40,7 +42,7 @@ public class GroupChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, IOp
     {
         try
         {
-            var chatMessgaeService = scope.ServiceProvider.GetService<IGroupChatMessageService<GroupChatMessageDto, int>>();
+            var chatMessgaeService = scope.ServiceProvider.GetService<IGroupChatMessageService>();
             ArgumentNullException.ThrowIfNull(chatMessgaeService, nameof(chatMessgaeService));
 
             var chatHubHelper = scope.ServiceProvider.GetService<IChatHubHelper>();
@@ -53,14 +55,15 @@ public class GroupChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, IOp
             var createdMessage = await chatMessgaeService.CreateAsync(map);
             ArgumentNullException.ThrowIfNull(createdMessage, nameof(createdMessage));
 
-            action.Message.Id = createdMessage.Id;
+            var mapToModel = _mapper.Map<GroupChatMessageModel>(createdMessage);
+            action.Message = mapToModel;
 
             await chatHubHelper.ConnectToHubAsync($"{_hubs.Value.Server}{_hubs.Value.GroupChatMessagesAddress}", action.RefreshToken, action.AccessToken);
-            await chatHubHelper.JoinRoomAsync(createdMessage.ChatId);
+            await chatHubHelper.JoinRoomAsync(createdMessage.GroupChatId);
 
-            await chatHubHelper.RequestsMessage(createdMessage.ChatId, action.Message);
+            await chatHubHelper.RequestsMessage(createdMessage.GroupChatId, action.Message);
 
-            if (createdMessage.Type != (int)MessageType.System)
+            if (createdMessage.Type != MessageType.System)
             {
                 await IncreaseUnreadMessageRequestAsync(createdMessage.Id, action);
             }
@@ -75,7 +78,7 @@ public class GroupChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, IOp
     {
         var unreadMessageAction = JsonSerializer.Serialize(new GroupChatUnreadMessageAction
         {
-            ChatId = action.Message.ChatId,
+            ChatId = action.Message.GroupChatId,
             MessageId = messageId,
             GroupChatUserId = action.Message.GroupChatUserId,
             State = (int)ChatMessageActionState.Created,

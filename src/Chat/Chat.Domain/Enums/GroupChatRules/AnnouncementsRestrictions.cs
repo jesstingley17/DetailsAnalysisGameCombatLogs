@@ -3,4 +3,5 @@
 public enum AnnouncementsRestrictions
 {
     Anyone,
+    Owner
 }

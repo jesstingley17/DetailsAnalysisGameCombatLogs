@@ -82,10 +82,9 @@ public class GroupChatRulesController : ControllerBase
             var responseMessage = await _httpClient.GetAsync($"GroupChatRules/findByChatId/{chatId}");
             responseMessage.EnsureSuccessStatusCode();
 
-            var groupChatsRules = await responseMessage.Content.ReadFromJsonAsync<IEnumerable<GroupChatRulesModel>>();
-            var groupChatRules = groupChatsRules?.FirstOrDefault();
+            var rules = await responseMessage.Content.ReadFromJsonAsync<GroupChatRulesModel>();
 
-            return Ok(groupChatRules);
+            return Ok(rules);
         }
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
         {

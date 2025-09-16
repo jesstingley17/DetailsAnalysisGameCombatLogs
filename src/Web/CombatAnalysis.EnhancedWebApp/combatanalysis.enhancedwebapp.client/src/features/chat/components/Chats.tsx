@@ -103,7 +103,7 @@ const Chats: React.FC = () => {
                             />
                         </div>
                         {(selectedChat && myself)
-                            ? "appUserId" in selectedChat
+                            ? "ownerId" in selectedChat
                                 ? <GroupChat
                                     chat={selectedChat}
                                     myself={myself}
@@ -160,7 +160,7 @@ const Chats: React.FC = () => {
                         </div>
                     }
                     {(selectedChat && myself)
-                        ? "appUserId" in selectedChat
+                        ? "ownerId" in selectedChat
                             ? <GroupChat
                                 chat={selectedChat}
                                 myself={myself}

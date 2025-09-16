@@ -117,7 +117,7 @@ public class PersonalChatMessageController(IPersonalChatMessageService chatMessa
             var map = _mapper.Map<PersonalChatMessageDto>(chatMessage);
             await _chatMessageService.UpdateAsync(map);
 
-            return Ok();
+            return NoContent();
         }
         catch (EntityNotFoundException ex)
         {
@@ -139,7 +139,7 @@ public class PersonalChatMessageController(IPersonalChatMessageService chatMessa
         {
             await _chatMessageService.DeleteAsync(id);
 
-            return Ok();
+            return NoContent();
         }
         catch (EntityNotFoundException ex)
         {

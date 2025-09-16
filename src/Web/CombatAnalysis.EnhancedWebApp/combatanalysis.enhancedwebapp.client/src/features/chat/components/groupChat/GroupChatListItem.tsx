@@ -14,7 +14,7 @@ interface GroupChatListItemProps {
 const GroupChatListItem: React.FC<GroupChatListItemProps> = ({ myselfInChat, setSelectedGroupChat, chatHub }) => {
     const [unreadMessageCount, setUnreadMessageCount] = useState(-1);
 
-    const { data: chat, isLoading } = useGetGroupChatByIdQuery(myselfInChat.chatId);
+    const { data: chat, isLoading } = useGetGroupChatByIdQuery(myselfInChat.groupChatId);
 
     useEffect(() => {
         if (!chatHub.groupChatUnreadMessagesHubConnectionRef.current) {
@@ -22,7 +22,7 @@ const GroupChatListItem: React.FC<GroupChatListItemProps> = ({ myselfInChat, set
         }
 
         chatHub.subscribeToUnreadGroupMessagesUpdated((targetChatId: number, targetChatUserId: string, count: number) => {
-            if (targetChatId === myselfInChat.chatId && targetChatUserId === myselfInChat.id) {
+            if (targetChatId === myselfInChat.groupChatId && targetChatUserId === myselfInChat.id) {
                 setUnreadMessageCount(count);
             }
         });

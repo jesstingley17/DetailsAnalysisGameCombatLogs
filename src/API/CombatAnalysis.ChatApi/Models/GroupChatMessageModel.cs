@@ -1,40 +1,17 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Chat.Domain.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace CombatAnalysis.ChatApi.Models;
 
-public class GroupChatMessageModel
-{
-    [Range(0, int.MaxValue)]
-    public int Id { get; set; }
-
-    [Required]
-    [StringLength(32)]
-    public string Username { get; set; } = string.Empty;
-
-    [Required]
-    [StringLength(256)]
-    public string Message { get; set; } = string.Empty;
-
-    [Required]
-    public DateTimeOffset Time { get; set; }
-
-    [Range(0, 100)]
-    public int Status { get; set; }
-
-    [Range(0, 100)]
-    public int Type { get; set; }
-
-    [Range(0, 100)]
-    public int MarkedType { get; set; }
-
-    [Required]
-    public bool IsEdited { get; set; }
-
-    [Range(1, int.MaxValue)]
-    public int ChatId { get; set; }
-
-    [Required]
-    public string GroupChatUserId { get; set; } = string.Empty;
-
-    public int? GroupChatMessageId { get; set; }
-}
+public record GroupChatMessageModel(
+    [Range(0, int.MaxValue)] int Id,
+    [Required] [StringLength(32)] string Username,
+    [Required] [StringLength(256)] string Message,
+    [Required] DateTimeOffset Time,
+    [Range((int)MessageStatus.Sent, (int)MessageStatus.Read)] MessageStatus Status,
+    [Range((int)MessageType.Default, (int)MessageType.System)] MessageType Type,
+    [Range((int)MessageMarkedType.None, (int)MessageMarkedType.Emotions)] MessageMarkedType MarkedType,
+    [Required] bool IsEdited,
+    [Range(1, int.MaxValue)] int GroupChatId,
+    [Required] string GroupChatUserId
+    );

@@ -60,7 +60,7 @@ public class PersonalChatMessagesHub : Hub
                 Message = message,
                 Time = DateTimeOffset.Parse($"{DateTimeOffset.UtcNow.Hour}:{DateTimeOffset.UtcNow.Minute}"),
                 Status = 0,
-                ChatId = chatId,
+                PersonalChatId = chatId,
                 AppUserId = creatorId
             };
 
@@ -72,7 +72,7 @@ public class PersonalChatMessagesHub : Hub
 
             var chatAction = JsonSerializer.Serialize(new PersonalChatMessageAction
             {
-                ChatId = createdMessage.ChatId,
+                ChatId = createdMessage.PersonalChatId,
                 InititatorUsername = username,
                 InititatorId = creatorId,
                 RecipientId = companionId,
@@ -125,7 +125,7 @@ public class PersonalChatMessagesHub : Hub
 
             var chatAction = JsonSerializer.Serialize(new PersonalChatMessageAction
             {
-                ChatId = chatMessage.ChatId,
+                ChatId = chatMessage.PersonalChatId,
                 InititatorId = meId,
                 State = (int)ChatMessageActionState.Read,
                 When = DateTimeOffset.UtcNow,

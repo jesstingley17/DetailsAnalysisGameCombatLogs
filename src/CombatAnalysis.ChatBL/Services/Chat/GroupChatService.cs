@@ -94,7 +94,7 @@ internal class GroupChatService(IGenericRepository<GroupChat, int> repository, I
 
     private async Task DeleteGroupChatMessagesAsync(int chatId)
     {
-        var groupChatMessages = await _groupChatMessageService.GetByParamAsync(u => u.ChatId, chatId);
+        var groupChatMessages = await _groupChatMessageService.GetByParamAsync(u => u.GroupChatId, chatId);
         foreach (var item in groupChatMessages)
         {
             await _groupChatMessageService.DeleteAsync(item.Id);
@@ -103,7 +103,7 @@ internal class GroupChatService(IGenericRepository<GroupChat, int> repository, I
 
     private async Task DeleteGroupChatUsersAsync(int chatId)
     {
-        var groupChatUsers = await _groupChatUserService.GetByParamAsync(u => u.ChatId, chatId);
+        var groupChatUsers = await _groupChatUserService.GetByParamAsync(u => u.GroupChatId, chatId);
         foreach (var item in groupChatUsers)
         {
             await _groupChatUserService.DeleteUseExistTransactionAsync(item.Id);

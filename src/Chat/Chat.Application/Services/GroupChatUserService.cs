@@ -19,8 +19,8 @@ internal class GroupChatUserService(IGenericRepository<GroupChat, GroupChatId> c
 
     public async Task<GroupChatUserDto> CreateAsync(GroupChatUserDto createUser)
     {
-        var chat = await _chatRepository.GetByIdAsync(createUser.ChatId)
-                            ?? throw new GroupChatNotFoundException(createUser.ChatId);
+        var chat = await _chatRepository.GetByIdAsync(createUser.GroupChatId)
+                            ?? throw new GroupChatNotFoundException(createUser.GroupChatId);
 
         var groupChatUser = new GroupChatUser(Guid.NewGuid().ToString(), createUser.Username, chat.Id, createUser.AppUserId);
 

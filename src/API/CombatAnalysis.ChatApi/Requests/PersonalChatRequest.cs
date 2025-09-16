@@ -2,14 +2,8 @@
 
 namespace CombatAnalysis.ChatApi.Requests;
 
-public class PersonalChatRequest
-{
-    [Range(1, int.MaxValue)]
-    public int ChatId { get; set; }
-
-    [Range(1, 100)]
-    public int Page { get; set; }
-
-    [Range(1, 100)]
-    public int PageSize { get; set; }
-}
+public record PersonalChatRequest(
+    [Range(1, int.MaxValue)] int ChatId, 
+    [Range(1, 100)] int Page,
+    [Range(1, 100)] int PageSize
+    );

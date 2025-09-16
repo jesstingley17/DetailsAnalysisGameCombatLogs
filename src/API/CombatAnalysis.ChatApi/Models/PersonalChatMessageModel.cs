@@ -31,7 +31,7 @@ public class PersonalChatMessageModel
     public bool IsEdited { get; set; }
 
     [Range(1, int.MaxValue)]
-    public int ChatId { get; set; }
+    public int PersonalChatId { get; set; }
 
     [Required]
     public string AppUserId { get; set; } = string.Empty;

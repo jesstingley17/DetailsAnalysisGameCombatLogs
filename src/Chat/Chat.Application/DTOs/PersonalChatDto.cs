@@ -6,9 +6,9 @@ public class PersonalChatDto
 
     public string InitiatorId { get; set; }
 
-    public int InitiatorUnreadMessages { get; set; }
+    public int? InitiatorUnreadMessages { get; set; }
 
     public string CompanionId { get; set; }
 
-    public int CompanionUnreadMessages { get; set; }
+    public int? CompanionUnreadMessages { get; set; }
 }

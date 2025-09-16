@@ -123,7 +123,7 @@ public class GroupChatUserController(IGroupChatUserService chatUserService, IMap
             var map = _mapper.Map<GroupChatUserDto>(groupChatUser);
             await _chatUserService.UpdateAsync(map);
 
-            return Ok();
+            return NoContent();
         }
         catch (EntityNotFoundException ex)
         {
@@ -146,7 +146,7 @@ public class GroupChatUserController(IGroupChatUserService chatUserService, IMap
         {
             await _chatUserService.DeleteAsync(id);
 
-            return Ok();
+            return NoContent();
         }
         catch (EntityNotFoundException ex)
         {

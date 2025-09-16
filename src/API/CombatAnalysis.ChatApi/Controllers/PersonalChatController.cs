@@ -4,6 +4,7 @@ using Chat.Application.Interfaces;
 using Chat.Domain.Exceptions;
 using Chat.Infrastructure.Exceptions;
 using CombatAnalysis.ChatApi.Models;
+using CombatAnalysis.ChatApi.Patches;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +13,7 @@ namespace CombatAnalysis.ChatApi.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-[Authorize]
+[AllowAnonymous]
 public class PersonalChatController(IService<PersonalChatDto, int> chatService, IMapper mapper, ILogger<PersonalChatController> logger) : ControllerBase
 {
     private readonly IService<PersonalChatDto, int> _chatService = chatService;
@@ -70,7 +71,7 @@ public class PersonalChatController(IService<PersonalChatDto, int> chatService, 
     }
 
     [HttpPatch("{id:int:min(1)}")]
-    public async Task<IActionResult> Update(int id, [FromBody] PersonalChatModel chat)
+    public async Task<IActionResult> Update(int id, [FromBody] PersonalChatPatch chat)
     {
         try
         {
@@ -82,7 +83,7 @@ public class PersonalChatController(IService<PersonalChatDto, int> chatService, 
             var map = _mapper.Map<PersonalChatDto>(chat);
             await _chatService.UpdateAsync(map);
 
-            return Ok();
+            return NoContent();
         }
         catch (EntityNotFoundException ex)
         {
@@ -105,7 +106,7 @@ public class PersonalChatController(IService<PersonalChatDto, int> chatService, 
         {
             await _chatService.DeleteAsync(id);
 
-            return Ok();
+            return NoContent();
         }
         catch (EntityNotFoundException ex)
         {

@@ -4,7 +4,7 @@ import logger from '@/utils/Logger';
 import { useEffect, useState, type SetStateAction } from 'react';
 import type { AppUserModel } from '../../../user/types/AppUserModel';
 import { useRemoveGroupChatMutation } from '../../api/GroupChat.api';
-import { useGetGroupChatRulesByIdQuery, useUpdateGroupChatRulesAsyncMutation } from '../../api/GroupChatRules.api';
+import { useGetGroupChatRulesByChatIdQuery, useUpdateGroupChatRulesAsyncMutation } from '../../api/GroupChatRules.api';
 import {
     useRemoveGroupChatUserAsyncMutation
 } from '../../api/GroupChatUser.api';
@@ -53,7 +53,7 @@ const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ myself, setSelectedChat, 
     const [removeGroupChatUserAsyncMut] = useRemoveGroupChatUserAsyncMutation();
     const [updateGroupChatRulesMutAsync] = useUpdateGroupChatRulesAsyncMutation();
 
-    const { data: rules, isLoading } = useGetGroupChatRulesByIdQuery(chat.id);
+    const { data: rules, isLoading } = useGetGroupChatRulesByChatIdQuery(chat.id);
 
     useEffect(() => {
         if (!rules) {
@@ -114,7 +114,7 @@ const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ myself, setSelectedChat, 
                 removePeople: removePeople,
                 pinMessage: pinMessage,
                 announcements: announcements,
-                chatId: rules?.chatId ?? 0
+                groupChatId: rules?.groupChatId ?? 0
             };
 
             await updateGroupChatRulesMutAsync({ id: rules.id, groupChatRules }).unwrap();
@@ -130,7 +130,7 @@ const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ myself, setSelectedChat, 
             return true;
         }
 
-        return chat?.appUserId === myself?.id;
+        return chat?.ownerId === myself?.id;
     }
 
     const canRemovePeople = (): boolean => {
@@ -139,7 +139,7 @@ const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ myself, setSelectedChat, 
             return true;
         }
 
-        return chat?.appUserId === myself?.id;
+        return chat?.ownerId === myself?.id;
     }
 
     if (isLoading) {
@@ -154,16 +154,16 @@ const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ myself, setSelectedChat, 
                     {canInvitePeople() &&
                         <div className="btn-border-shadow" onClick={() => setShowAddPeople((item) => !item)}>{t("Invite")}</div>
                     }
-                    {chat.appUserId === myself.id &&
+                    {chat.ownerId === myself.id &&
                         <div className="btn-border-shadow" onClick={() => setRulesInspectionModeOn((item) => !item)}>{t("Rules")}</div>
                     }
                     <div className="btn-border-shadow">{t("Documents")}</div>
                 </div>
                 <div className="danger-settings">
-                    {myself.id === chat.appUserId &&
+                    {myself.id === chat.ownerId &&
                         <div className="btn-border-shadow" onClick={() => setShowRemoveChatAlert((item) => !item)}>{t("RemoveChat")}</div>
                     }
-                    {myself.id === chat.appUserId
+                    {myself.id === chat.ownerId
                         ? <VerificationRestriction
                             contentText={t("Leave")}
                             infoText={t("YouShouldTransferRights")}

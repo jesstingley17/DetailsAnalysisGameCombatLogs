@@ -10,6 +10,12 @@ public class PersonalChat : IRepositoryEntity<PersonalChatId>
 
     private PersonalChat() { }
 
+    public PersonalChat(int id, UserId initiatorId, UserId companionId, int initiatorUnreadMessages = 0, int companionUnreadMessages = 0) 
+        : this(initiatorId, companionId, initiatorUnreadMessages, companionUnreadMessages)
+    {
+        Id = id;
+    }
+
     public PersonalChat(UserId initiatorId, UserId companionId, int initiatorUnreadMessages = 0, int companionUnreadMessages = 0)
     {
         InitiatorId = initiatorId;

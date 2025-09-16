@@ -125,7 +125,7 @@ public class GroupChatMessageController(IGroupChatMessageService chatMessageServ
             var map = _mapper.Map<GroupChatMessageDto>(chatMessage);
             await _chatMessageService.UpdateAsync(map);
 
-            return Ok();
+            return NoContent();
         }
         catch (EntityNotFoundException ex)
         {

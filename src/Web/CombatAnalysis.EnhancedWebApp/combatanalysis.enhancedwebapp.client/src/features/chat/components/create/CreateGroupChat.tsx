@@ -31,20 +31,20 @@ const CreateGroupChat: React.FC<{ setShowCreateGroupChat: (value: SetStateAction
     const [isCreating, setIsCreating] = useState(false);
 
     const createGroupChatAsync = async () => {
-        if (!chatHub) {
+        if (!chatHub || !me) {
             return;
         }
 
         const groupChat = {
             id: 0,
             name: chatNameRef.current?.value,
-            appUserId: me?.id
+            ownerId: me.id
         };
 
         const groupChatUser = {
             id: " ",
-            username: me?.username,
-            appUserId: me?.id
+            username: me.username,
+            appUserId: me.id
         };
 
         const groupChatRules = {

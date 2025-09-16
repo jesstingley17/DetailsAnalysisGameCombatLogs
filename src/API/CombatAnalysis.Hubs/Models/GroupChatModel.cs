@@ -6,5 +6,5 @@ public class GroupChatModel
 
     public string Name { get; set; }
 
-    public string AppUserId { get; set; }
+    public string OwnerId { get; set; }
 }

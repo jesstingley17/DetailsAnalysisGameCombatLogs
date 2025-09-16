@@ -49,14 +49,14 @@ internal class PersonalChatService(IPersonalChatRepository repository, IMapper m
 
     public async Task UpdateAsync(PersonalChatDto updated)
     {
-        if (updated.CompanionId != null)
+        if (updated.CompanionUnreadMessages != null)
         {
-            await _repository.UpdateCompanionUnreadMessageCount(updated.Id, updated.CompanionUnreadMessages);
+            await _repository.UpdateCompanionUnreadMessageCountAsync(updated.Id, updated.CompanionUnreadMessages.Value);
         }
 
-        if (updated.InitiatorId != null)
+        if (updated.InitiatorUnreadMessages != null)
         {
-            await _repository.UpdateInitiatorUnreadMessageCount(updated.Id, updated.InitiatorUnreadMessages);
+            await _repository.UpdateInitiatorUnreadMessageCountAsync(updated.Id, updated.InitiatorUnreadMessages.Value);
         }
     }
 }

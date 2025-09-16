@@ -67,7 +67,7 @@ const GroupChatTitle: React.FC<GroupChatTitleProps> = ({ myself, chat, settingsI
         <>
             <div className="title">
                 <div className="title__content">
-                    {chat?.appUserId === myself?.id &&
+                    {chat?.ownerId === myself?.id &&
                         <FontAwesomeIcon
                             icon={faPen}
                             title={t("EditName")}

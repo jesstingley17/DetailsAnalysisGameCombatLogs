@@ -3,4 +3,5 @@
 public enum PinMessageRestrictions
 {
     Anyone,
+    Owner
 }

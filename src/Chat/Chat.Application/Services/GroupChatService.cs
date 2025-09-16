@@ -16,7 +16,7 @@ internal class GroupChatService(IGroupChatRepository repository, IMapper mapper)
 
     public async Task<GroupChatDto> CreateAsync(GroupChatDto createChat)
     {
-        var chat = new GroupChat(createChat.Id, createChat.Name, createChat.OwnerId);
+        var chat = new GroupChat(createChat.Name, createChat.OwnerId);
 
         var createdItem = await _repository.CreateAsync(chat);
 

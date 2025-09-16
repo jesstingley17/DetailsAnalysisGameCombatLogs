@@ -2,5 +2,7 @@
 
 public enum MessageMarkedType
 {
-    None
+    None,
+    NotReleveant,
+    Emotions
 }

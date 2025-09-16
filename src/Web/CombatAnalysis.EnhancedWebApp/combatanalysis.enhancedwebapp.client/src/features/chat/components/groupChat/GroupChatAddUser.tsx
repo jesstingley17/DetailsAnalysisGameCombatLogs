@@ -27,7 +27,7 @@ const GroupChatAddUser: React.FC<GroupChatAddUserProps> = ({ myself, chatId, gro
                 const newGroupChatUser: GroupChatUserModel = {
                     username: peopleToJoin[i].username,
                     unreadMessages: 0,
-                    chatId: chatId,
+                    groupChatId: chatId,
                     appUserId: peopleToJoin[i].id,
                 };
 

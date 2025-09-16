@@ -42,7 +42,7 @@ const GroupChatList: React.FC<GroupChatListProps> = ({ myselfId, selectedChat, s
         setExtendedMyselfInGroupChats(myselfInGroupChats);
 
         (async () => {
-            const myGroupChatsId = myselfInGroupChats.map((key) => key.chatId);
+            const myGroupChatsId = myselfInGroupChats.map((key) => key.groupChatId);
             await chatHub.connectToGroupChatUnreadMessagesAsync(myGroupChatsId);
 
             chatHub?.subscribeToGroupChat((groupChatUser) => {
@@ -85,7 +85,7 @@ const GroupChatList: React.FC<GroupChatListProps> = ({ myselfId, selectedChat, s
                         <span onClick={() => setShowCreateGroupChat(true)}>{t("Create")}</span>
                     </div>
                     : extendedMyselfInGroupChats.map((myselfInChat) => (
-                        <li key={myselfInChat.id} className={selectedChat && "appUserId" in selectedChat && selectedChat.id === myselfInChat.chatId ? `selected` : ``}>
+                        <li key={myselfInChat.id} className={selectedChat && "ownerId" in selectedChat && selectedChat.id === myselfInChat.groupChatId ? `selected` : ``}>
                             <GroupChatListItem
                                 myselfInChat={myselfInChat}
                                 setSelectedGroupChat={setSelectedChat}

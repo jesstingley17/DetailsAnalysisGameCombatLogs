@@ -19,9 +19,9 @@ export const ChatApi = createApi({
         baseUrl: apiURL
     }),
     endpoints: builder => ({
-        getMessagesByGroupChatId: builder.query<GroupChatMessageModel[], { chatId: number, groupChatUserId: string, pageSize: number }>({
-            query: ({ chatId, groupChatUserId, pageSize }) => ({
-                url: `/GroupChatMessage/getByChatId?chatId=${chatId}&groupChatUserId=${groupChatUserId}&pageSize=${pageSize}`,
+        getMessagesByGroupChatId: builder.query<GroupChatMessageModel[], { chatId: number, page: number, pageSize: number }>({
+            query: ({ chatId, page, pageSize }) => ({
+                url: `/GroupChatMessage/getByChatId?chatId=${chatId}&page=${page}&pageSize=${pageSize}`,
             }),
             transformResponse: (response: GroupChatMessageModel[]) => response.reverse(),
             providesTags: result =>
@@ -29,29 +29,9 @@ export const ChatApi = createApi({
                     ? [...result.map(({ id }) => ({ type: 'GroupChatMessage' as const, id })), { type: 'GroupChatMessage' }]
                     : [{ type: 'GroupChatMessage' }]
         }),
-        getMoreMessagesByGroupChatId: builder.query<GroupChatMessageModel[], { chatId: number, groupChatUserId: string, offset: number, pageSize: number }>({
-            query: ({ chatId, groupChatUserId, offset, pageSize }) => ({
-                url: `/GroupChatMessage/getMoreByChatId?chatId=${chatId}&groupChatUserId=${groupChatUserId}&offset=${offset}&pageSize=${pageSize}`,
-            }),
-            transformResponse: (response: GroupChatMessageModel[]) => response.reverse(),
-            providesTags: result =>
-                result
-                    ? [...result.map(({ id }) => ({ type: 'GroupChatMessage' as const, id })), { type: 'GroupChatMessage' }]
-                    : [{ type: 'GroupChatMessage' }]
-        }),
-        getMessagesByPersonalChatId: builder.query<PersonalChatMessageModel[], { chatId: number, pageSize: number }>({
-            query: ({ chatId, pageSize }) => ({
-                url: `/PersonalChatMessage/getByChatId?chatId=${chatId}&pageSize=${pageSize}`,
-            }),
-            transformResponse: (response: PersonalChatMessageModel[]) => response.reverse(),
-            providesTags: result =>
-                result
-                    ? [...result.map(({ id }) => ({ type: 'PersonalChatMessage' as const, id })), { type: 'PersonalChatMessage' }]
-                    : [{ type: 'PersonalChatMessage' }]
-        }),
-        getMoreMessagesByPersonalChatId: builder.query<PersonalChatMessageModel[], { chatId: number, offset: number, pageSize: number }>({
-            query: ({ chatId, offset, pageSize }) => ({
-                url: `/PersonalChatMessage/getMoreByChatId?chatId=${chatId}&offset=${offset}&pageSize=${pageSize}`,
+        getMessagesByPersonalChatId: builder.query<PersonalChatMessageModel[], { chatId: number, page: number, pageSize: number }>({
+            query: ({ chatId, page, pageSize }) => ({
+                url: `/PersonalChatMessage/getByChatId?chatId=${chatId}&page=${page}&pageSize=${pageSize}`,
             }),
             transformResponse: (response: PersonalChatMessageModel[]) => response.reverse(),
             providesTags: result =>
@@ -65,10 +45,6 @@ export const ChatApi = createApi({
 export const {
     useGetMessagesByGroupChatIdQuery,
     useLazyGetMessagesByGroupChatIdQuery,
-    useGetMoreMessagesByGroupChatIdQuery,
-    useLazyGetMoreMessagesByGroupChatIdQuery,
     useGetMessagesByPersonalChatIdQuery,
     useLazyGetMessagesByPersonalChatIdQuery,
-    useGetMoreMessagesByPersonalChatIdQuery,
-    useLazyGetMoreMessagesByPersonalChatIdQuery,
 } = ChatApi;

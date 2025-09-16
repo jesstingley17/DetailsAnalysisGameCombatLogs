@@ -3,4 +3,5 @@
 public enum InvitePeopleRestrictions
 {
     Anyone,
+    Owner
 }

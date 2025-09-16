@@ -1,6 +1,8 @@
 using AutoMapper;
 using AutoMapper.Extensions.ExpressionMapping;
+using Chat.Application.Extensions;
 using Chat.Application.Mappers.Profiles;
+using Chat.Infrastructure.Extensions;
 using CombatAnalysis.ChatApi.Consts;
 using CombatAnalysis.ChatApi.Enums;
 using CombatAnalysis.ChatApi.Helpers;
@@ -8,14 +10,11 @@ using CombatAnalysis.ChatApi.Interfaces;
 using CombatAnalysis.ChatApi.Kafka;
 using CombatAnalysis.ChatApi.Mapping;
 using CombatAnalysis.ChatBL.Extensions;
-using CombatAnalysis.ChatBL.Mapping;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using Serilog.Events;
-using Chat.Application.Extensions;
-using Chat.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -149,8 +148,6 @@ app.UseSwaggerUI(options =>
 {
     options.SwaggerEndpoint("/swagger/v1/swagger.json", "Chat API v1");
     options.InjectStylesheet("/swagger-ui/swaggerDark.css");
-    //options.OAuthClientId(authenticationClientOptions.WebClientId);
-    //options.OAuthScopes(authenticationClientOptions.Scopes);
 });
 
 app.UseStaticFiles();
