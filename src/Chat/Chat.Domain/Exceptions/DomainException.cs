@@ -1,6 +1,11 @@
-﻿namespace Chat.Domain.Exceptions;
+﻿using Chat.Domain.Enums;
 
-public abstract class DomainException(string message) : Exception(message)
+namespace Chat.Domain.Exceptions;
+
+public abstract class DomainException(string message, ExceptionCode code = ExceptionCode.DomainError) : Exception(message)
 {
+    public ExceptionCode Code { get; } = code;
+
+    public DateTime OccurredAt { get; } = DateTime.UtcNow;
 }
 

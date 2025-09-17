@@ -1,4 +1,5 @@
-﻿using CombatAnalysis.ChatApi.Models;
+﻿using CombatAnalysis.ChatApi.Enums;
+using CombatAnalysis.ChatApi.Models;
 
 namespace CombatAnalysis.ChatApi.Kafka.Actions;
 
@@ -8,7 +9,7 @@ public class GroupChatMemberAction
 
     public string ChatOwnerId { get; set; }
 
-    public int State { get; set; }
+    public ChatMembersActionState State { get; set; }
 
     public DateTimeOffset When { get; set; }
 

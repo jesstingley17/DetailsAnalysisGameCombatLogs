@@ -19,14 +19,14 @@ const ChatHubProvider: React.FC<{ children: React.ReactNode }> = ({ children }) 
     const {
         connectToPersonalChatAsync, connectToPersonalChatMessagesAsync, connectToPersonalChatUnreadMessagesAsync,
         subscribeToPersonalChat, subscribeToPersonalChatMessages, subscribeToPersonalMessageHasBeenRead, subscribeToUnreadPersonalMessagesUpdated,
-        disconnectFromPersonalChatHubAsync, disconnectFromPersonalChatUnreadMessagesHubAsync,
+        disconnectFromPersonalChatHubAsync, disconnectFromPersonalChatMessageHubAsync, disconnectFromPersonalChatUnreadMessagesHubAsync,
     } = usePersonalChatHub(user, personalChatHubConnectionRef, personalChatMessagesHubConnectionRef, personalChatUnreadMessagesHubConnectionRef);
 
     const {
         connectToGroupChatAsync, connectToGroupChatMessagesAsync, connectToGroupChatUnreadMessagesAsync,
         subscribeToGroupChat, subscribeToGroupChatMessages, subscribeToGroupMessageDelivered,
         subscribeToUnreadGroupMessagesUpdated, subscribeToGroupMessageHasBeenRead,
-        disconnectFromGroupChatHubAsync, disconnectFromGroupChatUnreadMessagesHubAsync,
+        disconnectFromGroupChatHubAsync, disconnectFromGroupChatMessageHubAsync, disconnectFromGroupChatUnreadMessagesHubAsync,
         subscribeToGroupChatMembers,
     } = useGroupChatHub(user, groupChatHubConnectionRef, groupChatMessagesHubConnectionRef, groupChatUnreadMessagesHubConnectionRef);
 
@@ -35,11 +35,11 @@ const ChatHubProvider: React.FC<{ children: React.ReactNode }> = ({ children }) 
             personalChatHubConnectionRef, personalChatMessagesHubConnectionRef, personalChatUnreadMessagesHubConnectionRef,
             connectToPersonalChatAsync, connectToPersonalChatMessagesAsync, connectToPersonalChatUnreadMessagesAsync,
             subscribeToPersonalChat, subscribeToPersonalChatMessages, subscribeToPersonalMessageHasBeenRead, subscribeToUnreadPersonalMessagesUpdated,
-            disconnectFromPersonalChatHubAsync, disconnectFromPersonalChatUnreadMessagesHubAsync,
+            disconnectFromPersonalChatHubAsync, disconnectFromPersonalChatMessageHubAsync, disconnectFromPersonalChatUnreadMessagesHubAsync,
             groupChatHubConnectionRef, groupChatMessagesHubConnectionRef, groupChatUnreadMessagesHubConnectionRef,
             connectToGroupChatAsync, connectToGroupChatMessagesAsync, connectToGroupChatUnreadMessagesAsync,
             subscribeToGroupChat, subscribeToGroupChatMessages, subscribeToGroupMessageHasBeenRead, subscribeToUnreadGroupMessagesUpdated, subscribeToGroupMessageDelivered,
-            disconnectFromGroupChatHubAsync, disconnectFromGroupChatUnreadMessagesHubAsync,
+            disconnectFromGroupChatHubAsync, disconnectFromGroupChatMessageHubAsync, disconnectFromGroupChatUnreadMessagesHubAsync,
             subscribeToGroupChatMembers,
         }}>
             {children}

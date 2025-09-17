@@ -3,6 +3,7 @@ using Chat.Application.DTOs;
 using Chat.Application.Interfaces;
 using Chat.Domain.Exceptions;
 using Chat.Infrastructure.Exceptions;
+using CombatAnalysis.ChatApi.Core;
 using CombatAnalysis.ChatApi.Models;
 using CombatAnalysis.ChatApi.Requests;
 using Microsoft.AspNetCore.Authorization;
@@ -47,9 +48,15 @@ public class GroupChatMessageController(IGroupChatMessageService chatMessageServ
         }
         catch (GroupChatMessageNotFoundException ex)
         {
-            _logger.LogWarning("Get group chat message {Id} failed: Group chat message not found.", ex.MessageId);
+            _logger.LogWarning("Get group chat message {Id} failed. Group chat message not found.", ex.MessageId);
 
-            return NotFound();
+            return this.ExtractDomainCode(ex.Code);
+        }
+        catch (DomainException ex)
+        {
+            _logger.LogError(ex, "Get group chat message {Id} failed. Something wrong during extracting group chat message.", id);
+
+            return this.ExtractDomainCode(ex.Code);
         }
     }
 
@@ -87,15 +94,21 @@ public class GroupChatMessageController(IGroupChatMessageService chatMessageServ
         }
         catch (GroupChatNotFoundException ex)
         {
-            _logger.LogWarning("Create group chat message {Id} failed: Group chat not found.", ex.GroupChatId);
+            _logger.LogWarning("Create group chat message failed. Group chat {Id} not found.", ex.GroupChatId);
 
-            return NotFound();
+            return this.ExtractDomainCode(ex.Code);
         }
         catch (GroupChatUserNotFoundException ex)
         {
-            _logger.LogWarning("Create group chat message {Id} failed: Group chat user not found.", ex.UserId);
+            _logger.LogWarning("Create group chat message failed. Group chat user {Id} not found.", ex.UserId);
 
-            return NotFound();
+            return this.ExtractDomainCode(ex.Code);
+        }
+        catch (DomainException ex)
+        {
+            _logger.LogError(ex, "Create group chat message failed. Something wrong during creating group chat message.");
+
+            return this.ExtractDomainCode(ex.Code);
         }
         catch (DbUpdateException ex)
         {
@@ -129,15 +142,21 @@ public class GroupChatMessageController(IGroupChatMessageService chatMessageServ
         }
         catch (EntityNotFoundException ex)
         {
-            _logger.LogWarning("Update group chat message {Id} failed. Group chat message not found.", ex.EntityId);
+            _logger.LogWarning("Update group chat message {Id} failed. Entity '{Entity}' ({EntityId}) not found.", id, nameof(ex.EntityType), ex.EntityId);
 
-            return NotFound();
+            return this.ExtractDomainCode(ex.Code);
+        }
+        catch (DomainException ex)
+        {
+            _logger.LogError(ex, "Update group chat message {Id} failed. Something wrong during updating group chat message.", id);
+
+            return this.ExtractDomainCode(ex.Code);
         }
         catch (DbUpdateConcurrencyException ex)
         {
-            _logger.LogError(ex, "Update group chat message {Id} failed. Something wrong during update group chat message.", id);
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
 
-            return NotFound();
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
         }
     }
 
@@ -152,15 +171,21 @@ public class GroupChatMessageController(IGroupChatMessageService chatMessageServ
         }
         catch (EntityNotFoundException ex)
         {
-            _logger.LogWarning(ex, "Delete group chat message {Id} failed. Group chat message not found.", ex.EntityId);
+            _logger.LogWarning(ex, "Delete group chat message {Id} failed. Entity '{Entity}' ({EntityId}) not found.", id, nameof(ex.EntityType), ex.EntityId);
 
-            return NotFound();
+            return this.ExtractDomainCode(ex.Code);
+        }
+        catch (DomainException ex)
+        {
+            _logger.LogError(ex, "Delete group chat message {Id} failed. Something wrong during deleting group chat message.", id);
+
+            return this.ExtractDomainCode(ex.Code);
         }
         catch (DbUpdateConcurrencyException ex)
         {
-            _logger.LogError(ex, "Delete group chat message {Id} failed. Something wrong during delete group chat message.", id);
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
 
-            return NotFound();
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
         }
     }
 }

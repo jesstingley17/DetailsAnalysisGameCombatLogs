@@ -22,12 +22,11 @@ export const GroupChatUserApi = ChatApi.injectEndpoints({
             query: id => `/GroupChatUser/${id}`,
             providesTags: result => result ? [{ type: 'GroupChatUser', id: result.id }] : [],
         }),
-        findMeInChat: builder.query<GroupChatUserModel, { chatId: number, appUserId: string }>({
-            query: ({ chatId, appUserId }) => `/GroupChatUser/findMeInChat?chatId=${chatId}&appUserId=${appUserId}`,
-            providesTags: result => result ? [{ type: 'GroupChatUser', id: result.id }] : [],
+        findGroupChatUserByAppUserId: builder.query<GroupChatUserModel, { chatId: number, appUserId: string }>({
+            query: ({ chatId, appUserId }) => `/GroupChatUser/findByAppUserId?chatId=${chatId}&appUserId=${appUserId}`,
         }),
-        findGroupChatUsersByUserId: builder.query<GroupChatUserModel[], string>({
-            query: userId => `/GroupChatUser/findByUserId/${userId}`,
+        findGroupChatUsersByAppUserId: builder.query<GroupChatUserModel[], string>({
+            query: appUserId => `/GroupChatUser/findAllByAppUserId/${appUserId}`,
             providesTags: result =>
                 result
                     ? [
@@ -37,7 +36,7 @@ export const GroupChatUserApi = ChatApi.injectEndpoints({
                     : [{ type: 'GroupChatUser', id: 'LIST' }],
         }),
         findGroupChatUsersByChatId: builder.query<GroupChatUserModel[], number>({
-            query: chatId => `/GroupChatUser/findByChatId/${chatId}`,
+            query: chatId => `/GroupChatUser/findAll/${chatId}`,
             providesTags: result =>
                 result
                     ? [
@@ -53,8 +52,8 @@ export const {
     useCreateGroupChatUserAsyncMutation,
     useRemoveGroupChatUserAsyncMutation,
     useGetGroupChatUserByIdQuery,
-    useFindMeInChatQuery,
-    useFindGroupChatUsersByUserIdQuery,
-    useLazyFindGroupChatUsersByUserIdQuery,
+    useFindGroupChatUserByAppUserIdQuery,
+    useFindGroupChatUsersByAppUserIdQuery,
+    useLazyFindGroupChatUsersByAppUserIdQuery,
     useFindGroupChatUsersByChatIdQuery,
 } = GroupChatUserApi;

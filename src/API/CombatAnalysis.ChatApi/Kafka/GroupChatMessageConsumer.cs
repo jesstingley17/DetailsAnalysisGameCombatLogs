@@ -2,12 +2,14 @@
 using Chat.Application.DTOs;
 using Chat.Application.Interfaces;
 using Chat.Domain.Enums;
+using Chat.Domain.Exceptions;
 using CombatAnalysis.ChatApi.Consts;
 using CombatAnalysis.ChatApi.Enums;
 using CombatAnalysis.ChatApi.Interfaces;
 using CombatAnalysis.ChatApi.Kafka.Actions;
 using CombatAnalysis.ChatApi.Models;
 using Confluent.Kafka;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
 
@@ -34,7 +36,7 @@ public class GroupChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, IOp
         }
         catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, "Consume Chat API data failed: Parameter '{ParamName}' was null.", ex.ParamName);
+            _logger.LogError(ex, "Consume Group Chat Message data (topic: {Topic}) failed. Parameter '{ParamName}' was null.", KafkaTopics.GroupChatMessage, ex.ParamName);
         }
     }
 
@@ -53,7 +55,6 @@ public class GroupChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, IOp
 
             var map = _mapper.Map<GroupChatMessageDto>(action.Message);
             var createdMessage = await chatMessgaeService.CreateAsync(map);
-            ArgumentNullException.ThrowIfNull(createdMessage, nameof(createdMessage));
 
             var mapToModel = _mapper.Map<GroupChatMessageModel>(createdMessage);
             action.Message = mapToModel;
@@ -63,14 +64,26 @@ public class GroupChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, IOp
 
             await chatHubHelper.RequestsMessage(createdMessage.GroupChatId, action.Message);
 
-            if (createdMessage.Type != MessageType.System)
+            if (createdMessage.Type == MessageType.Default)
             {
                 await IncreaseUnreadMessageRequestAsync(createdMessage.Id, action);
             }
         }
         catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, "Consume Chat API data failed: Parameter '{ParamName}' was null.", ex.ParamName);
+            _logger.LogError(ex, "Create group chat message from Kafka Consumer (topic: {Topic}) failed. Parameter '{ParamName}' was null.", KafkaTopics.GroupChatMessage, ex.ParamName);
+        }
+        catch (GroupChatNotFoundException ex)
+        {
+            _logger.LogWarning("Create group chat message from Kafka Consumer (topic: {Topic}) failed. Group chat {Id} not found.", KafkaTopics.GroupChatMessage, ex.GroupChatId);
+        }
+        catch (GroupChatUserNotFoundException ex)
+        {
+            _logger.LogWarning("Create group chat message from Kafka Consumer (topic: {Topic}) failed. Group chat user {Id} not found.", KafkaTopics.GroupChatMessage, ex.UserId);
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex, "Failed to create group chat message from Kafka Consumer (topic: {Topic}).", KafkaTopics.GroupChatMessage);
         }
     }
 

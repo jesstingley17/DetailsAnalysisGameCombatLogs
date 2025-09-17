@@ -62,7 +62,6 @@ const PersonalChat: React.FC<PersonalChatProps> = ({ myself, chat, setSelectedCh
         }
 
         (async () => {
-            await chatHub.connectToPersonalChatAsync();
             await chatHub.connectToPersonalChatMessagesAsync(chat.id);
 
             chatHub.subscribeToPersonalChatMessages((message: PersonalChatMessageModel) => {
@@ -72,7 +71,7 @@ const PersonalChat: React.FC<PersonalChatProps> = ({ myself, chat, setSelectedCh
 
         return () => {
             (async () => {
-                await chatHub.disconnectFromPersonalChatHubAsync();
+                await chatHub.disconnectFromGroupChatMessageHubAsync();
             })();
         }
     }, [chat]);

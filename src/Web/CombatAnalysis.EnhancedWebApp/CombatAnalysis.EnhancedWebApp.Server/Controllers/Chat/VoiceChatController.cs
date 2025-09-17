@@ -45,12 +45,14 @@ public class VoiceChatController : ControllerBase
         }
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
         {
-            _logger.LogError(ex, "Get all voice chats failed. User should be authorize to get all voice chats");
+            _logger.LogError(ex, "Get all voice chats failed. User should be authorize to get all voice chats.");
+
             return Unauthorized();
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogError(ex, "Get all voice chats failed: received unsuccessful request");
+            _logger.LogError(ex, "Get all voice chats failed. Something wrong during getting all voice chats.");
+
             return StatusCode((int)(ex.StatusCode ?? HttpStatusCode.InternalServerError), ex.Message);
         }
     }
@@ -69,12 +71,14 @@ public class VoiceChatController : ControllerBase
         }
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
         {
-            _logger.LogError(ex, "Get voice chat {Id} failed. User should be authorize to get voice chat", id);
+            _logger.LogError(ex, "Get voice chat {Id} failed. User should be authorize to get voice chat.", id);
+
             return Unauthorized();
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogError(ex, "Get voice chat {Id} failed: received unsuccessful request", id);
+            _logger.LogError(ex, "Get voice chat {Id} failed. Something wrong during getting voice chat.", id);
+
             return StatusCode((int)(ex.StatusCode ?? HttpStatusCode.InternalServerError), ex.Message);
         }
     }
@@ -93,17 +97,14 @@ public class VoiceChatController : ControllerBase
         }
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
         {
-            _logger.LogError(ex, "Create voice chat failed. User should be authorize to create voice chat");
+            _logger.LogError(ex, "Create voice chat failed. User should be authorize to create voice chat.");
+
             return Unauthorized();
-        }
-        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.BadRequest)
-        {
-            _logger.LogError(ex, "Create voice chat failed. The specified parameters are incorrect");
-            return BadRequest();
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogError(ex, "Create voice chat failed: received unsuccessful request");
+            _logger.LogError(ex, "Create voice chat failed. Something wrong during creating voice chat.");
+
             return StatusCode((int)(ex.StatusCode ?? HttpStatusCode.InternalServerError), ex.Message);
         }
     }
@@ -116,16 +117,24 @@ public class VoiceChatController : ControllerBase
             var responseMessage = await _httpClient.PutAsync($"VoiceChat/{id}", JsonContent.Create(chat));
             responseMessage.EnsureSuccessStatusCode();
 
-            return Ok();
+            return NoContent();
         }
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
         {
-            _logger.LogError(ex, "Update voice chat {Id} failed. User should be authorize to voice chat", id);
+            _logger.LogError(ex, "Update voice chat {Id} failed. User should be authorize to voice chat.", id);
+
             return Unauthorized();
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+        {
+            _logger.LogError(ex, "Update voice chat {Id} failed. Voice chat not found.", id);
+
+            return NotFound();
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogError(ex, "Update voice chat {Id} failed. Chat not found or modified.", id);
+            _logger.LogError(ex, "Update voice chat {Id} failed. Something wrong during updating voice chat.", id);
+
             return StatusCode((int)(ex.StatusCode ?? HttpStatusCode.InternalServerError), ex.Message);
         }
     }
@@ -138,16 +147,24 @@ public class VoiceChatController : ControllerBase
             var responseMessage = await _httpClient.DeletAsync($"VoiceChat/{id}");
             responseMessage.EnsureSuccessStatusCode();
 
-            return Ok();
+            return NoContent();
         }
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
         {
-            _logger.LogError(ex, "Delete voice chat {Id} failed. User should be authorize to delete voice chat", id);
+            _logger.LogError(ex, "Delete voice chat {Id} failed. User should be authorize to delete voice chat.", id);
+
             return Unauthorized();
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+        {
+            _logger.LogError(ex, "Delete voice chat {Id} failed. Voice chat not found.", id);
+
+            return NotFound();
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogError(ex, "Delete voice chat {Id} failed. Chat not found or modified.", id);
+            _logger.LogError(ex, "Delete voice chat {Id} failed. Something wrong during deleting voice chat.", id);
+
             return StatusCode((int)(ex.StatusCode ?? HttpStatusCode.InternalServerError), ex.Message);
         }
     }

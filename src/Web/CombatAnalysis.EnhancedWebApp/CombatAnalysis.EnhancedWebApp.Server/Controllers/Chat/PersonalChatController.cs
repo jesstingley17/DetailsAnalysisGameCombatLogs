@@ -39,11 +39,13 @@ public class PersonalChatController : ControllerBase
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
         {
             _logger.LogError(ex, "Get personal chat {Id} failed. User should be authorize to get personal chat", id);
+
             return Unauthorized();
         }
         catch (HttpRequestException ex)
         {
             _logger.LogError(ex, "Get personal chat {Id} failed: received unsuccessful request", id);
+
             return StatusCode((int)(ex.StatusCode ?? HttpStatusCode.InternalServerError), ex.Message);
         }
     }
@@ -64,11 +66,13 @@ public class PersonalChatController : ControllerBase
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
         {
             _logger.LogError(ex, "Get personal chat by user {UserId} failed. User should be authorize to get personal chat by user", userId);
+
             return Unauthorized();
         }
         catch (HttpRequestException ex)
         {
             _logger.LogError(ex, "Get personal chat by user {UserId} failed: received unsuccessful request", userId);
+
             return StatusCode((int)(ex.StatusCode ?? HttpStatusCode.InternalServerError), ex.Message);
         }
     }
@@ -97,11 +101,13 @@ public class PersonalChatController : ControllerBase
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
         {
             _logger.LogError(ex, "Check if personal chat already exist failed. User should be authorize to check if personal chat already exist");
+
             return Unauthorized();
         }
         catch (HttpRequestException ex)
         {
             _logger.LogError(ex, "Check if personal chat already exist failed: received unsuccessful request");
+
             return StatusCode((int)(ex.StatusCode ?? HttpStatusCode.InternalServerError), ex.Message);
         }
     }
@@ -120,16 +126,13 @@ public class PersonalChatController : ControllerBase
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
         {
             _logger.LogError(ex, "Create personal chat failed. User should be authorize to create personal chat");
+
             return Unauthorized();
-        }
-        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.BadRequest)
-        {
-            _logger.LogError(ex, "Create personal chat failed. The specified parameters are incorrect");
-            return BadRequest();
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogError(ex, "Create chat failed: received unsuccessful request");
+            _logger.LogError(ex, "Create personal chat failed. Something wrong during creating personal chat.");
+
             return StatusCode((int)(ex.StatusCode ?? HttpStatusCode.InternalServerError), ex.Message);
         }
     }
@@ -142,16 +145,24 @@ public class PersonalChatController : ControllerBase
             var responseMessage = await _httpClient.PutAsync($"PersonalChat/{id}", JsonContent.Create(chat));
             responseMessage.EnsureSuccessStatusCode();
 
-            return Ok();
+            return NoContent();
         }
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
         {
             _logger.LogError(ex, "Update personal chat {Id} failed. User should be authorize to update personal chat", id);
+
             return Unauthorized();
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+        {
+            _logger.LogError(ex, "Update personal chat {Id} failed. Personal chat not found.", id);
+
+            return NotFound();
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogError(ex, "Update personal chat {Id} failed. Chat not found or modified.", id);
+            _logger.LogError(ex, "Update personal chat {Id} failed. Something wrong during updating personal chat.", id);
+
             return StatusCode((int)(ex.StatusCode ?? HttpStatusCode.InternalServerError), ex.Message);
         }
     }
@@ -162,25 +173,26 @@ public class PersonalChatController : ControllerBase
         try
         {
             var responseMessage = await _httpClient.DeletAsync($"PersonalChat/{id}");
-            if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-            {
-                return Unauthorized();
-            }
-            else if (responseMessage.IsSuccessStatusCode)
-            {
-                return Ok();
-            }
+            responseMessage.EnsureSuccessStatusCode();
 
-            return BadRequest();
+            return NoContent();
         }
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
         {
             _logger.LogError(ex, "Delete personal chat {Id} failed. User should be authorize to delete personal chat", id);
+
             return Unauthorized();
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+        {
+            _logger.LogError(ex, "Delete personal chat {Id} failed. Personal chat not found.", id);
+
+            return NotFound();
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogError(ex, "Delete personal chat {Id} failed. Chat not found or modified.", id);
+            _logger.LogError(ex, "Delete personal chat {Id} failed. Something wrong during deleting personal chat.", id);
+
             return StatusCode((int)(ex.StatusCode ?? HttpStatusCode.InternalServerError), ex.Message);
         }
     }

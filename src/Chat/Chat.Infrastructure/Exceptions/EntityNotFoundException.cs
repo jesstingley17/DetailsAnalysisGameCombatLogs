@@ -1,16 +1,11 @@
-﻿using Chat.Domain.Exceptions;
+﻿using Chat.Domain.Enums;
+using Chat.Domain.Exceptions;
 
 namespace Chat.Infrastructure.Exceptions;
 
-public class EntityNotFoundException : DomainException
+public class EntityNotFoundException(Type entityType, object entityId) : DomainException($"Entity '{entityType.Name}' with Id '{entityId}' was not found.", ExceptionCode.NotFound)
 {
-    public Type EntityType { get; }
-    public object EntityId { get; }
+    public Type EntityType { get; } = entityType;
 
-    public EntityNotFoundException(Type entityType, object entityId)
-        : base($"Entity '{entityType.Name}' with Id '{entityId}' was not found.")
-    {
-        EntityType = entityType;
-        EntityId = entityId;
-    }
+    public object EntityId { get; } = entityId;
 }

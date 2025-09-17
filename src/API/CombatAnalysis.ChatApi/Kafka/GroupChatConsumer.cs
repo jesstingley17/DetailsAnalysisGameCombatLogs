@@ -8,6 +8,7 @@ using CombatAnalysis.ChatApi.Interfaces;
 using CombatAnalysis.ChatApi.Kafka.Actions;
 using CombatAnalysis.ChatApi.Models;
 using Confluent.Kafka;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
 
@@ -29,17 +30,19 @@ public class GroupChatConsumer(IOptions<KafkaSettings> kafkaSettings, IOptions<H
 
             using var scope = _serviceScopeFactory.CreateScope();
 
-            await ExecuteAsync(scope, kafkaData);
+            var dbContext = scope.ServiceProvider.GetRequiredService<ChatContext>();
+            ArgumentNullException.ThrowIfNull(dbContext, nameof(dbContext));
+
+            await ExecuteAsync(scope, dbContext, kafkaData);
         }
         catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, "Consume Chat API data failed: Parameter '{ParamName}' was null.", ex.ParamName);
+            _logger.LogError(ex, "Consume Group Chat data (topic: {Topic}) failed. Parameter '{ParamName}' was null.", KafkaTopics.GroupChat, ex.ParamName);
         }
     }
 
-    private async Task ExecuteAsync(IServiceScope scope, ConsumeResult<string, JsonDocument> kafkaData)
+    private async Task ExecuteAsync(IServiceScope scope, ChatContext dbContext, ConsumeResult<string, JsonDocument> kafkaData)
     {
-        var dbContext = scope.ServiceProvider.GetRequiredService<ChatContext>();
         await using var transaction = await dbContext.Database.BeginTransactionAsync();
 
         try
@@ -51,12 +54,18 @@ public class GroupChatConsumer(IOptions<KafkaSettings> kafkaSettings, IOptions<H
 
             switch(action.State)
             {
-                case (int)ChatActionState.Created:
+                case ChatActionState.Created:
                     var chatId = await CreateChatRefsAsync(scope, action.Chat, action.Rules, action.User);
 
                     await transaction.CommitAsync();
 
                     await SendSignalRequestChatsAsync(scope, action, chatId);
+
+                    break;
+                case ChatActionState.Removed:
+                    await RemoveChatRefsAsync(scope, action.Chat.Id);
+
+                    await transaction.CommitAsync();
 
                     break;
             }
@@ -65,9 +74,15 @@ public class GroupChatConsumer(IOptions<KafkaSettings> kafkaSettings, IOptions<H
         {
             await transaction.RollbackAsync();
 
-            _logger.LogError(ex, "Create group chat refs failed: Parameter '{ParamName}' was null.", ex.ParamName);
+            _logger.LogError(ex, "Create group chat from Kafka Consumer (topic: {Topic}) failed. Parameter '{ParamName}' was null.", KafkaTopics.GroupChat, ex.ParamName);
         }
-        catch (Exception ex)
+        catch (DbUpdateException ex)
+        {
+            await transaction.RollbackAsync();
+
+            _logger.LogError(ex, "Create group chat from Kafka Consumer (topic: {Topic}) failed.", KafkaTopics.GroupChat);
+        }
+        catch (Exception)
         {
             await transaction.RollbackAsync();
 
@@ -77,32 +92,34 @@ public class GroupChatConsumer(IOptions<KafkaSettings> kafkaSettings, IOptions<H
 
     private async Task<int> CreateChatRefsAsync(IServiceScope scope, GroupChatModel chat, GroupChatRulesModel chatRules, GroupChatUserModel chatUser)
     {
-        var chatService = scope.ServiceProvider.GetService<IService<GroupChatDto, int>>();
+        var chatService = scope.ServiceProvider.GetService<IGroupChatService>();
         ArgumentNullException.ThrowIfNull(chatService, nameof(chatService));
-
-        var chatRulesService = scope.ServiceProvider.GetService<IGroupChatRulesService>();
-        ArgumentNullException.ThrowIfNull(chatRulesService, nameof(chatRulesService));
 
         var chatUserService = scope.ServiceProvider.GetService<IGroupChatUserService>();
         ArgumentNullException.ThrowIfNull(chatUserService, nameof(chatUserService));
 
         var chatMap = _mapper.Map<GroupChatDto>(chat);
         var createdChat = await chatService.CreateAsync(chatMap);
-        ArgumentNullException.ThrowIfNull(createdChat, nameof(createdChat));
 
         var updatedChat = chatRules with { GroupChatId = createdChat.Id };
 
         var chatRulesMap = _mapper.Map<GroupChatRulesDto>(updatedChat);
-        var createdChatRules = await chatRulesService.CreateAsync(chatRulesMap);
-        ArgumentNullException.ThrowIfNull(createdChatRules, nameof(createdChatRules));
+        await chatService.AddRulesAsync(chatRulesMap);
 
         var updatedUser = chatUser with { GroupChatId = createdChat.Id };
 
         var chatUserMap = _mapper.Map<GroupChatUserDto>(updatedUser);
-        var createdChatUser = await chatUserService.CreateAsync(chatUserMap);
-        ArgumentNullException.ThrowIfNull(createdChatUser, nameof(createdChatUser));
+        await chatUserService.CreateAsync(chatUserMap);
 
         return createdChat.Id;
+    }
+
+    private static async Task RemoveChatRefsAsync(IServiceScope scope, int chatId)
+    {
+        var chatService = scope.ServiceProvider.GetService<IGroupChatService>();
+        ArgumentNullException.ThrowIfNull(chatService, nameof(chatService));
+
+        await chatService.DeleteAsync(chatId);
     }
 
     private async Task SendSignalRequestChatsAsync(IServiceScope scope, GroupChatAction chatAction, int chatId)

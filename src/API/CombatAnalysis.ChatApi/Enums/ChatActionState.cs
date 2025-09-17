@@ -1,6 +1,7 @@
 ﻿namespace CombatAnalysis.ChatApi.Enums;
 
-internal enum ChatActionState
+public enum ChatActionState
 {
     Created,
+    Removed,
 }

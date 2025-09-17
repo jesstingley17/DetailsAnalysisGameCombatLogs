@@ -1,4 +1,6 @@
-﻿namespace CombatAnalysis.ChatApi.Kafka.Actions;
+﻿using CombatAnalysis.ChatApi.Enums;
+
+namespace CombatAnalysis.ChatApi.Kafka.Actions;
 
 public class PersonalChatMessageAction
 {
@@ -10,7 +12,7 @@ public class PersonalChatMessageAction
 
     public string RecipientId { get; set; } = string.Empty;
 
-    public int State { get; set; }
+    public ChatMessageActionState State { get; set; }
 
     public DateTimeOffset When { get; set; }
 

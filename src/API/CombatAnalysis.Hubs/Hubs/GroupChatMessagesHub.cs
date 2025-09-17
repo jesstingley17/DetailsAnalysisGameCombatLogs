@@ -65,7 +65,7 @@ public class GroupChatMessagesHub : Hub
                     Username = username,
                     Time = DateTimeOffset.UtcNow
                 },
-                State = (int)ChatMessageActionState.Created,
+                State = ChatMessageActionState.Created,
                 When = DateTimeOffset.UtcNow,
                 RefreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty,
                 AccessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)] ?? string.Empty

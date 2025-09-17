@@ -1,4 +1,5 @@
-﻿using CombatAnalysis.Hubs.Models;
+﻿using CombatAnalysis.Hubs.Enums;
+using CombatAnalysis.Hubs.Models;
 
 namespace CombatAnalysis.Hubs.Kafka.Actions;
 
@@ -6,7 +7,7 @@ public class GroupChatMessageAction
 {
     public GroupChatMessageModel Message { get; set; }
 
-    public int State { get; set; }
+    public ChatMessageActionState State { get; set; }
 
     public DateTimeOffset When { get; set; }
 

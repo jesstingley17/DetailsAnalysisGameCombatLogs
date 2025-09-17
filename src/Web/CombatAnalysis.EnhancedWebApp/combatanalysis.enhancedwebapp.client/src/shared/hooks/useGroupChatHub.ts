@@ -108,7 +108,9 @@ const useGroupChatHub = (
     const disconnectFromGroupChatHubAsync = async () => {
         await groupChatHubConnectionRef.current?.stop();
         groupChatHubConnectionRef.current = null;
+    }
 
+    const disconnectFromGroupChatMessageHubAsync = async () => {
         await groupChatMessagesHubConnectionRef.current?.stop();
         groupChatMessagesHubConnectionRef.current = null;
     }
@@ -122,7 +124,7 @@ const useGroupChatHub = (
         connectToGroupChatAsync, connectToGroupChatMessagesAsync, connectToGroupChatUnreadMessagesAsync,
         subscribeToGroupChat, subscribeToGroupChatMessages, subscribeToGroupMessageDelivered,
         subscribeToUnreadGroupMessagesUpdated, subscribeToGroupMessageHasBeenRead,
-        disconnectFromGroupChatHubAsync, disconnectFromGroupChatUnreadMessagesHubAsync,
+        disconnectFromGroupChatHubAsync, disconnectFromGroupChatMessageHubAsync, disconnectFromGroupChatUnreadMessagesHubAsync,
         subscribeToGroupChatMembers,
     }
 }

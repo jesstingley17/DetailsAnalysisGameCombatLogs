@@ -54,7 +54,6 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
         }
 
         (async () => {
-            await chatHub.connectToGroupChatAsync();
             await chatHub.connectToGroupChatMessagesAsync(chat.id);
 
             chatHub.subscribeToGroupChatMessages((message: GroupChatMessageModel) => {
@@ -65,7 +64,7 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
 
         return () => {
             (async () => {
-                await chatHub.disconnectFromGroupChatHubAsync();
+                await chatHub.disconnectFromGroupChatMessageHubAsync();
             })();
         }
     }, [chat]);

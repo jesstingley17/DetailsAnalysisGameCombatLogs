@@ -1,6 +1,6 @@
 ﻿namespace CombatAnalysis.Hubs.Enums;
 
-internal enum ChatMessageActionState
+public enum ChatMessageActionState
 {
     Created,
     Read,

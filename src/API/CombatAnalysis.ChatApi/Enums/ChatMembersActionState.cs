@@ -1,6 +1,6 @@
 ﻿namespace CombatAnalysis.ChatApi.Enums;
 
-internal enum ChatMembersActionState
+public enum ChatMembersActionState
 {
     AddUser,
     RemoveUser,

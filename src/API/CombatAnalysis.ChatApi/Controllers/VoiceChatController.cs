@@ -3,6 +3,7 @@ using Chat.Application.DTOs;
 using Chat.Application.Interfaces;
 using Chat.Domain.Exceptions;
 using Chat.Infrastructure.Exceptions;
+using CombatAnalysis.ChatApi.Core;
 using CombatAnalysis.ChatApi.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -39,9 +40,15 @@ public class VoiceChatController(IVoiceChatService service, IMapper mapper, ILog
         }
         catch (VoiceChatNotFoundException ex)
         {
-            _logger.LogWarning("Get voice chat by id failed: Voice chat with id {Id} not found.", ex.VoiceChatId);
+            _logger.LogWarning("Get voice chat {Id} failed. Voice chat not found.", ex.VoiceChatId);
 
             return NotFound();
+        }
+        catch (DomainException ex)
+        {
+            _logger.LogError(ex, "Get voice chat {Id} failed. Something wrong during extracting voice chat.", id);
+
+            return this.ExtractDomainCode(ex.Code);
         }
     }
 
@@ -65,6 +72,7 @@ public class VoiceChatController(IVoiceChatService service, IMapper mapper, ILog
         catch (DbUpdateException ex)
         {
             _logger.LogError(ex, "Failed to create voice chat.");
+
             return StatusCode(500, "Internal server error.");
         }
     }
@@ -80,14 +88,15 @@ public class VoiceChatController(IVoiceChatService service, IMapper mapper, ILog
         }
         catch (EntityNotFoundException ex)
         {
-            _logger.LogWarning("Delete voice chat {Id} failed. Voice chat not found.", ex.EntityId);
+            _logger.LogWarning("Delete voice chat {Id} failed. Entity '{Entity}' ({EntityId}) not found.", id, nameof(ex.EntityType), ex.EntityId);
 
             return NotFound();
         }
         catch (DbUpdateConcurrencyException ex)
         {
-            _logger.LogWarning(ex, "Delete voice chat {Id} failed. Voice chat not found or modified.", id);
-            return NotFound();
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
+
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
         }
     }
 }

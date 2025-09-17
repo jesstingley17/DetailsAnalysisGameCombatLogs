@@ -13,6 +13,7 @@ internal class ChatMapper : Profile
         CreateMap<PersonalChatDto, PersonalChatModel>().ReverseMap();
         CreateMap<PersonalChatMessageDto, PersonalChatMessageModel>().ReverseMap();
         CreateMap<GroupChatDto, GroupChatModel>().ReverseMap();
+        CreateMap<GroupChatDto, GroupChatPatch>().ReverseMap();
         CreateMap<GroupChatRulesDto, GroupChatRulesModel>().ReverseMap();
         CreateMap<GroupChatMessageDto, GroupChatMessageModel>().ReverseMap();
         CreateMap<GroupChatUserDto, GroupChatUserModel>().ReverseMap();

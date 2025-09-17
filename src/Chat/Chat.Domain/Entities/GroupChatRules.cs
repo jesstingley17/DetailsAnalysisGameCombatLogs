@@ -47,9 +47,24 @@ public class GroupChatRules
         PinMessageRestrictions pinMessage,
         AnnouncementsRestrictions announcements)
     {
-        InvitePeople = invitePeople;
-        RemovePeople = removePeople;
-        PinMessage = pinMessage;
-        Announcements = announcements;
+        if (InvitePeople != invitePeople)
+        {
+            InvitePeople = invitePeople;
+        }
+
+        if (RemovePeople != removePeople)
+        {
+            RemovePeople = removePeople;
+        }
+
+        if (PinMessage != pinMessage)
+        {
+            PinMessage = pinMessage;
+        }
+
+        if (Announcements != announcements)
+        {
+            Announcements = announcements;
+        }
     }
 }

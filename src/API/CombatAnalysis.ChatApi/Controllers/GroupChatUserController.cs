@@ -3,6 +3,7 @@ using Chat.Application.DTOs;
 using Chat.Application.Interfaces;
 using Chat.Domain.Exceptions;
 using Chat.Infrastructure.Exceptions;
+using CombatAnalysis.ChatApi.Core;
 using CombatAnalysis.ChatApi.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -41,7 +42,13 @@ public class GroupChatUserController(IGroupChatUserService chatUserService, IMap
         {
             _logger.LogWarning("Get group chat user {Id} failed: Group chat user not found.", ex.UserId);
 
-            return NotFound();
+            return this.ExtractDomainCode(ex.Code);
+        }
+        catch (DomainException ex)
+        {
+            _logger.LogError(ex, "Get group chat user {Id} failed. Something wrong during extracting group chat user.", id);
+
+            return this.ExtractDomainCode(ex.Code);
         }
     }
 
@@ -54,11 +61,17 @@ public class GroupChatUserController(IGroupChatUserService chatUserService, IMap
 
             return Ok(groupChatUser);
         }
-        catch (GroupChatUserNotFoundException)
+        catch (GroupChatUserNotFoundException ex)
         {
-            _logger.LogInformation("Find group chat user by app user {Id} finished with result 'Not found'.", appUserId);
+            _logger.LogInformation("Get group chat user by user {Id} failed. Group chat user not found.", appUserId);
 
-            return NotFound();
+            return this.ExtractDomainCode(ex.Code);
+        }
+        catch (DomainException ex)
+        {
+            _logger.LogError(ex, "Get group chat user by user {Id} failed. Something wrong during extracting group chat user.", appUserId);
+
+            return this.ExtractDomainCode(ex.Code);
         }
     }
 
@@ -85,7 +98,7 @@ public class GroupChatUserController(IGroupChatUserService chatUserService, IMap
         {
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning("Invalid GroupChatUser create received: {@ChatMessage}", chatUser);
+                _logger.LogWarning("Invalid GroupChatUser create received: {@ChatUser}", chatUser);
 
                 return ValidationProblem(ModelState);
             }
@@ -97,7 +110,7 @@ public class GroupChatUserController(IGroupChatUserService chatUserService, IMap
         }
         catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, "Failed to create chat user.");
+            _logger.LogError(ex, "Failed to create group chat user.");
 
             return StatusCode(500, "Internal server error.");
         }
@@ -127,15 +140,21 @@ public class GroupChatUserController(IGroupChatUserService chatUserService, IMap
         }
         catch (EntityNotFoundException ex)
         {
-            _logger.LogWarning("Update group chat user {Id} failed. Group chat user not found.", ex.EntityId);
+            _logger.LogWarning("Update group chat user {Id} failed. Entity '{Entity}' ({EntityId}) not found.", id, nameof(ex.EntityType), ex.EntityId);
 
-            return NotFound();
+            return this.ExtractDomainCode(ex.Code);
+        }
+        catch (DomainException ex)
+        {
+            _logger.LogError(ex, "Update group chat user {Id} failed. Something wrong during updating group chat user.", id);
+
+            return this.ExtractDomainCode(ex.Code);
         }
         catch (DbUpdateConcurrencyException ex)
         {
-            _logger.LogError(ex, "Update group chat user {Id} failed. Chat user not found or modified.", id);
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
 
-            return NotFound();
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
         }
     }
 
@@ -150,15 +169,21 @@ public class GroupChatUserController(IGroupChatUserService chatUserService, IMap
         }
         catch (EntityNotFoundException ex)
         {
-            _logger.LogWarning("Delete group chat user {Id} failed. Group chat user not found.", ex.EntityId);
+            _logger.LogWarning("Delete group chat user {Id} failed. Entity '{Entity}' ({EntityId}) not found.", id, nameof(ex.EntityType), ex.EntityId);
 
-            return NotFound();
+            return this.ExtractDomainCode(ex.Code);
+        }
+        catch (DomainException ex)
+        {
+            _logger.LogError(ex, "Delete group chat user {Id} failed. Something wrong during deleting group chat user.", id);
+
+            return this.ExtractDomainCode(ex.Code);
         }
         catch (DbUpdateConcurrencyException ex)
         {
-            _logger.LogError(ex, "Delete group chat user {Id} failed. Group chat user not found or modified.", id);
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
 
-            return NotFound();
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
         }
     }
 }

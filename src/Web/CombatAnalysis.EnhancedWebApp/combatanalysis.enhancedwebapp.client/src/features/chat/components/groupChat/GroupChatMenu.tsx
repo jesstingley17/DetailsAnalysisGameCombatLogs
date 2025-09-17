@@ -4,7 +4,7 @@ import logger from '@/utils/Logger';
 import { useEffect, useState, type SetStateAction } from 'react';
 import type { AppUserModel } from '../../../user/types/AppUserModel';
 import { useRemoveGroupChatMutation } from '../../api/GroupChat.api';
-import { useGetGroupChatRulesByChatIdQuery, useUpdateGroupChatRulesAsyncMutation } from '../../api/GroupChatRules.api';
+import { useGetGroupChatRulesByChatIdQuery, useUpdateGroupChatRulesMutation } from '../../api/GroupChatRules.api';
 import {
     useRemoveGroupChatUserAsyncMutation
 } from '../../api/GroupChatUser.api';
@@ -16,15 +16,15 @@ import GroupChatAddUser from './GroupChatAddUser';
 import GroupChatMembers from './GroupChatMembers';
 
 const rulesEnum = {
-    owner: 0,
-    anyone: 1
+    anyone: 0,
+    owner: 1,
 };
 
 const defaultPayload = {
-    invitePeople: 0,
-    removePeople: 0,
-    pinMessage: 1,
-    announcements: 1,
+    invitePeople: rulesEnum["anyone"],
+    removePeople: rulesEnum["anyone"],
+    pinMessage: rulesEnum["anyone"],
+    announcements: rulesEnum["anyone"],
 };
 
 interface GroupChatMenuProps {
@@ -43,15 +43,15 @@ const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ myself, setSelectedChat, 
     const [showRemoveChatAlert, setShowRemoveChatAlert] = useState(false);
     const [invitePeople, setInvitePeople] = useState(0);
     const [removePeople, setRemovePeople] = useState(0);
-    const [pinMessage, setPinMessage] = useState(1);
-    const [announcements, setAnnouncements] = useState(1);
+    const [pinMessage, setPinMessage] = useState(0);
+    const [announcements, setAnnouncements] = useState(0);
     const [payload, setPayload] = useState(defaultPayload);
 
     const chatHub = useChatHub();
 
-    const [removeGroupChatAsync] = useRemoveGroupChatMutation();
-    const [removeGroupChatUserAsyncMut] = useRemoveGroupChatUserAsyncMutation();
-    const [updateGroupChatRulesMutAsync] = useUpdateGroupChatRulesAsyncMutation();
+    const [removeGroupChat] = useRemoveGroupChatMutation();
+    const [removeGroupChatUser] = useRemoveGroupChatUserAsyncMutation();
+    const [updateGroupChatRules] = useUpdateGroupChatRulesMutation();
 
     const { data: rules, isLoading } = useGetGroupChatRulesByChatIdQuery(chat.id);
 
@@ -86,8 +86,8 @@ const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ myself, setSelectedChat, 
 
     const leaveFromChatAsync = async (groupChatUserId: string) => {
         try {
-            await removeGroupChatUserAsyncMut(groupChatUserId).unwrap();
             setSelectedChat(null);
+            await removeGroupChatUser(groupChatUserId).unwrap();
         } catch (e) {
             logger.error("Failed to leave from group chat", e);
         }
@@ -95,7 +95,7 @@ const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ myself, setSelectedChat, 
 
     const removeChatAsync = async () => {
         try {
-            await removeGroupChatAsync(chat.id);
+            await removeGroupChat(chat.id).unwrap();
             setSelectedChat(null);
         } catch (e) {
             logger.error("Failed to remove group chat", e);
@@ -114,10 +114,10 @@ const GroupChatMenu: React.FC<GroupChatMenuProps> = ({ myself, setSelectedChat, 
                 removePeople: removePeople,
                 pinMessage: pinMessage,
                 announcements: announcements,
-                groupChatId: rules?.groupChatId ?? 0
+                groupChatId: chat.id
             };
 
-            await updateGroupChatRulesMutAsync({ id: rules.id, groupChatRules }).unwrap();
+            await updateGroupChatRules({ chatId: chat.id, groupChatRules }).unwrap();
             setRulesInspectionModeOn((item) => !item);
         } catch (e) {
             logger.error("Failed to update group chat rules", e);

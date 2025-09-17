@@ -3,39 +3,22 @@ import { ChatApi } from './Chat.api';
 
 export const GroupChatRulesApi = ChatApi.injectEndpoints({
     endpoints: builder => ({
-        createGroupChatRulesAsync: builder.mutation<GroupChatRulesModel, GroupChatRulesModel>({
-            query: groupChatRules => ({
+        updateGroupChatRules: builder.mutation<void, { chatId: number, groupChatRules: GroupChatRulesModel }>({
+            query: ({ chatId, groupChatRules }) => ({
                 body: groupChatRules,
-                url: '/GroupChatRules',
-                method: 'POST'
-            }),
-            invalidatesTags: result => result ? [{ type: 'GroupChatRules', id: result.id }] : [],
-        }),
-        updateGroupChatRulesAsync: builder.mutation<void, { id: number, groupChatRules: GroupChatRulesModel }>({
-            query: ({ id, groupChatRules }) => ({
-                body: groupChatRules,
-                url: `/GroupChatRules/${id}`,
+                url: `/GroupChat/updateRules/${chatId}`,
                 method: 'PUT'
             }),
-            invalidatesTags: (_result, _error, args) => [{ type: 'GroupChatRules', id: args.id }],
-        }),
-        removeGroupChatRulesAsync: builder.mutation<void, number>({
-            query: id => ({
-                url: `/GroupChatRules/${id}`,
-                method: 'DELETE'
-            }),
-            invalidatesTags: (_result, _error, id) => [{ type: 'GroupChatRules', id }]
+            invalidatesTags: (_result, _error, args) => [{ type: 'GroupChatRules', id: args.chatId }],
         }),
         getGroupChatRulesByChatId: builder.query<GroupChatRulesModel, number>({
-            query: id => `/GroupChatRules/findByChatId/${id}`,
+            query: chatId => `/GroupChat/getRules/${chatId}`,
             providesTags: result => result ? [{ type: 'GroupChatRules', id: result.id }] : [],
         }),
     })
 })
 
 export const {
-    useCreateGroupChatRulesAsyncMutation,
-    useUpdateGroupChatRulesAsyncMutation,
-    useRemoveGroupChatRulesAsyncMutation,
+    useUpdateGroupChatRulesMutation,
     useGetGroupChatRulesByChatIdQuery,
 } = GroupChatRulesApi;

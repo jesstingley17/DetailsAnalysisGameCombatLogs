@@ -2,12 +2,14 @@
 using Chat.Application.DTOs;
 using Chat.Application.Interfaces;
 using Chat.Domain.Enums;
+using Chat.Infrastructure.Exceptions;
 using CombatAnalysis.ChatApi.Consts;
 using CombatAnalysis.ChatApi.Enums;
 using CombatAnalysis.ChatApi.Interfaces;
 using CombatAnalysis.ChatApi.Kafka.Actions;
 using CombatAnalysis.ChatApi.Models;
 using Confluent.Kafka;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
 
@@ -34,7 +36,7 @@ public class GroupChatMemberConsumer(IOptions<KafkaSettings> kafkaSettings, IOpt
         }
         catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, "Consume Chat API data failed: Parameter '{ParamName}' was null.", ex.ParamName);
+            _logger.LogError(ex, "Consume Group Chat Member data (topic: {Topic}) failed: Parameter '{ParamName}' was null.", KafkaTopics.GroupChatMember, ex.ParamName);
         }
     }
 
@@ -53,14 +55,14 @@ public class GroupChatMemberConsumer(IOptions<KafkaSettings> kafkaSettings, IOpt
 
             switch (action.State)
             {
-                case (int)ChatMembersActionState.AddUser:
+                case ChatMembersActionState.AddUser:
                     await CreateGroupChatUser(chatUserService, action.User);
 
                     await SendSignalRequestChatsAsync(scope, action);
                     await CreateSystemMessageAsync( $"Add user '{action.User.Username}' to chat", action, chatOwnerUser.Id);
 
                     break;
-                case (int)ChatMembersActionState.RemoveUser:
+                case ChatMembersActionState.RemoveUser:
                     await RemoveGroupChatUser(chatUserService, action.User.Id);
 
                     await CreateSystemMessageAsync($"Remove user '{action.User.Username}' from chat", action, chatOwnerUser.Id);
@@ -70,11 +72,15 @@ public class GroupChatMemberConsumer(IOptions<KafkaSettings> kafkaSettings, IOpt
         }
         catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, "Create group chat user failed:  Parameter '{ParamName}' was null.", ex.ParamName);
+            _logger.LogError(ex, "Create group chat user from Kafka Consumer (topic: {Topic}) failed. Parameter '{ParamName}' was null.", KafkaTopics.GroupChatMember, ex.ParamName);
         }
-        catch (ArgumentOutOfRangeException ex)
+        catch (EntityNotFoundException ex)
         {
-            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
+            _logger.LogWarning("Delete group chat user from Kafka Consumer (topic: {Topic}) failed. Group chat user {Id} not found.", KafkaTopics.GroupChatMember, ex.EntityId);
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex, "Failed to create chat user from Kafka Consumer (topic: {Topic})", KafkaTopics.GroupChatMember);
         }
     }
 
@@ -82,7 +88,6 @@ public class GroupChatMemberConsumer(IOptions<KafkaSettings> kafkaSettings, IOpt
     {
         var map = _mapper.Map<GroupChatUserDto>(chatUser);
         var createdGroupChatUser = await chatUserService.CreateAsync(map);
-        ArgumentNullException.ThrowIfNull(createdGroupChatUser, nameof(createdGroupChatUser));
 
         var mapToModel = _mapper.Map<GroupChatUserModel>(createdGroupChatUser);
         return mapToModel;

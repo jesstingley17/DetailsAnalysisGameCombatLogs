@@ -1,6 +1,8 @@
-﻿namespace Chat.Domain.Exceptions;
+﻿using Chat.Domain.Enums;
 
-public class GroupChatUserNotFoundException(string userId) : DomainException($"Chat user with Id '{userId}' was not found.")
+namespace Chat.Domain.Exceptions;
+
+public class GroupChatUserNotFoundException(string userId) : DomainException($"Chat user with Id '{userId}' was not found.", ExceptionCode.NotFound)
 {
     public string UserId { get; } = userId;
 }

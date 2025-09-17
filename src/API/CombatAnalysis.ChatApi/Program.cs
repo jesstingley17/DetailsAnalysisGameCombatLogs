@@ -9,7 +9,6 @@ using CombatAnalysis.ChatApi.Helpers;
 using CombatAnalysis.ChatApi.Interfaces;
 using CombatAnalysis.ChatApi.Kafka;
 using CombatAnalysis.ChatApi.Mapping;
-using CombatAnalysis.ChatBL.Extensions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -27,7 +26,6 @@ builder.Configuration.Bind("Database", databasePropsOptions);
 var connectionString = databasePropsOptions.Name == nameof(DatabaseType.MSSQL)
     ? databasePropsOptions.DefaultConnection
     : databasePropsOptions.FirebaseConnection;
-builder.Services.ChatBLDependencies(databasePropsOptions.Name, connectionString);
 builder.Services.AddChatApplication();
 builder.Services.AddChatInfrastructure(connectionString);
 

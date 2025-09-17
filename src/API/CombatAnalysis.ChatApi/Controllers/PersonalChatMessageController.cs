@@ -3,6 +3,7 @@ using Chat.Application.DTOs;
 using Chat.Application.Services;
 using Chat.Domain.Exceptions;
 using Chat.Infrastructure.Exceptions;
+using CombatAnalysis.ChatApi.Core;
 using CombatAnalysis.ChatApi.Models;
 using CombatAnalysis.ChatApi.Requests;
 using Microsoft.AspNetCore.Authorization;
@@ -50,7 +51,13 @@ public class PersonalChatMessageController(IPersonalChatMessageService chatMessa
         {
             _logger.LogWarning("Get personal chat message {Id} failed: Personal chat message not found.", ex.MessageId);
 
-            return NotFound();
+            return this.ExtractDomainCode(ex.Code);
+        }
+        catch (DomainException ex)
+        {
+            _logger.LogError(ex, "Get personal chat message {Id} failed. Something wrong during extracting personal chat message.", id);
+
+            return this.ExtractDomainCode(ex.Code);
         }
     }
 
@@ -76,6 +83,7 @@ public class PersonalChatMessageController(IPersonalChatMessageService chatMessa
             if (!ModelState.IsValid)
             {
                 _logger.LogWarning("Invalid PersonalChatMessage create received: {@ChatMessage}", chatMessage);
+
                 return ValidationProblem(ModelState);
             }
 
@@ -86,13 +94,19 @@ public class PersonalChatMessageController(IPersonalChatMessageService chatMessa
         }
         catch (PersonalChatNotFoundException ex)
         {
-            _logger.LogWarning("Create personal chat message {Id} failed: Personal chat not found.", ex.PersonalChatId);
+            _logger.LogWarning("Create personal chat message {Id} failed. Personal chat not found.", ex.PersonalChatId);
 
-            return NotFound();
+            return this.ExtractDomainCode(ex.Code);
+        }
+        catch (DomainException ex)
+        {
+            _logger.LogError(ex, "Create personal chat message failed. Something wrong during extracting personal chat message.");
+
+            return this.ExtractDomainCode(ex.Code);
         }
         catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, "Failed to create chat message.");
+            _logger.LogError(ex, "Failed to create personal chat message.");
 
             return StatusCode(500, "Internal server error.");
         }
@@ -106,6 +120,7 @@ public class PersonalChatMessageController(IPersonalChatMessageService chatMessa
             if (!ModelState.IsValid)
             {
                 _logger.LogWarning("Invalid PersonalChatMessage update request received: {@ChatMessage}", chatMessage);
+
                 return ValidationProblem(ModelState);
             }
 
@@ -121,14 +136,21 @@ public class PersonalChatMessageController(IPersonalChatMessageService chatMessa
         }
         catch (EntityNotFoundException ex)
         {
-            _logger.LogWarning("Update personal chat message {Id} failed. Personal chat message not found.", ex.EntityId);
+            _logger.LogWarning("Update personal chat message {Id} failed. Entity '{Entity}' ({EntityId}) not found.", id, nameof(ex.EntityType), ex.EntityId);
 
-            return NotFound();
+            return this.ExtractDomainCode(ex.Code);
+        }
+        catch (DomainException ex)
+        {
+            _logger.LogError(ex, "Update personal chat message {Id} failed. Something wrong during updaring personal chat message.", id);
+
+            return this.ExtractDomainCode(ex.Code);
         }
         catch (DbUpdateConcurrencyException ex)
         {
-            _logger.LogWarning(ex, "Update personal chat message {Id} failed. Personal chat message not found or modified.", id);
-            return NotFound();
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
+
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
         }
     }
 
@@ -143,14 +165,21 @@ public class PersonalChatMessageController(IPersonalChatMessageService chatMessa
         }
         catch (EntityNotFoundException ex)
         {
-            _logger.LogWarning(ex, "Delete personal chat message {Id} failed. Personal chat message not found.", ex.EntityId);
+            _logger.LogWarning("Delete personal chat {Id} failed. Entity '{Entity}' ({EntityId}) not found.", id, nameof(ex.EntityType), ex.EntityId);
 
-            return NotFound();
+            return this.ExtractDomainCode(ex.Code);
+        }
+        catch (DomainException ex)
+        {
+            _logger.LogError(ex, "Delete personal chat message {Id} failed. Something wrong during deleting personal chat message.", id);
+
+            return this.ExtractDomainCode(ex.Code);
         }
         catch (DbUpdateConcurrencyException ex)
         {
-            _logger.LogWarning(ex, "Delete personal chat message {Id} failed. Personal chat message not found or modified.", id);
-            return NotFound();
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
+
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
         }
     }
 }

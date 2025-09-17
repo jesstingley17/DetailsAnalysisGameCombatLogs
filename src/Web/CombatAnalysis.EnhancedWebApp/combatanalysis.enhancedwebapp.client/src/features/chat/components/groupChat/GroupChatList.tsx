@@ -1,8 +1,10 @@
-﻿import { useChatHub } from '@/shared/hooks/useChatHub';
+﻿import Store from '@/app/Store';
+import { GroupChatUserApi } from '@/features/chat/api/GroupChatUser.api';
+import { useChatHub } from '@/shared/hooks/useChatHub';
 import { faArrowDown, faArrowUp } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useEffect, useState, type SetStateAction } from 'react';
-import { useFindGroupChatUsersByUserIdQuery } from '../../api/GroupChatUser.api';
+import { useFindGroupChatUsersByAppUserIdQuery } from '../../api/GroupChatUser.api';
 import type { GroupChatModel } from '../../types/GroupChatModel';
 import type { GroupChatUserModel } from '../../types/GroupChatUserModel';
 import type { PersonalChatModel } from '../../types/PersonalChatModel';
@@ -19,7 +21,7 @@ interface GroupChatListProps {
 }
 
 const GroupChatList: React.FC<GroupChatListProps> = ({ myselfId, selectedChat, setSelectedChat, chatsHidden, toggleChatsHidden, setShowCreateGroupChat, t }) => {
-    const { data: myselfInGroupChats, isLoading } = useFindGroupChatUsersByUserIdQuery(myselfId);
+    const { data: myselfInGroupChats, isLoading } = useFindGroupChatUsersByAppUserIdQuery(myselfId);
 
     const chatHub = useChatHub();
 
@@ -32,7 +34,7 @@ const GroupChatList: React.FC<GroupChatListProps> = ({ myselfId, selectedChat, s
                 await chatHub?.disconnectFromGroupChatUnreadMessagesHubAsync();
             })();
         }
-    }, []);
+    }, [chatHub]);
 
     useEffect(() => {
         if (!chatHub || !myselfInGroupChats) {
@@ -46,6 +48,12 @@ const GroupChatList: React.FC<GroupChatListProps> = ({ myselfId, selectedChat, s
             await chatHub.connectToGroupChatUnreadMessagesAsync(myGroupChatsId);
 
             chatHub?.subscribeToGroupChat((groupChatUser) => {
+                Store.dispatch(
+                    GroupChatUserApi.util.updateQueryData("findGroupChatUsersByAppUserId", myselfId, (draft) => {
+                        draft.push(groupChatUser);
+                    })
+                );
+
                 setNewChatUser(groupChatUser);
             });
         })();

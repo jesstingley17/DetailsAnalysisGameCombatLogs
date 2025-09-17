@@ -1,10 +1,12 @@
 ﻿using Chat.Application.Interfaces;
 using Chat.Domain.Enums;
+using Chat.Infrastructure.Exceptions;
 using CombatAnalysis.ChatApi.Consts;
 using CombatAnalysis.ChatApi.Enums;
 using CombatAnalysis.ChatApi.Interfaces;
 using CombatAnalysis.ChatApi.Kafka.Actions;
 using Confluent.Kafka;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
 
@@ -29,7 +31,7 @@ public class GroupChatUnreadMessageConsumer(IOptions<KafkaSettings> kafkaSetting
         }
         catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, "Consume Chat API data failed: Parameter '{ParamName}' was null.", ex.ParamName);
+            _logger.LogError(ex, "Consume Group Chat Unread Message data (topic: {Topic}) failed. Parameter '{ParamName}' was null.", KafkaTopics.GroupChatUnreadMessage, ex.ParamName);
         }
     }
 
@@ -52,32 +54,34 @@ public class GroupChatUnreadMessageConsumer(IOptions<KafkaSettings> kafkaSetting
             await chatHubHelper.ConnectToHubAsync($"{_hubs.Value.Server}{_hubs.Value.GroupChatUnreadMessageAddress}", chatAction.RefreshToken, chatAction.AccessToken);
             await chatHubHelper.JoinRoomAsync(chatAction.ChatId);
 
-            if (chatAction.State == (int)ChatMessageActionState.Created)
+            if (chatAction.State == ChatMessageActionState.Created)
             {
                 await IncreaseCountAsync(chatHubHelper, chatAction, groupChatUserService);
             }
-            else if (chatAction.State == (int)ChatMessageActionState.Read)
+            else if (chatAction.State == ChatMessageActionState.Read)
             {
                 await DecreaseCountAsync(scope, chatHubHelper, chatAction, groupChatUserService, groupChatMessageService);
             }
         }
         catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, "Consume Chat API data failed: Parameter '{ParamName}' was null.", ex.ParamName);
+            _logger.LogError(ex, "Update group chat message from Kafka Consumer (topic: {Topic}) failed. Parameter '{ParamName}' was null.", KafkaTopics.GroupChatMessage, ex.ParamName);
         }
-        catch (ArgumentOutOfRangeException ex)
+        catch (EntityNotFoundException ex)
         {
-            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
+            _logger.LogWarning("Update group chat user from Kafka Consumer (topic: {Topic}) failed. Group chat user {Id} not found.", KafkaTopics.GroupChatMessage, ex.EntityId);
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            _logger.LogError(ex, "Update group chat user from Kafka Consumer (topic: {Topic}) failed. Chat user not found or modified.", KafkaTopics.GroupChatMessage);
         }
     }
 
     private static async Task IncreaseCountAsync(IChatHubHelper chatHubHelper, GroupChatUnreadMessageAction chatAction, IGroupChatUserService groupChatUserService)
     {
         var groupChatUsers = await groupChatUserService.FindAllAsync(chatAction.ChatId);
-        ArgumentNullException.ThrowIfNull(groupChatUsers, nameof(groupChatUsers));
 
         var otherGroupChatUsers = groupChatUsers.Where(x => x.Id != chatAction.GroupChatUserId).ToList();
-        ArgumentNullException.ThrowIfNull(otherGroupChatUsers, nameof(otherGroupChatUsers));
 
         foreach (var groupChatUser in otherGroupChatUsers)
         {
@@ -92,13 +96,11 @@ public class GroupChatUnreadMessageConsumer(IOptions<KafkaSettings> kafkaSetting
     private async Task DecreaseCountAsync(IServiceScope scope, IChatHubHelper chatHubHelper, GroupChatUnreadMessageAction chatAction, IGroupChatUserService groupChatUserService, IGroupChatMessageService groupChatMessageService)
     {
         var groupChatUsers = await groupChatUserService.FindAllAsync(chatAction.ChatId);
-        ArgumentNullException.ThrowIfNull(groupChatUsers, nameof(groupChatUsers));
 
         var meAsGroupChatUser = groupChatUsers.FirstOrDefault(x => x.Id == chatAction.GroupChatUserId);
         ArgumentNullException.ThrowIfNull(meAsGroupChatUser, nameof(meAsGroupChatUser));
 
         var message = await groupChatMessageService.GetByIdAsync(chatAction.MessageId);
-        ArgumentNullException.ThrowIfNull(message, nameof(message));
 
         message.Status = MessageStatus.Read;
 

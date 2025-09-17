@@ -1,6 +1,8 @@
-﻿namespace Chat.Domain.Exceptions;
+﻿using Chat.Domain.Enums;
 
-public class GroupChatRulesNotFoundException(int chatRulesId) : DomainException($"Chat rules with Id '{chatRulesId}' was not found.")
+namespace Chat.Domain.Exceptions;
+
+public class GroupChatRulesNotFoundException(int chatRulesId) : DomainException($"Chat rules with Id '{chatRulesId}' was not found.", ExceptionCode.NotFound)
 {
     public int ChatRulesId { get; } = chatRulesId;
 }

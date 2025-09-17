@@ -40,19 +40,24 @@ public class GroupChat : IRepositoryEntity<GroupChatId>
 
     public IReadOnlyCollection<GroupChatUser> Users => _users.AsReadOnly();
 
-    public void ApplyUpdates(GroupChat updated)
+    public void UpdateName(string newName)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(updated.Name, nameof(updated.Name));
-        ArgumentOutOfRangeException.ThrowIfGreaterThan(updated.Name.Length, MaxNameLength, nameof(updated.Name));
+        ArgumentException.ThrowIfNullOrWhiteSpace(newName, nameof(newName));
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(newName.Length, MaxNameLength, nameof(newName));
 
-        if (!string.Equals(Name, updated.Name, StringComparison.Ordinal))
+        if (!string.Equals(Name, newName, StringComparison.Ordinal))
         {
-            Name = updated.Name;
+            Name = newName;
         }
+    }
 
-        if (!OwnerId.Equals(updated.OwnerId))
+    public void PassOwner(UserId ownerId)
+    {
+        ArgumentNullException.ThrowIfNull(ownerId, nameof(ownerId));
+
+        if (!OwnerId.Equals(ownerId))
         {
-            OwnerId = updated.OwnerId;
+            OwnerId = ownerId;
         }
     }
 
@@ -70,11 +75,14 @@ public class GroupChat : IRepositoryEntity<GroupChatId>
         Rules = null;
     }
 
-    public void UpdateRules(GroupChatRules rules)
+    public void UpdateRules(InvitePeopleRestrictions invitePeople,
+        RemovePeopleRestrictions removePeople,
+        PinMessageRestrictions pinMessage,
+        AnnouncementsRestrictions announcements)
     {
         ArgumentNullException.ThrowIfNull(Rules, nameof(Rules));
 
-        Rules.Update(rules.InvitePeople, rules.RemovePeople, rules.PinMessage, rules.Announcements);
+        Rules.Update(invitePeople, removePeople, pinMessage, announcements);
     }
 
     public void EnsureUserIsMember(GroupChatUser user)

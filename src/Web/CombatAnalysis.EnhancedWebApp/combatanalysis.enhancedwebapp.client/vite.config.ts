@@ -92,9 +92,7 @@ const chatProxy = {
     [`^/api/${apiVersion}/PersonalChatMessage`]: { target, secure: false },
     [`^/api/${apiVersion}/GroupChat`]: { target, secure: false },
     [`^/api/${apiVersion}/GroupChatMessage`]: { target, secure: false },
-    [`^/api/${apiVersion}/UnreadGroupChatMessage`]: { target, secure: false },
     [`^/api/${apiVersion}/GroupChatUser`]: { target, secure: false },
-    [`^/api/${apiVersion}/GroupChatRules`]: { target, secure: false },
     [`^/api/${apiVersion}/VoiceChat`]: { target, secure: false },
 };
 

@@ -52,7 +52,7 @@ public class GroupChatHub : Hub
                 Chat = container.GroupChat,
                 Rules = container.GroupChatRules,
                 User = container.GroupChatUser,
-                State = (int)ChatActionState.Created,
+                State = ChatActionState.Created,
                 When = DateTime.UtcNow.ToString(),
                 RefreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty,
                 AccessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)] ?? string.Empty
@@ -73,7 +73,7 @@ public class GroupChatHub : Hub
 
             ArgumentNullException.ThrowIfNullOrEmpty(appUserId, nameof(appUserId));
 
-            var response = await _httpClient.GetAsync($"GroupChatUser/findUserInChat?chatId={chatId}&appUserId={appUserId}");
+            var response = await _httpClient.GetAsync($"GroupChatUser/findByAppUserId?chatId={chatId}&appUserId={appUserId}");
             response.EnsureSuccessStatusCode();
 
             var groupChatUser = await response.Content.ReadFromJsonAsync<GroupChatUserModel>();
@@ -144,7 +144,7 @@ public class GroupChatHub : Hub
             {
                 User = groupChatUser,
                 ChatOwnerId = chatOwnerId,
-                State = (int)ChatMembersActionState.AddUser,
+                State = ChatMembersActionState.AddUser,
                 When = DateTime.UtcNow,
                 RefreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty,
                 AccessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)] ?? string.Empty
@@ -168,13 +168,8 @@ public class GroupChatHub : Hub
             var chatAction = JsonSerializer.Serialize(new GroupChatMemberAction
             {
                 ChatOwnerId = chatOwnerId,
-                User = new GroupChatUserModel 
-                { 
-                    Id = groupChatUserId, 
-                    Username = groupChatUsername, 
-                    GroupChatId = chatId 
-                },
-                State = (int)ChatMembersActionState.RemoveUser,
+                User = new GroupChatUserModel(groupChatUserId, groupChatUsername, chatId, 0, null),
+                State = ChatMembersActionState.RemoveUser,
                 When = DateTime.UtcNow,
                 RefreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty,
                 AccessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)] ?? string.Empty

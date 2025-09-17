@@ -9,12 +9,11 @@ public static class ServiceCollectionExtensions
 {
     public static void AddChatApplication(this IServiceCollection services)
     {
-        services.AddScoped<IGroupChatRulesService, GroupChatRulesService>();
+        services.AddScoped<IGroupChatService, GroupChatService>();
         services.AddScoped<IGroupChatMessageService, GroupChatMessageService>();
         services.AddScoped<IGroupChatUserService, GroupChatUserService>();
         services.AddScoped<IPersonalChatMessageService, PersonalChatMessageService>();
         services.AddScoped<IVoiceChatService, VoiceChatService>();
-        services.AddScoped<IService<GroupChatDto, int>, GroupChatService>();
         services.AddScoped<IService<PersonalChatDto, int>, PersonalChatService>();
     }
 }

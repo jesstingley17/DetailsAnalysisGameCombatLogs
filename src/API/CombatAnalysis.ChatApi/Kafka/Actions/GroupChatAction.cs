@@ -1,4 +1,5 @@
-﻿using CombatAnalysis.ChatApi.Models;
+﻿using CombatAnalysis.ChatApi.Enums;
+using CombatAnalysis.ChatApi.Models;
 
 namespace CombatAnalysis.ChatApi.Kafka.Actions;
 
@@ -10,7 +11,7 @@ public class GroupChatAction
 
     public GroupChatUserModel User { get; set; }
 
-    public int State { get; set; }
+    public ChatActionState State { get; set; }
 
     public string When { get; set; }
 

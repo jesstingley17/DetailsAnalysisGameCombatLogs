@@ -32,7 +32,7 @@ const PersonalChatList: React.FC<PersonalChatListProps> = ({ myselfId, t, select
                 await chatHub?.disconnectFromPersonalChatUnreadMessagesHubAsync();
             })();
         }
-    }, []);
+    }, [chatHub]);
 
     useEffect(() => {
         if (!chatHub || !personalChats) {

@@ -2,7 +2,7 @@
 import { useEffect, useState, type RefObject } from 'react';
 import { useLazyGetMessagesByGroupChatIdQuery } from '../api/Chat.api';
 import { useGetGroupChatMessageCountByChatIdQuery } from '../api/GroupChatMessage.api';
-import { useFindGroupChatUsersByChatIdQuery, useFindMeInChatQuery } from '../api/GroupChatUser.api';
+import { useFindGroupChatUsersByChatIdQuery, useFindGroupChatUserByAppUserIdQuery } from '../api/GroupChatUser.api';
 import type { GroupChatDataModel } from '../types/GroupChatDataModel';
 import type { GroupChatMessageModel } from '../types/GroupChatMessageModel';
 
@@ -17,7 +17,7 @@ const useGroupChatData = (chatId: number, appUserId: string, pageSizeRef: RefObj
 
     const [getMessagesByGroupChatIdAsync] = useLazyGetMessagesByGroupChatIdQuery();
     const { data: count, isLoading: countIsLoading } = useGetGroupChatMessageCountByChatIdQuery(chatId);
-    const { data: IasGroupChatUser, isLoading: findMeInChatLoading } = useFindMeInChatQuery({ chatId, appUserId });
+    const { data: IasGroupChatUser, isLoading: findMeInChatLoading } = useFindGroupChatUserByAppUserIdQuery({ chatId, appUserId });
     const { data: groupChatUsers, isLoading: usersIsLoading } = useFindGroupChatUsersByChatIdQuery(chatId);
 
     useEffect(() => {

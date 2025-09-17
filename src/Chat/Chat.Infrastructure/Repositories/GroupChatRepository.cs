@@ -11,12 +11,22 @@ namespace Chat.Infrastructure.Repositories;
 
 internal class GroupChatRepository(ChatContext context) : GenericRepository<GroupChat, GroupChatId>(context), IGroupChatRepository
 {
-    public async Task UpdateAsync(GroupChat updated)
+    public async Task UpdateNameAsync(int chatId, string newName)
     {
-        var groupChat = await GetByIdAsync(updated.Id)
-                    ?? throw new EntityNotFoundException(typeof(GroupChat), updated.Id);
+        var groupChat = await GetByIdAsync(chatId)
+                    ?? throw new EntityNotFoundException(typeof(GroupChat), chatId);
 
-        groupChat.ApplyUpdates(updated);
+        groupChat.UpdateName(newName);
+
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task PassOwnerAsync(int chatId, UserId ownerId)
+    {
+        var groupChat = await GetByIdAsync(chatId)
+                    ?? throw new EntityNotFoundException(typeof(GroupChat), chatId);
+
+        groupChat.PassOwner(ownerId);
 
         await _context.SaveChangesAsync();
     }
@@ -48,7 +58,7 @@ internal class GroupChatRepository(ChatContext context) : GenericRepository<Grou
         var chat = await _context.GroupChat.FirstOrDefaultAsync(g => g.Id == updateRules.GroupChatId)
                 ?? throw new GroupChatNotFoundException(updateRules.GroupChatId);
 
-        chat.UpdateRules(updateRules);
+        chat.UpdateRules(updateRules.InvitePeople, updateRules.RemovePeople, updateRules.PinMessage, updateRules.Announcements);
 
         _context.SaveChanges();
     }

@@ -3,6 +3,7 @@ using Chat.Application.DTOs;
 using Chat.Application.Interfaces;
 using Chat.Domain.Exceptions;
 using Chat.Infrastructure.Exceptions;
+using CombatAnalysis.ChatApi.Core;
 using CombatAnalysis.ChatApi.Models;
 using CombatAnalysis.ChatApi.Patches;
 using Microsoft.AspNetCore.Authorization;
@@ -39,9 +40,15 @@ public class PersonalChatController(IService<PersonalChatDto, int> chatService, 
         }
         catch (PersonalChatNotFoundException ex)
         {
-            _logger.LogWarning("Get personal chat by id failed: Personal chat with id {Id} not found.", ex.PersonalChatId);
+            _logger.LogWarning("Get personal chat {Id} failed. Personal chat not found.", ex.PersonalChatId);
 
-            return NotFound();
+            return this.ExtractDomainCode(ex.Code);
+        }
+        catch (DomainException ex)
+        {
+            _logger.LogError(ex, "Get personal chat {Id} failed. Something wrong during extracting personal chat.", id);
+
+            return this.ExtractDomainCode(ex.Code);
         }
     }
 
@@ -52,7 +59,7 @@ public class PersonalChatController(IService<PersonalChatDto, int> chatService, 
         {
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning("Invalid PersonalChat create received: {@ChatMessage}", personalChat);
+                _logger.LogWarning("Invalid PersonalChat create received: {@PersonalChat}", personalChat);
 
                 return ValidationProblem(ModelState);
             }
@@ -71,7 +78,7 @@ public class PersonalChatController(IService<PersonalChatDto, int> chatService, 
     }
 
     [HttpPatch("{id:int:min(1)}")]
-    public async Task<IActionResult> Update(int id, [FromBody] PersonalChatPatch chat)
+    public async Task<IActionResult> PartialUpdate(int id, [FromBody] PersonalChatPatch chat)
     {
         try
         {
@@ -87,15 +94,21 @@ public class PersonalChatController(IService<PersonalChatDto, int> chatService, 
         }
         catch (EntityNotFoundException ex)
         {
-            _logger.LogWarning("Update personal chat {Id} failed. Personal chat not found.", ex.EntityId);
+            _logger.LogWarning("Update personal chat {Id} failed. Entity '{Entity}' ({EntityId}) not found.", id, nameof(ex.EntityType), ex.EntityId);
 
-            return NotFound();
+            return this.ExtractDomainCode(ex.Code);
+        }
+        catch (DomainException ex)
+        {
+            _logger.LogError(ex, "Update personal chat {Id} failed. Something wrong during updaring personal chat.", id);
+
+            return this.ExtractDomainCode(ex.Code);
         }
         catch (DbUpdateConcurrencyException ex)
         {
-            _logger.LogError(ex, "Update failed. Personal chat {Id} not found or modified.", id);
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
 
-            return NotFound();
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
         }
     }
 
@@ -110,15 +123,21 @@ public class PersonalChatController(IService<PersonalChatDto, int> chatService, 
         }
         catch (EntityNotFoundException ex)
         {
-            _logger.LogWarning("Delete personal chat {Id} failed. Personal chat not found.", ex.EntityId);
+            _logger.LogWarning("Delete personal chat {Id} failed. Entity '{Entity}' ({EntityId}) not found.", id, nameof(ex.EntityType), ex.EntityId);
 
-            return NotFound();
+            return this.ExtractDomainCode(ex.Code);
+        }
+        catch (DomainException ex)
+        {
+            _logger.LogError(ex, "Delete personal chat {Id} failed. Something wrong during deleting personal chat.", id);
+
+            return this.ExtractDomainCode(ex.Code);
         }
         catch (DbUpdateConcurrencyException ex)
         {
-            _logger.LogWarning(ex, "Delete personal chat {Id} failed. Personal chat not found or modified.", id);
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
 
-            return NotFound();
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
         }
     }
 }

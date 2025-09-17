@@ -6,7 +6,9 @@ namespace Chat.Domain.Repositories;
 
 public interface IGroupChatRepository : IGenericRepository<GroupChat, GroupChatId>
 {
-    Task UpdateAsync(GroupChat updated);
+    Task UpdateNameAsync(int chatId, string newName);
+
+    Task PassOwnerAsync(int chatId, UserId ownerId);
 
     Task<GroupChatRules?> AddRulesAsync(GroupChatRules rules);
 

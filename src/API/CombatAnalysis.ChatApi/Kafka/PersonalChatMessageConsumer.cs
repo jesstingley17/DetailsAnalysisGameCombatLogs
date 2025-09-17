@@ -1,10 +1,12 @@
 ﻿using Chat.Application.DTOs;
 using Chat.Application.Interfaces;
+using Chat.Infrastructure.Exceptions;
 using CombatAnalysis.ChatApi.Consts;
 using CombatAnalysis.ChatApi.Enums;
 using CombatAnalysis.ChatApi.Interfaces;
 using CombatAnalysis.ChatApi.Kafka.Actions;
 using Confluent.Kafka;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
 
@@ -21,7 +23,22 @@ public class PersonalChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, 
     {
         try
         {
+            ArgumentNullException.ThrowIfNull(kafkaData, nameof(kafkaData));
+
             using var scope = _serviceScopeFactory.CreateScope();
+
+            await ExecuteAsync(scope, kafkaData);
+        }
+        catch (ArgumentNullException ex)
+        {
+            _logger.LogError(ex, "Consume Personal Chat Message data (topic: {Topic}) failed. Parameter '{ParamName}' was null.", KafkaTopics.PersonalChatMessage, ex.ParamName);
+        }
+    }
+
+    private async Task ExecuteAsync(IServiceScope scope, ConsumeResult<string, JsonDocument> kafkaData)
+    {
+        try
+        {
             var personalChatService = scope.ServiceProvider.GetService<IService<PersonalChatDto, int>>();
             ArgumentNullException.ThrowIfNull(personalChatService, nameof(personalChatService));
 
@@ -37,22 +54,30 @@ public class PersonalChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, 
             await chatHubHelper.ConnectToHubAsync($"{_hubs.Value.Server}{_hubs.Value.PersonalChatUnreadMessageAddress}", chatAction.RefreshToken, chatAction.AccessToken);
             await chatHubHelper.JoinRoomAsync(personalChat.Id);
 
-            if (chatAction.State == (int)ChatMessageActionState.Created)
+            if (chatAction.State == ChatMessageActionState.Created)
             {
                 await IncreaseCountAsync(chatHubHelper, personalChat, chatAction, personalChatService);
             }
-            else if (chatAction.State == (int)ChatMessageActionState.Read)
+            else if (chatAction.State == ChatMessageActionState.Read)
             {
                 await DecreaseCountAsync(chatHubHelper, personalChat, chatAction, personalChatService);
             }
         }
         catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, "Consume Chat API data failed: Parameter '{ParamName}' was null.", ex.ParamName);
+            _logger.LogError(ex, "Create personal chat message from Kafka Consumer (topic: {Topic}) failed. Parameter '{ParamName}' was null.", KafkaTopics.PersonalChatMessage, ex.ParamName);
+        }
+        catch (EntityNotFoundException ex)
+        {
+            _logger.LogWarning("Update personal chat from Kafka Consumer (topic: {Topic}) failed. Personal chat {Id} not found.", KafkaTopics.PersonalChatMessage, ex.EntityId);
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            _logger.LogError(ex, "Update personal chat from Kafka Consumer (topic: {Topic}) failed. Personal chat not found or modified.", KafkaTopics.PersonalChatMessage);
         }
     }
 
-    private static async Task IncreaseCountAsync(IChatHubHelper chatHubHelper, PersonalChatDto personalChat, PersonalChatMessageAction chatAction, IService<PersonalChatDto, int> chatMessageCountService)
+    private static async Task IncreaseCountAsync(IChatHubHelper chatHubHelper, PersonalChatDto personalChat, PersonalChatMessageAction chatAction, IService<PersonalChatDto, int> personalChatService)
     {
         if (chatAction.InititatorId == personalChat.CompanionId)
         {
@@ -63,12 +88,12 @@ public class PersonalChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, 
             personalChat.CompanionUnreadMessages++;
         }
 
-        await chatMessageCountService.UpdateAsync(personalChat);
+        await personalChatService.UpdateAsync(personalChat);
 
         await chatHubHelper.RequestUnreadMessagesAsync(personalChat.Id, chatAction.InititatorId == personalChat.CompanionId ? personalChat.InitiatorId : personalChat.CompanionId);
     }
 
-    private static async Task DecreaseCountAsync(IChatHubHelper chatHubHelper, PersonalChatDto personalChat, PersonalChatMessageAction chatAction, IService<PersonalChatDto, int> chatMessageCountService)
+    private static async Task DecreaseCountAsync(IChatHubHelper chatHubHelper, PersonalChatDto personalChat, PersonalChatMessageAction chatAction, IService<PersonalChatDto, int> personalChatService)
     {
         if (chatAction.InititatorId == personalChat.CompanionId)
         {
@@ -79,7 +104,7 @@ public class PersonalChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, 
             personalChat.InitiatorUnreadMessages--;
         }
 
-        await chatMessageCountService.UpdateAsync(personalChat);
+        await personalChatService.UpdateAsync(personalChat);
 
         await chatHubHelper.RequestUnreadMessagesAsync(personalChat.Id, chatAction.InititatorId == personalChat.CompanionId ? personalChat.CompanionId : personalChat.InitiatorId);
     }

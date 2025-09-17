@@ -5,7 +5,7 @@ using System.Net;
 
 namespace CombatAnalysis.ChatApi.Helpers;
 
-public class ChatHubHelper : IChatHubHelper
+internal class ChatHubHelper : IChatHubHelper
 {
     private HubConnection? _chatHubConnection;
 

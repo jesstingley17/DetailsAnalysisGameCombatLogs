@@ -76,6 +76,15 @@ const Chats: React.FC = () => {
         })();
     }, [myself]);
 
+    useEffect(() => {
+        return () => {
+            (async () => {
+                await chatHub?.disconnectFromGroupChatHubAsync();
+                await chatHub?.disconnectFromPersonalChatHubAsync();
+            })();
+        }
+    }, [chatHub]);
+
     const getCompanionId = (chat: PersonalChatModel | null) => {
         if (!chat) {
             return "0";

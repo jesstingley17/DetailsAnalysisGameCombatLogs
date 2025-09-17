@@ -96,7 +96,9 @@ const usePersonalChatHub = (
     const disconnectFromPersonalChatHubAsync = async () => {
         await personalChatHubConnectionRef.current?.stop();
         personalChatHubConnectionRef.current = null;
+    }
 
+    const disconnectFromPersonalChatMessageHubAsync = async () => {
         await personalChatMessagesHubConnectionRef.current?.stop();
         personalChatMessagesHubConnectionRef.current = null;
     }
@@ -109,7 +111,7 @@ const usePersonalChatHub = (
     return {
         connectToPersonalChatAsync, connectToPersonalChatMessagesAsync, connectToPersonalChatUnreadMessagesAsync,
         subscribeToPersonalChat, subscribeToPersonalChatMessages, subscribeToPersonalMessageHasBeenRead, subscribeToUnreadPersonalMessagesUpdated,
-        disconnectFromPersonalChatHubAsync, disconnectFromPersonalChatUnreadMessagesHubAsync
+        disconnectFromPersonalChatHubAsync, disconnectFromPersonalChatMessageHubAsync, disconnectFromPersonalChatUnreadMessagesHubAsync
     }
 }
 

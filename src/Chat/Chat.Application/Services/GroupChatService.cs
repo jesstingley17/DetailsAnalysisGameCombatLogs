@@ -9,7 +9,7 @@ using System.Transactions;
 
 namespace Chat.Application.Services;
 
-internal class GroupChatService(IGroupChatRepository repository, IMapper mapper) : IService<GroupChatDto, int>
+internal class GroupChatService(IGroupChatRepository repository, IMapper mapper) : IGroupChatService
 {
     private readonly IGroupChatRepository _repository = repository;
     private readonly IMapper _mapper = mapper;
@@ -49,6 +49,35 @@ internal class GroupChatService(IGroupChatRepository repository, IMapper mapper)
 
     public async Task UpdateAsync(GroupChatDto item)
     {
-        await _repository.UpdateAsync(item.ToEntity(_mapper));
+        if (item.Name != null)
+        {
+            await _repository.UpdateNameAsync(item.Id, item.Name);
+        }
+
+        if (!string.IsNullOrEmpty(item.OwnerId))
+        {
+            await _repository.PassOwnerAsync(item.Id, item.OwnerId);
+        }
+    }
+
+    public async Task AddRulesAsync(GroupChatRulesDto item)
+    {
+        await _repository.AddRulesAsync(item.ToEntity(_mapper));
+    }
+
+    public async Task UpdateRulesAsync(GroupChatRulesDto item)
+    {
+        await _repository.UpdateRulesAsync(item.ToEntity(_mapper));
+    }
+
+    public async Task<GroupChatRulesDto> GetRulesAsync(int chatId)
+    {
+        var chat = await _repository.GetByIdAsync(chatId)
+                 ?? throw new GroupChatNotFoundException(chatId);
+
+        var rules = chat.Rules
+                ?? throw new GroupChatRulesNotFoundException(0);
+
+        return rules.ToDTO(_mapper);
     }
 }

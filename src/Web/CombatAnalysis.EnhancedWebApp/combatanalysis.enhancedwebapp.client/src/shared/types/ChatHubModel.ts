@@ -28,8 +28,10 @@ export type ChatHubContextModel = {
     subscribeToUnreadGroupMessagesUpdated: (callback: (targetChatId: number, targetMeInChatId: string, count: number) => void) => void;
     subscribeToGroupMessageHasBeenRead: (callback: (messageId: number) => void) => void;
     disconnectFromPersonalChatHubAsync: () => Promise<void>;
+    disconnectFromPersonalChatMessageHubAsync: () => Promise<void>;
     disconnectFromPersonalChatUnreadMessagesHubAsync: () => Promise<void>;
     disconnectFromGroupChatHubAsync: () => Promise<void>;
+    disconnectFromGroupChatMessageHubAsync: () => Promise<void>;
     disconnectFromGroupChatUnreadMessagesHubAsync: () => Promise<void>;
     subscribeToGroupChatMembers: (callback: (members: GroupChatUserModel[]) => void) => void;
 }

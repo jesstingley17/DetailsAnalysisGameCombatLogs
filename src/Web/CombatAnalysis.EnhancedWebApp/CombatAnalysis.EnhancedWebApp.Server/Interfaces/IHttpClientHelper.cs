@@ -12,5 +12,7 @@ public interface IHttpClientHelper
 
     Task<HttpResponseMessage> PutAsync(string requestAddress, JsonContent content);
 
+    Task<HttpResponseMessage> PatchAsync(string requestUri, JsonContent content);
+
     Task<HttpResponseMessage> DeletAsync(string requestAddress);
 }
