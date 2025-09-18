@@ -1,5 +1,4 @@
 ﻿using CombatAnalysis.ChatApi.Interfaces;
-using CombatAnalysis.ChatApi.Models;
 using Microsoft.AspNetCore.SignalR.Client;
 using System.Net;
 
@@ -28,21 +27,29 @@ internal class ChatHubHelper : IChatHubHelper
         await _chatHubConnection.SendAsync("RequestUnreadMessages", chatId, appUserId);
     }
 
-    public async Task SendMessageAlreadyRead(int chatId, int chatMessageId)
+    public async Task RequestUnreadMessagesAsync(int chatId)
     {
         ArgumentNullException.ThrowIfNull(_chatHubConnection, nameof(_chatHubConnection));
 
-        await _chatHubConnection.SendAsync("MessageAlreadyRead", chatId, chatMessageId);
+        await _chatHubConnection.SendAsync("RequestUnreadMessages", chatId);
     }
 
-    public async Task RequestsChats(int chatId, string appUserId)
+    public async Task SendMessageReadAsync(int chatId, int chatMessageId)
+    {
+        ArgumentNullException.ThrowIfNull(_chatHubConnection, nameof(_chatHubConnection));
+
+        await _chatHubConnection.SendAsync("SendMessageRead", chatId, chatMessageId);
+    }
+
+    public async Task RequestsChatsAsync(int chatId, string appUserId)
     {
         ArgumentNullException.ThrowIfNull(_chatHubConnection, nameof(_chatHubConnection));
 
         await _chatHubConnection.SendAsync("RequestJoinedUser", chatId, appUserId);
     }
 
-    public async Task RequestsMessage(int chatId, GroupChatMessageModel message)
+    public async Task RequestMessageAsync<T>(int chatId, T message)
+        where T : class
     {
         ArgumentNullException.ThrowIfNull(_chatHubConnection, nameof(_chatHubConnection));
 

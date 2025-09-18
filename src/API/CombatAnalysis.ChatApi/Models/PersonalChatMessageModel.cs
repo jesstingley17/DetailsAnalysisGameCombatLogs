@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Chat.Domain.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace CombatAnalysis.ChatApi.Models;
 
@@ -18,14 +19,14 @@ public class PersonalChatMessageModel
     [Required]
     public DateTimeOffset Time { get; set; }
 
-    [Range(0, 100)]
-    public int Status { get; set; }
+    [Range((int)MessageStatus.Sending, (int)MessageStatus.Read)]
+    public MessageStatus Status { get; set; }
 
-    [Range(0, 100)]
-    public int Type { get; set; }
+    [Range((int)MessageType.Default, (int)MessageType.Log)]
+    public MessageType Type { get; set; }
 
-    [Range(0, 100)]
-    public int MarkedType { get; set; }
+    [Range((int)MessageMarkedType.None, (int)MessageMarkedType.Emotions)]
+    public MessageMarkedType MarkedType { get; set; }
 
     [Required]
     public bool IsEdited { get; set; }

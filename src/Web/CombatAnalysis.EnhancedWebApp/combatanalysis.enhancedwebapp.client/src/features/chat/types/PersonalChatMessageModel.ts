@@ -8,6 +8,6 @@ export type PersonalChatMessageModel = {
     type: number;
     markedType: number;
     isEdited: boolean;
-    chatId: number;
+    personalChatId: number;
     appUserId: string;
 }

@@ -5,6 +5,8 @@ namespace Chat.Domain.Repositories;
 
 public interface IPersonalChatRepository : IGenericRepository<PersonalChat, PersonalChatId>
 {
+    Task<IEnumerable<PersonalChat>> GetByUserIdAsync(string userId);
+
     Task UpdateInitiatorUnreadMessageCountAsync(int chatId, int count);
 
     Task UpdateCompanionUnreadMessageCountAsync(int chatId, int count);

@@ -1,4 +1,6 @@
-﻿namespace CombatAnalysis.Hubs.Kafka.Actions;
+﻿using CombatAnalysis.Hubs.Enums;
+
+namespace CombatAnalysis.Hubs.Kafka.Actions;
 
 public class GroupChatUnreadMessageAction
 {
@@ -8,7 +10,7 @@ public class GroupChatUnreadMessageAction
 
     public string GroupChatUserId { get; set; }
 
-    public int State { get; set; }
+    public ChatMessageActionState State { get; set; }
 
     public string RefreshToken { get; set; }
 

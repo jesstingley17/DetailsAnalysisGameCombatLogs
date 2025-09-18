@@ -3,20 +3,18 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState, type JSX, type SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useRemoveFriendAsyncMutation } from '../api/Friend.api';
-import type { AppUserModel } from '../types/AppUserModel';
 import UserInformation from './UserInformation';
 
 import './User.scss';
 
 interface UserProps {
-    myself: AppUserModel | null;
     targetUserId: string;
     targetUsername: string;
     setUserInformation: (value: SetStateAction<JSX.Element | null>) => void;
     friendId?: number | 0;
 }
 
-const User: React.FC<UserProps> = ({ myself, targetUserId, targetUsername, setUserInformation, friendId = 0 }) => {
+const User: React.FC<UserProps> = ({ targetUserId, targetUsername, setUserInformation, friendId = 0 }) => {
     const { t } = useTranslation('communication/myEnvironment/friends');
 
     const [removeFriend] = useRemoveFriendAsyncMutation();
@@ -30,7 +28,6 @@ const User: React.FC<UserProps> = ({ myself, targetUserId, targetUsername, setUs
     const openUserInformation = () => {
         setUserInformation(
             <UserInformation
-                myself={myself}
                 personId={targetUserId}
                 closeUserInformation={closeUserInformation}
             />

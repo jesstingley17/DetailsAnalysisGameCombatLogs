@@ -1,16 +1,11 @@
 ﻿using CombatAnalysis.ChatApi.Enums;
+using CombatAnalysis.ChatApi.Models;
 
 namespace CombatAnalysis.ChatApi.Kafka.Actions;
 
 public class PersonalChatMessageAction
 {
-    public int ChatId { get; set; }
-
-    public string InititatorId { get; set; } = string.Empty;
-
-    public string InititatorUsername { get; set; } = string.Empty;
-
-    public string RecipientId { get; set; } = string.Empty;
+    public PersonalChatMessageModel ChatMessage { get; set; } = new();
 
     public ChatMessageActionState State { get; set; }
 

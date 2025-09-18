@@ -1,16 +1,13 @@
-﻿namespace CombatAnalysis.Hubs.Kafka.Actions;
+﻿using CombatAnalysis.Hubs.Enums;
+using CombatAnalysis.Hubs.Models;
+
+namespace CombatAnalysis.Hubs.Kafka.Actions;
 
 public class PersonalChatMessageAction
 {
-    public int ChatId { get; set; }
+    public PersonalChatMessageModel ChatMessage { get; set; }
 
-    public string InititatorId { get; set; } = string.Empty;
-
-    public string InititatorUsername { get; set; } = string.Empty;
-
-    public string RecipientId { get; set; } = string.Empty;
-
-    public int State { get; set; }
+    public ChatMessageActionState State { get; set; }
 
     public DateTimeOffset When { get; set; }
 

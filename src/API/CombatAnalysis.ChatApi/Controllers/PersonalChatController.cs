@@ -15,9 +15,9 @@ namespace CombatAnalysis.ChatApi.Controllers;
 [Route("api/v1/[controller]")]
 [ApiController]
 [AllowAnonymous]
-public class PersonalChatController(IService<PersonalChatDto, int> chatService, IMapper mapper, ILogger<PersonalChatController> logger) : ControllerBase
+public class PersonalChatController(IPersonalChatService chatService, IMapper mapper, ILogger<PersonalChatController> logger) : ControllerBase
 {
-    private readonly IService<PersonalChatDto, int> _chatService = chatService;
+    private readonly IPersonalChatService _chatService = chatService;
     private readonly IMapper _mapper = mapper;
     private readonly ILogger<PersonalChatController> _logger = logger;
 
@@ -47,6 +47,29 @@ public class PersonalChatController(IService<PersonalChatDto, int> chatService, 
         catch (DomainException ex)
         {
             _logger.LogError(ex, "Get personal chat {Id} failed. Something wrong during extracting personal chat.", id);
+
+            return this.ExtractDomainCode(ex.Code);
+        }
+    }
+
+    [HttpGet("getByUserId/{userId:minlength(8)}")]
+    public async Task<IActionResult> GetByUserId(string userId)
+    {
+        try
+        {
+            var personalChats = await _chatService.GetByUserIdAsync(userId);
+
+            return Ok(personalChats);
+        }
+        catch (PersonalChatNotFoundException ex)
+        {
+            _logger.LogWarning("Get personal chats by user {Id} failed. Personal chat not found.", userId);
+
+            return this.ExtractDomainCode(ex.Code);
+        }
+        catch (DomainException ex)
+        {
+            _logger.LogError(ex, "Get personal chat by user {Id} failed. Something wrong during extracting personal chat.", userId);
 
             return this.ExtractDomainCode(ex.Code);
         }

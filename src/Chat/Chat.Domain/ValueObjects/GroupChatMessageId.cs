@@ -1,13 +1,8 @@
 ﻿namespace Chat.Domain.ValueObjects;
 
-public class GroupChatMessageId
+public class GroupChatMessageId(int value)
 {
-    public GroupChatMessageId(int value)
-    {
-        Value = value;
-    }
-
-    public int Value { get; }
+    public int Value { get; } = value;
 
     public bool HasValue => Value > 0;
 

@@ -9,12 +9,38 @@ namespace Chat.Infrastructure.Repositories;
 
 internal class GroupChatUserRepository(ChatContext context) : GenericRepository<GroupChatUser, GroupChatUserId>(context), IGroupChatUserRepository
 {
+    public async Task MarkAsReadAsyn(string groupChatUserId, int chatMessageId)
+    {
+        var groupChatUser = await GetByIdAsync(groupChatUserId)
+                    ?? throw new EntityNotFoundException(typeof(GroupChatUser), groupChatUserId);
+
+        groupChatUser.MarkAsRead(chatMessageId);
+
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<bool> IsAllUsersReadMessageAsync(int chatId, string messageOwnerId, int messageId)
+    {
+        var chatUsersCount = await _context.GroupChatUser
+                            .AsNoTracking()
+                            .CountAsync(user => user.GroupChatId == chatId);
+
+        var usersWhoReadCount = await _context.GroupChatUser
+                            .AsNoTracking()
+                            .Where(user => user.GroupChatId == chatId)
+                            .CountAsync(user => user.LastReadMessageId != null && user.LastReadMessageId >= messageId);
+
+        var allUsersReadMessage = (chatUsersCount - usersWhoReadCount - 1) <= 0;
+
+        return allUsersReadMessage;
+    }
+
     public async Task UpdateAsync(GroupChatUser updated)
     {
-        var groupChatUsers = await GetByIdAsync(updated.Id)
+        var groupChatUser = await GetByIdAsync(updated.Id)
                     ?? throw new EntityNotFoundException(typeof(GroupChatUser), updated.Id);
 
-        groupChatUsers.ApplyUpdates(updated);
+        groupChatUser.ApplyUpdates(updated);
 
         await _context.SaveChangesAsync();
     }

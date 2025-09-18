@@ -1,4 +1,6 @@
-﻿namespace CombatAnalysis.Hubs.Models;
+﻿using Chat.Domain.Enums;
+
+namespace CombatAnalysis.Hubs.Models;
 
 public class GroupChatMessageModel
 {
@@ -10,9 +12,13 @@ public class GroupChatMessageModel
 
     public DateTimeOffset Time { get; set; }
 
-    public int Status { get; set; }
+    public MessageStatus Status { get; set; }
 
-    public int Type { get; set; }
+    public MessageType Type { get; set; }
+
+    public MessageMarkedType MarkedType { get; set; }
+
+    public bool IsEdited { get; set; }
 
     public int GroupChatId { get; set; }
 

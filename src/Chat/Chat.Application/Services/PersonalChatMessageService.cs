@@ -1,15 +1,18 @@
 ﻿using AutoMapper;
 using Chat.Application.DTOs;
+using Chat.Application.Interfaces;
 using Chat.Application.Mappers;
 using Chat.Domain.Aggregates;
 using Chat.Domain.Entities;
+using Chat.Domain.Enums;
 using Chat.Domain.Exceptions;
 using Chat.Domain.Repositories;
 using Chat.Domain.ValueObjects;
 
 namespace Chat.Application.Services;
 
-internal class PersonalChatMessageService(IPersonalChatMessageRepository repository, IGenericRepository<PersonalChat, PersonalChatId> chatRepository, IMapper mapper) : IPersonalChatMessageService
+internal class PersonalChatMessageService(IPersonalChatMessageRepository repository, IGenericRepository<PersonalChat, PersonalChatId> chatRepository, IMapper mapper) 
+    : IPersonalChatMessageService
 {
     private readonly IPersonalChatMessageRepository _repository = repository;
     private readonly IGenericRepository<PersonalChat, PersonalChatId> _chatRepository = chatRepository;
@@ -25,6 +28,11 @@ internal class PersonalChatMessageService(IPersonalChatMessageRepository reposit
         var createdMessage = await _repository.CreateAsync(personalChatMessage);
 
         return createdMessage.ToDTO(_mapper);
+    }
+
+    public async Task UpdateStatusAsync(int messageId, MessageStatus newStatus)
+    {
+        await _repository.UpdateStatusAsync(messageId, newStatus);
     }
 
     public async Task UpdateAsync(PersonalChatMessageDto item)

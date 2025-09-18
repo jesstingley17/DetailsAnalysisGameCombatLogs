@@ -1,20 +1,16 @@
-﻿namespace CombatAnalysis.Hubs.Models;
+﻿using Chat.Domain.Enums;
 
-public class PersonalChatMessageModel
-{
-    public int Id { get; set; }
+namespace CombatAnalysis.Hubs.Models;
 
-    public string Username { get; set; }
-
-    public string Message { get; set; }
-
-    public DateTimeOffset Time { get; set; }
-
-    public int Status { get; set; }
-
-    public int Type { get; set; }
-
-    public int PersonalChatId { get; set; }
-
-    public string AppUserId { get; set; }
-}
+public record PersonalChatMessageModel(
+    int Id,
+    string Username,
+    string Message,
+    DateTimeOffset Time,
+    MessageStatus Status,
+    MessageType Type,
+    MessageMarkedType MarkedType,
+    bool IsEdited,
+    int PersonalChatId,
+    string AppUserId
+    );

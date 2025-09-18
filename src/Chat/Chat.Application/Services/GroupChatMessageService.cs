@@ -35,6 +35,11 @@ internal class GroupChatMessageService(IGroupChatMessageRepository repository, I
         return createdMessage.ToDTO(_mapper);
     }
 
+    public async Task ReadMessagesLessThanAsync(int chatId, int messageId)
+    {
+        await _repository.ReadMessagesLessThanAsync(chatId, messageId);
+    }
+
     public async Task UpdateAsync(GroupChatMessageDto item)
     {
         await _repository.UpdateAsync(item.ToEntity(_mapper));
@@ -65,6 +70,21 @@ internal class GroupChatMessageService(IGroupChatMessageRepository repository, I
         var result = await _repository.GetByChatIdAsync(chatId, page, pageSize);
 
         return result.ToDTOCollection(_mapper);
+    }
+
+    public async Task<int> CountReadUnreadMessagesAsync(int chatId, int chatMessageId, int lastReadMessageId)
+    {
+        var countReadUnreadMessages = 0;
+        if (lastReadMessageId == 0)
+        {
+            countReadUnreadMessages = await _repository.CountReadUnreadMessagesAsync(chatId, chatMessageId);
+        }
+        else
+        {
+            countReadUnreadMessages = await _repository.CountReadUnreadMessagesAsync(chatId, chatMessageId, lastReadMessageId);
+        }
+
+        return countReadUnreadMessages;
     }
 
     public async Task<int> CountByChatIdAsync(int chatId)

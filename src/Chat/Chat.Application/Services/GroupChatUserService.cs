@@ -29,6 +29,18 @@ internal class GroupChatUserService(IGenericRepository<GroupChat, GroupChatId> c
         return createdUser.ToDTO(_mapper);
     }
 
+    public async Task MarkAsReadAsync(string groupChatUserId, int chatMessageId)
+    {
+        await _repository.MarkAsReadAsyn(groupChatUserId, chatMessageId);
+    }
+
+    public async Task<bool> IsAllUsersReadMessageAsync(int chatId, string messageOwnerId, int messageId)
+    {
+        var isAllRead = await _repository.IsAllUsersReadMessageAsync(chatId, messageOwnerId, messageId);
+
+        return isAllRead;
+    }
+
     public async Task UpdateAsync(GroupChatUserDto item)
     {
         await _repository.UpdateAsync(item.ToEntity(_mapper));

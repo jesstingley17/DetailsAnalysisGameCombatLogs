@@ -9,10 +9,17 @@ using System.Transactions;
 
 namespace Chat.Application.Services;
 
-internal class PersonalChatService(IPersonalChatRepository repository, IMapper mapper) : IService<PersonalChatDto, int>
+internal class PersonalChatService(IPersonalChatRepository repository, IMapper mapper) : IPersonalChatService
 {
     private readonly IPersonalChatRepository _repository = repository;
     private readonly IMapper _mapper = mapper;
+
+    public async Task<IEnumerable<PersonalChatDto>> GetByUserIdAsync(string userId)
+    {
+        var chats = await _repository.GetByUserIdAsync(userId);
+
+        return chats.ToDTOCollection(_mapper);
+    }
 
     public async Task<PersonalChatDto> CreateAsync(PersonalChatDto createChat)
     {

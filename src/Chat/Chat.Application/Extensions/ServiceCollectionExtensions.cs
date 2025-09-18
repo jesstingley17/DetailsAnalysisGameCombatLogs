@@ -1,5 +1,4 @@
-﻿using Chat.Application.DTOs;
-using Chat.Application.Interfaces;
+﻿using Chat.Application.Interfaces;
 using Chat.Application.Services;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,8 +11,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IGroupChatService, GroupChatService>();
         services.AddScoped<IGroupChatMessageService, GroupChatMessageService>();
         services.AddScoped<IGroupChatUserService, GroupChatUserService>();
+        services.AddScoped<IPersonalChatService, PersonalChatService>();
         services.AddScoped<IPersonalChatMessageService, PersonalChatMessageService>();
         services.AddScoped<IVoiceChatService, VoiceChatService>();
-        services.AddScoped<IService<PersonalChatDto, int>, PersonalChatService>();
     }
 }

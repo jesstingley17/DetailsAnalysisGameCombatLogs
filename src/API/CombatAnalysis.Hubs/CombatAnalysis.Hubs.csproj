@@ -18,4 +18,8 @@
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\Chat\Chat.Domain\Chat.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

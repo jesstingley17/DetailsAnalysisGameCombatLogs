@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Chat.Application.DTOs;
-using Chat.Application.Services;
+using Chat.Application.Interfaces;
 using Chat.Domain.Exceptions;
 using Chat.Infrastructure.Exceptions;
 using CombatAnalysis.ChatApi.Core;

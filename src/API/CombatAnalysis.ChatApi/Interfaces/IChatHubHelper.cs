@@ -1,6 +1,4 @@
-﻿using CombatAnalysis.ChatApi.Models;
-
-namespace CombatAnalysis.ChatApi.Interfaces;
+﻿namespace CombatAnalysis.ChatApi.Interfaces;
 
 public interface IChatHubHelper
 {
@@ -10,9 +8,11 @@ public interface IChatHubHelper
 
     Task RequestUnreadMessagesAsync(int chatId, string appUserId);
 
-    Task SendMessageAlreadyRead(int chatId, int chatMessageId);
+    Task RequestUnreadMessagesAsync(int chatId);
 
-    Task RequestsChats(int chatId, string appUserId);
+    Task SendMessageReadAsync(int chatId, int chatMessageId);
 
-    Task RequestsMessage(int chatId, GroupChatMessageModel message);
+    Task RequestsChatsAsync(int chatId, string appUserId);
+
+    Task RequestMessageAsync<T>(int chatId, T message) where T : class;
 }

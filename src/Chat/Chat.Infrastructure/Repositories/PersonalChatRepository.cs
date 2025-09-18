@@ -3,11 +3,21 @@ using Chat.Domain.Repositories;
 using Chat.Domain.ValueObjects;
 using Chat.Infrastructure.Exceptions;
 using Chat.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 namespace Chat.Infrastructure.Repositories;
 
 internal class PersonalChatRepository(ChatContext context) : GenericRepository<PersonalChat, PersonalChatId>(context), IPersonalChatRepository
 {
+    public async Task<IEnumerable<PersonalChat>> GetByUserIdAsync(string userId)
+    {
+        var chats = await context.PersonalChat
+            .Where(x => x.InitiatorId == userId || x.CompanionId == userId)
+            .ToListAsync();
+
+        return chats;
+    }
+
     public async Task UpdateInitiatorUnreadMessageCountAsync(int chatId, int count)
     {
         var personalChat = await GetByIdAsync(chatId)

@@ -54,11 +54,11 @@ public class GroupChatUnreadMessageHub : Hub
         }
     }
 
-    public async Task RequestUnreadMessages(int chatId, string meInChatId)
+    public async Task RequestUnreadMessages(int chatId)
     {
         try
         {
-            var response = await _httpClient.GetAsync($"GroupChatUser/findByChatId/{chatId}");
+            var response = await _httpClient.GetAsync($"GroupChatUser/findAll/{chatId}");
             response.EnsureSuccessStatusCode();
 
             var groupChatUsers = await response.Content.ReadFromJsonAsync<IEnumerable<GroupChatUserModel>>();

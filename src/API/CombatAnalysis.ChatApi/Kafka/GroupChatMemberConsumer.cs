@@ -100,14 +100,14 @@ public class GroupChatMemberConsumer(IOptions<KafkaSettings> kafkaSettings, IOpt
 
         await chatHubHelper.ConnectToHubAsync($"{_hubs.Server}{_hubs.GroupChatAddress}", chatAction.RefreshToken, chatAction.AccessToken);
         await chatHubHelper.JoinRoomAsync(chatAction.User.GroupChatId);
-        await chatHubHelper.RequestsChats(chatAction.User.GroupChatId, chatAction.User.AppUserId);
+        await chatHubHelper.RequestsChatsAsync(chatAction.User.GroupChatId, chatAction.User.AppUserId);
     }
 
     private async Task CreateSystemMessageAsync(string systemMessage, GroupChatMemberAction chatAction, string chatOwnerUserId)
     {
         var chatMessageAction = JsonSerializer.Serialize(new GroupChatMessageAction
         {
-            Message = new GroupChatMessageModel(0, "System", systemMessage, chatAction.When, MessageStatus.Sent, MessageType.System, MessageMarkedType.None, false, chatAction.User.GroupChatId, chatOwnerUserId),
+            ChatMessage = new GroupChatMessageModel(0, "System", systemMessage, chatAction.When, MessageStatus.Sent, MessageType.System, MessageMarkedType.None, false, chatAction.User.GroupChatId, chatOwnerUserId),
             State = (int)ChatMessageActionState.Created,
             When = DateTimeOffset.UtcNow,
             RefreshToken = chatAction.RefreshToken,

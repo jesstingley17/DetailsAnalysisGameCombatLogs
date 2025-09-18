@@ -1,10 +1,12 @@
-﻿using Chat.Application.DTOs;
+﻿using AutoMapper;
+using Chat.Application.DTOs;
 using Chat.Application.Interfaces;
 using Chat.Infrastructure.Exceptions;
 using CombatAnalysis.ChatApi.Consts;
 using CombatAnalysis.ChatApi.Enums;
 using CombatAnalysis.ChatApi.Interfaces;
 using CombatAnalysis.ChatApi.Kafka.Actions;
+using CombatAnalysis.ChatApi.Models;
 using Confluent.Kafka;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -13,11 +15,12 @@ using System.Text.Json;
 namespace CombatAnalysis.ChatApi.Kafka;
 
 public class PersonalChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, IOptions<Hubs> hubs, ILogger<PersonalChatMessageConsumer> logger,
-    IServiceScopeFactory serviceScopeFactory) : KafkaConsumerBase(kafkaSettings, KafkaTopics.PersonalChatMessage, logger)
+    IServiceScopeFactory serviceScopeFactory, IMapper mapper) : KafkaConsumerBase(kafkaSettings, KafkaTopics.PersonalChatMessage, logger)
 {
-    private readonly IOptions<Hubs> _hubs = hubs;
+    private readonly Hubs _hubs = hubs.Value;
     private readonly ILogger<PersonalChatMessageConsumer> _logger = logger;
     private readonly IServiceScopeFactory _serviceScopeFactory = serviceScopeFactory;
+    private readonly IMapper _mapper = mapper;
 
     protected override async Task ConsumeMessageAsync(ConsumeResult<string, JsonDocument> kafkaData, CancellationToken stoppingToken)
     {
@@ -39,28 +42,59 @@ public class PersonalChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, 
     {
         try
         {
-            var personalChatService = scope.ServiceProvider.GetService<IService<PersonalChatDto, int>>();
+            var personalChatService = scope.ServiceProvider.GetService<IPersonalChatService>();
             ArgumentNullException.ThrowIfNull(personalChatService, nameof(personalChatService));
 
-            var chatHubHelper = scope.ServiceProvider.GetService<IChatHubHelper>();
-            ArgumentNullException.ThrowIfNull(chatHubHelper, nameof(chatHubHelper));
+            var personalChatMessageHub = scope.ServiceProvider.GetService<IChatHubHelper>();
+            ArgumentNullException.ThrowIfNull(personalChatMessageHub, nameof(personalChatMessageHub));
+
+            var personalChatUnreadMessageHub = scope.ServiceProvider.GetService<IChatHubHelper>();
+            ArgumentNullException.ThrowIfNull(personalChatUnreadMessageHub, nameof(personalChatUnreadMessageHub));
 
             var chatAction = kafkaData.Message.Value.Deserialize<PersonalChatMessageAction>();
             ArgumentNullException.ThrowIfNull(chatAction, nameof(chatAction));
 
-            var personalChat = await personalChatService.GetByIdAsync(chatAction.ChatId);
+            var personalChatMessageService = scope.ServiceProvider.GetService<IPersonalChatMessageService>();
+            ArgumentNullException.ThrowIfNull(personalChatMessageService, nameof(personalChatMessageService));
+
+            var personalChat = await personalChatService.GetByIdAsync(chatAction.ChatMessage.PersonalChatId);
             ArgumentNullException.ThrowIfNull(personalChat, nameof(personalChat));
 
-            await chatHubHelper.ConnectToHubAsync($"{_hubs.Value.Server}{_hubs.Value.PersonalChatUnreadMessageAddress}", chatAction.RefreshToken, chatAction.AccessToken);
-            await chatHubHelper.JoinRoomAsync(personalChat.Id);
+            await personalChatMessageHub.ConnectToHubAsync($"{_hubs.Server}{_hubs.PersonalChatMessagesAddress}", chatAction.RefreshToken, chatAction.AccessToken);
+            await personalChatMessageHub.JoinRoomAsync(chatAction.ChatMessage.PersonalChatId);
 
-            if (chatAction.State == ChatMessageActionState.Created)
+            await personalChatUnreadMessageHub.ConnectToHubAsync($"{_hubs.Server}{_hubs.PersonalChatUnreadMessageAddress}", chatAction.RefreshToken, chatAction.AccessToken);
+            await personalChatUnreadMessageHub.JoinRoomAsync(chatAction.ChatMessage.PersonalChatId);
+
+            switch (chatAction.State)
             {
-                await IncreaseCountAsync(chatHubHelper, personalChat, chatAction, personalChatService);
-            }
-            else if (chatAction.State == ChatMessageActionState.Read)
-            {
-                await DecreaseCountAsync(chatHubHelper, personalChat, chatAction, personalChatService);
+                case ChatMessageActionState.Created:
+                    var createdChatMessage = await CreateChatMessageAsync(personalChatMessageService, chatAction.ChatMessage);
+
+                    await personalChatMessageHub.RequestMessageAsync(chatAction.ChatMessage.PersonalChatId, createdChatMessage);
+
+                    if (chatAction.ChatMessage.Type == Chat.Domain.Enums.MessageType.Default)
+                    {
+                        await IncreaseUnreadMessageCountAsync(personalChat, chatAction.ChatMessage.AppUserId, personalChatService);
+                        await personalChatUnreadMessageHub.RequestUnreadMessagesAsync(chatAction.ChatMessage.PersonalChatId, chatAction.ChatMessage.AppUserId == personalChat.CompanionId ? personalChat.InitiatorId : personalChat.CompanionId);
+                    }
+
+                    break;
+                case ChatMessageActionState.Read:
+                    if (chatAction.ChatMessage.Type == Chat.Domain.Enums.MessageType.Default)
+                    {
+                        await ReadMessageAsync(personalChatMessageService, chatAction.ChatMessage);
+
+                        await DecreaseUnreadMessageCountAsync(personalChat, chatAction.ChatMessage.AppUserId, personalChatService);
+
+                        await personalChatUnreadMessageHub.RequestUnreadMessagesAsync(chatAction.ChatMessage.PersonalChatId, chatAction.ChatMessage.AppUserId == personalChat.CompanionId ? personalChat.InitiatorId : personalChat.CompanionId);
+                    }
+
+                    break;
+                case ChatMessageActionState.Edited:
+                    break;
+                default:
+                    break;
             }
         }
         catch (ArgumentNullException ex)
@@ -77,9 +111,17 @@ public class PersonalChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, 
         }
     }
 
-    private static async Task IncreaseCountAsync(IChatHubHelper chatHubHelper, PersonalChatDto personalChat, PersonalChatMessageAction chatAction, IService<PersonalChatDto, int> personalChatService)
+    private async Task<PersonalChatMessageDto> CreateChatMessageAsync(IPersonalChatMessageService chatMessageService, PersonalChatMessageModel chatMessage)
     {
-        if (chatAction.InititatorId == personalChat.CompanionId)
+        var map = _mapper.Map<PersonalChatMessageDto>(chatMessage);
+        var createdChatMessage = await chatMessageService.CreateAsync(map);
+
+        return createdChatMessage;
+    }
+
+    private static async Task IncreaseUnreadMessageCountAsync(PersonalChatDto personalChat, string messageInitiatorId, IPersonalChatService personalChatService)
+    {
+        if (messageInitiatorId == personalChat.CompanionId)
         {
             personalChat.InitiatorUnreadMessages++;
         }
@@ -89,23 +131,24 @@ public class PersonalChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, 
         }
 
         await personalChatService.UpdateAsync(personalChat);
-
-        await chatHubHelper.RequestUnreadMessagesAsync(personalChat.Id, chatAction.InititatorId == personalChat.CompanionId ? personalChat.InitiatorId : personalChat.CompanionId);
     }
 
-    private static async Task DecreaseCountAsync(IChatHubHelper chatHubHelper, PersonalChatDto personalChat, PersonalChatMessageAction chatAction, IService<PersonalChatDto, int> personalChatService)
+    private static async Task ReadMessageAsync(IPersonalChatMessageService chatMessageService, PersonalChatMessageModel chatMessage)
     {
-        if (chatAction.InititatorId == personalChat.CompanionId)
-        {
-            personalChat.CompanionUnreadMessages--;
-        }
-        else
+        await chatMessageService.UpdateStatusAsync(chatMessage.Id, Chat.Domain.Enums.MessageStatus.Read);
+    }
+
+    private static async Task DecreaseUnreadMessageCountAsync(PersonalChatDto personalChat, string messageInitiatorId, IPersonalChatService personalChatService)
+    {
+        if (messageInitiatorId == personalChat.CompanionId)
         {
             personalChat.InitiatorUnreadMessages--;
         }
+        else
+        {
+            personalChat.CompanionUnreadMessages--;
+        }
 
         await personalChatService.UpdateAsync(personalChat);
-
-        await chatHubHelper.RequestUnreadMessagesAsync(personalChat.Id, chatAction.InititatorId == personalChat.CompanionId ? personalChat.CompanionId : personalChat.InitiatorId);
     }
 }

@@ -168,7 +168,7 @@ public class GroupChatHub : Hub
             var chatAction = JsonSerializer.Serialize(new GroupChatMemberAction
             {
                 ChatOwnerId = chatOwnerId,
-                User = new GroupChatUserModel(groupChatUserId, groupChatUsername, chatId, 0, null),
+                User = new GroupChatUserModel(groupChatUserId, groupChatUsername, 0, chatId, 0, string.Empty),
                 State = ChatMembersActionState.RemoveUser,
                 When = DateTime.UtcNow,
                 RefreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty,

@@ -120,7 +120,7 @@ public class GroupChatUnreadMessageConsumer(IOptions<KafkaSettings> kafkaSetting
 
         await chatMessageHubHelper.ConnectToHubAsync($"{_hubs.Value.Server}{_hubs.Value.GroupChatMessagesAddress}", chatAction.RefreshToken, chatAction.AccessToken);
         await chatMessageHubHelper.JoinRoomAsync(chatAction.ChatId);
-        await chatMessageHubHelper.SendMessageAlreadyRead(chatAction.ChatId, chatAction.MessageId);
+        await chatMessageHubHelper.SendMessageReadAsync(chatAction.ChatId, chatAction.MessageId);
 
         await chatHubHelper.RequestUnreadMessagesAsync(chatAction.ChatId, chatAction.GroupChatUserId);
     }

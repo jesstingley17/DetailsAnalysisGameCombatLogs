@@ -55,13 +55,12 @@ public class PersonalChatController : ControllerBase
     {
         try
         {
-            var responseMessage = await _httpClient.GetAsync("PersonalChat");
+            var responseMessage = await _httpClient.GetAsync($"PersonalChat/getByUserId/{userId}");
             responseMessage.EnsureSuccessStatusCode();
 
             var personalChats = await responseMessage.Content.ReadFromJsonAsync<IEnumerable<PersonalChatModel>>();
-            var myPersonalChats = personalChats?.Where(x => x.InitiatorId == userId || x.CompanionId == userId).ToList();
 
-            return Ok(myPersonalChats);
+            return Ok(personalChats);
         }
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
         {

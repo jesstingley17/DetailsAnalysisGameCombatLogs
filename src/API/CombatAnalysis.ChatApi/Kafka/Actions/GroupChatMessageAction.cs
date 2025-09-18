@@ -1,12 +1,15 @@
-﻿using CombatAnalysis.ChatApi.Models;
+﻿using CombatAnalysis.ChatApi.Enums;
+using CombatAnalysis.ChatApi.Models;
 
 namespace CombatAnalysis.ChatApi.Kafka.Actions;
 
 public class GroupChatMessageAction
 {
-    public GroupChatMessageModel Message { get; set; }
+    public string InitiatorGroupChatUserId { get; set; }
 
-    public int State { get; set; }
+    public GroupChatMessageModel ChatMessage { get; set; }
+
+    public ChatMessageActionState State { get; set; }
 
     public DateTimeOffset When { get; set; }
 

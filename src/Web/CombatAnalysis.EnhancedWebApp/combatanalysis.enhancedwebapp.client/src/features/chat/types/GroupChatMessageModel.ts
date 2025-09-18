@@ -8,7 +8,6 @@ export type GroupChatMessageModel = {
     type: number;
     markedType?: number;
     isEdited?: boolean;
-    chatId: number;
+    groupChatId: number;
     groupChatUserId: string;
-    groupChatMessageId?: number;
 }

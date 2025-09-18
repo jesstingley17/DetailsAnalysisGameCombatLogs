@@ -210,7 +210,6 @@ const PersonalChat: React.FC<PersonalChatProps> = ({ myself, chat, setSelectedCh
                     {currentMessages?.map((message) => (
                             <li key={message.id}>
                                 <ChatMessage
-                                    user={myself}
                                     reviewerId={myself.id}
                                     chatUserAsUserId={message.appUserId}
                                     chatUserUsername={message.username}
@@ -227,8 +226,8 @@ const PersonalChat: React.FC<PersonalChatProps> = ({ myself, chat, setSelectedCh
                     chatId={chat.id}
                     initiator={myself}
                     setAreLoadingOldMessages={setAreLoadingOldMessages}
+                    targetChatType={0}
                     t={t}
-                    companionId={companionId}
                 />
             </div>
         </div>

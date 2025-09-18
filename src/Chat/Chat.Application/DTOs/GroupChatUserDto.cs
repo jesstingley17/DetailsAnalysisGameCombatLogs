@@ -8,6 +8,8 @@ public class GroupChatUserDto
 
     public int UnreadMessages { get; set; }
 
+    public int? LastReadMessageId { get; set; }
+
     public int GroupChatId { get; set; }
 
     public string AppUserId { get; set; }

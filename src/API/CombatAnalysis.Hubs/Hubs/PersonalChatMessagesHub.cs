@@ -1,4 +1,5 @@
-﻿using CombatAnalysis.Hubs.Consts;
+﻿using Chat.Domain.Enums;
+using CombatAnalysis.Hubs.Consts;
 using CombatAnalysis.Hubs.Enums;
 using CombatAnalysis.Hubs.Interfaces;
 using CombatAnalysis.Hubs.Kafka.Actions;
@@ -30,72 +31,47 @@ public class PersonalChatMessagesHub : Hub
             ArgumentOutOfRangeException.ThrowIfLessThan(chatId, 1, nameof(chatId));
 
             var refreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty;
-            ArgumentNullException.ThrowIfNullOrEmpty(refreshToken, nameof(refreshToken));
+            ArgumentException.ThrowIfNullOrEmpty(refreshToken, nameof(refreshToken));
 
             await Groups.AddToGroupAsync(Context.ConnectionId, chatId.ToString());
         }
         catch (ArgumentOutOfRangeException ex)
         {
-            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
+            _logger.LogError(ex, "Invalid argument. Parameter '{ParamName}' was out of range.", ex.ParamName);
         }
-        catch (ArgumentNullException ex)
+        catch (ArgumentException ex)
         {
-            _logger.LogError(ex, "Join chat to room failed: Parameter '{ParamName}' was null.", ex.ParamName);
+            _logger.LogError(ex, "Join chat to room failed. Parameter '{ParamName}' was incorrect.", ex.ParamName);
         }
     }
 
-    public async Task SendMessage(string message, int chatId, string creatorId, string username, string companionId)
+    public async Task SendMessage(PersonalChatMessageModel chatMessage)
     {
         try
         {
-            ArgumentNullException.ThrowIfNullOrEmpty(message, nameof(message));
-            ArgumentOutOfRangeException.ThrowIfLessThan(chatId, 1, nameof(chatId));
-            ArgumentNullException.ThrowIfNullOrEmpty(creatorId, nameof(creatorId));
-            ArgumentNullException.ThrowIfNullOrEmpty(username, nameof(username));
-            ArgumentNullException.ThrowIfNullOrEmpty(companionId, nameof(companionId));
-
-            var personalMessage = new PersonalChatMessageModel
-            {
-                Username = username,
-                Message = message,
-                Time = DateTimeOffset.Parse($"{DateTimeOffset.UtcNow.Hour}:{DateTimeOffset.UtcNow.Minute}"),
-                Status = 0,
-                PersonalChatId = chatId,
-                AppUserId = creatorId
-            };
-
-            var responseMessage = await _httpClient.PostAsync("PersonalChatMessage", JsonContent.Create(personalMessage));
-            responseMessage.EnsureSuccessStatusCode();
-
-            var createdMessage = await responseMessage.Content.ReadFromJsonAsync<PersonalChatMessageModel>();
-            ArgumentNullException.ThrowIfNull(createdMessage, nameof(createdMessage));
+            ArgumentNullException.ThrowIfNull(chatMessage, nameof(chatMessage));
 
             var chatAction = JsonSerializer.Serialize(new PersonalChatMessageAction
             {
-                ChatId = createdMessage.PersonalChatId,
-                InititatorUsername = username,
-                InititatorId = creatorId,
-                RecipientId = companionId,
-                State = (int)ChatMessageActionState.Created,
+                ChatMessage = chatMessage,
+                State = ChatMessageActionState.Created,
                 When = DateTimeOffset.UtcNow,
                 RefreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty,
                 AccessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)] ?? string.Empty
             });
-            await _kafkaProducer.ProduceAsync(KafkaTopics.PersonalChatMessage, createdMessage.Id.ToString(), chatAction);
-
-            await Clients.Group(chatId.ToString()).SendAsync("ReceiveMessage", createdMessage);
-        }
-        catch (ArgumentNullException ex)
-        {
-            _logger.LogError(ex, "Request unread messages failed: Parameter '{ParamName}' was null.", ex.ParamName);
+            await _kafkaProducer.ProduceAsync(KafkaTopics.PersonalChatMessage, Guid.NewGuid().ToString(), chatAction);
         }
         catch (ArgumentOutOfRangeException ex)
         {
-            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
+            _logger.LogError(ex, "Invalid argument. Parameter '{ParamName}' was out of range.", ex.ParamName);
+        }
+        catch (ArgumentNullException ex)
+        {
+            _logger.LogError(ex, "Request unread messages failed. Parameter '{ParamName}' was null.", ex.ParamName);
         }
         catch (UnauthorizedAccessException ex)
         {
-            _logger.LogError(ex, "Access denied: user should be authorized.");
+            _logger.LogError(ex, "Access denied. User should be authorized.");
         }
         catch (HttpRequestException ex)
         {
@@ -103,50 +79,82 @@ public class PersonalChatMessagesHub : Hub
         }
     }
 
-    public async Task SendMessageHasBeenRead(int chatMessageId, string meId)
+    public async Task RequestMessage(int chatId, PersonalChatMessageModel chatMessage)
     {
         try
         {
+            ArgumentOutOfRangeException.ThrowIfLessThan(chatId, 1, nameof(chatId));
+            ArgumentNullException.ThrowIfNull(chatMessage, nameof(chatMessage));
+
+            await Clients.Group(chatId.ToString()).SendAsync("ReceiveMessage", chatMessage);
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
+        }
+        catch (ArgumentNullException ex)
+        {
+            _logger.LogError(ex, "Requests messages failed: Parameter '{ParamName}' was null.", ex.ParamName);
+        }
+    }
+
+    public async Task SendMessageHasBeenRead(int chatMessageId)
+    {
+        try
+        {
+            ArgumentOutOfRangeException.ThrowIfLessThan(chatMessageId, 1, nameof(chatMessageId));
+
             var response = await _httpClient.GetAsync($"PersonalChatMessage/{chatMessageId}");
             response.EnsureSuccessStatusCode();
 
             var chatMessage = await response.Content.ReadFromJsonAsync<PersonalChatMessageModel>();
             ArgumentNullException.ThrowIfNull(chatMessage, nameof(chatMessage));
 
-            if (chatMessage.Status == 2)
+            if (chatMessage.Status == MessageStatus.Read)
             {
                 return;
             }
 
-            chatMessage.Status = 2;
-
-            response = await _httpClient.PutAsync("PersonalChatMessage", JsonContent.Create(chatMessage));
-            response.EnsureSuccessStatusCode();
-
             var chatAction = JsonSerializer.Serialize(new PersonalChatMessageAction
             {
-                ChatId = chatMessage.PersonalChatId,
-                InititatorId = meId,
-                State = (int)ChatMessageActionState.Read,
+                ChatMessage = chatMessage,
+                State = ChatMessageActionState.Read,
                 When = DateTimeOffset.UtcNow,
                 RefreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty,
                 AccessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)] ?? string.Empty
             });
-            await _kafkaProducer.ProduceAsync(KafkaTopics.PersonalChatMessage, chatMessage.Id.ToString(), chatAction);
-
-            await Clients.Caller.SendAsync("ReceiveMessageHasBeenRead", chatMessage.Id);
+            await _kafkaProducer.ProduceAsync(KafkaTopics.PersonalChatMessage, Guid.NewGuid().ToString(), chatAction);
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            _logger.LogError(ex, "Invalid argument. Parameter '{ParamName}' was out of range.", ex.ParamName);
         }
         catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, "Send message has been read failed: Parameter '{ParamName}' was null.", ex.ParamName);
+            _logger.LogError(ex, "Send message has been read failed. Parameter '{ParamName}' was null.", ex.ParamName);
         }
         catch (UnauthorizedAccessException ex)
         {
-            _logger.LogError(ex, "Access denied: user should be authorized.");
+            _logger.LogError(ex, "Access denied. User should be authorized.");
         }
         catch (HttpRequestException ex)
         {
             _logger.LogError(ex, "Request unsuccessful. Status code: '{StatusCode}'", ex.StatusCode);
+        }
+    }
+
+    public async Task SendMessageRead(int chatId, int chatMessageId)
+    {
+        try
+        {
+            ArgumentOutOfRangeException.ThrowIfZero(chatId, nameof(chatId));
+            ArgumentOutOfRangeException.ThrowIfZero(chatMessageId, nameof(chatMessageId));
+
+            await Clients.Group(chatId.ToString()).SendAsync("ReceiveMessageHasBeenRead", chatMessageId);
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            _logger.LogError(ex, "Invalid argument. Parameter '{ParamName}' was out of range.", ex.ParamName);
         }
     }
 
@@ -157,17 +165,17 @@ public class PersonalChatMessagesHub : Hub
             ArgumentOutOfRangeException.ThrowIfLessThan(room, 1, nameof(room));
 
             var refreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty;
-            ArgumentNullException.ThrowIfNullOrEmpty(refreshToken, nameof(refreshToken));
+            ArgumentException.ThrowIfNullOrEmpty(refreshToken, nameof(refreshToken));
 
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, room.ToString());
         }
         catch (ArgumentOutOfRangeException ex)
         {
-            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
+            _logger.LogError(ex, "Invalid argument. Parameter '{ParamName}' was out of range.", ex.ParamName);
         }
-        catch (ArgumentNullException ex)
+        catch (ArgumentException ex)
         {
-            _logger.LogError(ex, "Leave from room failed: Parameter '{ParamName}' was null.", ex.ParamName);
+            _logger.LogError(ex, "Leave from room failed. Parameter '{ParamName}' was incorrect.", ex.ParamName);
         }
     }
 }

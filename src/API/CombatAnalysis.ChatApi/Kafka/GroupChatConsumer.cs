@@ -129,6 +129,6 @@ public class GroupChatConsumer(IOptions<KafkaSettings> kafkaSettings, IOptions<H
 
         await chatHubHelper.ConnectToHubAsync($"{_hubs.Server}{_hubs.GroupChatAddress}", chatAction.RefreshToken, chatAction.AccessToken);
         await chatHubHelper.JoinRoomAsync(chatId);
-        await chatHubHelper.RequestsChats(chatId, chatAction.User.AppUserId);
+        await chatHubHelper.RequestsChatsAsync(chatId, chatAction.User.AppUserId);
     }
 }

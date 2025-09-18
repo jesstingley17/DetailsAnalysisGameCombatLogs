@@ -57,7 +57,6 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
             await chatHub.connectToGroupChatMessagesAsync(chat.id);
 
             chatHub.subscribeToGroupChatMessages((message: GroupChatMessageModel) => {
-                message.groupChatMessageId = 1;
                 setCurrentMessages(prevMessages => [...prevMessages, message]);
             });
         })();
@@ -198,7 +197,6 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
                             {(!chatHub || !groupChatData || groupChatData.isLoading)
                                 ? <Loading />
                                 : <ChatMessage
-                                    user={myself}
                                     reviewerId={groupChatData.IasGroupChatUser.id ?? ""}
                                     chatUserAsUserId={groupChatData.groupChatUsers.filter(u => u.id === message.groupChatUserId)[0]?.appUserId}
                                     chatUserUsername={groupChatData.groupChatUsers.filter(u => u.id === message.groupChatUserId)[0]?.username}
@@ -207,6 +205,7 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
                                     updateMessageAsync={updateMessageAsync}
                                     hubConnection={chatHub.groupChatMessagesHubConnectionRef.current}
                                     subscribeToChatMessageHasBeenRead={chatHub.subscribeToGroupMessageHasBeenRead}
+                                    lastReadMessageId={groupChatData.IasGroupChatUser.lastReadMessageId}
                                 />
                             }
                         </li>
@@ -217,8 +216,8 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
                         chatId={chat.id}
                         initiator={groupChatData.IasGroupChatUser}
                         setAreLoadingOldMessages={setAreLoadingOldMessages}
-                        t={t}
                         targetChatType={1}
+                        t={t}
                     />
                 }
             </div>

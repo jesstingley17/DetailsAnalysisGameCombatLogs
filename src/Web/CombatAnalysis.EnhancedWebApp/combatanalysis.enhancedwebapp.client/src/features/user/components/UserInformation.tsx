@@ -1,7 +1,9 @@
+import type { RootState } from '@/app/Store';
 import { faCircleXmark, faCommentDots, faPersonCircleQuestion, faSquarePlus, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { memo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useChatHub } from '../../../shared/hooks/useChatHub';
 import { useLazyIsExistQuery } from '../../chat/api/PersonalChat.api';
@@ -20,17 +22,18 @@ const successNotificationTimeout = 2000;
 const failedNotificationTimeout = 2000;
 
 interface UserInformationProps {
-    myself: AppUserModel | null;
     personId: string;
     closeUserInformation(): void;
 }
 
-const UserInformation: React.FC<UserInformationProps> = ({ myself, personId, closeUserInformation }) => {
+const UserInformation: React.FC<UserInformationProps> = ({ personId, closeUserInformation }) => {
     const { t } = useTranslation("communication/userInformation");
 
     const chatHub = useChatHub();
 
     const navigate = useNavigate();
+
+    const myself = useSelector((state: RootState) => state.user.value);
 
     const { data: person, isLoading: personIsLoading } = useGetUserByIdQuery(personId);
 

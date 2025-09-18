@@ -16,12 +16,11 @@ interface MessageInputProps {
     chatId: number;
     initiator: GroupChatUserModel | AppUserModel;
     setAreLoadingOldMessages: (value: SetStateAction<boolean>) => void;
+    targetChatType: number;
     t: (key: string) => string;
-    targetChatType?: number;
-    companionId?: string;
 }
 
-const MessageInput: React.FC<MessageInputProps> = ({ chatId, initiator, setAreLoadingOldMessages, t, targetChatType = 0, companionId }) => {
+const MessageInput: React.FC<MessageInputProps> = ({ chatId, initiator, setAreLoadingOldMessages, targetChatType, t }) => {
     const chatHub = useChatHub();
 
     const messageInput = useRef<HTMLInputElement | null>(null);
@@ -68,10 +67,36 @@ const MessageInput: React.FC<MessageInputProps> = ({ chatId, initiator, setAreLo
         setAreLoadingOldMessages(false);
 
         if (targetChatType === chatType["group"]) {
-            await chatHub.groupChatMessagesHubConnectionRef.current?.invoke("SendMessage", messageInput.current.value, chatId, 0, initiator.id, initiator.username);
+            const groupChatMessage = {
+                id: 0,
+                username: initiator.username,
+                message: messageInput.current.value,
+                time: new Date(),
+                status: 0,
+                type: 0,
+                markedType: 0,
+                isEdited: false,
+                groupChatId: chatId,
+                groupChatUserId: initiator.id
+            };
+
+            await chatHub.groupChatMessagesHubConnectionRef.current?.invoke("SendMessage", groupChatMessage);
         }
         else {
-            await chatHub.personalChatMessagesHubConnectionRef.current?.invoke("SendMessage", messageInput.current.value, chatId, initiator.id, initiator.username, companionId);
+            const personalChatMessage = {
+                id: 0,
+                username: initiator.username,
+                message: messageInput.current.value,
+                time: new Date(),
+                status: 0,
+                type: 0,
+                markedType: 0,
+                isEdited: false,
+                personalChatId: chatId,
+                appUserId: initiator.id
+            };
+
+            await chatHub.personalChatMessagesHubConnectionRef.current?.invoke("SendMessage", personalChatMessage);
         }
 
         messageInput.current.value = "";
