@@ -10,6 +10,7 @@ using CombatAnalysis.ChatApi.Models;
 using Confluent.Kafka;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using System;
 using System.Text.Json;
 
 namespace CombatAnalysis.ChatApi.Kafka;
@@ -130,12 +131,12 @@ public class PersonalChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, 
             personalChat.CompanionUnreadMessages++;
         }
 
-        await personalChatService.UpdateAsync(personalChat);
+        await personalChatService.UpdateChatAsync(personalChat.Id, personalChat.InitiatorUnreadMessages, personalChat.CompanionUnreadMessages);
     }
 
     private static async Task ReadMessageAsync(IPersonalChatMessageService chatMessageService, PersonalChatMessageModel chatMessage)
     {
-        await chatMessageService.UpdateStatusAsync(chatMessage.Id, Chat.Domain.Enums.MessageStatus.Read);
+        await chatMessageService.UpdateChatMessageAsync(chatMessage.Id, null, Chat.Domain.Enums.MessageStatus.Read, null);
     }
 
     private static async Task DecreaseUnreadMessageCountAsync(PersonalChatDto personalChat, string messageInitiatorId, IPersonalChatService personalChatService)
@@ -149,6 +150,6 @@ public class PersonalChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, 
             personalChat.CompanionUnreadMessages--;
         }
 
-        await personalChatService.UpdateAsync(personalChat);
+        await personalChatService.UpdateChatAsync(personalChat.Id, personalChat.InitiatorUnreadMessages, personalChat.CompanionUnreadMessages);
     }
 }

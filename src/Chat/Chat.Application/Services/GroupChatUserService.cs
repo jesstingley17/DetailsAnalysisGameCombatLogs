@@ -22,28 +22,30 @@ internal class GroupChatUserService(IGenericRepository<GroupChat, GroupChatId> c
         var chat = await _chatRepository.GetByIdAsync(createUser.GroupChatId)
                             ?? throw new GroupChatNotFoundException(createUser.GroupChatId);
 
-        var groupChatUser = new GroupChatUser(Guid.NewGuid().ToString(), createUser.Username, chat.Id, createUser.AppUserId);
+        var groupChatUser = new GroupChatUser(createUser.Username, chat.Id, createUser.AppUserId);
 
         var createdUser = await _repository.CreateAsync(groupChatUser);
 
         return createdUser.ToDTO(_mapper);
     }
 
-    public async Task MarkAsReadAsync(string groupChatUserId, int chatMessageId)
+    public async Task UpdateChatUserAsync(GroupChatUserId id,
+                                GroupChatMessageId? lastMessageId = null, 
+                                int? unreadMessages = null)
     {
-        await _repository.MarkAsReadAsyn(groupChatUserId, chatMessageId);
-    }
+        var entity = await _repository.GetByIdAsync(id);
 
-    public async Task<bool> IsAllUsersReadMessageAsync(int chatId, string messageOwnerId, int messageId)
-    {
-        var isAllRead = await _repository.IsAllUsersReadMessageAsync(chatId, messageOwnerId, messageId);
+        if (lastMessageId != null)
+        {
+            entity.MarkAsRead(lastMessageId.Value);
+        }
 
-        return isAllRead;
-    }
+        if (unreadMessages != null && unreadMessages > 0)
+        {
+            entity.UpdateUnreadMessages(unreadMessages.Value);
+        }
 
-    public async Task UpdateAsync(GroupChatUserDto item)
-    {
-        await _repository.UpdateAsync(item.ToEntity(_mapper));
+        await _repository.SaveChangesAsync();
     }
 
     public async Task DeleteAsync(string id)

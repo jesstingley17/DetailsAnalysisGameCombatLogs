@@ -6,19 +6,19 @@ namespace Chat.Domain.Entities;
 
 public class GroupChatUser : IRepositoryEntity<GroupChatUserId>
 {
+    public const int USERNAME_MAX_LENGTH = 64;
+
     private GroupChatUser() { }
 
-    public GroupChatUser(string id, string username, int chatId, UserId appUserId, int unreadMessages = 0)
+    public GroupChatUser(string username, int chatId, UserId appUserId, int unreadMessages = 0)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(id, nameof(id));
         ArgumentException.ThrowIfNullOrWhiteSpace(username, nameof(username));
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(username.Length, USERNAME_MAX_LENGTH, nameof(username));
 
-        Id = id;
         Username = username;
         UnreadMessages = unreadMessages;
         GroupChatId = chatId;
         AppUserId = appUserId;
-        LastReadMessageId = 0;
     }
 
     public GroupChatUserId Id { get; private set; }
@@ -34,27 +34,6 @@ public class GroupChatUser : IRepositoryEntity<GroupChatUserId>
     public UserId AppUserId { get; private set; }
 
     public GroupChat GroupChat { get; private set; } = null!;
-
-    public void ApplyUpdates(GroupChatUser updated)
-    {
-        ChangeGroupChatUsername(updated.Username);
-        UpdateUnreadMessages(updated.UnreadMessages);
-
-        if (updated.LastReadMessageId != null)
-        {
-            MarkAsRead(updated.LastReadMessageId);
-        }
-    }
-
-    public void ChangeGroupChatUsername(string newUsername)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(newUsername, nameof(newUsername));
-
-        if (!string.Equals(Username, newUsername, StringComparison.Ordinal))
-        {
-            Username = newUsername;
-        }
-    }
 
     public void MarkAsRead(GroupChatMessageId? messageId)
     {

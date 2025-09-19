@@ -7,16 +7,6 @@ public class GroupChatRules
 {
     private GroupChatRules() { }
 
-    public GroupChatRules(int id, int chatId,
-    InvitePeopleRestrictions invitePeople = InvitePeopleRestrictions.Anyone,
-    RemovePeopleRestrictions removePeople = RemovePeopleRestrictions.Anyone,
-    PinMessageRestrictions pinMessage = PinMessageRestrictions.Anyone,
-    AnnouncementsRestrictions announcements = AnnouncementsRestrictions.Anyone)
-        : this(chatId, invitePeople, removePeople, pinMessage, announcements)
-    {
-        Id = id;
-    }
-
     public GroupChatRules(int chatId, 
         InvitePeopleRestrictions invitePeople = InvitePeopleRestrictions.Anyone, 
         RemovePeopleRestrictions removePeople = RemovePeopleRestrictions.Anyone,

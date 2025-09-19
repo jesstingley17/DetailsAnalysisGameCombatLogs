@@ -82,13 +82,19 @@ public class GroupChatController(IGroupChatService chatService, IMapper mapper, 
     {
         try
         {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid GroupChat update request received: {@GroupChat}", chat);
+
+                return ValidationProblem(ModelState);
+            }
+
             if (id != chat.Id)
             {
                 return BadRequest("Route ID and body ID do not match.");
             }
 
-            var chatMap = _mapper.Map<GroupChatDto>(chat);
-            await _chatService.UpdateAsync(chatMap);
+            await _chatService.UpdateChatAsync(chat.Id, chat.Name, chat.OwnerId);
 
             return NoContent();
         }

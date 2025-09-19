@@ -1,12 +1,13 @@
 ﻿using Chat.Application.DTOs;
+using Chat.Domain.ValueObjects;
 
 namespace Chat.Application.Interfaces;
 
 public interface IGroupChatUserService : IService<GroupChatUserDto, string>
 {
-    Task MarkAsReadAsync(string groupChatUserId, int chatMessageId);
-
-    Task<bool> IsAllUsersReadMessageAsync(int chatId, string messageOwnerId, int messageId);
+    Task UpdateChatUserAsync(GroupChatUserId id,
+                                GroupChatMessageId? lastMessageId = null,
+                                int? unreadMessages = null);
 
     Task<IEnumerable<GroupChatUserDto>> FindAllAsync(int chatId);
 

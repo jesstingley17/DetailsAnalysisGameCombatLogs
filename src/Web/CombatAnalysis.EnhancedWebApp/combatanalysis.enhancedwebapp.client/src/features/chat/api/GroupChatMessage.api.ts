@@ -1,4 +1,5 @@
 import type { GroupChatMessageModel } from '../types/GroupChatMessageModel';
+import type { GroupChatMessagePatch } from '../types/patches/GroupChatMessagePatch';
 import { ChatApi } from './Chat.api';
 
 export const GroupChatMessageApi = ChatApi.injectEndpoints({
@@ -11,11 +12,11 @@ export const GroupChatMessageApi = ChatApi.injectEndpoints({
             }),
             invalidatesTags: result => result ? [{ type: 'GroupChatMessage', id: result.id }] : [],
         }),
-        updateGroupChatMessage: builder.mutation<void, { id: number, message: GroupChatMessageModel }>({
+        partialUpdateGroupChatMessage: builder.mutation<void, { id: number, message: GroupChatMessagePatch }>({
             query: ({ id, message }) => ({
                 body: message,
                 url: `/GroupChatMessage/${id}`,
-                method: 'PUT'
+                method: 'PATCH'
             }),
             invalidatesTags: (_result, _error, args) => [{ type: 'GroupChatMessage', id: args.id }],
         }),
@@ -41,7 +42,7 @@ export const GroupChatMessageApi = ChatApi.injectEndpoints({
 
 export const {
     useCreateGroupChatMessageMutation,
-    useUpdateGroupChatMessageMutation,
+    usePartialUpdateGroupChatMessageMutation,
     useRemoveGroupChatMessageMutation,
     useRemoveGroupChatMessageByChatIdMutation,
     useGetGroupChatMessageCountByChatIdQuery,

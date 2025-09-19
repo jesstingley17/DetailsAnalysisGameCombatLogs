@@ -4,6 +4,7 @@ using Chat.Application.Interfaces;
 using Chat.Application.Mappers;
 using Chat.Domain.Aggregates;
 using Chat.Domain.Entities;
+using Chat.Domain.Enums;
 using Chat.Domain.Exceptions;
 using Chat.Domain.Repositories;
 using Chat.Domain.ValueObjects;
@@ -35,14 +36,34 @@ internal class GroupChatMessageService(IGroupChatMessageRepository repository, I
         return createdMessage.ToDTO(_mapper);
     }
 
+    public async Task UpdateChatMessageAsync(GroupChatMessageId id,
+                                         string? message,
+                                         MessageStatus? status,
+                                         MessageMarkedType? markedType)
+    {
+        var entity = await _repository.GetByIdAsync(id);
+
+        if (status.HasValue)
+        {
+            entity.UpdateStatus(status.Value);
+        }
+
+        if (markedType.HasValue)
+        {
+            entity.UpdateMarker(markedType.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(message))
+        {
+            entity.EditMessage(message);
+        }
+
+        await _repository.SaveChangesAsync();
+    }
+
     public async Task ReadMessagesLessThanAsync(int chatId, int messageId)
     {
         await _repository.ReadMessagesLessThanAsync(chatId, messageId);
-    }
-
-    public async Task UpdateAsync(GroupChatMessageDto item)
-    {
-        await _repository.UpdateAsync(item.ToEntity(_mapper));
     }
 
     public async Task DeleteAsync(int id)

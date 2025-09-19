@@ -1,9 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Chat.Domain.Aggregates;
+using System.ComponentModel.DataAnnotations;
 
 namespace CombatAnalysis.ChatApi.Patches;
 
 public record GroupChatPatch(
-    [Range(0, int.MaxValue)] int Id,
-    string? Name,
+    [Required] int Id,
+    [StringLength(GroupChat.NAME_MAX_LENGTH, MinimumLength = 1)] string? Name,
     string? OwnerId
 );

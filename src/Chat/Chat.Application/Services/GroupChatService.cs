@@ -5,6 +5,7 @@ using Chat.Application.Mappers;
 using Chat.Domain.Aggregates;
 using Chat.Domain.Exceptions;
 using Chat.Domain.Repositories;
+using Chat.Domain.ValueObjects;
 using System.Transactions;
 
 namespace Chat.Application.Services;
@@ -21,6 +22,25 @@ internal class GroupChatService(IGroupChatRepository repository, IMapper mapper)
         var createdItem = await _repository.CreateAsync(chat);
 
         return createdItem.ToDTO(_mapper);
+    }
+
+    public async Task UpdateChatAsync(GroupChatId id,
+                                     string? newName,
+                                     string? newOwnerId)
+    {
+        var entity = await _repository.GetByIdAsync(id);
+
+        if (!string.IsNullOrEmpty(newName))
+        {
+            entity.UpdateName(newName);
+        }
+
+        if (!string.IsNullOrEmpty(newOwnerId))
+        {
+            entity.PassOwner(newOwnerId);
+        }
+
+        await _repository.SaveChangesAsync();
     }
 
     public async Task DeleteAsync(int id)
@@ -45,19 +65,6 @@ internal class GroupChatService(IGroupChatRepository repository, IMapper mapper)
                  ?? throw new GroupChatNotFoundException(id);
 
         return result.ToDTO(_mapper);
-    }
-
-    public async Task UpdateAsync(GroupChatDto item)
-    {
-        if (item.Name != null)
-        {
-            await _repository.UpdateNameAsync(item.Id, item.Name);
-        }
-
-        if (!string.IsNullOrEmpty(item.OwnerId))
-        {
-            await _repository.PassOwnerAsync(item.Id, item.OwnerId);
-        }
     }
 
     public async Task AddRulesAsync(GroupChatRulesDto item)

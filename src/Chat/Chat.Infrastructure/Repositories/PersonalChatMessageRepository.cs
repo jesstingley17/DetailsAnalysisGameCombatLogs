@@ -1,8 +1,6 @@
 ﻿using Chat.Domain.Entities;
-using Chat.Domain.Enums;
 using Chat.Domain.Repositories;
 using Chat.Domain.ValueObjects;
-using Chat.Infrastructure.Exceptions;
 using Chat.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,26 +8,6 @@ namespace Chat.Infrastructure.Repositories;
 
 internal class PersonalChatMessageRepository(ChatContext context) : GenericRepository<PersonalChatMessage, PersonalChatMessageId>(context), IPersonalChatMessageRepository
 {
-    public async Task UpdateStatusAsync(int messageId, MessageStatus newStatus)
-    {
-        var personalChatMessage = await GetByIdAsync(messageId)
-            ?? throw new EntityNotFoundException(typeof(PersonalChatMessage), messageId);
-
-        personalChatMessage.UpdateStatus(newStatus);
-
-        await _context.SaveChangesAsync();
-    }
-
-    public async Task UpdateAsync(PersonalChatMessage updated)
-    {
-        var personalChatMessage = await GetByIdAsync(updated.Id)
-                    ?? throw new EntityNotFoundException(typeof(PersonalChatMessage), updated.Id);
-
-        personalChatMessage.ApplyUpdates(updated);
-
-        await _context.SaveChangesAsync();
-    }
-
     public async Task<IEnumerable<PersonalChatMessage>> GetByChatIdAsync(int chatId, int page, int pageSize)
     {
         var messages = await _context.PersonalChatMessage

@@ -117,7 +117,7 @@ public class GroupChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, IOp
         var map = _mapper.Map<GroupChatMessageDto>(chatMessage);
         var createdChatMessage = await chatMessageService.CreateAsync(map);
 
-        await chatUserService.MarkAsReadAsync(chatMessage.GroupChatUserId, createdChatMessage.Id);
+        await chatUserService.UpdateChatUserAsync(chatMessage.GroupChatUserId, createdChatMessage.Id);
 
         return createdChatMessage;
     }
@@ -132,13 +132,13 @@ public class GroupChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, IOp
         {
             groupChatUser.UnreadMessages++;
 
-            await groupChatUserService.UpdateAsync(groupChatUser);
+            await groupChatUserService.UpdateChatUserAsync(groupChatUser.Id, null, groupChatUser.UnreadMessages);
         }
     }
 
     private static async Task ReadMessageAsync(IGroupChatUserService chatUserService, IGroupChatMessageService chatMessageService, string initiatorGroupChatUserId, GroupChatMessageModel chatMessage)
     {
-        await chatUserService.MarkAsReadAsync(initiatorGroupChatUserId, chatMessage.Id);
+        await chatUserService.UpdateChatUserAsync(initiatorGroupChatUserId, chatMessage.Id);
 
         await chatMessageService.ReadMessagesLessThanAsync(chatMessage.GroupChatId, chatMessage.Id);
     }
@@ -157,6 +157,6 @@ public class GroupChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, IOp
 
         groupChatUser.UnreadMessages -= countReadUnreadMessage;
 
-        await groupChatUserService.UpdateAsync(groupChatUser);
+        await groupChatUserService.UpdateChatUserAsync(groupChatUser.Id, null, groupChatUser.UnreadMessages);
     }
 }

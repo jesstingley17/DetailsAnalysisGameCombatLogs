@@ -9,7 +9,7 @@ import type { AppUserModel } from '../../../user/types/AppUserModel';
 import { useGetMessagesByPersonalChatIdQuery, useLazyGetMessagesByPersonalChatIdQuery } from '../../api/Chat.api';
 import {
     useGetPersonalChatMessageCountByChatIdQuery,
-    useUpdatePersonalChatMessageMutation
+    usePartialUpdatePersonalChatMessageMutation
 } from '../../api/PersonalChatMessage.api';
 import type { GroupChatMessageModel } from '../../types/GroupChatMessageModel';
 import type { GroupChatModel } from '../../types/GroupChatModel';
@@ -52,7 +52,7 @@ const PersonalChat: React.FC<PersonalChatProps> = ({ myself, chat, setSelectedCh
     const [getMessagesByPersonalChatIdAsync] = useLazyGetMessagesByPersonalChatIdQuery();
 
     const { data: companion, isLoading: companionIsLoading } = useGetUserByIdQuery(companionId);
-    const [updatePersonalChatMessage] = useUpdatePersonalChatMessageMutation();
+    const [paerialUpdatePersonalChatMessage] = usePartialUpdatePersonalChatMessageMutation();
 
     useEffect(() => {
         setCurrentMessages([]);
@@ -132,7 +132,12 @@ const PersonalChat: React.FC<PersonalChatProps> = ({ myself, chat, setSelectedCh
 
     const updateMessageAsync = async (message: PersonalChatMessageModel | GroupChatMessageModel) => {
         try {
-            await updatePersonalChatMessage({ id: message.id, message: message as PersonalChatMessageModel }).unwrap();
+            const updatedMessage = {
+                id: message.id,
+                message: message.message,
+            }
+
+            await paerialUpdatePersonalChatMessage({ id: message.id, message: updatedMessage }).unwrap();
         } catch (e) {
             logger.error("Failed to update personal chat message", e);
         }

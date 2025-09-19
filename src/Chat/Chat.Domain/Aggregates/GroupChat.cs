@@ -10,19 +10,14 @@ public class GroupChat : IRepositoryEntity<GroupChatId>
     private readonly List<GroupChatMessage> _messages = [];
     private readonly List<GroupChatUser> _users = [];
 
-    public const int MaxNameLength = 128;
+    public const int NAME_MAX_LENGTH = 128;
 
     private GroupChat() { }
-
-    public GroupChat(int id, string name, UserId ownerId) : this(name, ownerId)
-    {
-        Id = id;
-    }
 
     public GroupChat(string name, UserId ownerId)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name, nameof(name));
-        ArgumentOutOfRangeException.ThrowIfGreaterThan(name.Length, MaxNameLength, nameof(name));
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(name.Length, NAME_MAX_LENGTH, nameof(name));
 
         Name = name;
         OwnerId = ownerId;
@@ -40,10 +35,15 @@ public class GroupChat : IRepositoryEntity<GroupChatId>
 
     public IReadOnlyCollection<GroupChatUser> Users => _users.AsReadOnly();
 
+    public void EnsureUserIsMember(GroupChatUser user)
+    {
+        ArgumentOutOfRangeException.ThrowIfNotEqual(user.GroupChatId, Id, nameof(user));
+    }
+
     public void UpdateName(string newName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(newName, nameof(newName));
-        ArgumentOutOfRangeException.ThrowIfGreaterThan(newName.Length, MaxNameLength, nameof(newName));
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(newName.Length, NAME_MAX_LENGTH, nameof(newName));
 
         if (!string.Equals(Name, newName, StringComparison.Ordinal))
         {
@@ -83,10 +83,5 @@ public class GroupChat : IRepositoryEntity<GroupChatId>
         ArgumentNullException.ThrowIfNull(Rules, nameof(Rules));
 
         Rules.Update(invitePeople, removePeople, pinMessage, announcements);
-    }
-
-    public void EnsureUserIsMember(GroupChatUser user)
-    {
-        ArgumentOutOfRangeException.ThrowIfNotEqual(user.GroupChatId, Id, nameof(user));
     }
 }

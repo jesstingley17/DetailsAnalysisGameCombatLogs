@@ -1,4 +1,5 @@
 import type { GroupChatModel } from '../types/GroupChatModel';
+import type { GroupChatPatch } from '../types/patches/GroupChatPatch';
 import { ChatApi } from './Chat.api';
 
 export const GroupChatApi = ChatApi.injectEndpoints({
@@ -11,7 +12,7 @@ export const GroupChatApi = ChatApi.injectEndpoints({
             }),
             invalidatesTags: result => result ? [{ type: 'GroupChat', id: result.id }] : [],
         }),
-        partialUpdateGroupChat: builder.mutation<void, { id: number, groupChat: GroupChatModel }>({
+        partialUpdateGroupChat: builder.mutation<void, { id: number, groupChat: GroupChatPatch }>({
             query: ({ id, groupChat }) => ({
                 body: groupChat,
                 url: `/GroupChat/${id}`,

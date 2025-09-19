@@ -7,15 +7,12 @@ public class VoiceChat: IRepositoryEntity<VoiceChatId>
 {
     private VoiceChat() { }
 
-    public VoiceChat(string id, UserId userId)
+    public VoiceChat(UserId userId)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(id, nameof(id));
-
-        Id = id;
         AppUserId = userId;
     }
 
-    public VoiceChatId Id { get; set; }
+    public VoiceChatId Id { get; private set; }
 
-    public UserId AppUserId { get; set; }
+    public UserId AppUserId { get; private set; }
 }

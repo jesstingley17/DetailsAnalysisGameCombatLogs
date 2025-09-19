@@ -12,7 +12,9 @@ public interface IGenericRepository<TModel, TId>
 
     Task<IEnumerable<TModel>> GetAllAsync();
 
-    Task<TModel?> GetByIdAsync(TId id);
+    Task<TModel> GetByIdAsync(TId id);
 
     Task<IEnumerable<TModel>> GetByPaginationAsync(int page, int pageSize);
+
+    Task SaveChangesAsync();
 }

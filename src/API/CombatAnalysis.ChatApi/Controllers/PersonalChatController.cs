@@ -110,8 +110,7 @@ public class PersonalChatController(IPersonalChatService chatService, IMapper ma
                 return BadRequest("Route ID and body ID do not match.");
             }
 
-            var map = _mapper.Map<PersonalChatDto>(chat);
-            await _chatService.UpdateAsync(map);
+            await _chatService.UpdateChatAsync(chat.Id, chat.InitiatorUnreadMessages, chat.CompanionUnreadMessages);
 
             return NoContent();
         }

@@ -35,9 +35,11 @@ internal class GenericRepository<TModel, TId>(ChatContext context) : IGenericRep
         return collection;
     }
 
-    public async Task<TModel?> GetByIdAsync(TId id)
+    public async Task<TModel> GetByIdAsync(TId id)
     {
-        var entity = await _context.Set<TModel>().FirstOrDefaultAsync(g => g.Id.Equals(id));
+        var entity = await _context.Set<TModel>().FirstOrDefaultAsync(g => g.Id.Equals(id))
+                        ?? throw new EntityNotFoundException(typeof(TModel), id);
+
         return entity;
     }
 
@@ -50,5 +52,10 @@ internal class GenericRepository<TModel, TId>(ChatContext context) : IGenericRep
             .ToListAsync();
 
         return collection;
+    }
+
+    public async Task SaveChangesAsync()
+    {
+        await _context.SaveChangesAsync();
     }
 }

@@ -8,12 +8,6 @@ import type { PersonalChatMessageModel } from '../types/PersonalChatMessageModel
 import ChatMessageMenu from './ChatMessageMenu';
 import ChatMessageTitle from './ChatMessageTitle';
 
-const targetMessageStatus = {
-    delivery: 0,
-    delivered: 1,
-    read: 2
-};
-
 interface DefaultChatMessageProps {
     chatUserAsUserId: string;
     chatUserUsername: string;
@@ -86,14 +80,14 @@ const DefaultChatMessage: React.FC<DefaultChatMessageProps> = ({ chatUserAsUserI
 
     const chatMessageHasBeenRead = (): void => {
         const updatedTargetMessage = Object.assign({}, targetMessage);
-        updatedTargetMessage.status = targetMessageStatus["read"];
+        updatedTargetMessage.status = "Sending";
 
-        setTargetMessage(updatedTargetMessage);
+        setTargetMessage(updatedTargetMessage); 
     }
 
     const personalChatMessageHasBeenReadHandle = async (): Promise<void> => {
         if (!hubConnection || reviewerId === messageOwnerId
-            || targetMessage.status === targetMessageStatus["read"]) {
+            || targetMessage.status === "Read") {
             return;
         }
 
@@ -123,19 +117,19 @@ const DefaultChatMessage: React.FC<DefaultChatMessageProps> = ({ chatUserAsUserI
 
     const getMessageStatus = () => {
         switch (targetMessage.status) {
-            case targetMessageStatus["delivery"]:
+            case "Sending":
                 return <FontAwesomeIcon
                     icon={faClock}
                     className="status"
                     title={t("Delivery") || ""}
                 />;
-            case targetMessageStatus["delivered"]:
+            case "Sent":
                 return <FontAwesomeIcon
                     icon={faCircleUp}
                     className="status"
                     title={t("Delivered") || ""}
                 />;
-            case targetMessageStatus["read"]:
+            case "Read":
                 return <FontAwesomeIcon
                     icon={faEye}
                     className="status"
@@ -155,7 +149,7 @@ const DefaultChatMessage: React.FC<DefaultChatMessageProps> = ({ chatUserAsUserI
     }
 
     const getMessage = () => {
-        let isAlreadyRead = targetMessage.status === targetMessageStatus["read"];
+        let isAlreadyRead = targetMessage.status === "Read";
         if ("groupChatUserId" in targetMessage && reviewerId !== targetMessage.groupChatUserId && lastReadMessageId) {
             isAlreadyRead = targetMessage.id <= lastReadMessageId;
         }
@@ -201,7 +195,7 @@ const DefaultChatMessage: React.FC<DefaultChatMessageProps> = ({ chatUserAsUserI
                 : <div className="message">
                     {reviewerId === messageOwnerId
                         ? getMessageStatus()
-                        : targetMessage.status === targetMessageStatus["delivered"] &&
+                        : targetMessage.status === "Sent" &&
                         <FontAwesomeIcon
                             icon={faCircle}
                             className="status"

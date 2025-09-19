@@ -7,6 +7,9 @@ namespace Chat.Domain.Entities;
 
 public class GroupChatMessage : IRepositoryEntity<GroupChatMessageId>, IChatEntity
 {
+    public const int USERNAME_MAX_LENGTH = 64;
+    public const int MESSAGE_MAX_LENGTH = 256;
+
     private GroupChatMessage() { }
 
     public GroupChatMessage(string username, string message, int chatId, GroupChatUserId groupChatUserId,
@@ -16,6 +19,7 @@ public class GroupChatMessage : IRepositoryEntity<GroupChatMessageId>, IChatEnti
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(username, nameof(username));
         ArgumentException.ThrowIfNullOrWhiteSpace(message, nameof(message));
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(message.Length, MESSAGE_MAX_LENGTH, nameof(message));
 
         Username = username;
         Message = message;
@@ -49,22 +53,15 @@ public class GroupChatMessage : IRepositoryEntity<GroupChatMessageId>, IChatEnti
 
     public GroupChat GroupChat { get; private set; } = null!;
 
-    public void ApplyUpdates(GroupChatMessage updated)
-    {
-        EditMessage(updated.Message);
-        UpdateStatus(updated.Status);
-        UpdateMarker(updated.MarkedType);
-    }
-
     public void EditMessage(string newMessage)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(newMessage, nameof(newMessage));
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(newMessage.Length, MESSAGE_MAX_LENGTH, nameof(newMessage));
 
         if (!string.Equals(Message, newMessage, StringComparison.Ordinal))
         {
             Message = newMessage;
             IsEdited = true;
-            Time = DateTimeOffset.UtcNow;
         }
     }
 

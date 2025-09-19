@@ -5,10 +5,11 @@ import logger from '@/utils/Logger';
 import { memo, useEffect, useRef, useState, type SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { AppUserModel } from '../../../user/types/AppUserModel';
-import { useUpdateGroupChatMessageMutation } from '../../api/GroupChatMessage.api';
+import { usePartialUpdateGroupChatMessageMutation } from '../../api/GroupChatMessage.api';
 import useGroupChatData from '../../hooks/useGroupChatData';
 import type { GroupChatMessageModel } from '../../types/GroupChatMessageModel';
 import type { GroupChatModel } from '../../types/GroupChatModel';
+import type { GroupChatMessagePatch } from '../../types/patches/GroupChatMessagePatch';
 import type { PersonalChatMessageModel } from '../../types/PersonalChatMessageModel';
 import type { PersonalChatModel } from '../../types/PersonalChatModel';
 import ChatMessage from '../ChatMessage';
@@ -44,7 +45,7 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
 
     const { groupChatData, getMessagesAsync } = useGroupChatData(chat.id, myself.id, pageSizeRef);
 
-    const [updateGroupChatMessage] = useUpdateGroupChatMessageMutation();
+    const [partialUpdateGroupChatMessage] = usePartialUpdateGroupChatMessageMutation();
 
     useEffect(() => {
         setCurrentMessages([]);
@@ -139,7 +140,12 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
 
     const updateMessageAsync = async (message: PersonalChatMessageModel | GroupChatMessageModel) => {
         try {
-            await updateGroupChatMessage({ id: message.id, message: message as GroupChatMessageModel }).unwrap();
+            const updatedMessage = {
+                id: message.id,
+                message: message.message,
+            }
+
+            await partialUpdateGroupChatMessage({ id: message.id, message: updatedMessage }).unwrap();
         } catch (e) {
             logger.error("Failed to update group chat message", e);
         }

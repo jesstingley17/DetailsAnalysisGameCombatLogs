@@ -2,6 +2,7 @@
 using CombatAnalysis.EnhancedWebApp.Server.Consts;
 using CombatAnalysis.EnhancedWebApp.Server.Interfaces;
 using CombatAnalysis.EnhancedWebApp.Server.Models.Chat;
+using CombatAnalysis.EnhancedWebApp.Server.Patches;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Net;
@@ -75,7 +76,7 @@ public class GroupChatMessageController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(GroupChatMessageModel message)
+    public async Task<IActionResult> Create([FromBody] GroupChatMessageModel message)
     {
         try
         {
@@ -105,12 +106,12 @@ public class GroupChatMessageController : ControllerBase
         }
     }
 
-    [HttpPut("{id:int:min(1)}")]
-    public async Task<IActionResult> Update(int id, GroupChatMessageModel message)
+    [HttpPatch("{id:int:min(1)}")]
+    public async Task<IActionResult> PartialUpdate(int id, [FromBody] GroupChatMessagePatch message)
     {
         try
         {
-            var responseMessage = await _httpClient.PutAsync($"GroupChatMessage/{id}", JsonContent.Create(message));
+            var responseMessage = await _httpClient.PatchAsync($"GroupChatMessage/{id}", JsonContent.Create(message));
             responseMessage.EnsureSuccessStatusCode();
 
             return NoContent();

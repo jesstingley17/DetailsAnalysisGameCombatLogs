@@ -84,7 +84,7 @@ public class VoiceChatController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(VoiceChatModel chat)
+    public async Task<IActionResult> Create([FromBody] VoiceChatModel chat)
     {
         try
         {

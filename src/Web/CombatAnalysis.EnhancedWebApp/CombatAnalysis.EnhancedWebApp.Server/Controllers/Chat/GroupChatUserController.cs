@@ -131,7 +131,7 @@ public class GroupChatUserController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(GroupChatUserModel user)
+    public async Task<IActionResult> Create([FromBody] GroupChatUserModel user)
     {
         try
         {

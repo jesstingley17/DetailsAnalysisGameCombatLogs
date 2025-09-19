@@ -44,7 +44,6 @@ const GroupChatTitle: React.FC<GroupChatTitleProps> = ({ myself, chat, settingsI
             const updatedChat = {
                 id: chat.id,
                 name: chatNameInput.current.value,
-                ownerId: ""
             }
 
             await partialUpdateGroupChat({ id: updatedChat.id, groupChat: updatedChat }).unwrap();

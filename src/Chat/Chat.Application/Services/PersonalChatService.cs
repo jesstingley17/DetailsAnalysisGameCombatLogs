@@ -3,8 +3,10 @@ using Chat.Application.DTOs;
 using Chat.Application.Interfaces;
 using Chat.Application.Mappers;
 using Chat.Domain.Aggregates;
+using Chat.Domain.Enums;
 using Chat.Domain.Exceptions;
 using Chat.Domain.Repositories;
+using Chat.Domain.ValueObjects;
 using System.Transactions;
 
 namespace Chat.Application.Services;
@@ -14,13 +16,6 @@ internal class PersonalChatService(IPersonalChatRepository repository, IMapper m
     private readonly IPersonalChatRepository _repository = repository;
     private readonly IMapper _mapper = mapper;
 
-    public async Task<IEnumerable<PersonalChatDto>> GetByUserIdAsync(string userId)
-    {
-        var chats = await _repository.GetByUserIdAsync(userId);
-
-        return chats.ToDTOCollection(_mapper);
-    }
-
     public async Task<PersonalChatDto> CreateAsync(PersonalChatDto createChat)
     {
         var chat = new PersonalChat(createChat.InitiatorId, createChat.CompanionId);
@@ -28,6 +23,25 @@ internal class PersonalChatService(IPersonalChatRepository repository, IMapper m
         var createdItem = await _repository.CreateAsync(chat);
 
         return createdItem.ToDTO(_mapper);
+    }
+
+    public async Task UpdateChatAsync(PersonalChatId id,
+                                         int? initiatorUnreadMessages,
+                                         int? companionUnreadMessages)
+    {
+        var entity = await _repository.GetByIdAsync(id);
+
+        if (initiatorUnreadMessages.HasValue)
+        {
+            entity.UpdateInitiatorUnreadMessageCount(initiatorUnreadMessages.Value);
+        }
+
+        if (companionUnreadMessages.HasValue)
+        {
+            entity.UpdateCompanionUnreadMessageCount(companionUnreadMessages.Value);
+        }
+
+        await _repository.SaveChangesAsync();
     }
 
     public async Task DeleteAsync(int id)
@@ -54,16 +68,10 @@ internal class PersonalChatService(IPersonalChatRepository repository, IMapper m
         return result.ToDTO(_mapper);
     }
 
-    public async Task UpdateAsync(PersonalChatDto updated)
+    public async Task<IEnumerable<PersonalChatDto>> GetByUserIdAsync(string userId)
     {
-        if (updated.CompanionUnreadMessages != null)
-        {
-            await _repository.UpdateCompanionUnreadMessageCountAsync(updated.Id, updated.CompanionUnreadMessages.Value);
-        }
+        var chats = await _repository.GetByUserIdAsync(userId);
 
-        if (updated.InitiatorUnreadMessages != null)
-        {
-            await _repository.UpdateInitiatorUnreadMessageCountAsync(updated.Id, updated.InitiatorUnreadMessages.Value);
-        }
+        return chats.ToDTOCollection(_mapper);
     }
 }

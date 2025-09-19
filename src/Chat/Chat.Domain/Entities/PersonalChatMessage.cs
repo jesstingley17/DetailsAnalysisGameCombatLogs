@@ -7,24 +7,19 @@ namespace Chat.Domain.Entities;
 
 public class PersonalChatMessage : IRepositoryEntity<PersonalChatMessageId>
 {
-    private PersonalChatMessage() { }
+    public const int USERNAME_MAX_LENGTH = 64;
+    public const int MESSAGE_MAX_LENGTH = 256;
 
-    public PersonalChatMessage(int id, string username, string message, DateTimeOffset time, PersonalChatId chatId, UserId appUserId,
-                MessageStatus status = MessageStatus.Sending,
-                MessageType type = MessageType.Default,
-                MessageMarkedType markedType = MessageMarkedType.None)
-        : this(username, message, time, chatId, appUserId, status, type, markedType)
-    {
-        Id = id;
-    }
+    private PersonalChatMessage() { }
 
     public PersonalChatMessage(string username, string message, DateTimeOffset time, PersonalChatId chatId, UserId appUserId,
                     MessageStatus status = MessageStatus.Sending,
                     MessageType type = MessageType.Default,
                     MessageMarkedType markedType = MessageMarkedType.None)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(username, nameof(username));
         ArgumentException.ThrowIfNullOrWhiteSpace(message, nameof(message));
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(username.Length, USERNAME_MAX_LENGTH, nameof(username));
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(message.Length, MESSAGE_MAX_LENGTH, nameof(message));
 
         Username = username;
         Message = message;
@@ -37,44 +32,37 @@ public class PersonalChatMessage : IRepositoryEntity<PersonalChatMessageId>
         AppUserId = appUserId;
     }
 
-    public PersonalChatMessageId Id { get; set; }
+    public PersonalChatMessageId Id { get; private set; }
 
-    public string Username { get; set; }
+    public string Username { get; private set; }
 
-    public string Message { get; set; }
+    public string Message { get; private set; }
 
-    public DateTimeOffset Time { get; set; }
+    public DateTimeOffset Time { get; private set; }
 
-    public MessageStatus Status { get; set; }
+    public MessageStatus Status { get; private set; }
 
-    public MessageType Type { get; set; }
+    public MessageType Type { get; private set; }
 
-    public MessageMarkedType MarkedType { get; set; }
+    public MessageMarkedType MarkedType { get; private set; }
 
-    public bool IsEdited { get; set; }
+    public bool IsEdited { get; private set; }
 
-    public PersonalChatId PersonalChatId { get; set; }
+    public PersonalChatId PersonalChatId { get; private set; }
 
-    public UserId AppUserId { get; set; }
+    public UserId AppUserId { get; private set; }
 
     public PersonalChat PersonalChat { get; private set; } = null!;
-
-    public void ApplyUpdates(PersonalChatMessage updated)
-    {
-        EditMessage(updated.Message);
-        UpdateStatus(updated.Status);
-        UpdateMarker(updated.MarkedType);
-    }
 
     public void EditMessage(string newMessage)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(newMessage, nameof(newMessage));
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(newMessage.Length, MESSAGE_MAX_LENGTH, nameof(newMessage));
 
         if (!string.Equals(Message, newMessage, StringComparison.Ordinal))
         {
             Message = newMessage;
             IsEdited = true;
-            Time = DateTimeOffset.UtcNow;
         }
     }
 

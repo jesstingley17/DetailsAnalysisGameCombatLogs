@@ -10,12 +10,6 @@ public class PersonalChat : IRepositoryEntity<PersonalChatId>
 
     private PersonalChat() { }
 
-    public PersonalChat(int id, UserId initiatorId, UserId companionId, int initiatorUnreadMessages = 0, int companionUnreadMessages = 0) 
-        : this(initiatorId, companionId, initiatorUnreadMessages, companionUnreadMessages)
-    {
-        Id = id;
-    }
-
     public PersonalChat(UserId initiatorId, UserId companionId, int initiatorUnreadMessages = 0, int companionUnreadMessages = 0)
     {
         InitiatorId = initiatorId;
@@ -24,21 +18,21 @@ public class PersonalChat : IRepositoryEntity<PersonalChatId>
         CompanionUnreadMessages = companionUnreadMessages;
     }
 
-    public PersonalChatId Id { get; set; }
+    public PersonalChatId Id { get; private set; }
 
-    public UserId InitiatorId { get; set; }
+    public UserId InitiatorId { get; private set; }
 
-    public int InitiatorUnreadMessages { get; set; }
+    public int InitiatorUnreadMessages { get; private set; }
 
-    public UserId CompanionId { get; set; }
+    public UserId CompanionId { get; private set; }
 
-    public int CompanionUnreadMessages { get; set; }
+    public int CompanionUnreadMessages { get; private set; }
 
     public IReadOnlyCollection<PersonalChatMessage> Messages => _messages.AsReadOnly();
 
     public void UpdateInitiatorUnreadMessageCount(int count)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(count, 0, nameof(count));
+        ArgumentOutOfRangeException.ThrowIfLessThan(count, 1, nameof(count));
 
         if (InitiatorUnreadMessages != count)
         {
@@ -47,7 +41,7 @@ public class PersonalChat : IRepositoryEntity<PersonalChatId>
     }
     public void UpdateCompanionUnreadMessageCount(int count)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(count, 0, nameof(count));
+        ArgumentOutOfRangeException.ThrowIfLessThan(count, 1, nameof(count));
 
         if (CompanionUnreadMessages != count)
         {

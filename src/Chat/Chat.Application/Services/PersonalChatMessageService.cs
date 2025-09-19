@@ -30,14 +30,29 @@ internal class PersonalChatMessageService(IPersonalChatMessageRepository reposit
         return createdMessage.ToDTO(_mapper);
     }
 
-    public async Task UpdateStatusAsync(int messageId, MessageStatus newStatus)
+    public async Task UpdateChatMessageAsync(PersonalChatMessageId id,
+                                         string? message,
+                                         MessageStatus? status,
+                                         MessageMarkedType? markedType)
     {
-        await _repository.UpdateStatusAsync(messageId, newStatus);
-    }
+        var entity = await _repository.GetByIdAsync(id);
 
-    public async Task UpdateAsync(PersonalChatMessageDto item)
-    {
-        await _repository.UpdateAsync(item.ToEntity(_mapper));
+        if (status.HasValue)
+        {
+            entity.UpdateStatus(status.Value);
+        }
+
+        if (markedType.HasValue)
+        {
+            entity.UpdateMarker(markedType.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(message))
+        {
+            entity.EditMessage(message);
+        }
+
+        await _repository.SaveChangesAsync();
     }
 
     public async Task DeleteAsync(int id)

@@ -17,7 +17,7 @@ internal class VoiceChatService(IGenericRepository<VoiceChat, VoiceChatId> repos
 
     public async Task<VoiceChatDto> CreateAsync(VoiceChatDto createChat)
     {
-        var chat = new VoiceChat(createChat.Id, createChat.AppUserId);
+        var chat = new VoiceChat(createChat.AppUserId);
 
         var createdItem = await _repository.CreateAsync(chat);
 

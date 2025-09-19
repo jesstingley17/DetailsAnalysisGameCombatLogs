@@ -1,3 +1,4 @@
+import type { PersonalChatMessagePatch } from '../types/patches/PersonalChatMessagePatch';
 import type { PersonalChatMessageModel } from '../types/PersonalChatMessageModel';
 import { ChatApi } from './Chat.api';
 
@@ -11,11 +12,11 @@ export const PersonalChatMessageApi = ChatApi.injectEndpoints({
             }),
             invalidatesTags: result => result ? [{ type: 'PersonalChatMessage', id: result.id }] : [],
         }),
-        updatePersonalChatMessage: builder.mutation<void, { id: number, message: PersonalChatMessageModel }>({
+        partialUpdatePersonalChatMessage: builder.mutation<void, { id: number, message: PersonalChatMessagePatch }>({
             query: ({ id, message }) => ({
                 body: message,
                 url: `/PersonalChatMessage/${id}`,
-                method: 'PUT'
+                method: 'PATCH'
             }),
             invalidatesTags: (_result, _error, args) => [{ type: 'PersonalChatMessage', id: args.id }],
         }),
@@ -41,7 +42,7 @@ export const PersonalChatMessageApi = ChatApi.injectEndpoints({
 
 export const {
     useCreatePersonalChatMessageMutation,
-    useUpdatePersonalChatMessageMutation,
+    usePartialUpdatePersonalChatMessageMutation,
     useRemovePersonalChatMessageMutation,
     useRemovePersonalChatMessageByChatIdMutation,
     useGetPersonalChatMessageCountByChatIdQuery,

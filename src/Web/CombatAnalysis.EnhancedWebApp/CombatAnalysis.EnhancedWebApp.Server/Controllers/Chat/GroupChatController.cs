@@ -2,6 +2,7 @@
 using CombatAnalysis.EnhancedWebApp.Server.Consts;
 using CombatAnalysis.EnhancedWebApp.Server.Interfaces;
 using CombatAnalysis.EnhancedWebApp.Server.Models.Chat;
+using CombatAnalysis.EnhancedWebApp.Server.Patches;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Net;
@@ -77,7 +78,7 @@ public class GroupChatController : ControllerBase
     }
 
     [HttpPatch("{id:int:min(1)}")]
-    public async Task<IActionResult> PartialUpdate(int id, GroupChatModel chat)
+    public async Task<IActionResult> PartialUpdate(int id, [FromBody] GroupChatPatch chat)
     {
         try
         {
@@ -137,7 +138,7 @@ public class GroupChatController : ControllerBase
     }
 
     [HttpPut("updateRules/{chatId:int:min(1)}")]
-    public async Task<IActionResult> UpdateRules(int chatId, GroupChatRulesModel chatRules)
+    public async Task<IActionResult> UpdateRules(int chatId, [FromBody] GroupChatRulesModel chatRules)
     {
         try
         {

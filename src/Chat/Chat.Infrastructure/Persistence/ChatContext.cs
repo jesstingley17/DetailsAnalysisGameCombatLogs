@@ -73,7 +73,8 @@ public class ChatContext(DbContextOptions<ChatContext> options) : DbContext(opti
         {
             builder.HasKey(m => m.Id);
 
-            builder.Property(m => m.Message).IsRequired().HasMaxLength(256);
+            builder.Property(m => m.Username).IsRequired().HasMaxLength(Domain.Entities.GroupChatMessage.USERNAME_MAX_LENGTH);
+            builder.Property(m => m.Message).IsRequired().HasMaxLength(Domain.Entities.GroupChatMessage.MESSAGE_MAX_LENGTH);
 
             builder.Property(m => m.Time).IsRequired();
 
@@ -94,7 +95,7 @@ public class ChatContext(DbContextOptions<ChatContext> options) : DbContext(opti
         {
             builder.HasKey(m => m.Id);
 
-            builder.Property(m => m.Username).IsRequired().HasMaxLength(256);
+            builder.Property(m => m.Username).IsRequired().HasMaxLength(Domain.Entities.GroupChatUser.USERNAME_MAX_LENGTH);
 
             builder.Property(x => x.Id)
                  .HasConversion(
@@ -104,7 +105,7 @@ public class ChatContext(DbContextOptions<ChatContext> options) : DbContext(opti
 
             builder.Property(x => x.LastReadMessageId)
                  .HasConversion(
-                     id => id.Value,
+                     id => id != null ? id.Value : 0,
                      value => new GroupChatMessageId(value)
                  );
 
@@ -144,7 +145,8 @@ public class ChatContext(DbContextOptions<ChatContext> options) : DbContext(opti
         {
             builder.HasKey(c => c.Id);
 
-            builder.Property(msg => msg.Message).IsRequired().HasMaxLength(256);
+            builder.Property(msg => msg.Username).IsRequired().HasMaxLength(Domain.Entities.PersonalChatMessage.USERNAME_MAX_LENGTH);
+            builder.Property(msg => msg.Message).IsRequired().HasMaxLength(Domain.Entities.PersonalChatMessage.MESSAGE_MAX_LENGTH);
 
             builder.Property(m => m.Time).IsRequired();
 

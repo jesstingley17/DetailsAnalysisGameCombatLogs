@@ -5,6 +5,7 @@ using Chat.Domain.Exceptions;
 using Chat.Infrastructure.Exceptions;
 using CombatAnalysis.ChatApi.Core;
 using CombatAnalysis.ChatApi.Models;
+using CombatAnalysis.ChatApi.Patches;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -116,8 +117,8 @@ public class GroupChatUserController(IGroupChatUserService chatUserService, IMap
         }
     }
 
-    [HttpPut("{id:minlength(8)}")]
-    public async Task<IActionResult> Update(string id, [FromBody] GroupChatUserModel groupChatUser)
+    [HttpPatch("{id:minlength(8)}")]
+    public async Task<IActionResult> PartialUpdate(string id, [FromBody] GroupChatUserPatch groupChatUser)
     {
         try
         {
@@ -133,8 +134,7 @@ public class GroupChatUserController(IGroupChatUserService chatUserService, IMap
                 return BadRequest("Route ID and body ID do not match.");
             }
 
-            var map = _mapper.Map<GroupChatUserDto>(groupChatUser);
-            await _chatUserService.UpdateAsync(map);
+            await _chatUserService.UpdateChatUserAsync(groupChatUser.Id, groupChatUser.LastReadMessageId, groupChatUser.UnreadMessages);
 
             return NoContent();
         }

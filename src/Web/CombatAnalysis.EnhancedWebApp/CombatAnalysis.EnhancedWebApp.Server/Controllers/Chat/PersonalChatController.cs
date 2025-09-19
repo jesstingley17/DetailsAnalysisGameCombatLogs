@@ -2,6 +2,7 @@
 using CombatAnalysis.EnhancedWebApp.Server.Consts;
 using CombatAnalysis.EnhancedWebApp.Server.Interfaces;
 using CombatAnalysis.EnhancedWebApp.Server.Models.Chat;
+using CombatAnalysis.EnhancedWebApp.Server.Patches;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Net;
@@ -112,7 +113,7 @@ public class PersonalChatController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(PersonalChatModel chat)
+    public async Task<IActionResult> Create([FromBody] PersonalChatModel chat)
     {
         try
         {
@@ -136,12 +137,12 @@ public class PersonalChatController : ControllerBase
         }
     }
 
-    [HttpPut("{id:int:min(1)}")]
-    public async Task<IActionResult> Update(int id, PersonalChatModel chat)
+    [HttpPatch("{id:int:min(1)}")]
+    public async Task<IActionResult> PartialUpdate(int id, [FromBody] PersonalChatPatch chat)
     {
         try
         {
-            var responseMessage = await _httpClient.PutAsync($"PersonalChat/{id}", JsonContent.Create(chat));
+            var responseMessage = await _httpClient.PatchAsync($"PersonalChat/{id}", JsonContent.Create(chat));
             responseMessage.EnsureSuccessStatusCode();
 
             return NoContent();

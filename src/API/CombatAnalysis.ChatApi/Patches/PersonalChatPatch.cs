@@ -4,6 +4,6 @@ namespace CombatAnalysis.ChatApi.Patches;
 
 public record PersonalChatPatch(
     [Required] int Id,
-    int? InitiatorUnreadMessages,
-    int? CompanionUnreadMessages
+    [Range(0, int.MaxValue)] int? InitiatorUnreadMessages,
+    [Range(0, int.MaxValue)] int? CompanionUnreadMessages
     );
