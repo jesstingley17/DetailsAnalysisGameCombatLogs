@@ -1,5 +1,4 @@
-﻿using Chat.Domain.Enums;
-using CombatAnalysis.Hubs.Consts;
+﻿using CombatAnalysis.Hubs.Consts;
 using CombatAnalysis.Hubs.Enums;
 using CombatAnalysis.Hubs.Interfaces;
 using CombatAnalysis.Hubs.Kafka.Actions;
@@ -34,6 +33,8 @@ public class GroupChatMessagesHub : Hub
             ArgumentException.ThrowIfNullOrEmpty(refreshToken, nameof(refreshToken));
 
             await Groups.AddToGroupAsync(Context.ConnectionId, chatId.ToString());
+
+            _logger.LogInformation("Clients {Clients} in Group chat message Hub", Clients);
         }
         catch (ArgumentOutOfRangeException ex)
         {

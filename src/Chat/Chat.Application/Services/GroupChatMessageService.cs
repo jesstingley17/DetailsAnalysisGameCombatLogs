@@ -74,7 +74,7 @@ internal class GroupChatMessageService(IGroupChatMessageRepository repository, I
 
     public async Task<int> CountReadUnreadMessagesAsync(int chatId, int chatMessageId, int lastReadMessageId)
     {
-        var countReadUnreadMessages = 0;
+        int countReadUnreadMessages;
         if (lastReadMessageId == 0)
         {
             countReadUnreadMessages = await _repository.CountReadUnreadMessagesAsync(chatId, chatMessageId);

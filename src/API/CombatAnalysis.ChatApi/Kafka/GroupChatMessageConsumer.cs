@@ -67,9 +67,9 @@ public class GroupChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, IOp
             switch (chatAction.State)
             {
                 case ChatMessageActionState.Created:
-                    var createdChatMessage = await CreateChatMessageAsync(groupChatMessageService, chatAction.ChatMessage);
+                    var createdChatMessage = await CreateChatMessageAsync(groupChatMessageService, groupChatUserService, chatAction.ChatMessage);
 
-                    await groupChatMessageHub.RequestMessageAsync(chatAction.ChatMessage.GroupChatId, chatAction.ChatMessage);
+                    await groupChatMessageHub.RequestMessageAsync(chatAction.ChatMessage.GroupChatId, createdChatMessage);
 
                     if (chatAction.ChatMessage.Type == MessageType.Default)
                     {
@@ -112,10 +112,12 @@ public class GroupChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, IOp
         }
     }
 
-    private async Task<GroupChatMessageDto> CreateChatMessageAsync(IGroupChatMessageService chatMessageService, GroupChatMessageModel chatMessage)
+    private async Task<GroupChatMessageDto> CreateChatMessageAsync(IGroupChatMessageService chatMessageService, IGroupChatUserService chatUserService, GroupChatMessageModel chatMessage)
     {
         var map = _mapper.Map<GroupChatMessageDto>(chatMessage);
         var createdChatMessage = await chatMessageService.CreateAsync(map);
+
+        await chatUserService.MarkAsReadAsync(chatMessage.GroupChatUserId, createdChatMessage.Id);
 
         return createdChatMessage;
     }
