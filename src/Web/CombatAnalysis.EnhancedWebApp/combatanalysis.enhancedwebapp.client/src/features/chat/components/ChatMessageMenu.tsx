@@ -7,9 +7,9 @@ import type { PersonalChatMessageModel } from '../types/PersonalChatMessageModel
 
 interface ChatMessageMenuProps {
     message: PersonalChatMessageModel | GroupChatMessageModel;
-    setEditModeIsOn(value: SetStateAction<boolean>): void;
-    setOpenMessageMenu(value: SetStateAction<boolean>): void;
-    updateMessageMarkedTypeAsync(type: number): Promise<void>;
+    setEditModeIsOn: (value: SetStateAction<boolean>) => void;
+    setOpenMessageMenu: (value: SetStateAction<boolean>) => void;
+    updateMessageMarkedTypeAsync: (type: number) => Promise<void>;
 }
 
 const ChatMessageMenu: React.FC<ChatMessageMenuProps> = ({ message, setEditModeIsOn, setOpenMessageMenu, updateMessageMarkedTypeAsync }) => {

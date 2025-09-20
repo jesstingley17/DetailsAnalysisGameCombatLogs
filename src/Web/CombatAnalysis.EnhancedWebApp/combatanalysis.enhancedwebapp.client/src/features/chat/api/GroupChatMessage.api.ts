@@ -18,7 +18,6 @@ export const GroupChatMessageApi = ChatApi.injectEndpoints({
                 url: `/GroupChatMessage/${id}`,
                 method: 'PATCH'
             }),
-            invalidatesTags: (_result, _error, args) => [{ type: 'GroupChatMessage', id: args.id }],
         }),
         removeGroupChatMessage: builder.mutation<void, number>({
             query: id => ({

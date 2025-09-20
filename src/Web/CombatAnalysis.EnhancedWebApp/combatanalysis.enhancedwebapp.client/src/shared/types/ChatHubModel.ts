@@ -12,24 +12,30 @@ export type ChatHubContextModel = {
     groupChatHubConnectionRef: RefObject<signalR.HubConnection | null>;
     groupChatMessagesHubConnectionRef: RefObject<signalR.HubConnection | null>;
     groupChatUnreadMessagesHubConnectionRef: RefObject<signalR.HubConnection | null>;
+
     connectToPersonalChatAsync: () => Promise<void>;
     connectToPersonalChatMessagesAsync: (myPersonalChatId: number) => Promise<void>;
     connectToPersonalChatUnreadMessagesAsync: (myPersonalChatsId: number[]) => Promise<void>;
     subscribeToPersonalChat: (callback: (chat: PersonalChatModel) => void) => void;
     subscribeToPersonalChatMessages: (callback: (message: PersonalChatMessageModel) => void) => void;
+    subscribeToPersonalChatMessageEdit: (callback: (messageId: number) => void) => void;
     subscribeToPersonalMessageHasBeenRead: (callback: (messageId: number) => void) => void;
     subscribeToUnreadPersonalMessagesUpdated: (callback: (targetChatId: number, targetMeInChatId: string, count: number) => void) => void;
+
+    disconnectFromPersonalChatHubAsync: () => Promise<void>;
+    disconnectFromPersonalChatMessageHubAsync: () => Promise<void>;
+    disconnectFromPersonalChatUnreadMessagesHubAsync: () => Promise<void>;
+
     connectToGroupChatAsync: () => Promise<void>;
     connectToGroupChatMessagesAsync: (chatId: number) => Promise<void>;
     connectToGroupChatUnreadMessagesAsync: (myGroupChatsId: number[]) => Promise<void>;
     subscribeToGroupChat: (callback: (groupChatUser: GroupChatUserModel) => void) => void;
     subscribeToGroupChatMessages: (callback: (message: GroupChatMessageModel) => void) => void;
+    subscribeToGroupChatMessageEdit: (callback: (messageId: number) => void) => void;
     subscribeToGroupMessageDelivered: (chatId: number) => void;
     subscribeToUnreadGroupMessagesUpdated: (callback: (targetChatId: number, targetMeInChatId: string, count: number) => void) => void;
     subscribeToGroupMessageHasBeenRead: (callback: (messageId: number) => void) => void;
-    disconnectFromPersonalChatHubAsync: () => Promise<void>;
-    disconnectFromPersonalChatMessageHubAsync: () => Promise<void>;
-    disconnectFromPersonalChatUnreadMessagesHubAsync: () => Promise<void>;
+
     disconnectFromGroupChatHubAsync: () => Promise<void>;
     disconnectFromGroupChatMessageHubAsync: () => Promise<void>;
     disconnectFromGroupChatUnreadMessagesHubAsync: () => Promise<void>;

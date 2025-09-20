@@ -69,7 +69,7 @@ public class GroupChatMessagesHub : Hub
         }
         catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, "Send message failed: Parameter '{ParamName}' was null.", ex.ParamName);
+            _logger.LogError(ex, "Send message failed. Parameter '{ParamName}' was null.", ex.ParamName);
         }
         catch (HttpRequestException ex)
         {
@@ -88,11 +88,26 @@ public class GroupChatMessagesHub : Hub
         }
         catch (ArgumentOutOfRangeException ex)
         {
-            _logger.LogError(ex, "Invalid argument: Parameter '{ParamName}' was out of range.", ex.ParamName);
+            _logger.LogError(ex, "Invalid argument. Parameter '{ParamName}' was out of range.", ex.ParamName);
         }
         catch (ArgumentNullException ex)
         {
-            _logger.LogError(ex, "Requests messages failed: Parameter '{ParamName}' was null.", ex.ParamName);
+            _logger.LogError(ex, "Requests messages failed. Parameter '{ParamName}' was null.", ex.ParamName);
+        }
+    }
+
+    public async Task RequestEditedMessage(int chatId, int chatMessageId)
+    {
+        try
+        {
+            ArgumentOutOfRangeException.ThrowIfLessThan(chatId, 1, nameof(chatId));
+            ArgumentOutOfRangeException.ThrowIfLessThan(chatMessageId, 1, nameof(chatMessageId));
+
+            await Clients.Group(chatId.ToString()).SendAsync("ReceiveEditedMessage", chatMessageId);
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            _logger.LogError(ex, "Invalid argument. Parameter '{ParamName}' was out of range.", ex.ParamName);
         }
     }
 

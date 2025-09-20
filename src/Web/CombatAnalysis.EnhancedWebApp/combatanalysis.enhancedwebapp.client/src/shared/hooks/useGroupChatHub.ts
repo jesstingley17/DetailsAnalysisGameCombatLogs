@@ -70,14 +70,20 @@ const useGroupChatHub = (
     }
 
     const subscribeToGroupChat = (callback: (groupChatUser: GroupChatUserModel) => void) => {
-        groupChatHubConnectionRef.current?.on("ReceiveJoinedUser", (groupChatUser) => {
+        groupChatHubConnectionRef.current?.on("ReceiveJoinedUser", (groupChatUser: GroupChatUserModel) => {
             callback(groupChatUser);
         });
     }
 
     const subscribeToGroupChatMessages = (callback: (message: GroupChatMessageModel) => void) => {
-        groupChatMessagesHubConnectionRef.current?.on("ReceiveMessage", (message) => {
+        groupChatMessagesHubConnectionRef.current?.on("ReceiveMessage", (message: GroupChatMessageModel) => {
             callback(message);
+        });
+    }
+
+    const subscribeToGroupChatMessageEdit = (callback: (messageId: number) => void) => {
+        groupChatMessagesHubConnectionRef.current?.on("ReceiveEditedMessage", (messageId: number) => {
+            callback(messageId);
         });
     }
 
@@ -122,7 +128,7 @@ const useGroupChatHub = (
 
     return {
         connectToGroupChatAsync, connectToGroupChatMessagesAsync, connectToGroupChatUnreadMessagesAsync,
-        subscribeToGroupChat, subscribeToGroupChatMessages, subscribeToGroupMessageDelivered,
+        subscribeToGroupChat, subscribeToGroupChatMessages, subscribeToGroupChatMessageEdit, subscribeToGroupMessageDelivered,
         subscribeToUnreadGroupMessagesUpdated, subscribeToGroupMessageHasBeenRead,
         disconnectFromGroupChatHubAsync, disconnectFromGroupChatMessageHubAsync, disconnectFromGroupChatUnreadMessagesHubAsync,
         subscribeToGroupChatMembers,

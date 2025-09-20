@@ -1,4 +1,5 @@
-﻿import APP_CONFIG from '@/config/appConfig';
+﻿import Store from '@/app/Store';
+import APP_CONFIG from '@/config/appConfig';
 import Loading from '@/shared/components/Loading';
 import { useChatHub } from '@/shared/hooks/useChatHub';
 import logger from '@/utils/Logger';
@@ -6,13 +7,14 @@ import { memo, useEffect, useRef, useState, type SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGetUserByIdQuery } from '../../../user/api/Account.api';
 import type { AppUserModel } from '../../../user/types/AppUserModel';
-import { useGetMessagesByPersonalChatIdQuery, useLazyGetMessagesByPersonalChatIdQuery } from '../../api/Chat.api';
+import { ChatApi, useGetMessagesByPersonalChatIdQuery, useLazyGetMessagesByPersonalChatIdQuery } from '../../api/Chat.api';
 import {
     useGetPersonalChatMessageCountByChatIdQuery,
     usePartialUpdatePersonalChatMessageMutation
 } from '../../api/PersonalChatMessage.api';
-import type { GroupChatMessageModel } from '../../types/GroupChatMessageModel';
 import type { GroupChatModel } from '../../types/GroupChatModel';
+import type { GroupChatMessagePatch } from '../../types/patches/GroupChatMessagePatch';
+import type { PersonalChatMessagePatch } from '../../types/patches/PersonalChatMessagePatch';
 import type { PersonalChatMessageModel } from '../../types/PersonalChatMessageModel';
 import type { PersonalChatModel } from '../../types/PersonalChatModel';
 import ChatMessage from '../ChatMessage';
@@ -66,6 +68,12 @@ const PersonalChat: React.FC<PersonalChatProps> = ({ myself, chat, setSelectedCh
 
             chatHub.subscribeToPersonalChatMessages((message: PersonalChatMessageModel) => {
                 setCurrentMessages(prevMessages => [...prevMessages, message]);
+            });
+
+            chatHub.subscribeToPersonalChatMessageEdit((messageId: number) => {
+                Store.dispatch(
+                    ChatApi.util.invalidateTags([{ type: "PersonalChatMessage", id: messageId }])
+                );
             });
         })();
 
@@ -130,14 +138,13 @@ const PersonalChat: React.FC<PersonalChatProps> = ({ myself, chat, setSelectedCh
         scrollToBottom();
     }, [currentMessages]);
 
-    const updateMessageAsync = async (message: PersonalChatMessageModel | GroupChatMessageModel) => {
+    const updateMessageAsync = async (message: PersonalChatMessagePatch | GroupChatMessagePatch) => {
         try {
-            const updatedMessage = {
-                id: message.id,
-                message: message.message,
-            }
+            await paerialUpdatePersonalChatMessage({ id: message.id, message }).unwrap();
 
-            await paerialUpdatePersonalChatMessage({ id: message.id, message: updatedMessage }).unwrap();
+            if (chatHub && chatHub.personalChatMessagesHubConnectionRef.current) {
+                await chatHub.personalChatMessagesHubConnectionRef.current.invoke("RequestEditedMessage", chat.id, message.id);
+            }
         } catch (e) {
             logger.error("Failed to update personal chat message", e);
         }

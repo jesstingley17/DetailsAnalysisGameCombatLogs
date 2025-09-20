@@ -5,6 +5,8 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { GroupChatMessageModel } from '../types/GroupChatMessageModel';
 import type { PersonalChatMessageModel } from '../types/PersonalChatMessageModel';
+import type { GroupChatMessagePatch } from '../types/patches/GroupChatMessagePatch';
+import type { PersonalChatMessagePatch } from '../types/patches/PersonalChatMessagePatch';
 import ChatMessageMenu from './ChatMessageMenu';
 import ChatMessageTitle from './ChatMessageTitle';
 
@@ -14,7 +16,7 @@ interface DefaultChatMessageProps {
     reviewerId: string;
     messageOwnerId: string;
     message: GroupChatMessageModel | PersonalChatMessageModel;
-    updateMessageAsync: (targetMessage: GroupChatMessageModel | PersonalChatMessageModel) => Promise<void>;
+    updateMessageAsync: (targetMessage: GroupChatMessagePatch | PersonalChatMessagePatch) => Promise<void>;
     subscribeToChatMessageHasBeenRead: (callback: (targetMessageId: number) => void) => void;
     hubConnection: signalR.HubConnection | null;
     lastReadMessageId?: number;
@@ -25,18 +27,17 @@ const DefaultChatMessage: React.FC<DefaultChatMessageProps> = ({ chatUserAsUserI
 
     const [openMessageMenu, setOpenMessageMenu] = useState(false);
     const [editModeIsOn, setEditModeIsOn] = useState(false);
-    const [targetMessage, setTargetMessage] = useState(message);
 
     const editMessageInput = useRef<HTMLInputElement | null>(null);
 
     useEffect(() => {
         subscribeToChatMessageHasBeenRead((targetMessageId: number) => {
-            if (targetMessage.id !== targetMessageId) {
+            if (message.id !== targetMessageId) {
                 return;
             }
 
             (async () => {
-                if ("groupChatUserId" in targetMessage) {
+                if ("groupChatUserId" in message) {
                     await groupChatMessageHasBeenReadHandle();
                 }
                 else {
@@ -53,21 +54,24 @@ const DefaultChatMessage: React.FC<DefaultChatMessageProps> = ({ chatUserAsUserI
     }, [openMessageMenu]);
 
     const handleUpdateMessageAsync = async () => {
-        const updateForMessage = Object.assign({}, targetMessage);
-        updateForMessage.message = editMessageInput.current?.value || "";
-        updateForMessage.isEdited = true;
+        const updatedMessage = {
+            id: message.id,
+            message: editMessageInput.current?.value,
+        }
 
-        await updateMessageAsync(updateForMessage);
+        await updateMessageAsync(updatedMessage);
 
         setEditModeIsOn(false);
         setOpenMessageMenu(false);
     }
 
     const updateMessageMarkedTypeAsync = async (type: number) => {
-        const updateForMessage = Object.assign({}, targetMessage);
-        updateForMessage.markedType = type;
+        const updatedMessage = {
+            id: message.id,
+            markedType: type,
+        }
 
-        await updateMessageAsync(updateForMessage);
+        await updateMessageAsync(updatedMessage);
     }
 
     const handleOpenMessageMenu = () => {
@@ -78,22 +82,13 @@ const DefaultChatMessage: React.FC<DefaultChatMessageProps> = ({ chatUserAsUserI
         setOpenMessageMenu((item) => !item);
     }
 
-    const chatMessageHasBeenRead = (): void => {
-        const updatedTargetMessage = Object.assign({}, targetMessage);
-        updatedTargetMessage.status = "Sending";
-
-        setTargetMessage(updatedTargetMessage); 
-    }
-
     const personalChatMessageHasBeenReadHandle = async (): Promise<void> => {
         if (!hubConnection || reviewerId === messageOwnerId
-            || targetMessage.status === "Read") {
+            || message.status === "Read") {
             return;
         }
 
-        await hubConnection.invoke("SendMessageHasBeenRead", targetMessage.id);
-
-        chatMessageHasBeenRead();
+        await hubConnection.invoke("SendMessageHasBeenRead", message.id);
     }
 
     const groupChatMessageHasBeenReadHandle = async (): Promise<void> => {
@@ -101,13 +96,11 @@ const DefaultChatMessage: React.FC<DefaultChatMessageProps> = ({ chatUserAsUserI
             return;
         }
 
-        await hubConnection.invoke("SendMessageHasBeenRead", targetMessage.id, reviewerId);
-
-        chatMessageHasBeenRead();
+        await hubConnection.invoke("SendMessageHasBeenRead", message.id, reviewerId);
     }
 
     const chatMessageHasBeenReadHandle = async () => {
-        if ("groupChatUserId" in targetMessage) {
+        if ("groupChatUserId" in message) {
             await groupChatMessageHasBeenReadHandle();
         }
         else {
@@ -116,7 +109,7 @@ const DefaultChatMessage: React.FC<DefaultChatMessageProps> = ({ chatUserAsUserI
     }
 
     const getMessageStatus = () => {
-        switch (targetMessage.status) {
+        switch (message.status) {
             case "Sending":
                 return <FontAwesomeIcon
                     icon={faClock}
@@ -149,25 +142,25 @@ const DefaultChatMessage: React.FC<DefaultChatMessageProps> = ({ chatUserAsUserI
     }
 
     const getMessage = () => {
-        let isAlreadyRead = targetMessage.status === "Read";
-        if ("groupChatUserId" in targetMessage && reviewerId !== targetMessage.groupChatUserId && lastReadMessageId) {
-            isAlreadyRead = targetMessage.id <= lastReadMessageId;
+        let isAlreadyRead = message.status === "Read";
+        if ("groupChatUserId" in message && reviewerId !== message.groupChatUserId && lastReadMessageId) {
+            isAlreadyRead = message.id <= lastReadMessageId;
         }
-        else if ("groupChatUserId" in targetMessage && reviewerId !== targetMessage.groupChatUserId && !lastReadMessageId) {
+        else if ("groupChatUserId" in message && reviewerId !== message.groupChatUserId && !lastReadMessageId) {
             isAlreadyRead = false;
         }
 
         return (
             <div className={`text-of-message${isAlreadyRead ? "__read" : "__unread"} link 
-                            ${targetMessage.markedType === 1 ? 'not-relevant' : targetMessage.markedType === 2 ? 'with-emotions' : ''}
+                            ${message.markedType === 1 ? 'not-relevant' : message.markedType === 2 ? 'with-emotions' : ''}
                             ${openMessageMenu ? 'menu' : ''} `}
                             onMouseEnter={chatMessageHasBeenReadHandle}>
-                <div className="content" onClick={handleOpenMessageMenu}>{targetMessage?.message}</div>
-                {targetMessage?.message.startsWith("http") &&
+                <div className="content" onClick={handleOpenMessageMenu}>{message.message}</div>
+                {message.message.startsWith("http") &&
                     <FontAwesomeIcon
                         icon={faUpRightFromSquare}
                         className="open-link"
-                    onClick={() => openLink(targetMessage?.message)}
+                    onClick={() => openLink(message.message)}
                         title={t("OpenLink") || ""}
                     />
                 }
@@ -179,13 +172,13 @@ const DefaultChatMessage: React.FC<DefaultChatMessageProps> = ({ chatUserAsUserI
         <div className={`chat-messages__content${reviewerId === messageOwnerId ? ' my-message' : ''}`}>
             <ChatMessageTitle
                 itIsMe={reviewerId !== messageOwnerId}
-                message={targetMessage}
+                message={message}
                 chatUserAsUserId={chatUserAsUserId}
                 chatUserUsername={chatUserUsername}
             />
             {editModeIsOn && reviewerId === messageOwnerId
                 ? <div className="edit-message">
-                    <input className="form-control" type="text" defaultValue={targetMessage.message} ref={editMessageInput} />
+                    <input className="form-control" type="text" defaultValue={message.message} ref={editMessageInput} />
                     <FontAwesomeIcon
                         icon={faCloudArrowUp}
                         title={t("Save") || ""}
@@ -195,7 +188,7 @@ const DefaultChatMessage: React.FC<DefaultChatMessageProps> = ({ chatUserAsUserI
                 : <div className="message">
                     {reviewerId === messageOwnerId
                         ? getMessageStatus()
-                        : targetMessage.status === "Sent" &&
+                        : message.status === "Sent" &&
                         <FontAwesomeIcon
                             icon={faCircle}
                             className="status"
@@ -203,14 +196,14 @@ const DefaultChatMessage: React.FC<DefaultChatMessageProps> = ({ chatUserAsUserI
                         />
                     }
                     {getMessage()}
-                    {targetMessage.markedType === 1 &&
+                    {message.markedType === 1 &&
                         <FontAwesomeIcon
                             icon={faXmark}
                             className="not-relevant"
                             title={t("NotRelevant") || ""}
                         />
                     }
-                    {targetMessage.markedType === 2 &&
+                    {message.markedType === 2 &&
                         <FontAwesomeIcon
                             icon={faFaceMeh}
                             className="emotions"
@@ -219,12 +212,12 @@ const DefaultChatMessage: React.FC<DefaultChatMessageProps> = ({ chatUserAsUserI
                     }
                 </div>
             }
-            {targetMessage?.isEdited &&
+            {message.isEdited &&
                 <div className="chat-messages__edited">{t("Edited") || ""}</div>
             }
             {openMessageMenu &&
                 <ChatMessageMenu
-                    message={targetMessage}
+                    message={message}
                     setEditModeIsOn={setEditModeIsOn}
                     setOpenMessageMenu={setOpenMessageMenu}
                     updateMessageMarkedTypeAsync={updateMessageMarkedTypeAsync}

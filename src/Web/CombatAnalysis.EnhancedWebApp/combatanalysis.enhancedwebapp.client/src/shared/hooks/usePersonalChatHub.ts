@@ -81,6 +81,12 @@ const usePersonalChatHub = (
         });
     }
 
+    const subscribeToPersonalChatMessageEdit = (callback: (messageId: number) => void) => {
+        personalChatMessagesHubConnectionRef.current?.on("ReceiveEditedMessage", (messageId: number) => {
+            callback(messageId);
+        });
+    }
+
     const subscribeToPersonalMessageHasBeenRead = (callback: (messageId: number) => void) => {
         personalChatMessagesHubConnectionRef.current?.on("ReceiveMessageHasBeenRead", (messageId: number) => {
             callback(messageId);
@@ -110,7 +116,7 @@ const usePersonalChatHub = (
 
     return {
         connectToPersonalChatAsync, connectToPersonalChatMessagesAsync, connectToPersonalChatUnreadMessagesAsync,
-        subscribeToPersonalChat, subscribeToPersonalChatMessages, subscribeToPersonalMessageHasBeenRead, subscribeToUnreadPersonalMessagesUpdated,
+        subscribeToPersonalChat, subscribeToPersonalChatMessages, subscribeToPersonalChatMessageEdit, subscribeToPersonalMessageHasBeenRead, subscribeToUnreadPersonalMessagesUpdated,
         disconnectFromPersonalChatHubAsync, disconnectFromPersonalChatMessageHubAsync, disconnectFromPersonalChatUnreadMessagesHubAsync
     }
 }

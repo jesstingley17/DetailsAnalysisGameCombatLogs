@@ -18,7 +18,6 @@ export const PersonalChatMessageApi = ChatApi.injectEndpoints({
                 url: `/PersonalChatMessage/${id}`,
                 method: 'PATCH'
             }),
-            invalidatesTags: (_result, _error, args) => [{ type: 'PersonalChatMessage', id: args.id }],
         }),
         removePersonalChatMessage: builder.mutation<void, number>({
             query: id => ({

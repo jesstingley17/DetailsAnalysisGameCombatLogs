@@ -26,8 +26,11 @@ export const ChatApi = createApi({
             transformResponse: (response: GroupChatMessageModel[]) => response.reverse(),
             providesTags: result =>
                 result
-                    ? [...result.map(({ id }) => ({ type: 'GroupChatMessage' as const, id })), { type: 'GroupChatMessage' }]
-                    : [{ type: 'GroupChatMessage' }]
+                    ? [
+                        ...result.map(chatMessage => ({ type: 'GroupChatMessage' as const, id: chatMessage.id })),
+                        { type: 'GroupChatMessage', id: 'LIST' },
+                    ]
+                    : [{ type: 'GroupChatMessage', id: 'LIST' }],
         }),
         getMessagesByPersonalChatId: builder.query<PersonalChatMessageModel[], { chatId: number, page: number, pageSize: number }>({
             query: ({ chatId, page, pageSize }) => ({
@@ -36,8 +39,11 @@ export const ChatApi = createApi({
             transformResponse: (response: PersonalChatMessageModel[]) => response.reverse(),
             providesTags: result =>
                 result
-                    ? [...result.map(({ id }) => ({ type: 'PersonalChatMessage' as const, id })), { type: 'PersonalChatMessage' }]
-                    : [{ type: 'PersonalChatMessage' }]
+                    ? [
+                        ...result.map(chatMessage => ({ type: 'PersonalChatMessage' as const, id: chatMessage.id })),
+                        { type: 'PersonalChatMessage', id: 'LIST' },
+                    ]
+                    : [{ type: 'PersonalChatMessage', id: 'LIST' }],
         }),
     })
 })

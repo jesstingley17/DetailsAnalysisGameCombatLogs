@@ -1,16 +1,17 @@
-﻿import APP_CONFIG from '@/config/appConfig';
-import Loading from '@/shared/components/Loading';
+﻿import Store from '@/app/Store';
+import APP_CONFIG from '@/config/appConfig';
 import { useChatHub } from '@/shared/hooks/useChatHub';
 import logger from '@/utils/Logger';
 import { memo, useEffect, useRef, useState, type SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { AppUserModel } from '../../../user/types/AppUserModel';
+import { ChatApi } from '../../api/Chat.api';
 import { usePartialUpdateGroupChatMessageMutation } from '../../api/GroupChatMessage.api';
 import useGroupChatData from '../../hooks/useGroupChatData';
 import type { GroupChatMessageModel } from '../../types/GroupChatMessageModel';
 import type { GroupChatModel } from '../../types/GroupChatModel';
 import type { GroupChatMessagePatch } from '../../types/patches/GroupChatMessagePatch';
-import type { PersonalChatMessageModel } from '../../types/PersonalChatMessageModel';
+import type { PersonalChatMessagePatch } from '../../types/patches/PersonalChatMessagePatch';
 import type { PersonalChatModel } from '../../types/PersonalChatModel';
 import ChatMessage from '../ChatMessage';
 import MessageInput from '../MessageInput';
@@ -43,7 +44,7 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
     const chatContainerRef = useRef<HTMLUListElement | null>(null);
     const pageSizeRef = useRef<number>(APP_CONFIG.communication.chatPageSize ? +APP_CONFIG.communication.chatPageSize : 5);
 
-    const { groupChatData, getMessagesAsync } = useGroupChatData(chat.id, myself.id, pageSizeRef);
+    const { messages, count, IasGroupChatUser, groupChatUsers } = useGroupChatData(chat.id, myself.id, page, pageSizeRef);
 
     const [partialUpdateGroupChatMessage] = usePartialUpdateGroupChatMessageMutation();
 
@@ -60,6 +61,12 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
             chatHub.subscribeToGroupChatMessages((message: GroupChatMessageModel) => {
                 setCurrentMessages(prevMessages => [...prevMessages, message]);
             });
+
+            chatHub.subscribeToGroupChatMessageEdit((messageId: number) => {
+                Store.dispatch(
+                    ChatApi.util.invalidateTags([{ type: "GroupChatMessage", id: messageId }])
+                );
+            });
         })();
 
         return () => {
@@ -70,27 +77,27 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
     }, [chat]);
 
     useEffect(() => {
-        if (!groupChatData || !groupChatData.messages) {
+        if (!messages) {
             return;
         }
 
-        setCurrentMessages(groupChatData.messages);
-    }, [groupChatData?.messages]);
+        setCurrentMessages(messages);
+    }, [messages]);
 
     useEffect(() => {
-        if (!groupChatData || !groupChatData.messages) {
+        if (!messages) {
             return;
         }
 
         const handleScroll = () => {
             const chatContainer: HTMLUListElement | null = chatContainerRef.current;
 
-            if (!groupChatData.messages || !chatContainer) {
+            if (!messages || !chatContainer || !count) {
                 return;
             }
 
             if (chatContainer.scrollTop === 0) {
-                const moreMessagesCount = groupChatData.count - currentMessages.length + (groupChatData.messages === null ? 0 : groupChatData.messages.length) - pageSizeRef.current;
+                const moreMessagesCount = count - currentMessages.length + (messages === null ? 0 : messages.length) - pageSizeRef.current;
 
                 setHaveMoreMessage(moreMessagesCount > 0);
             }
@@ -105,7 +112,7 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
         return () => {
             scrollContainer?.removeEventListener("scroll", handleScroll);
         }
-    }, [currentMessages, groupChatData?.messages]);
+    }, [currentMessages, messages]);
 
     useEffect(() => {
         if (!currentMessages || messagesIsLoaded) {
@@ -126,26 +133,25 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
     }, [currentMessages]);
 
     useEffect(() => {
-        if (!groupChatData || !groupChatData.groupChatUsers) {
+        if (!groupChatUsers) {
             return;
         }
 
         const customersId: string[] = [];
-        for (let i = 0; i < groupChatData.groupChatUsers.length; i++) {
-            customersId.push(groupChatData.groupChatUsers[i].appUserId);
+        for (let i = 0; i < groupChatUsers.length; i++) {
+            customersId.push(groupChatUsers[i].appUserId);
         }
 
         setGroupChatUsersId(customersId);
-    }, [groupChatData?.groupChatUsers]);
+    }, [groupChatUsers]);
 
-    const updateMessageAsync = async (message: PersonalChatMessageModel | GroupChatMessageModel) => {
+    const updateMessageAsync = async (message: PersonalChatMessagePatch | GroupChatMessagePatch) => {
         try {
-            const updatedMessage = {
-                id: message.id,
-                message: message.message,
-            }
+            await partialUpdateGroupChatMessage({ id: message.id, message }).unwrap();
 
-            await partialUpdateGroupChatMessage({ id: message.id, message: updatedMessage }).unwrap();
+            if (chatHub && chatHub.groupChatMessagesHubConnectionRef.current) {
+                await chatHub.groupChatMessagesHubConnectionRef.current.invoke("RequestEditedMessage", chat.id, message.id);
+            }
         } catch (e) {
             logger.error("Failed to update group chat message", e);
         }
@@ -177,10 +183,6 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
 
         page++;
 
-        const moreMessages = await getMessagesAsync(page);
-
-        setCurrentMessages(prevMessages => [...moreMessages, ...prevMessages]);
-
         saveScrollState();
     }
 
@@ -198,41 +200,40 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
                     t={t}
                 />
                 <ul className="chat-messages" ref={chatContainerRef}>
-                    {currentMessages?.map((message) => (
+                    {currentMessages.map((message) => (
                         <li className="message" key={message.id}>
-                            {(!chatHub || !groupChatData || groupChatData.isLoading)
-                                ? <Loading />
-                                : <ChatMessage
-                                    reviewerId={groupChatData.IasGroupChatUser.id ?? ""}
-                                    chatUserAsUserId={groupChatData.groupChatUsers.filter(u => u.id === message.groupChatUserId)[0]?.appUserId}
-                                    chatUserUsername={groupChatData.groupChatUsers.filter(u => u.id === message.groupChatUserId)[0]?.username}
-                                    messageOwnerId={groupChatData.groupChatUsers.filter(u => u.id === message.groupChatUserId)[0]?.id ?? ""}
+                            {(IasGroupChatUser && groupChatUsers && chatHub) &&
+                                <ChatMessage
+                                    reviewerId={IasGroupChatUser.id ?? ""}
+                                    chatUserAsUserId={groupChatUsers.filter(u => u.id === message.groupChatUserId)[0]?.appUserId}
+                                    chatUserUsername={groupChatUsers.filter(u => u.id === message.groupChatUserId)[0]?.username}
+                                    messageOwnerId={groupChatUsers.filter(u => u.id === message.groupChatUserId)[0]?.id ?? ""}
                                     message={message}
                                     updateMessageAsync={updateMessageAsync}
                                     hubConnection={chatHub.groupChatMessagesHubConnectionRef.current}
                                     subscribeToChatMessageHasBeenRead={chatHub.subscribeToGroupMessageHasBeenRead}
-                                    lastReadMessageId={groupChatData.IasGroupChatUser.lastReadMessageId}
+                                    lastReadMessageId={IasGroupChatUser.lastReadMessageId}
                                 />
                             }
                         </li>
                     ))}
                 </ul>
-                {groupChatData &&
+                {IasGroupChatUser &&
                     <MessageInput
                         chatId={chat.id}
-                        initiator={groupChatData.IasGroupChatUser}
+                        initiator={IasGroupChatUser}
                         setAreLoadingOldMessages={setAreLoadingOldMessages}
                         targetChatType={1}
                         t={t}
                     />
                 }
             </div>
-            {(settingsIsShow && groupChatData) &&
+            {(settingsIsShow && IasGroupChatUser) &&
                 <GroupChatMenu
                     myself={myself}
                     setSelectedChat={setSelectedChat}
                     groupChatUsersId={groupChatUsersId}
-                    IasGroupChatUser={groupChatData.IasGroupChatUser}
+                    IasGroupChatUser={IasGroupChatUser}
                     chat={chat}
                     t={t}
                 />

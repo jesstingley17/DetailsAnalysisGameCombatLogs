@@ -1,5 +1,7 @@
 import * as signalR from '@microsoft/signalr';
 import type { GroupChatMessageModel } from '../types/GroupChatMessageModel';
+import type { GroupChatMessagePatch } from '../types/patches/GroupChatMessagePatch';
+import type { PersonalChatMessagePatch } from '../types/patches/PersonalChatMessagePatch';
 import type { PersonalChatMessageModel } from '../types/PersonalChatMessageModel';
 import DefaultChatMessage from './DefaultChatMessage';
 import LogChatMessage from './LogChatMessage';
@@ -19,7 +21,7 @@ interface ChatMessageProps {
     chatUserUsername: string;
     messageOwnerId: string;
     message: PersonalChatMessageModel | GroupChatMessageModel;
-    updateMessageAsync: (message: PersonalChatMessageModel | GroupChatMessageModel) => Promise<void>;
+    updateMessageAsync: (message: GroupChatMessagePatch | PersonalChatMessagePatch) => Promise<void>;
     hubConnection: signalR.HubConnection | null;
     subscribeToChatMessageHasBeenRead: (callback: (messageId: number) => void) => void;
     lastReadMessageId?: number;
