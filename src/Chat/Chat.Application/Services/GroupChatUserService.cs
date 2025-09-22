@@ -22,7 +22,7 @@ internal class GroupChatUserService(IGenericRepository<GroupChat, GroupChatId> c
         var chat = await _chatRepository.GetByIdAsync(createUser.GroupChatId)
                             ?? throw new GroupChatNotFoundException(createUser.GroupChatId);
 
-        var groupChatUser = new GroupChatUser(createUser.Username, chat.Id, createUser.AppUserId);
+        var groupChatUser = new GroupChatUser(createUser.Id, createUser.Username, chat.Id, createUser.AppUserId);
 
         var createdUser = await _repository.CreateAsync(groupChatUser);
 

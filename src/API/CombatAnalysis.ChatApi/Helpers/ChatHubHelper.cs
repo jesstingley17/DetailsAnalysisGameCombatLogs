@@ -1,16 +1,21 @@
-﻿using CombatAnalysis.ChatApi.Interfaces;
+﻿using Chat.Application.Consts;
+using CombatAnalysis.ChatApi.Consts;
+using CombatAnalysis.ChatApi.Interfaces;
 using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Extensions.Options;
 using System.Net;
 
 namespace CombatAnalysis.ChatApi.Helpers;
 
-internal class ChatHubHelper : IChatHubHelper
+internal class ChatHubHelper(IOptions<Hubs> hubs, IOptions<KafkaSettings> kafkaSettings) : IChatHubHelper
 {
+    private readonly Hubs _hubs = hubs.Value;
+    private readonly KafkaSettings _kafkaSettings = kafkaSettings.Value;
     private HubConnection? _chatHubConnection;
 
-    public async Task ConnectToHubAsync(string hubURL, string refreshToken, string accessToken)
+    public async Task ConnectToHubAsync(string hubName, string accessToken)
     {
-        _chatHubConnection = await CreateHubConnectionAsync(hubURL, refreshToken, accessToken);
+        _chatHubConnection = await CreateHubConnectionAsync($"{_hubs.Server}{hubName}", accessToken);
     }
 
     public async Task JoinRoomAsync(int chatId)
@@ -51,20 +56,36 @@ internal class ChatHubHelper : IChatHubHelper
     public async Task RequestMessageAsync<T>(int chatId, T message)
         where T : class
     {
-        ArgumentNullException.ThrowIfNull(_chatHubConnection, nameof(_chatHubConnection));
+        try
+        {
+            ArgumentNullException.ThrowIfNull(_chatHubConnection, nameof(_chatHubConnection));
 
-        await _chatHubConnection.SendAsync("RequestMessage", chatId, message);
+            await _chatHubConnection.SendAsync("RequestMessage", chatId, message);
+        }
+        catch (Exception ex)
+        {
+            var msg = ex.Message;
+            throw;
+        }
     }
 
-    private static async Task<HubConnection> CreateHubConnectionAsync(string hubURL, string refreshToken, string accessToken)
+    public async Task DisconnectFromHubAsync()
+    {
+        if (_chatHubConnection != null)
+        {
+            await _chatHubConnection.StopAsync();
+            await _chatHubConnection.DisposeAsync();
+        }
+    }
+
+    private async Task<HubConnection> CreateHubConnectionAsync(string hubUrl, string accessToken)
     {
         var cookieContainer = new CookieContainer();
 
-        cookieContainer.Add(new Uri(hubURL), new Cookie("RefreshToken", refreshToken));
-        cookieContainer.Add(new Uri(hubURL), new Cookie("AccessToken", accessToken));
+        cookieContainer.Add(new Uri(hubUrl), new Cookie("AccessToken", accessToken) { Expires = DateTime.UtcNow.AddMinutes(_kafkaSettings.AccessTokenExpiresMins) });
 
         var hub = new HubConnectionBuilder()
-            .WithUrl(hubURL, options =>
+            .WithUrl(hubUrl, options =>
             {
                 options.Cookies = cookieContainer;
             })

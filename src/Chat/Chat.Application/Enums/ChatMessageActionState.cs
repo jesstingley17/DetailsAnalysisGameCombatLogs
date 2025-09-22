@@ -1,4 +1,4 @@
-﻿namespace CombatAnalysis.ChatApi.Enums;
+﻿namespace Chat.Application.Enums;
 
 public enum ChatMessageActionState
 {

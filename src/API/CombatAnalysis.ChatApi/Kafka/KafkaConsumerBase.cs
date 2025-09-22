@@ -1,4 +1,4 @@
-﻿using CombatAnalysis.ChatApi.Consts;
+﻿using Chat.Application.Consts;
 using CombatAnalysis.ChatApi.Core;
 using Confluent.Kafka;
 using Microsoft.Extensions.Options;
@@ -19,6 +19,12 @@ public abstract class KafkaConsumerBase : BackgroundService
         _config.BootstrapServers = kafkaSettings.Value.BootstrapServers;
         _topic = topic;
         _logger = logger;
+    }
+    public override void Dispose()
+    {
+        _consumer?.Dispose();
+
+        base.Dispose();
     }
 
     protected abstract Task ConsumeMessageAsync(ConsumeResult<string, JsonDocument> result, CancellationToken stoppingToken);
@@ -70,11 +76,5 @@ public abstract class KafkaConsumerBase : BackgroundService
             _consumer.Close();
             _logger.LogInformation($"Kafka consumer for topic '{_topic}' stopped.");
         }, stoppingToken);
-    }
-
-    public override void Dispose()
-    {
-        _consumer?.Dispose();
-        base.Dispose();
     }
 }

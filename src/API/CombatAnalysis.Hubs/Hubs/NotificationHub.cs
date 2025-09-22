@@ -83,7 +83,6 @@ public class NotificationHub : Hub
                 RecipientId = recipientId,
                 State = (int)NotificationActionState.ReadAll,
                 When = DateTime.UtcNow.ToString(),
-                RefreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty,
                 AccessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)] ?? string.Empty
             });
             await _kafkaProducer.ProduceAsync(KafkaTopics.Notification, recipientId, notificationAction);
@@ -110,7 +109,6 @@ public class NotificationHub : Hub
                 RecipientId = recipientId,
                 State = (int)NotificationActionState.Read,
                 When = DateTime.UtcNow.ToString(),
-                RefreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty,
                 AccessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)] ?? string.Empty
             });
             await _kafkaProducer.ProduceAsync(KafkaTopics.Notification, notificationId.ToString(), notificationAction);
@@ -137,7 +135,6 @@ public class NotificationHub : Hub
                 RecipientId = recipientId,
                 State = (int)NotificationActionState.Remove,
                 When = DateTime.UtcNow.ToString(),
-                RefreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty,
                 AccessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)] ?? string.Empty
             });
             await _kafkaProducer.ProduceAsync(KafkaTopics.Notification, notificationId.ToString(), notificationAction);

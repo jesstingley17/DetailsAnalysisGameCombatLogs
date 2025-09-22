@@ -10,11 +10,12 @@ public class GroupChatUser : IRepositoryEntity<GroupChatUserId>
 
     private GroupChatUser() { }
 
-    public GroupChatUser(string username, int chatId, UserId appUserId, int unreadMessages = 0)
+    public GroupChatUser(string id, string username, int chatId, UserId appUserId, int unreadMessages = 0)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(username, nameof(username));
         ArgumentOutOfRangeException.ThrowIfGreaterThan(username.Length, USERNAME_MAX_LENGTH, nameof(username));
 
+        Id = id;
         Username = username;
         UnreadMessages = unreadMessages;
         GroupChatId = chatId;

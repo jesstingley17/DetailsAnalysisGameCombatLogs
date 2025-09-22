@@ -1,4 +1,4 @@
-﻿namespace CombatAnalysis.Hubs.Enums;
+﻿namespace Chat.Application.Enums;
 
 public enum ChatActionState
 {

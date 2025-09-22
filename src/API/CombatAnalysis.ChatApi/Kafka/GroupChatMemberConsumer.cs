@@ -1,13 +1,13 @@
-﻿using AutoMapper;
+﻿using Chat.Application.Consts;
 using Chat.Application.DTOs;
+using Chat.Application.Enums;
 using Chat.Application.Interfaces;
+using Chat.Application.Kafka.Actions;
+using Chat.Application.Security;
 using Chat.Domain.Enums;
 using Chat.Infrastructure.Exceptions;
 using CombatAnalysis.ChatApi.Consts;
-using CombatAnalysis.ChatApi.Enums;
 using CombatAnalysis.ChatApi.Interfaces;
-using CombatAnalysis.ChatApi.Kafka.Actions;
-using CombatAnalysis.ChatApi.Models;
 using Confluent.Kafka;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -16,13 +16,14 @@ using System.Text.Json;
 namespace CombatAnalysis.ChatApi.Kafka;
 
 public class GroupChatMemberConsumer(IOptions<KafkaSettings> kafkaSettings, IOptions<Hubs> hubs, ILogger<GroupChatMemberConsumer> logger, IServiceScopeFactory serviceScopeFactory,
-    IMapper mapper, IKafkaProducerService<string, string> kafkaProducer) : KafkaConsumerBase(kafkaSettings, KafkaTopics.GroupChatMember, logger)
+    IKafkaProducerService<string, string> kafkaProducer, IChatHubHelper groupChatHelper) : KafkaConsumerBase(kafkaSettings, KafkaTopics.GroupChatMember, logger)
 {
     private readonly Hubs _hubs = hubs.Value;
+    private readonly KafkaSettings _kafkaSettings = kafkaSettings.Value;
     private readonly ILogger<GroupChatMemberConsumer> _logger = logger;
     private readonly IServiceScopeFactory _serviceScopeFactory = serviceScopeFactory;
-    private readonly IMapper _mapper = mapper;
     private readonly IKafkaProducerService<string, string> _kafkaProducer = kafkaProducer;
+    private readonly IChatHubHelper _groupChatHelper = groupChatHelper;
 
     protected override async Task ConsumeMessageAsync(ConsumeResult<string, JsonDocument> kafkaData, CancellationToken stoppingToken)
     {
@@ -58,7 +59,7 @@ public class GroupChatMemberConsumer(IOptions<KafkaSettings> kafkaSettings, IOpt
                 case ChatMembersActionState.AddUser:
                     await CreateGroupChatUser(chatUserService, action.User);
 
-                    await SendSignalRequestChatsAsync(scope, action);
+                    await SendSignalRequestChatsAsync(action);
                     await CreateSystemMessageAsync( $"Add user '{action.User.Username}' to chat", action, chatOwnerUser.Id);
 
                     break;
@@ -84,33 +85,42 @@ public class GroupChatMemberConsumer(IOptions<KafkaSettings> kafkaSettings, IOpt
         }
     }
 
-    private async Task<GroupChatUserModel> CreateGroupChatUser(IGroupChatUserService chatUserService, GroupChatUserModel chatUser)
+    private static async Task CreateGroupChatUser(IGroupChatUserService chatUserService, GroupChatUserDto chatUser)
     {
-        var map = _mapper.Map<GroupChatUserDto>(chatUser);
-        var createdGroupChatUser = await chatUserService.CreateAsync(map);
-
-        var mapToModel = _mapper.Map<GroupChatUserModel>(createdGroupChatUser);
-        return mapToModel;
+        await chatUserService.CreateAsync(chatUser);
     }
 
-    private async Task SendSignalRequestChatsAsync(IServiceScope scope, GroupChatMemberAction chatAction)
+    private async Task SendSignalRequestChatsAsync(GroupChatMemberAction chatAction)
     {
-        var chatHubHelper = scope.ServiceProvider.GetService<IChatHubHelper>();
-        ArgumentNullException.ThrowIfNull(chatHubHelper, nameof(chatHubHelper));
+        var accessToken = AesEncryption.Decrypt(chatAction.AccessToken, Convert.FromBase64String(_kafkaSettings.Security.SecurityKey), Convert.FromBase64String(_kafkaSettings.Security.IV));
 
-        await chatHubHelper.ConnectToHubAsync($"{_hubs.Server}{_hubs.GroupChatAddress}", chatAction.RefreshToken, chatAction.AccessToken);
-        await chatHubHelper.JoinRoomAsync(chatAction.User.GroupChatId);
-        await chatHubHelper.RequestsChatsAsync(chatAction.User.GroupChatId, chatAction.User.AppUserId);
+        await _groupChatHelper.ConnectToHubAsync(_hubs.GroupChatAddress, accessToken);
+
+        await _groupChatHelper.JoinRoomAsync(chatAction.User.GroupChatId);
+        await _groupChatHelper.RequestsChatsAsync(chatAction.User.GroupChatId, chatAction.User.AppUserId);
+
+        await _groupChatHelper.DisconnectFromHubAsync();
     }
 
     private async Task CreateSystemMessageAsync(string systemMessage, GroupChatMemberAction chatAction, string chatOwnerUserId)
     {
         var chatMessageAction = JsonSerializer.Serialize(new GroupChatMessageAction
         {
-            ChatMessage = new GroupChatMessageModel(0, "System", systemMessage, chatAction.When, MessageStatus.Sent, MessageType.System, MessageMarkedType.None, false, chatAction.User.GroupChatId, chatOwnerUserId),
+            ChatMessage = new GroupChatMessageDto
+            {
+                Id = 0,
+                Username = "System",
+                Message = systemMessage,
+                Time = chatAction.When,
+                Status = MessageStatus.Sent,
+                Type = MessageType.System,
+                MarkedType = MessageMarkedType.None,
+                IsEdited = false,
+                GroupChatId = chatAction.User.GroupChatId,
+                GroupChatUserId = chatOwnerUserId
+            },
             State = (int)ChatMessageActionState.Created,
             When = DateTimeOffset.UtcNow,
-            RefreshToken = chatAction.RefreshToken,
             AccessToken = chatAction.AccessToken
         });
         await _kafkaProducer.ProduceAsync(KafkaTopics.GroupChatMessage, Guid.NewGuid().ToString(), chatMessageAction);

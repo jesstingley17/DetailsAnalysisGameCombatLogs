@@ -1,27 +1,36 @@
-﻿using Chat.Domain.Enums;
+﻿using Chat.Application.Consts;
+using Chat.Application.DTOs;
+using Chat.Application.Enums;
+using Chat.Application.Kafka.Actions;
+using Chat.Application.Security;
+using Chat.Domain.Enums;
 using CombatAnalysis.Hubs.Consts;
 using CombatAnalysis.Hubs.Enums;
 using CombatAnalysis.Hubs.Interfaces;
-using CombatAnalysis.Hubs.Kafka.Actions;
 using CombatAnalysis.Hubs.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
 
 namespace CombatAnalysis.Hubs.Hubs;
 
+[Authorize]
 public class PersonalChatMessagesHub : Hub
 {
     private readonly IHttpClientHelper _httpClient;
     private readonly ILogger<PersonalChatMessagesHub> _logger;
     private readonly IKafkaProducerService<string, string> _kafkaProducer;
+    private readonly KafkaSettings _kafkaSettings;
 
-    public PersonalChatMessagesHub(IHttpClientHelper httpClient, IOptions<Cluster> cluster, ILogger<PersonalChatMessagesHub> logger, IKafkaProducerService<string, string> kafkaProducer)
+    public PersonalChatMessagesHub(IHttpClientHelper httpClient, IOptions<Cluster> cluster, ILogger<PersonalChatMessagesHub> logger,
+        IKafkaProducerService<string, string> kafkaProducer, IOptions<KafkaSettings> kafkaSettings)
     {
         _logger = logger;
         _kafkaProducer = kafkaProducer;
         _httpClient = httpClient;
         _httpClient.APIUrl = cluster.Value.Chat;
+        _kafkaSettings = kafkaSettings.Value;
     }
 
     public async Task JoinRoom(int chatId)
@@ -45,19 +54,26 @@ public class PersonalChatMessagesHub : Hub
         }
     }
 
-    public async Task SendMessage(PersonalChatMessageModel chatMessage)
+    public async Task SendMessage(PersonalChatMessageDto chatMessage)
     {
         try
         {
             ArgumentNullException.ThrowIfNull(chatMessage, nameof(chatMessage));
+
+            var encryptedAccessToken = string.Empty;
+            var accessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)];
+
+            if (!string.IsNullOrEmpty(accessToken))
+            {
+                encryptedAccessToken = AesEncryption.Encrypt(accessToken, Convert.FromBase64String(_kafkaSettings.Security.SecurityKey), Convert.FromBase64String(_kafkaSettings.Security.IV));
+            }
 
             var chatAction = JsonSerializer.Serialize(new PersonalChatMessageAction
             {
                 ChatMessage = chatMessage,
                 State = ChatMessageActionState.Created,
                 When = DateTimeOffset.UtcNow,
-                RefreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty,
-                AccessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)] ?? string.Empty
+                AccessToken = encryptedAccessToken
             });
             await _kafkaProducer.ProduceAsync(KafkaTopics.PersonalChatMessage, Guid.NewGuid().ToString(), chatAction);
         }
@@ -122,7 +138,7 @@ public class PersonalChatMessagesHub : Hub
             var response = await _httpClient.GetAsync($"PersonalChatMessage/{chatMessageId}");
             response.EnsureSuccessStatusCode();
 
-            var chatMessage = await response.Content.ReadFromJsonAsync<PersonalChatMessageModel>();
+            var chatMessage = await response.Content.ReadFromJsonAsync<PersonalChatMessageDto>();
             ArgumentNullException.ThrowIfNull(chatMessage, nameof(chatMessage));
 
             if (chatMessage.Status == MessageStatus.Read)
@@ -130,13 +146,20 @@ public class PersonalChatMessagesHub : Hub
                 return;
             }
 
+            var encryptedAccessToken = string.Empty;
+            var accessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)];
+
+            if (!string.IsNullOrEmpty(accessToken))
+            {
+                encryptedAccessToken = AesEncryption.Encrypt(accessToken, Convert.FromBase64String(_kafkaSettings.Security.SecurityKey), Convert.FromBase64String(_kafkaSettings.Security.IV));
+            }
+
             var chatAction = JsonSerializer.Serialize(new PersonalChatMessageAction
             {
                 ChatMessage = chatMessage,
                 State = ChatMessageActionState.Read,
                 When = DateTimeOffset.UtcNow,
-                RefreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty,
-                AccessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)] ?? string.Empty
+                AccessToken = encryptedAccessToken
             });
             await _kafkaProducer.ProduceAsync(KafkaTopics.PersonalChatMessage, Guid.NewGuid().ToString(), chatAction);
         }

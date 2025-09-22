@@ -1,13 +1,13 @@
-﻿using AutoMapper;
+﻿using Chat.Application.Consts;
 using Chat.Application.DTOs;
+using Chat.Application.Enums;
 using Chat.Application.Interfaces;
+using Chat.Application.Kafka.Actions;
+using Chat.Application.Security;
 using Chat.Domain.Enums;
 using Chat.Domain.Exceptions;
 using CombatAnalysis.ChatApi.Consts;
-using CombatAnalysis.ChatApi.Enums;
 using CombatAnalysis.ChatApi.Interfaces;
-using CombatAnalysis.ChatApi.Kafka.Actions;
-using CombatAnalysis.ChatApi.Models;
 using Confluent.Kafka;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -16,12 +16,14 @@ using System.Text.Json;
 namespace CombatAnalysis.ChatApi.Kafka;
 
 public class GroupChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, IOptions<Hubs> hubs, ILogger<GroupChatMessageConsumer> logger, 
-    IServiceScopeFactory serviceScopeFactory, IMapper mapper) : KafkaConsumerBase(kafkaSettings, KafkaTopics.GroupChatMessage, logger)
+    IServiceScopeFactory serviceScopeFactory, IChatHubHelper groupChatMessageHelper, IChatHubHelper groupChatUnreadMessageHelper) : KafkaConsumerBase(kafkaSettings, KafkaTopics.GroupChatMessage, logger)
 {
     private readonly Hubs _hubs = hubs.Value;
+    private readonly KafkaSettings _kafkaSettings = kafkaSettings.Value;
     private readonly ILogger<GroupChatMessageConsumer> _logger = logger;
     private readonly IServiceScopeFactory _serviceScopeFactory = serviceScopeFactory;
-    private readonly IMapper _mapper = mapper;
+    private readonly IChatHubHelper _groupChatMessageHelper = groupChatMessageHelper;
+    private readonly IChatHubHelper _groupChatUnreadMessageHelper = groupChatUnreadMessageHelper;
 
     protected override async Task ConsumeMessageAsync(ConsumeResult<string, JsonDocument> kafkaData, CancellationToken stoppingToken)
     {
@@ -31,7 +33,7 @@ public class GroupChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, IOp
 
             using var scope = _serviceScopeFactory.CreateScope();
 
-            await ExecuteAsync(scope, kafkaData);
+            await ExecuteActionAsync(scope, kafkaData);
         }
         catch (ArgumentNullException ex)
         {
@@ -39,7 +41,7 @@ public class GroupChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, IOp
         }
     }
 
-    private async Task ExecuteAsync(IServiceScope scope, ConsumeResult<string, JsonDocument> kafkaData)
+    private async Task ExecuteActionAsync(IServiceScope scope, ConsumeResult<string, JsonDocument> kafkaData)
     {
         try
         {
@@ -49,32 +51,28 @@ public class GroupChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, IOp
             var groupChatUserService = scope.ServiceProvider.GetService<IGroupChatUserService>();
             ArgumentNullException.ThrowIfNull(groupChatUserService, nameof(groupChatUserService));
 
-            var groupChatMessageHub = scope.ServiceProvider.GetService<IChatHubHelper>();
-            ArgumentNullException.ThrowIfNull(groupChatMessageHub, nameof(groupChatMessageHub));
-
-            var groupChatUnreadMessageHub = scope.ServiceProvider.GetService<IChatHubHelper>();
-            ArgumentNullException.ThrowIfNull(groupChatUnreadMessageHub, nameof(groupChatUnreadMessageHub));
-
             var chatAction = kafkaData.Message.Value.Deserialize<GroupChatMessageAction>();
             ArgumentNullException.ThrowIfNull(chatAction, nameof(chatAction));
 
-            await groupChatMessageHub.ConnectToHubAsync($"{_hubs.Server}{_hubs.GroupChatMessagesAddress}", chatAction.RefreshToken, chatAction.AccessToken);
-            await groupChatMessageHub.JoinRoomAsync(chatAction.ChatMessage.GroupChatId);
+            var accessToken = AesEncryption.Decrypt(chatAction.AccessToken, Convert.FromBase64String(_kafkaSettings.Security.SecurityKey), Convert.FromBase64String(_kafkaSettings.Security.IV));
+            
+            await _groupChatMessageHelper.ConnectToHubAsync(_hubs.GroupChatMessagesAddress, accessToken);
+            await _groupChatMessageHelper.JoinRoomAsync(chatAction.ChatMessage.GroupChatId);
 
-            await groupChatUnreadMessageHub.ConnectToHubAsync($"{_hubs.Server}{_hubs.GroupChatUnreadMessageAddress}", chatAction.RefreshToken, chatAction.AccessToken);
-            await groupChatUnreadMessageHub.JoinRoomAsync(chatAction.ChatMessage.GroupChatId);
+            await _groupChatUnreadMessageHelper.ConnectToHubAsync(_hubs.GroupChatUnreadMessageAddress, accessToken);
+            await _groupChatUnreadMessageHelper.JoinRoomAsync(chatAction.ChatMessage.GroupChatId);
 
             switch (chatAction.State)
             {
                 case ChatMessageActionState.Created:
                     var createdChatMessage = await CreateChatMessageAsync(groupChatMessageService, groupChatUserService, chatAction.ChatMessage);
 
-                    await groupChatMessageHub.RequestMessageAsync(chatAction.ChatMessage.GroupChatId, createdChatMessage);
+                    await _groupChatMessageHelper.RequestMessageAsync(chatAction.ChatMessage.GroupChatId, createdChatMessage);
 
                     if (chatAction.ChatMessage.Type == MessageType.Default)
                     {
                         await IncreaseUnreadMessageCountAsync(groupChatUserService, chatAction.ChatMessage.GroupChatId, chatAction.InitiatorGroupChatUserId);
-                        await groupChatUnreadMessageHub.RequestUnreadMessagesAsync(chatAction.ChatMessage.GroupChatId);
+                        await _groupChatUnreadMessageHelper.RequestUnreadMessagesAsync(chatAction.ChatMessage.GroupChatId);
                     }
 
                     break;
@@ -82,9 +80,9 @@ public class GroupChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, IOp
                     if (chatAction.ChatMessage.Type == MessageType.Default)
                     {
                         await DecreaseUnreadMessageCountAsync(groupChatUserService, groupChatMessageService, chatAction.InitiatorGroupChatUserId, chatAction.ChatMessage.GroupChatId, chatAction.ChatMessage.Id);
-                        await ReadMessageAsync(groupChatUserService, groupChatMessageService, chatAction.InitiatorGroupChatUserId, chatAction.ChatMessage);
+                        await ReadMessageAsync(groupChatUserService, groupChatMessageService, chatAction.InitiatorGroupChatUserId, chatAction.ChatMessage.Id, chatAction.ChatMessage.GroupChatId);
 
-                        await groupChatUnreadMessageHub.RequestUnreadMessagesAsync(chatAction.ChatMessage.GroupChatId);
+                        await _groupChatUnreadMessageHelper.RequestUnreadMessagesAsync(chatAction.ChatMessage.GroupChatId);
                     }
 
                     break;
@@ -93,6 +91,9 @@ public class GroupChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, IOp
                 default:
                     break;
             }
+
+            await _groupChatMessageHelper.DisconnectFromHubAsync();
+            await _groupChatUnreadMessageHelper.DisconnectFromHubAsync();
         }
         catch (ArgumentNullException ex)
         {
@@ -112,10 +113,9 @@ public class GroupChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, IOp
         }
     }
 
-    private async Task<GroupChatMessageDto> CreateChatMessageAsync(IGroupChatMessageService chatMessageService, IGroupChatUserService chatUserService, GroupChatMessageModel chatMessage)
+    private static async Task<GroupChatMessageDto> CreateChatMessageAsync(IGroupChatMessageService chatMessageService, IGroupChatUserService chatUserService, GroupChatMessageDto chatMessage)
     {
-        var map = _mapper.Map<GroupChatMessageDto>(chatMessage);
-        var createdChatMessage = await chatMessageService.CreateAsync(map);
+        var createdChatMessage = await chatMessageService.CreateAsync(chatMessage);
 
         await chatUserService.UpdateChatUserAsync(chatMessage.GroupChatUserId, createdChatMessage.Id);
 
@@ -136,11 +136,11 @@ public class GroupChatMessageConsumer(IOptions<KafkaSettings> kafkaSettings, IOp
         }
     }
 
-    private static async Task ReadMessageAsync(IGroupChatUserService chatUserService, IGroupChatMessageService chatMessageService, string initiatorGroupChatUserId, GroupChatMessageModel chatMessage)
+    private static async Task ReadMessageAsync(IGroupChatUserService chatUserService, IGroupChatMessageService chatMessageService, string initiatorGroupChatUserId, int chatMessageId, int groupChatId)
     {
-        await chatUserService.UpdateChatUserAsync(initiatorGroupChatUserId, chatMessage.Id);
+        await chatUserService.UpdateChatUserAsync(initiatorGroupChatUserId, chatMessageId);
 
-        await chatMessageService.ReadMessagesLessThanAsync(chatMessage.GroupChatId, chatMessage.Id);
+        await chatMessageService.ReadMessagesLessThanAsync(groupChatId, chatMessageId);
     }
 
     private static async Task DecreaseUnreadMessageCountAsync(IGroupChatUserService groupChatUserService, IGroupChatMessageService chatMessageService, string chatUserId, int chatId, int chatMessageId)

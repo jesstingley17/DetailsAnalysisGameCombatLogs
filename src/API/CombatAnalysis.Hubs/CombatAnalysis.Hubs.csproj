@@ -19,7 +19,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Chat\Chat.Application\Chat.Application.csproj" />
     <ProjectReference Include="..\..\Chat\Chat.Domain\Chat.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Kafka\Actions\" />
   </ItemGroup>
 
 </Project>

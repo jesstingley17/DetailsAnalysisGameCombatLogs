@@ -1,12 +1,14 @@
 ﻿using CombatAnalysis.Hubs.Consts;
 using CombatAnalysis.Hubs.Interfaces;
 using CombatAnalysis.Hubs.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
 
 namespace CombatAnalysis.Hubs.Hubs;
 
+[Authorize]
 public class VoiceChatHub : Hub
 {
     private readonly IHttpClientHelper _httpClient;

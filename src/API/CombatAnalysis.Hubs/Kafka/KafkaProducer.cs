@@ -1,4 +1,4 @@
-﻿using CombatAnalysis.Hubs.Consts;
+﻿using Chat.Application.Consts;
 using CombatAnalysis.Hubs.Interfaces;
 using Confluent.Kafka;
 using Microsoft.Extensions.Options;

@@ -13,15 +13,14 @@ using System.Text.RegularExpressions;
 
 namespace CombatAnalysisIdentity.Services;
 
-internal class UserAuthorizationService(IMapper mapper, IOAuthCodeFlowService oAuthCodeFlowService, IOptions<Authentication> authentication, 
-    IOptions<API> api, IIdentityUserService identityUserService, ILogger<UserAuthorizationService> logger,
+internal class UserAuthorizationService(IMapper mapper, IOAuthCodeFlowService oAuthCodeFlowService, IOptions<API> api, 
+    IIdentityUserService identityUserService, ILogger<UserAuthorizationService> logger,
     IUserService<AppUserDto> appUserService, IService<CustomerDto, string> customerService, ICustomerTransactionService customerTransactionService, 
     IIdentityTransactionService identityTransactionService) : IUserAuthorizationService
 {
     private readonly IMapper _mapper = mapper;
     private readonly IOAuthCodeFlowService _oAuthCodeFlowService = oAuthCodeFlowService;
     private readonly IIdentityUserService _identityUserService = identityUserService;
-    private readonly Authentication _authentication = authentication.Value;
     private readonly API _api = api.Value;
     private readonly IUserService<AppUserDto> _appUserService = appUserService;
     private readonly IService<CustomerDto, string> _customerService = customerService;
@@ -204,52 +203,6 @@ internal class UserAuthorizationService(IMapper mapper, IOAuthCodeFlowService oA
         }
 
         if (request.Query.TryGetValue(AuthorizationRequest.CodeChallenge.ToString(), out var codeChallenge))
-        {
-            _authorizationRequest.CodeChallenge = codeChallenge;
-        }
-    }
-    
-    private void GetDevAuthorizationRequestData(HttpRequest request)
-    {
-        var returnUrlEncoded = request.Query["ReturnUrl"];
-        var returnUrlDecoded = Uri.UnescapeDataString(returnUrlEncoded);
-        var innerQuery = new Uri("https://localhost" + returnUrlDecoded);
-        var innerParams = Microsoft.AspNetCore.WebUtilities
-                .QueryHelpers.ParseQuery(innerQuery.Query);
-
-        if (innerParams.TryGetValue("redirect_uri", out var redirectUri))
-        {
-            var url = redirectUri.ToString();
-            var isHttps = url.StartsWith("https://");
-            _authorizationRequest.RedirectUri = isHttps ? url.Split("https://")[1] : url.Split("http://")[1];
-        }
-
-        if (innerParams.TryGetValue("response_type", out var grantType))
-        {
-            _authorizationRequest.GrantType = grantType;
-        }
-
-        if (innerParams.TryGetValue("client_id", out var clientId))
-        {
-            _authorizationRequest.ClientTd = clientId;
-        }
-
-        if (innerParams.TryGetValue(AuthorizationRequest.Scopes.ToString(), out var scope))
-        {
-            _authorizationRequest.Scopes = scope;
-        }
-
-        if (innerParams.TryGetValue(AuthorizationRequest.State.ToString(), out var state))
-        {
-            _authorizationRequest.State = state;
-        }
-
-        if (innerParams.TryGetValue("code_challenge_method", out var codeChallengeMethod))
-        {
-            _authorizationRequest.CodeChallengeMethod = codeChallengeMethod;
-        }
-
-        if (innerParams.TryGetValue("code_challenge", out var codeChallenge))
         {
             _authorizationRequest.CodeChallenge = codeChallenge;
         }

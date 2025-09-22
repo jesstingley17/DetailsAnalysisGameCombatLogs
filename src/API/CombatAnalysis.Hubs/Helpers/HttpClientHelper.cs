@@ -57,11 +57,6 @@ internal class HttpClientHelper(IHttpContextAccessor httpContextAccessor) : IHtt
             throw new ArgumentNullException(nameof(context));
         }
 
-        if (!context.Request.Cookies.TryGetValue(nameof(AuthenticationCookie.RefreshToken), out var _))
-        {
-            throw new UnauthorizedAccessException($"{nameof(AuthenticationCookie.RefreshToken)} token is missing.");
-        }
-
         if (!context.Request.Cookies.TryGetValue(nameof(AuthenticationCookie.AccessToken), out var accessToken))
         {
             throw new UnauthorizedAccessException($"{nameof(AuthenticationCookie.AccessToken)} token is missing.");

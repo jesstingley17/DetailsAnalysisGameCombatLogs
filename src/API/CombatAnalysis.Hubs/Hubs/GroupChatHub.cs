@@ -1,27 +1,36 @@
-﻿using CombatAnalysis.Hubs.Consts;
+﻿using Chat.Application.Consts;
+using Chat.Application.DTOs;
+using Chat.Application.Enums;
+using Chat.Application.Kafka.Actions;
+using Chat.Application.Security;
+using CombatAnalysis.Hubs.Consts;
 using CombatAnalysis.Hubs.Enums;
 using CombatAnalysis.Hubs.Interfaces;
-using CombatAnalysis.Hubs.Kafka.Actions;
 using CombatAnalysis.Hubs.Models;
 using CombatAnalysis.Hubs.Models.Containers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
 
 namespace CombatAnalysis.Hubs.Hubs;
 
+[Authorize]
 public class GroupChatHub : Hub
 {
     private readonly IHttpClientHelper _httpClient;
     private readonly ILogger<GroupChatHub> _logger;
     private readonly IKafkaProducerService<string, string> _kafkaProducer;
+    private readonly KafkaSettings _kafkaSettings;
 
-    public GroupChatHub(IHttpClientHelper httpClient, IOptions<Cluster> cluster, ILogger<GroupChatHub> logger, IKafkaProducerService<string, string> kafkaProducer)
+    public GroupChatHub(IHttpClientHelper httpClient, IOptions<Cluster> cluster, ILogger<GroupChatHub> logger, 
+        IKafkaProducerService<string, string> kafkaProducer, IOptions<KafkaSettings> kafkaSettings)
     {
         _logger = logger;
         _kafkaProducer = kafkaProducer;
         _httpClient = httpClient;
         _httpClient.APIUrl = cluster.Value.Chat;
+        _kafkaSettings = kafkaSettings.Value;
     }
 
     public async Task JoinRoom(string appUserId)
@@ -47,15 +56,22 @@ public class GroupChatHub : Hub
         {
             ArgumentNullException.ThrowIfNull(container, nameof(container));
 
+            var encryptedAccessToken = string.Empty;
+            var accessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)];
+
+            if (!string.IsNullOrEmpty(accessToken))
+            {
+                encryptedAccessToken = AesEncryption.Encrypt(accessToken, Convert.FromBase64String(_kafkaSettings.Security.SecurityKey), Convert.FromBase64String(_kafkaSettings.Security.IV));
+            }
+
             var chatAction = JsonSerializer.Serialize(new GroupChatAction
             {
                 Chat = container.GroupChat,
                 Rules = container.GroupChatRules,
                 User = container.GroupChatUser,
                 State = ChatActionState.Created,
-                When = DateTime.UtcNow.ToString(),
-                RefreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty,
-                AccessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)] ?? string.Empty
+                When = DateTimeOffset.UtcNow,
+                AccessToken = encryptedAccessToken
             });
             await _kafkaProducer.ProduceAsync(KafkaTopics.GroupChat, Guid.NewGuid().ToString(), chatAction);
         }
@@ -133,21 +149,28 @@ public class GroupChatHub : Hub
         }
     }
 
-    public async Task AddUserToChat(string chatOwnerId, GroupChatUserModel groupChatUser)
+    public async Task AddUserToChat(string chatOwnerId, GroupChatUserDto groupChatUser)
     {
         try
         {
             ArgumentNullException.ThrowIfNullOrEmpty(chatOwnerId, nameof(chatOwnerId));
             ArgumentNullException.ThrowIfNull(groupChatUser, nameof(groupChatUser));
 
+            var encryptedAccessToken = string.Empty;
+            var accessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)];
+
+            if (!string.IsNullOrEmpty(accessToken))
+            {
+                encryptedAccessToken = AesEncryption.Encrypt(accessToken, Convert.FromBase64String(_kafkaSettings.Security.SecurityKey), Convert.FromBase64String(_kafkaSettings.Security.IV));
+            }
+
             var chatAction = JsonSerializer.Serialize(new GroupChatMemberAction
             {
                 User = groupChatUser,
                 ChatOwnerId = chatOwnerId,
                 State = ChatMembersActionState.AddUser,
-                When = DateTime.UtcNow,
-                RefreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty,
-                AccessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)] ?? string.Empty
+                When = DateTimeOffset.UtcNow,
+                AccessToken = encryptedAccessToken
             });
             await _kafkaProducer.ProduceAsync(KafkaTopics.GroupChatMember, Guid.NewGuid().ToString(), chatAction);
         }
@@ -168,10 +191,13 @@ public class GroupChatHub : Hub
             var chatAction = JsonSerializer.Serialize(new GroupChatMemberAction
             {
                 ChatOwnerId = chatOwnerId,
-                User = new GroupChatUserModel(groupChatUserId, groupChatUsername, 0, chatId, 0, string.Empty),
+                User = new GroupChatUserDto {
+                    Id = groupChatUserId,
+                    Username= groupChatUsername,
+                    GroupChatId = chatId,
+                },
                 State = ChatMembersActionState.RemoveUser,
                 When = DateTime.UtcNow,
-                RefreshToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.RefreshToken)] ?? string.Empty,
                 AccessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)] ?? string.Empty
             });
             await _kafkaProducer.ProduceAsync(KafkaTopics.GroupChatMember, Guid.NewGuid().ToString(), chatAction);

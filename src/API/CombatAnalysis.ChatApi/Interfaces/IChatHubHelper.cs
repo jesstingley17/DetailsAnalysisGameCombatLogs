@@ -2,7 +2,7 @@
 
 public interface IChatHubHelper
 {
-    Task ConnectToHubAsync(string hubURL, string refreshToken, string accessToken);
+    Task ConnectToHubAsync(string hubUrl, string accessToken);
 
     Task JoinRoomAsync(int chatId);
 
@@ -15,4 +15,6 @@ public interface IChatHubHelper
     Task RequestsChatsAsync(int chatId, string appUserId);
 
     Task RequestMessageAsync<T>(int chatId, T message) where T : class;
+
+    Task DisconnectFromHubAsync();
 }

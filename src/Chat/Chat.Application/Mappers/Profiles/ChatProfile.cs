@@ -65,6 +65,7 @@ public class ChatProfile : Profile
         
         CreateMap<GroupChatUserDto, GroupChatUser>()
                  .ConstructUsing(dto => new GroupChatUser(
+                     dto.Id,
                      dto.Username,
                      dto.GroupChatId,
                      dto.AppUserId,

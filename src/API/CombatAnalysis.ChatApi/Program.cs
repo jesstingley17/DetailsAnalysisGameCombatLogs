@@ -1,10 +1,10 @@
 using AutoMapper;
 using AutoMapper.Extensions.ExpressionMapping;
+using Chat.Application.Consts;
 using Chat.Application.Extensions;
 using Chat.Application.Mappers.Profiles;
 using Chat.Infrastructure.Extensions;
 using CombatAnalysis.ChatApi.Consts;
-using CombatAnalysis.ChatApi.Enums;
 using CombatAnalysis.ChatApi.Helpers;
 using CombatAnalysis.ChatApi.Interfaces;
 using CombatAnalysis.ChatApi.Kafka;
@@ -23,9 +23,7 @@ builder.Services.Configure<Hubs>(builder.Configuration.GetSection("Hubs"));
 var databasePropsOptions = new DatabaseProps();
 builder.Configuration.Bind("Database", databasePropsOptions);
 
-var connectionString = databasePropsOptions.Name == nameof(DatabaseType.MSSQL)
-    ? databasePropsOptions.DefaultConnection
-    : databasePropsOptions.FirebaseConnection;
+var connectionString = databasePropsOptions.DefaultConnection;
 builder.Services.AddChatApplication();
 builder.Services.AddChatInfrastructure(connectionString);
 

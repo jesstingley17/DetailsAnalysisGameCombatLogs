@@ -2,11 +2,13 @@
 using CombatAnalysis.Hubs.Enums;
 using CombatAnalysis.Hubs.Interfaces;
 using CombatAnalysis.Hubs.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 
 namespace CombatAnalysis.Hubs.Hubs;
 
+[Authorize]
 public class GroupChatUnreadMessageHub : Hub
 {
     private readonly IHttpClientHelper _httpClient;
