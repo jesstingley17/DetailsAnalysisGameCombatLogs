@@ -1,6 +1,0 @@
-apiVersion: v2
-name: IdentityHelmChart
-description: Helm Chart for Combat analysis Identity
-type: application
-version: 0.1.0
-appVersion: "0.1.0"

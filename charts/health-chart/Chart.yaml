@@ -1,6 +1,0 @@
-apiVersion: v2
-name: HealthHelmChart
-description: Helm Chart for Health API
-type: application
-version: 0.1.0
-appVersion: "0.1.0"
