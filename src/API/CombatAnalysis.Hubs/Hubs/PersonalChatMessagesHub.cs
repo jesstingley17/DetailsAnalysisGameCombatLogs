@@ -54,11 +54,12 @@ public class PersonalChatMessagesHub : Hub
         }
     }
 
-    public async Task SendMessage(PersonalChatMessageDto chatMessage)
+    public async Task SendMessage(PersonalChatMessageDto chatMessage, string recipientId)
     {
         try
         {
             ArgumentNullException.ThrowIfNull(chatMessage, nameof(chatMessage));
+            ArgumentException.ThrowIfNullOrEmpty(recipientId, nameof(recipientId));
 
             var encryptedAccessToken = string.Empty;
             var accessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)];
@@ -70,6 +71,7 @@ public class PersonalChatMessagesHub : Hub
 
             var chatAction = JsonSerializer.Serialize(new PersonalChatMessageAction
             {
+                RecipientId = recipientId,
                 ChatMessage = chatMessage,
                 State = ChatMessageActionState.Created,
                 When = DateTimeOffset.UtcNow,
@@ -77,17 +79,13 @@ public class PersonalChatMessagesHub : Hub
             });
             await _kafkaProducer.ProduceAsync(KafkaTopics.PersonalChatMessage, Guid.NewGuid().ToString(), chatAction);
         }
-        catch (ArgumentOutOfRangeException ex)
-        {
-            _logger.LogError(ex, "Invalid argument. Parameter '{ParamName}' was out of range.", ex.ParamName);
-        }
         catch (ArgumentNullException ex)
         {
             _logger.LogError(ex, "Request unread messages failed. Parameter '{ParamName}' was null.", ex.ParamName);
         }
-        catch (UnauthorizedAccessException ex)
+        catch (ArgumentException ex)
         {
-            _logger.LogError(ex, "Access denied. User should be authorized.");
+            _logger.LogError(ex, "Request unread messages failed. Parameter '{ParamName}' was incorrect.", ex.ParamName);
         }
         catch (HttpRequestException ex)
         {

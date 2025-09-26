@@ -240,6 +240,7 @@ const PersonalChat: React.FC<PersonalChatProps> = ({ myself, chat, setSelectedCh
                     setAreLoadingOldMessages={setAreLoadingOldMessages}
                     targetChatType={0}
                     t={t}
+                    recipientId={chat.initiatorId === myself.id ? chat.companionId : chat.initiatorId}
                 />
             </div>
         </div>

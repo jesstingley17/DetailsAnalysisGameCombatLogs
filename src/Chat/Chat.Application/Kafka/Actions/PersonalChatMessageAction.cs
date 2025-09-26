@@ -6,6 +6,8 @@ namespace Chat.Application.Kafka.Actions;
 
 public class PersonalChatMessageAction : SecurityAction
 {
+    public string RecipientId { get; set; }
+
     public PersonalChatMessageDto ChatMessage { get; set; }
 
     public ChatMessageActionState State { get; set; }

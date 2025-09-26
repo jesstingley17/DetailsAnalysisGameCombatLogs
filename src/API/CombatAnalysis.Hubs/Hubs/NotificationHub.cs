@@ -1,4 +1,6 @@
-﻿using CombatAnalysis.Hubs.Consts;
+﻿using Chat.Application.Consts;
+using Chat.Application.Security;
+using CombatAnalysis.Hubs.Consts;
 using CombatAnalysis.Hubs.Enums;
 using CombatAnalysis.Hubs.Interfaces;
 using CombatAnalysis.Hubs.Kafka.Actions;
@@ -14,13 +16,16 @@ public class NotificationHub : Hub
     private readonly IHttpClientHelper _httpClient;
     private readonly ILogger<NotificationHub> _logger;
     private readonly IKafkaProducerService<string, string> _kafkaProducer;
+    private readonly KafkaSettings _kafkaSettings;
 
-    public NotificationHub(IHttpClientHelper httpClient, IOptions<Cluster> cluster, ILogger<NotificationHub> logger, IKafkaProducerService<string, string> kafkaProducer)
+    public NotificationHub(IHttpClientHelper httpClient, IOptions<Cluster> cluster, ILogger<NotificationHub> logger,
+        IKafkaProducerService<string, string> kafkaProducer, IOptions<KafkaSettings> kafkaSettings)
     {
         _logger = logger;
         _kafkaProducer = kafkaProducer;
         _httpClient = httpClient;
         _httpClient.APIUrl = cluster.Value.Notification;
+        _kafkaSettings = kafkaSettings.Value;
     }
 
     public async Task JoinRoom(string appUserId)
@@ -78,12 +83,20 @@ public class NotificationHub : Hub
         {
             ArgumentNullException.ThrowIfNullOrEmpty(recipientId, nameof(recipientId));
 
+            var encryptedAccessToken = string.Empty;
+            var accessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)];
+
+            if (!string.IsNullOrEmpty(accessToken))
+            {
+                encryptedAccessToken = AesEncryption.Encrypt(accessToken, Convert.FromBase64String(_kafkaSettings.Security.SecurityKey), Convert.FromBase64String(_kafkaSettings.Security.IV));
+            }
+
             var notificationAction = JsonSerializer.Serialize(new NotificationAction
             {
                 RecipientId = recipientId,
                 State = (int)NotificationActionState.ReadAll,
-                When = DateTime.UtcNow.ToString(),
-                AccessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)] ?? string.Empty
+                When = DateTime.UtcNow,
+                AccessToken = encryptedAccessToken
             });
             await _kafkaProducer.ProduceAsync(KafkaTopics.Notification, recipientId, notificationAction);
         }
@@ -103,13 +116,21 @@ public class NotificationHub : Hub
         {
             ArgumentOutOfRangeException.ThrowIfLessThan(notificationId, 1, nameof(notificationId));
 
+            var encryptedAccessToken = string.Empty;
+            var accessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)];
+
+            if (!string.IsNullOrEmpty(accessToken))
+            {
+                encryptedAccessToken = AesEncryption.Encrypt(accessToken, Convert.FromBase64String(_kafkaSettings.Security.SecurityKey), Convert.FromBase64String(_kafkaSettings.Security.IV));
+            }
+
             var notificationAction = JsonSerializer.Serialize(new NotificationAction
             {
                 NotificationId = notificationId,
                 RecipientId = recipientId,
                 State = (int)NotificationActionState.Read,
-                When = DateTime.UtcNow.ToString(),
-                AccessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)] ?? string.Empty
+                When = DateTime.UtcNow,
+                AccessToken = encryptedAccessToken
             });
             await _kafkaProducer.ProduceAsync(KafkaTopics.Notification, notificationId.ToString(), notificationAction);
         }
@@ -129,13 +150,21 @@ public class NotificationHub : Hub
         {
             ArgumentOutOfRangeException.ThrowIfLessThan(notificationId, 1, nameof(notificationId));
 
+            var encryptedAccessToken = string.Empty;
+            var accessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)];
+
+            if (!string.IsNullOrEmpty(accessToken))
+            {
+                encryptedAccessToken = AesEncryption.Encrypt(accessToken, Convert.FromBase64String(_kafkaSettings.Security.SecurityKey), Convert.FromBase64String(_kafkaSettings.Security.IV));
+            }
+
             var notificationAction = JsonSerializer.Serialize(new NotificationAction
             {
                 NotificationId = notificationId,
                 RecipientId = recipientId,
                 State = (int)NotificationActionState.Remove,
-                When = DateTime.UtcNow.ToString(),
-                AccessToken = Context.GetHttpContext()?.Request.Cookies[nameof(AuthenticationCookie.AccessToken)] ?? string.Empty
+                When = DateTime.UtcNow,
+                AccessToken = encryptedAccessToken
             });
             await _kafkaProducer.ProduceAsync(KafkaTopics.Notification, notificationId.ToString(), notificationAction);
         }

@@ -1,4 +1,4 @@
-﻿using CombatAnalysis.NotificationAPI.Consts;
+﻿using Chat.Application.Consts;
 using CombatAnalysis.NotificationAPI.Core;
 using Confluent.Kafka;
 using Microsoft.Extensions.Options;

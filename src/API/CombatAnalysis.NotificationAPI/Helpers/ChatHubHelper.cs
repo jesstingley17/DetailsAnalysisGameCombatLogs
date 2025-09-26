@@ -1,20 +1,23 @@
-﻿using CombatAnalysis.NotificationAPI.Interfaces;
+﻿using Chat.Application.Consts;
+using CombatAnalysis.NotificationAPI.Interfaces;
 using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Extensions.Options;
 using System.Net;
 
 namespace CombatAnalysis.NotificationAPI.Helpers;
 
-public class ChatHubHelper(ILogger<ChatHubHelper> logger) : IChatHubHelper
+public class ChatHubHelper(ILogger<ChatHubHelper> logger, IOptions<KafkaSettings> kafkaSettings) : IChatHubHelper
 {
     private readonly ILogger<ChatHubHelper> _logger = logger;
+    private readonly KafkaSettings _kafkaSettings = kafkaSettings.Value;
 
     private HubConnection? _notificationHubConnection;
 
-    public async Task ConnectToHubAsync(string hubURL, string refreshToken, string accessToken)
+    public async Task ConnectToHubAsync(string hubURL, string accessToken)
     {
         try
         {
-            _notificationHubConnection = await CreateHubConnectionAsync(hubURL, refreshToken, accessToken);
+            _notificationHubConnection = await CreateHubConnectionAsync(hubURL, accessToken);
         }
         catch (ArgumentNullException ex)
         {
@@ -56,12 +59,20 @@ public class ChatHubHelper(ILogger<ChatHubHelper> logger) : IChatHubHelper
         await _notificationHubConnection.SendAsync("RequestRecipientNotifications", recipientId);
     }
 
-    private static async Task<HubConnection> CreateHubConnectionAsync(string hubURL, string refreshToken, string accessToken)
+    public async Task DisconnectFromHubAsync()
+    {
+        if (_notificationHubConnection != null)
+        {
+            await _notificationHubConnection.StopAsync();
+            await _notificationHubConnection.DisposeAsync();
+        }
+    }
+
+    private async Task<HubConnection> CreateHubConnectionAsync(string hubURL, string accessToken)
     {
         var cookieContainer = new CookieContainer();
 
-        cookieContainer.Add(new Uri(hubURL), new Cookie("RefreshToken", refreshToken));
-        cookieContainer.Add(new Uri(hubURL), new Cookie("AccessToken", accessToken));
+        cookieContainer.Add(new Uri(hubURL), new Cookie("AccessToken", accessToken) { Expires = DateTime.UtcNow.AddMinutes(_kafkaSettings.AccessTokenExpiresMins) });
 
         var hub = new HubConnectionBuilder()
             .WithUrl(hubURL, options =>

@@ -1,5 +1,6 @@
 using AutoMapper;
 using AutoMapper.Extensions.ExpressionMapping;
+using Chat.Application.Consts;
 using CombatAnalysis.NotificationAPI.Consts;
 using CombatAnalysis.NotificationAPI.Helpers;
 using CombatAnalysis.NotificationAPI.Interfaces;

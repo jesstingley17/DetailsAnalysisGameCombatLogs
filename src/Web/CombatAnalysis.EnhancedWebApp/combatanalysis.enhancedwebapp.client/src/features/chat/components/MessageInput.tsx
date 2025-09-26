@@ -18,9 +18,10 @@ interface MessageInputProps {
     setAreLoadingOldMessages: (value: SetStateAction<boolean>) => void;
     targetChatType: number;
     t: (key: string) => string;
+    recipientId?: string;
 }
 
-const MessageInput: React.FC<MessageInputProps> = ({ chatId, initiator, setAreLoadingOldMessages, targetChatType, t }) => {
+const MessageInput: React.FC<MessageInputProps> = ({ chatId, initiator, setAreLoadingOldMessages, targetChatType, t, recipientId }) => {
     const chatHub = useChatHub();
 
     const messageInput = useRef<HTMLInputElement | null>(null);
@@ -96,7 +97,7 @@ const MessageInput: React.FC<MessageInputProps> = ({ chatId, initiator, setAreLo
                 appUserId: initiator.id
             };
 
-            await chatHub.personalChatMessagesHubConnectionRef.current?.invoke("SendMessage", personalChatMessage);
+            await chatHub.personalChatMessagesHubConnectionRef.current?.invoke("SendMessage", personalChatMessage, recipientId);
         }
 
         messageInput.current.value = "";

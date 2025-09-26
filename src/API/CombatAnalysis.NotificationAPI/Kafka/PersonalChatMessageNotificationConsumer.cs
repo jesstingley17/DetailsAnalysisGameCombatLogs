@@ -1,7 +1,9 @@
-﻿using CombatAnalysis.NotificationAPI.Consts;
+﻿using Chat.Application.Consts;
+using Chat.Application.Kafka.Actions;
+using Chat.Application.Security;
+using CombatAnalysis.NotificationAPI.Consts;
 using CombatAnalysis.NotificationAPI.Enums;
 using CombatAnalysis.NotificationAPI.Interfaces;
-using CombatAnalysis.NotificationAPI.Kafka.Actions;
 using CombatAnalysis.NotificationBL.DTO;
 using CombatAnalysis.NotificationBL.Interfaces;
 using Confluent.Kafka;
@@ -14,6 +16,7 @@ public class PersonalChatMessageNotificationConsumer(IOptions<KafkaSettings> kaf
     IServiceScopeFactory serviceScopeFactory) : KafkaConsumerBase(kafkaSettings, KafkaTopics.PersonalChatMessage, logger)
 {
     private readonly IOptions<Hubs> _hubs = hubs;
+    private readonly KafkaSettings _kafkaSettings = kafkaSettings.Value;
     private readonly ILogger<PersonalChatMessageNotificationConsumer> _logger = logger;
     private readonly IServiceScopeFactory _serviceScopeFactory = serviceScopeFactory;
 
@@ -32,13 +35,17 @@ public class PersonalChatMessageNotificationConsumer(IOptions<KafkaSettings> kaf
             var chatAction = kafkaData.Message.Value.Deserialize<PersonalChatMessageAction>();
             ArgumentNullException.ThrowIfNull(chatAction, nameof(chatAction));
 
-            await chatHubHelper.ConnectToHubAsync($"{_hubs.Value.Server}{_hubs.Value.NotificationAddress}", chatAction.RefreshToken, chatAction.AccessToken);
-            await chatHubHelper.JoinRoomAsync(chatAction.InititatorId);
+            var accessToken = AesEncryption.Decrypt(chatAction.AccessToken, Convert.FromBase64String(_kafkaSettings.Security.SecurityKey), Convert.FromBase64String(_kafkaSettings.Security.IV));
+
+            await chatHubHelper.ConnectToHubAsync($"{_hubs.Value.Server}{_hubs.Value.NotificationAddress}", accessToken);
+            await chatHubHelper.JoinRoomAsync(chatAction.ChatMessage.AppUserId);
 
             if (chatAction.State == (int)ChatActionState.Created)
             {
                 await CreateNotificationAsync(chatHubHelper, chatAction, notificationService);
             }
+
+            await chatHubHelper.DisconnectFromHubAsync();
         }
         catch (ArgumentNullException ex)
         {
@@ -48,8 +55,8 @@ public class PersonalChatMessageNotificationConsumer(IOptions<KafkaSettings> kaf
 
     private static async Task CreateNotificationAsync(IChatHubHelper chatHubHelper, PersonalChatMessageAction chatAction, IService<NotificationDto, int> notificationService)
     {
-        var similarNotifcation = await notificationService.GetByParamAsync(n => n.InitiatorId, chatAction.ChatId.ToString());
-        var notifcationExist = similarNotifcation.Any(n => n.RecipientId == chatAction.RecipientId 
+        var similarNotifcation = await notificationService.GetByParamAsync(n => n.InitiatorId, chatAction.ChatMessage.PersonalChatId.ToString());
+        var notifcationExist = similarNotifcation.Any(n => n.RecipientId == chatAction.RecipientId
                                                         && n.Type == (int)NotificationType.PersonalChatMessage
                                                         && n.Status == (int)NotificationStatus.Unread);
 
@@ -60,8 +67,8 @@ public class PersonalChatMessageNotificationConsumer(IOptions<KafkaSettings> kaf
 
         var notification = new NotificationDto
         {
-            InitiatorId = chatAction.ChatId.ToString(),
-            InitiatorName = chatAction.InititatorUsername,
+            InitiatorId = chatAction.ChatMessage.PersonalChatId.ToString(),
+            InitiatorName = chatAction.ChatMessage.Username,
             RecipientId = chatAction.RecipientId,
             Type = (int)NotificationType.PersonalChatMessage,
             Status = (int)NotificationStatus.Unread,
@@ -71,6 +78,6 @@ public class PersonalChatMessageNotificationConsumer(IOptions<KafkaSettings> kaf
         var createdNotification = await notificationService.CreateAsync(notification);
         ArgumentNullException.ThrowIfNull(createdNotification, nameof(createdNotification));
 
-        await chatHubHelper.RequestNotificationAsync(createdNotification.Id, chatAction.ChatId);
+        await chatHubHelper.RequestNotificationAsync(createdNotification.Id, chatAction.ChatMessage.PersonalChatId);
     }
 }

@@ -8,7 +8,7 @@ public class NotificationAction
 
     public int State { get; set; }
 
-    public string When { get; set; } = string.Empty;
+    public DateTimeOffset When { get; set; }
 
     public string AccessToken { get; set; } = string.Empty;
 }

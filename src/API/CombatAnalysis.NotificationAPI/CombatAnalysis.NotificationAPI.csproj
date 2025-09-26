@@ -33,6 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Chat\Chat.Application\Chat.Application.csproj" />
     <ProjectReference Include="..\..\CombatAnalysis.NotificationBL\CombatAnalysis.NotificationBL.csproj" />
   </ItemGroup>
 

@@ -1,8 +1,9 @@
-﻿using CombatAnalysis.NotificationAPI.Consts;
+﻿using Chat.Application.Consts;
+using Chat.Application.Security;
+using CombatAnalysis.NotificationAPI.Consts;
 using CombatAnalysis.NotificationAPI.Enums;
 using CombatAnalysis.NotificationAPI.Interfaces;
 using CombatAnalysis.NotificationAPI.Kafka.Actions;
-using CombatAnalysis.NotificationAPI.Models;
 using CombatAnalysis.NotificationBL.DTO;
 using CombatAnalysis.NotificationBL.Interfaces;
 using Confluent.Kafka;
@@ -15,6 +16,7 @@ public class NotificationConsumer(IOptions<KafkaSettings> kafkaSettings, IOption
     IServiceScopeFactory serviceScopeFactory) : KafkaConsumerBase(kafkaSettings, KafkaTopics.Notification, logger)
 {
     private readonly IOptions<Hubs> _hubs = hubs;
+    private readonly KafkaSettings _kafkaSettings = kafkaSettings.Value;
     private readonly ILogger<NotificationConsumer> _logger = logger;
     private readonly IServiceScopeFactory _serviceScopeFactory = serviceScopeFactory;
 
@@ -33,7 +35,9 @@ public class NotificationConsumer(IOptions<KafkaSettings> kafkaSettings, IOption
             var notificationAction = kafkaData.Message.Value.Deserialize<NotificationAction>();
             ArgumentNullException.ThrowIfNull(notificationAction, nameof(notificationAction));
 
-            await chatHubHelper.ConnectToHubAsync($"{_hubs.Value.Server}{_hubs.Value.NotificationAddress}", notificationAction.RefreshToken, notificationAction.AccessToken);
+            var accessToken = AesEncryption.Decrypt(notificationAction.AccessToken, Convert.FromBase64String(_kafkaSettings.Security.SecurityKey), Convert.FromBase64String(_kafkaSettings.Security.IV));
+
+            await chatHubHelper.ConnectToHubAsync($"{_hubs.Value.Server}{_hubs.Value.NotificationAddress}", accessToken);
             await chatHubHelper.JoinRoomAsync(notificationAction.RecipientId);
 
             if (notificationAction.State == (int)NotificationActionState.Read)
