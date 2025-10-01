@@ -7,8 +7,6 @@
     <UserSecretsId>2b4d4012-75e5-42ae-81fd-e0237382b802</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>..\..\..\..</DockerfileContext>
-    <SpaRoot>..\combatanalysis.enhancedwebapp.client</SpaRoot>
-    <SpaProxyLaunchCommand>npm run dev</SpaProxyLaunchCommand>
     <SpaProxyServerUrl>https://localhost:65471</SpaProxyServerUrl>
   </PropertyGroup>
 
@@ -28,12 +26,6 @@
     <PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\combatanalysis.enhancedwebapp.client\combatanalysis.enhancedwebapp.client.esproj">
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
   </ItemGroup>
 
 </Project>

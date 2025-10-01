@@ -68,7 +68,6 @@ const RequestToConnect = () => {
                         {allRequests?.map((item) => (
                                 <li key={item.id}>
                                     <RequestItem
-                                        myself={myself}
                                         request={item}
                                         acceptRequestAsync={acceptRequestAsync}
                                         rejectRequestAsync={rejectRequestAsync}
@@ -86,7 +85,6 @@ const RequestToConnect = () => {
                         {allMyRequests?.map((item) => (
                                 <li key={item.id}>
                                     <MyRequestItem
-                                        myself={myself}
                                         request={item}
                                         cancelMyRequestAsync={cancelMyRequestAsync}
                                     />

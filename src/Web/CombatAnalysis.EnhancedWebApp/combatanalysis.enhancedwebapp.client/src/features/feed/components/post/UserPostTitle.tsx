@@ -4,18 +4,16 @@ import { type JSX, memo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGetUserByIdQuery } from '../../../user/api/Account.api';
 import User from '../../../user/components/User';
-import type { AppUserModel } from '../../../user/types/AppUserModel';
 import { useRemoveUserPostMutation } from '../../api/UserPost.api';
 import type { UserPostModel } from '../../types/UserPostModel';
 
 interface UserPostTitleProps {
     post: UserPostModel;
     isMyPost: boolean;
-    myself: AppUserModel;
     dateFormatting: (stringOfDate: string) => string;
 }
 
-const UserPostTitle: React.FC<UserPostTitleProps> = ({ post, isMyPost, myself, dateFormatting }) => {
+const UserPostTitle: React.FC<UserPostTitleProps> = ({ post, isMyPost, dateFormatting }) => {
     const { t } = useTranslation("communication/postTitle");
 
     const { data: targetUser } = useGetUserByIdQuery(post.appUserId);
@@ -33,7 +31,6 @@ const UserPostTitle: React.FC<UserPostTitleProps> = ({ post, isMyPost, myself, d
                 <div className="content">
                     <div className="username">
                         <User
-                            myself={myself}
                             targetUserId={targetUser ? targetUser.id : "0"}
                             targetUsername={targetUser?.username ?? ""}
                             setUserInformation={setUserInformation}

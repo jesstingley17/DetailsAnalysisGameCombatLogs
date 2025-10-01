@@ -3,18 +3,16 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { type JSX, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGetUserByIdQuery } from '../../api/Account.api';
-import type { AppUserModel } from '../../types/AppUserModel';
 import type { RequestToConnectModel } from '../../types/RequestToConnectModel';
 import User from '../User';
 
 interface RequestItemProps {
-    myself: AppUserModel | null;
     request: RequestToConnectModel;
     acceptRequestAsync: (request: RequestToConnectModel) => Promise<void>;
     rejectRequestAsync: (requestId: number) => Promise<void>;
 }
 
-const RequestItem: React.FC<RequestItemProps> = ({ myself, request, acceptRequestAsync, rejectRequestAsync }) => {
+const RequestItem: React.FC<RequestItemProps> = ({ request, acceptRequestAsync, rejectRequestAsync }) => {
     const { t } = useTranslation('communication/myEnvironment/requestItem');
 
     const { data: user, isLoading } = useGetUserByIdQuery(request.appUserId);
@@ -29,7 +27,6 @@ const RequestItem: React.FC<RequestItemProps> = ({ myself, request, acceptReques
         <span className="request-to-connect">
             <div className="request-to-connect__username">
                 <User
-                    myself={myself}
                     targetUserId={user?.id ?? ""}
                     targetUsername={""}
                     setUserInformation={setUserInformation}

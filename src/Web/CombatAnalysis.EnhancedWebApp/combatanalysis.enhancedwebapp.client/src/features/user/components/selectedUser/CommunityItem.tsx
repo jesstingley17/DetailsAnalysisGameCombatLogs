@@ -101,7 +101,6 @@ const CommunityItem: React.FC<CommunityItemProps> = ({ id, myself }) => {
             <div className="owner-container">
                 <div className="owner">
                     <User
-                        myself={myself}
                         targetUserId={community.appUserId}
                         targetUsername={""}
                         setUserInformation={setUserInformation}

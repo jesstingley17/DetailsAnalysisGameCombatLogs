@@ -75,7 +75,6 @@ const UserPost: React.FC<UserPostProps> = ({ myself, post }) => {
         <>
             <div className="posts__card">
                 <UserPostTitle
-                    myself={myself}
                     post={post}
                     dateFormatting={dateFormatting}
                     isMyPost={isMyPost}

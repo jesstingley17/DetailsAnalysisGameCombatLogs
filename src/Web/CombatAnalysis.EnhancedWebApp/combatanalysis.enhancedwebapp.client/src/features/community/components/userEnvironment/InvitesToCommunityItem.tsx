@@ -59,7 +59,6 @@ const InvitesToCommunityItem: React.FC<InvitesToCommunityItemProps>  = ({ user, 
         <div className="request-to-connect">
             <div className="request-to-connect__content">
                 <User
-                    myself={user}
                     targetUserId={inviteOwner.id}
                     targetUsername={inviteOwner.id}
                     setUserInformation={setUserInformation}

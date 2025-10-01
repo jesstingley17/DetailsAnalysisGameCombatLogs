@@ -43,7 +43,6 @@ const GroupChatMembersItem: React.FC<GroupChatMembersItemProps> = ({ myself, use
         <>
             <div className="user-target-community__information">
                 <User
-                    myself={myself}
                     targetUserId={user.appUserId}
                     targetUsername={user.username}
                     setUserInformation={setUserInformation}

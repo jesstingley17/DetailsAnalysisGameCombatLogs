@@ -60,7 +60,6 @@ const People: React.FC = () => {
                     {people?.filter(peopleListFilter).map((item: AppUserModel) => (
                             <li className="person" key={item.id}>
                                 <PeopleItem
-                                    myself={myself}
                                     targetUser={item}
                                 />
                             </li>
