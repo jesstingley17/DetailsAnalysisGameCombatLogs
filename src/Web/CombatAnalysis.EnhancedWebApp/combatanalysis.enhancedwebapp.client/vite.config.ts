@@ -4,6 +4,9 @@ import plugin from '@vitejs/plugin-react';
 import fs from 'fs';
 import { env } from 'process';
 import { defineConfig } from 'vite';
+import * as dotenv from 'dotenv';
+
+dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
 
 const baseFolder =
     env.APPDATA !== undefined && env.APPDATA !== ''
@@ -14,8 +17,7 @@ if (!fs.existsSync(baseFolder)) {
     fs.mkdirSync(baseFolder, { recursive: true });
 }
 
-const target = env.ASPNETCORE_HTTPS_PORT ? `https://localhost:${env.ASPNETCORE_HTTPS_PORT}` :
-    env.ASPNETCORE_URLS ? env.ASPNETCORE_URLS.split(';')[0] : 'https://localhost:7296';
+const target = process.env.VITE_APP_SERVER_PROXY_URL;
 
 const apiVersion = env.API_VERSION ? env.API_VERSION : 'v1';
 

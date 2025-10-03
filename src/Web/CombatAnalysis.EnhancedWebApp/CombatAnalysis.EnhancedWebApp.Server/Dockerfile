@@ -6,14 +6,6 @@ EXPOSE 8080
 EXPOSE 8081
 
 
-FROM node:20 AS client-build
-WORKDIR /src/client
-COPY src/Web/CombatAnalysis.EnhancedWebApp/combatanalysis.enhancedwebapp.client/package*.json ./
-RUN npm install --legacy-peer-deps
-COPY src/Web/CombatAnalysis.EnhancedWebApp/combatanalysis.enhancedwebapp.client ./
-RUN npm run build
-
-
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
@@ -23,11 +15,11 @@ COPY . .
 WORKDIR "/src/src/Web/CombatAnalysis.EnhancedWebApp/CombatAnalysis.EnhancedWebApp.Server"
 RUN dotnet build "./CombatAnalysis.EnhancedWebApp.Server.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
-# This stage is used to publish the service project to be copied to the final stage
+
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-COPY --from=client-build /src/client/dist ./wwwroot
 RUN dotnet publish "./CombatAnalysis.EnhancedWebApp.Server.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+
 
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
