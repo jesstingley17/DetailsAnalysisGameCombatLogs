@@ -1,24 +1,20 @@
 using CombatAnalysis.Identity.Security;
-using CombatAnalysisIdentity.Consts;
 using CombatAnalysisIdentity.Interfaces;
 using CombatAnalysisIdentity.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Options;
 
 namespace CombatAnalysisIdentity.Pages;
 
-public class RegistrationModel(IOptions<API> api, IOptions<Authentication> authentication, IUserAuthorizationService authorizationService) : PageModel
+public class RegistrationModel(IUserAuthorizationService authorizationService) : PageModel
 {
     private readonly IUserAuthorizationService _authorizationService = authorizationService;
-    private IdentityUserModel _identityUser;
-    private AppUserModel _appUser;
-    private CustomerModel _customer;
+    private IdentityUserModel? _identityUser;
+    private AppUserModel? _appUser;
+    private CustomerModel? _customer;
 
     public bool QueryIsValid { get; set; }
-
-    public string AppUrl { get; } = api.Value.Identity;
 
     [BindProperty]
     public RegistrationDataModel Registration { get; set; }

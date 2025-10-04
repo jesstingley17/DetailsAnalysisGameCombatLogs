@@ -70,15 +70,23 @@ public class TokenController(IOptions<AuthenticationGrantType> authenticationGra
             }
 
             var (authorizationCode, userId) = _oAuthCodeFlowService.DecryptAuthorizationCode(decodedAuthorizationCode, _authentication.IssuerSigningKey);
+            ArgumentException.ThrowIfNullOrEmpty(authorizationCode, nameof(authorizationCode));
+            ArgumentException.ThrowIfNullOrEmpty(userId, nameof(userId));
 
             var token = await GenerateTokenAsync(userId, clientId, clientScopes);
             ArgumentNullException.ThrowIfNull(token, nameof(token));
 
             return Ok(token);
         }
-        catch (ArgumentException ex)
+        catch (ArgumentNullException ex)
         {
             _logger.LogError(ex, "Failed to get JWT. Paramter '{ParamName} was null", ex.ParamName);
+
+            return BadRequest();
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogError(ex, "Failed to get JWT. Paramter '{ParamName} was incorrect", ex.ParamName);
 
             return BadRequest();
         }

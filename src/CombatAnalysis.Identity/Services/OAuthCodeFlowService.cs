@@ -143,6 +143,11 @@ internal class OAuthCodeFlowService(IOptions<Authentication> authentication, IOp
 
         var now = DateTime.UtcNow;
 
+        ArgumentNullException.ThrowIfNull(now, nameof(now));
+        ArgumentException.ThrowIfNullOrEmpty(userId, nameof(userId));
+        ArgumentNullException.ThrowIfNull(scopes, nameof(scopes));
+        ArgumentException.ThrowIfNullOrEmpty(clientId, nameof(clientId));
+
         var claims = new List<Claim>
         {
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),

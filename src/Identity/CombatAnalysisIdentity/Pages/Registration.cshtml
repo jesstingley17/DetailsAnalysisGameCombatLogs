@@ -67,11 +67,12 @@ else
 }
 
 <script>
+    const baseAddress = `${window.location.origin}/`;
+
     function goToLogin() {
-        const appUrl = `@Model.AppUrl`;
         const queryparams = window.location.search;
 
-        window.location.href = `${appUrl}authorization${queryparams}`;
+        window.location.href = `${baseAddress}authorization${queryparams}`;
     }
 
     function goToHome() {

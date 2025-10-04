@@ -34,11 +34,12 @@ else
 }
 
 <script>
+    const baseAddress = `${window.location.origin}/`;
+
     function goToRegistration() {
-        const appUrl = `@Model.AppUrl`;
         const queryString = window.location.search;
 
-        window.location.href = `${appUrl}registration${queryString}`;
+        window.location.href = `${baseAddress}registration${queryString}`;
     }
 
     function goToHome() {
@@ -51,9 +52,8 @@ else
     }
 
     function goToRestore() {
-        const appUrl = `@Model.AppUrl`;
         const queryString = window.location.search;
 
-        window.location.href = `${appUrl}restore${queryString}`;
+        window.location.href = `${baseAddress}restore${queryString}`;
     }
 </script>

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Chat.Infrastructure.Migrations
 {
     [DbContext(typeof(ChatContext))]
-    [Migration("20250913194200_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20251004104606_Prod")]
+    partial class Prod
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -125,7 +125,8 @@ namespace Chat.Infrastructure.Migrations
 
                     b.Property<string>("Username")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
 
                     b.HasKey("Id");
 
@@ -146,7 +147,7 @@ namespace Chat.Infrastructure.Migrations
                     b.Property<int>("GroupChatId")
                         .HasColumnType("int");
 
-                    b.Property<int>("LastReadMessageId")
+                    b.Property<int?>("LastReadMessageId")
                         .HasColumnType("int");
 
                     b.Property<int>("UnreadMessages")
@@ -154,14 +155,61 @@ namespace Chat.Infrastructure.Migrations
 
                     b.Property<string>("Username")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("GroupChatId");
 
                     b.ToTable("GroupChatUser");
+                });
+
+            modelBuilder.Entity("Chat.Domain.Entities.PersonalChatMessage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AppUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsEdited")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("MarkedType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<int>("PersonalChatId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("Time")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PersonalChatId");
+
+                    b.ToTable("PersonalChatMessage");
                 });
 
             modelBuilder.Entity("Chat.Domain.Aggregates.GroupChat", b =>
@@ -203,59 +251,6 @@ namespace Chat.Infrastructure.Migrations
                     b.Navigation("Rules");
                 });
 
-            modelBuilder.Entity("Chat.Domain.Aggregates.PersonalChat", b =>
-                {
-                    b.OwnsMany("Chat.Domain.Entities.PersonalChatMessage", "Messages", b1 =>
-                        {
-                            b1.Property<int>("Id")
-                                .ValueGeneratedOnAdd()
-                                .HasColumnType("int");
-
-                            SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<int>("Id"));
-
-                            b1.Property<string>("AppUserId")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.Property<bool>("IsEdited")
-                                .HasColumnType("bit");
-
-                            b1.Property<int>("MarkedType")
-                                .HasColumnType("int");
-
-                            b1.Property<string>("Message")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.Property<int>("PersonalChatId")
-                                .HasColumnType("int");
-
-                            b1.Property<int>("Status")
-                                .HasColumnType("int");
-
-                            b1.Property<DateTimeOffset>("Time")
-                                .HasColumnType("datetimeoffset");
-
-                            b1.Property<int>("Type")
-                                .HasColumnType("int");
-
-                            b1.Property<string>("Username")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.HasKey("Id");
-
-                            b1.HasIndex("PersonalChatId");
-
-                            b1.ToTable("PersonalChatMessage");
-
-                            b1.WithOwner()
-                                .HasForeignKey("PersonalChatId");
-                        });
-
-                    b.Navigation("Messages");
-                });
-
             modelBuilder.Entity("Chat.Domain.Entities.GroupChatMessage", b =>
                 {
                     b.HasOne("Chat.Domain.Aggregates.GroupChat", "GroupChat")
@@ -278,11 +273,27 @@ namespace Chat.Infrastructure.Migrations
                     b.Navigation("GroupChat");
                 });
 
+            modelBuilder.Entity("Chat.Domain.Entities.PersonalChatMessage", b =>
+                {
+                    b.HasOne("Chat.Domain.Aggregates.PersonalChat", "PersonalChat")
+                        .WithMany("Messages")
+                        .HasForeignKey("PersonalChatId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PersonalChat");
+                });
+
             modelBuilder.Entity("Chat.Domain.Aggregates.GroupChat", b =>
                 {
                     b.Navigation("Messages");
 
                     b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("Chat.Domain.Aggregates.PersonalChat", b =>
+                {
+                    b.Navigation("Messages");
                 });
 #pragma warning restore 612, 618
         }

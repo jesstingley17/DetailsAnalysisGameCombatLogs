@@ -1,22 +1,17 @@
-using CombatAnalysis.Identity.Security;
-using CombatAnalysisIdentity.Consts;
 using CombatAnalysisIdentity.Interfaces;
 using CombatAnalysisIdentity.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Options;
 
 namespace CombatAnalysisIdentity.Pages;
 
-public class AuthorizationModel(IOptions<API> api, IOptions<Authentication> authentication, IUserAuthorizationService authorizationService) : PageModel
+public class AuthorizationModel(IUserAuthorizationService authorizationService) : PageModel
 {
     private readonly IUserAuthorizationService _authorizationService = authorizationService;
 
     public bool QueryIsValid { get; set; }
 
     public string CancelRequestAddress { get; set; } = "cancel=true";
-
-    public string AppUrl { get; } = api.Value.Identity;
 
     [BindProperty]
     public AuthorizationDataModel? Authorization { get; set; }

@@ -1,8 +1,6 @@
 ﻿namespace CombatAnalysisIdentity.Consts;
 
-public class API
+public class Cluster
 {
     public string User { get; set; }
-
-    public string Identity { get; set; }
 }

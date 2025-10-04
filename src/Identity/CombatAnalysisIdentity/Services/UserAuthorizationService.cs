@@ -13,7 +13,7 @@ using System.Text.RegularExpressions;
 
 namespace CombatAnalysisIdentity.Services;
 
-internal class UserAuthorizationService(IMapper mapper, IOAuthCodeFlowService oAuthCodeFlowService, IOptions<API> api, 
+internal class UserAuthorizationService(IMapper mapper, IOAuthCodeFlowService oAuthCodeFlowService, IOptions<Cluster> api, 
     IIdentityUserService identityUserService, ILogger<UserAuthorizationService> logger,
     IUserService<AppUserDto> appUserService, IService<CustomerDto, string> customerService, ICustomerTransactionService customerTransactionService, 
     IIdentityTransactionService identityTransactionService) : IUserAuthorizationService
@@ -21,7 +21,7 @@ internal class UserAuthorizationService(IMapper mapper, IOAuthCodeFlowService oA
     private readonly IMapper _mapper = mapper;
     private readonly IOAuthCodeFlowService _oAuthCodeFlowService = oAuthCodeFlowService;
     private readonly IIdentityUserService _identityUserService = identityUserService;
-    private readonly API _api = api.Value;
+    private readonly Cluster _api = api.Value;
     private readonly IUserService<AppUserDto> _appUserService = appUserService;
     private readonly IService<CustomerDto, string> _customerService = customerService;
     private readonly ICustomerTransactionService _userTransactionService = customerTransactionService;
