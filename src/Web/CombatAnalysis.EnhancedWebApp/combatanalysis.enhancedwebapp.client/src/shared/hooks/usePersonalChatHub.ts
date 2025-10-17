@@ -1,4 +1,4 @@
-import APP_CONFIG from '@/config/appConfig';
+import { APP_CONFIG } from '@/config/appConfig';
 import logger from '@/utils/Logger';
 import * as signalR from '@microsoft/signalr';
 import type { RefObject } from 'react';

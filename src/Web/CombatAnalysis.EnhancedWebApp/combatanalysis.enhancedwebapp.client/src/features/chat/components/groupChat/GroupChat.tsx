@@ -1,5 +1,5 @@
 ﻿import Store from '@/app/Store';
-import APP_CONFIG from '@/config/appConfig';
+import { APP_CONFIG } from '@/config/appConfig';
 import { useChatHub } from '@/shared/hooks/useChatHub';
 import logger from '@/utils/Logger';
 import { memo, useEffect, useRef, useState, type SetStateAction } from 'react';

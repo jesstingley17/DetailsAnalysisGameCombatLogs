@@ -1,4 +1,4 @@
-﻿import APP_CONFIG from '@/config/appConfig';
+﻿import { APP_CONFIG } from '@/config/appConfig';
 import logger from '@/utils/Logger';
 import { useEffect, useRef, useState, type RefObject } from 'react';
 import { useCommunityUserSearchByUserIdQuery } from '../../community/api/CommunityUser.api';

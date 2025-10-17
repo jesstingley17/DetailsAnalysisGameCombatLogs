@@ -26,7 +26,7 @@ public class IdentityContext(DbContextOptions<IdentityContext> options) : DbCont
             new Client
             {
                 Id = Guid.NewGuid().ToString(),
-                RedirectUrl = "localhost:45571/callback",
+                RedirectUrl = "http://localhost:45571/callback",
                 AllowedScopes = "api.read,api.write",
                 AllowedAudiences = "user-api,chat-api,communication-api,hubs,notification-api",
                 ClientName = "desktop",
@@ -38,7 +38,7 @@ public class IdentityContext(DbContextOptions<IdentityContext> options) : DbCont
             new Client
             {
                 Id = Guid.NewGuid().ToString(),
-                RedirectUrl = "localhost:5173/callback",
+                RedirectUrl = "https://localhost:5173/callback",
                 AllowedScopes = "api.read,api.write",
                 AllowedAudiences = "user-api,chat-api,communication-api,hubs,notification-api",
                 ClientName = "web",

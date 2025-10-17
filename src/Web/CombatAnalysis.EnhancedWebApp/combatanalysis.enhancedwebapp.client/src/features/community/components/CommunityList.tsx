@@ -1,5 +1,5 @@
 import type { RootState } from '@/app/Store';
-import APP_CONFIG from '@/config/appConfig';
+import { APP_CONFIG } from '@/config/appConfig';
 import logger from '@/utils/Logger';
 import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';

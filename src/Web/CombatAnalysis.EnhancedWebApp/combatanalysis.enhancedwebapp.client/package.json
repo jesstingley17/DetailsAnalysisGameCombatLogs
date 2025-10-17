@@ -4,13 +4,12 @@
   "version": "0.1.1",
   "type": "module",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development vite",
-    "build": "tsc -b && cross-env NODE_ENV=production vite build",
+    "dev": "vite",
+    "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
-    "dotenv": "^17.2.3",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },

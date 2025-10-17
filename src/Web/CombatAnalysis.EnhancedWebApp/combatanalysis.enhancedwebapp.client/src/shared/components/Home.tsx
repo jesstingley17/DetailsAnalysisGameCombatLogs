@@ -1,5 +1,5 @@
 ﻿import type { RootState } from '@/app/Store';
-import APP_CONFIG from '@/config/appConfig';
+import { APP_CONFIG } from '@/config/appConfig';
 import { useLazyAuthorizationQuery } from '@/features/user/api/User.api';
 import logger from '@/utils/Logger';
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';

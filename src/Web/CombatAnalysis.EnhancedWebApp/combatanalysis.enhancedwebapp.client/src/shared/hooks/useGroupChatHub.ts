@@ -1,4 +1,4 @@
-import APP_CONFIG from '@/config/appConfig';
+import { APP_CONFIG } from '@/config/appConfig';
 import type { GroupChatMessageModel } from '@/features/chat/types/GroupChatMessageModel';
 import type { GroupChatUserModel } from '@/features/chat/types/GroupChatUserModel';
 import type { AppUserModel } from '@/features/user/types/AppUserModel';

@@ -46,11 +46,14 @@ CREATE TABLE [IdentityUser] (
 
 CREATE TABLE [RefreshToken] (
     [Id] nvarchar(450) NOT NULL,
-    [Token] nvarchar(max) NOT NULL,
+    [TokenHash] nvarchar(max) NOT NULL,
+    [TokenSalt] nvarchar(max) NOT NULL,
+    [CreatedAt] datetimeoffset NOT NULL,
     [ExpiresAt] datetimeoffset NOT NULL,
     [RevokedAt] datetimeoffset NULL,
     [ClientId] nvarchar(max) NOT NULL,
     [UserId] nvarchar(max) NOT NULL,
+    [ReplacedByTokenId] nvarchar(max) NULL,
     CONSTRAINT [PK_RefreshToken] PRIMARY KEY ([Id])
 );
 
@@ -75,13 +78,13 @@ CREATE TABLE [VerifyEmailToken] (
 IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'AllowedAudiences', N'AllowedScopes', N'ClientName', N'ClientSecret', N'ClientType', N'CreatedAt', N'IsActive', N'RedirectUrl', N'UpdatedAt') AND [object_id] = OBJECT_ID(N'[Client]'))
     SET IDENTITY_INSERT [Client] ON;
 INSERT INTO [Client] ([Id], [AllowedAudiences], [AllowedScopes], [ClientName], [ClientSecret], [ClientType], [CreatedAt], [IsActive], [RedirectUrl], [UpdatedAt])
-VALUES (N'33e2e3d3-9923-4e1b-a207-957b5f0063bb', N'user-api,chat-api,communication-api,hubs,notification-api', N'api.read,api.write', N'desktop', NULL, 0, '2025-09-06T23:44:56.5066071+03:00', CAST(1 AS bit), N'localhost:45571/callback', '2025-09-06T23:44:56.5101533+03:00'),
-(N'f04fb51f-ff00-416f-80e0-40fdc508ece2', N'user-api,chat-api,communication-api,hubs,notification-api', N'api.read,api.write', N'web', NULL, 0, '2025-09-06T23:44:56.5101774+03:00', CAST(1 AS bit), N'localhost:5173/callback', '2025-09-06T23:44:56.5101777+03:00');
+VALUES (N'18a67288-d050-4fa3-887e-9551dc5d2d85', N'user-api,chat-api,communication-api,hubs,notification-api', N'api.read,api.write', N'web', NULL, 0, '2025-10-17T15:47:39.5860396+03:00', CAST(1 AS bit), N'localhost:5173/callback', '2025-10-17T15:47:39.5860399+03:00'),
+(N'c3785216-d952-4cf6-b0f6-ad8f142fe28d', N'user-api,chat-api,communication-api,hubs,notification-api', N'api.read,api.write', N'desktop', NULL, 0, '2025-10-17T15:47:39.5846410+03:00', CAST(1 AS bit), N'localhost:45571/callback', '2025-10-17T15:47:39.5860165+03:00');
 IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'AllowedAudiences', N'AllowedScopes', N'ClientName', N'ClientSecret', N'ClientType', N'CreatedAt', N'IsActive', N'RedirectUrl', N'UpdatedAt') AND [object_id] = OBJECT_ID(N'[Client]'))
     SET IDENTITY_INSERT [Client] OFF;
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'20250906204456_InitialCreate', N'9.0.1');
+VALUES (N'20251017124739_Prod', N'9.0.1');
 
 COMMIT;
 GO

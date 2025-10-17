@@ -1,25 +1,3 @@
-const APP_CONFIG = {
-    identity: {
-        authPath: "authorization",
-        registryPath: "registration",
-        verifyEmail: "initVerification"
-    },
-    communication: {
-        chatPageSize: 50,
-        communityPageSize: 5,
-        communityPostPageSize: 5
-    },
-    hubs: {
-        url: "https://localhost:7026/",
-        notification: "notificationHub",
-        personalChat: "personalChatHub",
-        personalChatMessages: "personalChatMessagesHub",
-        personalChatUnreadMessage: "personalChatUnreadMessageHub",
-        groupChat: "groupChatHub",
-        groupChatMessages: "groupChatMessagesHub",
-        groupChatUnreadMessage: "groupChatUnreadMessageHub",
-        voiceChat: "voiceChatHub"
-    }
-} as const;
+import type { AppConfig } from '@/app/configLoader';
 
-export default APP_CONFIG;
+export const APP_CONFIG = {} as AppConfig;

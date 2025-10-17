@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace CombatAnalysis.IdentityDAL.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class Prod : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -71,11 +71,14 @@ namespace CombatAnalysis.IdentityDAL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Token = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TokenHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TokenSalt = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     ExpiresAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     RevokedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     ClientId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ReplacedByTokenId = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -119,8 +122,8 @@ namespace CombatAnalysis.IdentityDAL.Migrations
                 columns: new[] { "Id", "AllowedAudiences", "AllowedScopes", "ClientName", "ClientSecret", "ClientType", "CreatedAt", "IsActive", "RedirectUrl", "UpdatedAt" },
                 values: new object[,]
                 {
-                    { "33e2e3d3-9923-4e1b-a207-957b5f0063bb", "user-api,chat-api,communication-api,hubs,notification-api", "api.read,api.write", "desktop", null, 0, new DateTimeOffset(new DateTime(2025, 9, 6, 23, 44, 56, 506, DateTimeKind.Unspecified).AddTicks(6071), new TimeSpan(0, 3, 0, 0, 0)), true, "localhost:45571/callback", new DateTimeOffset(new DateTime(2025, 9, 6, 23, 44, 56, 510, DateTimeKind.Unspecified).AddTicks(1533), new TimeSpan(0, 3, 0, 0, 0)) },
-                    { "f04fb51f-ff00-416f-80e0-40fdc508ece2", "user-api,chat-api,communication-api,hubs,notification-api", "api.read,api.write", "web", null, 0, new DateTimeOffset(new DateTime(2025, 9, 6, 23, 44, 56, 510, DateTimeKind.Unspecified).AddTicks(1774), new TimeSpan(0, 3, 0, 0, 0)), true, "localhost:5173/callback", new DateTimeOffset(new DateTime(2025, 9, 6, 23, 44, 56, 510, DateTimeKind.Unspecified).AddTicks(1777), new TimeSpan(0, 3, 0, 0, 0)) }
+                    { "18a67288-d050-4fa3-887e-9551dc5d2d85", "user-api,chat-api,communication-api,hubs,notification-api", "api.read,api.write", "web", null, 0, new DateTimeOffset(new DateTime(2025, 10, 17, 15, 47, 39, 586, DateTimeKind.Unspecified).AddTicks(396), new TimeSpan(0, 3, 0, 0, 0)), true, "localhost:5173/callback", new DateTimeOffset(new DateTime(2025, 10, 17, 15, 47, 39, 586, DateTimeKind.Unspecified).AddTicks(399), new TimeSpan(0, 3, 0, 0, 0)) },
+                    { "c3785216-d952-4cf6-b0f6-ad8f142fe28d", "user-api,chat-api,communication-api,hubs,notification-api", "api.read,api.write", "desktop", null, 0, new DateTimeOffset(new DateTime(2025, 10, 17, 15, 47, 39, 584, DateTimeKind.Unspecified).AddTicks(6410), new TimeSpan(0, 3, 0, 0, 0)), true, "localhost:45571/callback", new DateTimeOffset(new DateTime(2025, 10, 17, 15, 47, 39, 586, DateTimeKind.Unspecified).AddTicks(165), new TimeSpan(0, 3, 0, 0, 0)) }
                 });
         }
 

@@ -1,5 +1,5 @@
 import type { RootState } from '@/app/Store';
-import APP_CONFIG from '@/config/appConfig';
+import { APP_CONFIG } from '@/config/appConfig';
 import type { AppNotificationModel } from '@/features/notification/types/AppNotificationModel';
 import logger from '@/utils/Logger';
 import * as signalR from '@microsoft/signalr';

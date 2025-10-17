@@ -100,27 +100,27 @@ namespace CombatAnalysis.IdentityDAL.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "3fc9c6bd-3024-4c44-a081-4ecc3f308042",
+                            Id = "c3785216-d952-4cf6-b0f6-ad8f142fe28d",
                             AllowedAudiences = "user-api,chat-api,communication-api,hubs,notification-api",
                             AllowedScopes = "api.read,api.write",
                             ClientName = "desktop",
                             ClientType = 0,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 9, 7, 9, 58, 31, 269, DateTimeKind.Unspecified).AddTicks(9416), new TimeSpan(0, 3, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 10, 17, 15, 47, 39, 584, DateTimeKind.Unspecified).AddTicks(6410), new TimeSpan(0, 3, 0, 0, 0)),
                             IsActive = true,
                             RedirectUrl = "localhost:45571/callback",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2025, 9, 7, 9, 58, 31, 272, DateTimeKind.Unspecified).AddTicks(4676), new TimeSpan(0, 3, 0, 0, 0))
+                            UpdatedAt = new DateTimeOffset(new DateTime(2025, 10, 17, 15, 47, 39, 586, DateTimeKind.Unspecified).AddTicks(165), new TimeSpan(0, 3, 0, 0, 0))
                         },
                         new
                         {
-                            Id = "6a870437-f53a-4983-a7c9-d846238b499f",
+                            Id = "18a67288-d050-4fa3-887e-9551dc5d2d85",
                             AllowedAudiences = "user-api,chat-api,communication-api,hubs,notification-api",
                             AllowedScopes = "api.read,api.write",
                             ClientName = "web",
                             ClientType = 0,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 9, 7, 9, 58, 31, 272, DateTimeKind.Unspecified).AddTicks(4911), new TimeSpan(0, 3, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 10, 17, 15, 47, 39, 586, DateTimeKind.Unspecified).AddTicks(396), new TimeSpan(0, 3, 0, 0, 0)),
                             IsActive = true,
                             RedirectUrl = "localhost:5173/callback",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2025, 9, 7, 9, 58, 31, 272, DateTimeKind.Unspecified).AddTicks(4915), new TimeSpan(0, 3, 0, 0, 0))
+                            UpdatedAt = new DateTimeOffset(new DateTime(2025, 10, 17, 15, 47, 39, 586, DateTimeKind.Unspecified).AddTicks(399), new TimeSpan(0, 3, 0, 0, 0))
                         });
                 });
 

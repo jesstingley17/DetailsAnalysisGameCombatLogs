@@ -1,5 +1,5 @@
 ﻿import type { RootState } from '@/app/Store';
-import APP_CONFIG from '@/config/appConfig';
+import { APP_CONFIG } from '@/config/appConfig';
 import CommunicationMenu from '@/shared/components/CommunicationMenu';
 import { memo, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
