@@ -20,6 +20,7 @@ public abstract class KafkaConsumerBase : BackgroundService
         _topic = topic;
         _logger = logger;
     }
+
     public override void Dispose()
     {
         _consumer?.Dispose();
@@ -48,15 +49,13 @@ public abstract class KafkaConsumerBase : BackgroundService
             {
                 try
                 {
-                    var consumeResult = _consumer.Consume(TimeSpan.FromSeconds(10));
+                    var consumeResult = _consumer.Consume(stoppingToken);
 
                     if (consumeResult?.Message != null)
                     {
                         _logger.LogDebug($"Received message from '{_topic}' - Partition: {consumeResult.Partition}, Offset: {consumeResult.Offset}");
 
                         await ConsumeMessageAsync(consumeResult, stoppingToken);
-
-                        _consumer.Commit(consumeResult);
                     }
                 }
                 catch (ConsumeException ex)
