@@ -29,9 +29,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         try {
             setAuthInProgress(true);
 
-            const response = await getAuth();
-            if (response.data) {
-                const user = response.data;
+            const user = await getAuth().unwrap();
+            if (user) {
                 dispatch(updateUser(user));
 
                 await getCustomerDataAsync(user.id);

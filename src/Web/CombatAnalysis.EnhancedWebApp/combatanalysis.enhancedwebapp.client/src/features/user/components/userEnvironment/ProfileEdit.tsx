@@ -1,10 +1,12 @@
 ﻿import type { RootState } from '@/app/Store';
+import { updateUser } from '@/features/user/store/UserSlice';
+import logger from '@/utils/Logger';
 import { faArrowDown, faArrowUp } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useState, type SetStateAction } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useEditAsyncMutation } from '../..//api/Account.api';
-import { updateUser } from '../../store/UserSlice';
+import { useEditAccountMutation } from '../../api/Account.api';
+import { useLazyAuthenticationQuery } from '../../api/User.api';
 import type { AppUserModel } from '../../types/AppUserModel';
 
 interface ProfileEditProps {
@@ -21,9 +23,10 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ setIsEditMode, getDate, t }) 
     const [privacyHidden, setPrivacyHidden] = useState(false);
     const [generalHidden, setGeneralHidden] = useState(false);
 
-    const [sealedUser, setSealedUser] = useState < AppUserModel | null>(null);
+    const [sealedUser, setSealedUser] = useState<AppUserModel | null>(null);
 
-    const [editUserAsyncMut] = useEditAsyncMutation();
+    const [editAccountAsync] = useEditAccountMutation();
+    const [getAuth] = useLazyAuthenticationQuery();
 
     useEffect(() => {
         setSealedUser(Object.assign({}, user));
@@ -34,12 +37,17 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ setIsEditMode, getDate, t }) 
             return;
         }
 
-        const updatedUser = await editUserAsyncMut(sealedUser);
-        if (updatedUser.data !== undefined) {
-            dispatch(updateUser(updatedUser.data));
-        }
+        try {
+            await editAccountAsync({ id: sealedUser.id, user: sealedUser }).unwrap();
+            const user = await getAuth().unwrap();
+            if (user) {
+                dispatch(updateUser(user));
+            }
 
-        setIsEditMode(false);
+            setIsEditMode(false);
+        } catch (e) {
+            logger.error("Failed to update User profile", e);
+        }
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -69,16 +77,10 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ setIsEditMode, getDate, t }) 
         <form className="profile__edit-profile" onSubmit={handleSubmitAsync}>
             <div className="title">
                 <div>{t("Privacy")}</div>
-                {privacyHidden
-                    ? <FontAwesomeIcon
-                        icon={faArrowDown}
-                        onClick={() => setPrivacyHidden(!privacyHidden)}
-                    />
-                    : <FontAwesomeIcon
-                        icon={faArrowUp}
-                        onClick={() => setPrivacyHidden(!privacyHidden)}
-                    />
-                }
+                <FontAwesomeIcon
+                    icon={privacyHidden ? faArrowDown : faArrowUp}
+                    onClick={() => setPrivacyHidden(!privacyHidden)}
+                />
                 <div className="actions">
                     <div className="btn-shadow save" onClick={handleSubmitAsync}>{t("Save")}</div>
                     <div className="btn-shadow" onClick={() => setIsEditMode(false)}>{t("Cancel")}</div>
@@ -98,16 +100,10 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ setIsEditMode, getDate, t }) 
             }
             <div className="title">
                 <div>{t("General")}</div>
-                {generalHidden
-                    ? <FontAwesomeIcon
-                        icon={faArrowDown}
-                        onClick={() => setGeneralHidden(!generalHidden)}
-                    />
-                    : <FontAwesomeIcon
-                        icon={faArrowUp}
-                        onClick={() => setGeneralHidden(!generalHidden)}
-                    />
-                }
+                <FontAwesomeIcon
+                    icon={generalHidden ? faArrowDown : faArrowUp}
+                    onClick={() => setGeneralHidden(!generalHidden)}
+                />
             </div>
             {!generalHidden &&
                 <div className="general">

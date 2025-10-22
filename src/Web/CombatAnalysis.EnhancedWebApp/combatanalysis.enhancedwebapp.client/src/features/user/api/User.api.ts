@@ -8,7 +8,7 @@ const apiURL = '/api/v1';
 export const UserApi = createApi({
     reducerPath: 'userApi',
     tagTypes: [
-        'Account',
+        'User',
         'Authentication',
         'Customer',
         'Friend',
@@ -20,14 +20,14 @@ export const UserApi = createApi({
     }),
     endpoints: builder => ({
         getUsers: builder.query<AppUserModel[], void>({
-            query: () => '/Account',
+            query: () => '/User',
             providesTags: result =>
                 result
                     ? [
-                        ...result.map(account => ({ type: 'Account' as const, id: account.id })),
-                        { type: 'Account', id: 'LIST' },
+                        ...result.map(account => ({ type: 'User' as const, id: account.id })),
+                        { type: 'User', id: 'LIST' },
                     ]
-                    : [{ type: 'Account', id: 'LIST' }]
+                    : [{ type: 'User', id: 'LIST' }]
         }),
         getCustomers: builder.query<CustomerModel[], void>({
             query: () => '/Customer',

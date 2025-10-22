@@ -47,7 +47,7 @@ public class AuthenticationController : ControllerBase
             var identityUserId = AccessTokenHelper.GetUserIdFromAccessToken(accessToken);
             ArgumentNullException.ThrowIfNullOrEmpty(identityUserId, nameof(identityUserId));
 
-            var responseMessage = await _httpClient.GetAsync($"Account/find/{identityUserId}");
+            var responseMessage = await _httpClient.GetAsync($"User/find/{identityUserId}");
             responseMessage.EnsureSuccessStatusCode();
 
             var user = await responseMessage.Content.ReadFromJsonAsync<AppUserModel>();

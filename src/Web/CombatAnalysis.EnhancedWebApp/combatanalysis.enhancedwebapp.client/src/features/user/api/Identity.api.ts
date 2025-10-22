@@ -8,7 +8,7 @@ export const IdentityApi = UserApi.injectEndpoints({
                 url: '/Identity/logout',
                 method: 'POST'
             }),
-            invalidatesTags: [{ type: 'Account' }]
+            invalidatesTags: [{ type: 'User' }]
         }),
         authorizationCodeExchange: builder.query<void, string>({
             query: authorizationCode => `/Identity?authorizationCode=${authorizationCode}`

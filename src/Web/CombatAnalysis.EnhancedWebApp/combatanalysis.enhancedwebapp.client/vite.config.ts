@@ -50,7 +50,7 @@ const communityEndpoints = (target: string, apiVersion: string) => {
 
 const userEndpoints = (target: string, apiVersion: string) => {
     return {
-        [`^/api/${apiVersion}/Account`]: { target, secure: false },
+        [`^/api/${apiVersion}/User`]: { target, secure: false },
         [`^/api/${apiVersion}/Authentication`]: { target, secure: false },
         [`^/api/${apiVersion}/Customer`]: { target, secure: false },
         [`^/api/${apiVersion}/Friend`]: { target, secure: false },

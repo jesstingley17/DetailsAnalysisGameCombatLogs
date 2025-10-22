@@ -1,22 +1,15 @@
-﻿namespace CombatAnalysis.UserApi.Models;
+﻿using System.ComponentModel.DataAnnotations;
 
-public class AppUserModel
-{
-    public string Id { get; set; }
+namespace CombatAnalysis.UserApi.Models;
 
-    public string Username { get; set; }
-
-    public string FirstName { get; set; }
-
-    public string LastName { get; set; }
-
-    public int PhoneNumber { get; set; }
-
-    public DateTimeOffset Birthday { get; set; }
-
-    public string AboutMe { get; set; }
-
-    public int Gender { get; set; }
-
-    public string IdentityUserId { get; set; }
-}
+public record AppUserModel(
+    [Required] string Id,
+    [Required] string Username,
+    [Required] string FirstName,
+    [Required] string LastName,
+    [Required] int PhoneNumber,
+    [Required] DateTimeOffset Birthday,
+    string? AboutMe,
+    [Required] int Gender,
+    [Required] string IdentityUserId
+    );

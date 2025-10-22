@@ -101,7 +101,7 @@ public class GroupChatController : ControllerBase
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogError(ex, "Update group chat {Id} failed. Something wrong during updating group chat rules.", id);
+            _logger.LogError(ex, "Update group chat {Id} failed. Something wrong during updating group chat.", id);
 
             return StatusCode((int)(ex.StatusCode ?? HttpStatusCode.InternalServerError), ex.Message);
         }
