@@ -3,9 +3,9 @@ using CombatAnalysis.UserDAL.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
-namespace CombatAnalysis.UserDAL.Repositories.SQL;
+namespace CombatAnalysis.UserDAL.Repositories;
 
-internal class SQLRepository<TModel, TIdType>(UserSQLContext context) : IGenericRepository<TModel, TIdType>
+internal class Repository<TModel, TIdType>(UserSQLContext context) : IGenericRepository<TModel, TIdType>
     where TModel : class
     where TIdType : notnull
 {

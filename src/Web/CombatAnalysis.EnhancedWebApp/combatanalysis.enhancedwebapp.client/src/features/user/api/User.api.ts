@@ -19,12 +19,22 @@ export const UserApi = createApi({
         baseUrl: apiURL
     }),
     endpoints: builder => ({
+        findUser: builder.query<AppUserModel[], string>({
+            query: startAt => `/User/find?startAt=${startAt}`,
+            providesTags: result =>
+                result
+                    ? [
+                        ...result.map(user => ({ type: 'User' as const, id: user.id })),
+                        { type: 'User', id: 'LIST' },
+                    ]
+                    : [{ type: 'User', id: 'LIST' }]
+        }),
         getUsers: builder.query<AppUserModel[], void>({
             query: () => '/User',
             providesTags: result =>
                 result
                     ? [
-                        ...result.map(account => ({ type: 'User' as const, id: account.id })),
+                        ...result.map(user => ({ type: 'User' as const, id: user.id })),
                         { type: 'User', id: 'LIST' },
                     ]
                     : [{ type: 'User', id: 'LIST' }]
@@ -59,8 +69,8 @@ export const UserApi = createApi({
 })
 
 export const {
+    useLazyFindUserQuery,
     useGetUsersQuery,
-    useLazyGetUsersQuery,
     useGetCustomersQuery,
     useLazyGetCustomersQuery,
     useAuthenticationQuery,

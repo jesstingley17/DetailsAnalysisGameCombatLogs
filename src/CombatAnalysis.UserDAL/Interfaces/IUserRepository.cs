@@ -12,7 +12,9 @@ public interface IUserRepository
 
     Task<AppUser?> GetByIdAsync(string id);
 
-    Task<AppUser?> GetAsync(string identityUserId);
-
     Task<IEnumerable<AppUser>> GetAllAsync();
+
+    Task<AppUser?> FindByIdentityUserIdAsync(string identityUserId);
+
+    Task<IEnumerable<AppUser>> FindByUsernameStartAtAsync(string identityUserId);
 }

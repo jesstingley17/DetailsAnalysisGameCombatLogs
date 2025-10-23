@@ -6,16 +6,10 @@ using CombatAnalysis.UserDAL.Interfaces;
 
 namespace CombatAnalysis.UserBL.Services;
 
-internal class UserService : IUserService<AppUserDto>
+internal class UserService(IUserRepository repository, IMapper mapper) : IUserService<AppUserDto>
 {
-    private readonly IUserRepository _repository;
-    private readonly IMapper _mapper;
-
-    public UserService(IUserRepository repository, IMapper mapper)
-    {
-        _repository = repository;
-        _mapper = mapper;
-    }
+    private readonly IUserRepository _repository = repository;
+    private readonly IMapper _mapper = mapper;
 
     public Task<AppUserDto> CreateAsync(AppUserDto item)
     {
@@ -61,10 +55,18 @@ internal class UserService : IUserService<AppUserDto>
         return findByUsername != null;
     }
 
-    public async Task<AppUserDto> GetAsync(string identityUserId)
+    public async Task<AppUserDto?> FindByIdentityUserIdAsync(string identityUserId)
     {
-        var result = await _repository.GetAsync(identityUserId);
+        var result = await _repository.FindByIdentityUserIdAsync(identityUserId);
         var resultMap = _mapper.Map<AppUserDto>(result);
+
+        return resultMap;
+    }
+
+    public async Task<IEnumerable<AppUserDto>> FindByUsernameStartAtAsync(string startAt)
+    {
+        var result = await _repository.FindByUsernameStartAtAsync(startAt);
+        var resultMap = _mapper.Map<IEnumerable<AppUserDto>>(result);
 
         return resultMap;
     }

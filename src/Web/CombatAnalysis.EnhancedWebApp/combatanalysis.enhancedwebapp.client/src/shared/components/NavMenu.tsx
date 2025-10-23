@@ -10,6 +10,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Container, Navbar, NavbarBrand } from 'reactstrap';
 import { useAuth } from '../hooks/useAuth';
 import LanguageSelector from './LanguageSelector';
+import Search from './Search';
 
 import './NavMenu.scss';
 
@@ -82,6 +83,9 @@ const NavMenu: React.FC = () => {
                         : <div className="main-elements">
                             {auth?.isAuthenticated
                                 ? <div className="authorized">
+                                    <Search
+                                        t={t}
+                                    />
                                     <Notification />
                                     <div className="username">{me?.username}</div>
                                     <div className="authorized__logout" onClick={handleLogoutClick}>{t("Logout")}</div>

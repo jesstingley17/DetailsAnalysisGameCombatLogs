@@ -4,9 +4,9 @@ using CombatAnalysis.UserDAL.Entities;
 using CombatAnalysis.UserDAL.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace CombatAnalysis.UserDAL.Repositories.SQL;
+namespace CombatAnalysis.UserDAL.Repositories;
 
-internal class SQLFriendRepository(UserSQLContext context) : IFriendRepository
+internal class FriendRepository(UserSQLContext context) : IFriendRepository
 {
     private readonly UserSQLContext _context = context;
 

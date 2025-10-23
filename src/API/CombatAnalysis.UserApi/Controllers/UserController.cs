@@ -17,6 +17,14 @@ public class UserController(IUserService<AppUserDto> service, IMapper mapper, IL
     private readonly IMapper _mapper = mapper;
     private readonly ILogger<UserController> _logger = logger;
 
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+        var result = await _service.GetAllAsync();
+
+        return Ok(result);
+    }
+
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(string id)
     {
@@ -26,9 +34,17 @@ public class UserController(IUserService<AppUserDto> service, IMapper mapper, IL
     }
 
     [HttpGet("find/{identityUserId}")]
-    public async Task<IActionResult> Find(string identityUserId)
+    public async Task<IActionResult> FindByIdentityUserId(string identityUserId)
     {
-        var result = await _service.GetAsync(identityUserId);
+        var result = await _service.FindByIdentityUserIdAsync(identityUserId);
+
+        return Ok(result);
+    }
+
+    [HttpGet("findByUsername")]
+    public async Task<IActionResult> FindByUsernameStartAt(string startAt)
+    {
+        var result = await _service.FindByUsernameStartAtAsync(startAt);
 
         return Ok(result);
     }

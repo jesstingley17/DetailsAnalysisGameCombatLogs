@@ -8,9 +8,9 @@ namespace CombatAnalysis.UserBL.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static void UserBLDependencies(this IServiceCollection services, string databaseName, string connectionString)
+    public static void UserBLDependencies(this IServiceCollection services, string connectionString)
     {
-        services.UserDALDependencies(databaseName, connectionString);
+        services.UserDALDependencies(connectionString);
 
         services.AddScoped<ICustomerTransactionService, CustomerTransactionService>();
 

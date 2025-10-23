@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using AutoMapper.Extensions.ExpressionMapping;
 using CombatAnalysis.UserApi.Consts;
-using CombatAnalysis.UserApi.Enums;
 using CombatAnalysis.UserApi.Mapping;
 using CombatAnalysis.UserBL.Extensions;
 using CombatAnalysis.UserBL.Mapping;
@@ -10,16 +9,14 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using Serilog.Events;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var databasePropsOptions = new DatabaseProps();
 builder.Configuration.Bind("Database", databasePropsOptions);
 
-var connection = databasePropsOptions.Name == nameof(DatabaseType.MSSQL)
-    ? databasePropsOptions.DefaultConnection
-    : databasePropsOptions.FirebaseConnection;
-builder.Services.UserBLDependencies(databasePropsOptions.Name, connection);
+builder.Services.UserBLDependencies(databasePropsOptions.DefaultConnection);
 
 var mappingConfig = new MapperConfiguration(mc =>
 {
@@ -63,6 +60,12 @@ builder.Services.AddAuthorizationBuilder()
         policyBuilder.RequireAuthenticatedUser();
         policyBuilder.RequireClaim("scope", authenticationClientOptions.Scopes);
     });
+
+var redisOptions = new Redis();
+builder.Configuration.Bind("Redis", redisOptions);
+builder.Services.AddSingleton<IConnectionMultiplexer>(
+    ConnectionMultiplexer.Connect(redisOptions.Server)
+);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

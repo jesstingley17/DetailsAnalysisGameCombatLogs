@@ -12,6 +12,7 @@ using CombatAnalysisIdentity.Services;
 using Microsoft.AspNetCore.Diagnostics;
 using Serilog;
 using Serilog.Events;
+using StackExchange.Redis;
 using System.Security.Cryptography.X509Certificates;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,7 +27,7 @@ var databasePropsOptions = new DatabaseProps();
 builder.Configuration.Bind("Database", databasePropsOptions);
 
 builder.Services.RegisterIdentityDependencies(databasePropsOptions.DefaultConnection);
-builder.Services.UserBLDependencies(databasePropsOptions.Name, databasePropsOptions.UserConnection);
+builder.Services.UserBLDependencies(databasePropsOptions.UserConnection);
 
 var mappingConfig = new MapperConfiguration(mc =>
 {
@@ -39,6 +40,12 @@ builder.Services.AddSingleton(mapper);
 
 builder.Services.AddTransient<IUserAuthorizationService, UserAuthorizationService>();
 builder.Services.AddTransient<IEmailService, EmailService>();
+
+var redisOptions = new Redis();
+builder.Configuration.Bind("Redis", redisOptions);
+builder.Services.AddSingleton<IConnectionMultiplexer>(
+    ConnectionMultiplexer.Connect(redisOptions.Server)
+);
 
 builder.Services.AddRazorPages()
     .AddRazorRuntimeCompilation();

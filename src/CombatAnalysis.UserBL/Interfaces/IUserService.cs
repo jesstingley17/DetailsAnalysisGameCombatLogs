@@ -1,4 +1,6 @@
-﻿namespace CombatAnalysis.UserBL.Interfaces;
+﻿using CombatAnalysis.UserBL.DTO;
+
+namespace CombatAnalysis.UserBL.Interfaces;
 
 public interface IUserService<TModel>
     where TModel : class
@@ -15,5 +17,7 @@ public interface IUserService<TModel>
 
     Task<bool> CheckByUsernameAsync(string username);
 
-    Task<TModel> GetAsync(string identityUserId);
+    Task<AppUserDto?> FindByIdentityUserIdAsync(string identityUserId);
+
+    Task<IEnumerable<TModel>> FindByUsernameStartAtAsync(string startAt);
 }
