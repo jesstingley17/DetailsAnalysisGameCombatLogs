@@ -80,36 +80,30 @@ builder.Services.AddSwaggerGen(options =>
         Version = "v1",
     });
 
-    options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Type = SecuritySchemeType.OAuth2,
-        Flows = new OpenApiOAuthFlows
-        {
-            ClientCredentials = new OpenApiOAuthFlow
-            {
-                TokenUrl = new Uri($"{apiOptions.Identity}connect/token"),
-                Scopes = new Dictionary<string, string>
-                {
-                    { authenticationClientOptions.Scopes, "Request API #1" }
-                }
-            }
-        }
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter 'Bearer' followed by your access token.\nExample: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'"
     });
 
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
         {
+            new OpenApiSecurityScheme
             {
-                new OpenApiSecurityScheme
+                Reference = new OpenApiReference
                 {
-                    Reference = new OpenApiReference
-                    {
-                        Type = ReferenceType.SecurityScheme,
-                        Id = "oauth2"
-                    },
-                },
-                new[] { authenticationClientOptions.Scopes }
-            }
-        });
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
 });
 
 Log.Logger = new LoggerConfiguration()
@@ -131,8 +125,6 @@ app.UseSwaggerUI(options =>
 {
     options.SwaggerEndpoint("/swagger/v1/swagger.json", "Notification API v1");
     options.InjectStylesheet("/swagger/swagger-dark.css");
-    //options.OAuthClientId(authenticationClientOptions.WebClientId);
-    //options.OAuthScopes(authenticationClientOptions.Scope);
 });
 
 app.UseStaticFiles();

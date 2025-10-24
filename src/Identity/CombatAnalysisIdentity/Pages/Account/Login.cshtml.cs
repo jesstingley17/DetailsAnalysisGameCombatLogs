@@ -1,7 +1,8 @@
-using CombatAnalysisIdentity.Interfaces;
+﻿using CombatAnalysisIdentity.Interfaces;
 using CombatAnalysisIdentity.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Web;
 
 namespace CombatAnalysisIdentity.Pages.Account;
 
@@ -11,8 +12,21 @@ public class LoginModel(IUserAuthorizationService authorizationService) : PageMo
 
     public string CancelRequestAddress { get; set; } = "cancel=true";
 
+    public string CancelRequestUri { get; set; } = string.Empty;
+
     [BindProperty]
     public AuthorizationDataModel? Authorization { get; set; }
+
+    public IActionResult OnGet()
+    {
+        var nestedParams = HttpUtility.ParseQueryString(new Uri("http://dummy" + Request.Query["ReturnUrl"]).Query);
+
+        string cancelUri = HttpUtility.UrlDecode(nestedParams["cancel_uri"]!);
+
+        CancelRequestUri = cancelUri;
+
+        return Page();
+    }
 
     public async Task<IActionResult> OnPostAsync()
     {

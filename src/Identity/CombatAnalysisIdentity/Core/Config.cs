@@ -21,6 +21,7 @@ internal class Config
                 AllowedGrantTypes = GrantTypes.Code,
 
                 RedirectUris = { "http://localhost:45571/callback" },
+                PostLogoutRedirectUris = { "http://localhost:45571/" },
 
                 RequirePkce = true,
                 RequireClientSecret = false,
@@ -40,6 +41,7 @@ internal class Config
                 AllowedGrantTypes = GrantTypes.Code,
 
                 RedirectUris = { "http://localhost:5173/callback" },
+                PostLogoutRedirectUris = { "http://localhost:5173/" },
 
                 RequirePkce = true,
                 RequireClientSecret = false,

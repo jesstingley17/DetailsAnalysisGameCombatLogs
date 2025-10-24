@@ -76,21 +76,14 @@ builder.Services.AddSwaggerGen(options =>
         Version = "v1",
     });
 
-    options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Type = SecuritySchemeType.OAuth2,
-        Flows = new OpenApiOAuthFlows
-        {
-            AuthorizationCode = new OpenApiOAuthFlow
-            {
-                AuthorizationUrl = new Uri($"{apiOptions.Identity}connect/authorize"),
-                TokenUrl = new Uri($"{apiOptions.Identity}connect/token"),
-                Scopes = new Dictionary<string, string>
-                {
-                    { authenticationClientOptions.Scopes, "Request User API Authorization" }
-                }
-            }
-        }
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter 'Bearer' followed by your access token.\nExample: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'"
     });
 
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -101,10 +94,10 @@ builder.Services.AddSwaggerGen(options =>
                 Reference = new OpenApiReference
                 {
                     Type = ReferenceType.SecurityScheme,
-                    Id = "oauth2"
+                    Id = "Bearer"
                 }
             },
-            new[] { authenticationClientOptions.Scopes }
+            Array.Empty<string>()
         }
     });
 });
@@ -128,9 +121,6 @@ app.UseSwaggerUI(options =>
 {
     options.SwaggerEndpoint("/swagger/v1/swagger.json", "User API v1");
     options.InjectStylesheet("/swagger-ui/swaggerDark.css");
-    //options.OAuthClientId(authenticationClientOptions.WebClientId);
-    //options.OAuthScopes(authenticationClientOptions.Scope);
-    //options.OAuthUsePkce();
 });
 
 app.UseStaticFiles();

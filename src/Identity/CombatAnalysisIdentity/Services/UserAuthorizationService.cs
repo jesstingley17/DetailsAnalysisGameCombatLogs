@@ -53,7 +53,7 @@ internal class UserAuthorizationService(IMapper mapper, IOptions<Cluster> api, I
 
         await context.SignInAsync("Cookies", claimsPrincipal, new AuthenticationProperties
         {
-            IsPersistent = false
+            IsPersistent = true
         });
     }
 

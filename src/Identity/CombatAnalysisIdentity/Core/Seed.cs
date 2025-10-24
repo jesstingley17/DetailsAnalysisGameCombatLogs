@@ -1,6 +1,5 @@
 ﻿using Duende.IdentityServer.EntityFramework.DbContexts;
 using Duende.IdentityServer.EntityFramework.Mappers;
-using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysisIdentity.Core;
 
@@ -10,7 +9,6 @@ public static class Seed
     {
         using var scope = app.Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<ConfigurationDbContext>();
-        context.Database.Migrate();
 
         // Seed Clients
         if (!context.Clients.Any())

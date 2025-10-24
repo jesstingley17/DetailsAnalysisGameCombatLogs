@@ -1,6 +1,5 @@
-﻿import { useLogoutMutation } from '@/features/user/api/Identity.api';
-import { useLazySearchCustomerByUserIdQuery } from '@/features/user/api/Customer.api';
-import { useLazyGetUserPrivacyQuery, useLazyRefreshTokenQuery } from '@/features/user/api/Identity.api';
+﻿import { useLazySearchCustomerByUserIdQuery } from '@/features/user/api/Customer.api';
+import { useLazyGetUserPrivacyQuery, useLazyRefreshTokenQuery, useLogoutMutation } from '@/features/user/api/Identity.api';
 import { useLazyAuthenticationQuery } from '@/features/user/api/User.api';
 import { updateCustomer } from '@/features/user/store/CustomerSlice';
 import { updateUserPrivacy } from '@/features/user/store/UserPrivacySlice';
@@ -29,8 +28,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         try {
             setAuthInProgress(true);
 
-            const user = await getAuth().unwrap();
-            if (user) {
+            const response = await getAuth();
+            if (response.data !== undefined) {
+                const user = response.data;
+
                 dispatch(updateUser(user));
 
                 await getCustomerDataAsync(user.id);

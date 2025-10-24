@@ -20,7 +20,7 @@
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="login__cancel">
         <input type="button" class="btn-border-shadow finish-registration" onclick="goToRegistration()" value="Registration" />
-        <input type="button" class="btn-border-shadow cancel" onclick="goToHome()" value="Cancel" />
+        <input type="button" class="btn-border-shadow cancel" onclick="window.location.href='@Html.Raw(Model.CancelRequestUri)'" value="Cancel" />
     </div>
 </div>
 
@@ -30,16 +30,7 @@
     function goToRegistration() {
         const queryString = window.location.search;
 
-        window.location.href = `${baseAddress}registration${queryString}`;
-    }
-
-    function goToHome() {
-        const queryString = window.location.search;
-        const queryparams = new URLSearchParams(queryString);
-        const redirectUri = queryparams.get("redirectUri");
-        const cancelRequestAddress = `@Model.CancelRequestAddress`;
-
-        window.location.href = `${redirectUri}?${cancelRequestAddress}`;
+        window.location.href = `${baseAddress}Account/Registration${queryString}`;
     }
 
     function goToRestore() {

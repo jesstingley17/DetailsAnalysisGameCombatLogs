@@ -4,6 +4,7 @@ using CombatAnalysisIdentity.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Web;
 
 namespace CombatAnalysisIdentity.Pages.Account;
 
@@ -14,11 +15,22 @@ public class RegistrationModel(IUserAuthorizationService authorizationService) :
     private AppUserModel? _appUser;
     private CustomerModel? _customer;
 
+    public string CancelRequestUri { get; set; } = string.Empty;
+
     [BindProperty]
     public RegistrationDataModel Registration { get; set; }
 
+    public IActionResult OnGet()
+    {
+        ExtractCancelRequestUri();
+
+        return Page();
+    }
+
     public async Task<IActionResult> OnPostAsync()
     {
+        ExtractCancelRequestUri();
+
         if (!Registration.Password.Equals(Registration.ConfirmPassword))
         {
             ModelState.AddModelError(string.Empty, "Password and confirm password should be equal");
@@ -118,12 +130,19 @@ public class RegistrationModel(IUserAuthorizationService authorizationService) :
             return Page();
         }
 
-        await _authorizationService.AuthorizationAsync(HttpContext, _identityUser.Email, Registration.Password);
-        //if (!string.IsNullOrEmpty(redirectUri))
-        //{
-        //    return Redirect(redirectUri);
-        //}
+        return Redirect(CancelRequestUri);
+    }
 
-        return Page();
+    private void ExtractCancelRequestUri()
+    {
+        CancelRequestUri = Request.Query["cancel_uri"]!;
+        if (CancelRequestUri == null)
+        {
+            var nestedParams = HttpUtility.ParseQueryString(new Uri("http://dummy" + Request.Query["ReturnUrl"]).Query);
+
+            string cancelUri = HttpUtility.UrlDecode(nestedParams["cancel_uri"]!);
+
+            CancelRequestUri = cancelUri;
+        }
     }
 }

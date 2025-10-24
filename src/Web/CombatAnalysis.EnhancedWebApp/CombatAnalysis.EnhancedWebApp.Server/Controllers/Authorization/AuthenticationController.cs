@@ -14,18 +14,16 @@ namespace CombatAnalysis.EnhancedWebApp.Server.Controllers.Authorization;
 public class AuthenticationController : ControllerBase
 {
     private readonly Authentication _authentication;
-    private readonly AuthenticationGrantType _authenticationGrantType;
     private readonly AuthenticationClient _authenticationClient;
     private readonly Consts.Server _server;
     private readonly IHttpClientHelper _httpClient;
     private readonly ILogger<AuthenticationController> _logger;
 
-    public AuthenticationController(IOptions<Cluster> cluster, IOptions<Authentication> authentication, IOptions<AuthenticationGrantType> authenticationGrantType,
+    public AuthenticationController(IOptions<Cluster> cluster, IOptions<Authentication> authentication,
         IOptions<AuthenticationClient> authenticationClient, IOptions<Consts.Server> server, IHttpClientHelper httpClient,
         ILogger<AuthenticationController> logger)
     {
         _authentication = authentication.Value;
-        _authenticationGrantType = authenticationGrantType.Value;
         _authenticationClient = authenticationClient.Value;
         _server = server.Value;
         _httpClient = httpClient;
@@ -86,13 +84,14 @@ public class AuthenticationController : ControllerBase
             ArgumentNullException.ThrowIfNullOrEmpty(codeChallenge, nameof(codeChallenge));
 
             var uri = $"{_server.Identity}{identityPath}?" +
-                $"client_id=web-app" +
+                $"client_id={_authenticationClient.ClientId}" +
                 $"&redirect_uri={_authentication.RedirectUri}" +
                 "&response_type=code" +
                 $"&scope={Uri.EscapeDataString(_authenticationClient.Scopes)}" +
                 $"&state={state}" +
                 $"&code_challenge={codeChallenge}" +
-                $"&code_challenge_method=S256";
+                $"&code_challenge_method=S256" +
+                $"&cancel_uri=http://localhost:5173/";
 
             HttpContext.Response.Cookies.Append(nameof(AuthenticationCookie.CodeVerifier), codeVerifier, new CookieOptions
             {
@@ -126,7 +125,7 @@ public class AuthenticationController : ControllerBase
         {
             ArgumentNullException.ThrowIfNullOrEmpty(identityPath, nameof(identityPath));
 
-            return Ok(new { uri = $"{_server.Identity}{identityPath}" });
+            return Ok(new { uri = $"{_server.Identity}{identityPath}?cancel_uri=http://localhost:5173/" });
         }
         catch (ArgumentNullException ex)
         {
@@ -139,23 +138,9 @@ public class AuthenticationController : ControllerBase
     [HttpGet("cancel")]
     public IActionResult CancelAuthorization()
     {
-        HttpContext.Response.Cookies.Delete(nameof(AuthenticationCookie.State), new CookieOptions
-        {
-            Domain = _authentication.CookieDomain,
-            Path = "/",
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.None,
-        });
+        HttpContext.Response.Cookies.Delete(nameof(AuthenticationCookie.State));
 
-        HttpContext.Response.Cookies.Delete(nameof(AuthenticationCookie.CodeVerifier), new CookieOptions
-        {
-            Domain = _authentication.CookieDomain,
-            Path = "/",
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.None,
-        });
+        HttpContext.Response.Cookies.Delete(nameof(AuthenticationCookie.CodeVerifier));
 
         return Ok();
     }
@@ -192,14 +177,7 @@ public class AuthenticationController : ControllerBase
                 ArgumentException.ThrowIfNullOrEmpty(stateValue, nameof(stateValue));
             }
 
-            HttpContext.Response.Cookies.Delete(nameof(AuthenticationCookie.State), new CookieOptions
-            {
-                Domain = _authentication.CookieDomain,
-                Path = "/",
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.None,
-            });
+            HttpContext.Response.Cookies.Delete(nameof(AuthenticationCookie.State));
 
             if (stateValue == state)
             {
