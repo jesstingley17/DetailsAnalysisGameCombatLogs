@@ -1,12 +1,10 @@
-﻿namespace CombatAnalysis.UserApi.Models;
+﻿using System.ComponentModel.DataAnnotations;
 
-public class RequestToConnectModel
-{
-    public int Id { get; set; }
+namespace CombatAnalysis.UserApi.Models;
 
-    public string ToAppUserId { get; set; }
-
-    public DateTimeOffset When { get; set; }
-
-    public string AppUserId { get; set; }
-}
+public record RequestToConnectModel(
+    [Required] int Id,
+    [Required] string ToAppUserId,
+    [Required] DateTimeOffset When,
+    [Required] string AppUserId
+    );

@@ -11,7 +11,7 @@ public static class DataCollectionExtensions
 {
     public static void RegisterDependenciesForDAL(this IServiceCollection services, string connectionString)
     {
-        services.AddDbContext<IdentityContext>(options =>
+        services.AddDbContext<AppIdentityContext>(options =>
         {
             options.UseSqlServer(connectionString);
         });
@@ -20,7 +20,6 @@ public static class DataCollectionExtensions
 
         services.AddScoped<IPkeRepository, PkeRepository>();
         services.AddScoped<IIdentityUserRepository, IdentityUserRepository>();
-        services.AddScoped<IClientRepository, ClientRepository>();
         services.AddScoped<ITokenRepository, TokenRepository>();
 
         services.AddScoped<IResetTokenRepository, ResetTokenRepository>();

@@ -1,9 +1,10 @@
 ﻿using AutoMapper;
+using CombatAnalysis.UserApi.Models;
 using CombatAnalysis.UserBL.DTO;
 using CombatAnalysis.UserBL.Interfaces;
-using CombatAnalysis.UserApi.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.UserApi.Controllers;
 
@@ -49,58 +50,74 @@ public class RequestToConnectController(IService<RequestToConnectDto, int> servi
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(RequestToConnectModel model)
+    public async Task<IActionResult> Create([FromBody] RequestToConnectModel request)
     {
         try
         {
-            var map = _mapper.Map<RequestToConnectDto>(model);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid RequestToConnect create received: {@RequestToConnect}", request);
+
+                return ValidationProblem(ModelState);
+            }
+
+            var map = _mapper.Map<RequestToConnectDto>(request);
             var result = await _service.CreateAsync(map);
 
             return Ok(result);
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, $"Create Request to Connect failed: ${ex.Message}", model);
+            _logger.LogError(ex, "Failed to create request to connect.");
 
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Create Request to Connect failed: ${ex.Message}", model);
-
-            return BadRequest();
+            return StatusCode(500, "Internal server error.");
         }
     }
 
-    [HttpPut]
-    public async Task<IActionResult> Update(RequestToConnectModel model)
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, [FromBody] RequestToConnectModel request)
     {
         try
         {
-            var map = _mapper.Map<RequestToConnectDto>(model);
-            var result = await _service.UpdateAsync(map);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid RequestToConnect update request received: {@RequestToConnect}", request);
 
-            return Ok(result);
+                return ValidationProblem(ModelState);
+            }
+
+            if (id != request.Id)
+            {
+                return BadRequest("Route ID and body ID do not match.");
+            }
+
+            var map = _mapper.Map<RequestToConnectDto>(request);
+            await _service.UpdateAsync(map);
+
+            return NoContent();
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateConcurrencyException ex)
         {
-            _logger.LogError(ex, $"Update Request to Connect failed: ${ex.Message}", model);
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
 
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Update Request to Connect failed: ${ex.Message}", model);
-
-            return BadRequest();
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
         }
     }
 
     [HttpDelete("{id:int:min(1)}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var rowsAffected = await _service.DeleteAsync(id);
+        try
+        {
+            await _service.DeleteAsync(id);
 
-        return Ok(rowsAffected);
+            return NoContent();
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
+
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
+        }
     }
 }

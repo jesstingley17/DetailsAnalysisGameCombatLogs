@@ -1,7 +1,7 @@
 import type { RootState } from '@/app/Store';
 import { APP_CONFIG } from "@/config/appConfig";
 import Notification from '@/features/notification/components/Notification';
-import { useLazyAuthorizationQuery } from '@/features/user/api/User.api';
+import { useLazyAuthorizationQuery, useLazyRegistrationQuery } from '@/features/user/api/User.api';
 import logger from '@/utils/Logger';
 import React, { useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -22,6 +22,7 @@ const NavMenu: React.FC = () => {
     const auth = useAuth();
 
     const [authorization] = useLazyAuthorizationQuery();
+    const [registration] = useLazyRegistrationQuery();
 
     const navigate = useNavigate();
 
@@ -38,26 +39,28 @@ const NavMenu: React.FC = () => {
     }, []);
 
     const loginAsync = async () => {
-        const identityServerAuthPath = APP_CONFIG.identity.authPath;
+        const identityServerAuthPath = APP_CONFIG.identity.loginPath;
 
-        await redirectToIdentityAsync(identityServerAuthPath || "");
-    }
-
-    const registrationAsync = async () => {
-        const identityServerRegistrationPath = APP_CONFIG.identity.registryPath;
-
-        await redirectToIdentityAsync(identityServerRegistrationPath || "");
-    }
-
-    const redirectToIdentityAsync = async (identityPath: string) => {
         try {
-            const authUri = await authorization(identityPath).unwrap();
+            const authUri = await authorization(identityServerAuthPath).unwrap();
 
             window.location.href = authUri.uri;
         } catch (e) {
             logger.error("Failed to redirect to Identity server", e);
         }
-    } 
+    }
+
+    const registrationAsync = async () => {
+        const identityServerRegistrationPath = APP_CONFIG.identity.registryPath;
+
+        try {
+            const registryUri = await registration(identityServerRegistrationPath).unwrap();
+
+            window.location.href = registryUri.uri;
+        } catch (e) {
+            logger.error("Failed to redirect to Identity server", e);
+        }
+    }
 
     const handleLoginClick = useCallback(async () => await loginAsync(), [navigate]);
     const handleRegistrationClick = useCallback(async () => await registrationAsync(), [navigate]);

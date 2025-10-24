@@ -7,19 +7,19 @@ using CombatAnalysis.UserBL.Interfaces;
 using CombatAnalysisIdentity.Consts;
 using CombatAnalysisIdentity.Interfaces;
 using CombatAnalysisIdentity.Models;
-using CombatAnalysisIdentity.Security;
+using Duende.IdentityModel;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
+using System.Security.Claims;
 using System.Text.RegularExpressions;
 
 namespace CombatAnalysisIdentity.Services;
 
-internal class UserAuthorizationService(IMapper mapper, IOAuthCodeFlowService oAuthCodeFlowService, IOptions<Cluster> api, 
-    IIdentityUserService identityUserService, ILogger<UserAuthorizationService> logger,
-    IUserService<AppUserDto> appUserService, IService<CustomerDto, string> customerService, ICustomerTransactionService customerTransactionService, 
-    IIdentityTransactionService identityTransactionService) : IUserAuthorizationService
+internal class UserAuthorizationService(IMapper mapper, IOptions<Cluster> api, IIdentityUserService identityUserService, 
+    ILogger<UserAuthorizationService> logger, IUserService<AppUserDto> appUserService, IService<CustomerDto, string> customerService,
+    ICustomerTransactionService customerTransactionService, IIdentityTransactionService identityTransactionService) : IUserAuthorizationService
 {
     private readonly IMapper _mapper = mapper;
-    private readonly IOAuthCodeFlowService _oAuthCodeFlowService = oAuthCodeFlowService;
     private readonly IIdentityUserService _identityUserService = identityUserService;
     private readonly Cluster _api = api.Value;
     private readonly IUserService<AppUserDto> _appUserService = appUserService;
@@ -27,39 +27,34 @@ internal class UserAuthorizationService(IMapper mapper, IOAuthCodeFlowService oA
     private readonly ICustomerTransactionService _userTransactionService = customerTransactionService;
     private readonly IIdentityTransactionService _identityTransactionService = identityTransactionService;
     private readonly ILogger<UserAuthorizationService> _logger = logger;
-    private readonly AuthorizationRequestModel _authorizationRequest = new();
 
-    async Task<string> IUserAuthorizationService.AuthorizationAsync(HttpRequest request, string email, string password)
+    async Task IUserAuthorizationService.AuthorizationAsync(HttpContext context, string email, string password)
     {
         var user = await _identityUserService.GetByEmailAsync(email);
         if (user == null)
         {
-            return string.Empty;
+            return;
         }
 
         var passwordIsValid = PasswordHashing.VerifyPassword(password, user.PasswordHash, user.Salt);
         if (!passwordIsValid)
         {
-            return string.Empty;
+            return;
         }
 
-        GetAuthorizationRequestData(request);
+        var claims = new List<Claim>
+        {
+            new(JwtClaimTypes.Subject, user.Id),
+            new(JwtClaimTypes.Name, user.Email)
+        };
 
-        var authorizationCode = await _oAuthCodeFlowService.GenerateAuthorizationCodeAsync(user.Id, _authorizationRequest.ClientTd, _authorizationRequest.CodeChallenge, _authorizationRequest.CodeChallengeMethod, _authorizationRequest.RedirectUri);
+        var claimsIdentity = new ClaimsIdentity(claims, "Cookies");
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
-        var encodedAuthorizationCode = Uri.EscapeDataString(authorizationCode);
-        var redirectUrl = $"{_authorizationRequest.RedirectUri}?code={encodedAuthorizationCode}&state={_authorizationRequest.State}";
-
-        return redirectUrl;
-    }
-
-    async Task<bool> IUserAuthorizationService.ClientValidationAsync(HttpRequest request, bool isDevRequest = false)
-    {
-        GetAuthorizationRequestData(request);
-
-        var clientIsValid = await _oAuthCodeFlowService.ValidateClientAsync(_authorizationRequest.ClientTd, _authorizationRequest.RedirectUri, _authorizationRequest.Scopes, isDevRequest);
-
-        return clientIsValid;
+        await context.SignInAsync("Cookies", claimsPrincipal, new AuthenticationProperties
+        {
+            IsPersistent = false
+        });
     }
 
     async Task<bool> IUserAuthorizationService.CreateUserAsync(IdentityUserModel identityUser, AppUserModel appUser, CustomerModel customer)
@@ -168,43 +163,5 @@ internal class UserAuthorizationService(IMapper mapper, IOAuthCodeFlowService oA
         }
 
         return true;
-    }
-
-    private void GetAuthorizationRequestData(HttpRequest request)
-    {
-        if (request.Query.TryGetValue(AuthorizationRequest.RedirectUri.ToString(), out var redirectUri))
-        {
-            _authorizationRequest.RedirectUri = redirectUri;
-        }
-
-        if (request.Query.TryGetValue(AuthorizationRequest.GrantType.ToString(), out var grantType))
-        {
-            _authorizationRequest.GrantType = grantType;
-        }
-
-        if (request.Query.TryGetValue(AuthorizationRequest.ClientId.ToString(), out var clientId))
-        {
-            _authorizationRequest.ClientTd = clientId;
-        }
-
-        if (request.Query.TryGetValue(AuthorizationRequest.Scopes.ToString(), out var scopes))
-        {
-            _authorizationRequest.Scopes = scopes;
-        }
-
-        if (request.Query.TryGetValue(AuthorizationRequest.State.ToString(), out var state))
-        {
-            _authorizationRequest.State = state;
-        }
-
-        if (request.Query.TryGetValue(AuthorizationRequest.CodeChallengeMethod.ToString(), out var codeChallengeMethod))
-        {
-            _authorizationRequest.CodeChallengeMethod = codeChallengeMethod;
-        }
-
-        if (request.Query.TryGetValue(AuthorizationRequest.CodeChallenge.ToString(), out var codeChallenge))
-        {
-            _authorizationRequest.CodeChallenge = codeChallenge;
-        }
     }
 }

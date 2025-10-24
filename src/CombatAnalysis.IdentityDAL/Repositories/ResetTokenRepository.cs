@@ -7,9 +7,9 @@ namespace CombatAnalysis.IdentityDAL.Repositories;
 
 internal class ResetTokenRepository : IResetTokenRepository
 {
-    private readonly IdentityContext _context;
+    private readonly AppIdentityContext _context;
 
-    public ResetTokenRepository(IdentityContext dbContext)
+    public ResetTokenRepository(AppIdentityContext dbContext)
     {
         _context = dbContext;
     }

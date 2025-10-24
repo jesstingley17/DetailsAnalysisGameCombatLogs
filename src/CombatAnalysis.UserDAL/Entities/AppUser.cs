@@ -1,22 +1,13 @@
 ﻿namespace CombatAnalysis.UserDAL.Entities;
 
-public class AppUser
-{
-    public string Id { get; set; }
-
-    public string Username { get; set; }
-
-    public string FirstName { get; set; }
-
-    public string LastName { get; set; }
-
-    public int PhoneNumber { get; set; }
-
-    public DateTimeOffset Birthday { get; set; }
-
-    public string AboutMe { get; set; }
-
-    public int Gender { get; set; }
-
-    public string IdentityUserId { get; set; }
-}
+public record AppUser(
+    string Id,
+    string Username,
+    string FirstName,
+    string LastName,
+    int PhoneNumber,
+    DateTimeOffset Birthday,
+    string AboutMe,
+    int Gender,
+    string IdentityUserId
+    );

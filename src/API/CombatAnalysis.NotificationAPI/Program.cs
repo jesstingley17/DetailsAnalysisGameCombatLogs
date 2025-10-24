@@ -49,7 +49,6 @@ builder.Services.AddAuthentication("Bearer")
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(authenticationOptions.IssuerSigningKey),
             ValidateIssuer = true,
             ValidIssuer = authenticationOptions.Issuer,
             ValidateAudience = true,
@@ -64,7 +63,7 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy("ApiScope", builder =>
     {
         builder.RequireAuthenticatedUser();
-        builder.RequireClaim("scope", authenticationClientOptions.Scopes);
+        builder.RequireClaim("scope", authenticationClientOptions.Scopes.Split(','));
     });
 
 builder.Services.AddTransient<IChatHubHelper, ChatHubHelper>();

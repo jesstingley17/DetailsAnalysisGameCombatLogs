@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.UserDAL.Repositories;
 
-internal class FriendRepository(UserSQLContext context) : IFriendRepository
+internal class FriendRepository(UserContext context) : IFriendRepository
 {
-    private readonly UserSQLContext _context = context;
+    private readonly UserContext _context = context;
 
     public async Task<FriendDto?> CreateAsync(Friend friend)
     {
@@ -37,7 +37,7 @@ internal class FriendRepository(UserSQLContext context) : IFriendRepository
                          temp.ForWhomId,
                          ForWhomUsername = u.Username
                      })
-                   .Select(x => new FriendDto { Id = x.Id, WhoFriendId = x.WhoFriendId, WhoFriendUsername = x.WhoFriendUsername, ForWhomId = x.ForWhomId, ForWhomUsername = x.ForWhomUsername })
+                   .Select(x => new FriendDto(x.Id, x.WhoFriendId, x.WhoFriendUsername, x.ForWhomId, x.ForWhomUsername))
                    .FirstOrDefaultAsync(x => x.Id == entityEntry.Entity.Id);
 
         return entity;
@@ -78,7 +78,7 @@ internal class FriendRepository(UserSQLContext context) : IFriendRepository
                                 temp.ForWhomId,
                                 ForWhomUsername = u.Username
                             })
-                          .Select(x => new FriendDto { Id = x.Id, WhoFriendId = x.WhoFriendId, WhoFriendUsername = x.WhoFriendUsername, ForWhomId = x.ForWhomId, ForWhomUsername = x.ForWhomUsername })
+                          .Select(x => new FriendDto(x.Id, x.WhoFriendId, x.WhoFriendUsername, x.ForWhomId, x.ForWhomUsername))
                           .ToListAsync();
 
         return friends.Count != 0 ? friends : [];
@@ -108,7 +108,7 @@ internal class FriendRepository(UserSQLContext context) : IFriendRepository
                                 temp.ForWhomId,
                                 ForWhomUsername = u.Username
                             })
-                          .Select(x => new FriendDto { Id = x.Id, WhoFriendId = x.WhoFriendId, WhoFriendUsername = x.WhoFriendUsername, ForWhomId = x.ForWhomId, ForWhomUsername = x.ForWhomUsername })
+                          .Select(x => new FriendDto(x.Id, x.WhoFriendId, x.WhoFriendUsername, x.ForWhomId, x.ForWhomUsername))
                           .FirstOrDefaultAsync(x => x.Id == id);
 
         if (entity != null)
@@ -143,7 +143,7 @@ internal class FriendRepository(UserSQLContext context) : IFriendRepository
                                 temp.ForWhomId,
                                 ForWhomUsername = u.Username
                             })
-                          .Select(x => new FriendDto { Id = x.Id, WhoFriendId = x.WhoFriendId, WhoFriendUsername = x.WhoFriendUsername, ForWhomId = x.ForWhomId, ForWhomUsername = x.ForWhomUsername })
+                          .Select(x => new FriendDto(x.Id, x.WhoFriendId, x.WhoFriendUsername, x.ForWhomId, x.ForWhomUsername))
                           .ToListAsync();
 
         var data = friends

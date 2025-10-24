@@ -1,12 +1,8 @@
 ﻿namespace CombatAnalysis.UserBL.DTO;
 
-public class RequestToConnectDto
-{
-    public int Id { get; set; }
-
-    public string ToAppUserId { get; set; }
-
-    public DateTimeOffset When { get; set; }
-
-    public string AppUserId { get; set; }
-}
+public record RequestToConnectDto(
+    int Id,
+    string ToAppUserId,
+    DateTimeOffset When,
+    string AppUserId
+    );

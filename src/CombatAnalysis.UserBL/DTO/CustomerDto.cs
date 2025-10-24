@@ -1,14 +1,9 @@
 ﻿namespace CombatAnalysis.UserBL.DTO;
 
-public class CustomerDto
-{
-    public string Id { get; set; }
-
-    public string Country { get; set; }
-
-    public string City { get; set; }
-
-    public int PostalCode { get; set; }
-
-    public string AppUserId { get; set; }
-}
+public record CustomerDto(
+    string Id,
+    string Country,
+    string City,
+    int PostalCode,
+    string AppUserId
+    );

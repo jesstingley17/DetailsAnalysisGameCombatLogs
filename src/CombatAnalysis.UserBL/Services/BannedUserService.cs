@@ -8,32 +8,29 @@ using System.Linq.Expressions;
 
 namespace CombatAnalysis.UserBL.Services;
 
-internal class BannedUserService : IService<BannedUserDto, int>
+internal class BannedUserService(IGenericRepository<BannedUser, int> repository, IMapper mapper) : IService<BannedUserDto, int>
 {
-    private readonly IGenericRepository<BannedUser, int> _repository;
-    private readonly IMapper _mapper;
+    private readonly IGenericRepository<BannedUser, int> _repository = repository;
+    private readonly IMapper _mapper = mapper;
 
-    public BannedUserService(IGenericRepository<BannedUser, int> repository, IMapper mapper)
+    public async Task<BannedUserDto?> CreateAsync(BannedUserDto item)
     {
-        _repository = repository;
-        _mapper = mapper;
+        var map = _mapper.Map<BannedUser>(item);
+        var createdItem = await _repository.CreateAsync(map);
+        var resultMap = _mapper.Map<BannedUserDto>(createdItem);
+
+        return resultMap;
     }
 
-    public Task<BannedUserDto> CreateAsync(BannedUserDto item)
+    public async Task UpdateAsync(BannedUserDto item)
     {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(BannedUserDto), $"The {nameof(BannedUserDto)} can't be null");
-        }
-
-        return CreateInternalAsync(item);
+        var map = _mapper.Map<BannedUser>(item);
+        await _repository.UpdateAsync(map);
     }
 
-    public async Task<int> DeleteAsync(int id)
+    public async Task DeleteAsync(int id)
     {
-        var rowsAffected = await _repository.DeleteAsync(id);
-
-        return rowsAffected;
+        await _repository.DeleteAsync(id);
     }
 
     public async Task<IEnumerable<BannedUserDto>> GetAllAsync()
@@ -44,7 +41,7 @@ internal class BannedUserService : IService<BannedUserDto, int>
         return result;
     }
 
-    public async Task<BannedUserDto> GetByIdAsync(int id)
+    public async Task<BannedUserDto?> GetByIdAsync(int id)
     {
         var result = await _repository.GetByIdAsync(id);
         var resultMap = _mapper.Map<BannedUserDto>(result);
@@ -59,32 +56,5 @@ internal class BannedUserService : IService<BannedUserDto, int>
         var resultMap = _mapper.Map<IEnumerable<BannedUserDto>>(result);
 
         return resultMap;
-    }
-
-    public Task<int> UpdateAsync(BannedUserDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(BannedUserDto), $"The {nameof(BannedUserDto)} can't be null");
-        }
-
-        return UpdateInternalAsync(item);
-    }
-
-    private async Task<BannedUserDto> CreateInternalAsync(BannedUserDto item)
-    {
-        var map = _mapper.Map<BannedUser>(item);
-        var createdItem = await _repository.CreateAsync(map);
-        var resultMap = _mapper.Map<BannedUserDto>(createdItem);
-
-        return resultMap;
-    }
-
-    private async Task<int> UpdateInternalAsync(BannedUserDto item)
-    {
-        var map = _mapper.Map<BannedUser>(item);
-        var rowsAffected = await _repository.UpdateAsync(map);
-
-        return rowsAffected;
     }
 }

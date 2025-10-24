@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace CombatAnalysisIdentity.Pages;
+namespace CombatAnalysisIdentity.Pages.Account;
 
 public class RegistrationModel(IUserAuthorizationService authorizationService) : PageModel
 {
@@ -14,20 +14,11 @@ public class RegistrationModel(IUserAuthorizationService authorizationService) :
     private AppUserModel? _appUser;
     private CustomerModel? _customer;
 
-    public bool QueryIsValid { get; set; }
-
     [BindProperty]
     public RegistrationDataModel Registration { get; set; }
 
-    public async Task OnGetAsync()
-    {
-        await RequestValidationAsync();
-    }
-
     public async Task<IActionResult> OnPostAsync()
     {
-        await RequestValidationAsync();
-
         if (!Registration.Password.Equals(Registration.ConfirmPassword))
         {
             ModelState.AddModelError(string.Empty, "Password and confirm password should be equal");
@@ -127,19 +118,12 @@ public class RegistrationModel(IUserAuthorizationService authorizationService) :
             return Page();
         }
 
-        var redirectUri = await _authorizationService.AuthorizationAsync(Request, _identityUser.Email, Registration.Password);
-        if (!string.IsNullOrEmpty(redirectUri))
-        {
-            return Redirect(redirectUri);
-        }
+        await _authorizationService.AuthorizationAsync(HttpContext, _identityUser.Email, Registration.Password);
+        //if (!string.IsNullOrEmpty(redirectUri))
+        //{
+        //    return Redirect(redirectUri);
+        //}
 
         return Page();
-    }
-
-    private async Task RequestValidationAsync()
-    {
-        var clientIsValid = await _authorizationService.ClientValidationAsync(Request);
-
-        QueryIsValid = clientIsValid;
     }
 }

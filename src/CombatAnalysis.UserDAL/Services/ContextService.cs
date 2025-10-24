@@ -4,15 +4,10 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace CombatAnalysis.UserDAL.Services;
 
-internal class ContextService : IContextService
+internal class ContextService(UserContext context) : IContextService
 {
-    private readonly UserSQLContext _context;
-    private IDbContextTransaction _transaction;
-
-    public ContextService(UserSQLContext context)
-    {
-        _context = context;
-    }
+    private readonly UserContext _context = context;
+    private IDbContextTransaction? _transaction;
 
     public async Task BeginAsync()
     {

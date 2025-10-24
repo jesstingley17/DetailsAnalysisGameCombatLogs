@@ -3,14 +3,9 @@ using CombatAnalysis.UserDAL.Interfaces;
 
 namespace CombatAnalysis.UserBL.Services;
 
-internal class CustomerTransactionService : ICustomerTransactionService
+internal class CustomerTransactionService(IContextService context) : ICustomerTransactionService
 {
-    private readonly IContextService _context;
-
-    public CustomerTransactionService(IContextService context)
-    {
-        _context = context;
-    }
+    private readonly IContextService _context = context;
 
     public async Task BeginTransactionAsync()
     {

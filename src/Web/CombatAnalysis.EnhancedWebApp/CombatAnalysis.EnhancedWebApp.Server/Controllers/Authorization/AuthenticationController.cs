@@ -86,13 +86,13 @@ public class AuthenticationController : ControllerBase
             ArgumentNullException.ThrowIfNullOrEmpty(codeChallenge, nameof(codeChallenge));
 
             var uri = $"{_server.Identity}{identityPath}?" +
-                $"grantType={_authenticationGrantType.Code}" +
-                $"&clientId={_authenticationClient.ClientId}" +
-                $"&redirectUri={_authentication.RedirectUri}" +
-                $"&scopes={_authenticationClient.Scopes}" +
+                $"client_id=web-app" +
+                $"&redirect_uri={_authentication.RedirectUri}" +
+                "&response_type=code" +
+                $"&scope={Uri.EscapeDataString(_authenticationClient.Scopes)}" +
                 $"&state={state}" +
-                $"&codeChallengeMethod={_authentication.CodeChallengeMethod}" +
-                $"&codeChallenge={codeChallenge}";
+                $"&code_challenge={codeChallenge}" +
+                $"&code_challenge_method=S256";
 
             HttpContext.Response.Cookies.Append(nameof(AuthenticationCookie.CodeVerifier), codeVerifier, new CookieOptions
             {
@@ -110,6 +110,23 @@ public class AuthenticationController : ControllerBase
             });
 
             return Ok(new { uri });
+        }
+        catch (ArgumentNullException ex)
+        {
+            _logger.LogError(ex, "Failed to Authorize. Paramter '{ParamName} was null", ex.ParamName);
+
+            return BadRequest();
+        }
+    }
+
+    [HttpGet("registration")]
+    public IActionResult Registration(string identityPath)
+    {
+        try
+        {
+            ArgumentNullException.ThrowIfNullOrEmpty(identityPath, nameof(identityPath));
+
+            return Ok(new { uri = $"{_server.Identity}{identityPath}" });
         }
         catch (ArgumentNullException ex)
         {

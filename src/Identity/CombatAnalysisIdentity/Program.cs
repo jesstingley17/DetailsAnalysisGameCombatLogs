@@ -9,7 +9,9 @@ using CombatAnalysisIdentity.Core;
 using CombatAnalysisIdentity.Interfaces;
 using CombatAnalysisIdentity.Mapping;
 using CombatAnalysisIdentity.Services;
+using Duende.IdentityServer.Configuration;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
 using StackExchange.Redis;
@@ -26,7 +28,7 @@ builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("Smtp"
 var databasePropsOptions = new DatabaseProps();
 builder.Configuration.Bind("Database", databasePropsOptions);
 
-builder.Services.RegisterIdentityDependencies(databasePropsOptions.DefaultConnection);
+builder.Services.RegisterIdentityDependencies(databasePropsOptions.AppIdentity);
 builder.Services.UserBLDependencies(databasePropsOptions.UserConnection);
 
 var mappingConfig = new MapperConfiguration(mc =>
@@ -60,16 +62,37 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddAuthentication("Cookies")
+       .AddCookie("Cookies");
+
 var certificateOptions = new Certificate();
 builder.Configuration.Bind("Certificate", certificateOptions);
 
 var certificate = new X509Certificate2(certificateOptions.PfxPath, certificateOptions.PWD);
-builder.Services.AddIdentityServer()
+builder.Services.AddIdentityServer(options =>
+            {
+                options.Authentication.CookieAuthenticationScheme = "Cookies";
+            })
             .AddSigningCredential(certificate)
-            .AddInMemoryApiResources(Config.GetApiResources())
-            .AddInMemoryIdentityResources(Config.GetIdentityResources())
-            .AddInMemoryClients(Config.GetClients())
-            .AddInMemoryApiScopes(Config.ApiScopes);
+            .AddConfigurationStore(options =>
+            {
+                options.ConfigureDbContext = b =>
+                    b.UseSqlServer(databasePropsOptions.Identity,
+                        sql => sql.MigrationsAssembly(typeof(Program).Assembly.FullName));
+            })
+            .AddOperationalStore(options =>
+            {
+                options.ConfigureDbContext = b =>
+                    b.UseSqlServer(databasePropsOptions.Identity,
+                        sql => sql.MigrationsAssembly(typeof(Program).Assembly.FullName));
+                options.EnableTokenCleanup = true;
+                options.TokenCleanupInterval = 3600;
+            });
+
+builder.Services.Configure<IdentityServerOptions>(options =>
+{
+    options.UserInteraction.LoginUrl = "/Account/Login";
+});
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Debug)
@@ -79,6 +102,7 @@ Log.Logger = new LoggerConfiguration()
 builder.Host.UseSerilog();
 
 var app = builder.Build();
+app.InitializeIdentity();
 
 if (!app.Environment.IsDevelopment())
 {

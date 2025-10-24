@@ -8,71 +8,12 @@ using System.Linq.Expressions;
 
 namespace CombatAnalysis.UserBL.Services;
 
-internal class CustomerService : IService<CustomerDto, string>
+internal class CustomerService(IGenericRepository<Customer, string> repository, IMapper mapper) : IService<CustomerDto, string>
 {
-    private readonly IGenericRepository<Customer, string> _repository;
-    private readonly IMapper _mapper;
+    private readonly IGenericRepository<Customer, string> _repository = repository;
+    private readonly IMapper _mapper = mapper;
 
-    public CustomerService(IGenericRepository<Customer, string> repository, IMapper mapper)
-    {
-        _repository = repository;
-        _mapper = mapper;
-    }
-
-    public Task<CustomerDto> CreateAsync(CustomerDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(CustomerDto), $"The {nameof(CustomerDto)} can't be null");
-        }
-
-        return CreateInternalAsync(item);
-    }
-
-    public async Task<int> DeleteAsync(string id)
-    {
-        var rowsAffected = await _repository.DeleteAsync(id);
-
-        return rowsAffected;
-    }
-
-    public async Task<IEnumerable<CustomerDto>> GetAllAsync()
-    {
-        var allData = await _repository.GetAllAsync();
-        var result = _mapper.Map<List<CustomerDto>>(allData);
-
-        return result;
-    }
-
-    public async Task<CustomerDto> GetByIdAsync(string id)
-    {
-        var result = await _repository.GetByIdAsync(id);
-        var resultMap = _mapper.Map<CustomerDto>(result);
-
-        return resultMap;
-    }
-
-    public async Task<IEnumerable<CustomerDto>> GetByParamAsync<TValue>(Expression<Func<CustomerDto, TValue>> property, TValue value)
-    {
-        var map = _mapper.MapExpression<Expression<Func<Customer, TValue>>>(property);
-        var result = await _repository.GetByParamAsync(map, value);
-        var resultMap = _mapper.Map<IEnumerable<CustomerDto>>(result);
-
-        return resultMap;
-    }
-
-    public Task<int> UpdateAsync(CustomerDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(CustomerDto), $"The {nameof(CustomerDto)} can't be null");
-        }
-
-        return UpdateInternalAsync(item);
-    }
-
-
-    private async Task<CustomerDto> CreateInternalAsync(CustomerDto item)
+    public async Task<CustomerDto?> CreateAsync(CustomerDto item)
     {
         if (string.IsNullOrEmpty(item.City))
         {
@@ -93,7 +34,7 @@ internal class CustomerService : IService<CustomerDto, string>
         return resultMap;
     }
 
-    private async Task<int> UpdateInternalAsync(CustomerDto item)
+    public async Task UpdateAsync(CustomerDto item)
     {
         if (string.IsNullOrEmpty(item.City))
         {
@@ -108,8 +49,36 @@ internal class CustomerService : IService<CustomerDto, string>
         }
 
         var map = _mapper.Map<Customer>(item);
-        var rowsAffected = await _repository.UpdateAsync(map);
+        await _repository.UpdateAsync(map);
+    }
 
-        return rowsAffected;
+    public async Task DeleteAsync(string id)
+    {
+        await _repository.DeleteAsync(id);
+    }
+
+    public async Task<IEnumerable<CustomerDto>> GetAllAsync()
+    {
+        var allData = await _repository.GetAllAsync();
+        var result = _mapper.Map<List<CustomerDto>>(allData);
+
+        return result;
+    }
+
+    public async Task<CustomerDto?> GetByIdAsync(string id)
+    {
+        var result = await _repository.GetByIdAsync(id);
+        var resultMap = _mapper.Map<CustomerDto>(result);
+
+        return resultMap;
+    }
+
+    public async Task<IEnumerable<CustomerDto>> GetByParamAsync<TValue>(Expression<Func<CustomerDto, TValue>> property, TValue value)
+    {
+        var map = _mapper.MapExpression<Expression<Func<Customer, TValue>>>(property);
+        var result = await _repository.GetByParamAsync(map, value);
+        var resultMap = _mapper.Map<IEnumerable<CustomerDto>>(result);
+
+        return resultMap;
     }
 }

@@ -11,24 +11,62 @@ internal class UserService(IUserRepository repository, IMapper mapper) : IUserSe
     private readonly IUserRepository _repository = repository;
     private readonly IMapper _mapper = mapper;
 
-    public Task<AppUserDto> CreateAsync(AppUserDto item)
+    public async Task<AppUserDto?> CreateAsync(AppUserDto item)
     {
-        if (item == null)
+        if (string.IsNullOrEmpty(item.Username))
         {
-            throw new ArgumentNullException(nameof(AppUserDto), $"The {nameof(AppUserDto)} can't be null");
+            throw new ArgumentNullException(nameof(CustomerDto),
+                $"The property {nameof(AppUserDto.Username)} of the {nameof(AppUserDto)} object can't be null or empty");
         }
 
-        return CreateInternalAsync(item);
+        if (string.IsNullOrEmpty(item.FirstName))
+        {
+            throw new ArgumentNullException(nameof(CustomerDto),
+                $"The property {nameof(AppUserDto.FirstName)} of the {nameof(AppUserDto)} object can't be null or empty");
+        }
+
+        if (string.IsNullOrEmpty(item.LastName))
+        {
+            throw new ArgumentNullException(nameof(CustomerDto),
+                $"The property {nameof(AppUserDto.LastName)} of the {nameof(AppUserDto)} object can't be null or empty");
+        }
+
+        var map = _mapper.Map<AppUser>(item);
+        var createdItem = await _repository.CreateAsync(map);
+        var resultMap = _mapper.Map<AppUserDto>(createdItem);
+
+        return resultMap;
     }
 
-    public Task<int> DeleteAsync(AppUserDto item)
+    public async Task UpdateAsync(AppUserDto item)
     {
-        if (item == null)
+        if (string.IsNullOrEmpty(item.Username))
         {
-            throw new ArgumentNullException(nameof(AppUserDto), $"The {nameof(AppUserDto)} can't be null");
+            throw new ArgumentNullException(nameof(CustomerDto),
+                $"The property {nameof(AppUserDto.Username)} of the {nameof(AppUserDto)} object can't be null or empty");
         }
 
-        return DeleteInternalAsync(item);
+        if (string.IsNullOrEmpty(item.FirstName))
+        {
+            throw new ArgumentNullException(nameof(CustomerDto),
+                $"The property {nameof(AppUserDto.FirstName)} of the {nameof(AppUserDto)} object can't be null or empty");
+        }
+
+        if (string.IsNullOrEmpty(item.LastName))
+        {
+            throw new ArgumentNullException(nameof(CustomerDto),
+                $"The property {nameof(AppUserDto.LastName)} of the {nameof(AppUserDto)} object can't be null or empty");
+        }
+
+        var map = _mapper.Map<AppUser>(item);
+        var result = await _repository.UpdateAsync(map);
+        _mapper.Map<AppUserDto>(result);
+    }
+
+    public async Task DeleteAsync(AppUserDto item)
+    {
+        var map = _mapper.Map<AppUser>(item);
+        await _repository.DeleteAsync(map);
     }
 
     public async Task<IEnumerable<AppUserDto>> GetAllAsync()
@@ -39,7 +77,7 @@ internal class UserService(IUserRepository repository, IMapper mapper) : IUserSe
         return result;
     }
 
-    public async Task<AppUserDto> GetByIdAsync(string id)
+    public async Task<AppUserDto?> GetByIdAsync(string id)
     {
         var result = await _repository.GetByIdAsync(id);
         var resultMap = _mapper.Map<AppUserDto>(result);
@@ -69,78 +107,5 @@ internal class UserService(IUserRepository repository, IMapper mapper) : IUserSe
         var resultMap = _mapper.Map<IEnumerable<AppUserDto>>(result);
 
         return resultMap;
-    }
-
-    public Task<AppUserDto> UpdateAsync(AppUserDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(AppUserDto), $"The {nameof(AppUserDto)} can't be null");
-        }
-
-        return UpdateInternalAsync(item);
-    }
-
-
-    private async Task<AppUserDto> CreateInternalAsync(AppUserDto item)
-    {
-        if (string.IsNullOrEmpty(item.Username))
-        {
-            throw new ArgumentNullException(nameof(CustomerDto),
-                $"The property {nameof(AppUserDto.Username)} of the {nameof(AppUserDto)} object can't be null or empty");
-        }
-
-        if (string.IsNullOrEmpty(item.FirstName))
-        {
-            throw new ArgumentNullException(nameof(CustomerDto),
-                $"The property {nameof(AppUserDto.FirstName)} of the {nameof(AppUserDto)} object can't be null or empty");
-        }
-
-        if (string.IsNullOrEmpty(item.LastName))
-        {
-            throw new ArgumentNullException(nameof(CustomerDto),
-                $"The property {nameof(AppUserDto.LastName)} of the {nameof(AppUserDto)} object can't be null or empty");
-        }
-
-        var map = _mapper.Map<AppUser>(item);
-        var createdItem = await _repository.CreateAsync(map);
-        var resultMap = _mapper.Map<AppUserDto>(createdItem);
-
-        return resultMap;
-    }
-
-    private async Task<int> DeleteInternalAsync(AppUserDto item)
-    {
-        var map = _mapper.Map<AppUser>(item);
-        var rowsAffected = await _repository.DeleteAsync(map);
-
-        return rowsAffected;
-    }
-
-    private async Task<AppUserDto> UpdateInternalAsync(AppUserDto item)
-    {
-        if (string.IsNullOrEmpty(item.Username))
-        {
-            throw new ArgumentNullException(nameof(CustomerDto),
-                $"The property {nameof(AppUserDto.Username)} of the {nameof(AppUserDto)} object can't be null or empty");
-        }
-
-        if (string.IsNullOrEmpty(item.FirstName))
-        {
-            throw new ArgumentNullException(nameof(CustomerDto),
-                $"The property {nameof(AppUserDto.FirstName)} of the {nameof(AppUserDto)} object can't be null or empty");
-        }
-
-        if (string.IsNullOrEmpty(item.LastName))
-        {
-            throw new ArgumentNullException(nameof(CustomerDto),
-                $"The property {nameof(AppUserDto.LastName)} of the {nameof(AppUserDto)} object can't be null or empty");
-        }
-
-        var map = _mapper.Map<AppUser>(item);
-        var result = await _repository.UpdateAsync(map);
-        var mapToStartModel = _mapper.Map<AppUserDto>(result);
-
-        return mapToStartModel;
     }
 }

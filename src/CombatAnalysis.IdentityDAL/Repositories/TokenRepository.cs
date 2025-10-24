@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.IdentityDAL.Repositories;
 
-internal class TokenRepository(IdentityContext dbContext) : ITokenRepository
+internal class TokenRepository(AppIdentityContext dbContext) : ITokenRepository
 {
-    private readonly IdentityContext _context = dbContext;
+    private readonly AppIdentityContext _context = dbContext;
 
     public async Task<RefreshToken> CreateAsync(string token, int refreshTokenExpiresDays, string clientId, string userId)
     {

@@ -12,5 +12,5 @@ public class Authentication
 
     public string CodeChallengeMethod { get; set; } = string.Empty;
 
-    public int RefreshTokenExpiresDays { get; set; }
+    public int RefreshTokenExpiresSec { get; set; }
 }

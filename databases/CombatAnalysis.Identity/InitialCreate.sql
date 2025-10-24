@@ -21,20 +21,6 @@ CREATE TABLE [AuthorizationCodeChallenge] (
     CONSTRAINT [PK_AuthorizationCodeChallenge] PRIMARY KEY ([Id])
 );
 
-CREATE TABLE [Client] (
-    [Id] nvarchar(450) NOT NULL,
-    [RedirectUrl] nvarchar(max) NOT NULL,
-    [AllowedScopes] nvarchar(max) NOT NULL,
-    [AllowedAudiences] nvarchar(max) NOT NULL,
-    [ClientName] nvarchar(max) NOT NULL,
-    [ClientType] int NOT NULL,
-    [IsActive] bit NOT NULL,
-    [CreatedAt] datetimeoffset NOT NULL,
-    [UpdatedAt] datetimeoffset NOT NULL,
-    [ClientSecret] nvarchar(max) NULL,
-    CONSTRAINT [PK_Client] PRIMARY KEY ([Id])
-);
-
 CREATE TABLE [IdentityUser] (
     [Id] nvarchar(450) NOT NULL,
     [Email] nvarchar(max) NOT NULL,
@@ -75,16 +61,8 @@ CREATE TABLE [VerifyEmailToken] (
     CONSTRAINT [PK_VerifyEmailToken] PRIMARY KEY ([Id])
 );
 
-IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'AllowedAudiences', N'AllowedScopes', N'ClientName', N'ClientSecret', N'ClientType', N'CreatedAt', N'IsActive', N'RedirectUrl', N'UpdatedAt') AND [object_id] = OBJECT_ID(N'[Client]'))
-    SET IDENTITY_INSERT [Client] ON;
-INSERT INTO [Client] ([Id], [AllowedAudiences], [AllowedScopes], [ClientName], [ClientSecret], [ClientType], [CreatedAt], [IsActive], [RedirectUrl], [UpdatedAt])
-VALUES (N'18a67288-d050-4fa3-887e-9551dc5d2d85', N'user-api,chat-api,communication-api,hubs,notification-api', N'api.read,api.write', N'web', NULL, 0, '2025-10-17T15:47:39.5860396+03:00', CAST(1 AS bit), N'localhost:5173/callback', '2025-10-17T15:47:39.5860399+03:00'),
-(N'c3785216-d952-4cf6-b0f6-ad8f142fe28d', N'user-api,chat-api,communication-api,hubs,notification-api', N'api.read,api.write', N'desktop', NULL, 0, '2025-10-17T15:47:39.5846410+03:00', CAST(1 AS bit), N'localhost:45571/callback', '2025-10-17T15:47:39.5860165+03:00');
-IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'AllowedAudiences', N'AllowedScopes', N'ClientName', N'ClientSecret', N'ClientType', N'CreatedAt', N'IsActive', N'RedirectUrl', N'UpdatedAt') AND [object_id] = OBJECT_ID(N'[Client]'))
-    SET IDENTITY_INSERT [Client] OFF;
-
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'20251017124739_Prod', N'9.0.1');
+VALUES (N'20251024133700_Init', N'9.0.10');
 
 COMMIT;
 GO

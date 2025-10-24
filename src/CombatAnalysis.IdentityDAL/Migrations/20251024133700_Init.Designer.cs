@@ -11,16 +11,16 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CombatAnalysis.IdentityDAL.Migrations
 {
-    [DbContext(typeof(IdentityContext))]
-    [Migration("20251017124739_Prod")]
-    partial class Prod
+    [DbContext(typeof(AppIdentityContext))]
+    [Migration("20251024133700_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.1")
+                .HasAnnotation("ProductVersion", "9.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -58,73 +58,6 @@ namespace CombatAnalysis.IdentityDAL.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("AuthorizationCodeChallenge");
-                });
-
-            modelBuilder.Entity("CombatAnalysis.IdentityDAL.Entities.Client", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("AllowedAudiences")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("AllowedScopes")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ClientName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ClientSecret")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("ClientType")
-                        .HasColumnType("int");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("RedirectUrl")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Client");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "c3785216-d952-4cf6-b0f6-ad8f142fe28d",
-                            AllowedAudiences = "user-api,chat-api,communication-api,hubs,notification-api",
-                            AllowedScopes = "api.read,api.write",
-                            ClientName = "desktop",
-                            ClientType = 0,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 10, 17, 15, 47, 39, 584, DateTimeKind.Unspecified).AddTicks(6410), new TimeSpan(0, 3, 0, 0, 0)),
-                            IsActive = true,
-                            RedirectUrl = "localhost:45571/callback",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2025, 10, 17, 15, 47, 39, 586, DateTimeKind.Unspecified).AddTicks(165), new TimeSpan(0, 3, 0, 0, 0))
-                        },
-                        new
-                        {
-                            Id = "18a67288-d050-4fa3-887e-9551dc5d2d85",
-                            AllowedAudiences = "user-api,chat-api,communication-api,hubs,notification-api",
-                            AllowedScopes = "api.read,api.write",
-                            ClientName = "web",
-                            ClientType = 0,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 10, 17, 15, 47, 39, 586, DateTimeKind.Unspecified).AddTicks(396), new TimeSpan(0, 3, 0, 0, 0)),
-                            IsActive = true,
-                            RedirectUrl = "localhost:5173/callback",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2025, 10, 17, 15, 47, 39, 586, DateTimeKind.Unspecified).AddTicks(399), new TimeSpan(0, 3, 0, 0, 0))
-                        });
                 });
 
             modelBuilder.Entity("CombatAnalysis.IdentityDAL.Entities.IdentityUser", b =>

@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CombatAnalysis.UserDAL.Migrations
 {
-    [DbContext(typeof(UserSQLContext))]
+    [DbContext(typeof(UserContext))]
     partial class UserSQLContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

@@ -56,6 +56,9 @@ export const UserApi = createApi({
         authorization: builder.query<{ uri: string }, string>({
             query: identityPath => `/Authentication/authorization?identityPath=${identityPath}`,
         }),
+        registration: builder.query<{ uri: string }, string>({
+            query: identityPath => `/Authentication/registration?identityPath=${identityPath}`,
+        }),
         verifyEmail: builder.query<IdentityRedirectModel, { identityPath: string, email: string }>({
             query: ({ identityPath, email }) => `/Authentication/verifyEmail?identityPath=${identityPath}&email=${email}`,
         }),
@@ -76,6 +79,7 @@ export const {
     useAuthenticationQuery,
     useLazyAuthenticationQuery,
     useLazyAuthorizationQuery,
+    useLazyRegistrationQuery,
     useLazyVerifyEmailQuery,
     useLazyStateValidateQuery,
     useLazyCancelAuthorizationQuery,

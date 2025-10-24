@@ -3,12 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
-
 namespace CombatAnalysis.IdentityDAL.Migrations
 {
     /// <inheritdoc />
-    public partial class Prod : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -29,26 +27,6 @@ namespace CombatAnalysis.IdentityDAL.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AuthorizationCodeChallenge", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Client",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    RedirectUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AllowedScopes = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AllowedAudiences = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ClientName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ClientType = table.Column<int>(type: "int", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    UpdatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    ClientSecret = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Client", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -116,15 +94,6 @@ namespace CombatAnalysis.IdentityDAL.Migrations
                 {
                     table.PrimaryKey("PK_VerifyEmailToken", x => x.Id);
                 });
-
-            migrationBuilder.InsertData(
-                table: "Client",
-                columns: new[] { "Id", "AllowedAudiences", "AllowedScopes", "ClientName", "ClientSecret", "ClientType", "CreatedAt", "IsActive", "RedirectUrl", "UpdatedAt" },
-                values: new object[,]
-                {
-                    { "18a67288-d050-4fa3-887e-9551dc5d2d85", "user-api,chat-api,communication-api,hubs,notification-api", "api.read,api.write", "web", null, 0, new DateTimeOffset(new DateTime(2025, 10, 17, 15, 47, 39, 586, DateTimeKind.Unspecified).AddTicks(396), new TimeSpan(0, 3, 0, 0, 0)), true, "localhost:5173/callback", new DateTimeOffset(new DateTime(2025, 10, 17, 15, 47, 39, 586, DateTimeKind.Unspecified).AddTicks(399), new TimeSpan(0, 3, 0, 0, 0)) },
-                    { "c3785216-d952-4cf6-b0f6-ad8f142fe28d", "user-api,chat-api,communication-api,hubs,notification-api", "api.read,api.write", "desktop", null, 0, new DateTimeOffset(new DateTime(2025, 10, 17, 15, 47, 39, 584, DateTimeKind.Unspecified).AddTicks(6410), new TimeSpan(0, 3, 0, 0, 0)), true, "localhost:45571/callback", new DateTimeOffset(new DateTime(2025, 10, 17, 15, 47, 39, 586, DateTimeKind.Unspecified).AddTicks(165), new TimeSpan(0, 3, 0, 0, 0)) }
-                });
         }
 
         /// <inheritdoc />
@@ -132,9 +101,6 @@ namespace CombatAnalysis.IdentityDAL.Migrations
         {
             migrationBuilder.DropTable(
                 name: "AuthorizationCodeChallenge");
-
-            migrationBuilder.DropTable(
-                name: "Client");
 
             migrationBuilder.DropTable(
                 name: "IdentityUser");

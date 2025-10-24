@@ -1,14 +1,11 @@
-﻿namespace CombatAnalysis.UserApi.Models;
+﻿using System.ComponentModel.DataAnnotations;
 
-public class FriendModel
-{
-    public int Id { get; set; }
+namespace CombatAnalysis.UserApi.Models;
 
-    public string WhoFriendId { get; set; } = string.Empty;
-
-    public string WhoFriendUsername { get; set; } = string.Empty;
-
-    public string ForWhomId { get; set; } = string.Empty;
-
-    public string ForWhomUsername { get; set; } = string.Empty;
-}
+public record FriendModel(
+    [Required] int Id,
+    [Required] string WhoFriendId,
+    [Required] string WhoFriendUsername,
+    [Required] string ForWhomId,
+    [Required] string ForWhomUsername
+    );

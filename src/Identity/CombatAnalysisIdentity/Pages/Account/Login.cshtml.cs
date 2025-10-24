@@ -3,28 +3,19 @@ using CombatAnalysisIdentity.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace CombatAnalysisIdentity.Pages;
+namespace CombatAnalysisIdentity.Pages.Account;
 
-public class AuthorizationModel(IUserAuthorizationService authorizationService) : PageModel
+public class LoginModel(IUserAuthorizationService authorizationService) : PageModel
 {
     private readonly IUserAuthorizationService _authorizationService = authorizationService;
-
-    public bool QueryIsValid { get; set; }
 
     public string CancelRequestAddress { get; set; } = "cancel=true";
 
     [BindProperty]
     public AuthorizationDataModel? Authorization { get; set; }
 
-    public async Task OnGetAsync()
-    {
-        await RequestValidationAsync();
-    }
-
     public async Task<IActionResult> OnPostAsync()
     {
-        await RequestValidationAsync();
-
         if (!ModelState.IsValid)
         {
             ModelState.AddModelError(string.Empty, "Invalid login attempt");
@@ -39,21 +30,14 @@ public class AuthorizationModel(IUserAuthorizationService authorizationService) 
             return Page();
         }
 
-        var redirectUri = await _authorizationService.AuthorizationAsync(Request, Authorization.Email, Authorization.Password);
-        if (!string.IsNullOrEmpty(redirectUri))
+        await _authorizationService.AuthorizationAsync(HttpContext, Authorization.Email, Authorization.Password);
+        if (Request.Query.TryGetValue("ReturnUrl", out var returnUrl))
         {
-            return Redirect(redirectUri);
+            return Redirect(returnUrl.ToString());
         }
 
         ModelState.AddModelError(string.Empty, "Invalid login attempt");
 
         return Page();
-    }
-
-    private async Task RequestValidationAsync()
-    {
-        var clientIsValid = await _authorizationService.ClientValidationAsync(Request);
-
-        QueryIsValid = clientIsValid;
     }
 }

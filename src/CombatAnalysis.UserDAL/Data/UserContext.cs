@@ -3,11 +3,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.UserDAL.Data;
 
-public class UserSQLContext : DbContext
+public class UserContext(DbContextOptions<UserContext> options) : DbContext(options)
 {
-    public UserSQLContext(DbContextOptions<UserSQLContext> options) : base(options)
-    {
-    }
 
     #region Customer
 

@@ -1,10 +1,10 @@
-﻿using CombatAnalysis.IdentityDAL.Entities;
+﻿//using CombatAnalysis.IdentityDAL.Entities;
 
-namespace CombatAnalysis.IdentityDAL.Interfaces;
+//namespace CombatAnalysis.IdentityDAL.Interfaces;
 
-public interface IClientRepository
-{
-    Task SaveAsync(Client identityUser);
+//public interface IClientRepository
+//{
+//    Task SaveAsync(Client identityUser);
 
-    Task<Client> GetByIdAsync(string id);
-}
+//    Task<Client> GetByIdAsync(string id);
+//}

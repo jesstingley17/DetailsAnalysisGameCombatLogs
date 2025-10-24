@@ -1,14 +1,11 @@
-﻿namespace CombatAnalysis.UserApi.Models;
+﻿using System.ComponentModel.DataAnnotations;
 
-public class CustomerModel
-{
-    public string Id { get; set; }
+namespace CombatAnalysis.UserApi.Models;
 
-    public string Country { get; set; }
-
-    public string City { get; set; }
-
-    public int PostalCode { get; set; }
-
-    public string AppUserId { get; set; }
-}
+public record CustomerModel(
+    [Required] string Id,
+    [Required] string Country,
+    [Required] string City,
+    [Required] int PostalCode,
+    [Required] string AppUserId
+    );

@@ -5,11 +5,11 @@ using System.Linq.Expressions;
 
 namespace CombatAnalysis.UserDAL.Repositories;
 
-internal class Repository<TModel, TIdType>(UserSQLContext context) : IGenericRepository<TModel, TIdType>
+internal class Repository<TModel, TIdType>(UserContext context) : IGenericRepository<TModel, TIdType>
     where TModel : class
     where TIdType : notnull
 {
-    private readonly UserSQLContext _context = context;
+    private readonly UserContext _context = context;
 
     public async Task<TModel> CreateAsync(TModel item)
     {

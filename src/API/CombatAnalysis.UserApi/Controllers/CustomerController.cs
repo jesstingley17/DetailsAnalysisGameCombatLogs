@@ -4,6 +4,7 @@ using CombatAnalysis.UserBL.DTO;
 using CombatAnalysis.UserBL.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.UserApi.Controllers;
 
@@ -41,35 +42,50 @@ public class CustomerController(IService<CustomerDto, string> service, IMapper m
         return Ok(result);
     }
 
-    [HttpPut]
-    public async Task<IActionResult> Update(CustomerModel model)
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(string id, [FromBody] CustomerModel customer)
     {
         try
         {
-            var map = _mapper.Map<CustomerDto>(model);
-            var result = await _service.UpdateAsync(map);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid Customer update request received: {@Customer}", customer);
 
-            return Ok(result);
+                return ValidationProblem(ModelState);
+            }
+
+            if (id != customer.Id)
+            {
+                return BadRequest("Route ID and body ID do not match.");
+            }
+
+            var map = _mapper.Map<CustomerDto>(customer);
+            await _service.UpdateAsync(map);
+
+            return NoContent();
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateConcurrencyException ex)
         {
-            _logger.LogError(ex, $"Update Customer failed: ${ex.Message}", model);
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
 
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Update Customer failed: ${ex.Message}", model);
-
-            return BadRequest();
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
         }
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(string id)
     {
-        var rowsAffected = await _service.DeleteAsync(id);
+        try
+        {
+            await _service.DeleteAsync(id);
 
-        return Ok(rowsAffected);
+            return NoContent();
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
+
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
+        }
     }
 }

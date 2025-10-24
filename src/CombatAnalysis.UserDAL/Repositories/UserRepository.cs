@@ -7,10 +7,10 @@ using System.Text.Json;
 
 namespace CombatAnalysis.UserDAL.Repositories;
 
-internal class UserRepository(IConnectionMultiplexer redis, UserSQLContext context) : IUserRepository
+internal class UserRepository(IConnectionMultiplexer redis, UserContext context) : IUserRepository
 {
     private readonly IDatabase _cache = redis.GetDatabase();
-    private readonly UserSQLContext _context = context;
+    private readonly UserContext _context = context;
 
     public async Task<AppUser> CreateAsync(AppUser item)
     {
@@ -69,7 +69,7 @@ internal class UserRepository(IConnectionMultiplexer redis, UserSQLContext conte
             .Where(u => u.Username.ToLower().StartsWith(prefix.ToLower()))
             .ToListAsync();
 
-        if (entities.Any())
+        if (entities.Count != 0)
         {
             foreach (var entity in entities)
             {

@@ -5,6 +5,7 @@ using CombatAnalysis.EnhancedWebApp.Server.Interfaces;
 using CombatAnalysis.EnhancedWebApp.Server.Models.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using System.Net.Http.Headers;
 
 namespace CombatAnalysis.EnhancedWebApp.Server.Controllers.Authorization;
 
@@ -17,6 +18,7 @@ public class IdentityController : ControllerBase
     private readonly AuthenticationClient _authenticationClient;
     private readonly IHttpClientHelper _httpClient;
     private readonly ILogger<IdentityController> _logger;
+    private readonly string _api;
 
     public IdentityController(IOptions<Cluster> cluster, IOptions<Authentication> authentication, IOptions<AuthenticationGrantType> authenticationGrantType,
         IOptions<AuthenticationClient> authenticationClient, IHttpClientHelper httpClient, ILogger<IdentityController> logger)
@@ -27,6 +29,7 @@ public class IdentityController : ControllerBase
         _authenticationClient = authenticationClient.Value;
         _logger = logger;
         _httpClient.APIUrl = cluster.Value.Identity;
+        _api = cluster.Value.Identity;
     }
 
     [HttpPost("logout")]
@@ -96,18 +99,27 @@ public class IdentityController : ControllerBase
                 SameSite = SameSiteMode.None,
             });
 
-            var decodedAuthorizationCode = Uri.UnescapeDataString(authorizationCode);
-            var url = $"Token?grantType={_authenticationGrantType.Authorization}" +
-                $"&clientId={_authenticationClient.ClientId}" +
-                $"&clientScopes={_authenticationClient.Scopes}" +
-                $"&codeVerifier={codeVerifier}" +
-                $"&code={decodedAuthorizationCode}" +
-                $"&redirectUri={_authentication.RedirectUri}";
+            using var client = new HttpClient();
 
-            var responseMessage = await _httpClient.GetAsync(url);
-            responseMessage.EnsureSuccessStatusCode();
+            var form = new Dictionary<string, string>
+            {
+                ["client_id"] = "web-app",
+                ["grant_type"] = "authorization_code",
+                ["code"] = authorizationCode,
+                ["redirect_uri"] = _authentication.RedirectUri,
+                ["code_verifier"] = codeVerifier
+            };
 
-            var token = await responseMessage.Content.ReadFromJsonAsync<TokenResponseModel>();
+            var request = new HttpRequestMessage(HttpMethod.Post, $"{_api}connect/token")
+            {
+                Content = new FormUrlEncodedContent(form)
+            };
+            request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
+
+            var response = await client.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+
+            var token = await response.Content.ReadFromJsonAsync<TokenResponseModel>();
             ArgumentNullException.ThrowIfNull(token, nameof(token));
 
             HttpContext.Response.Cookies.Append(nameof(AuthenticationCookie.AccessToken), token.AccessToken, new CookieOptions
@@ -116,15 +128,15 @@ public class IdentityController : ControllerBase
                 HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.None,
-                Expires = token.Expires,
+                Expires = DateTimeOffset.UtcNow.AddSeconds(token.ExpiresIn),
             });
-            HttpContext.Response.Cookies.Append(nameof(AuthenticationCookie.RefreshToken), $"{token.RefreshToken.Id}:{token.RefreshToken.Token}", new CookieOptions
+            HttpContext.Response.Cookies.Append(nameof(AuthenticationCookie.RefreshToken), token.RefreshToken, new CookieOptions
             {
                 Domain = _authentication.CookieDomain,
                 HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.None,
-                Expires = token.Expires.AddDays(_authentication.RefreshTokenExpiresDays)
+                Expires = DateTimeOffset.UtcNow.AddSeconds(_authentication.RefreshTokenExpiresSec),
             });
 
             return Ok();
@@ -172,15 +184,15 @@ public class IdentityController : ControllerBase
                 HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.None,
-                Expires = token.Expires,
+                Expires = DateTimeOffset.UtcNow.AddSeconds(token.ExpiresIn),
             });
-            HttpContext.Response.Cookies.Append(nameof(AuthenticationCookie.RefreshToken), $"{token.RefreshToken.Id}:{token.RefreshToken.Token}", new CookieOptions
+            HttpContext.Response.Cookies.Append(nameof(AuthenticationCookie.RefreshToken), token.RefreshToken, new CookieOptions
             {
                 Domain = _authentication.CookieDomain,
                 HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.None,
-                Expires = token.Expires.AddDays(_authentication.RefreshTokenExpiresDays)
+                Expires = DateTimeOffset.UtcNow.AddSeconds(_authentication.RefreshTokenExpiresSec)
             });
 
             return Ok();

@@ -12,7 +12,7 @@ public static class DataCollectionExtensions
 {
     public static void UserDALDependencies(this IServiceCollection services, string connectionString)
     {
-        services.AddDbContext<UserSQLContext>(options =>
+        services.AddDbContext<UserContext>(options =>
         {
             options.UseSqlServer(connectionString);
         });

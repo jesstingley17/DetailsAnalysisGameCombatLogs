@@ -1,14 +1,9 @@
 ﻿namespace CombatAnalysis.UserDAL.Entities;
 
-public class Customer
-{
-    public string Id { get; set; }
-
-    public string Country { get; set; }
-
-    public string City { get; set; }
-
-    public int PostalCode { get; set; }
-
-    public string AppUserId { get; set; }
-}
+public record Customer(
+    string Id,
+    string Country,
+    string City,
+    int PostalCode,
+    string AppUserId
+    );

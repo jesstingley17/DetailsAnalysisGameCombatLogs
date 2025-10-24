@@ -1,7 +1,7 @@
 {
   "identity": {
-    "authPath": "authorization",
-    "registryPath": "registration",
+    "loginPath": "connect/authorize",
+    "registryPath": "Account/Registration",
     "verifyEmail": "initVerification"
   },
   "communication": {

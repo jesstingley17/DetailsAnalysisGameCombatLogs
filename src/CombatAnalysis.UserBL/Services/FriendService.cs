@@ -11,21 +11,24 @@ internal class FriendService(IFriendRepository repository, IMapper mapper) : IFr
     private readonly IFriendRepository _repository = repository;
     private readonly IMapper _mapper = mapper;
 
-    public Task<FriendDto> CreateAsync(FriendDto item)
+    public async Task<FriendDto?> CreateAsync(FriendDto item)
     {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(FriendDto), $"The {nameof(FriendDto)} can't be null");
-        }
+        var map = _mapper.Map<Friend>(item);
+        var createdItem = await _repository.CreateAsync(map);
+        var resultMap = _mapper.Map<FriendDto>(createdItem);
 
-        return CreateInternalAsync(item);
+        return resultMap;
     }
 
-    public async Task<int> DeleteAsync(int id)
+    public async Task UpdateAsync(FriendDto item)
     {
-        var rowsAffected = await _repository.DeleteAsync(id);
+        var map = _mapper.Map<Friend>(item);
+        await _repository.UpdateAsync(map);
+    }
 
-        return rowsAffected;
+    public async Task DeleteAsync(int id)
+    {
+        await _repository.DeleteAsync(id);
     }
 
     public async Task<IEnumerable<FriendDto>> GetAllAsync()
@@ -36,7 +39,7 @@ internal class FriendService(IFriendRepository repository, IMapper mapper) : IFr
         return result;
     }
 
-    public async Task<FriendDto> GetByIdAsync(int id)
+    public async Task<FriendDto?> GetByIdAsync(int id)
     {
         var result = await _repository.GetByIdAsync(id);
         var resultMap = _mapper.Map<FriendDto>(result);
@@ -50,33 +53,5 @@ internal class FriendService(IFriendRepository repository, IMapper mapper) : IFr
         var resultMap = _mapper.Map<IEnumerable<FriendDto>>(result);
 
         return resultMap;
-    }
-
-    public Task<int> UpdateAsync(FriendDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(FriendDto), $"The {nameof(FriendDto)} can't be null");
-        }
-
-        return UpdateInternalAsync(item);
-    }
-
-
-    private async Task<FriendDto> CreateInternalAsync(FriendDto item)
-    {
-        var map = _mapper.Map<Friend>(item);
-        var createdItem = await _repository.CreateAsync(map);
-        var resultMap = _mapper.Map<FriendDto>(createdItem);
-
-        return resultMap;
-    }
-
-    private async Task<int> UpdateInternalAsync(FriendDto item)
-    {
-        var map = _mapper.Map<Friend>(item);
-        var rowsAffected = await _repository.UpdateAsync(map);
-
-        return rowsAffected;
     }
 }

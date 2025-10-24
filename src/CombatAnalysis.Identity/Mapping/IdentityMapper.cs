@@ -9,6 +9,5 @@ public class IdentityMapper : Profile
     public IdentityMapper()
     {
         CreateMap<IdentityUserDto, IdentityUser>().ReverseMap();
-        CreateMap<ClientDto, Client>().ReverseMap();
     }
 }

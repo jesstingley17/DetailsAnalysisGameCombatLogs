@@ -2,7 +2,9 @@
 
 internal class DatabaseProps
 {
-    public string DefaultConnection { get; set; }
+    public string Identity { get; set; }
+
+    public string AppIdentity { get; set; }
 
     public string UserConnection { get; set; }
 }
