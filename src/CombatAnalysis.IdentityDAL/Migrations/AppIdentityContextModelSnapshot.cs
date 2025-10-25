@@ -82,44 +82,6 @@ namespace CombatAnalysis.IdentityDAL.Migrations
                     b.ToTable("IdentityUser");
                 });
 
-            modelBuilder.Entity("CombatAnalysis.IdentityDAL.Entities.RefreshToken", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ClientId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<DateTimeOffset>("ExpiresAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("ReplacedByTokenId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset?>("RevokedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("TokenHash")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TokenSalt")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("RefreshToken");
-                });
-
             modelBuilder.Entity("CombatAnalysis.IdentityDAL.Entities.ResetToken", b =>
                 {
                     b.Property<int>("Id")

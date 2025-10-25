@@ -15,7 +15,7 @@ public class RegistrationModel(IUserAuthorizationService authorizationService) :
     private AppUserModel? _appUser;
     private CustomerModel? _customer;
 
-    public string CancelRequestUri { get; set; } = string.Empty;
+    public string CancelRequestUri { get; private set; } = string.Empty;
 
     [BindProperty]
     public RegistrationDataModel Registration { get; set; }

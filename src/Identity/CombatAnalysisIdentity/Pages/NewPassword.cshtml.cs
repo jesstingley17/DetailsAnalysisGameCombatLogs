@@ -11,11 +11,15 @@ public class NewPasswordModel(IUserAuthorizationService authorizationService, IU
     private readonly IUserAuthorizationService _authorizationService = authorizationService;
     private readonly IUserVerification _userVerification = userVerification;
 
+    public string CancelRequestUri { get; private set; } = string.Empty;
+
     [BindProperty]
     public PasswordResetModel PasswordReset{ get; set; }
 
     public IActionResult OnGet(string token)
     {
+        CancelRequestUri = Request.Query["redirectUri"]!;
+
         PasswordReset = new PasswordResetModel
         {
             Token = token,
@@ -26,6 +30,8 @@ public class NewPasswordModel(IUserAuthorizationService authorizationService, IU
 
     public async Task<IActionResult> OnPostAsync()
     {
+        CancelRequestUri = Request.Query["redirectUri"]!;
+
         if (!ModelState.IsValid)
         {
             ModelState.AddModelError(string.Empty, "Confirm password should be equal Password");

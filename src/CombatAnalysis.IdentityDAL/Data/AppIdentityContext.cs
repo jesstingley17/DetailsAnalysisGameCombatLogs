@@ -7,8 +7,6 @@ public class AppIdentityContext(DbContextOptions<AppIdentityContext> options) : 
 {
     public DbSet<AuthorizationCodeChallenge> AuthorizationCodeChallenge { get; set; }
 
-    public DbSet<RefreshToken> RefreshToken { get; set; }
-
     public DbSet<IdentityUser> IdentityUser { get; set; }
 
     public DbSet<ResetToken> ResetToken { get; set; }

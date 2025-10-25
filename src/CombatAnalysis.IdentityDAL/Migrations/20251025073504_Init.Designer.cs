@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CombatAnalysis.IdentityDAL.Migrations
 {
     [DbContext(typeof(AppIdentityContext))]
-    [Migration("20251024133700_Init")]
+    [Migration("20251025073504_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -83,44 +83,6 @@ namespace CombatAnalysis.IdentityDAL.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("IdentityUser");
-                });
-
-            modelBuilder.Entity("CombatAnalysis.IdentityDAL.Entities.RefreshToken", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ClientId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<DateTimeOffset>("ExpiresAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("ReplacedByTokenId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset?>("RevokedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("TokenHash")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TokenSalt")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("RefreshToken");
                 });
 
             modelBuilder.Entity("CombatAnalysis.IdentityDAL.Entities.ResetToken", b =>

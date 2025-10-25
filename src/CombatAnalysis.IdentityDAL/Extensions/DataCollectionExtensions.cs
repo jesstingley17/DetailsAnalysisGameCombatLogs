@@ -20,7 +20,6 @@ public static class DataCollectionExtensions
 
         services.AddScoped<IPkeRepository, PkeRepository>();
         services.AddScoped<IIdentityUserRepository, IdentityUserRepository>();
-        services.AddScoped<ITokenRepository, TokenRepository>();
 
         services.AddScoped<IResetTokenRepository, ResetTokenRepository>();
         services.AddScoped<IVerifyEmailTokenRepository, VerifyEmailTokenRepository>();

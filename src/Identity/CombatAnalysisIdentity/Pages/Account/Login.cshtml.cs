@@ -10,9 +10,9 @@ public class LoginModel(IUserAuthorizationService authorizationService) : PageMo
 {
     private readonly IUserAuthorizationService _authorizationService = authorizationService;
 
-    public string CancelRequestAddress { get; set; } = "cancel=true";
+    public string CancelRequestAddress { get; private set; } = "cancel=true";
 
-    public string CancelRequestUri { get; set; } = string.Empty;
+    public string CancelRequestUri { get; private set; } = string.Empty;
 
     [BindProperty]
     public AuthorizationDataModel? Authorization { get; set; }

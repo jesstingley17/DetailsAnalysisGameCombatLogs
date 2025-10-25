@@ -30,19 +30,6 @@ CREATE TABLE [IdentityUser] (
     CONSTRAINT [PK_IdentityUser] PRIMARY KEY ([Id])
 );
 
-CREATE TABLE [RefreshToken] (
-    [Id] nvarchar(450) NOT NULL,
-    [TokenHash] nvarchar(max) NOT NULL,
-    [TokenSalt] nvarchar(max) NOT NULL,
-    [CreatedAt] datetimeoffset NOT NULL,
-    [ExpiresAt] datetimeoffset NOT NULL,
-    [RevokedAt] datetimeoffset NULL,
-    [ClientId] nvarchar(max) NOT NULL,
-    [UserId] nvarchar(max) NOT NULL,
-    [ReplacedByTokenId] nvarchar(max) NULL,
-    CONSTRAINT [PK_RefreshToken] PRIMARY KEY ([Id])
-);
-
 CREATE TABLE [ResetToken] (
     [Id] int NOT NULL IDENTITY,
     [Email] nvarchar(max) NOT NULL,
@@ -62,7 +49,7 @@ CREATE TABLE [VerifyEmailToken] (
 );
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'20251024133700_Init', N'9.0.10');
+VALUES (N'20251025073504_Init', N'9.0.10');
 
 COMMIT;
 GO

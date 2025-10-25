@@ -1,4 +1,6 @@
 ﻿import type { RootState } from '@/app/Store';
+import { APP_CONFIG } from '@/config/appConfig';
+import logger from '@/utils/Logger';
 import { faArrowDown, faArrowUp } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState, type SetStateAction } from 'react';
@@ -22,13 +24,16 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({ setIsEditMode, getDate, t }) 
     const [verifyEmailAsync] = useLazyVerifyEmailQuery();
 
     const goToVerifyEmailAsync = async () => {
-        const identityServerVerifyEmailPath = process.env.REACT_APP_IDENTITY_SERVER_VERIFY_EMAIL_PATH;
+        try {
+            const identityServerVerifyEmailPath = APP_CONFIG.identity.verifyEmail;
 
-        const response = await verifyEmailAsync({ identityPath: identityServerVerifyEmailPath ?? "", email: privacy?.email ?? "" });
-
-        if (response.data !== undefined) {
-            const uri = response.data.uri;
-            window.location.href = uri;
+            const response = await verifyEmailAsync({ identityPath: identityServerVerifyEmailPath ?? "", email: privacy?.email ?? "" }).unwrap();
+            if (response !== undefined) {
+                const uri = response.uri;
+                window.location.href = uri;
+            }
+        } catch (e) {
+            logger.error("Failed to verify email", e);
         }
     }
 
@@ -74,16 +79,10 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({ setIsEditMode, getDate, t }) 
             }
             <div className="title">
                 <div>{t("General")}</div>
-                {generalHidden
-                    ? <FontAwesomeIcon
-                        icon={faArrowDown}
-                        onClick={() => setGeneralHidden(!generalHidden)}
-                    />
-                    : <FontAwesomeIcon
-                        icon={faArrowUp}
-                        onClick={() => setGeneralHidden(!generalHidden)}
-                    />
-                }
+                <FontAwesomeIcon
+                    icon={generalHidden ? faArrowDown : faArrowUp}
+                    onClick={() => setGeneralHidden(!generalHidden)}
+                />
             </div>
             {!generalHidden &&
                 <div className="general">

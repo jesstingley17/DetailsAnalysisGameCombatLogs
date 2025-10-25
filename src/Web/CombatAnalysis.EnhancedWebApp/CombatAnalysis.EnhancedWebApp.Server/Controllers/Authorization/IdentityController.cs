@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using System.Net.Http.Headers;
+using System.Text;
 
 namespace CombatAnalysis.EnhancedWebApp.Server.Controllers.Authorization;
 
@@ -19,7 +19,6 @@ public class IdentityController : ControllerBase
     private readonly AuthenticationClient _authenticationClient;
     private readonly IHttpClientHelper _httpClient;
     private readonly ILogger<IdentityController> _logger;
-    private readonly string _apiUrl;
 
     public IdentityController(IOptions<Cluster> cluster, IOptions<Authentication> authentication,
         IOptions<AuthenticationClient> authenticationClient, IHttpClientHelper httpClient, ILogger<IdentityController> logger)
@@ -28,40 +27,9 @@ public class IdentityController : ControllerBase
         _authentication = authentication.Value;
         _authenticationClient = authenticationClient.Value;
         _logger = logger;
+
+        _httpClient.BaseAddressApi = string.Empty;
         _httpClient.APIUrl = cluster.Value.Identity;
-        _apiUrl = cluster.Value.Identity;
-    }
-
-    [HttpPost("logout")]
-    public IActionResult Logout()
-    {
-        try
-        {
-            HttpContext.Response.Cookies.Delete(nameof(AuthenticationCookie.RefreshToken));
-            HttpContext.Response.Cookies.Delete(nameof(AuthenticationCookie.AccessToken));
-            HttpContext.Response.Cookies.Delete("idsrv.session");
-
-            return SignOut(
-                new AuthenticationProperties
-                {
-                    RedirectUri = "/"
-                },
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                OpenIdConnectDefaults.AuthenticationScheme
-            );
-        }
-        catch (ArgumentException ex)
-        {
-            _logger.LogError(ex, "Failed to logout. Paramter '{ParamName} was incorrect", ex.ParamName);
-
-            return BadRequest();
-        }
-        catch (HttpRequestException ex)
-        {
-            _logger.LogError(ex, "Failed to send HTTP Request to logout");
-
-            return BadRequest();
-        }
     }
 
     [HttpGet]
@@ -76,27 +44,17 @@ public class IdentityController : ControllerBase
 
             HttpContext.Response.Cookies.Delete(nameof(AuthenticationCookie.CodeVerifier));
 
-            using var client = new HttpClient();
+            var body = new StringContent(
+                $"grant_type=authorization_code&client_id={_authenticationClient.ClientId}&code={authorizationCode}&redirect_uri={_authentication.RedirectUri}&code_verifier={codeVerifier}",
+                Encoding.UTF8,
+                "application/x-www-form-urlencoded"
+            );
 
-            var form = new Dictionary<string, string>
-            {
-                ["grant_type"] = "authorization_code",
-                ["client_id"] = _authenticationClient.ClientId,
-                ["code"] = authorizationCode,
-                ["redirect_uri"] = _authentication.RedirectUri,
-                ["code_verifier"] = codeVerifier
-            };
+            _httpClient.BaseAddressApi = string.Empty;
+            var responseMessage = await _httpClient.PostAsync("connect/token", body);
+            responseMessage.EnsureSuccessStatusCode();
 
-            var request = new HttpRequestMessage(HttpMethod.Post, $"{_apiUrl}connect/token")
-            {
-                Content = new FormUrlEncodedContent(form)
-            };
-            request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
-
-            var response = await client.SendAsync(request);
-            response.EnsureSuccessStatusCode();
-
-            var token = await response.Content.ReadFromJsonAsync<TokenResponseModel>();
+            var token = await responseMessage.Content.ReadFromJsonAsync<TokenResponseModel>();
             ArgumentNullException.ThrowIfNull(token, nameof(token));
 
             HttpContext.Response.Cookies.Append(nameof(AuthenticationCookie.AccessToken), token.AccessToken, new CookieOptions
@@ -142,25 +100,16 @@ public class IdentityController : ControllerBase
                 ArgumentNullException.ThrowIfNullOrEmpty(refreshToken, nameof(refreshToken));
             }
 
-            using var client = new HttpClient();
+            var body = new StringContent(
+                $"grant_type=refresh_token&client_id={_authenticationClient.ClientId}&refresh_token={refreshToken}",
+                Encoding.UTF8,
+                "application/x-www-form-urlencoded"
+            );
 
-            var form = new Dictionary<string, string>
-            {
-                ["grant_type"] = "refresh_token",
-                ["client_id"] = _authenticationClient.ClientId,
-                ["refresh_token"] = refreshToken,
-            };
+            var responseMessage = await _httpClient.PostAsync("connect/token", body);
+            responseMessage.EnsureSuccessStatusCode();
 
-            var request = new HttpRequestMessage(HttpMethod.Post, $"{_apiUrl}connect/token")
-            {
-                Content = new FormUrlEncodedContent(form)
-            };
-            request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
-
-            var response = await client.SendAsync(request);
-            response.EnsureSuccessStatusCode();
-
-            var token = await response.Content.ReadFromJsonAsync<TokenResponseModel>();
+            var token = await responseMessage.Content.ReadFromJsonAsync<TokenResponseModel>();
             ArgumentNullException.ThrowIfNull(token, nameof(token));
 
             HttpContext.Response.Cookies.Append(nameof(AuthenticationCookie.AccessToken), token.AccessToken, new CookieOptions
@@ -206,6 +155,7 @@ public class IdentityController : ControllerBase
         {
             ArgumentNullException.ThrowIfNullOrEmpty(id, nameof(id));
 
+            _httpClient.BaseAddressApi = "api/v1/";
             var responseMessage = await _httpClient.GetAsync($"Identity/{id}");
             responseMessage.EnsureSuccessStatusCode();
 
@@ -223,6 +173,55 @@ public class IdentityController : ControllerBase
         catch (HttpRequestException ex)
         {
             _logger.LogError(ex, "Failed to send HTTP Request to receive user privacy");
+
+            return BadRequest();
+        }
+    }
+
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout()
+    {
+        try
+        {
+            if (!HttpContext.Request.Cookies.TryGetValue(nameof(AuthenticationCookie.RefreshToken), out var refreshToken))
+            {
+                ArgumentNullException.ThrowIfNullOrEmpty(refreshToken, nameof(refreshToken));
+            }
+
+            var body = new StringContent(
+                $"token={refreshToken}&token_type_hint=refresh_token&client_id={_authenticationClient.ClientId}",
+                Encoding.UTF8,
+                "application/x-www-form-urlencoded"
+            );
+
+            if (!string.IsNullOrEmpty(refreshToken))
+            {
+                var responseMessage = await _httpClient.PostAsync("connect/revocation", body);
+                responseMessage.EnsureSuccessStatusCode();
+            }
+
+            HttpContext.Response.Cookies.Delete(nameof(AuthenticationCookie.RefreshToken));
+            HttpContext.Response.Cookies.Delete(nameof(AuthenticationCookie.AccessToken));
+            HttpContext.Response.Cookies.Delete("idsrv.session");
+
+            return SignOut(
+                new AuthenticationProperties
+                {
+                    RedirectUri = "/"
+                },
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                OpenIdConnectDefaults.AuthenticationScheme
+            );
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogError(ex, "Failed to logout. Paramter '{ParamName} was incorrect", ex.ParamName);
+
+            return BadRequest();
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Failed to send HTTP Request to logout");
 
             return BadRequest();
         }

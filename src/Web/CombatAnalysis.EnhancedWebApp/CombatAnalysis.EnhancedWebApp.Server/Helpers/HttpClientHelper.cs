@@ -15,6 +15,8 @@ internal class HttpClientHelper : IHttpClientHelper
 
     public string APIUrl { get; set; } = string.Empty;
 
+    public string BaseAddressApi { get; set; } = _baseAddressApi;
+
     public void AddAuthorizationHeader(string scheme, string parameter)
     {
         _client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(scheme, parameter);
@@ -22,35 +24,42 @@ internal class HttpClientHelper : IHttpClientHelper
 
     public async Task<HttpResponseMessage> PostAsync(string requestUri, JsonContent content)
     {
-        var result = await _client.PostAsync($"{APIUrl}{_baseAddressApi}{requestUri}", content);
+        var result = await _client.PostAsync($"{APIUrl}{BaseAddressApi}{requestUri}", content);
+
+        return result;
+    }
+
+    public async Task<HttpResponseMessage> PostAsync(string requestUri, StringContent content)
+    {
+        var result = await _client.PostAsync($"{APIUrl}{BaseAddressApi}{requestUri}", content);
 
         return result;
     }
 
     public async Task<HttpResponseMessage> GetAsync(string requestUri)
     {
-        var result = await _client.GetAsync($"{APIUrl}{_baseAddressApi}{requestUri}");
+        var result = await _client.GetAsync($"{APIUrl}{BaseAddressApi}{requestUri}");
 
         return result;
     }
 
     public async Task<HttpResponseMessage> PutAsync(string requestUri, JsonContent content)
     {
-        var result = await _client.PutAsync($"{APIUrl}{_baseAddressApi}{requestUri}", content);
+        var result = await _client.PutAsync($"{APIUrl}{BaseAddressApi}{requestUri}", content);
 
         return result;
     }
 
     public async Task<HttpResponseMessage> PatchAsync(string requestUri, JsonContent content)
     {
-        var result = await _client.PatchAsync($"{APIUrl}{_baseAddressApi}{requestUri}", content);
+        var result = await _client.PatchAsync($"{APIUrl}{BaseAddressApi}{requestUri}", content);
 
         return result;
     }
 
     public async Task<HttpResponseMessage> DeletAsync(string requestUri)
     {
-        var result = await _client.DeleteAsync($"{APIUrl}{_baseAddressApi}{requestUri}");
+        var result = await _client.DeleteAsync($"{APIUrl}{BaseAddressApi}{requestUri}");
 
         return result;
     }

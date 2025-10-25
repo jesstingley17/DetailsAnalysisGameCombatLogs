@@ -17,17 +17,7 @@
             <dev>Restore link sent to your email. Please, check your email</dev>
         }
         <div class="restore__cancel">
-            <input type="button" class="btn-border-shadow cancel" onclick="goToHome()" value="Cancel" />
+            <input type="button" class="btn-border-shadow cancel" onclick="window.location.href='@Html.Raw(Model.CancelRequestUri)'" value="Cancel" />
         </div>
     </div>
 }
-
-<script>
-    function goToHome() {
-        const queryString = window.location.search;
-        const queryparams = new URLSearchParams(queryString);
-        const redirectUri = queryparams.get("redirectUri");
-
-        window.location.href = redirectUri;
-    }
-</script>

@@ -9,12 +9,11 @@ using System.Transactions;
 namespace CombatAnalysis.Identity.Services;
 
 internal class UserVerificationService(IResetTokenRepository resetTokenRepository, IVerifyEmailTokenRepository verifyEmailRepository, IIdentityUserService identityUserService,
-    IRefreshTokenService refreshTokenService, ILogger<UserVerificationService> logger) : IUserVerification
+    ILogger<UserVerificationService> logger) : IUserVerification
 {
     private readonly IResetTokenRepository _resetTokenRepository = resetTokenRepository;
     private readonly IVerifyEmailTokenRepository _verifyEmailRepository = verifyEmailRepository;
     private readonly IIdentityUserService _identityUserService = identityUserService;
-    private readonly IRefreshTokenService _refreshTokenService = refreshTokenService;
     private readonly ILogger<UserVerificationService> _logger = logger;
 
     public async Task<string> GenerateResetTokenAsync(string email)
@@ -71,14 +70,6 @@ internal class UserVerificationService(IResetTokenRepository resetTokenRepositor
 
             resetToken.IsUsed = true;
             await _resetTokenRepository.UpdateAsync(resetToken);
-
-            var tokens = await _refreshTokenService.GetLegitimateTokensByUserIdAsync(identityUser.Id);
-            ArgumentNullException.ThrowIfNull(tokens, nameof(tokens));
-
-            foreach (var refreshToken in tokens)
-            {
-                await _refreshTokenService.RevokeRefreshTokenAsync(refreshToken.Id);
-            }
 
             scope.Complete();
 

@@ -45,25 +45,6 @@ namespace CombatAnalysis.IdentityDAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "RefreshToken",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    TokenHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    TokenSalt = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    ExpiresAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    RevokedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
-                    ClientId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ReplacedByTokenId = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_RefreshToken", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "ResetToken",
                 columns: table => new
                 {
@@ -104,9 +85,6 @@ namespace CombatAnalysis.IdentityDAL.Migrations
 
             migrationBuilder.DropTable(
                 name: "IdentityUser");
-
-            migrationBuilder.DropTable(
-                name: "RefreshToken");
 
             migrationBuilder.DropTable(
                 name: "ResetToken");
