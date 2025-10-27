@@ -3,7 +3,7 @@ using CombatAnalysis.UserDAL.Interfaces;
 
 namespace CombatAnalysis.UserBL.Services;
 
-internal class CustomerTransactionService(IContextService context) : ICustomerTransactionService
+internal class UserTransactionService(IContextService context) : IUserTransactionService
 {
     private readonly IContextService _context = context;
 

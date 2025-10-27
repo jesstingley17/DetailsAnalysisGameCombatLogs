@@ -12,7 +12,7 @@ public static class ServiceCollectionExtensions
     {
         services.UserDALDependencies(connectionString);
 
-        services.AddScoped<ICustomerTransactionService, CustomerTransactionService>();
+        services.AddScoped<IUserTransactionService, UserTransactionService>();
 
         services.AddScoped<IUserService<AppUserDto>, UserService>();
 

@@ -38,7 +38,7 @@ internal class UserService(IUserRepository repository, IMapper mapper) : IUserSe
         return resultMap;
     }
 
-    public async Task UpdateAsync(AppUserDto item)
+    public async Task UpdateAsync(string id, AppUserDto item)
     {
         if (string.IsNullOrEmpty(item.Username))
         {
@@ -59,14 +59,13 @@ internal class UserService(IUserRepository repository, IMapper mapper) : IUserSe
         }
 
         var map = _mapper.Map<AppUser>(item);
-        var result = await _repository.UpdateAsync(map);
+        var result = await _repository.UpdateAsync(id, map);
         _mapper.Map<AppUserDto>(result);
     }
 
-    public async Task DeleteAsync(AppUserDto item)
+    public async Task DeleteAsync(string id)
     {
-        var map = _mapper.Map<AppUser>(item);
-        await _repository.DeleteAsync(map);
+        await _repository.DeleteAsync(id);
     }
 
     public async Task<IEnumerable<AppUserDto>> GetAllAsync()

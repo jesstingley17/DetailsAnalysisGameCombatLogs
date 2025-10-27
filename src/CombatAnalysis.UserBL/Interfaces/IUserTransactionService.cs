@@ -1,25 +1,25 @@
-﻿namespace CombatAnalysis.UserDAL.Interfaces;
+﻿namespace CombatAnalysis.UserBL.Interfaces;
 
 /// <summary>
-/// Contract for SQL DB transaction
+/// Contract for User SQL DB transaction
 /// </summary>
-public interface IContextService
+public interface IUserTransactionService
 {
     /// <summary>
     /// Start async SQL DB transaction
     /// </summary>
     /// <returns>Task as result of async operation</returns>
-    Task BeginAsync();
+    Task BeginTransactionAsync();
 
     /// <summary>
     /// Execute async SQL DB transaction and release all resources
     /// </summary>
     /// <returns>Task as result of async operation</returns>
-    Task CommitAsync();
+    Task CommitTransactionAsync();
 
     /// <summary>
     /// Execute async SQL DB rollback transaction and release all resources
     /// </summary>
     /// <returns>Task as result of async operation</returns>
-    Task RollbackAsync();
+    Task RollbackTransactionAsync();
 }

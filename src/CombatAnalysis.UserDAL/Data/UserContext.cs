@@ -6,8 +6,6 @@ namespace CombatAnalysis.UserDAL.Data;
 public class UserContext(DbContextOptions<UserContext> options) : DbContext(options)
 {
 
-    #region Customer
-
     public DbSet<AppUser>? AppUser { get; }
 
     public DbSet<Customer>? Customer { get; }
@@ -17,6 +15,4 @@ public class UserContext(DbContextOptions<UserContext> options) : DbContext(opti
     public DbSet<Friend>? Friend { get; }
 
     public DbSet<RequestToConnect>? RequestToConnet { get; }
-
-    #endregion
 }

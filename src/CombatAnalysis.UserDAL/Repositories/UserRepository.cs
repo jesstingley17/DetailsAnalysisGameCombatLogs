@@ -20,9 +20,15 @@ internal class UserRepository(IConnectionMultiplexer redis, UserContext context)
         return entityEntry.Entity;
     }
 
-    public async Task<int> DeleteAsync(AppUser item)
+    public async Task<int> DeleteAsync(string id)
     {
-        _context.Set<AppUser>().Remove(item);
+        var entity = await _context.Set<AppUser>().FindAsync(id);
+        if (entity == null)
+        {
+            return 0;
+        }
+
+        _context.Set<AppUser>().Remove(entity);
         var rowsAffected = await _context.SaveChangesAsync();
 
         return rowsAffected;
@@ -83,12 +89,19 @@ internal class UserRepository(IConnectionMultiplexer redis, UserContext context)
         return [];
     }
 
-    public async Task<AppUser> UpdateAsync(AppUser item)
+    public async Task<int> UpdateAsync(string id, AppUser item)
     {
-        var entity = _context.Update(item);
-        await _context.SaveChangesAsync();
+        var existing = await _context.Set<AppUser>().FindAsync(id);
 
-        return entity.Entity;
+        if (existing != null)
+        {
+            _context.Entry(existing).State = EntityState.Detached;
+        }
+
+        _context.Set<AppUser>().Update(item);
+        var rowsAffected = await _context.SaveChangesAsync();
+
+        return rowsAffected;
     }
 
     private async Task<List<AppUser>> SearchUsersByPrefixAsync(string prefix)
@@ -98,7 +111,7 @@ internal class UserRepository(IConnectionMultiplexer redis, UserContext context)
 
         var result = await _cache.ExecuteAsync("ZRANGE", "usernames", min, max, "BYLEX");
 
-        var raw = (RedisResult[])result!;
+        var raw = result.IsNull ? Array.Empty<RedisResult>() : (RedisResult[])result!;
         var usernames = raw.Select(r => (string)r!).ToList();
 
         var users = new List<AppUser>();

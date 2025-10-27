@@ -25,7 +25,7 @@ internal class BannedUserService(IGenericRepository<BannedUser, int> repository,
     public async Task UpdateAsync(BannedUserDto item)
     {
         var map = _mapper.Map<BannedUser>(item);
-        await _repository.UpdateAsync(map);
+        await _repository.UpdateAsync(item.Id, map);
     }
 
     public async Task DeleteAsync(int id)

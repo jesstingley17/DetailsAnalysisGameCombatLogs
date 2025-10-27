@@ -49,7 +49,7 @@ internal class CustomerService(IGenericRepository<Customer, string> repository, 
         }
 
         var map = _mapper.Map<Customer>(item);
-        await _repository.UpdateAsync(map);
+        await _repository.UpdateAsync(item.Id, map);
     }
 
     public async Task DeleteAsync(string id)

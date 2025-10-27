@@ -45,13 +45,15 @@ internal class FriendRepository(UserContext context) : IFriendRepository
 
     public async Task<int> DeleteAsync(int id)
     {
-        var model = Activator.CreateInstance<Friend>();
-        model.GetType().GetProperty(nameof(Friend.Id))?.SetValue(model, id);
+        var entity = await _context.Set<Friend>().FindAsync(id);
 
-        _context.Set<Friend>().Remove(model);
-        var rowsAffected = await _context.SaveChangesAsync();
+        if (entity == null)
+        {
+            return 0;
+        }
 
-        return rowsAffected;
+        _context.Set<Friend>().Remove(entity);
+        return await _context.SaveChangesAsync();
     }
 
     public async Task<IEnumerable<FriendDto>> GetAllAsync()
@@ -111,11 +113,6 @@ internal class FriendRepository(UserContext context) : IFriendRepository
                           .Select(x => new FriendDto(x.Id, x.WhoFriendId, x.WhoFriendUsername, x.ForWhomId, x.ForWhomUsername))
                           .FirstOrDefaultAsync(x => x.Id == id);
 
-        if (entity != null)
-        {
-            _context.Entry(entity).State = EntityState.Detached;
-        }
-
         return entity;
     }
 
@@ -151,13 +148,5 @@ internal class FriendRepository(UserContext context) : IFriendRepository
                     .ToList();
 
         return data;
-    }
-
-    public async Task<int> UpdateAsync(Friend friend)
-    {
-        _context.Entry(friend).State = EntityState.Modified;
-        var rowsAffected = await _context.SaveChangesAsync();
-
-        return rowsAffected;
     }
 }

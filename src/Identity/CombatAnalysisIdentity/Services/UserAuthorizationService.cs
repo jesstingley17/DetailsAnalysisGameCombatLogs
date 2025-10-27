@@ -17,14 +17,14 @@ namespace CombatAnalysisIdentity.Services;
 
 internal class UserAuthorizationService(IMapper mapper, IOptions<Cluster> api, IIdentityUserService identityUserService, 
     ILogger<UserAuthorizationService> logger, IUserService<AppUserDto> appUserService, IService<CustomerDto, string> customerService,
-    ICustomerTransactionService customerTransactionService, IIdentityTransactionService identityTransactionService) : IUserAuthorizationService
+    IUserTransactionService userTransactionService, IIdentityTransactionService identityTransactionService) : IUserAuthorizationService
 {
     private readonly IMapper _mapper = mapper;
     private readonly IIdentityUserService _identityUserService = identityUserService;
     private readonly Cluster _api = api.Value;
     private readonly IUserService<AppUserDto> _appUserService = appUserService;
     private readonly IService<CustomerDto, string> _customerService = customerService;
-    private readonly ICustomerTransactionService _userTransactionService = customerTransactionService;
+    private readonly IUserTransactionService _userTransactionService = userTransactionService;
     private readonly IIdentityTransactionService _identityTransactionService = identityTransactionService;
     private readonly ILogger<UserAuthorizationService> _logger = logger;
 

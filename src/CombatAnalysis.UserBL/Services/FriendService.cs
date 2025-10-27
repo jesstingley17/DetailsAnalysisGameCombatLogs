@@ -20,12 +20,6 @@ internal class FriendService(IFriendRepository repository, IMapper mapper) : IFr
         return resultMap;
     }
 
-    public async Task UpdateAsync(FriendDto item)
-    {
-        var map = _mapper.Map<Friend>(item);
-        await _repository.UpdateAsync(map);
-    }
-
     public async Task DeleteAsync(int id)
     {
         await _repository.DeleteAsync(id);

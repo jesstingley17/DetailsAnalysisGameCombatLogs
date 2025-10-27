@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 
 namespace CombatAnalysis.UserDAL.Repositories;
 
-internal class Repository<TModel, TIdType>(UserContext context) : IGenericRepository<TModel, TIdType>
+internal class GenericRepository<TModel, TIdType>(UserContext context) : IGenericRepository<TModel, TIdType>
     where TModel : class
     where TIdType : notnull
 {
@@ -21,13 +21,14 @@ internal class Repository<TModel, TIdType>(UserContext context) : IGenericReposi
 
     public async Task<int> DeleteAsync(TIdType id)
     {
-        var model = Activator.CreateInstance<TModel>();
-        model.GetType().GetProperty("Id")?.SetValue(model, id);
+        var entity = await _context.Set<TModel>().FindAsync(id);
+        if (entity == null)
+        {
+            return 0;
+        }
 
-        _context.Set<TModel>().Remove(model);
-        var rowsAffected = await _context.SaveChangesAsync();
-
-        return rowsAffected;
+        _context.Set<TModel>().Remove(entity);
+        return await _context.SaveChangesAsync();
     }
 
     public async Task<IEnumerable<TModel>> GetAllAsync()
@@ -66,11 +67,16 @@ internal class Repository<TModel, TIdType>(UserContext context) : IGenericReposi
         return query;
     }
 
-    public async Task<int> UpdateAsync(TModel item)
+    public async Task<int> UpdateAsync(TIdType id, TModel item)
     {
-        _context.Entry(item).State = EntityState.Modified;
-        var rowsAffected = await _context.SaveChangesAsync();
+        var existing = await _context.Set<TModel>().FindAsync(id);
 
-        return rowsAffected;
+        if (existing != null)
+        {
+            _context.Entry(existing).State = EntityState.Detached;
+        }
+
+        _context.Set<TModel>().Update(item);
+        return await _context.SaveChangesAsync();
     }
 }

@@ -6,8 +6,6 @@ public interface IFriendService
 {
     Task<FriendDto?> CreateAsync(FriendDto item);
 
-    Task UpdateAsync(FriendDto item);
-
     Task DeleteAsync(int id);
 
     Task<IEnumerable<FriendDto>> GetAllAsync();

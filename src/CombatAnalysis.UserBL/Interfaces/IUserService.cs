@@ -7,9 +7,9 @@ public interface IUserService<TModel>
 {
     Task<TModel?> CreateAsync(TModel item);
 
-    Task UpdateAsync(TModel item);
+    Task UpdateAsync(string id, TModel item);
 
-    Task DeleteAsync(TModel item);
+    Task DeleteAsync(string id);
 
     Task<IEnumerable<TModel>> GetAllAsync();
 

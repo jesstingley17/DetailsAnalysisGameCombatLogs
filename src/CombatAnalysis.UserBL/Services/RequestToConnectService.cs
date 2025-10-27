@@ -25,7 +25,7 @@ internal class RequestToConnectService(IGenericRepository<RequestToConnect, int>
     public async Task UpdateAsync(RequestToConnectDto item)
     {
         var map = _mapper.Map<RequestToConnect>(item);
-        await _repository.UpdateAsync(map);
+        await _repository.UpdateAsync(item.Id, map);
     }
 
     public async Task DeleteAsync(int id)

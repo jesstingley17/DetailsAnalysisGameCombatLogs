@@ -67,7 +67,7 @@ public class UserController(IUserService<AppUserDto> service, IMapper mapper, IL
             }
 
             var map = _mapper.Map<AppUserDto>(user);
-            await _service.UpdateAsync(map);
+            await _service.UpdateAsync(id, map);
 
             return NoContent();
         }
