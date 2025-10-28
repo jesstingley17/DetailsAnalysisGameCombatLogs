@@ -11,7 +11,7 @@ internal class UserApiMapper : Profile
         CreateMap<AppUserDto, AppUserModel>().ReverseMap();
         CreateMap<CustomerDto, CustomerModel>().ReverseMap();
         CreateMap<BannedUserDto, BannedUserModel>().ReverseMap();
-        CreateMap<FriendDto, FriendModel>().ReverseMap();
+        CreateMap<FriendCreateDto, FriendModel>().ReverseMap();
         CreateMap<RequestToConnectDto, RequestToConnectModel>().ReverseMap();
     }
 }

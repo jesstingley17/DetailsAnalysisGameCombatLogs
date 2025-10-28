@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Azure.Core;
 using CombatAnalysis.UserApi.Models;
 using CombatAnalysis.UserBL.DTO;
 using CombatAnalysis.UserBL.Interfaces;
@@ -34,8 +33,8 @@ public class FriendController(IFriendService service, IMapper mapper, ILogger<Fr
         return Ok(result);
     }
 
-    [HttpGet("searchByUserId/{id}")]
-    public async Task<IActionResult> SearchByUserId(string id)
+    [HttpGet("findByUserId/{id}")]
+    public async Task<IActionResult> FindByUserId(string id)
     {
         var forWhomId = await _service.GetByParamAsync(nameof(FriendModel.ForWhomId), id);
         var whoFriendId = await _service.GetByParamAsync(nameof(FriendModel.WhoFriendId), id);
@@ -56,7 +55,7 @@ public class FriendController(IFriendService service, IMapper mapper, ILogger<Fr
                 return ValidationProblem(ModelState);
             }
 
-            var map = _mapper.Map<FriendDto>(friend);
+            var map = _mapper.Map<FriendCreateDto>(friend);
             var result = await _service.CreateAsync(map);
 
             return Ok(result);

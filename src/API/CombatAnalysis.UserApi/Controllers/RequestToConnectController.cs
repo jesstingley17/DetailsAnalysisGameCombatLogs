@@ -33,16 +33,16 @@ public class RequestToConnectController(IService<RequestToConnectDto, int> servi
         return Ok(result);
     }
 
-    [HttpGet("searchByOwnerId/{id}")]
-    public async Task<IActionResult> SearchByOwnerId(string id)
+    [HttpGet("findByOwnerId/{id}")]
+    public async Task<IActionResult> FindByOwnerId(string id)
     {
         var result = await _service.GetByParamAsync(c => c.AppUserId, id);
 
         return Ok(result);
     }
 
-    [HttpGet("searchByToUserId/{id}")]
-    public async Task<IActionResult> SearchByToUserId(string id)
+    [HttpGet("findByUserId/{id}")]
+    public async Task<IActionResult> FindByUserId(string id)
     {
         var result = await _service.GetByParamAsync(c => c.ToAppUserId, id);
 
@@ -71,36 +71,6 @@ public class RequestToConnectController(IService<RequestToConnectDto, int> servi
             _logger.LogError(ex, "Failed to create request to connect.");
 
             return StatusCode(500, "Internal server error.");
-        }
-    }
-
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] RequestToConnectModel request)
-    {
-        try
-        {
-            if (!ModelState.IsValid)
-            {
-                _logger.LogWarning("Invalid RequestToConnect update request received: {@RequestToConnect}", request);
-
-                return ValidationProblem(ModelState);
-            }
-
-            if (id != request.Id)
-            {
-                return BadRequest("Route ID and body ID do not match.");
-            }
-
-            var map = _mapper.Map<RequestToConnectDto>(request);
-            await _service.UpdateAsync(map);
-
-            return NoContent();
-        }
-        catch (DbUpdateConcurrencyException ex)
-        {
-            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
-
-            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
         }
     }
 

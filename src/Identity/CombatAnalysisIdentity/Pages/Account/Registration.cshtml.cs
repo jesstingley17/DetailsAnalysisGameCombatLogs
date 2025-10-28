@@ -104,7 +104,7 @@ public class RegistrationModel(IUserAuthorizationService authorizationService) :
             LastName = Registration.LastName,
             PhoneNumber = Registration.PhoneNumber,
             Birthday = Registration.Birthday,
-            IdentityUserId = _identityUser.Id
+            IdentityUserId = _identityUser!.Id
         };
     }
 
@@ -116,13 +116,13 @@ public class RegistrationModel(IUserAuthorizationService authorizationService) :
             Country = Registration.Country,
             City = Registration.City,
             PostalCode = Registration.PostalCode,
-            AppUserId = _appUser.Id,
+            AppUserId = _appUser!.Id,
         };
     }
 
     private async Task<IActionResult> CreateUserAsync()
     {
-        var wasCreated = await _authorizationService.CreateUserAsync(_identityUser, _appUser, _customer);
+        var wasCreated = await _authorizationService.CreateUserAsync(_identityUser!, _appUser!, _customer!);
         if (!wasCreated)
         {
             ModelState.AddModelError(string.Empty, "Some problems during Registration. Please, try one more time late");

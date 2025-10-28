@@ -15,30 +15,19 @@ internal class FriendRepository(UserContext context) : IFriendRepository
         var entityEntry = await _context.Set<Friend>().AddAsync(friend);
         await _context.SaveChangesAsync();
 
-        var entity = await _context.Set<Friend>()
-                  .Join(_context.Set<AppUser>(),
-                     f => f.WhoFriendId,
-                     u => u.Id,
-                     (f, u) => new
-                     {
-                         f.Id,
-                         f.WhoFriendId,
-                         f.ForWhomId,
-                         WhoFriendUsername = u.Username,
-                     })
-                   .Join(_context.Set<AppUser>(),
-                     temp => temp.ForWhomId,
-                     u => u.Id,
-                     (temp, u) => new
-                     {
-                         temp.Id,
-                         temp.WhoFriendId,
-                         temp.WhoFriendUsername,
-                         temp.ForWhomId,
-                         ForWhomUsername = u.Username
-                     })
-                   .Select(x => new FriendDto(x.Id, x.WhoFriendId, x.WhoFriendUsername, x.ForWhomId, x.ForWhomUsername))
-                   .FirstOrDefaultAsync(x => x.Id == entityEntry.Entity.Id);
+        var entity = await (
+            from f in _context.Set<Friend>()
+            join who in _context.Set<AppUser>() on f.WhoFriendId equals who.Id
+            join whom in _context.Set<AppUser>() on f.ForWhomId equals whom.Id
+            where f.Id == entityEntry.Entity.Id
+            select new FriendDto(
+                f.Id,
+                f.WhoFriendId,
+                who.Username,
+                f.ForWhomId,
+                whom.Username
+            )
+        ).FirstOrDefaultAsync();
 
         return entity;
     }
@@ -58,95 +47,57 @@ internal class FriendRepository(UserContext context) : IFriendRepository
 
     public async Task<IEnumerable<FriendDto>> GetAllAsync()
     {
-        var friends = await _context.Set<Friend>()
-                         .Join(_context.Set<AppUser>(),
-                            f => f.WhoFriendId,
-                            u => u.Id,
-                            (f, u) => new
-                            {
-                                f.Id,
-                                f.WhoFriendId,
-                                f.ForWhomId,
-                                WhoFriendUsername = u.Username,
-                            })
-                          .Join(_context.Set<AppUser>(),
-                            temp => temp.ForWhomId,
-                            u => u.Id,
-                            (temp, u) => new
-                            {
-                                temp.Id,
-                                temp.WhoFriendId,
-                                temp.WhoFriendUsername,
-                                temp.ForWhomId,
-                                ForWhomUsername = u.Username
-                            })
-                          .Select(x => new FriendDto(x.Id, x.WhoFriendId, x.WhoFriendUsername, x.ForWhomId, x.ForWhomUsername))
-                          .ToListAsync();
+        var query = from f in _context.Set<Friend>()
+                    join who in _context.Set<AppUser>() on f.WhoFriendId equals who.Id
+                    join whom in _context.Set<AppUser>() on f.ForWhomId equals whom.Id
+                    select new FriendDto(
+                        f.Id,
+                        f.WhoFriendId,
+                        who.Username,
+                        f.ForWhomId,
+                        whom.Username
+                    );
 
-        return friends.Count != 0 ? friends : [];
+        var result = await query.ToListAsync();
+
+        return result;
     }
 
     public async Task<FriendDto?> GetByIdAsync(int id)
     {
-        var entity = await _context.Set<Friend>()
-                         .Join(_context.Set<AppUser>(),
-                            f => f.WhoFriendId,
-                            u => u.Id,
-                            (f, u) => new
-                            {
-                                f.Id,
-                                f.WhoFriendId,
-                                f.ForWhomId,
-                                WhoFriendUsername = u.Username,
-                            })
-                          .Join(_context.Set<AppUser>(),
-                            temp => temp.ForWhomId,
-                            u => u.Id,
-                            (temp, u) => new
-                            {
-                                temp.Id,
-                                temp.WhoFriendId,
-                                temp.WhoFriendUsername,
-                                temp.ForWhomId,
-                                ForWhomUsername = u.Username
-                            })
-                          .Select(x => new FriendDto(x.Id, x.WhoFriendId, x.WhoFriendUsername, x.ForWhomId, x.ForWhomUsername))
-                          .FirstOrDefaultAsync(x => x.Id == id);
+        var query = from f in _context.Set<Friend>()
+                    join who in _context.Set<AppUser>() on f.WhoFriendId equals who.Id
+                    join whom in _context.Set<AppUser>() on f.ForWhomId equals whom.Id
+                    where f.Id == id
+                    select new FriendDto(
+                        f.Id,
+                        f.WhoFriendId,
+                        who.Username,
+                        f.ForWhomId,
+                        whom.Username
+                    );
 
-        return entity;
+        var result = await query.FirstOrDefaultAsync();
+
+        return result;
     }
 
     public async Task<IEnumerable<FriendDto>> GetByParamAsync(string paramName, object value)
     {
-        var friends = await _context.Set<Friend>()
-                         .Join(_context.Set<AppUser>(),
-                            f => f.WhoFriendId,
-                            u => u.Id,
-                            (f, u) => new
-                            {
-                                f.Id,
-                                f.WhoFriendId,
-                                f.ForWhomId,
-                                WhoFriendUsername = u.Username,
-                            })
-                          .Join(_context.Set<AppUser>(),
-                            temp => temp.ForWhomId,
-                            u => u.Id,
-                            (temp, u) => new
-                            {
-                                temp.Id,
-                                temp.WhoFriendId,
-                                temp.WhoFriendUsername,
-                                temp.ForWhomId,
-                                ForWhomUsername = u.Username
-                            })
-                          .Select(x => new FriendDto(x.Id, x.WhoFriendId, x.WhoFriendUsername, x.ForWhomId, x.ForWhomUsername))
-                          .ToListAsync();
+        var query = from f in _context.Set<Friend>()
+                    join who in _context.Set<AppUser>() on f.WhoFriendId equals who.Id
+                    join whom in _context.Set<AppUser>() on f.ForWhomId equals whom.Id
+                    where f.ForWhomId == (string)value || f.WhoFriendId == (string)value
+                    select new FriendDto(
+                        f.Id,
+                        f.WhoFriendId,
+                        who.Username,
+                        f.ForWhomId,
+                        whom.Username
+                    );
 
-        var data = friends
-                    .Where(x => x.GetType().GetProperty(paramName)?.GetValue(x) == value)
-                    .ToList();
+        var result = await query.ToListAsync();
 
-        return data;
+        return result;
     }
 }

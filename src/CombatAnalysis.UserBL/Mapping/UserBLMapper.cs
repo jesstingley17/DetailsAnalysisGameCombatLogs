@@ -12,6 +12,7 @@ public class UserBLMapper : Profile
         CreateMap<BannedUserDto, BannedUser>().ReverseMap();
         CreateMap<CustomerDto, Customer>().ReverseMap();
         CreateMap<FriendDto, UserDAL.DTO.FriendDto>().ReverseMap();
+        CreateMap<FriendCreateDto, Friend>().ReverseMap();
         CreateMap<RequestToConnectDto, RequestToConnect>().ReverseMap();
     }
 }

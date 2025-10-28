@@ -59,8 +59,7 @@ internal class UserService(IUserRepository repository, IMapper mapper) : IUserSe
         }
 
         var map = _mapper.Map<AppUser>(item);
-        var result = await _repository.UpdateAsync(id, map);
-        _mapper.Map<AppUserDto>(result);
+        await _repository.UpdateAsync(id, map);
     }
 
     public async Task DeleteAsync(string id)

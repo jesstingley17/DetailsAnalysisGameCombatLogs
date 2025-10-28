@@ -4,7 +4,7 @@ namespace CombatAnalysis.UserBL.Interfaces;
 
 public interface IFriendService
 {
-    Task<FriendDto?> CreateAsync(FriendDto item);
+    Task<FriendDto?> CreateAsync(FriendCreateDto item);
 
     Task DeleteAsync(int id);
 

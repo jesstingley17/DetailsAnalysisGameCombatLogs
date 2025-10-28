@@ -17,7 +17,7 @@ public class RegistrationDataModel
 
     [Required]
     [DataType(DataType.Password)]
-    [Compare("Password", ErrorMessage = "Password and confirm password should be equal")]
+    [Compare(nameof(Password), ErrorMessage = "Password and confirm password should be equal")]
     public string ConfirmPassword { get; set; }
 
     [Required]

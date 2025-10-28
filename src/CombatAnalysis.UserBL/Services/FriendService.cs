@@ -11,7 +11,7 @@ internal class FriendService(IFriendRepository repository, IMapper mapper) : IFr
     private readonly IFriendRepository _repository = repository;
     private readonly IMapper _mapper = mapper;
 
-    public async Task<FriendDto?> CreateAsync(FriendDto item)
+    public async Task<FriendDto?> CreateAsync(FriendCreateDto item)
     {
         var map = _mapper.Map<Friend>(item);
         var createdItem = await _repository.CreateAsync(map);

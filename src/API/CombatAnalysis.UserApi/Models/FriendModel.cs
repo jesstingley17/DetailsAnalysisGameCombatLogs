@@ -5,7 +5,5 @@ namespace CombatAnalysis.UserApi.Models;
 public record FriendModel(
     [Required] int Id,
     [Required] string WhoFriendId,
-    [Required] string WhoFriendUsername,
-    [Required] string ForWhomId,
-    [Required] string ForWhomUsername
+    [Required] string ForWhomId
     );
