@@ -66,7 +66,7 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy("ApiScope", builder =>
     {
         builder.RequireAuthenticatedUser();
-        builder.RequireClaim("scope", authenticationClientOptions.Scopes);
+        builder.RequireClaim("scope", authenticationClientOptions.Scopes.Split(','));
     });
 
 builder.Services.AddTransient<IChatHubHelper, ChatHubHelper>();

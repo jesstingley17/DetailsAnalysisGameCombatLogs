@@ -57,7 +57,7 @@ const Home: React.FC = () => {
 
     const loginHandle = async () => {
         try {
-            const identityRedirect = await authorization(APP_CONFIG.identity.authPath).unwrap();
+            const identityRedirect = await authorization(APP_CONFIG.identity.loginPath).unwrap();
 
             const uri = identityRedirect.uri;
             window.location.href = uri;

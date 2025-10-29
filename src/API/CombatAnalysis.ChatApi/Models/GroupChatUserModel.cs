@@ -8,5 +8,5 @@ public record GroupChatUserModel(
         [Range(0, int.MaxValue)] int UnreadMessages,
         [Range(1, int.MaxValue)] int? LastReadMessageId,
         [Range(1, int.MaxValue)] int GroupChatId,
-        [Required][StringLength(8)] string AppUserId
+        [Required] string AppUserId
     );

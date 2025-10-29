@@ -67,9 +67,11 @@ internal class GroupChatService(IGroupChatRepository repository, IMapper mapper)
         return result.ToDTO(_mapper);
     }
 
-    public async Task AddRulesAsync(GroupChatRulesDto item)
+    public async Task<GroupChatRulesDto> AddRulesAsync(GroupChatRulesDto item)
     {
-        await _repository.AddRulesAsync(item.ToEntity(_mapper));
+        var rules = await _repository.AddRulesAsync(item.ToEntity(_mapper));
+
+        return rules.ToDTO(_mapper);
     }
 
     public async Task UpdateRulesAsync(GroupChatRulesDto item)

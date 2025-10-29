@@ -38,7 +38,7 @@ internal class GroupChatRepository(ChatContext context) : GenericRepository<Grou
 
         chat.AddRules(chat.Id);
 
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
 
         return chat.Rules;
     }
@@ -50,7 +50,7 @@ internal class GroupChatRepository(ChatContext context) : GenericRepository<Grou
 
         chat.RemoveRules();
 
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
     }
 
     public async Task UpdateRulesAsync(GroupChatRules updateRules)
@@ -60,6 +60,6 @@ internal class GroupChatRepository(ChatContext context) : GenericRepository<Grou
 
         chat.UpdateRules(updateRules.InvitePeople, updateRules.RemovePeople, updateRules.PinMessage, updateRules.Announcements);
 
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
     }
 }

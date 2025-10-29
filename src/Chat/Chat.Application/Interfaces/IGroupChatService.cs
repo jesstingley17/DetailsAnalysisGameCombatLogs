@@ -9,7 +9,7 @@ public interface IGroupChatService : IService<GroupChatDto, int>
                                      string? newName,
                                      string? newOwnerId);
 
-    Task AddRulesAsync(GroupChatRulesDto item);
+    Task<GroupChatRulesDto> AddRulesAsync(GroupChatRulesDto item);
 
     Task UpdateRulesAsync(GroupChatRulesDto item);
 

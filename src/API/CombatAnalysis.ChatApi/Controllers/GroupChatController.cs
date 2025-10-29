@@ -147,6 +147,31 @@ public class GroupChatController(IGroupChatService chatService, IMapper mapper, 
         }
     }
 
+    [HttpPost("addRules")]
+    public async Task<IActionResult> AddRules([FromBody] GroupChatRulesModel groupChatRules)
+    {
+        try
+        {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid GroupChatRulesModel create received: {@GroupChatRules}", groupChatRules);
+
+                return ValidationProblem(ModelState);
+            }
+
+            var map = _mapper.Map<GroupChatRulesDto>(groupChatRules);
+            var rules = await _chatService.AddRulesAsync(map);
+
+            return Ok(rules);
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex, "Failed to add group chat rules.");
+
+            return StatusCode(500, "Internal server error.");
+        }
+    }
+
     [HttpPut("updateRules/{chatId:int:min(1)}")]
     public async Task<IActionResult> UpdateRules(int chatId, [FromBody] GroupChatRulesModel chatRules)
     {
