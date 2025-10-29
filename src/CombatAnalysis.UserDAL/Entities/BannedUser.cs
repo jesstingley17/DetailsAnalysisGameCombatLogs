@@ -2,6 +2,6 @@
 
 public record BannedUser(
     int Id,
-    string BannedCustomerId,
-    string AppUserId
+    string WhomBannedId,
+    string BannedUserId
     );

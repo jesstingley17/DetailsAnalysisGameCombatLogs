@@ -2,6 +2,6 @@
 
 public record BannedUserDto(
     int Id,
-    string BannedCustomerId,
-    string CustomerId
+    string WhomBannedId,
+    string BannedUserId
     );

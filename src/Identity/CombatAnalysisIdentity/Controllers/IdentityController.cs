@@ -11,7 +11,7 @@ public class IdentityController(IIdentityUserService identityUserService) : Cont
     private readonly IIdentityUserService _identityUserService = identityUserService;
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetEmail(string id)
+    public async Task<IActionResult> GetUserPrivacy(string id)
     {
         var identityUser = await _identityUserService.GetByIdAsync(id);
         if (identityUser == null)

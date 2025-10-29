@@ -1,7 +1,6 @@
 ﻿using CombatAnalysis.Identity.Security;
 using CombatAnalysisIdentity.Interfaces;
 using CombatAnalysisIdentity.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CombatAnalysisIdentity.Controllers;
@@ -14,7 +13,6 @@ public class AccountController(IUserAuthorizationService authorizationService, I
     private readonly ILogger<AccountController> _logger = logger;
 
     [HttpPost("register")]
-    [AllowAnonymous]
     public async Task<IActionResult> Register([FromBody] RegistrationDataModel model)
     {
         if (!model.Password.Equals(model.ConfirmPassword))

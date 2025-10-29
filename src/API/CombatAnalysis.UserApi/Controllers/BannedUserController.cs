@@ -58,36 +58,6 @@ public class BannedUserController(IService<BannedUserDto, int> service, IMapper 
         }
     }
 
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] BannedUserModel bannedUser)
-    {
-        try
-        {
-            if (!ModelState.IsValid)
-            {
-                _logger.LogWarning("Invalid BannedUser update request received: {@BannedUser}", bannedUser);
-
-                return ValidationProblem(ModelState);
-            }
-
-            if (id != bannedUser.Id)
-            {
-                return BadRequest("Route ID and body ID do not match.");
-            }
-
-            var map = _mapper.Map<BannedUserDto>(bannedUser);
-            await _service.UpdateAsync(map);
-
-            return NoContent();
-        }
-        catch (DbUpdateConcurrencyException ex)
-        {
-            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
-
-            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
-        }
-    }
-
     [HttpDelete("{id:int:min(1)}")]
     public async Task<IActionResult> Delete(int id)
     {

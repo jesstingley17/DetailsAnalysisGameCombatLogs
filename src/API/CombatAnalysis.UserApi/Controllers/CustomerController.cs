@@ -33,9 +33,9 @@ public class CustomerController(IService<CustomerDto, string> service, IMapper m
         return Ok(result);
     }
 
-    [HttpGet("searchByUserId/{id}")]
+    [HttpGet("findByUserId/{id}")]
     [AllowAnonymous]
-    public async Task<IActionResult> SearchByUserId(string id)
+    public async Task<IActionResult> CustomerByUserId(string id)
     {
         var result = await _service.GetByParamAsync(c => c.AppUserId, id);
 
@@ -61,23 +61,6 @@ public class CustomerController(IService<CustomerDto, string> service, IMapper m
 
             var map = _mapper.Map<CustomerDto>(customer);
             await _service.UpdateAsync(map);
-
-            return NoContent();
-        }
-        catch (DbUpdateConcurrencyException ex)
-        {
-            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
-
-            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
-        }
-    }
-
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(string id)
-    {
-        try
-        {
-            await _service.DeleteAsync(id);
 
             return NoContent();
         }
