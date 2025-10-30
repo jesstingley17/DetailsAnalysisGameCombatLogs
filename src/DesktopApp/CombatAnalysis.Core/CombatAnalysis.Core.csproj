@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CombatAnalysis.CombatParser\CombatAnalysis.CombatParser.csproj" />
+    <ProjectReference Include="..\..\Parser\CombatAnalysis.CombatParser\CombatAnalysis.CombatParser.csproj" />
   </ItemGroup>
 
 </Project>

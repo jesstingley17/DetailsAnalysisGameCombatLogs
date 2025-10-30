@@ -1,7 +1,7 @@
 ﻿using Chat.Domain.Enums.GroupChatRules;
 using System.ComponentModel.DataAnnotations;
 
-namespace CombatAnalysis.ChatApi.Models;
+namespace CombatAnalysis.ChatAPI.Models;
 
 public record GroupChatRulesModel(
     [Range(0, int.MaxValue)] int Id,

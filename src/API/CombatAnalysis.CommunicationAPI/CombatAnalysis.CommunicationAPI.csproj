@@ -29,7 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\CombatAnalysis.CommunicationBL\CombatAnalysis.CommunicationBL.csproj" />
+    <ProjectReference Include="..\..\Common\CombatAnalysis.CommunicationBL\CombatAnalysis.CommunicationBL.csproj" />
   </ItemGroup>
 
 </Project>

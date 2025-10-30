@@ -1,7 +1,7 @@
 ﻿using Chat.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CombatAnalysis.ChatApi.Core;
+namespace CombatAnalysis.ChatAPI.Core;
 
 public static class ExtractDomainStatusCode
 {

@@ -21,8 +21,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\CombatAnalysis.BL\CombatAnalysis.BL.csproj" />
-    <ProjectReference Include="..\..\CombatAnalysis.CombatParser\CombatAnalysis.CombatParser.csproj" />
+    <ProjectReference Include="..\..\Common\CombatAnalysis.BL\CombatAnalysis.BL.csproj" />
+    <ProjectReference Include="..\..\Common\CombatAnalysis.Identity\CombatAnalysis.Identity.csproj" />
+    <ProjectReference Include="..\..\Parser\CombatAnalysis.CombatParser\CombatAnalysis.CombatParser.csproj" />
   </ItemGroup>
 
 </Project>

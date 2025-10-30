@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using CombatAnalysis.UserBL.DTO;
-using CombatAnalysis.UserApi.Models;
+using CombatAnalysis.UserAPI.Models;
 
-namespace CombatAnalysis.UserApi.Mapping;
+namespace CombatAnalysis.UserAPI.Mapping;
 
 internal class UserApiMapper : Profile
 {

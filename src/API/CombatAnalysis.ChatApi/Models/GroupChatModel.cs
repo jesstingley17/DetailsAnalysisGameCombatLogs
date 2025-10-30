@@ -1,7 +1,7 @@
 ﻿using Chat.Domain.Aggregates;
 using System.ComponentModel.DataAnnotations;
 
-namespace CombatAnalysis.ChatApi.Models;
+namespace CombatAnalysis.ChatAPI.Models;
 
 public record GroupChatModel(
     [Range(0, int.MaxValue)] int Id, 

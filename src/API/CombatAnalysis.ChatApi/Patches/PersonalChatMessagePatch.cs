@@ -2,7 +2,7 @@
 using Chat.Domain.Enums;
 using System.ComponentModel.DataAnnotations;
 
-namespace CombatAnalysis.ChatApi.Patches;
+namespace CombatAnalysis.ChatAPI.Patches;
 
 public record PersonalChatMessagePatch(
         [Required] int Id,

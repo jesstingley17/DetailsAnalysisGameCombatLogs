@@ -1,12 +1,12 @@
 ﻿using AutoMapper;
-using CombatAnalysis.UserApi.Models;
+using CombatAnalysis.UserAPI.Models;
 using CombatAnalysis.UserBL.DTO;
 using CombatAnalysis.UserBL.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace CombatAnalysis.UserApi.Controllers;
+namespace CombatAnalysis.UserAPI.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]

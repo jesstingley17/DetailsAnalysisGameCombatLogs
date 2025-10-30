@@ -2,7 +2,7 @@
 using System.Text;
 using System.Text.Json;
 
-namespace CombatAnalysis.ChatApi.Core;
+namespace CombatAnalysis.ChatAPI.Core;
 
 internal class JsonDocumentDeserializer : IDeserializer<JsonDocument>
 {

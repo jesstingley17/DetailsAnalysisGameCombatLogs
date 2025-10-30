@@ -1,4 +1,4 @@
-﻿namespace CombatAnalysis.ChatApi.Interfaces;
+﻿namespace CombatAnalysis.ChatAPI.Interfaces;
 
 public interface IChatHubHelper
 {

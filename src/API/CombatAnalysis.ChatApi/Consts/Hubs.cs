@@ -1,4 +1,4 @@
-﻿namespace CombatAnalysis.ChatApi.Consts;
+﻿namespace CombatAnalysis.ChatAPI.Consts;
 
 public class Hubs
 {

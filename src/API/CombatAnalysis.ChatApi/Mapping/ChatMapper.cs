@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using Chat.Application.DTOs;
-using CombatAnalysis.ChatApi.Models;
-using CombatAnalysis.ChatApi.Patches;
+using CombatAnalysis.ChatAPI.Models;
+using CombatAnalysis.ChatAPI.Patches;
 
-namespace CombatAnalysis.ChatApi.Mapping;
+namespace CombatAnalysis.ChatAPI.Mapping;
 
 internal class ChatMapper : Profile
 {

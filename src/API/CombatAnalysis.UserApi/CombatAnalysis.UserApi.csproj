@@ -31,7 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\CombatAnalysis.UserBL\CombatAnalysis.UserBL.csproj" />
+    <ProjectReference Include="..\..\Common\CombatAnalysis.UserBL\CombatAnalysis.UserBL.csproj" />
   </ItemGroup>
 
 </Project>

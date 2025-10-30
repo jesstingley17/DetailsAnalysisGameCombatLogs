@@ -1,4 +1,4 @@
-﻿namespace CombatAnalysis.UserApi.Consts;
+﻿namespace CombatAnalysis.UserAPI.Consts;
 
 internal class Redis
 {

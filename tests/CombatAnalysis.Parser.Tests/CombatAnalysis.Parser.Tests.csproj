@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\CombatAnalysis.CombatParser\CombatAnalysis.CombatParser.csproj" />
+    <ProjectReference Include="..\..\src\Parser\CombatAnalysis.CombatParser\CombatAnalysis.CombatParser.csproj" />
   </ItemGroup>
 
 </Project>

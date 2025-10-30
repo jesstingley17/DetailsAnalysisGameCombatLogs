@@ -6,14 +6,14 @@ using Chat.Application.Kafka.Actions;
 using Chat.Application.Security;
 using Chat.Domain.Enums;
 using Chat.Infrastructure.Exceptions;
-using CombatAnalysis.ChatApi.Consts;
-using CombatAnalysis.ChatApi.Interfaces;
+using CombatAnalysis.ChatAPI.Consts;
+using CombatAnalysis.ChatAPI.Interfaces;
 using Confluent.Kafka;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
 
-namespace CombatAnalysis.ChatApi.Kafka;
+namespace CombatAnalysis.ChatAPI.Kafka;
 
 public class GroupChatMemberConsumer(IOptions<KafkaSettings> kafkaSettings, IOptions<Hubs> hubs, ILogger<GroupChatMemberConsumer> logger, IServiceScopeFactory serviceScopeFactory,
     IKafkaProducerService<string, string> kafkaProducer, IChatHubHelper groupChatHelper) : KafkaConsumerBase(kafkaSettings, KafkaTopics.GroupChatMember, logger)

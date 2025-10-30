@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CombatAnalysis.UserApi.Models;
+namespace CombatAnalysis.UserAPI.Models;
 
 public record BannedUserModel(
     [Required] int Id,

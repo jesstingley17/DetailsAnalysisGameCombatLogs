@@ -1,9 +1,9 @@
 ﻿using Chat.Application.Consts;
-using CombatAnalysis.ChatApi.Interfaces;
+using CombatAnalysis.ChatAPI.Interfaces;
 using Confluent.Kafka;
 using Microsoft.Extensions.Options;
 
-namespace CombatAnalysis.ChatApi.Kafka;
+namespace CombatAnalysis.ChatAPI.Kafka;
 
 internal class KafkaProducer<TKey, TValue> : IKafkaProducerService<TKey, TValue>
 {

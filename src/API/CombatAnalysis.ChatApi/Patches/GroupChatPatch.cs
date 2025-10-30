@@ -1,7 +1,7 @@
 ﻿using Chat.Domain.Aggregates;
 using System.ComponentModel.DataAnnotations;
 
-namespace CombatAnalysis.ChatApi.Patches;
+namespace CombatAnalysis.ChatAPI.Patches;
 
 public record GroupChatPatch(
     [Required] int Id,

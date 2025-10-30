@@ -1,4 +1,4 @@
-﻿namespace CombatAnalysis.UserApi.Models;
+﻿namespace CombatAnalysis.UserAPI.Models;
 
 public class RegisterModel
 {

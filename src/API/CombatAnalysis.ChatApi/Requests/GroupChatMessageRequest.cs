@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CombatAnalysis.ChatApi.Requests;
+namespace CombatAnalysis.ChatAPI.Requests;
 
 public record GroupChatMessageRequest(
     [Range(1, int.MaxValue)] int ChatId,

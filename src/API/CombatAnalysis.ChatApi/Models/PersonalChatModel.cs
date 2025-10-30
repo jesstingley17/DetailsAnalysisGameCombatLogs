@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CombatAnalysis.ChatApi.Models;
+namespace CombatAnalysis.ChatAPI.Models;
 
 public class PersonalChatModel
 {

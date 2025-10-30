@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using AutoMapper.Extensions.ExpressionMapping;
-using CombatAnalysis.UserApi.Consts;
-using CombatAnalysis.UserApi.Mapping;
+using CombatAnalysis.UserAPI.Consts;
+using CombatAnalysis.UserAPI.Mapping;
 using CombatAnalysis.UserBL.Extensions;
 using CombatAnalysis.UserBL.Mapping;
 using Microsoft.AspNetCore.Diagnostics;

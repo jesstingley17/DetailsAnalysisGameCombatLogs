@@ -1,11 +1,11 @@
 ﻿using Chat.Application.Consts;
-using CombatAnalysis.ChatApi.Consts;
-using CombatAnalysis.ChatApi.Interfaces;
+using CombatAnalysis.ChatAPI.Consts;
+using CombatAnalysis.ChatAPI.Interfaces;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Options;
 using System.Net;
 
-namespace CombatAnalysis.ChatApi.Helpers;
+namespace CombatAnalysis.ChatAPI.Helpers;
 
 internal class ChatHubHelper(IOptions<Hubs> hubs, IOptions<KafkaSettings> kafkaSettings) : IChatHubHelper
 {

@@ -1,10 +1,10 @@
 ﻿using Chat.Application.Consts;
-using CombatAnalysis.ChatApi.Core;
+using CombatAnalysis.ChatAPI.Core;
 using Confluent.Kafka;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
 
-namespace CombatAnalysis.ChatApi.Kafka;
+namespace CombatAnalysis.ChatAPI.Kafka;
 
 public abstract class KafkaConsumerBase : BackgroundService
 {

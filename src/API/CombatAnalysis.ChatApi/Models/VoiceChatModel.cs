@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CombatAnalysis.ChatApi.Models;
+namespace CombatAnalysis.ChatAPI.Models;
 
 public record VoiceChatModel(
     [Required] string Id,

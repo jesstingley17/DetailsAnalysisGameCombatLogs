@@ -45,8 +45,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\CombatAnalysis.Identity\CombatAnalysis.Identity.csproj" />
-    <ProjectReference Include="..\..\CombatAnalysis.UserBL\CombatAnalysis.UserBL.csproj" />
+    <ProjectReference Include="..\..\Common\CombatAnalysis.Identity\CombatAnalysis.Identity.csproj" />
+    <ProjectReference Include="..\..\Common\CombatAnalysis.UserBL\CombatAnalysis.UserBL.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,6 +1,6 @@
 ﻿using Confluent.Kafka;
 
-namespace CombatAnalysis.ChatApi.Interfaces;
+namespace CombatAnalysis.ChatAPI.Interfaces;
 
 public interface IKafkaProducerService<TKey, TValue> : IDisposable
 {
