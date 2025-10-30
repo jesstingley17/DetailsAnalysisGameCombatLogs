@@ -4,6 +4,7 @@ using CombatAnalysis.CommunicationBL.DTO.Community;
 using CombatAnalysis.CommunicationBL.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.CommunicationAPI.Controllers.Community;
 
@@ -33,7 +34,7 @@ public class CommunityController(ICommunityService service, IMapper mapper, ILog
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(CommunityModel model)
+    public async Task<IActionResult> Create([FromBody] CommunityModel model)
     {
         try
         {
@@ -42,50 +43,59 @@ public class CommunityController(ICommunityService service, IMapper mapper, ILog
 
             return Ok(result);
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, $"Create Community failed: ${ex.Message}", model);
+            _logger.LogError(ex, "Failed to create community.");
 
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Create Community failed: ${ex.Message}", model);
-
-            return BadRequest();
+            return StatusCode(500, "Internal server error.");
         }
     }
 
-    [HttpPut]
-    public async Task<IActionResult> Update(CommunityModel model)
+    [HttpPut("{id:int:min(1)}")]
+    public async Task<IActionResult> Update(int id, [FromBody] CommunityModel community)
     {
         try
         {
-            var map = _mapper.Map<CommunityDto>(model);
-            var result = await _service.UpdateAsync(map);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid Community update request received: {@Community}", community);
 
-            return Ok(result);
+                return ValidationProblem(ModelState);
+            }
+
+            if (id != community.Id)
+            {
+                return BadRequest("Route ID and body ID do not match.");
+            }
+
+            var map = _mapper.Map<CommunityDto>(community);
+            await _service.UpdateAsync(map);
+
+            return NoContent();
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, $"Update Community failed: ${ex.Message}", model);
+            _logger.LogError(ex, "Failed to update community.");
 
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Update Community failed: ${ex.Message}", model);
-
-            return BadRequest();
+            return StatusCode(500, "Internal server error.");
         }
     }
 
     [HttpDelete("{id:int:min(1)}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var rowsAffected = await _service.DeleteAsync(id);
+        try
+        {
+            await _service.DeleteAsync(id);
 
-        return Ok(rowsAffected);
+            return NoContent();
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
+
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
+        }
     }
 
     [HttpGet("getWithPagination")]
