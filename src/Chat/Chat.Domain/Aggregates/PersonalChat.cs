@@ -32,7 +32,7 @@ public class PersonalChat : IRepositoryEntity<PersonalChatId>
 
     public void UpdateInitiatorUnreadMessageCount(int count)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(count, 1, nameof(count));
+        ArgumentOutOfRangeException.ThrowIfLessThan(count, 0, nameof(count));
 
         if (InitiatorUnreadMessages != count)
         {
@@ -41,7 +41,7 @@ public class PersonalChat : IRepositoryEntity<PersonalChatId>
     }
     public void UpdateCompanionUnreadMessageCount(int count)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(count, 1, nameof(count));
+        ArgumentOutOfRangeException.ThrowIfLessThan(count, 0, nameof(count));
 
         if (CompanionUnreadMessages != count)
         {

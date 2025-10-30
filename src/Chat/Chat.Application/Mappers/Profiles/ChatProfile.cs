@@ -14,6 +14,7 @@ public class ChatProfile : Profile
 
         CreateMap<VoiceChatDto, VoiceChat>()
                  .ConstructUsing(dto => new VoiceChat(
+                     dto.Id,
                      dto.AppUserId
                  )).ReverseMap();
 
@@ -117,6 +118,10 @@ public class ChatProfile : Profile
         CreateMap<string, UserId>()
             .ConvertUsing(src => new UserId(src));
 
+        CreateMap<string, VoiceChatId>()
+            .ConvertUsing(src => new VoiceChatId(src));
 
+        CreateMap<VoiceChatId, string>()
+            .ConvertUsing(src => new VoiceChatId(src));
     }
 }

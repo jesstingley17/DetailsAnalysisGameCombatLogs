@@ -3,7 +3,6 @@ using Chat.Application.DTOs;
 using Chat.Application.Interfaces;
 using Chat.Application.Mappers;
 using Chat.Domain.Aggregates;
-using Chat.Domain.Enums;
 using Chat.Domain.Exceptions;
 using Chat.Domain.Repositories;
 using Chat.Domain.ValueObjects;

@@ -7,9 +7,10 @@ public class VoiceChat: IRepositoryEntity<VoiceChatId>
 {
     private VoiceChat() { }
 
-    public VoiceChat(UserId userId)
+    public VoiceChat(VoiceChatId id, UserId appUserId)
     {
-        AppUserId = userId;
+        Id = id;
+        AppUserId = appUserId;
     }
 
     public VoiceChatId Id { get; private set; }
