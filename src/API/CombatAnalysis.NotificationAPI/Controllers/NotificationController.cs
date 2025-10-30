@@ -4,6 +4,7 @@ using CombatAnalysis.NotificationBL.DTO;
 using CombatAnalysis.NotificationBL.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.NotificationAPI.Controllers;
 
@@ -50,7 +51,7 @@ public class NotificationController(IService<NotificationDto, int> notificationS
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(NotificationModel notification)
+    public async Task<IActionResult> Create([FromBody] NotificationModel notification)
     {
         try
         {
@@ -61,49 +62,58 @@ public class NotificationController(IService<NotificationDto, int> notificationS
 
             return Ok(createdNotification);
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, $"Create Notification failed: ${ex.Message}", notification);
+            _logger.LogError(ex, "Failed to create notification.");
 
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Create Notification failed: ${ex.Message}", notification);
-
-            return BadRequest();
+            return StatusCode(500, "Internal server error.");
         }
     }
 
-    [HttpPut]
-    public async Task<IActionResult> Update(NotificationModel notification)
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, [FromBody] NotificationModel notification)
     {
         try
         {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid Notification update request received: {@Notification}", notification);
+
+                return ValidationProblem(ModelState);
+            }
+
+            if (id != notification.Id)
+            {
+                return BadRequest("Route ID and body ID do not match.");
+            }
+
             var mappedNotification = _mapper.Map<NotificationDto>(notification);
-            var affectedRows = await _notificationService.UpdateAsync(mappedNotification);
+            await _notificationService.UpdateAsync(mappedNotification);
 
-            return Ok(affectedRows);
+            return NoContent();
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, $"Update Notification failed: ${ex.Message}", notification);
+            _logger.LogError(ex, "Failed to update notification.");
 
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Update Notification failed: ${ex.Message}", notification);
-
-            return BadRequest();
+            return StatusCode(500, "Internal server error.");
         }
     }
 
     [HttpDelete("{id:int:min(1)}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var affectedRows = await _notificationService.DeleteAsync(id);
+        try
+        {
+            await _notificationService.DeleteAsync(id);
 
-        return Ok(affectedRows);
+            return NoContent();
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
+
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
+        }
     }
 }

@@ -11,7 +11,7 @@ internal class GenericRepository<TModel, TIdType>(NotificationContext context) :
 {
     private readonly NotificationContext _context = context;
 
-    public async Task<TModel> CreateAsync(TModel item)
+    public async Task<TModel?> CreateAsync(TModel item)
     {
         var entityEntry = await _context.Set<TModel>().AddAsync(item);
         await _context.SaveChangesAsync();
@@ -19,15 +19,13 @@ internal class GenericRepository<TModel, TIdType>(NotificationContext context) :
         return entityEntry.Entity;
     }
 
-    public async Task<int> DeleteAsync(TIdType id)
+    public async Task DeleteAsync(TIdType id)
     {
         var model = Activator.CreateInstance<TModel>();
         model.GetType().GetProperty("Id")?.SetValue(model, id);
 
         _context.Set<TModel>().Remove(model);
-        var rowsAffected = await _context.SaveChangesAsync();
-
-        return rowsAffected;
+        await _context.SaveChangesAsync();
     }
 
     public async Task<IEnumerable<TModel>> GetAllAsync()
@@ -66,11 +64,9 @@ internal class GenericRepository<TModel, TIdType>(NotificationContext context) :
         return query;
     }
 
-    public async Task<int> UpdateAsync(TModel item)
+    public async Task UpdateAsync(TModel item)
     {
         _context.Entry(item).State = EntityState.Modified;
-        var rowsAffected = await _context.SaveChangesAsync();
-
-        return rowsAffected;
+        await _context.SaveChangesAsync();
     }
 }

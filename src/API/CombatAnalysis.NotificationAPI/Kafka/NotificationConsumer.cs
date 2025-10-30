@@ -70,8 +70,7 @@ public class NotificationConsumer(IOptions<KafkaSettings> kafkaSettings, IOption
 
         notification.Status = (int)NotificationStatus.Read;
         notification.ReadAt = DateTime.UtcNow;
-        var affectedRows = await notificationService.UpdateAsync(notification);
-        ArgumentOutOfRangeException.ThrowIfLessThan(affectedRows, 1, nameof(affectedRows));
+        await notificationService.UpdateAsync(notification);
 
         await chatHubHelper.RequestRecipientNotifications(notificationAction.RecipientId);
     }
@@ -82,8 +81,7 @@ public class NotificationConsumer(IOptions<KafkaSettings> kafkaSettings, IOption
         ArgumentNullException.ThrowIfNull(notification, nameof(notification));
 
         notification.Status = (int)NotificationStatus.Read;
-        var affectedRows = await notificationService.UpdateAsync(notification);
-        ArgumentOutOfRangeException.ThrowIfLessThan(affectedRows, 1, nameof(affectedRows));
+        await notificationService.UpdateAsync(notification);
 
         await chatHubHelper.RequestRecipientNotifications(notificationAction.RecipientId);
     }
@@ -96,8 +94,7 @@ public class NotificationConsumer(IOptions<KafkaSettings> kafkaSettings, IOption
         foreach (var notification in notifications)
         {
             notification.Status = (int)NotificationStatus.Read;
-            var affectedRows = await notificationService.UpdateAsync(notification);
-            ArgumentOutOfRangeException.ThrowIfLessThan(affectedRows, 1, nameof(affectedRows));
+            await notificationService.UpdateAsync(notification);
         }
 
         await chatHubHelper.RequestRecipientNotifications(notificationAction.RecipientId);

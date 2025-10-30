@@ -1,20 +1,14 @@
-﻿namespace CombatAnalysis.NotificationAPI.Models;
+﻿using System.ComponentModel.DataAnnotations;
 
-public class NotificationModel
-{
-    public int Id { get; set; }
+namespace CombatAnalysis.NotificationAPI.Models;
 
-    public int Type { get; set; }
-
-    public int Status { get; set; }
-
-    public string InitiatorId { get; set; } = string.Empty;
-
-    public string? InitiatorName { get; set; }
-
-    public string RecipientId { get; set; } = string.Empty;
-
-    public DateTime CreatedAt { get; set; }
-
-    public DateTime? ReadAt { get; set; }
-}
+public record NotificationModel(
+    [Range(0, int.MaxValue)] int Id,
+    [Required] int Type,
+    [Required] int Status,
+    [Required] string InitiatorId,
+    string? InitiatorName,
+    [Required] string RecipientId,
+    [Required] DateTime CreatedAt,
+    DateTime? ReadAt
+    );

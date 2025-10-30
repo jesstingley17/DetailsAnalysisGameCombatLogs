@@ -13,32 +13,18 @@ internal class NotificationService(IGenericRepository<Notification, int> reposit
     private readonly IGenericRepository<Notification, int> _repository = repository;
     private readonly IMapper _mapper = mapper;
 
-    public Task<NotificationDto> CreateAsync(NotificationDto item)
+    public async Task<NotificationDto?> CreateAsync(NotificationDto item)
     {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(NotificationDto), $"The {nameof(NotificationDto)} can't be null");
-        }
+        var map = _mapper.Map<Notification>(item);
+        var createdItem = await _repository.CreateAsync(map);
+        var resultMap = _mapper.Map<NotificationDto>(createdItem);
 
-        return CreateInternalAsync(item);
+        return resultMap;
     }
 
-    public async Task<int> DeleteAsync(int id)
+    public async Task DeleteAsync(int id)
     {
-        try
-        {
-            var rowsAffected = await _repository.DeleteAsync(id);
-
-            return rowsAffected;
-        }
-        catch (ArgumentException ex)
-        {
-            return 0;
-        }
-        catch (Exception ex)
-        {
-            return 0;
-        }
+        await _repository.DeleteAsync(id);
     }
 
     public async Task<IEnumerable<NotificationDto>> GetAllAsync()
@@ -49,7 +35,7 @@ internal class NotificationService(IGenericRepository<Notification, int> reposit
         return result;
     }
 
-    public async Task<NotificationDto> GetByIdAsync(int id)
+    public async Task<NotificationDto?> GetByIdAsync(int id)
     {
         var result = await _repository.GetByIdAsync(id);
         var resultMap = _mapper.Map<NotificationDto>(result);
@@ -66,30 +52,9 @@ internal class NotificationService(IGenericRepository<Notification, int> reposit
         return resultMap;
     }
 
-    public Task<int> UpdateAsync(NotificationDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(NotificationDto), $"The {nameof(NotificationDto)} can't be null");
-        }
-
-        return UpdateInternalAsync(item);
-    }
-
-    private async Task<NotificationDto> CreateInternalAsync(NotificationDto item)
+    public async Task UpdateAsync(NotificationDto item)
     {
         var map = _mapper.Map<Notification>(item);
-        var createdItem = await _repository.CreateAsync(map);
-        var resultMap = _mapper.Map<NotificationDto>(createdItem);
-
-        return resultMap;
-    }
-
-    private async Task<int> UpdateInternalAsync(NotificationDto item)
-    {
-        var map = _mapper.Map<Notification>(item);
-        var rowsAffected = await _repository.UpdateAsync(map);
-
-        return rowsAffected;
+        await _repository.UpdateAsync(map);
     }
 }
