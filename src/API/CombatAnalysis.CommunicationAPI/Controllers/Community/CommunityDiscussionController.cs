@@ -34,10 +34,10 @@ public class CommunityDiscussionController(IService<CommunityDiscussionDto, int>
         return Ok(result);
     }
 
-    [HttpGet("findByCommunityId/{id:int:min(1)}")]
-    public async Task<IActionResult> FindByCommunityId(int id)
+    [HttpGet("findByCommunityId/{communityId:int:min(1)}")]
+    public async Task<IActionResult> FindByCommunityId(int communityId)
     {
-        var result = await _service.GetByParamAsync(c => c.CommunityId, id);
+        var result = await _service.GetByParamAsync(c => c.CommunityId, communityId);
 
         return Ok(result);
     }

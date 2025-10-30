@@ -33,10 +33,10 @@ public class InviteToCommunityController(IService<InviteToCommunityDto, int> ser
         return Ok(result);
     }
 
-    [HttpGet("searchByUserId/{id}")]
-    public async Task<IActionResult> SearchByUserId(string id)
+    [HttpGet("findByUserId/{userId}")]
+    public async Task<IActionResult> SearchByUserId(string userId)
     {
-        var result = await _service.GetByParamAsync(c => c.ToAppUserId, id);
+        var result = await _service.GetByParamAsync(c => c.ToAppUserId, userId);
 
         return Ok(result);
     }
@@ -61,36 +61,6 @@ public class InviteToCommunityController(IService<InviteToCommunityDto, int> ser
         catch (DbUpdateException ex)
         {
             _logger.LogError(ex, "Failed to create invite to community.");
-
-            return StatusCode(500, "Internal server error.");
-        }
-    }
-
-    [HttpPut("{id:int:min(1)}")]
-    public async Task<IActionResult> Update(int id, [FromBody] InviteToCommunityModel inviteToCommunity)
-    {
-        try
-        {
-            if (!ModelState.IsValid)
-            {
-                _logger.LogWarning("Invalid InviteToCommunity update request received: {@InviteToCommunity}", inviteToCommunity);
-
-                return ValidationProblem(ModelState);
-            }
-
-            if (id != inviteToCommunity.Id)
-            {
-                return BadRequest("Route ID and body ID do not match.");
-            }
-
-            var map = _mapper.Map<InviteToCommunityDto>(inviteToCommunity);
-            await _service.UpdateAsync(map);
-
-            return NoContent();
-        }
-        catch (DbUpdateException ex)
-        {
-            _logger.LogError(ex, "Failed to update invite to community.");
 
             return StatusCode(500, "Internal server error.");
         }

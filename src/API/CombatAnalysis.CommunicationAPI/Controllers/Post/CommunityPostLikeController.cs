@@ -33,10 +33,10 @@ public class CommunityPostLikeController(IService<CommunityPostLikeDto, int> ser
         return Ok(result);
     }
 
-    [HttpGet("searchByPostId/{id:int:min(1)}")]
-    public async Task<IActionResult> SearchByPostId(int id)
+    [HttpGet("findByPostId/{communityPostId:int:min(1)}")]
+    public async Task<IActionResult> SearchByPostId(int communityPostId)
     {
-        var result = await _service.GetByParamAsync(c => c.CommunityPostId, id);
+        var result = await _service.GetByParamAsync(c => c.CommunityPostId, communityPostId);
 
         return Ok(result);
     }
@@ -61,36 +61,6 @@ public class CommunityPostLikeController(IService<CommunityPostLikeDto, int> ser
         catch (DbUpdateException ex)
         {
             _logger.LogError(ex, "Failed to create community post like.");
-
-            return StatusCode(500, "Internal server error.");
-        }
-    }
-
-    [HttpPut("{id:int:min(1)}")]
-    public async Task<IActionResult> Update(int id, [FromBody] CommunityPostLikeModel communityPostLike)
-    {
-        try
-        {
-            if (!ModelState.IsValid)
-            {
-                _logger.LogWarning("Invalid CommunityPostLike update request received: {@CommunityPostLike}", communityPostLike);
-
-                return ValidationProblem(ModelState);
-            }
-
-            if (id != communityPostLike.Id)
-            {
-                return BadRequest("Route ID and body ID do not match.");
-            }
-
-            var map = _mapper.Map<CommunityPostLikeDto>(communityPostLike);
-            await _service.UpdateAsync(map);
-
-            return NoContent();
-        }
-        catch (DbUpdateException ex)
-        {
-            _logger.LogError(ex, "Failed to update community post like.");
 
             return StatusCode(500, "Internal server error.");
         }

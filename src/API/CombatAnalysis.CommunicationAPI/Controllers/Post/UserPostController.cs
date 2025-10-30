@@ -25,10 +25,10 @@ public class UserPostController(IUserPostService service, IMapper mapper, ILogge
         return Ok(count);
     }
 
-    [HttpGet("countByListOfAppUsers/{appUserIds}")]
-    public async Task<IActionResult> CountByListOfAppUsers(string appUserIds)
+    [HttpGet("countByListOfUserId/{collectionUserId}")]
+    public async Task<IActionResult> CountByListOfAppUsers(string collectionUserId)
     {
-        var appUserIdList = appUserIds.Split(',');
+        var appUserIdList = collectionUserId.Split(',');
         var count = await _service.CountByListOfAppUserIdAsync(appUserIdList);
 
         return Ok(count);
@@ -75,27 +75,27 @@ public class UserPostController(IUserPostService service, IMapper mapper, ILogge
         return Ok(posts);
     }
 
-    [HttpGet("getByListOfUserIds")]
-    public async Task<IActionResult> GetByListOfUserIds(string appUserIds, int pageSize)
+    [HttpGet("getByListOfUserId")]
+    public async Task<IActionResult> GetByListOfUserId(string collectionUserId, int pageSize)
     {
-        var posts = await _service.GetByListOfAppUserIdAsync(appUserIds, pageSize);
+        var posts = await _service.GetByListOfAppUserIdAsync(collectionUserId, pageSize);
 
         return Ok(posts);
     }
 
-    [HttpGet("getMoreByListOfUserIds")]
-    public async Task<IActionResult> GetMoreByListOfUserIds(string appUserIds, int offset, int pageSize)
+    [HttpGet("getMoreByListOfUserId")]
+    public async Task<IActionResult> GetMoreByListOfUserId(string collectionUserId, int offset, int pageSize)
     {
-        var posts = await _service.GetMoreByListOfAppUserIdAsync(appUserIds, offset, pageSize);
+        var posts = await _service.GetMoreByListOfAppUserIdAsync(collectionUserId, offset, pageSize);
 
         return Ok(posts);
     }
 
-    [HttpGet("getNewByListOfUserIds")]
-    public async Task<IActionResult> GetNewByListOfUserIds(string appUserIds, string checkFrom)
+    [HttpGet("getNewByListOfUserId")]
+    public async Task<IActionResult> GetNewByListOfUserId(string collectionUserId, string checkFrom)
     {
         var checkFromData = DateTimeOffset.Parse(checkFrom);
-        var posts = await _service.GetNewByListOfAppUserIdAsync(appUserIds, checkFromData);
+        var posts = await _service.GetNewByListOfAppUserIdAsync(collectionUserId, checkFromData);
 
         return Ok(posts);
     }

@@ -34,16 +34,16 @@ public class CommunityUserController(IService<CommunityUserDto, string> service,
         return Ok(result);
     }
 
-    [HttpGet("searchByCommunityId/{communityId:int:min(1)}")]
-    public async Task<IActionResult> SearchByCommunityId(int communityId)
+    [HttpGet("findByCommunityId/{communityId:int:min(1)}")]
+    public async Task<IActionResult> FindByCommunityId(int communityId)
     {
         var result = await _service.GetByParamAsync(c => c.CommunityId, communityId);
 
         return Ok(result);
     }
 
-    [HttpGet("searchByUserId/{userId}")]
-    public async Task<IActionResult> SearchByUserId(string userId)
+    [HttpGet("findByUserId/{userId}")]
+    public async Task<IActionResult> FindByUserId(string userId)
     {
         var result = await _service.GetByParamAsync(c => c.AppUserId, userId);
 
