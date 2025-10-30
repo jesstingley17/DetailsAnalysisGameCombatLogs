@@ -8,32 +8,29 @@ using System.Linq.Expressions;
 
 namespace CombatAnalysis.CommunicationBL.Services.Community;
 
-internal class CommunityUserService : IService<CommunityUserDto, string>
+internal class CommunityUserService(IGenericRepository<CommunityUser, string> repository, IMapper mapper) : IService<CommunityUserDto, string>
 {
-    private readonly IGenericRepository<CommunityUser, string> _repository;
-    private readonly IMapper _mapper;
+    private readonly IGenericRepository<CommunityUser, string> _repository = repository;
+    private readonly IMapper _mapper = mapper;
 
-    public CommunityUserService(IGenericRepository<CommunityUser, string> repository, IMapper mapper)
+    public async Task<CommunityUserDto?> CreateAsync(CommunityUserDto item)
     {
-        _repository = repository;
-        _mapper = mapper;
-    }
-
-    public Task<CommunityUserDto> CreateAsync(CommunityUserDto item)
-    {
-        if (item == null)
+        if (string.IsNullOrEmpty(item.Username))
         {
-            throw new ArgumentNullException(nameof(CommunityUserDto), $"The {nameof(CommunityUserDto)} can't be null");
+            throw new ArgumentNullException(nameof(CommunityUserDto),
+                $"The property {nameof(CommunityUserDto.Username)} of the {nameof(CommunityUserDto)} object can't be null or empty");
         }
 
-        return CreateInternalAsync(item);
+        var map = _mapper.Map<CommunityUser>(item);
+        var createdItem = await _repository.CreateAsync(map);
+        var resultMap = _mapper.Map<CommunityUserDto>(createdItem);
+
+        return resultMap;
     }
 
-    public async Task<int> DeleteAsync(string id)
+    public async Task DeleteAsync(string id)
     {
-        var rowsAffected = await _repository.DeleteAsync(id);
-
-        return rowsAffected;
+        await _repository.DeleteAsync(id);
     }
 
     public async Task<IEnumerable<CommunityUserDto>> GetAllAsync()
@@ -44,7 +41,7 @@ internal class CommunityUserService : IService<CommunityUserDto, string>
         return result;
     }
 
-    public async Task<CommunityUserDto> GetByIdAsync(string id)
+    public async Task<CommunityUserDto?> GetByIdAsync(string id)
     {
         var result = await _repository.GetByIdAsync(id);
         var resultMap = _mapper.Map<CommunityUserDto>(result);
@@ -61,17 +58,7 @@ internal class CommunityUserService : IService<CommunityUserDto, string>
         return resultMap;
     }
 
-    public Task<int> UpdateAsync(CommunityUserDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(CommunityUserDto), $"The {nameof(CommunityUserDto)} can't be null");
-        }
-
-        return UpdateInternalAsync(item);
-    }
-
-    private async Task<CommunityUserDto> CreateInternalAsync(CommunityUserDto item)
+    public async Task UpdateAsync(CommunityUserDto item)
     {
         if (string.IsNullOrEmpty(item.Username))
         {
@@ -80,23 +67,6 @@ internal class CommunityUserService : IService<CommunityUserDto, string>
         }
 
         var map = _mapper.Map<CommunityUser>(item);
-        var createdItem = await _repository.CreateAsync(map);
-        var resultMap = _mapper.Map<CommunityUserDto>(createdItem);
-
-        return resultMap;
-    }
-
-    private async Task<int> UpdateInternalAsync(CommunityUserDto item)
-    {
-        if (string.IsNullOrEmpty(item.Username))
-        {
-            throw new ArgumentNullException(nameof(CommunityUserDto),
-                $"The property {nameof(CommunityUserDto.Username)} of the {nameof(CommunityUserDto)} object can't be null or empty");
-        }
-
-        var map = _mapper.Map<CommunityUser>(item);
-        var rowsAffected = await _repository.UpdateAsync(map);
-
-        return rowsAffected;
+        await _repository.UpdateAsync(map);
     }
 }

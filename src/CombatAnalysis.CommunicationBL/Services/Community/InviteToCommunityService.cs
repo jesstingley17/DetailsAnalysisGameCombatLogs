@@ -4,36 +4,26 @@ using CombatAnalysis.CommunicationBL.DTO.Community;
 using CombatAnalysis.CommunicationBL.Interfaces;
 using CombatAnalysis.CommunicationDAL.Entities.Community;
 using CombatAnalysis.CommunicationDAL.Interfaces;
-using Newtonsoft.Json.Linq;
 using System.Linq.Expressions;
 
 namespace CombatAnalysis.CommunicationBL.Services.Community;
-internal class InviteToCommunityService : IService<InviteToCommunityDto, int>
+internal class InviteToCommunityService(IGenericRepository<InviteToCommunity, int> repository, IMapper mapper) : IService<InviteToCommunityDto, int>
 {
-    private readonly IGenericRepository<InviteToCommunity, int> _repository;
-    private readonly IMapper _mapper;
+    private readonly IGenericRepository<InviteToCommunity, int> _repository = repository;
+    private readonly IMapper _mapper = mapper;
 
-    public InviteToCommunityService(IGenericRepository<InviteToCommunity, int> repository, IMapper mapper)
+    public async Task<InviteToCommunityDto?> CreateAsync(InviteToCommunityDto item)
     {
-        _repository = repository;
-        _mapper = mapper;
+        var map = _mapper.Map<InviteToCommunity>(item);
+        var createdItem = await _repository.CreateAsync(map);
+        var resultMap = _mapper.Map<InviteToCommunityDto>(createdItem);
+
+        return resultMap;
     }
 
-    public Task<InviteToCommunityDto> CreateAsync(InviteToCommunityDto item)
+    public async Task DeleteAsync(int id)
     {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(InviteToCommunityDto), $"The {nameof(InviteToCommunityDto)} can't be null");
-        }
-
-        return CreateInternalAsync(item);
-    }
-
-    public async Task<int> DeleteAsync(int id)
-    {
-        var rowsAffected = await _repository.DeleteAsync(id);
-
-        return rowsAffected;
+        await _repository.DeleteAsync(id);
     }
 
     public async Task<IEnumerable<InviteToCommunityDto>> GetAllAsync()
@@ -44,7 +34,7 @@ internal class InviteToCommunityService : IService<InviteToCommunityDto, int>
         return result;
     }
 
-    public async Task<InviteToCommunityDto> GetByIdAsync(int id)
+    public async Task<InviteToCommunityDto?> GetByIdAsync(int id)
     {
         var result = await _repository.GetByIdAsync(id);
         var resultMap = _mapper.Map<InviteToCommunityDto>(result);
@@ -61,30 +51,9 @@ internal class InviteToCommunityService : IService<InviteToCommunityDto, int>
         return resultMap;
     }
 
-    public Task<int> UpdateAsync(InviteToCommunityDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(InviteToCommunityDto), $"The {nameof(InviteToCommunityDto)} can't be null");
-        }
-
-        return UpdateInternalAsync(item);
-    }
-
-    private async Task<InviteToCommunityDto> CreateInternalAsync(InviteToCommunityDto item)
+    public async Task UpdateAsync(InviteToCommunityDto item)
     {
         var map = _mapper.Map<InviteToCommunity>(item);
-        var createdItem = await _repository.CreateAsync(map);
-        var resultMap = _mapper.Map<InviteToCommunityDto>(createdItem);
-
-        return resultMap;
-    }
-
-    private async Task<int> UpdateInternalAsync(InviteToCommunityDto item)
-    {
-        var map = _mapper.Map<InviteToCommunity>(item);
-        var rowsAffected = await _repository.UpdateAsync(map);
-
-        return rowsAffected;
+        await _repository.UpdateAsync(map);
     }
 }

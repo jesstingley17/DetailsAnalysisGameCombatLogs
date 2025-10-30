@@ -2,6 +2,7 @@
 using CombatAnalysis.CommunicationAPI.Models.Community;
 using CombatAnalysis.CommunicationBL.DTO.Community;
 using CombatAnalysis.CommunicationBL.Interfaces;
+using CombatAnalysis.CommunicationDAL.Entities.Community;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -34,11 +35,18 @@ public class CommunityController(ICommunityService service, IMapper mapper, ILog
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CommunityModel model)
+    public async Task<IActionResult> Create([FromBody] CommunityModel community)
     {
         try
         {
-            var map = _mapper.Map<CommunityDto>(model);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid Community create request received: {@Community}", community);
+
+                return ValidationProblem(ModelState);
+            }
+
+            var map = _mapper.Map<CommunityDto>(community);
             var result = await _service.CreateAsync(map);
 
             return Ok(result);

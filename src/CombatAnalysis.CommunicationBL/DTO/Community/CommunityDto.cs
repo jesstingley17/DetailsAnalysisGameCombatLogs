@@ -1,14 +1,11 @@
-﻿namespace CombatAnalysis.CommunicationBL.DTO.Community;
+﻿using CombatAnalysis.CommunicationBL.Enums;
 
-public class CommunityDto
-{
-    public int Id { get; set; }
+namespace CombatAnalysis.CommunicationBL.DTO.Community;
 
-    public string Name { get; set; }
-
-    public string Description { get; set; }
-
-    public int PolicyType { get; set; }
-
-    public string AppUserId { get; set; }
-}
+public record CommunityDto(
+    int Id,
+    string Name,
+    string Description,
+    CommunityPolicyType PolicyType,
+    string AppUserId
+    );

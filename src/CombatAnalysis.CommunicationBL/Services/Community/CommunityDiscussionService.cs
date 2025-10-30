@@ -8,70 +8,12 @@ using System.Linq.Expressions;
 
 namespace CombatAnalysis.CommunicationBL.Services.Community;
 
-internal class CommunityDiscussionService : IService<CommunityDiscussionDto, int>
+internal class CommunityDiscussionService(IGenericRepository<CommunityDiscussion, int> repository, IMapper mapper) : IService<CommunityDiscussionDto, int>
 {
-    private readonly IGenericRepository<CommunityDiscussion, int> _repository;
-    private readonly IMapper _mapper;
+    private readonly IGenericRepository<CommunityDiscussion, int> _repository = repository;
+    private readonly IMapper _mapper = mapper;
 
-    public CommunityDiscussionService(IGenericRepository<CommunityDiscussion, int> repository, IMapper mapper)
-    {
-        _repository = repository;
-        _mapper = mapper;
-    }
-
-    public Task<CommunityDiscussionDto> CreateAsync(CommunityDiscussionDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(CommunityDiscussionDto), $"The {nameof(CommunityDiscussionDto)} can't be null");
-        }
-
-        return CreateInternalAsync(item);
-    }
-
-    public async Task<int> DeleteAsync(int id)
-    {
-        var rowsAffected = await _repository.DeleteAsync(id);
-
-        return rowsAffected;
-    }
-
-    public async Task<IEnumerable<CommunityDiscussionDto>> GetAllAsync()
-    {
-        var allData = await _repository.GetAllAsync();
-        var result = _mapper.Map<IEnumerable<CommunityDiscussionDto>>(allData);
-
-        return result;
-    }
-
-    public async Task<CommunityDiscussionDto> GetByIdAsync(int id)
-    {
-        var result = await _repository.GetByIdAsync(id);
-        var resultMap = _mapper.Map<CommunityDiscussionDto>(result);
-
-        return resultMap;
-    }
-
-    public async Task<IEnumerable<CommunityDiscussionDto>> GetByParamAsync<TValue>(Expression<Func<CommunityDiscussionDto, TValue>> property, TValue value)
-    {
-        var map = _mapper.MapExpression<Expression<Func<CommunityDiscussion, TValue>>>(property);
-        var result = await _repository.GetByParamAsync(map, value);
-        var resultMap = _mapper.Map<IEnumerable<CommunityDiscussionDto>>(result);
-
-        return resultMap;
-    }
-
-    public Task<int> UpdateAsync(CommunityDiscussionDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(CommunityDiscussionDto), $"The {nameof(CommunityDiscussionDto)} can't be null");
-        }
-
-        return UpdateInternalAsync(item);
-    }
-
-    private async Task<CommunityDiscussionDto> CreateInternalAsync(CommunityDiscussionDto item)
+    public async Task<CommunityDiscussionDto?> CreateAsync(CommunityDiscussionDto item)
     {
         if (string.IsNullOrEmpty(item.Title))
         {
@@ -91,7 +33,37 @@ internal class CommunityDiscussionService : IService<CommunityDiscussionDto, int
         return resultMap;
     }
 
-    private async Task<int> UpdateInternalAsync(CommunityDiscussionDto item)
+    public async Task DeleteAsync(int id)
+    {
+        await _repository.DeleteAsync(id);
+    }
+
+    public async Task<IEnumerable<CommunityDiscussionDto>> GetAllAsync()
+    {
+        var allData = await _repository.GetAllAsync();
+        var result = _mapper.Map<IEnumerable<CommunityDiscussionDto>>(allData);
+
+        return result;
+    }
+
+    public async Task<CommunityDiscussionDto?> GetByIdAsync(int id)
+    {
+        var result = await _repository.GetByIdAsync(id);
+        var resultMap = _mapper.Map<CommunityDiscussionDto>(result);
+
+        return resultMap;
+    }
+
+    public async Task<IEnumerable<CommunityDiscussionDto>> GetByParamAsync<TValue>(Expression<Func<CommunityDiscussionDto, TValue>> property, TValue value)
+    {
+        var map = _mapper.MapExpression<Expression<Func<CommunityDiscussion, TValue>>>(property);
+        var result = await _repository.GetByParamAsync(map, value);
+        var resultMap = _mapper.Map<IEnumerable<CommunityDiscussionDto>>(result);
+
+        return resultMap;
+    }
+
+    public async Task UpdateAsync(CommunityDiscussionDto item)
     {
         if (string.IsNullOrEmpty(item.Title))
         {
@@ -105,8 +77,6 @@ internal class CommunityDiscussionService : IService<CommunityDiscussionDto, int
         }
 
         var map = _mapper.Map<CommunityDiscussion>(item);
-        var rowsAffected = await _repository.UpdateAsync(map);
-
-        return rowsAffected;
+        await _repository.UpdateAsync(map);
     }
 }

@@ -4,6 +4,7 @@ using CombatAnalysis.CommunicationBL.DTO.Community;
 using CombatAnalysis.CommunicationBL.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.CommunicationAPI.Controllers.Community;
 
@@ -41,58 +42,74 @@ public class InviteToCommunityController(IService<InviteToCommunityDto, int> ser
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(InviteToCommunityModel model)
+    public async Task<IActionResult> Create([FromBody] InviteToCommunityModel inviteToCommunity)
     {
         try
         {
-            var map = _mapper.Map<InviteToCommunityDto>(model);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid InviteToCommunity create request received: {@InviteToCommunity}", inviteToCommunity);
+
+                return ValidationProblem(ModelState);
+            }
+
+            var map = _mapper.Map<InviteToCommunityDto>(inviteToCommunity);
             var result = await _service.CreateAsync(map);
 
             return Ok(result);
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, $"Create Invite to Community failed: ${ex.Message}", model);
+            _logger.LogError(ex, "Failed to create invite to community.");
 
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Create Invite to Community failed: ${ex.Message}", model);
-
-            return BadRequest();
+            return StatusCode(500, "Internal server error.");
         }
     }
 
-    [HttpPut]
-    public async Task<IActionResult> Update(InviteToCommunityModel model)
+    [HttpPut("{id:int:min(1)}")]
+    public async Task<IActionResult> Update(int id, [FromBody] InviteToCommunityModel inviteToCommunity)
     {
         try
         {
-            var map = _mapper.Map<InviteToCommunityDto>(model);
-            var result = await _service.UpdateAsync(map);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid InviteToCommunity update request received: {@InviteToCommunity}", inviteToCommunity);
 
-            return Ok(result);
+                return ValidationProblem(ModelState);
+            }
+
+            if (id != inviteToCommunity.Id)
+            {
+                return BadRequest("Route ID and body ID do not match.");
+            }
+
+            var map = _mapper.Map<InviteToCommunityDto>(inviteToCommunity);
+            await _service.UpdateAsync(map);
+
+            return NoContent();
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, $"Update Invite to Community failed: ${ex.Message}", model);
+            _logger.LogError(ex, "Failed to update invite to community.");
 
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Update Invite to Community failed: ${ex.Message}", model);
-
-            return BadRequest();
+            return StatusCode(500, "Internal server error.");
         }
     }
 
     [HttpDelete("{id:int:min(1)}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var rowsAffected = await _service.DeleteAsync(id);
+        try
+        {
+            await _service.DeleteAsync(id);
 
-        return Ok(rowsAffected);
+            return NoContent();
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
+
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
+        }
     }
 }

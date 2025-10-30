@@ -1,12 +1,10 @@
-﻿namespace CombatAnalysis.CommunicationAPI.Models.Community;
+﻿using System.ComponentModel.DataAnnotations;
 
-public class CommunityUserModel
-{
-    public string Id { get; set; }
+namespace CombatAnalysis.CommunicationAPI.Models.Community;
 
-    public string Username { get; set; }
-
-    public string AppUserId { get; set; }
-
-    public int CommunityId { get; set; }
-}
+public record CommunityUserModel(
+    [Required] string Id,
+    [Required] string Username,
+    [Required] string AppUserId,
+    [Range(0, int.MaxValue)] int CommunityId
+    );

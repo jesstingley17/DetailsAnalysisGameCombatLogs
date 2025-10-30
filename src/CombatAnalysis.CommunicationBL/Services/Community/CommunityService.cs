@@ -8,48 +8,44 @@ using System.Linq.Expressions;
 
 namespace CombatAnalysis.CommunicationBL.Services.Community;
 
-internal class CommunityService : ICommunityService
+internal class CommunityService(ICommunityRepository communityRepository, ISqlContextService sqlContextService,
+    IService<InviteToCommunityDto, int> inviteToCommunityService, IService<CommunityUserDto, string> communityUserService,
+    ICommunityPostService postService, IService<CommunityPostCommentDto, int> postCommentService,
+    IService<CommunityPostLikeDto, int> postLikeService, IService<CommunityPostDislikeDto, int> postDislikeService,
+    IService<CommunityDiscussionDto, int> communityDiscussionService, IMapper mapper) : ICommunityService
 {
-    private readonly ICommunityRepository _repository;
-    private readonly IService<CommunityUserDto, string> _communityUserService;
-    private readonly IService<InviteToCommunityDto, int> _inviteToCommunityService;
-    private readonly ICommunityPostService _postService;
-    private readonly IService<CommunityPostCommentDto, int> _postCommentService;
-    private readonly IService<CommunityPostLikeDto, int> _postLikeService;
-    private readonly IService<CommunityPostDislikeDto, int> _postDislikeService;
-    private readonly IService<CommunityDiscussionDto, int> _communityDiscussionService;
-    private readonly ISqlContextService _sqlContextService;
-    private readonly IMapper _mapper;
+    private readonly ICommunityRepository _repository = communityRepository;
+    private readonly IService<CommunityUserDto, string> _communityUserService = communityUserService;
+    private readonly IService<InviteToCommunityDto, int> _inviteToCommunityService = inviteToCommunityService;
+    private readonly ICommunityPostService _postService = postService;
+    private readonly IService<CommunityPostCommentDto, int> _postCommentService = postCommentService;
+    private readonly IService<CommunityPostLikeDto, int> _postLikeService = postLikeService;
+    private readonly IService<CommunityPostDislikeDto, int> _postDislikeService = postDislikeService;
+    private readonly IService<CommunityDiscussionDto, int> _communityDiscussionService = communityDiscussionService;
+    private readonly ISqlContextService _sqlContextService = sqlContextService;
+    private readonly IMapper _mapper = mapper;
 
-    public CommunityService(ICommunityRepository communityRepository, ISqlContextService sqlContextService,
-        IService<InviteToCommunityDto, int> inviteToCommunityService, IService<CommunityUserDto, string> communityUserService,
-        ICommunityPostService postService, IService<CommunityPostCommentDto, int> postCommentService,
-        IService<CommunityPostLikeDto, int> postLikeService, IService<CommunityPostDislikeDto, int> postDislikeService,
-        IService<CommunityDiscussionDto, int> communityDiscussionService, IMapper mapper)
+    public async Task<CommunityDto?> CreateAsync(CommunityDto item)
     {
-        _repository = communityRepository;
-        _sqlContextService = sqlContextService;
-        _inviteToCommunityService = inviteToCommunityService;
-        _communityUserService = communityUserService;
-        _postService = postService;
-        _postCommentService = postCommentService;
-        _postLikeService = postLikeService;
-        _postDislikeService = postDislikeService;
-        _communityDiscussionService = communityDiscussionService;
-        _mapper = mapper;
-    }
-
-    public Task<CommunityDto> CreateAsync(CommunityDto item)
-    {
-        if (item == null)
+        if (string.IsNullOrEmpty(item.Name))
         {
-            throw new ArgumentNullException(nameof(CommunityDto), $"The {nameof(CommunityDto)} can't be null");
+            throw new ArgumentNullException(nameof(CommunityDto),
+                $"The property {nameof(CommunityDto.Name)} of the {nameof(CommunityDto)} object can't be null or empty");
+        }
+        if (string.IsNullOrEmpty(item.Description))
+        {
+            throw new ArgumentNullException(nameof(CommunityDto),
+                $"The property {nameof(CommunityDto.Description)} of the {nameof(CommunityDto)} object can't be null or empty");
         }
 
-        return CreateInternalAsync(item);
+        var map = _mapper.Map<CommunicationDAL.Entities.Community.Community>(item);
+        var createdItem = await _repository.CreateAsync(map);
+        var resultMap = _mapper.Map<CommunityDto>(createdItem);
+
+        return resultMap;
     }
 
-    public async Task<int> DeleteAsync(int id)
+    public async Task DeleteAsync(int id)
     {
         using var transaction = await _sqlContextService.BeginTransactionAsync(true);
         try
@@ -61,23 +57,17 @@ internal class CommunityService : ICommunityService
 
             transaction.CreateSavepoint("BeforeDeleteCommunity");
 
-            var rowsAffected = await _repository.DeleteAsync(id);
+            await _repository.DeleteAsync(id);
 
             await transaction.CommitAsync();
-
-            return rowsAffected;
         }
         catch (ArgumentException)
         {
             await transaction.RollbackToSavepointAsync("BeforeDeleteCommunity");
-
-            return 0;
         }
         catch (Exception)
         {
             await transaction.RollbackToSavepointAsync("BeforeDeleteCommunity");
-
-            return 0;
         }
     }
 
@@ -89,7 +79,7 @@ internal class CommunityService : ICommunityService
         return result;
     }
 
-    public async Task<CommunityDto> GetByIdAsync(int id)
+    public async Task<CommunityDto?> GetByIdAsync(int id)
     {
         var result = await _repository.GetByIdAsync(id);
         var resultMap = _mapper.Map<CommunityDto>(result);
@@ -106,14 +96,21 @@ internal class CommunityService : ICommunityService
         return resultMap;
     }
 
-    public Task<int> UpdateAsync(CommunityDto item)
+    public async Task UpdateAsync(CommunityDto item)
     {
-        if (item == null)
+        if (string.IsNullOrEmpty(item.Name))
         {
-            throw new ArgumentNullException(nameof(CommunityDto), $"The {nameof(CommunityDto)} can't be null");
+            throw new ArgumentNullException(nameof(CommunityDto),
+                $"The property {nameof(CommunityDto.Name)} of the {nameof(CommunityDto)} object can't be null or empty");
+        }
+        if (string.IsNullOrEmpty(item.Description))
+        {
+            throw new ArgumentNullException(nameof(CommunityDto),
+                $"The property {nameof(CommunityDto.Description)} of the {nameof(CommunityDto)} object can't be null or empty");
         }
 
-        return UpdateInternalAsync(item);
+        var map = _mapper.Map<CommunicationDAL.Entities.Community.Community>(item);
+        await _repository.UpdateAsync(map);
     }
 
     public async Task<IEnumerable<CommunityDto>> GetAllWithPaginationAsync(int pageSize)
@@ -139,45 +136,6 @@ internal class CommunityService : ICommunityService
         return result;
     }
 
-    private async Task<CommunityDto> CreateInternalAsync(CommunityDto item)
-    {
-        if (string.IsNullOrEmpty(item.Name))
-        {
-            throw new ArgumentNullException(nameof(CommunityDto),
-                $"The property {nameof(CommunityDto.Name)} of the {nameof(CommunityDto)} object can't be null or empty");
-        }
-        if (string.IsNullOrEmpty(item.Description))
-        {
-            throw new ArgumentNullException(nameof(CommunityDto),
-                $"The property {nameof(CommunityDto.Description)} of the {nameof(CommunityDto)} object can't be null or empty");
-        }
-
-        var map = _mapper.Map<CommunicationDAL.Entities.Community.Community>(item);
-        var createdItem = await _repository.CreateAsync(map);
-        var resultMap = _mapper.Map<CommunityDto>(createdItem);
-
-        return resultMap;
-    }
-
-    private async Task<int> UpdateInternalAsync(CommunityDto item)
-    {
-        if (string.IsNullOrEmpty(item.Name))
-        {
-            throw new ArgumentNullException(nameof(CommunityDto),
-                $"The property {nameof(CommunityDto.Name)} of the {nameof(CommunityDto)} object can't be null or empty");
-        }
-        if (string.IsNullOrEmpty(item.Description))
-        {
-            throw new ArgumentNullException(nameof(CommunityDto),
-                $"The property {nameof(CommunityDto.Description)} of the {nameof(CommunityDto)} object can't be null or empty");
-        }
-
-        var map = _mapper.Map<CommunicationDAL.Entities.Community.Community>(item);
-        var rowsAffected = await _repository.UpdateAsync(map);
-
-        return rowsAffected;
-    }
-
     private async Task DeleteCommunityPostsAsync(int communityId)
     {
         var posts = await _postService.GetByParamAsync(c => c.CommunityId, communityId);
@@ -187,11 +145,7 @@ internal class CommunityService : ICommunityService
             await DeleteCommunityPostLikesAsync(item.Id);
             await DeleteCommunityPostDislikesAsync(item.Id);
 
-            var rowsAffected = await _postService.DeleteAsync(item.Id);
-            if (rowsAffected == 0)
-            {
-                throw new ArgumentException($"{nameof(CommunityPostDto)} didn't removed");
-            }
+            await _postService.DeleteAsync(item.Id);
         }
     }
 
@@ -200,11 +154,7 @@ internal class CommunityService : ICommunityService
         var postComments = await _postCommentService.GetByParamAsync(c => c.CommunityPostId, communityPostId);
         foreach (var item in postComments)
         {
-            var rowsAffected = await _postService.DeleteAsync(item.Id);
-            if (rowsAffected == 0)
-            {
-                throw new ArgumentException($"{nameof(CommunityPostCommentDto)} didn't removed");
-            }
+            await _postService.DeleteAsync(item.Id);
         }
     }
 
@@ -213,11 +163,7 @@ internal class CommunityService : ICommunityService
         var postLikes = await _postLikeService.GetByParamAsync(c => c.CommunityPostId, communityPostId);
         foreach (var item in postLikes)
         {
-            var rowsAffected = await _postService.DeleteAsync(item.Id);
-            if (rowsAffected == 0)
-            {
-                throw new ArgumentException($"{nameof(CommunityPostLikeDto)} didn't removed");
-            }
+            await _postService.DeleteAsync(item.Id);
         }
     }
 
@@ -226,11 +172,7 @@ internal class CommunityService : ICommunityService
         var postDislikes = await _postDislikeService.GetByParamAsync(c => c.CommunityPostId, communityPostId);
         foreach (var item in postDislikes)
         {
-            var rowsAffected = await _postService.DeleteAsync(item.Id);
-            if (rowsAffected == 0)
-            {
-                throw new ArgumentException($"{nameof(CommunityPostDislikeDto)} didn't removed");
-            }
+            await _postService.DeleteAsync(item.Id);
         }
     }
 
@@ -239,11 +181,7 @@ internal class CommunityService : ICommunityService
         var communityDiscussions = await _communityDiscussionService.GetByParamAsync(c => c.CommunityId, communityId);
         foreach (var item in communityDiscussions)
         {
-            var rowsAffected = await _communityDiscussionService.DeleteAsync(item.Id);
-            if (rowsAffected == 0)
-            {
-                throw new ArgumentException($"{nameof(CommunityDiscussionDto)} didn't removed");
-            }
+            await _communityDiscussionService.DeleteAsync(item.Id);
         }
     }
 
@@ -252,11 +190,7 @@ internal class CommunityService : ICommunityService
         var invitesToCommunity = await _inviteToCommunityService.GetByParamAsync(c => c.CommunityId, communityId);
         foreach (var item in invitesToCommunity)
         {
-            var rowsAffected = await _inviteToCommunityService.DeleteAsync(item.Id);
-            if (rowsAffected == 0)
-            {
-                throw new ArgumentException($"{nameof(InviteToCommunityDto)} didn't removed");
-            }
+            await _inviteToCommunityService.DeleteAsync(item.Id);
         }
     }
 
@@ -265,11 +199,7 @@ internal class CommunityService : ICommunityService
         var communityUsers = await _communityUserService.GetByParamAsync(c => c.CommunityId, communityId);
         foreach (var item in communityUsers)
         {
-            var rowsAffected = await _communityUserService.DeleteAsync(item.Id);
-            if (rowsAffected == 0)
-            {
-                throw new ArgumentException($"{nameof(CommunityUserDto)} didn't removed");
-            }
+            await _communityUserService.DeleteAsync(item.Id);
         }
     }
 }

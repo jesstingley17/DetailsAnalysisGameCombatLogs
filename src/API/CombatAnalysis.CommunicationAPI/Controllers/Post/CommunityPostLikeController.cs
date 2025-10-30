@@ -4,6 +4,7 @@ using CombatAnalysis.CommunicationBL.DTO.Post;
 using CombatAnalysis.CommunicationBL.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.CommunicationAPI.Controllers.Post;
 
@@ -41,58 +42,74 @@ public class CommunityPostLikeController(IService<CommunityPostLikeDto, int> ser
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(CommunityPostLikeModel model)
+    public async Task<IActionResult> Create([FromBody] CommunityPostLikeModel communityPostLike)
     {
         try
         {
-            var map = _mapper.Map<CommunityPostLikeDto>(model);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid CommunityPostLike cretae request received: {@CommunityPostLike}", communityPostLike);
+
+                return ValidationProblem(ModelState);
+            }
+
+            var map = _mapper.Map<CommunityPostLikeDto>(communityPostLike);
             var result = await _service.CreateAsync(map);
 
             return Ok(result);
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, ex.Message);
+            _logger.LogError(ex, "Failed to create community post like.");
 
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Create Post Dislike failed: ${ex.Message}", model);
-
-            return BadRequest();
+            return StatusCode(500, "Internal server error.");
         }
     }
 
-    [HttpPut]
-    public async Task<IActionResult> Update(CommunityPostLikeModel model)
+    [HttpPut("{id:int:min(1)}")]
+    public async Task<IActionResult> Update(int id, [FromBody] CommunityPostLikeModel communityPostLike)
     {
         try
         {
-            var map = _mapper.Map<CommunityPostLikeDto>(model);
-            var result = await _service.UpdateAsync(map);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid CommunityPostLike update request received: {@CommunityPostLike}", communityPostLike);
 
-            return Ok(result);
+                return ValidationProblem(ModelState);
+            }
+
+            if (id != communityPostLike.Id)
+            {
+                return BadRequest("Route ID and body ID do not match.");
+            }
+
+            var map = _mapper.Map<CommunityPostLikeDto>(communityPostLike);
+            await _service.UpdateAsync(map);
+
+            return NoContent();
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, $"Update Post Like failed: ${ex.Message}", model);
+            _logger.LogError(ex, "Failed to update community post like.");
 
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Update Post Like failed: ${ex.Message}", model);
-
-            return BadRequest();
+            return StatusCode(500, "Internal server error.");
         }
     }
 
     [HttpDelete("{id:int:min(1)}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var rowsAffected = await _service.DeleteAsync(id);
+        try
+        {
+            await _service.DeleteAsync(id);
 
-        return Ok(rowsAffected);
+            return NoContent();
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
+
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
+        }
     }
 }

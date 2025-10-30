@@ -2,8 +2,10 @@
 using CombatAnalysis.CommunicationAPI.Models.Community;
 using CombatAnalysis.CommunicationBL.DTO.Community;
 using CombatAnalysis.CommunicationBL.Interfaces;
+using CombatAnalysis.CommunicationDAL.Entities.Community;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.CommunicationAPI.Controllers.Community;
 
@@ -41,58 +43,74 @@ public class CommunityDiscussionCommentController(IService<CommunityDiscussionCo
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(CommunityDiscussionCommentModel model)
+    public async Task<IActionResult> Create([FromBody] CommunityDiscussionCommentModel communityDiscussionComment)
     {
         try
         {
-            var map = _mapper.Map<CommunityDiscussionCommentDto>(model);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid CommunityDiscussionComment create request received: {@CommunityDiscussionComment}", communityDiscussionComment);
+
+                return ValidationProblem(ModelState);
+            }
+
+            var map = _mapper.Map<CommunityDiscussionCommentDto>(communityDiscussionComment);
             var result = await _service.CreateAsync(map);
 
             return Ok(result);
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, $"Create Community Discussion Comment failed: ${ex.Message}", model);
+            _logger.LogError(ex, "Failed to create community discussion comment.");
 
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Create Community Discussion Comment failed: ${ex.Message}", model);
-
-            return BadRequest();
+            return StatusCode(500, "Internal server error.");
         }
     }
 
-    [HttpPut]
-    public async Task<IActionResult> Update(CommunityDiscussionCommentModel model)
+    [HttpPut("{id:int:min(1)}")]
+    public async Task<IActionResult> Update(int id, [FromBody] CommunityDiscussionCommentModel communityDiscussionComment)
     {
         try
         {
-            var map = _mapper.Map<CommunityDiscussionCommentDto>(model);
-            var result = await _service.UpdateAsync(map);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid CommunityDiscussionComment update request received: {@CommunityDiscussionComment}", communityDiscussionComment);
 
-            return Ok(result);
+                return ValidationProblem(ModelState);
+            }
+
+            if (id != communityDiscussionComment.Id)
+            {
+                return BadRequest("Route ID and body ID do not match.");
+            }
+
+            var map = _mapper.Map<CommunityDiscussionCommentDto>(communityDiscussionComment);
+            await _service.UpdateAsync(map);
+
+            return NoContent();
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, $"Update Community Discussion Comment failed: ${ex.Message}", model);
+            _logger.LogError(ex, "Failed to update community discussion comment.");
 
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Update Community Discussion Comment failed: ${ex.Message}", model);
-
-            return BadRequest();
+            return StatusCode(500, "Internal server error.");
         }
     }
 
     [HttpDelete("{id:int:min(1)}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var rowsAffected = await _service.DeleteAsync(id);
+        try
+        {
+            await _service.DeleteAsync(id);
 
-        return Ok(rowsAffected);
+            return NoContent();
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
+
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
+        }
     }
 }

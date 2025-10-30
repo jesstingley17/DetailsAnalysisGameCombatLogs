@@ -1,41 +1,36 @@
 ﻿using AutoMapper;
 using AutoMapper.Extensions.ExpressionMapping;
-using CombatAnalysis.CommunicationBL.DTO.Community;
 using CombatAnalysis.CommunicationBL.DTO.Post;
 using CombatAnalysis.CommunicationBL.Interfaces;
-using CombatAnalysis.CommunicationDAL.Entities.Community;
 using CombatAnalysis.CommunicationDAL.Entities.Post;
 using CombatAnalysis.CommunicationDAL.Interfaces;
 using System.Linq.Expressions;
 
 namespace CombatAnalysis.CommunicationBL.Services.Post;
 
-internal class CommunityPostCommentService : IService<CommunityPostCommentDto, int>
+internal class CommunityPostCommentService(IGenericRepository<CommunityPostComment, int> repository, IMapper mapper) : IService<CommunityPostCommentDto, int>
 {
-    private readonly IGenericRepository<CommunityPostComment, int> _repository;
-    private readonly IMapper _mapper;
+    private readonly IGenericRepository<CommunityPostComment, int> _repository = repository;
+    private readonly IMapper _mapper = mapper;
 
-    public CommunityPostCommentService(IGenericRepository<CommunityPostComment, int> repository, IMapper mapper)
+    public async Task<CommunityPostCommentDto?> CreateAsync(CommunityPostCommentDto item)
     {
-        _repository = repository;
-        _mapper = mapper;
-    }
-
-    public Task<CommunityPostCommentDto> CreateAsync(CommunityPostCommentDto item)
-    {
-        if (item == null)
+        if (string.IsNullOrEmpty(item.Content))
         {
-            throw new ArgumentNullException(nameof(CommunityPostCommentDto), $"The {nameof(CommunityPostCommentDto)} can't be null");
+            throw new ArgumentNullException(nameof(CommunityPostCommentDto),
+                $"The property {nameof(CommunityPostCommentDto.Content)} of the {nameof(CommunityPostCommentDto)} object can't be null or empty");
         }
 
-        return CreateInternalAsync(item);
+        var map = _mapper.Map<CommunityPostComment>(item);
+        var createdItem = await _repository.CreateAsync(map);
+        var resultMap = _mapper.Map<CommunityPostCommentDto>(createdItem);
+
+        return resultMap;
     }
 
-    public async Task<int> DeleteAsync(int id)
+    public async Task DeleteAsync(int id)
     {
-        var rowsAffected = await _repository.DeleteAsync(id);
-
-        return rowsAffected;
+        await _repository.DeleteAsync(id);
     }
 
     public async Task<IEnumerable<CommunityPostCommentDto>> GetAllAsync()
@@ -46,7 +41,7 @@ internal class CommunityPostCommentService : IService<CommunityPostCommentDto, i
         return result;
     }
 
-    public async Task<CommunityPostCommentDto> GetByIdAsync(int id)
+    public async Task<CommunityPostCommentDto?> GetByIdAsync(int id)
     {
         var result = await _repository.GetByIdAsync(id);
         var resultMap = _mapper.Map<CommunityPostCommentDto>(result);
@@ -63,18 +58,7 @@ internal class CommunityPostCommentService : IService<CommunityPostCommentDto, i
         return resultMap;
     }
 
-    public Task<int> UpdateAsync(CommunityPostCommentDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(CommunityPostCommentDto), $"The {nameof(CommunityPostCommentDto)} can't be null");
-        }
-
-        return UpdateInternalAsync(item);
-    }
-
-
-    private async Task<CommunityPostCommentDto> CreateInternalAsync(CommunityPostCommentDto item)
+    public async Task UpdateAsync(CommunityPostCommentDto item)
     {
         if (string.IsNullOrEmpty(item.Content))
         {
@@ -83,23 +67,6 @@ internal class CommunityPostCommentService : IService<CommunityPostCommentDto, i
         }
 
         var map = _mapper.Map<CommunityPostComment>(item);
-        var createdItem = await _repository.CreateAsync(map);
-        var resultMap = _mapper.Map<CommunityPostCommentDto>(createdItem);
-
-        return resultMap;
-    }
-
-    private async Task<int> UpdateInternalAsync(CommunityPostCommentDto item)
-    {
-        if (string.IsNullOrEmpty(item.Content))
-        {
-            throw new ArgumentNullException(nameof(CommunityPostCommentDto),
-                $"The property {nameof(CommunityPostCommentDto.Content)} of the {nameof(CommunityPostCommentDto)} object can't be null or empty");
-        }
-
-        var map = _mapper.Map<CommunityPostComment>(item);
-        var rowsAffected = await _repository.UpdateAsync(map);
-
-        return rowsAffected;
+        await _repository.UpdateAsync(map);
     }
 }

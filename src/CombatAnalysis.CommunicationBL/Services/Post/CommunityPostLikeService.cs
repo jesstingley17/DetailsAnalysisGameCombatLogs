@@ -8,32 +8,23 @@ using System.Linq.Expressions;
 
 namespace CombatAnalysis.CommunicationBL.Services.Post;
 
-internal class CommunityPostLikeService : IService<CommunityPostLikeDto, int>
+internal class CommunityPostLikeService(IGenericRepository<CommunityPostLike, int> repository, IMapper mapper) : IService<CommunityPostLikeDto, int>
 {
-    private readonly IGenericRepository<CommunityPostLike, int> _repository;
-    private readonly IMapper _mapper;
+    private readonly IGenericRepository<CommunityPostLike, int> _repository = repository;
+    private readonly IMapper _mapper = mapper;
 
-    public CommunityPostLikeService(IGenericRepository<CommunityPostLike, int> repository, IMapper mapper)
+    public async Task<CommunityPostLikeDto?> CreateAsync(CommunityPostLikeDto item)
     {
-        _repository = repository;
-        _mapper = mapper;
+        var map = _mapper.Map<CommunityPostLike>(item);
+        var createdItem = await _repository.CreateAsync(map);
+        var resultMap = _mapper.Map<CommunityPostLikeDto>(createdItem);
+
+        return resultMap;
     }
 
-    public Task<CommunityPostLikeDto> CreateAsync(CommunityPostLikeDto item)
+    public async Task DeleteAsync(int id)
     {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(CommunityPostLikeDto), $"The {nameof(CommunityPostLikeDto)} can't be null");
-        }
-
-        return CreateInternalAsync(item);
-    }
-
-    public async Task<int> DeleteAsync(int id)
-    {
-        var rowsAffected = await _repository.DeleteAsync(id);
-
-        return rowsAffected;
+        await _repository.DeleteAsync(id);
     }
 
     public async Task<IEnumerable<CommunityPostLikeDto>> GetAllAsync()
@@ -44,7 +35,7 @@ internal class CommunityPostLikeService : IService<CommunityPostLikeDto, int>
         return result;
     }
 
-    public async Task<CommunityPostLikeDto> GetByIdAsync(int id)
+    public async Task<CommunityPostLikeDto?> GetByIdAsync(int id)
     {
         var result = await _repository.GetByIdAsync(id);
         var resultMap = _mapper.Map<CommunityPostLikeDto>(result);
@@ -61,31 +52,9 @@ internal class CommunityPostLikeService : IService<CommunityPostLikeDto, int>
         return resultMap;
     }
 
-    public Task<int> UpdateAsync(CommunityPostLikeDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(CommunityPostLikeDto), $"The {nameof(CommunityPostLikeDto)} can't be null");
-        }
-
-        return UpdateInternalAsync(item);
-    }
-
-
-    private async Task<CommunityPostLikeDto> CreateInternalAsync(CommunityPostLikeDto item)
+    public async Task UpdateAsync(CommunityPostLikeDto item)
     {
         var map = _mapper.Map<CommunityPostLike>(item);
-        var createdItem = await _repository.CreateAsync(map);
-        var resultMap = _mapper.Map<CommunityPostLikeDto>(createdItem);
-
-        return resultMap;
-    }
-
-    private async Task<int> UpdateInternalAsync(CommunityPostLikeDto item)
-    {
-        var map = _mapper.Map<CommunityPostLike>(item);
-        var rowsAffected = await _repository.UpdateAsync(map);
-
-        return rowsAffected;
+        await _repository.UpdateAsync(map);
     }
 }

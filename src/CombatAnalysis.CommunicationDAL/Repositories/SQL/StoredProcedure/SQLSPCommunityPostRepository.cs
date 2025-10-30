@@ -21,7 +21,7 @@ internal class SQLSPCommunityPostRepository(CommunicationSQLContext context) : S
     {
         var procName = $"GetMore{nameof(CommunityPost)}ByCommunityId";
         var data = await _context.Set<CommunityPost>()
-                            .FromSql($"GetMore{nameof(CommunityPost)}ByCommunityId @communityId={communityId}, @offset={offset}, @pageSize={pageSize}")
+                            .FromSql($"{procName} @communityId={communityId}, @offset={offset}, @pageSize={pageSize}")
                             .ToListAsync();
 
         return data;

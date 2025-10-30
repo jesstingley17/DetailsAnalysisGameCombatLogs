@@ -8,38 +8,39 @@ using System.Linq.Expressions;
 
 namespace CombatAnalysis.CommunicationBL.Services.Post;
 
-internal class CommunityPostService : ICommunityPostService
+internal class CommunityPostService(ICommunityPostRepository repository, IMapper mapper,
+    IService<CommunityPostLikeDto, int> postLikeService, IService<CommunityPostDislikeDto, int> postDislikeService,
+    IService<CommunityPostCommentDto, int> postCommentService, ISqlContextService sqlContextService) : ICommunityPostService
 {
-    private readonly ICommunityPostRepository _repository;
-    private readonly IService<CommunityPostLikeDto, int> _postLikeService;
-    private readonly IService<CommunityPostDislikeDto, int> _postDislikeService;
-    private readonly IService<CommunityPostCommentDto, int> _postCommentService;
-    private readonly ISqlContextService _sqlContextService;
-    private readonly IMapper _mapper;
+    private readonly ICommunityPostRepository _repository = repository;
+    private readonly IService<CommunityPostLikeDto, int> _postLikeService = postLikeService;
+    private readonly IService<CommunityPostDislikeDto, int> _postDislikeService = postDislikeService;
+    private readonly IService<CommunityPostCommentDto, int> _postCommentService = postCommentService;
+    private readonly ISqlContextService _sqlContextService = sqlContextService;
+    private readonly IMapper _mapper = mapper;
 
-    public CommunityPostService(ICommunityPostRepository repository, IMapper mapper,
-        IService<CommunityPostLikeDto, int> postLikeService, IService<CommunityPostDislikeDto, int> postDislikeService,
-        IService<CommunityPostCommentDto, int> postCommentService, ISqlContextService sqlContextService)
+    public async Task<CommunityPostDto?> CreateAsync(CommunityPostDto item)
     {
-        _repository = repository;
-        _mapper = mapper;
-        _postLikeService = postLikeService;
-        _postDislikeService = postDislikeService;
-        _postCommentService = postCommentService;
-        _sqlContextService = sqlContextService;
-    }
-
-    public Task<CommunityPostDto> CreateAsync(CommunityPostDto item)
-    {
-        if (item == null)
+        if (string.IsNullOrEmpty(item.Content))
         {
-            throw new ArgumentNullException(nameof(CommunityPostDto), $"The {nameof(CommunityPostDto)} can't be null");
+            throw new ArgumentNullException(nameof(CommunityPostDto),
+                $"The property {nameof(CommunityPostDto.Content)} of the {nameof(CommunityPostDto)} object can't be null or empty");
         }
 
-        return CreateInternalAsync(item);
+        if (string.IsNullOrEmpty(item.Owner))
+        {
+            throw new ArgumentNullException(nameof(CommunityPostDto),
+                $"The property {nameof(CommunityPostDto.Owner)} of the {nameof(CommunityPostDto)} object can't be null or empty");
+        }
+
+        var map = _mapper.Map<CommunityPost>(item);
+        var createdItem = await _repository.CreateAsync(map);
+        var resultMap = _mapper.Map<CommunityPostDto>(createdItem);
+
+        return resultMap;
     }
 
-    public async Task<int> DeleteAsync(int id)
+    public async Task DeleteAsync(int id)
     {
         var transaction = await _sqlContextService.UseTransactionAsync();
         try
@@ -49,23 +50,17 @@ internal class CommunityPostService : ICommunityPostService
             await DeletePostComentsAsync(id);
             transaction.CreateSavepoint("BeforeDeletePost");
 
-            var rowsAffected = await _repository.DeleteAsync(id);
+            await _repository.DeleteAsync(id);
 
             await transaction.CommitAsync();
-
-            return rowsAffected;
         }
         catch (ArgumentException)
         {
             await transaction.RollbackToSavepointAsync("BeforeDeletePost");
-
-            return 0;
         }
         catch (Exception)
         {
             await transaction.RollbackToSavepointAsync("BeforeDeletePost");
-
-            return 0;
         }
     }
 
@@ -77,7 +72,7 @@ internal class CommunityPostService : ICommunityPostService
         return result;
     }
 
-    public async Task<CommunityPostDto> GetByIdAsync(int id)
+    public async Task<CommunityPostDto?> GetByIdAsync(int id)
     {
         var result = await _repository.GetByIdAsync(id);
         var resultMap = _mapper.Map<CommunityPostDto>(result);
@@ -156,38 +151,7 @@ internal class CommunityPostService : ICommunityPostService
         return count;
     }
 
-    public Task<int> UpdateAsync(CommunityPostDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(CommunityPostDto), $"The {nameof(CommunityPostDto)} can't be null");
-        }
-
-        return UpdateInternalAsync(item);
-    }
-
-    private async Task<CommunityPostDto> CreateInternalAsync(CommunityPostDto item)
-    {
-        if (string.IsNullOrEmpty(item.Content))
-        {
-            throw new ArgumentNullException(nameof(CommunityPostDto),
-                $"The property {nameof(CommunityPostDto.Content)} of the {nameof(CommunityPostDto)} object can't be null or empty");
-        }
-
-        if (string.IsNullOrEmpty(item.Owner))
-        {
-            throw new ArgumentNullException(nameof(CommunityPostDto),
-                $"The property {nameof(CommunityPostDto.Owner)} of the {nameof(CommunityPostDto)} object can't be null or empty");
-        }
-
-        var map = _mapper.Map<CommunityPost>(item);
-        var createdItem = await _repository.CreateAsync(map);
-        var resultMap = _mapper.Map<CommunityPostDto>(createdItem);
-
-        return resultMap;
-    }
-
-    private async Task<int> UpdateInternalAsync(CommunityPostDto item)
+    public async Task UpdateAsync(CommunityPostDto item)
     {
         if (string.IsNullOrEmpty(item.Content))
         {
@@ -196,9 +160,7 @@ internal class CommunityPostService : ICommunityPostService
         }
 
         var map = _mapper.Map<CommunityPost>(item);
-        var rowsAffected = await _repository.UpdateAsync(map);
-
-        return rowsAffected;
+        await _repository.UpdateAsync(map);
     }
 
     private async Task DeletePostLikesAsync(int postId)
@@ -206,11 +168,7 @@ internal class CommunityPostService : ICommunityPostService
         var postLikes = await _postLikeService.GetByParamAsync(c => c.CommunityPostId, postId);
         foreach (var item in postLikes)
         {
-            var rowsAffected = await _postLikeService.DeleteAsync(item.Id);
-            if (rowsAffected == 0)
-            {
-                throw new ArgumentException($"{nameof(CommunityPostLike)} didn't removed");
-            }
+            await _postLikeService.DeleteAsync(item.Id);
         }
     }
 
@@ -219,11 +177,7 @@ internal class CommunityPostService : ICommunityPostService
         var postDislikes = await _postDislikeService.GetByParamAsync(c => c.CommunityPostId, postId);
         foreach (var item in postDislikes)
         {
-            var rowsAffected = await _postDislikeService.DeleteAsync(item.Id);
-            if (rowsAffected == 0)
-            {
-                throw new ArgumentException($"{nameof(CommunityPostDislike)} didn't removed");
-            }
+            await _postDislikeService.DeleteAsync(item.Id);
         }
     }
 
@@ -232,11 +186,7 @@ internal class CommunityPostService : ICommunityPostService
         var postComments = await _postCommentService.GetByParamAsync(c => c.CommunityPostId, postId);
         foreach (var item in postComments)
         {
-            var rowsAffected = await _postCommentService.DeleteAsync(item.Id);
-            if (rowsAffected == 0)
-            {
-                throw new ArgumentException($"{nameof(CommunityPostComment)} didn't removed");
-            }
+            await _postCommentService.DeleteAsync(item.Id);
         }
     }
 }

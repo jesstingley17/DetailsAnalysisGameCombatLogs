@@ -4,6 +4,7 @@ using CombatAnalysis.CommunicationBL.DTO.Post;
 using CombatAnalysis.CommunicationBL.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.CommunicationAPI.Controllers.Post;
 
@@ -24,11 +25,11 @@ public class CommunityPostController(ICommunityPostService service, IMapper mapp
         return Ok(count);
     }
 
-    [HttpGet("countByListOfCommunities/{communityIds}")]
-    public async Task<IActionResult> CountByListOfAppUsers(string communityIds)
+    [HttpGet("countByListOfCommunityId/{collectionCommunityId}")]
+    public async Task<IActionResult> CountByListOfAppUsers(string collectionCommunityId)
     {
-        var communityIdList = communityIds.Split(',').Select(int.Parse).ToArray();
-        var count = await _service.CountByListOfCommunityIdAsync(communityIdList);
+        var collectionCommunityIdAsArray = collectionCommunityId.Split(',').Select(int.Parse).ToArray();
+        var count = await _service.CountByListOfCommunityIdAsync(collectionCommunityIdAsArray);
 
         return Ok(count);
     }
@@ -74,84 +75,100 @@ public class CommunityPostController(ICommunityPostService service, IMapper mapp
         return Ok(posts);
     }
 
-    [HttpGet("getByListOfCommunityIds")]
-    public async Task<IActionResult> GetByListOfCommunityIds(string communityIds, int pageSize)
+    [HttpGet("getByListOfCommunityId")]
+    public async Task<IActionResult> GetByListOfCommunityId(string collectionCommunityId, int pageSize)
     {
-        var posts = await _service.GetByListOfCommunityIdAsync(communityIds, pageSize);
+        var posts = await _service.GetByListOfCommunityIdAsync(collectionCommunityId, pageSize);
 
         return Ok(posts);
     }
 
-    [HttpGet("getMoreByListOfCommunityIds")]
-    public async Task<IActionResult> GetMoreByListOfCommunityIds(string communityIds, int offset, int pageSize)
+    [HttpGet("getMoreByListOfCommunityId")]
+    public async Task<IActionResult> GetMoreByListOfCommunityId(string collectionCommunityId, int offset, int pageSize)
     {
-        var posts = await _service.GetMoreByListOfCommunityIdAsync(communityIds, offset, pageSize);
+        var posts = await _service.GetMoreByListOfCommunityIdAsync(collectionCommunityId, offset, pageSize);
 
         return Ok(posts);
     }
 
-    [HttpGet("getNewByListOfCommunityIds")]
-    public async Task<IActionResult> GetNewByListOfCommunityIds(string communityIds, string checkFrom)
+    [HttpGet("getNewByListOfCommunityId")]
+    public async Task<IActionResult> GetNewByListOfCommunityId(string collectionCommunityId, string checkFrom)
     {
         var checkFromData = DateTimeOffset.Parse(checkFrom);
-        var posts = await _service.GetNewByListOfCommunityIdAsync(communityIds, checkFromData);
+        var posts = await _service.GetNewByListOfCommunityIdAsync(collectionCommunityId, checkFromData);
 
         return Ok(posts);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(CommunityPostModel model)
+    public async Task<IActionResult> Create([FromBody] CommunityPostModel communityPost)
     {
         try
         {
-            var map = _mapper.Map<CommunityPostDto>(model);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid CommunityPost cretae request received: {@CommunityPost}", communityPost);
+
+                return ValidationProblem(ModelState);
+            }
+
+            var map = _mapper.Map<CommunityPostDto>(communityPost);
             var result = await _service.CreateAsync(map);
 
             return Ok(result);
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, $"Create Post failed: ${ex.Message}", model);
+            _logger.LogError(ex, "Failed to create community post.");
 
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Create Post failed: ${ex.Message}", model);
-
-            return BadRequest();
+            return StatusCode(500, "Internal server error.");
         }
     }
 
-    [HttpPut]
-    public async Task<IActionResult> Update(CommunityPostModel model)
+    [HttpPut("{id:int:min(1)}")]
+    public async Task<IActionResult> Update(int id, [FromBody] CommunityPostModel communityPost)
     {
         try
         {
-            var map = _mapper.Map<CommunityPostDto>(model);
-            var result = await _service.UpdateAsync(map);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid CommunityPost update request received: {@CommunityPost}", communityPost);
 
-            return Ok(result);
+                return ValidationProblem(ModelState);
+            }
+
+            if (id != communityPost.Id)
+            {
+                return BadRequest("Route ID and body ID do not match.");
+            }
+
+            var map = _mapper.Map<CommunityPostDto>(communityPost);
+            await _service.UpdateAsync(map);
+
+            return NoContent();
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, $"Update Post failed: ${ex.Message}", model);
+            _logger.LogError(ex, "Failed to update community post.");
 
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Update Post failed: ${ex.Message}", model);
-
-            return BadRequest();
+            return StatusCode(500, "Internal server error.");
         }
     }
 
     [HttpDelete("{id:int:min(1)}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var rowsAffected = await _service.DeleteAsync(id);
+        try
+        {
+            await _service.DeleteAsync(id);
 
-        return Ok(rowsAffected);
+            return NoContent();
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
+
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
+        }
     }
 }

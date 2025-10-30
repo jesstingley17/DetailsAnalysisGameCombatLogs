@@ -4,6 +4,7 @@ using CombatAnalysis.CommunicationBL.DTO.Post;
 using CombatAnalysis.CommunicationBL.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.CommunicationAPI.Controllers.Post;
 
@@ -100,58 +101,74 @@ public class UserPostController(IUserPostService service, IMapper mapper, ILogge
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(UserPostModel model)
+    public async Task<IActionResult> Create([FromBody] UserPostModel userPost)
     {
         try
         {
-            var map = _mapper.Map<UserPostDto>(model);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid UserPost cretae request received: {@UserPost}", userPost);
+
+                return ValidationProblem(ModelState);
+            }
+
+            var map = _mapper.Map<UserPostDto>(userPost);
             var result = await _service.CreateAsync(map);
 
             return Ok(result);
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, $"Create Post failed: ${ex.Message}", model);
+            _logger.LogError(ex, "Failed to create user post.");
 
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Create Post failed: ${ex.Message}", model);
-
-            return BadRequest();
+            return StatusCode(500, "Internal server error.");
         }
     }
 
-    [HttpPut]
-    public async Task<IActionResult> Update(UserPostModel model)
+    [HttpPut("{id:int:min(1)}")]
+    public async Task<IActionResult> Update(int id, [FromBody] UserPostModel userPost)
     {
         try
         {
-            var map = _mapper.Map<UserPostDto>(model);
-            var result = await _service.UpdateAsync(map);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid UserPost update request received: {@UserPost}", userPost);
 
-            return Ok(result);
+                return ValidationProblem(ModelState);
+            }
+
+            if (id != userPost.Id)
+            {
+                return BadRequest("Route ID and body ID do not match.");
+            }
+
+            var map = _mapper.Map<UserPostDto>(userPost);
+            await _service.UpdateAsync(map);
+
+            return NoContent();
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, $"Update Post failed: ${ex.Message}", model);
+            _logger.LogError(ex, "Failed to update user post.");
 
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Update Post failed: ${ex.Message}", model);
-
-            return BadRequest();
+            return StatusCode(500, "Internal server error.");
         }
     }
 
     [HttpDelete("{id:int:min(1)}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var rowsAffected = await _service.DeleteAsync(id);
+        try
+        {
+            await _service.DeleteAsync(id);
 
-        return Ok(rowsAffected);
+            return NoContent();
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
+
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
+        }
     }
 }

@@ -5,15 +5,10 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace CombatAnalysis.CommunicationBL.Services;
 
-internal class SqlContextService : ISqlContextService
+internal class SqlContextService(CommunicationSQLContext context) : ISqlContextService
 {
-    private readonly CommunicationSQLContext _context;
-    private IDbContextTransaction _transaction;
-
-    public SqlContextService(CommunicationSQLContext context)
-    {
-        _context = context;
-    }
+    private readonly CommunicationSQLContext _context = context;
+    private IDbContextTransaction? _transaction;
 
     public async Task<IDbContextTransaction> BeginTransactionAsync(bool createSharedTransaction)
     {
@@ -34,7 +29,7 @@ internal class SqlContextService : ISqlContextService
         }
         else
         {
-            return await _context.Database.UseTransactionAsync(_transaction.GetDbTransaction());
+            return await _context.Database.UseTransactionAsync(_transaction?.GetDbTransaction());
         }
     }
 }

@@ -2,8 +2,10 @@
 using CombatAnalysis.CommunicationAPI.Models.Post;
 using CombatAnalysis.CommunicationBL.DTO.Post;
 using CombatAnalysis.CommunicationBL.Interfaces;
+using CombatAnalysis.CommunicationDAL.Entities.Post;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.CommunicationAPI.Controllers.Post;
 
@@ -41,58 +43,74 @@ public class CommunityPostCommentController(IService<CommunityPostCommentDto, in
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(CommunityPostCommentModel model)
+    public async Task<IActionResult> Create([FromBody] CommunityPostCommentModel communityPostComment)
     {
         try
         {
-            var map = _mapper.Map<CommunityPostCommentDto>(model);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid CommunityPostComment cretae request received: {@CommunityPostComment}", communityPostComment);
+
+                return ValidationProblem(ModelState);
+            }
+
+            var map = _mapper.Map<CommunityPostCommentDto>(communityPostComment);
             var result = await _service.CreateAsync(map);
 
             return Ok(result);
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, $"Create Post Comment failed: ${ex.Message}", model);
+            _logger.LogError(ex, "Failed to create community post comment.");
 
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Create Post Comment failed: ${ex.Message}", model);
-
-            return BadRequest();
+            return StatusCode(500, "Internal server error.");
         }
     }
 
-    [HttpPut]
-    public async Task<IActionResult> Update(CommunityPostCommentModel model)
+    [HttpPut("{id:int:min(1)}")]
+    public async Task<IActionResult> Update(int id, [FromBody] CommunityPostCommentModel communityPostComment)
     {
         try
         {
-            var map = _mapper.Map<CommunityPostCommentDto>(model);
-            var result = await _service.UpdateAsync(map);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid CommunityPostComment update request received: {@CommunityPostComment}", communityPostComment);
 
-            return Ok(result);
+                return ValidationProblem(ModelState);
+            }
+
+            if (id != communityPostComment.Id)
+            {
+                return BadRequest("Route ID and body ID do not match.");
+            }
+
+            var map = _mapper.Map<CommunityPostCommentDto>(communityPostComment);
+            await _service.UpdateAsync(map);
+
+            return NoContent();
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, $"Update Post Comment failed: ${ex.Message}", model);
+            _logger.LogError(ex, "Failed to update community post comment.");
 
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Update Post Comment failed: ${ex.Message}", model);
-
-            return BadRequest();
+            return StatusCode(500, "Internal server error.");
         }
     }
 
     [HttpDelete("{id:int:min(1)}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var rowsAffected = await _service.DeleteAsync(id);
+        try
+        {
+            await _service.DeleteAsync(id);
 
-        return Ok(rowsAffected);
+            return NoContent();
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
+
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
+        }
     }
 }

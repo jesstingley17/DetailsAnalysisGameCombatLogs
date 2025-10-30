@@ -8,32 +8,29 @@ using System.Linq.Expressions;
 
 namespace CombatAnalysis.CommunicationBL.Services.Post;
 
-internal class UserPostCommentService : IService<UserPostCommentDto, int>
+internal class UserPostCommentService(IGenericRepository<UserPostComment, int> repository, IMapper mapper) : IService<UserPostCommentDto, int>
 {
-    private readonly IGenericRepository<UserPostComment, int> _repository;
-    private readonly IMapper _mapper;
+    private readonly IGenericRepository<UserPostComment, int> _repository = repository;
+    private readonly IMapper _mapper = mapper;
 
-    public UserPostCommentService(IGenericRepository<UserPostComment, int> repository, IMapper mapper)
+    public async Task<UserPostCommentDto?> CreateAsync(UserPostCommentDto item)
     {
-        _repository = repository;
-        _mapper = mapper;
-    }
-
-    public Task<UserPostCommentDto> CreateAsync(UserPostCommentDto item)
-    {
-        if (item == null)
+        if (string.IsNullOrEmpty(item.Content))
         {
-            throw new ArgumentNullException(nameof(UserPostCommentDto), $"The {nameof(UserPostCommentDto)} can't be null");
+            throw new ArgumentNullException(nameof(UserPostCommentDto),
+                $"The property {nameof(UserPostCommentDto.Content)} of the {nameof(UserPostCommentDto)} object can't be null or empty");
         }
 
-        return CreateInternalAsync(item);
+        var map = _mapper.Map<UserPostComment>(item);
+        var createdItem = await _repository.CreateAsync(map);
+        var resultMap = _mapper.Map<UserPostCommentDto>(createdItem);
+
+        return resultMap;
     }
 
-    public async Task<int> DeleteAsync(int id)
+    public async Task DeleteAsync(int id)
     {
-        var rowsAffected = await _repository.DeleteAsync(id);
-
-        return rowsAffected;
+        await _repository.DeleteAsync(id);
     }
 
     public async Task<IEnumerable<UserPostCommentDto>> GetAllAsync()
@@ -44,7 +41,7 @@ internal class UserPostCommentService : IService<UserPostCommentDto, int>
         return result;
     }
 
-    public async Task<UserPostCommentDto> GetByIdAsync(int id)
+    public async Task<UserPostCommentDto?> GetByIdAsync(int id)
     {
         var result = await _repository.GetByIdAsync(id);
         var resultMap = _mapper.Map<UserPostCommentDto>(result);
@@ -61,18 +58,7 @@ internal class UserPostCommentService : IService<UserPostCommentDto, int>
         return resultMap;
     }
 
-    public Task<int> UpdateAsync(UserPostCommentDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(UserPostCommentDto), $"The {nameof(UserPostCommentDto)} can't be null");
-        }
-
-        return UpdateInternalAsync(item);
-    }
-
-
-    private async Task<UserPostCommentDto> CreateInternalAsync(UserPostCommentDto item)
+    public async Task UpdateAsync(UserPostCommentDto item)
     {
         if (string.IsNullOrEmpty(item.Content))
         {
@@ -81,23 +67,6 @@ internal class UserPostCommentService : IService<UserPostCommentDto, int>
         }
 
         var map = _mapper.Map<UserPostComment>(item);
-        var createdItem = await _repository.CreateAsync(map);
-        var resultMap = _mapper.Map<UserPostCommentDto>(createdItem);
-
-        return resultMap;
-    }
-
-    private async Task<int> UpdateInternalAsync(UserPostCommentDto item)
-    {
-        if (string.IsNullOrEmpty(item.Content))
-        {
-            throw new ArgumentNullException(nameof(UserPostCommentDto),
-                $"The property {nameof(UserPostCommentDto.Content)} of the {nameof(UserPostCommentDto)} object can't be null or empty");
-        }
-
-        var map = _mapper.Map<UserPostComment>(item);
-        var rowsAffected = await _repository.UpdateAsync(map);
-
-        return rowsAffected;
+        await _repository.UpdateAsync(map);
     }
 }
