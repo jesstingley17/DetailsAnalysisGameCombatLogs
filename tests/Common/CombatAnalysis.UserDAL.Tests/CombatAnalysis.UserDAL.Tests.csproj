@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Common\CombatAnalysis.UserDAL\CombatAnalysis.UserDAL.csproj" />
+    <ProjectReference Include="..\..\..\src\Common\CombatAnalysis.UserDAL\CombatAnalysis.UserDAL.csproj" />
   </ItemGroup>
 
   <ItemGroup>
