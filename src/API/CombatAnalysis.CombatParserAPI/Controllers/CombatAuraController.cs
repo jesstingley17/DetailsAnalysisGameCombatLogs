@@ -3,6 +3,7 @@ using CombatAnalysis.BL.DTO;
 using CombatAnalysis.BL.Interfaces.General;
 using CombatAnalysis.CombatParserAPI.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.CombatParserAPI.Controllers;
 
@@ -19,58 +20,41 @@ public class CombatAuraController(IQueryService<CombatAuraDto> queryService, IMu
     [HttpGet("getByCombatId/{combatId:int:min(1)}")]
     public async Task<IActionResult> GetByCombatId(int combatId)
     {
-        try
-        {
-            var combatAuras = await _queryService.GetByParamAsync(nameof(CombatAuraModel.CombatId), combatId);
+        var combatAuras = await _queryService.GetByParamAsync(nameof(CombatAuraModel.CombatId), combatId);
 
-            return Ok(combatAuras);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
-
-            return BadRequest();
-        }
+        return Ok(combatAuras);
     }
 
     [HttpGet("{id:int:min(1)}")]
     public async Task<IActionResult> GetById(int id)
     {
-        try
-        {
-            var combatAura = await _queryService.GetByIdAsync(id);
+        var combatAura = await _queryService.GetByIdAsync(id);
 
-            return Ok(combatAura);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
-
-            return BadRequest();
-        }
+        return Ok(combatAura);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(CombatAuraModel model)
+    public async Task<IActionResult> Create([FromBody] CombatAuraModel combatAura)
     {
         try
         {
-            var map = _mapper.Map<CombatAuraDto>(model);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid CombatAura create received: {@CombatAura}", combatAura);
+
+                return ValidationProblem(ModelState);
+            }
+
+            var map = _mapper.Map<CombatAuraDto>(combatAura);
             var createdItem = await _mutationService.CreateAsync(map);
 
             return Ok(createdItem);
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, ex.Message);
+            _logger.LogError(ex, "Failed to create combat aura.");
 
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
-
-            return BadRequest();
+            return StatusCode(500, "Internal server error.");
         }
     }
 
@@ -79,15 +63,15 @@ public class CombatAuraController(IQueryService<CombatAuraDto> queryService, IMu
     {
         try
         {
-            var rowsAffected = await _mutationService.DeleteAsync(id);
+            await _mutationService.DeleteAsync(id);
 
-            return Ok(rowsAffected);
+            return NoContent();
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateConcurrencyException ex)
         {
-            _logger.LogError(ex, ex.Message);
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
 
-            return BadRequest();
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
         }
     }
 }

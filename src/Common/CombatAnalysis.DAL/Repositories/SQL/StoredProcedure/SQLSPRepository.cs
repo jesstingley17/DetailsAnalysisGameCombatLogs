@@ -1,8 +1,8 @@
 ﻿using CombatAnalysis.DAL.Data;
 using CombatAnalysis.DAL.Interfaces.Entities;
 using CombatAnalysis.DAL.Interfaces.Generic;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using System.Text;
 
 namespace CombatAnalysis.DAL.Repositories.SQL.StoredProcedure;
 
@@ -13,25 +13,30 @@ internal class SQLSPRepository<TModel>(CombatParserSQLContext context) : IGeneri
 
     public async Task<TModel> CreateAsync(TModel item)
     {
-        var properties = item.GetType().GetProperties();
-        var procedureParamNames = new StringBuilder();
+        var type = item.GetType();
+        var properties = type.GetProperties();
 
-        for (var i = 1; i < properties.Length; i++)
+        var procName = $"InsertInto{type.Name}";
+        var parameters = new List<SqlParameter>();
+
+        foreach (var prop in properties)
         {
-            if (properties[i].CanWrite)
-            {
-                procedureParamNames.Append($"@{properties[i].Name}={properties[i].GetValue(item)},");
-            }
+            if (!prop.CanWrite) continue;
+
+            var value = prop.GetValue(item);
+
+            parameters.Add(new SqlParameter($"@{prop.Name}", value ?? DBNull.Value));
         }
 
-        procedureParamNames.Remove(procedureParamNames.Length - 1, 1);
+        parameters.RemoveAt(0);
 
-        var procName = $"InsertInto{item.GetType().Name}";
-        var data = await Task.Run(() => _context.Set<TModel>().FromSql($"{procName} {procedureParamNames}")
-                                            .AsEnumerable()
-                                            .FirstOrDefault());
+        var paramPlaceholders = string.Join(",", parameters.Select(p => p.ParameterName));
 
-        return data;
+        var data = await _context.Set<TModel>()
+                        .FromSqlRaw($"{procName} {paramPlaceholders}", [.. parameters])
+                        .ToListAsync();
+
+        return data.FirstOrDefault();
     }
 
     public async Task<int> DeleteAsync(int id)
@@ -75,21 +80,25 @@ internal class SQLSPRepository<TModel>(CombatParserSQLContext context) : IGeneri
 
     public async Task<int> UpdateAsync(TModel item)
     {
-        var properties = item.GetType().GetProperties();
-        var procedureParamNames = new StringBuilder();
-        for (var i = 0; i < properties.Length; i++)
+        var type = item.GetType();
+        var properties = type.GetProperties();
+
+        var procName = $"Update{type.Name}";
+        var parameters = new List<SqlParameter>();
+
+        foreach (var prop in properties)
         {
-            if (properties[i].CanWrite)
-            {
-                procedureParamNames.Append($"@{properties[i].Name}={properties[i].GetValue(item)},");
-            }
+            if (!prop.CanWrite) continue;
+
+            var value = prop.GetValue(item);
+
+            parameters.Add(new SqlParameter($"@{prop.Name}", value ?? DBNull.Value));
         }
 
-        procedureParamNames.Remove(procedureParamNames.Length - 1, 1);
+        var paramPlaceholders = string.Join(",", parameters.Select(p => p.ParameterName));
 
-        var procName = $"Update{item.GetType().Name}";
         var rowsAffected = await _context.Database
-                            .ExecuteSqlAsync($"{procName} {procedureParamNames}");
+                            .ExecuteSqlRawAsync($"{procName} {paramPlaceholders}", [.. parameters]);
 
         return rowsAffected;
     }

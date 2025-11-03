@@ -3,6 +3,7 @@ using CombatAnalysis.BL.DTO;
 using CombatAnalysis.BL.Interfaces.General;
 using CombatAnalysis.CombatParserAPI.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.CombatParserAPI.Controllers;
 
@@ -19,82 +20,71 @@ public class CombatLogController(IQueryService<CombatLogDto> queryCombatLogServi
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        try
-        {
-            var combatLogs = await _queryCombatLogService.GetAllAsync();
+        var combatLogs = await _queryCombatLogService.GetAllAsync();
 
-            return Ok(combatLogs);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
-
-            return BadRequest();
-        }
+        return Ok(combatLogs);
     }
 
     [HttpGet("{id:int:min(1)}")]
     public async Task<IActionResult> GetById(int id)
     {
-        try
-        {
-            var combatLog = await _queryCombatLogService.GetByIdAsync(id);
+        var combatLog = await _queryCombatLogService.GetByIdAsync(id);
 
-            return Ok(combatLog);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
-
-            return BadRequest();
-        }
+        return Ok(combatLog);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(CombatLogModel model)
+    public async Task<IActionResult> Create([FromBody] CombatLogModel combatLog)
     {
         try
         {
-            var map = _mapper.Map<CombatLogDto>(model);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid CombatLog create received: {@CombatLog}", combatLog);
+
+                return ValidationProblem(ModelState);
+            }
+
+            var map = _mapper.Map<CombatLogDto>(combatLog);
             var createdItem = await _mutationCombatLogService.CreateAsync(map);
 
             return Ok(createdItem);
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, ex.Message);
+            _logger.LogError(ex, "Failed to create combat log.");
 
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
-
-            return BadRequest();
+            return StatusCode(500, "Internal server error.");
         }
     }
 
-    [HttpPut]
-    public async Task<IActionResult> Update(CombatLogModel value)
+    [HttpPut("{id:int:min(1)}")]
+    public async Task<IActionResult> Update(int id, [FromBody] CombatLogModel combatLog)
     {
         try
         {
-            var map = _mapper.Map<CombatLogDto>(value);
-            var rowsAffected = await _mutationCombatLogService.UpdateAsync(map);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid CombatLog create received: {@CombatLog}", combatLog);
 
-            return Ok(rowsAffected);
+                return ValidationProblem(ModelState);
+            }
+
+            if (id != combatLog.Id)
+            {
+                return BadRequest("Route ID and body ID do not match.");
+            }
+
+            var map = _mapper.Map<CombatLogDto>(combatLog);
+            await _mutationCombatLogService.UpdateAsync(map);
+
+            return NoContent();
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateConcurrencyException ex)
         {
-            _logger.LogError(ex, ex.Message);
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
 
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
-
-            return BadRequest();
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
         }
     }
 
@@ -103,21 +93,15 @@ public class CombatLogController(IQueryService<CombatLogDto> queryCombatLogServi
     {
         try
         {
-            var rowsAffected = await _mutationCombatLogService.DeleteAsync(id);
+            await _mutationCombatLogService.DeleteAsync(id);
 
-            return Ok(rowsAffected);
+            return NoContent();
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateConcurrencyException ex)
         {
-            _logger.LogError(ex, ex.Message);
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
 
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
-
-            return BadRequest();
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
         }
     }
 }

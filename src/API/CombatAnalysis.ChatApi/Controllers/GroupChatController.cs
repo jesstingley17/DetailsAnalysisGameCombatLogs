@@ -173,16 +173,23 @@ public class GroupChatController(IGroupChatService chatService, IMapper mapper, 
     }
 
     [HttpPut("updateRules/{chatId:int:min(1)}")]
-    public async Task<IActionResult> UpdateRules(int chatId, [FromBody] GroupChatRulesModel chatRules)
+    public async Task<IActionResult> UpdateRules(int chatId, [FromBody] GroupChatRulesModel groupChatRules)
     {
         try
         {
-            if (chatId != chatRules.GroupChatId)
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid GroupChatRulesModel update received: {@GroupChatRules}", groupChatRules);
+
+                return ValidationProblem(ModelState);
+            }
+
+            if (chatId != groupChatRules.GroupChatId)
             {
                 return BadRequest("Route ID and body ID do not match.");
             }
 
-            var chatRulesDto = _mapper.Map<GroupChatRulesDto>(chatRules);
+            var chatRulesDto = _mapper.Map<GroupChatRulesDto>(groupChatRules);
             await _chatService.UpdateRulesAsync(chatRulesDto);
 
             return NoContent();

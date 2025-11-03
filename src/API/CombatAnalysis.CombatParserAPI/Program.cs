@@ -6,6 +6,7 @@ using CombatAnalysis.CombatParserAPI.Enums;
 using CombatAnalysis.CombatParserAPI.Helpers;
 using CombatAnalysis.CombatParserAPI.Interfaces;
 using CombatAnalysis.CombatParserAPI.Mapping;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.OpenApi.Models;
 using Serilog;
@@ -13,16 +14,7 @@ using Serilog.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var envName = builder.Environment.EnvironmentName;
-
-if (string.Equals(envName, "Development", StringComparison.OrdinalIgnoreCase))
-{
-    CreateEnvironmentHelper.UseAppsettings(builder.Configuration);
-}
-else
-{
-    CreateEnvironmentHelper.UseEnvVariables();
-}
+builder.Services.Configure<Players>(builder.Configuration.GetSection("Players"));
 
 var databasePropsOptions = new DatabaseProps();
 builder.Configuration.Bind("Database", databasePropsOptions);
@@ -90,5 +82,26 @@ app.UseStaticFiles();
 app.UseHttpsRedirection();
 
 app.MapControllers();
+
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.StatusCode = 500;
+        context.Response.ContentType = "application/json";
+
+        var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
+        var ex = exceptionHandlerPathFeature?.Error;
+
+        Log.Error(ex, "Unhandled exception occurred");
+
+        var result = new
+        {
+            message = "An unexpected error occurred. Please try again later."
+        };
+
+        await context.Response.WriteAsJsonAsync(result);
+    });
+});
 
 app.Run();

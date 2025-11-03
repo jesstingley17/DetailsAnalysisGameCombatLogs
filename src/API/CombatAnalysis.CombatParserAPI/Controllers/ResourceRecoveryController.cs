@@ -5,190 +5,109 @@ using CombatAnalysis.BL.Interfaces.Filters;
 using CombatAnalysis.BL.Interfaces.General;
 using CombatAnalysis.CombatParserAPI.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.CombatParserAPI.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-public class ResourceRecoveryController : ControllerBase
+public class ResourceRecoveryController(IMutationService<ResourceRecoveryDto> mutationService, IPlayerInfoService<ResourceRecoveryDto> playerInfoService,
+    ICountService<ResourceRecoveryDto> countService, IGeneralFilterService<ResourceRecoveryDto> filterService,
+    IMapper mapper, ILogger<ResourceRecoveryController> logger) : ControllerBase
 {
-    private readonly IMutationService<ResourceRecoveryDto> _mutationService;
-    private readonly IPlayerInfoService<ResourceRecoveryDto> _playerInfoService;
-    private readonly ICountService<ResourceRecoveryDto> _countService;
-    private readonly IGeneralFilterService<ResourceRecoveryDto> _filterService;
-    private readonly IMapper _mapper;
-    private readonly ILogger<ResourceRecoveryController> _logger;
-
-    public ResourceRecoveryController(IMutationService<ResourceRecoveryDto> mutationService, IPlayerInfoService<ResourceRecoveryDto> playerInfoService,
-        ICountService<ResourceRecoveryDto> countService, IGeneralFilterService<ResourceRecoveryDto> filterService,
-        IMapper mapper, ILogger<ResourceRecoveryController> logger)
-    {
-        _mutationService = mutationService;
-        _playerInfoService = playerInfoService;
-        _countService = countService;
-        _filterService = filterService;
-        _mapper = mapper;
-        _logger = logger;
-    }
+    private readonly IMutationService<ResourceRecoveryDto> _mutationService = mutationService;
+    private readonly IPlayerInfoService<ResourceRecoveryDto> _playerInfoService = playerInfoService;
+    private readonly ICountService<ResourceRecoveryDto> _countService = countService;
+    private readonly IGeneralFilterService<ResourceRecoveryDto> _filterService = filterService;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<ResourceRecoveryController> _logger = logger;
 
     [HttpGet("getByCombatPlayerId")]
     public async Task<IActionResult> GetByCombatPlayerId(int combatPlayerId, int page, int pageSize)
     {
-        try
-        {
-            var resourcesRecoveries = await _playerInfoService.GetByCombatPlayerIdAsync(combatPlayerId, page, pageSize);
+        var resourcesRecoveries = await _playerInfoService.GetByCombatPlayerIdAsync(combatPlayerId, page, pageSize);
 
-            return Ok(resourcesRecoveries);
-
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error get resource recovery by combat player id: {Message}", ex.Message);
-
-            return BadRequest();
-        }
+        return Ok(resourcesRecoveries);
     }
     
     [HttpGet("count/{combatPlayerId}")]
     public async Task<IActionResult> Count(int combatPlayerId)
     {
-        try
-        {
-            var count = await _countService.CountByCombatPlayerIdAsync(combatPlayerId);
+        var count = await _countService.CountByCombatPlayerIdAsync(combatPlayerId);
 
-            return Ok(count);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error get resource recovery count: {Message}", ex.Message);
-
-            return BadRequest();
-        }
+        return Ok(count);
     }
 
     [HttpGet("getUniqueCreators/{combatPlayerId}")]
     public async Task<IActionResult> GetUniqueCreators(int combatPlayerId)
     {
-        try
-        {
-            var uniqueTargets = await _filterService.GetCreatorNamesByCombatPlayerIdAsync(combatPlayerId);
+        var uniqueTargets = await _filterService.GetCreatorNamesByCombatPlayerIdAsync(combatPlayerId);
 
-            return Ok(uniqueTargets);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error get unique resource recovery creators: {Message}", ex.Message);
-
-            return BadRequest();
-        }
+        return Ok(uniqueTargets);
     }
 
     [HttpGet("getByCreator")]
     public async Task<IActionResult> GetByCreator(int combatPlayerId, string creator, int page, int pageSize)
     {
-        try
-        {
-            var resourceRecoveries = await _filterService.GetCreatorByCombatPlayerIdAsync(combatPlayerId, creator, page, pageSize);
+        var resourceRecoveries = await _filterService.GetCreatorByCombatPlayerIdAsync(combatPlayerId, creator, page, pageSize);
 
-            return Ok(resourceRecoveries);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error find resource recovery by creator: {Message}", ex.Message);
-
-            return BadRequest();
-        }
+        return Ok(resourceRecoveries);
     }
 
     [HttpGet("countByCreator")]
     public async Task<IActionResult> CountByCreator(int combatPlayerId, string creator)
     {
-        try
-        {
-            var count = await _filterService.CountCreatorByCombatPlayerIdAsync(combatPlayerId, creator);
+        var count = await _filterService.CountCreatorByCombatPlayerIdAsync(combatPlayerId, creator);
 
-            return Ok(count);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error get resource recovery count by creator: {Message}", ex.Message);
-
-            return BadRequest();
-        }
+        return Ok(count);
     }
 
     [HttpGet("getUniqueSpells/{combatPlayerId}")]
     public async Task<IActionResult> GetUniqueSpells(int combatPlayerId)
     {
-        try
-        {
-            var uniqueSpells = await _filterService.GetSpellNamesByCombatPlayerIdAsync(combatPlayerId);
+        var uniqueSpells = await _filterService.GetSpellNamesByCombatPlayerIdAsync(combatPlayerId);
 
-            return Ok(uniqueSpells);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error get unique resource recovery spells: {Message}", ex.Message);
-
-            return BadRequest();
-        }
+        return Ok(uniqueSpells);
     }
 
     [HttpGet("getBySpell")]
     public async Task<IActionResult> GetBySpell(int combatPlayerId, string spell, int page, int pageSize)
     {
-        try
-        {
-            var healDones = await _filterService.GetSpellByCombatPlayerIdAsync(combatPlayerId, spell, page, pageSize);
+        var healDones = await _filterService.GetSpellByCombatPlayerIdAsync(combatPlayerId, spell, page, pageSize);
 
-            return Ok(healDones);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error find resource recovery by spell: {Message}", ex.Message);
-
-            return BadRequest();
-        }
+        return Ok(healDones);
     }
 
     [HttpGet("countBySpell")]
     public async Task<IActionResult> CountBySpell(int combatPlayerId, string spell)
     {
-        try
-        {
-            var count = await _filterService.CountSpellByCombatPlayerIdAsync(combatPlayerId, spell);
+        var count = await _filterService.CountSpellByCombatPlayerIdAsync(combatPlayerId, spell);
 
-            return Ok(count);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error get resource recovery count by spell: {Message}", ex.Message);
-
-            return BadRequest();
-        }
+        return Ok(count);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(ResourceRecoveryModel model)
+    public async Task<IActionResult> Create([FromBody] ResourceRecoveryModel resourceRecovery)
     {
         try
         {
-            var map = _mapper.Map<ResourceRecoveryDto>(model);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid ResourceRecovery create received: {@ResourceRecovery}", resourceRecovery);
+
+                return ValidationProblem(ModelState);
+            }
+
+            var map = _mapper.Map<ResourceRecoveryDto>(resourceRecovery);
             var createdItem = await _mutationService.CreateAsync(map);
 
             return Ok(_mapper);
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, ex.Message);
+            _logger.LogError(ex, "Failed to create resource recovery.");
 
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
-
-            return BadRequest();
+            return StatusCode(500, "Internal server error.");
         }
     }
 }

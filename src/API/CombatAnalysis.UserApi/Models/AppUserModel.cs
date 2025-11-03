@@ -8,7 +8,7 @@ public record AppUserModel(
     [Required] string FirstName,
     [Required] string LastName,
     [Required] int PhoneNumber,
-    [Required] DateTimeOffset Birthday,
+    DateTimeOffset Birthday,
     string? AboutMe,
     [Required] int Gender,
     [Required] string IdentityUserId

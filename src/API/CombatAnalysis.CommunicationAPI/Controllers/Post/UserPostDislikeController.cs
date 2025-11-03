@@ -33,10 +33,10 @@ public class UserPostDislikeController(IService<UserPostDislikeDto, int> service
         return Ok(result);
     }
 
-    [HttpGet("searchByPostId/{id:int:min(1)}")]
-    public async Task<IActionResult> SearchByPostId(int id)
+    [HttpGet("findByPostId/{userPostId:int:min(1)}")]
+    public async Task<IActionResult> SearchByPostId(int userPostId)
     {
-        var result = await _service.GetByParamAsync(c => c.UserPostId, id);
+        var result = await _service.GetByParamAsync(c => c.UserPostId, userPostId);
 
         return Ok(result);
     }

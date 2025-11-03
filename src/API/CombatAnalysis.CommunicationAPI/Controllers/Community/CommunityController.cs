@@ -26,6 +26,22 @@ public class CommunityController(ICommunityService service, IMapper mapper, ILog
         return Ok(result);
     }
 
+    [HttpGet("getWithPagination")]
+    public async Task<IActionResult> GetWithPagination(int pageSize)
+    {
+        var communitites = await _service.GetAllWithPaginationAsync(pageSize);
+
+        return Ok(communitites);
+    }
+
+    [HttpGet("getMoreWithPagination")]
+    public async Task<IActionResult> GetMoreWithPagination(int offset, int pageSize)
+    {
+        var communitites = await _service.GetMoreWithPaginationAsync(offset, pageSize);
+
+        return Ok(communitites);
+    }
+
     [HttpGet("{id:int:min(1)}")]
     public async Task<IActionResult> GetById(int id)
     {
@@ -104,22 +120,6 @@ public class CommunityController(ICommunityService service, IMapper mapper, ILog
 
             return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
         }
-    }
-
-    [HttpGet("getWithPagination")]
-    public async Task<IActionResult> GetWithPaginationAsync(int pageSize)
-    {
-        var communitites = await _service.GetAllWithPaginationAsync(pageSize);
-
-        return Ok(communitites);
-    }
-
-    [HttpGet("getMoreWithPagination")]
-    public async Task<IActionResult> GetMoreWithPaginationAsync(int offset, int pageSize)
-    {
-        var communitites = await _service.GetMoreWithPaginationAsync(offset, pageSize);
-
-        return Ok(communitites);
     }
 
     [HttpGet("count")]
