@@ -11,8 +11,6 @@ public interface ICombatParserService
 
     Task<bool> FileCheckAsync(string combatLog);
 
-    Task ParseAsync(string combatLogPath, CancellationToken cancellationToken);
-
     Task ParseAsync(List<string> combatLogPaths, CancellationToken cancellationToken);
 
     void Clear();

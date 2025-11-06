@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using CombatAnalysis.CombatParser.Core;
+using CombatAnalysis.CombatParser.Extensions;
 using CombatAnalysis.CombatParser.Interfaces;
-using CombatAnalysis.CombatParser.Services;
 using CombatAnalysis.Core.Consts;
 using CombatAnalysis.Core.Core;
 using CombatAnalysis.Core.Enums;
@@ -96,9 +96,8 @@ public class App : MvxApplication
         }
 
         Mvx.IoCProvider.RegisterType<IFileManager, FileManager>();
-        Mvx.IoCProvider.RegisterType<ICombatParserService, CombatParserService>();
         Mvx.IoCProvider.RegisterType<ICombatParserAPIService, CombatParserAPIService>();
-        Mvx.IoCProvider.RegisterType<IMapper>(() => mappingConfig.CreateMapper());
+        Mvx.IoCProvider.RegisterType(() => mappingConfig.CreateMapper());
         Mvx.IoCProvider.RegisterType<ILogger>(() =>
         {
             var loggerFactory = new LoggerFactory();
@@ -113,6 +112,8 @@ public class App : MvxApplication
         Mvx.IoCProvider.RegisterType<IUserService, UserService>();
 
         Mvx.IoCProvider.RegisterSingleton<IMemoryCache>(memoryCache);
+
+        Mvx.IoCProvider.CombatParserDependencies();
 
         var logger = Mvx.IoCProvider.Resolve<IMemoryCache>();
         HttpClientHelperExtensions.Initialize(logger);
@@ -135,6 +136,6 @@ public class App : MvxApplication
     private static void LogError(Exception? ex, string context)
     {
         var logger = Mvx.IoCProvider?.Resolve<ILogger>();
-        logger?.LogError($"{context}: {ex?.Message}");
+        logger?.LogError("{Context}: {Message}", context, ex?.Message);
     }
 }

@@ -9,62 +9,28 @@ using System.Text;
 
 namespace CombatAnalysis.CombatParser.Services;
 
-public class CombatParserService : ICombatParserService
+internal class CombatParserService(IFileManager fileManager, ILogger logger) : ICombatParserService
 {
-    private readonly IList<PlaceInformation> _zones;
-    private readonly IFileManager _fileManager;
-    private readonly ILogger _logger;
+    private readonly IList<PlaceInformation> _zones = [];
+    private readonly IFileManager _fileManager = fileManager;
+    private readonly ILogger _logger = logger;
 
     private readonly TimeSpan _minCombatDuration = TimeSpan.Parse("00:00:20");
 
     private int _combatNumber = 0;
 
-    public List<Combat> Combats { get; set; }
+    public List<Combat> Combats { get; set; } = [];
 
-    public List<CombatDetails> CombatDetails { get; set; }
-
-    public CombatParserService(IFileManager fileManager, ILogger logger)
-    {
-        _fileManager = fileManager;
-        _logger = logger;
-
-        Combats = new List<Combat>();
-        CombatDetails = new List<CombatDetails>();
-        _zones = new List<PlaceInformation>();
-    }
+    public List<CombatDetails> CombatDetails { get; set; } = [];
 
     public async Task<bool> FileCheckAsync(string combatLog)
     {
-        var fileIsCorrect = true;
-
         using var reader = _fileManager.StreamReader(combatLog);
         var line = await reader.ReadLineAsync();
-        if (!string.IsNullOrEmpty(line) && !line.Contains(CombatLogKeyWords.CombatLogVersion))
-        {
-            fileIsCorrect = false;
-        }
+
+        var fileIsCorrect = !string.IsNullOrEmpty(line) && line.Contains(CombatLogKeyWords.CombatLogVersion);
 
         return fileIsCorrect;
-    }
-
-    public async Task ParseAsync(string combatLogPath, CancellationToken cancellationToken)
-    {
-        var newCombatFromLogs = new StringBuilder();
-        var petsId = new Dictionary<string, List<string>>();
-        var bossCombatStarted = false;
-
-        try
-        {
-            Clear();
-
-            var lines = await File.ReadAllLinesAsync(combatLogPath, cancellationToken);
-            ProcessCombatLogLines(lines, petsId, ref bossCombatStarted, newCombatFromLogs);
-        }
-        catch (Exception ex)
-        {
-            var message = $"Error reading file: {ex.Message}";
-            _logger.LogError(message);
-        }
     }
 
     public async Task ParseAsync(List<string> combatLogPaths, CancellationToken cancellationToken)
@@ -73,20 +39,12 @@ public class CombatParserService : ICombatParserService
         var petsId = new Dictionary<string, List<string>>();
         var bossCombatStarted = false;
 
-        try
-        {
-            Clear();
+        Clear();
 
-            foreach (var item in combatLogPaths)
-            {
-                var lines = await File.ReadAllLinesAsync(item, cancellationToken);
-                ProcessCombatLogLines(lines, petsId, ref bossCombatStarted, newCombatFromLogs);
-            }
-        }
-        catch (Exception ex)
+        foreach (var path in combatLogPaths) 
         {
-            var message = $"Error reading file: {ex.Message}";
-            _logger.LogError(message);
+            var lines = await fileManager.ReadAllLinesAsync(path, cancellationToken);
+            ProcessCombatLogLines(lines, petsId, ref bossCombatStarted, newCombatFromLogs);
         }
     }
 
@@ -101,11 +59,11 @@ public class CombatParserService : ICombatParserService
     {
         foreach (var line in lines)
         {
-            ProcessLine(line, ref bossCombatStarted, newCombatFromLogs, petsId);
+            ProcessLine(line, newCombatFromLogs, ref bossCombatStarted, petsId);
         }
     }
 
-    private void ProcessLine(string line, ref bool bossCombatStarted, StringBuilder newCombatFromLogs, Dictionary<string, List<string>> petsId)
+    private void ProcessLine(string line, StringBuilder newCombatFromLogs, ref bool bossCombatStarted, Dictionary<string, List<string>> petsId)
     {
         if (line.Contains(CombatLogKeyWords.SpellSummon))
         {
@@ -145,7 +103,7 @@ public class CombatParserService : ICombatParserService
             GetCombatInformation(combatInformationList, petsId);
 
             newCombatFromLogs.Clear();
-            petsId = new Dictionary<string, List<string>>();
+            petsId = [];
         }
         else
         {
@@ -252,11 +210,6 @@ public class CombatParserService : ICombatParserService
             AddNewCombat(combat);
         }
         catch (IndexOutOfRangeException ex)
-        {
-            var message = $"Error parsing data from file: {ex.Message}";
-            _logger.LogError(message);
-        }
-        catch (Exception ex)
         {
             var message = $"Error parsing data from file: {ex.Message}";
             _logger.LogError(message);
