@@ -4,20 +4,20 @@ using Microsoft.Extensions.Logging;
 
 namespace CombatAnalysis.CombatParser.Details;
 
-public class CombatDetails
+public class CombatDetails(ILogger logger)
 {
-    private readonly string[] _dieds = new string[]
-    {
+    private readonly string[] _dieds =
+    [
         CombatLogKeyWords.UnitDied,
-    };
-    private readonly string[] _auras = new string[]
-    {
+    ];
+    private readonly string[] _auras =
+    [
         CombatLogKeyWords.AuraApplied,
         CombatLogKeyWords.AuraAppliedDose,
         CombatLogKeyWords.AuraRemoved,
-    };
-    private readonly string[] _positions = new string[]
-    {
+    ];
+    private readonly string[] _positions =
+    [
         CombatLogKeyWords.SpellHeal,
         CombatLogKeyWords.SpellDamage,
         CombatLogKeyWords.SwingDamageLanded,
@@ -25,18 +25,18 @@ public class CombatDetails
         CombatLogKeyWords.DamageShieldMissed,
         CombatLogKeyWords.RangeDamage,
         CombatLogKeyWords.SpellPeriodicDamage,
-    };
-    private readonly string[] _healVariations = new string[]
-    {
+    ];
+    private readonly string[] _healVariations =
+    [
         CombatLogKeyWords.SpellHeal,
         CombatLogKeyWords.SpellPeriodicHeal,
-    };
-    private readonly string[] _absorbVariations = new string[]
-    {
+    ];
+    private readonly string[] _absorbVariations =
+    [
         CombatLogKeyWords.SpellAbsorbed,
-    };
-    private readonly string[] _damageVariations = new string[]
-    {
+    ];
+    private readonly string[] _damageVariations =
+    [
         CombatLogKeyWords.SpellDamage,
         CombatLogKeyWords.SwingDamageLanded,
         CombatLogKeyWords.SpellPeriodicDamage,
@@ -44,57 +44,38 @@ public class CombatDetails
         CombatLogKeyWords.DamageShieldMissed,
         CombatLogKeyWords.RangeDamage,
         CombatLogKeyWords.SpellMissed,
-    };
-    private readonly string[] _resourceVariations = new string[]
-    {
+    ];
+    private readonly string[] _resourceVariations =
+    [
         CombatLogKeyWords.SpellPeriodicEnergize,
         CombatLogKeyWords.SpellEnergize,
-    };
+    ];
 
-    private readonly Dictionary<string, List<string>> _petsId;
+    private readonly Dictionary<string, List<string>> _petsId = [];
 
-    public ILogger Logger { get; private set; }
+    public ILogger Logger { get; private set; } = logger;
 
-    public Dictionary<string, List<CombatPlayerPosition>> Positions { get; private set; }
+    public Dictionary<string, List<CombatPlayerPosition>> Positions { get; private set; } = [];
 
-    public Dictionary<string, List<PlayerDeath>> PlayersDeath { get; private set; }
+    public Dictionary<string, List<PlayerDeath>> PlayersDeath { get; private set; } = [];
 
-    public Dictionary<string, List<DamageDone>> DamageDone { get; private set; }
+    public Dictionary<string, List<DamageDone>> DamageDone { get; private set; } = [];
 
-    public Dictionary<string, List<DamageDoneGeneral>> DamageDoneGeneral { get; private set; }
+    public Dictionary<string, List<DamageDoneGeneral>> DamageDoneGeneral { get; private set; } = [];
 
-    public Dictionary<string, List<HealDone>> HealDone { get; private set; }
+    public Dictionary<string, List<HealDone>> HealDone { get; private set; } = [];
 
-    public Dictionary<string, List<HealDoneGeneral>> HealDoneGeneral { get; private set; }
+    public Dictionary<string, List<HealDoneGeneral>> HealDoneGeneral { get; private set; } = [];
 
-    public Dictionary<string, List<DamageTaken>> DamageTaken { get; private set; }
+    public Dictionary<string, List<DamageTaken>> DamageTaken { get; private set; } = [];
 
-    public Dictionary<string, List<DamageTakenGeneral>> DamageTakenGeneral { get; private set; }
+    public Dictionary<string, List<DamageTakenGeneral>> DamageTakenGeneral { get; private set; } = [];
 
-    public Dictionary<string, List<ResourceRecovery>> ResourcesRecovery { get; private set; }
+    public Dictionary<string, List<ResourceRecovery>> ResourcesRecovery { get; private set; } = [];
 
-    public Dictionary<string, List<ResourceRecoveryGeneral>> ResourcesRecoveryGeneral { get; private set; }
+    public Dictionary<string, List<ResourceRecoveryGeneral>> ResourcesRecoveryGeneral { get; private set; } = [];
 
-    public Dictionary<string, List<CombatAura>> Auras { get; private set; }
-
-    public CombatDetails(ILogger logger)
-    {
-        Logger = logger;
-
-        Positions = new Dictionary<string, List<CombatPlayerPosition>>();
-        PlayersDeath = new Dictionary<string, List<PlayerDeath>>();
-        Auras = new Dictionary<string, List<CombatAura>>();
-
-        DamageDone = new Dictionary<string, List<DamageDone>>();
-        HealDone = new Dictionary<string, List<HealDone>>();
-        DamageTaken = new Dictionary<string, List<DamageTaken>>();
-        ResourcesRecovery = new Dictionary<string, List<ResourceRecovery>>();
-
-        DamageDoneGeneral = new Dictionary<string, List<DamageDoneGeneral>>();
-        HealDoneGeneral = new Dictionary<string, List<HealDoneGeneral>>();
-        DamageTakenGeneral = new Dictionary<string, List<DamageTakenGeneral>>();
-        ResourcesRecoveryGeneral = new Dictionary<string, List<ResourceRecoveryGeneral>>();
-    }
+    public Dictionary<string, List<CombatAura>> Auras { get; private set; } = [];
 
     public CombatDetails(ILogger logger, Dictionary<string, List<string>> petsId) : this(logger)
     {
@@ -105,14 +86,10 @@ public class CombatDetails
     {
         try
         {
-            if (playersId == null || playersId.Count == 0)
-            {
-                throw new ArgumentNullException(nameof(playersId));
-            }
-            else if (combatData == null || combatData.Count == 0)
-            {
-                throw new ArgumentNullException(nameof(combatData));
-            }
+            ArgumentNullException.ThrowIfNull(playersId, nameof(playersId));
+            ArgumentNullException.ThrowIfNull(combatData, nameof(combatData));
+            ArgumentOutOfRangeException.ThrowIfZero(playersId.Count);
+            ArgumentOutOfRangeException.ThrowIfZero(combatData.Count);
 
             PrepareCollections(playersId);
 
@@ -123,11 +100,11 @@ public class CombatDetails
         }
         catch (ArgumentNullException ex)
         {
-            Logger.LogError(ex, ex.Message, ex.ParamName);
+            Logger.LogError("Some argument was null: {Param}", ex.ParamName);
         }
-        catch (Exception ex)
+        catch (ArgumentOutOfRangeException ex)
         {
-            Logger.LogError(ex, ex.Message);
+            Logger.LogError("Some argument out of valid range: {Param}", ex.ParamName);
         }
     }
 
@@ -135,14 +112,14 @@ public class CombatDetails
     {
         foreach(var playerId in playersId)
         {
-            Positions.TryAdd(playerId, new List<CombatPlayerPosition>());
-            PlayersDeath.TryAdd(playerId, new List<PlayerDeath>());
-            Auras.TryAdd(playerId, new List<CombatAura>());
+            Positions.TryAdd(playerId, []);
+            PlayersDeath.TryAdd(playerId, []);
+            Auras.TryAdd(playerId, []);
 
-            DamageDone.TryAdd(playerId, new List<DamageDone>());
-            HealDone.TryAdd(playerId, new List<HealDone>());
-            DamageTaken.TryAdd(playerId, new List<DamageTaken>());
-            ResourcesRecovery.TryAdd(playerId, new List<ResourceRecovery>());
+            DamageDone.TryAdd(playerId, []);
+            HealDone.TryAdd(playerId, []);
+            DamageTaken.TryAdd(playerId, []);
+            ResourcesRecovery.TryAdd(playerId, []);
         }
     }
 
@@ -212,7 +189,7 @@ public class CombatDetails
                 }
                 else
                 {
-                    Auras.Add(creatorId, new List<CombatAura> { buffs });
+                    Auras.Add(creatorId, [buffs]);
                 }
             }
         }

@@ -11,14 +11,9 @@ public static class CombatDetailsExtension
     {
         try
         {
-            if (playersId == null || playersId.Count == 0)
-            {
-                throw new ArgumentNullException(nameof(playersId));
-            }
-            else if (string.IsNullOrEmpty(duration))
-            {
-                throw new ArgumentNullException(nameof(duration));
-            }
+            ArgumentNullException.ThrowIfNull(playersId, nameof(playersId));
+            ArgumentException.ThrowIfNullOrEmpty(duration, nameof(duration));
+            ArgumentOutOfRangeException.ThrowIfZero(playersId.Count);
 
             foreach (var playerId in playersId)
             {
@@ -30,11 +25,11 @@ public static class CombatDetailsExtension
         }
         catch (ArgumentNullException ex)
         {
-            combatDetails.Logger.LogError(ex, ex.Message, ex.ParamName);
+            combatDetails.Logger.LogError("Some argument was null: {Param}", ex.ParamName);
         }
-        catch (Exception ex)
+        catch (ArgumentOutOfRangeException ex)
         {
-            combatDetails.Logger.LogError(ex, ex.Message);
+            combatDetails.Logger.LogError("Some argument out of valid range: {Param}", ex.ParamName);
         }
     }
 
@@ -46,7 +41,7 @@ public static class CombatDetailsExtension
 
         if (!TimeSpan.TryParse(duration, out var durationTime))
         {
-            return new List<DamageDoneGeneral>();
+            return [];
         }
 
         var lessDetails = new List<DamageDoneGeneral>();
@@ -76,7 +71,7 @@ public static class CombatDetailsExtension
             lessDetails.Add(damageDoneGeneral);
         }
 
-        lessDetails = lessDetails.OrderByDescending(x => x.Value).ToList();
+        lessDetails = [.. lessDetails.OrderByDescending(x => x.Value)];
 
         return lessDetails;
     }
@@ -89,7 +84,7 @@ public static class CombatDetailsExtension
 
         if (!TimeSpan.TryParse(duration, out var durationTime))
         {
-            return new List<HealDoneGeneral>();
+            return [];
         }
 
         var lessDetails = new List<HealDoneGeneral>();
@@ -115,7 +110,7 @@ public static class CombatDetailsExtension
             lessDetails.Add(healDoneGeneral);
         }
 
-        lessDetails = lessDetails.OrderByDescending(x => x.Value).ToList();
+        lessDetails = [.. lessDetails.OrderByDescending(x => x.Value)];
 
         return lessDetails;
     }
@@ -128,7 +123,7 @@ public static class CombatDetailsExtension
 
         if (!TimeSpan.TryParse(duration, out var durationTime))
         {
-            return new List<DamageTakenGeneral>();
+            return [];
         }
 
         var lessDetails = new List<DamageTakenGeneral>();
@@ -153,7 +148,7 @@ public static class CombatDetailsExtension
             lessDetails.Add(damageTakenGeneral);
         }
 
-        lessDetails = lessDetails.OrderByDescending(x => x.Value).ToList();
+        lessDetails = [.. lessDetails.OrderByDescending(x => x.Value)];
 
         return lessDetails;
     }
@@ -166,7 +161,7 @@ public static class CombatDetailsExtension
 
         if (!TimeSpan.TryParse(duration, out var durationTime))
         {
-            return new List<ResourceRecoveryGeneral>();
+            return [];
         }
 
         var lessDetails = new List<ResourceRecoveryGeneral>();
@@ -190,7 +185,7 @@ public static class CombatDetailsExtension
             lessDetails.Add(resourceRecoveryGeneral);
         }
 
-        lessDetails = lessDetails.OrderByDescending(x => x.Value).ToList();
+        lessDetails = [.. lessDetails.OrderByDescending(x => x.Value)];
 
         return lessDetails;
     }

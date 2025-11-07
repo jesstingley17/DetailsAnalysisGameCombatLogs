@@ -5,18 +5,11 @@ using System.Globalization;
 
 namespace CombatAnalysis.CombatParser.Details;
 
-internal class CombatDetailsManager
+internal class CombatDetailsManager(List<string> playersId, DateTimeOffset combatStarted, DateTimeOffset combatFinished)
 {
-    private readonly List<string> _playersId;
-    private readonly DateTimeOffset _combatStarted;
-    private readonly DateTimeOffset _combatFinished;
-
-    public CombatDetailsManager(List<string> playersId, DateTimeOffset combatStarted, DateTimeOffset combatFinished)
-    {
-        _playersId = playersId;
-        _combatStarted = combatStarted;
-        _combatFinished = combatFinished;
-    }
+    private readonly List<string> _playersId = playersId;
+    private readonly DateTimeOffset _combatStarted = combatStarted;
+    private readonly DateTimeOffset _combatFinished = combatFinished;
 
     public (string, CombatAura) GetAuras(List<string> combatDataLine, Dictionary<string, List<CombatAura>> auras, List<string> petsId)
     {

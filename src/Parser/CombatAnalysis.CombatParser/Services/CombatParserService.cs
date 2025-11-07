@@ -84,6 +84,8 @@ internal class CombatParserService(IFileManager fileManager, ILogger logger) : I
         {
             bossCombatStarted = true;
             newCombatFromLogs.AppendLine(line);
+
+            return;
         }
 
         if (!bossCombatStarted)
@@ -178,42 +180,34 @@ internal class CombatParserService(IFileManager fileManager, ILogger logger) : I
 
     private void GetCombatInformation(List<string> builtCombat, Dictionary<string, List<string>> petsId)
     {
-        try
+        if (!builtCombat[^1].Contains(CombatLogKeyWords.EncounterEnd))
         {
-            if (!builtCombat[^1].Contains(CombatLogKeyWords.EncounterEnd))
-            {
-                return;
-            }
-
-            var combat = new Combat
-            {
-                Name = GetCombatName(builtCombat[0]),
-                Difficulty = GetDifficulty(builtCombat[0]),
-                Data = builtCombat,
-                IsWin = GetCombatResult(builtCombat[^1]),
-                StartDate = GetTime(builtCombat[0]),
-                FinishDate = GetTime(builtCombat[^1]),
-                PetsId = petsId,
-            };
-
-            var duration = combat.FinishDate - combat.StartDate;
-            if (duration < _minCombatDuration)
-            {
-                return;
-            }
-
-            var players = GetCombatPlayers(combat);
-            combat.Players = players;
-
-            CalculatingCommonCombatDetails(combat);
-
-            AddNewCombat(combat);
+            return;
         }
-        catch (IndexOutOfRangeException ex)
+
+        var combat = new Combat
         {
-            var message = $"Error parsing data from file: {ex.Message}";
-            _logger.LogError(message);
+            Name = GetCombatName(builtCombat[0]),
+            Difficulty = GetDifficulty(builtCombat[0]),
+            Data = builtCombat,
+            IsWin = GetCombatResult(builtCombat[^1]),
+            StartDate = GetTime(builtCombat[0]),
+            FinishDate = GetTime(builtCombat[^1]),
+            PetsId = petsId,
+        };
+
+        var duration = combat.FinishDate - combat.StartDate;
+        if (duration < _minCombatDuration)
+        {
+            return;
         }
+
+        var players = GetCombatPlayers(combat);
+        combat.Players = players;
+
+        CalculatingCommonCombatDetails(combat);
+
+        AddNewCombat(combat);
     }
 
     private static string GetCombatName(string combatStart)
