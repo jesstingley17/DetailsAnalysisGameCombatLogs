@@ -16,7 +16,7 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IUserService<AppUserDto>, UserService>();
 
-        services.AddScoped<IService<CustomerDto, string>, CustomerService>();
+        services.AddScoped<ICustomerService, CustomerService>();
         services.AddScoped<IService<RequestToConnectDto, int>, RequestToConnectService>();
         services.AddScoped<IService<BannedUserDto, int>, BannedUserService>();
         services.AddScoped<IFriendService, FriendService>();

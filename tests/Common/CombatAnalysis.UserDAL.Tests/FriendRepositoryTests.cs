@@ -22,14 +22,14 @@ public class FriendRepositoryTests : RepositoryTestsBase
         );
 
         var repo = new FriendRepository(context);
-        var user = new Friend(
+        var friend = new Friend(
             Id: 1,
             WhoFriendId: user1Id,
             ForWhomId: user2Id
         );
 
         // Act
-        var result = await repo.CreateAsync(user);
+        var result = await repo.CreateAsync(friend);
 
         // Assert
         Assert.NotNull(result);

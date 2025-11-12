@@ -97,6 +97,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Parser", "Parser", "{C6D533
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CombatAnalysis.CombatParser.Tests", "tests\Parser\CombatAnalysis.CombatParser.Tests\CombatAnalysis.CombatParser.Tests.csproj", "{B74612B8-AA75-4DF4-83CC-09A4E577B3BC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CombatAnalysis.UserBL.Tests", "tests\Common\CombatAnalysis.UserBL.Tests\CombatAnalysis.UserBL.Tests.csproj", "{F8CA5111-EA96-47A2-BE29-DF56DD020250}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -881,6 +883,26 @@ Global
 		{B74612B8-AA75-4DF4-83CC-09A4E577B3BC}.Release|x64.Build.0 = Release|Any CPU
 		{B74612B8-AA75-4DF4-83CC-09A4E577B3BC}.Release|x86.ActiveCfg = Release|Any CPU
 		{B74612B8-AA75-4DF4-83CC-09A4E577B3BC}.Release|x86.Build.0 = Release|Any CPU
+		{F8CA5111-EA96-47A2-BE29-DF56DD020250}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8CA5111-EA96-47A2-BE29-DF56DD020250}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8CA5111-EA96-47A2-BE29-DF56DD020250}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{F8CA5111-EA96-47A2-BE29-DF56DD020250}.Debug|ARM.Build.0 = Debug|Any CPU
+		{F8CA5111-EA96-47A2-BE29-DF56DD020250}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{F8CA5111-EA96-47A2-BE29-DF56DD020250}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{F8CA5111-EA96-47A2-BE29-DF56DD020250}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F8CA5111-EA96-47A2-BE29-DF56DD020250}.Debug|x64.Build.0 = Debug|Any CPU
+		{F8CA5111-EA96-47A2-BE29-DF56DD020250}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F8CA5111-EA96-47A2-BE29-DF56DD020250}.Debug|x86.Build.0 = Debug|Any CPU
+		{F8CA5111-EA96-47A2-BE29-DF56DD020250}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8CA5111-EA96-47A2-BE29-DF56DD020250}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8CA5111-EA96-47A2-BE29-DF56DD020250}.Release|ARM.ActiveCfg = Release|Any CPU
+		{F8CA5111-EA96-47A2-BE29-DF56DD020250}.Release|ARM.Build.0 = Release|Any CPU
+		{F8CA5111-EA96-47A2-BE29-DF56DD020250}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{F8CA5111-EA96-47A2-BE29-DF56DD020250}.Release|ARM64.Build.0 = Release|Any CPU
+		{F8CA5111-EA96-47A2-BE29-DF56DD020250}.Release|x64.ActiveCfg = Release|Any CPU
+		{F8CA5111-EA96-47A2-BE29-DF56DD020250}.Release|x64.Build.0 = Release|Any CPU
+		{F8CA5111-EA96-47A2-BE29-DF56DD020250}.Release|x86.ActiveCfg = Release|Any CPU
+		{F8CA5111-EA96-47A2-BE29-DF56DD020250}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -930,6 +952,7 @@ Global
 		{11E19D33-86C1-282E-E903-1498369C168E} = {D9997D4E-B5CB-4161-9A1C-89557F7239A7}
 		{C6D53361-BD88-4735-8EF6-74393EA2F82C} = {9894B508-9016-4893-B98E-35E27D1BA208}
 		{B74612B8-AA75-4DF4-83CC-09A4E577B3BC} = {C6D53361-BD88-4735-8EF6-74393EA2F82C}
+		{F8CA5111-EA96-47A2-BE29-DF56DD020250} = {D9997D4E-B5CB-4161-9A1C-89557F7239A7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6930C3A5-709A-40FD-8649-F7740D84C558}
