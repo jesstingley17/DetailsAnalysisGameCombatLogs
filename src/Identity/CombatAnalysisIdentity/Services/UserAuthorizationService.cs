@@ -16,14 +16,14 @@ using System.Text.RegularExpressions;
 namespace CombatAnalysisIdentity.Services;
 
 internal class UserAuthorizationService(IMapper mapper, IOptions<Cluster> api, IIdentityUserService identityUserService, 
-    ILogger<UserAuthorizationService> logger, IUserService<AppUserDto> appUserService, IService<CustomerDto, string> customerService,
+    ILogger<UserAuthorizationService> logger, IUserService<AppUserDto> appUserService, ICustomerService customerService,
     IUserTransactionService userTransactionService, IIdentityTransactionService identityTransactionService) : IUserAuthorizationService
 {
     private readonly IMapper _mapper = mapper;
     private readonly IIdentityUserService _identityUserService = identityUserService;
     private readonly Cluster _api = api.Value;
     private readonly IUserService<AppUserDto> _appUserService = appUserService;
-    private readonly IService<CustomerDto, string> _customerService = customerService;
+    private readonly ICustomerService _customerService = customerService;
     private readonly IUserTransactionService _userTransactionService = userTransactionService;
     private readonly IIdentityTransactionService _identityTransactionService = identityTransactionService;
     private readonly ILogger<UserAuthorizationService> _logger = logger;

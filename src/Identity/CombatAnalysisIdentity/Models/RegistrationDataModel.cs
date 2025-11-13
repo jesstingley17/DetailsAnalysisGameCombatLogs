@@ -32,11 +32,13 @@ public class RegistrationDataModel
     public string LastName { get; set; }
 
     [Required]
+    [DataType(DataType.PhoneNumber)]
     public int PhoneNumber { get; set; }
 
     [Required]
     public string Country { get; set; }
 
+    [Required]
     public string City { get; set; }
 
     [Required]

@@ -5,7 +5,7 @@ namespace CombatAnalysis.DAL.Interfaces.Generic;
 public interface IGenericRepository<TModel>
     where TModel : class, IEntity
 {
-    Task<TModel> CreateAsync(TModel item);
+    Task<TModel?> CreateAsync(TModel item);
 
     Task<int> UpdateAsync(TModel item);
 

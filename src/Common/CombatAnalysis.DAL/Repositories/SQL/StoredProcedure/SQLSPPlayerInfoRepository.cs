@@ -13,20 +13,20 @@ internal class SQLSPPlayerInfoRepository<TModel>(CombatParserSQLContext context)
     public async Task<IEnumerable<TModel>> GetByCombatPlayerIdAsync(int combatPlayerId)
     {
         var procName = $"Get{typeof(TModel).Name}ByCombatPlayerId";
-        var data = await Task.Run(() => _context.Set<TModel>()
+        var data = await _context.Set<TModel>()
                             .FromSql($"{procName} @combatPlayerId={combatPlayerId}")
-                            .AsEnumerable());
+                            .ToListAsync();
 
-        return data.Any() ? data : [];
+        return data.Count != 0 ? data : [];
     }
 
     public async Task<IEnumerable<TModel>> GetByCombatPlayerIdAsync(int combatPlayerId, int page, int pageSize)
     {
         var procName = $"Get{typeof(TModel).Name}ByCombatPlayerIdPagination";
-        var data = await Task.Run(() => _context.Set<TModel>()
+        var data = await _context.Set<TModel>()
                             .FromSql($"{procName} @combatPlayerId={combatPlayerId}, @page={page}, @pageSize={pageSize}")
-                            .AsEnumerable());
+                            .ToListAsync();
 
-        return data.Any() ? data : [];
+        return data.Count != 0 ? data : [];
     }
 }

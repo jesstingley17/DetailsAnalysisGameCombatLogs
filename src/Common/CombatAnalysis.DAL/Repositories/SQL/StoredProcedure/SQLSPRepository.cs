@@ -11,7 +11,7 @@ internal class SQLSPRepository<TModel>(CombatParserSQLContext context) : IGeneri
 {
     private readonly CombatParserSQLContext _context = context;
 
-    public async Task<TModel> CreateAsync(TModel item)
+    public async Task<TModel?> CreateAsync(TModel item)
     {
         var type = item.GetType();
         var properties = type.GetProperties();
@@ -19,22 +19,22 @@ internal class SQLSPRepository<TModel>(CombatParserSQLContext context) : IGeneri
         var procName = $"InsertInto{type.Name}";
         var parameters = new List<SqlParameter>();
 
-        foreach (var prop in properties)
+        for (var i = 1; i < properties.Length; i++)
         {
-            if (!prop.CanWrite) continue;
+            if (!properties[i].CanWrite) continue;
 
-            var value = prop.GetValue(item);
+            var value = properties[i].GetValue(item);
 
-            parameters.Add(new SqlParameter($"@{prop.Name}", value ?? DBNull.Value));
+            parameters.Add(new SqlParameter($"@{properties[i].Name}", value ?? DBNull.Value));
         }
-
-        parameters.RemoveAt(0);
 
         var paramPlaceholders = string.Join(",", parameters.Select(p => p.ParameterName));
 
+#pragma warning disable EF1002 // Risk of vulnerability to SQL injection.
         var data = await _context.Set<TModel>()
                         .FromSqlRaw($"{procName} {paramPlaceholders}", [.. parameters])
                         .ToListAsync();
+#pragma warning restore EF1002 // Risk of vulnerability to SQL injection.
 
         return data.FirstOrDefault();
     }
@@ -51,20 +51,19 @@ internal class SQLSPRepository<TModel>(CombatParserSQLContext context) : IGeneri
     public async Task<IEnumerable<TModel>> GetAllAsync()
     {
         var procName = $"GetAll{typeof(TModel).Name}";
-        var data = await Task.Run(() => _context.Set<TModel>()
-                            .FromSql($"{procName}")
-                            .AsEnumerable());
+        var data = await _context.Set<TModel>()
+                            .FromSqlRaw(procName)
+                            .ToListAsync();
 
-        return data.Any() ? data : [];
+        return data.Count != 0 ? data : [];
     }
 
     public async Task<TModel?> GetByIdAsync(int id)
     {
         var procName = $"Get{typeof(TModel).Name}ById";
-        var data = await Task.Run(() => _context.Set<TModel>()
+        var data = await _context.Set<TModel>()
                             .FromSql($"{procName} @id={id}")
-                            .AsEnumerable()
-                            .FirstOrDefault());
+                            .FirstOrDefaultAsync();
 
         return data;
     }
@@ -97,8 +96,10 @@ internal class SQLSPRepository<TModel>(CombatParserSQLContext context) : IGeneri
 
         var paramPlaceholders = string.Join(",", parameters.Select(p => p.ParameterName));
 
+#pragma warning disable EF1002 // Risk of vulnerability to SQL injection.
         var rowsAffected = await _context.Database
                             .ExecuteSqlRawAsync($"{procName} {paramPlaceholders}", [.. parameters]);
+#pragma warning restore EF1002 // Risk of vulnerability to SQL injection.
 
         return rowsAffected;
     }

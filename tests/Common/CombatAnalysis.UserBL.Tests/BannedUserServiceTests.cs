@@ -119,15 +119,12 @@ public class BannedUserServiceTests
     }
 
     [Fact]
-    public async Task GetAllAsync_NotEmptyCollection_ShouldReturanFewElementsInCollection()
+    public async Task GetAllAsync_NotEmptyCollection_ShouldReturnFewElementsInCollection()
     {
         // Arrange
         const int bannedUserId1 = 1;
         const string user1Id1 = "uid-222";
         const string user1Id2 = "uid-223";
-        const int bannedUserId2 = 2;
-        const string user2Id1 = "uid-224";
-        const string user2Id2 = "uid-225";
 
         var bannedUsers = new List<BannedUser> {
             new(
@@ -135,11 +132,6 @@ public class BannedUserServiceTests
                 WhomBannedId: user1Id1,
                 BannedUserId: user1Id2
             ),
-            new(
-                Id: bannedUserId2,
-                WhomBannedId: user2Id1,
-                BannedUserId: user2Id2
-            )
         };
         var bannedUsersDto = new List<BannedUserDto> {
             new(
@@ -147,11 +139,6 @@ public class BannedUserServiceTests
                 WhomBannedId: user1Id1,
                 BannedUserId: user1Id2
             ),
-            new(
-                Id: bannedUserId2,
-                WhomBannedId: user2Id1,
-                BannedUserId: user2Id2
-            )
         };
 
         var mockMapper = new Mock<IMapper>();
@@ -169,14 +156,14 @@ public class BannedUserServiceTests
         // Assert
         Assert.NotNull(result);
         Assert.NotEmpty(result);
-        Assert.Equal(2, result.Count());
+        Assert.Single(result);
 
         // Verify correct method calls
         mockRepository.Verify(r => r.GetAllAsync(), Times.Once);
     }
 
     [Fact]
-    public async Task GetAllAsync_EmptyCollection_ShouldReturanEmptyCollection()
+    public async Task GetAllAsync_EmptyCollection_ShouldReturnEmptyCollection()
     {
         // Arrange
         var bannedUsers = new List<BannedUser>();
@@ -203,7 +190,7 @@ public class BannedUserServiceTests
     }
 
     [Fact]
-    public async Task GetByIdAsync_OneEntity_ShouldReturanOneEntity()
+    public async Task GetByIdAsync_OneEntity_ShouldReturnOneEntity()
     {
         // Arrange
         const int bannedUserId = 1;
@@ -296,15 +283,12 @@ public class BannedUserServiceTests
     }
 
     [Fact]
-    public async Task GetByParamAsync_NotEmptyCollection_ShouldReturanFewElementsInCollection()
+    public async Task GetByParamAsync_NotEmptyCollection_ShouldReturnFewElementsInCollection()
     {
         // Arrange
         const int bannedUserId1 = 1;
         const string user1Id1 = "uid-222";
         const string user1Id2 = "uid-223";
-        const int bannedUserId2 = 2;
-        const string user2Id1 = "uid-222";
-        const string user2Id2 = "uid-225";
 
         var bannedUsers = new List<BannedUser> {
             new(
@@ -312,11 +296,6 @@ public class BannedUserServiceTests
                 WhomBannedId: user1Id1,
                 BannedUserId: user1Id2
             ),
-            new(
-                Id: bannedUserId2,
-                WhomBannedId: user2Id1,
-                BannedUserId: user2Id2
-            )
         };
         var bannedUsersDto = new List<BannedUserDto> {
             new(
@@ -324,11 +303,6 @@ public class BannedUserServiceTests
                 WhomBannedId: user1Id1,
                 BannedUserId: user1Id2
             ),
-            new(
-                Id: bannedUserId2,
-                WhomBannedId: user2Id1,
-                BannedUserId: user2Id2
-            )
         };
         Expression<Func<BannedUser, string>> expression = c => c.WhomBannedId;
         Expression<Func<BannedUserDto, string>> expressionDto = c => c.WhomBannedId;
@@ -351,14 +325,14 @@ public class BannedUserServiceTests
         // Assert
         Assert.NotNull(result);
         Assert.NotEmpty(result);
-        Assert.Equal(2, result.Count());
+        Assert.Single(result);
 
         // Verify correct method calls
         mockRepository.Verify(r => r.GetByParamAsync(It.IsAny<Expression<Func<BannedUser, string>>>(), It.IsAny<string>()), Times.Once);
     }
 
     [Fact]
-    public async Task GetByParamAsync_EmptyCollection_ShouldReturanEmptyCollection()
+    public async Task GetByParamAsync_EmptyCollection_ShouldReturnEmptyCollection()
     {
         // Arrange
         const string calledUserId = "uid-221";
