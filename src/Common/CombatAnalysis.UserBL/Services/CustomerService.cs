@@ -26,14 +26,15 @@ internal class CustomerService(IGenericRepository<Customer, string> repository, 
         return resultMap;
     }
 
-    public async Task UpdateAsync(CustomerDto item)
+    public async Task UpdateAsync(string id, CustomerDto item)
     {
+        ArgumentException.ThrowIfNullOrEmpty(id);
         ArgumentException.ThrowIfNullOrEmpty(item.Country, nameof(item.Country));
         ArgumentException.ThrowIfNullOrEmpty(item.City, nameof(item.City));
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(item.PostalCode, nameof(item.PostalCode));
 
         var map = _mapper.Map<Customer>(item);
-        await _repository.UpdateAsync(item.Id, map);
+        await _repository.UpdateAsync(id, map);
     }
 
     public async Task DeleteAsync(string id)

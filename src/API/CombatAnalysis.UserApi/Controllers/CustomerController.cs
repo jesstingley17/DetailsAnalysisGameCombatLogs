@@ -60,7 +60,7 @@ public class CustomerController(ICustomerService service, IMapper mapper, ILogge
             }
 
             var map = _mapper.Map<CustomerDto>(customer);
-            await _service.UpdateAsync(map);
+            await _service.UpdateAsync(id, map);
 
             return NoContent();
         }

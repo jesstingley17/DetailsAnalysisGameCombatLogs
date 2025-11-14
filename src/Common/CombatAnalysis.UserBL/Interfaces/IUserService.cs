@@ -2,22 +2,21 @@
 
 namespace CombatAnalysis.UserBL.Interfaces;
 
-public interface IUserService<TModel>
-    where TModel : class
+public interface IUserService
 {
-    Task<TModel?> CreateAsync(TModel item);
+    Task<AppUserDto?> CreateAsync(AppUserDto item);
 
-    Task UpdateAsync(string id, TModel item);
+    Task UpdateAsync(string id, AppUserDto item);
 
     Task DeleteAsync(string id);
 
-    Task<IEnumerable<TModel>> GetAllAsync();
+    Task<IEnumerable<AppUserDto>> GetAllAsync();
 
-    Task<TModel?> GetByIdAsync(string id);
+    Task<AppUserDto?> GetByIdAsync(string id);
 
     Task<bool> CheckByUsernameAsync(string username);
 
     Task<AppUserDto?> FindByIdentityUserIdAsync(string identityUserId);
 
-    Task<IEnumerable<TModel>> FindByUsernameStartAtAsync(string startAt);
+    Task<IEnumerable<AppUserDto>> FindByUsernameStartAtAsync(string startAt);
 }

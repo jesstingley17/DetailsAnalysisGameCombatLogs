@@ -77,6 +77,8 @@ public class FriendRepositoryTests : RepositoryTestsBase
         var result = await repo.GetAllAsync();
 
         // Assert
+        Assert.NotNull(result);
+        Assert.NotEmpty(result);
         Assert.Equal(2, result.Count());
     }
 
@@ -174,6 +176,8 @@ public class FriendRepositoryTests : RepositoryTestsBase
         var result = await repo.GetByParamAsync(nameof(Friend.WhoFriendId), filteredWhoFriendId);
 
         // Assert
+        Assert.NotNull(result);
+        Assert.NotEmpty(result);
         Assert.Single(result);
         Assert.Equal(filteredWhoFriendId, result.First().WhoFriendId);
     }

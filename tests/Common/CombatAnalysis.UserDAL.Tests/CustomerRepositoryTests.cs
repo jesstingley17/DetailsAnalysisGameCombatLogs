@@ -3,7 +3,7 @@ using CombatAnalysis.UserDAL.Repositories;
 
 namespace CombatAnalysis.UserDAL.Tests;
 
-public class GenericRepositoryTests : RepositoryTestsBase
+public class CustomerRepositoryTests : RepositoryTestsBase
 {
     [Fact]
     public async Task CreateAsync_ShouldAddEntity()
@@ -60,6 +60,8 @@ public class GenericRepositoryTests : RepositoryTestsBase
         var result = await repo.GetAllAsync();
 
         // Assert
+        Assert.NotNull(result);
+        Assert.NotEmpty(result);
         Assert.Equal(2, result.Count());
     }
 
@@ -67,24 +69,24 @@ public class GenericRepositoryTests : RepositoryTestsBase
     public async Task GetByIdAsync_ShouldReturnCorrectEntity()
     {
         // Arrange
+        var customerId = Guid.NewGuid().ToString();
         const string user1Id = "uid-222";
 
         using var context = CreateInMemoryContext(nameof(GetByIdAsync_ShouldReturnCorrectEntity));
 
-        var customer = new Customer(
-            Id: Guid.NewGuid().ToString(),
+        context.Set<Customer>().Add(new Customer(
+            Id: customerId,
             Country: "Belarus",
             City: "Minsk",
             PostalCode: 234234,
             AppUserId: user1Id
-        );
-        context.Set<Customer>().Add(customer);
+        ));
         await context.SaveChangesAsync();
 
         var repo = new GenericRepository<Customer, string>(context);
 
         // Act
-        var result = await repo.GetByIdAsync(customer.Id);
+        var result = await repo.GetByIdAsync(customerId);
 
         // Assert
         Assert.NotNull(result);
@@ -114,7 +116,7 @@ public class GenericRepositoryTests : RepositoryTestsBase
 
         // Assert
         Assert.Equal(1, rowsAffected);
-        Assert.Empty(context.Set<Friend>());
+        Assert.Empty(context.Set<Customer>());
     }
 
     [Fact]
@@ -148,6 +150,8 @@ public class GenericRepositoryTests : RepositoryTestsBase
         var result = await repo.GetByParamAsync(C => C.City, filteredCity);
 
         // Assert
+        Assert.NotNull(result);
+        Assert.NotEmpty(result);
         Assert.Single(result);
         Assert.Equal(filteredCity, result.First().City);
     }

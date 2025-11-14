@@ -11,9 +11,9 @@ namespace CombatAnalysis.UserAPI.Controllers;
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class UserController(IUserService<AppUserDto> service, IMapper mapper, ILogger<UserController> logger) : ControllerBase
+public class UserController(IUserService service, IMapper mapper, ILogger<UserController> logger) : ControllerBase
 {
-    private readonly IUserService<AppUserDto> _service = service;
+    private readonly IUserService _service = service;
     private readonly IMapper _mapper = mapper;
     private readonly ILogger<UserController> _logger = logger;
 

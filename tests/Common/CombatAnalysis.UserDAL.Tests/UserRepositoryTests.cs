@@ -50,6 +50,8 @@ public class UserRepositoryTests : RepositoryTestsBase
         var result = await repo.GetAllAsync();
 
         // Assert
+        Assert.NotNull(result);
+        Assert.NotEmpty(result);
         Assert.Equal(2, result.Count());
     }
 
@@ -203,6 +205,8 @@ public class UserRepositoryTests : RepositoryTestsBase
         var result = await repo.FindByUsernameStartAtAsync(startAt);
 
         // Assert
+        Assert.NotNull(result);
+        Assert.NotEmpty(result);
         Assert.Equal(2, result.Count());
         Assert.Contains(result, r => r.Username == "Alice");
         Assert.Contains(result, r => r.Username == "Alex");
@@ -259,6 +263,8 @@ public class UserRepositoryTests : RepositoryTestsBase
         var result = await repo.FindByUsernameStartAtAsync(startAt);
 
         // Assert
+        Assert.NotNull(result);
+        Assert.NotEmpty(result);
         Assert.Single(result);
         Assert.Contains(result, r => r.Username == username3);
     }

@@ -4,5 +4,5 @@ namespace CombatAnalysis.UserBL.Interfaces;
 
 public interface ICustomerService : IService<CustomerDto, string>
 {
-    Task UpdateAsync(CustomerDto item);
+    Task UpdateAsync(string id, CustomerDto item);
 }

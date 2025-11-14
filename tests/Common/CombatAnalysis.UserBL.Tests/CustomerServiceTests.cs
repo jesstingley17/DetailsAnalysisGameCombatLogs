@@ -124,7 +124,7 @@ public class CustomerServiceTests
     }
 
     [Fact]
-    public async Task CreateAsync_ThrowException_ShouldNotCreateEntityAsPostlaCodeZero()
+    public async Task CreateAsync_ThrowException_ShouldNotCreateEntityAsPostalCodeZero()
     {
         // Arrange
         const string customerId = "uid-21";
@@ -154,7 +154,7 @@ public class CustomerServiceTests
     }
 
     [Fact]
-    public async Task CreateAsync_ThrowException_ShouldNotCreateEntityAsPostlaCodeNegative()
+    public async Task CreateAsync_ThrowException_ShouldNotCreateEntityAsPostalCodeNegative()
     {
         // Arrange
         const string customerId = "uid-21";
@@ -188,6 +188,7 @@ public class CustomerServiceTests
     {
         // Arrange
         const string customerId = "uid-21";
+
         const string country = "Belarus";
         const string city = "Grodno";
         const int postalCode = 234234;
@@ -218,7 +219,7 @@ public class CustomerServiceTests
         var service = new CustomerService(mockRepository.Object, mockMapper.Object);
 
         // Act
-        await service.UpdateAsync(customerDto);
+        await service.UpdateAsync(customerId, customerDto);
 
         // Assert and Verify correct method calls
         mockMapper.Verify(m => m.Map<Customer>(It.IsAny<CustomerDto>()), Times.Once);
@@ -226,10 +227,11 @@ public class CustomerServiceTests
     }
 
     [Fact]
-    public async Task UpdateAsync_ThrowException_ShouldNotUpdateEntityAsCountryEmpty()
+    public async Task UpdateAsync_ThrowException_ShouldNotUpdateEntityAsIdEmpty()
     {
         // Arrange
-        const string customerId = "uid-21";
+        const string customerId = "uid-22";
+
         const string country = "";
         const string city = "Minsk";
         const int postalCode = 234234;
@@ -249,7 +251,38 @@ public class CustomerServiceTests
         var service = new CustomerService(mockRepository.Object, mockMapper.Object);
 
         // Act and Assert
-        await Assert.ThrowsAsync<ArgumentException>(nameof(CustomerDto.Country), () => service.UpdateAsync(customerDto));
+        await Assert.ThrowsAsync<ArgumentException>(() => service.UpdateAsync(string.Empty, customerDto));
+
+        // Verify correct method calls
+        mockRepository.Verify(r => r.UpdateAsync(It.IsAny<string>(), It.IsAny<Customer>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_ThrowException_ShouldNotUpdateEntityAsCountryEmpty()
+    {
+        // Arrange
+        const string customerId = "uid-21";
+
+        const string country = "";
+        const string city = "Minsk";
+        const int postalCode = 234234;
+        const string appUserId = "uid-23";
+
+        var customerDto = new CustomerDto(
+            Id: customerId,
+            Country: country,
+            City: city,
+            PostalCode: postalCode,
+            AppUserId: appUserId
+        );
+
+        var mockMapper = new Mock<IMapper>();
+        var mockRepository = new Mock<IGenericRepository<Customer, string>>();
+
+        var service = new CustomerService(mockRepository.Object, mockMapper.Object);
+
+        // Act and Assert
+        await Assert.ThrowsAsync<ArgumentException>(nameof(CustomerDto.Country), () => service.UpdateAsync(customerId, customerDto));
 
         // Verify correct method calls
         mockRepository.Verify(r => r.UpdateAsync(It.IsAny<string>(), It.IsAny<Customer>()), Times.Never);
@@ -260,6 +293,7 @@ public class CustomerServiceTests
     {
         // Arrange
         const string customerId = "uid-21";
+
         const string country = "Belarus";
         const string city = "";
         const int postalCode = 234234;
@@ -279,7 +313,7 @@ public class CustomerServiceTests
         var service = new CustomerService(mockRepository.Object, mockMapper.Object);
 
         // Act and Assert
-        await Assert.ThrowsAsync<ArgumentException>(nameof(CustomerDto.City), () => service.UpdateAsync(customerDto));
+        await Assert.ThrowsAsync<ArgumentException>(nameof(CustomerDto.City), () => service.UpdateAsync(customerId, customerDto));
 
         // Verify correct method calls
         mockRepository.Verify(r => r.UpdateAsync(It.IsAny<string>(), It.IsAny<Customer>()), Times.Never);
@@ -290,6 +324,7 @@ public class CustomerServiceTests
     {
         // Arrange
         const string customerId = "uid-21";
+
         const string country = "Belarus";
         const string city = "Minsk";
         const int postalCode = 0;
@@ -309,7 +344,7 @@ public class CustomerServiceTests
         var service = new CustomerService(mockRepository.Object, mockMapper.Object);
 
         // Act and Assert
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(nameof(CustomerDto.PostalCode), () => service.UpdateAsync(customerDto));
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(nameof(CustomerDto.PostalCode), () => service.UpdateAsync(customerId, customerDto));
 
         // Verify correct method calls
         mockRepository.Verify(r => r.UpdateAsync(It.IsAny<string>(), It.IsAny<Customer>()), Times.Never);
@@ -320,6 +355,7 @@ public class CustomerServiceTests
     {
         // Arrange
         const string customerId = "uid-21";
+
         const string country = "Belarus";
         const string city = "Minsk";
         const int postalCode = -1;
@@ -339,7 +375,7 @@ public class CustomerServiceTests
         var service = new CustomerService(mockRepository.Object, mockMapper.Object);
 
         // Act and Assert
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(nameof(CustomerDto.PostalCode), () => service.UpdateAsync(customerDto));
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(nameof(CustomerDto.PostalCode), () => service.UpdateAsync(customerId, customerDto));
 
         // Verify correct method calls
         mockRepository.Verify(r => r.UpdateAsync(It.IsAny<string>(), It.IsAny<Customer>()), Times.Never);

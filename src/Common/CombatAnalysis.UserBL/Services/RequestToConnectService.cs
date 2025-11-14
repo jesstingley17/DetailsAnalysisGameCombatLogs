@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using AutoMapper.Extensions.ExpressionMapping;
 using CombatAnalysis.UserBL.DTO;
+using CombatAnalysis.UserBL.Exceptions;
 using CombatAnalysis.UserBL.Interfaces;
 using CombatAnalysis.UserDAL.Entities;
 using CombatAnalysis.UserDAL.Interfaces;
@@ -15,6 +16,8 @@ internal class RequestToConnectService(IGenericRepository<RequestToConnect, int>
 
     public async Task<RequestToConnectDto?> CreateAsync(RequestToConnectDto item)
     {
+        RequestToConnectException.ThrowIfEquals(item.AppUserId, item.ToAppUserId);
+
         var map = _mapper.Map<RequestToConnect>(item);
         var createdItem = await _repository.CreateAsync(map);
         var resultMap = _mapper.Map<RequestToConnectDto>(createdItem);
@@ -22,14 +25,10 @@ internal class RequestToConnectService(IGenericRepository<RequestToConnect, int>
         return resultMap;
     }
 
-    public async Task UpdateAsync(RequestToConnectDto item)
-    {
-        var map = _mapper.Map<RequestToConnect>(item);
-        await _repository.UpdateAsync(item.Id, map);
-    }
-
     public async Task DeleteAsync(int id)
     {
+        ArgumentOutOfRangeException.ThrowIfLessThan(id, 1);
+
         await _repository.DeleteAsync(id);
     }
 
@@ -43,6 +42,8 @@ internal class RequestToConnectService(IGenericRepository<RequestToConnect, int>
 
     public async Task<RequestToConnectDto?> GetByIdAsync(int id)
     {
+        ArgumentOutOfRangeException.ThrowIfLessThan(id, 1);
+
         var result = await _repository.GetByIdAsync(id);
         var resultMap = _mapper.Map<RequestToConnectDto>(result);
 
