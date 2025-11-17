@@ -1,17 +1,16 @@
 ﻿using AutoMapper;
-using CombatAnalysis.BL.DTO;
 using CombatAnalysis.BL.Interfaces.Filters;
 using CombatAnalysis.DAL.Interfaces.Entities;
 using CombatAnalysis.DAL.Interfaces.Filters;
 
 namespace CombatAnalysis.BL.Services.Filters;
 
-internal class GeneralFilterService<TModel, TModelMap>(IGeneralFilter<TModelMap> repository, IMapper mapper) : IGeneralFilterService<TModel>
+internal class GeneralFilterService<TModel, TModelMap>(IGeneralFilterRepository<TModelMap> repository, IMapper mapper) : IGeneralFilterService<TModel>
     where TModel : class, IGeneralFilterEntity
     where TModelMap : class, IGeneralFilterEntity
 {
     private readonly IMapper _mapper = mapper;
-    private readonly IGeneralFilter<TModelMap> _repository = repository;
+    private readonly IGeneralFilterRepository<TModelMap> _repository = repository;
 
     public async Task<IEnumerable<string>> GetTargetNamesByCombatPlayerIdAsync(int combatPlayerId)
     {
@@ -27,20 +26,12 @@ internal class GeneralFilterService<TModel, TModelMap>(IGeneralFilter<TModelMap>
         return count;
     }
 
-    public async Task<IEnumerable<TModel>> GetTargetByCombatPlayerIdAsync(int combatPlayerId, string target, int page, int pageSize)
+    public async Task<IEnumerable<TModel>> GetByTargetAsync(int combatPlayerId, string target, int page, int pageSize)
     {
-        var result = await _repository.GetTargetByCombatPlayerIdAsync(combatPlayerId, target, page, pageSize);
+        var result = await _repository.GetByTargetAsync(combatPlayerId, target, page, pageSize);
         var resultMap = _mapper.Map<IEnumerable<TModel>>(result);
 
         return resultMap;
-    }
-
-    public async Task<IEnumerable<List<CombatTargetDto>>> GetDamageByEachTargetAsync(int combatId)
-    {
-        var damageByEachTarget = await _repository.GetDamageByEachTargetAsync(combatId);
-        var damageByEachTargetMap = _mapper.Map<IEnumerable<List<CombatTargetDto>>>(damageByEachTarget);
-
-        return damageByEachTargetMap;
     }
 
     public async Task<int> GetTargetValueByCombatPlayerIdAsync(int combatPlayerId, string target)
@@ -64,9 +55,9 @@ internal class GeneralFilterService<TModel, TModelMap>(IGeneralFilter<TModelMap>
         return count;
     }
 
-    public async Task<IEnumerable<TModel>> GetCreatorByCombatPlayerIdAsync(int combatPlayerId, string creator, int page, int pageSize)
+    public async Task<IEnumerable<TModel>> GetByCreatorAsync(int combatPlayerId, string creator, int page, int pageSize)
     {
-        var result = await _repository.GetCreatorByCombatPlayerIdAsync(combatPlayerId, creator, page, pageSize);
+        var result = await _repository.GetByCreatorAsync(combatPlayerId, creator, page, pageSize);
         var resultMap = _mapper.Map<IEnumerable<TModel>>(result);
 
         return resultMap;
@@ -86,9 +77,9 @@ internal class GeneralFilterService<TModel, TModelMap>(IGeneralFilter<TModelMap>
         return count;
     }
 
-    public async Task<IEnumerable<TModel>> GetSpellByCombatPlayerIdAsync(int combatPlayerId, string spell, int page, int pageSize)
+    public async Task<IEnumerable<TModel>> GetBySpellAsync(int combatPlayerId, string spell, int page, int pageSize)
     {
-        var result = await _repository.GetSpellByCombatPlayerIdAsync(combatPlayerId, spell, page, pageSize);
+        var result = await _repository.GetBySpellAsync(combatPlayerId, spell, page, pageSize);
         var resultMap = _mapper.Map<IEnumerable<TModel>>(result);
 
         return resultMap;

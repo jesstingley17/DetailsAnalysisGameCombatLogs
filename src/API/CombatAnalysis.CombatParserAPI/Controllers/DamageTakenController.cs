@@ -49,7 +49,7 @@ public class DamageTakenController(IMutationService<DamageTakenDto> mutationServ
     [HttpGet("getByCreator")]
     public async Task<IActionResult> GetByCreator(int combatPlayerId, string creator, int page, int pageSize)
     {
-        var damageTakens = await _filterService.GetCreatorByCombatPlayerIdAsync(combatPlayerId, creator, page, pageSize);
+        var damageTakens = await _filterService.GetByCreatorAsync(combatPlayerId, creator, page, pageSize);
 
         return Ok(damageTakens);
     }
@@ -73,7 +73,7 @@ public class DamageTakenController(IMutationService<DamageTakenDto> mutationServ
     [HttpGet("getBySpell")]
     public async Task<IActionResult> GetBySpell(int combatPlayerId, string spell, int page, int pageSize)
     {
-        var daamgeTakens = await _filterService.GetSpellByCombatPlayerIdAsync(combatPlayerId, spell, page, pageSize);
+        var daamgeTakens = await _filterService.GetBySpellAsync(combatPlayerId, spell, page, pageSize);
 
         return Ok(daamgeTakens);
     }

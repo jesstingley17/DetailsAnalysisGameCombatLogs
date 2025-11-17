@@ -12,13 +12,14 @@ namespace CombatAnalysis.CombatParserAPI.Controllers;
 [Route("api/v1/[controller]")]
 [ApiController]
 public class DamageDoneController(IMutationService<DamageDoneDto> mutationService, IPlayerInfoService<DamageDoneDto> playerInfoService,
-    ICountService<DamageDoneDto> countService, IGeneralFilterService<DamageDoneDto> filterService,
+    ICountService<DamageDoneDto> countService, IGeneralFilterService<DamageDoneDto> filterService, IDamageFilterService damageFilterService,
     IMapper mapper, ILogger<DamageDoneController> logger) : ControllerBase
 {
     private readonly IMutationService<DamageDoneDto> _mutationService = mutationService;
     private readonly IPlayerInfoService<DamageDoneDto> _playerInfoService = playerInfoService;
     private readonly ICountService<DamageDoneDto> _countService = countService;
     private readonly IGeneralFilterService<DamageDoneDto> _filterService = filterService;
+    private readonly IDamageFilterService _damageFilterService = damageFilterService;
     private readonly IMapper _mapper = mapper;
     private readonly ILogger<DamageDoneController> _logger = logger;
 
@@ -49,7 +50,7 @@ public class DamageDoneController(IMutationService<DamageDoneDto> mutationServic
     [HttpGet("getDamageByEachTarget/{combatId}")]
     public async Task<IActionResult> GetDamageByEachTarget(int combatId)
     {
-        var damageByEachTarget = await _filterService.GetDamageByEachTargetAsync(combatId);
+        var damageByEachTarget = await _damageFilterService.GetDamageByEachTargetAsync(combatId);
 
         return Ok(damageByEachTarget);
     }
@@ -57,7 +58,7 @@ public class DamageDoneController(IMutationService<DamageDoneDto> mutationServic
     [HttpGet("getByTarget")]
     public async Task<IActionResult> GetByTarget(int combatPlayerId, string target, int page, int pageSize)
     {
-        var damageDones = await _filterService.GetTargetByCombatPlayerIdAsync(combatPlayerId, target, page, pageSize);
+        var damageDones = await _filterService.GetByTargetAsync(combatPlayerId, target, page, pageSize);
 
         return Ok(damageDones);
     }
@@ -89,7 +90,7 @@ public class DamageDoneController(IMutationService<DamageDoneDto> mutationServic
     [HttpGet("getBySpell")]
     public async Task<IActionResult> GetBySpell(int combatPlayerId, string spell, int page, int pageSize)
     {
-        var damageDones = await _filterService.GetSpellByCombatPlayerIdAsync(combatPlayerId, spell, page, pageSize);
+        var damageDones = await _filterService.GetBySpellAsync(combatPlayerId, spell, page, pageSize);
 
         return Ok(damageDones);
     }

@@ -11,7 +11,7 @@ internal class FirebaseRepository<TModel>(FirebaseContext context) : IGenericRep
 {
     private readonly FirebaseContext _context = context;
 
-    public async Task<TModel> CreateAsync(TModel item)
+    public async Task<TModel?> CreateAsync(TModel item)
     {
         var result = await _context.FirebaseClient
                      .Child(item.GetType().Name)

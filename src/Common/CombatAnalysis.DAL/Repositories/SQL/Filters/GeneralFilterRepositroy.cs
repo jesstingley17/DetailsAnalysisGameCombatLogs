@@ -1,12 +1,11 @@
 ﻿using CombatAnalysis.DAL.Data;
-using CombatAnalysis.DAL.Entities;
 using CombatAnalysis.DAL.Interfaces.Entities;
 using CombatAnalysis.DAL.Interfaces.Filters;
 using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.DAL.Repositories.SQL.Filters;
 
-internal class GeneralFilterRepositroy<TModel>(CombatParserSQLContext context) : IGeneralFilter<TModel>
+internal class GeneralFilterRepositroy<TModel>(CombatParserSQLContext context) : IGeneralFilterRepository<TModel>
     where TModel : class, IGeneralFilterEntity, ICombatPlayerEntity
 {
     private readonly CombatParserSQLContext _context = context;
@@ -31,7 +30,7 @@ internal class GeneralFilterRepositroy<TModel>(CombatParserSQLContext context) :
         return count;
     }
 
-    public async Task<IEnumerable<TModel>> GetTargetByCombatPlayerIdAsync(int combatPlayerId, string target, int page, int pageSize)
+    public async Task<IEnumerable<TModel>> GetByTargetAsync(int combatPlayerId, string target, int page, int pageSize)
     {
         var values = await _context.Set<TModel>()
                      .Where(x => x.CombatPlayerId == combatPlayerId && x.Target.Equals(target))
@@ -41,44 +40,6 @@ internal class GeneralFilterRepositroy<TModel>(CombatParserSQLContext context) :
                      .ToListAsync();
 
         return values;
-    }
-
-    public async Task<IEnumerable<List<CombatTarget>>> GetDamageByEachTargetAsync(int combatId)
-    {
-        var damageByEachTarget = new List<List<CombatTarget>>();
-        var targets = await GetCombatTargetsAsync(combatId);
-
-        foreach (var item in targets)
-        {
-             var sum = await _context.Set<Combat>()
-                        .Where(x => x.Id == combatId)
-                        .Join(_context.Set<CombatPlayer>(),
-                            x => x.Id,
-                            u => u.CombatId,
-                            (x, u) => new
-                            {
-                                u.Id,
-                                u.Username
-                            })
-                        .Join(_context.Set<DamageDone>(),
-                            x => x.Id,
-                            u => u.CombatPlayerId,
-                            (x, u) => new
-                            {
-                                x.Username,
-                                u.Target,
-                                u.Value
-                            })
-                        .Where(x => x.Target == item)
-                        .GroupBy(x => x.Username)
-                        .Select(x => new CombatTarget { Username = x.Key, Target = item, Sum = x.Sum(y => y.Value) })
-                        .OrderByDescending(x => x.Sum)
-                        .ToListAsync();
-
-            damageByEachTarget.Add(sum);
-        }
-
-        return damageByEachTarget;
     }
 
     public async Task<int> GetTargetValueByCombatPlayerIdAsync(int combatPlayerId, string target)
@@ -111,7 +72,7 @@ internal class GeneralFilterRepositroy<TModel>(CombatParserSQLContext context) :
         return count;
     }
 
-    public async Task<IEnumerable<TModel>> GetCreatorByCombatPlayerIdAsync(int combatPlayerId, string creator, int page, int pageSize)
+    public async Task<IEnumerable<TModel>> GetByCreatorAsync(int combatPlayerId, string creator, int page, int pageSize)
     {
         var values = await _context.Set<TModel>()
                      .Where(x => x.CombatPlayerId == combatPlayerId && x.Creator.Equals(creator))
@@ -143,7 +104,7 @@ internal class GeneralFilterRepositroy<TModel>(CombatParserSQLContext context) :
         return count;
     }
 
-    public async Task<IEnumerable<TModel>> GetSpellByCombatPlayerIdAsync(int combatPlayerId, string spell, int page, int pageSize)
+    public async Task<IEnumerable<TModel>> GetBySpellAsync(int combatPlayerId, string spell, int page, int pageSize)
     {
         var values = await _context.Set<TModel>()
                      .Where(x => x.CombatPlayerId == combatPlayerId && x.Spell.Equals(spell))
@@ -153,30 +114,5 @@ internal class GeneralFilterRepositroy<TModel>(CombatParserSQLContext context) :
                      .ToListAsync();
 
         return values;
-    }
-
-    private async Task<List<string>> GetCombatTargetsAsync(int combatId)
-    {
-        var targets = await _context.Set<Combat>()
-                .Where(x => x.Id == combatId)
-                .Join(_context.Set<CombatPlayer>(),
-                    x => x.Id,
-                    u => u.CombatId,
-                    (x, u) => new
-                    {
-                        u.Id,
-                    })
-                .Join(_context.Set<DamageDone>(),
-                    x => x.Id,
-                    u => u.CombatPlayerId,
-                    (x, u) => new
-                    {
-                        u.Target
-                    })
-                .Distinct()
-                .Select(x => x.Target)
-                .ToListAsync();
-
-        return targets;
     }
 }

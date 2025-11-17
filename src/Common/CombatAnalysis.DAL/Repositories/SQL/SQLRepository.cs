@@ -10,7 +10,7 @@ internal class SQLRepository<TModel>(CombatParserSQLContext context) : IGenericR
 {
     private readonly CombatParserSQLContext _context = context;
 
-    public async Task<TModel> CreateAsync(TModel item)
+    public async Task<TModel?> CreateAsync(TModel item)
     {
         var entityEntry = await _context.Set<TModel>().AddAsync(item);
         await _context.SaveChangesAsync();
@@ -18,22 +18,30 @@ internal class SQLRepository<TModel>(CombatParserSQLContext context) : IGenericR
         return entityEntry.Entity;
     }
 
-    public async Task<int> DeleteAsync(int id)
+    public async Task<int> UpdateAsync(TModel item)
     {
-        var item = Activator.CreateInstance<TModel>();
-        typeof(TModel).GetProperty("Id")?.SetValue(item, id);
-
-        _context.Attach(item);
-        _context.Set<TModel>().Remove(item);
+        _context.Entry(item).State = EntityState.Modified;
         var rowsAffected = await _context.SaveChangesAsync();
 
         return rowsAffected;
     }
 
+    public async Task<int> DeleteAsync(int id)
+    {
+        var entity = await _context.Set<TModel>().FindAsync(id);
+        if (entity == null)
+        {
+            return 0;
+        }
+
+        _context.Set<TModel>().Remove(entity);
+        return await _context.SaveChangesAsync();
+    }
+
     public async Task<IEnumerable<TModel>> GetAllAsync()
     {
         var result = await _context.Set<TModel>().AsNoTracking().ToListAsync();
-        return result.Count != 0 ? result : [];
+        return result;
     }
 
     public async Task<TModel?> GetByIdAsync(int id)
@@ -57,13 +65,5 @@ internal class SQLRepository<TModel>(CombatParserSQLContext context) : IGenericR
         var result = any ? filteredQuery.AsEnumerable() : [];
 
         return result;
-    }
-
-    public async Task<int> UpdateAsync(TModel item)
-    {
-        _context.Entry(item).State = EntityState.Modified;
-        var rowsAffected = await _context.SaveChangesAsync();
-
-        return rowsAffected;
     }
 }

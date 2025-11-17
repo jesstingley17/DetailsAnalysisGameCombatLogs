@@ -39,6 +39,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICountService<ResourceRecoveryDto>, CountService<ResourceRecoveryDto, ResourceRecovery>>();
         services.AddScoped<IGeneralFilterService<ResourceRecoveryDto>, GeneralFilterService<ResourceRecoveryDto, ResourceRecovery>>();
 
+        services.AddScoped<IDamageFilterService, DamageFilterService>();
+
         services.AddScoped<IPlayerInfoService<PlayerDeathDto>, PlayerInfoService<PlayerDeathDto, PlayerDeath>>();
 
         services.AddScoped<ISpecScoreService, SpecializationScoreService>();

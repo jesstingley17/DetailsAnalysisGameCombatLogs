@@ -140,7 +140,7 @@ public class BannedUserRepositoryTests : RepositoryTestsBase
         var repo = new GenericRepository<BannedUser, int>(context);
 
         // Act
-        var result = await repo.GetByParamAsync(C => C.BannedUserId, filteredBannedUserId);
+        var result = await repo.GetByParamAsync(b => b.BannedUserId, filteredBannedUserId);
 
         // Assert
         Assert.NotNull(result);

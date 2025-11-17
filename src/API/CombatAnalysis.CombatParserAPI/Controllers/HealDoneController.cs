@@ -49,7 +49,7 @@ public class HealDoneController(IMutationService<HealDoneDto> mutationService, I
     [HttpGet("getByTarget")]
     public async Task<IActionResult> GetByTarget(int combatPlayerId, string target, int page, int pageSize)
     {
-        var healDones = await _filterService.GetTargetByCombatPlayerIdAsync(combatPlayerId, target, page, pageSize);
+        var healDones = await _filterService.GetByTargetAsync(combatPlayerId, target, page, pageSize);
 
         return Ok(healDones);
     }
@@ -73,7 +73,7 @@ public class HealDoneController(IMutationService<HealDoneDto> mutationService, I
     [HttpGet("getBySpell")]
     public async Task<IActionResult> GetBySpell(int combatPlayerId, string spell, int page, int pageSize)
     {
-        var healDones = await _filterService.GetSpellByCombatPlayerIdAsync(combatPlayerId, spell, page, pageSize);
+        var healDones = await _filterService.GetBySpellAsync(combatPlayerId, spell, page, pageSize);
 
         return Ok(healDones);
     }
