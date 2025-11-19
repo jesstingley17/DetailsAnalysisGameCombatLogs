@@ -20,10 +20,15 @@ internal class SQLRepository<TModel>(CombatParserSQLContext context) : IGenericR
 
     public async Task<int> UpdateAsync(TModel item)
     {
-        _context.Entry(item).State = EntityState.Modified;
-        var rowsAffected = await _context.SaveChangesAsync();
+        var existing = await _context.Set<TModel>().FindAsync(item.Id);
 
-        return rowsAffected;
+        if (existing != null)
+        {
+            _context.Entry(existing).State = EntityState.Detached;
+        }
+
+        _context.Set<TModel>().Update(item);
+        return await _context.SaveChangesAsync();
     }
 
     public async Task<int> DeleteAsync(int id)

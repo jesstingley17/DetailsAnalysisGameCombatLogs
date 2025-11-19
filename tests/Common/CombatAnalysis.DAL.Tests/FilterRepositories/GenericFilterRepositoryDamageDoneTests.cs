@@ -1,9 +1,9 @@
 ﻿using CombatAnalysis.DAL.Entities;
 using CombatAnalysis.DAL.Repositories.SQL.Filters;
 
-namespace CombatAnalysis.DAL.Tests;
+namespace CombatAnalysis.DAL.Tests.FilterRepositories;
 
-public class GenericFilterRepositoryResourceRecoveryTests : RepositoryTestsBase
+public class GenericFilterRepositoryDamageDoneTests : RepositoryTestsBase
 {
     [Fact]
     public async Task GetTargetNamesByCombatPlayerIdAsync_Collection_ShouldReturnTargetNamesByCombatPlayerId()
@@ -13,19 +13,22 @@ public class GenericFilterRepositoryResourceRecoveryTests : RepositoryTestsBase
 
         using var context = CreateInMemoryContext(nameof(GetTargetNamesByCombatPlayerIdAsync_Collection_ShouldReturnTargetNamesByCombatPlayerId));
 
-        context.Set<ResourceRecovery>().Add(new ResourceRecovery
+        context.Set<DamageDone>().Add(new DamageDone
         {
             Id = 1,
             Creator = "Solinx",
-            Target = "Kiril",
+            Target = "Boss",
             Spell = "Test",
+            IsPeriodicDamage = false,
             Time = TimeSpan.Parse("00:01:10"),
             Value = 200,
+            DamageType = 0,
+            IsPet = false,
             CombatPlayerId = combatPlayerId,
         });
         await context.SaveChangesAsync();
 
-        var repo = new GeneralFilterRepositroy<ResourceRecovery>(context);
+        var repo = new GeneralFilterRepositroy<DamageDone>(context);
 
         // Act
         var result = await repo.GetTargetNamesByCombatPlayerIdAsync(combatPlayerId);
@@ -41,33 +44,39 @@ public class GenericFilterRepositoryResourceRecoveryTests : RepositoryTestsBase
     {
         // Arrange
         const int combatPlayerId = 1;
-        const string target = "Kiril";
+        const string target = "Boss";
 
         using var context = CreateInMemoryContext(nameof(CountTargetByCombatPlayerIdAsync_Count_ShouldReturnCountTargetsByCombatPlayerIdAndTargetName));
-        context.Set<ResourceRecovery>().AddRange(new ResourceRecovery
+        context.Set<DamageDone>().AddRange(new DamageDone
         {
             Id = 1,
             Creator = "Solinx",
             Target = target,
             Spell = "Test",
+            IsPeriodicDamage = false,
             Time = TimeSpan.Parse("00:01:10"),
             Value = 200,
+            DamageType = 0,
+            IsPet = false,
             CombatPlayerId = combatPlayerId,
         },
-        new ResourceRecovery
+        new DamageDone
         {
             Id = 2,
             Creator = "Solinx",
             Target = target,
-            Spell = "Test",
-            Time = TimeSpan.Parse("00:01:10"),
-            Value = 50,
+            Spell = "Check",
+            IsPeriodicDamage = false,
+            Time = TimeSpan.Parse("00:01:12"),
+            Value = 100,
+            DamageType = 0,
+            IsPet = false,
             CombatPlayerId = combatPlayerId,
         });
 
         await context.SaveChangesAsync();
 
-        var repo = new GeneralFilterRepositroy<ResourceRecovery>(context);
+        var repo = new GeneralFilterRepositroy<DamageDone>(context);
 
         // Act
         var result = await repo.CountTargetByCombatPlayerIdAsync(combatPlayerId, target);
@@ -77,27 +86,30 @@ public class GenericFilterRepositoryResourceRecoveryTests : RepositoryTestsBase
     }
 
     [Fact]
-    public async Task GetByTargetAsync_Collection_ShouldReturnResourcesRecoveryByTargetName()
+    public async Task GetByTargetAsync_Collection_ShouldReturnDamageDonesByTargetName()
     {
         // Arrange
         const int combatPlayerId = 1;
-        const string target = "Kiril";
+        const string target = "Boss";
 
-        using var context = CreateInMemoryContext(nameof(GetByTargetAsync_Collection_ShouldReturnResourcesRecoveryByTargetName));
+        using var context = CreateInMemoryContext(nameof(GetByTargetAsync_Collection_ShouldReturnDamageDonesByTargetName));
 
-        context.Set<ResourceRecovery>().Add(new ResourceRecovery
+        context.Set<DamageDone>().Add(new DamageDone
         {
             Id = 1,
             Creator = "Solinx",
             Target = target,
             Spell = "Test",
+            IsPeriodicDamage = false,
             Time = TimeSpan.Parse("00:01:10"),
             Value = 200,
+            DamageType = 0,
+            IsPet = false,
             CombatPlayerId = combatPlayerId,
         });
         await context.SaveChangesAsync();
 
-        var repo = new GeneralFilterRepositroy<ResourceRecovery>(context);
+        var repo = new GeneralFilterRepositroy<DamageDone>(context);
 
         // Act
         var result = await repo.GetByTargetAsync(combatPlayerId, target, 1, 10);
@@ -117,29 +129,35 @@ public class GenericFilterRepositoryResourceRecoveryTests : RepositoryTestsBase
         const int value = 250;
 
         using var context = CreateInMemoryContext(nameof(GetTargetValueByCombatPlayerIdAsync_Value_ShouldReturnValueBySelectedTarget));
-        context.Set<ResourceRecovery>().AddRange(new ResourceRecovery
+        context.Set<DamageDone>().AddRange(new DamageDone
         {
             Id = 1,
             Creator = "Solinx",
             Target = target,
             Spell = "Test",
+            IsPeriodicDamage = false,
             Time = TimeSpan.Parse("00:01:10"),
             Value = 200,
+            DamageType = 0,
+            IsPet = false,
             CombatPlayerId = combatPlayerId,
         },
-        new ResourceRecovery
+        new DamageDone
         {
             Id = 2,
             Creator = "Solinx",
             Target = target,
-            Spell = "Test",
+            Spell = "Check",
+            IsPeriodicDamage = false,
             Time = TimeSpan.Parse("00:01:10"),
             Value = 50,
+            DamageType = 0,
+            IsPet = false,
             CombatPlayerId = combatPlayerId,
         });
         await context.SaveChangesAsync();
 
-        var repo = new GeneralFilterRepositroy<ResourceRecovery>(context);
+        var repo = new GeneralFilterRepositroy<DamageDone>(context);
 
         // Act
         var result = await repo.GetTargetValueByCombatPlayerIdAsync(combatPlayerId, target);
@@ -153,22 +171,25 @@ public class GenericFilterRepositoryResourceRecoveryTests : RepositoryTestsBase
     {
         // Arrange
         const int combatPlayerId = 1;
-        const string target = "Kiril";
+        const string target = "Boss";
 
         using var context = CreateInMemoryContext(nameof(GetCreatorNamesByCombatPlayerIdAsync_Collection_ShouldReturnCreatorNamesByByCombatPlayerId));
-        context.Set<ResourceRecovery>().Add(new ResourceRecovery
+        context.Set<DamageDone>().Add(new DamageDone
         {
             Id = 1,
             Creator = "Solinx",
             Target = target,
             Spell = "Test",
+            IsPeriodicDamage = false,
             Time = TimeSpan.Parse("00:01:10"),
             Value = 200,
+            DamageType = 0,
+            IsPet = false,
             CombatPlayerId = combatPlayerId,
         });
         await context.SaveChangesAsync();
 
-        var repo = new GeneralFilterRepositroy<ResourceRecovery>(context);
+        var repo = new GeneralFilterRepositroy<DamageDone>(context);
 
         // Act
         var result = await repo.GetCreatorNamesByCombatPlayerIdAsync(combatPlayerId);
@@ -187,19 +208,22 @@ public class GenericFilterRepositoryResourceRecoveryTests : RepositoryTestsBase
         const string creator = "Solinx";
 
         using var context = CreateInMemoryContext(nameof(CountCreatorByCombatPlayerIdAsync_Count_ShouldReturnCountCreatorsByCombatPlayerIdAndTargetName));
-        context.Set<ResourceRecovery>().Add(new ResourceRecovery
+        context.Set<DamageDone>().Add(new DamageDone
         {
             Id = 1,
             Creator = creator,
-            Target = "Kiril",
+            Target = "Boss",
             Spell = "Test",
+            IsPeriodicDamage = false,
             Time = TimeSpan.Parse("00:01:10"),
             Value = 200,
+            DamageType = 0,
+            IsPet = false,
             CombatPlayerId = combatPlayerId,
         });
         await context.SaveChangesAsync();
 
-        var repo = new GeneralFilterRepositroy<ResourceRecovery>(context);
+        var repo = new GeneralFilterRepositroy<DamageDone>(context);
 
         // Act
         var result = await repo.CountCreatorByCombatPlayerIdAsync(combatPlayerId, creator);
@@ -209,27 +233,30 @@ public class GenericFilterRepositoryResourceRecoveryTests : RepositoryTestsBase
     }
 
     [Fact]
-    public async Task GetByCreatorAsync_Collection_ShouldReturnResourcesRecoveryByCreatorName()
+    public async Task GetByCreatorAsync_Collection_ShouldReturnDamageDonesByCreatorName()
     {
         // Arrange
         const int combatPlayerId = 1;
         const string creator = "Solinx";
 
-        using var context = CreateInMemoryContext(nameof(GetByCreatorAsync_Collection_ShouldReturnResourcesRecoveryByCreatorName));
+        using var context = CreateInMemoryContext(nameof(GetByCreatorAsync_Collection_ShouldReturnDamageDonesByCreatorName));
 
-        context.Set<ResourceRecovery>().Add(new ResourceRecovery
+        context.Set<DamageDone>().Add(new DamageDone
         {
             Id = 1,
             Creator = creator,
-            Target = "Kiril",
+            Target = "Boss",
             Spell = "Test",
+            IsPeriodicDamage = false,
             Time = TimeSpan.Parse("00:01:10"),
             Value = 200,
+            DamageType = 0,
+            IsPet = false,
             CombatPlayerId = combatPlayerId,
         });
         await context.SaveChangesAsync();
 
-        var repo = new GeneralFilterRepositroy<ResourceRecovery>(context);
+        var repo = new GeneralFilterRepositroy<DamageDone>(context);
 
         // Act
         var result = await repo.GetByCreatorAsync(combatPlayerId, creator, 1, 10);
@@ -248,19 +275,22 @@ public class GenericFilterRepositoryResourceRecoveryTests : RepositoryTestsBase
 
         using var context = CreateInMemoryContext(nameof(GetSpellNamesByCombatPlayerIdAsync_Collection_ShouldReturnSpellNamesByCombatPlayerId));
 
-        context.Set<ResourceRecovery>().Add(new ResourceRecovery
+        context.Set<DamageDone>().Add(new DamageDone
         {
             Id = 1,
             Creator = "Solinx",
-            Target = "Kiril",
+            Target = "Boss",
             Spell = "Test",
+            IsPeriodicDamage = false,
             Time = TimeSpan.Parse("00:01:10"),
             Value = 200,
+            DamageType = 0,
+            IsPet = false,
             CombatPlayerId = combatPlayerId,
         });
         await context.SaveChangesAsync();
 
-        var repo = new GeneralFilterRepositroy<ResourceRecovery>(context);
+        var repo = new GeneralFilterRepositroy<DamageDone>(context);
 
         // Act
         var result = await repo.GetSpellNamesByCombatPlayerIdAsync(combatPlayerId);
@@ -279,29 +309,35 @@ public class GenericFilterRepositoryResourceRecoveryTests : RepositoryTestsBase
         const string spell = "Test";
 
         using var context = CreateInMemoryContext(nameof(CountSpellByCombatPlayerIdAsync_Count_ShouldReturnCountSpellsByCombatPlayerId));
-        context.Set<ResourceRecovery>().AddRange(new ResourceRecovery
+        context.Set<DamageDone>().AddRange(new DamageDone
         {
             Id = 1,
             Creator = "Solinx",
-            Target = "Kriil",
+            Target = "Boss",
             Spell = spell,
+            IsPeriodicDamage = false,
             Time = TimeSpan.Parse("00:01:10"),
             Value = 200,
+            DamageType = 0,
+            IsPet = false,
             CombatPlayerId = combatPlayerId,
         },
-        new ResourceRecovery
+        new DamageDone
         {
             Id = 2,
             Creator = "Solinx",
-            Target = "Kriil",
+            Target = "Boss",
             Spell = spell,
-            Time = TimeSpan.Parse("00:01:10"),
-            Value = 50,
+            IsPeriodicDamage = false,
+            Time = TimeSpan.Parse("00:01:14"),
+            Value = 112,
+            DamageType = 0,
+            IsPet = false,
             CombatPlayerId = combatPlayerId,
         });
         await context.SaveChangesAsync();
 
-        var repo = new GeneralFilterRepositroy<ResourceRecovery>(context);
+        var repo = new GeneralFilterRepositroy<DamageDone>(context);
 
         // Act
         var result = await repo.CountSpellByCombatPlayerIdAsync(combatPlayerId, spell);
@@ -311,27 +347,30 @@ public class GenericFilterRepositoryResourceRecoveryTests : RepositoryTestsBase
     }
 
     [Fact]
-    public async Task GetBySpellAsync_Collection_ShouldReturnResourcesRecoveryBySpellName()
+    public async Task GetBySpellAsync_Collection_ShouldReturnDamageDonesBySpellName()
     {
         // Arrange
         const int combatPlayerId = 1;
         const string spell = "Check";
 
-        using var context = CreateInMemoryContext(nameof(GetBySpellAsync_Collection_ShouldReturnResourcesRecoveryBySpellName));
+        using var context = CreateInMemoryContext(nameof(GetBySpellAsync_Collection_ShouldReturnDamageDonesBySpellName));
 
-        context.Set<ResourceRecovery>().Add(new ResourceRecovery
+        context.Set<DamageDone>().Add(new DamageDone
         {
             Id = 1,
             Creator = "Solinx",
-            Target = "Kiril",
+            Target = "Boss",
             Spell = spell,
+            IsPeriodicDamage = false,
             Time = TimeSpan.Parse("00:01:10"),
             Value = 200,
+            DamageType = 0,
+            IsPet = false,
             CombatPlayerId = combatPlayerId,
         });
         await context.SaveChangesAsync();
 
-        var repo = new GeneralFilterRepositroy<ResourceRecovery>(context);
+        var repo = new GeneralFilterRepositroy<DamageDone>(context);
 
         // Act
         var result = await repo.GetBySpellAsync(combatPlayerId, spell, 1, 10);

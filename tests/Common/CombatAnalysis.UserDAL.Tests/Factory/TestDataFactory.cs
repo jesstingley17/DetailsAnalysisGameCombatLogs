@@ -2,7 +2,7 @@
 
 namespace CombatAnalysis.UserDAL.Tests.Factory;
 
-public static class TestDataFactory
+internal static class TestDataFactory
 {
     public static AppUser CreateAppUser(
         string? id = null,

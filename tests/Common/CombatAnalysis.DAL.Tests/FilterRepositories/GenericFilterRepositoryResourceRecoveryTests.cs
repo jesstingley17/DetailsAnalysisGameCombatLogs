@@ -1,9 +1,9 @@
 ﻿using CombatAnalysis.DAL.Entities;
 using CombatAnalysis.DAL.Repositories.SQL.Filters;
 
-namespace CombatAnalysis.DAL.Tests;
+namespace CombatAnalysis.DAL.Tests.FilterRepositories;
 
-public class GenericFilterRepositoryHealDoneTests : RepositoryTestsBase
+public class GenericFilterRepositoryResourceRecoveryTests : RepositoryTestsBase
 {
     [Fact]
     public async Task GetTargetNamesByCombatPlayerIdAsync_Collection_ShouldReturnTargetNamesByCombatPlayerId()
@@ -13,22 +13,19 @@ public class GenericFilterRepositoryHealDoneTests : RepositoryTestsBase
 
         using var context = CreateInMemoryContext(nameof(GetTargetNamesByCombatPlayerIdAsync_Collection_ShouldReturnTargetNamesByCombatPlayerId));
 
-        context.Set<HealDone>().Add(new HealDone
+        context.Set<ResourceRecovery>().Add(new ResourceRecovery
         {
             Id = 1,
             Creator = "Solinx",
             Target = "Kiril",
             Spell = "Test",
-            IsCrit = false,
-            IsAbsorbed = false,
             Time = TimeSpan.Parse("00:01:10"),
-            Overheal = 10,
             Value = 200,
             CombatPlayerId = combatPlayerId,
         });
         await context.SaveChangesAsync();
 
-        var repo = new GeneralFilterRepositroy<HealDone>(context);
+        var repo = new GeneralFilterRepositroy<ResourceRecovery>(context);
 
         // Act
         var result = await repo.GetTargetNamesByCombatPlayerIdAsync(combatPlayerId);
@@ -47,36 +44,30 @@ public class GenericFilterRepositoryHealDoneTests : RepositoryTestsBase
         const string target = "Kiril";
 
         using var context = CreateInMemoryContext(nameof(CountTargetByCombatPlayerIdAsync_Count_ShouldReturnCountTargetsByCombatPlayerIdAndTargetName));
-        context.Set<HealDone>().AddRange(new HealDone
+        context.Set<ResourceRecovery>().AddRange(new ResourceRecovery
         {
             Id = 1,
             Creator = "Solinx",
             Target = target,
             Spell = "Test",
-            IsCrit = false,
-            IsAbsorbed = false,
             Time = TimeSpan.Parse("00:01:10"),
-            Overheal = 10,
             Value = 200,
             CombatPlayerId = combatPlayerId,
         },
-        new HealDone
+        new ResourceRecovery
         {
             Id = 2,
             Creator = "Solinx",
             Target = target,
             Spell = "Test",
-            IsCrit = false,
-            IsAbsorbed = false,
-            Time = TimeSpan.Parse("00:01:12"),
-            Overheal = 0,
-            Value = 100,
+            Time = TimeSpan.Parse("00:01:10"),
+            Value = 50,
             CombatPlayerId = combatPlayerId,
         });
 
         await context.SaveChangesAsync();
 
-        var repo = new GeneralFilterRepositroy<HealDone>(context);
+        var repo = new GeneralFilterRepositroy<ResourceRecovery>(context);
 
         // Act
         var result = await repo.CountTargetByCombatPlayerIdAsync(combatPlayerId, target);
@@ -86,30 +77,27 @@ public class GenericFilterRepositoryHealDoneTests : RepositoryTestsBase
     }
 
     [Fact]
-    public async Task GetByTargetAsync_Collection_ShouldReturnHealDonesByTargetName()
+    public async Task GetByTargetAsync_Collection_ShouldReturnResourcesRecoveryByTargetName()
     {
         // Arrange
         const int combatPlayerId = 1;
         const string target = "Kiril";
 
-        using var context = CreateInMemoryContext(nameof(GetByTargetAsync_Collection_ShouldReturnHealDonesByTargetName));
+        using var context = CreateInMemoryContext(nameof(GetByTargetAsync_Collection_ShouldReturnResourcesRecoveryByTargetName));
 
-        context.Set<HealDone>().Add(new HealDone
+        context.Set<ResourceRecovery>().Add(new ResourceRecovery
         {
             Id = 1,
             Creator = "Solinx",
             Target = target,
             Spell = "Test",
-            IsCrit = false,
-            IsAbsorbed = false,
             Time = TimeSpan.Parse("00:01:10"),
-            Overheal = 10,
             Value = 200,
             CombatPlayerId = combatPlayerId,
         });
         await context.SaveChangesAsync();
 
-        var repo = new GeneralFilterRepositroy<HealDone>(context);
+        var repo = new GeneralFilterRepositroy<ResourceRecovery>(context);
 
         // Act
         var result = await repo.GetByTargetAsync(combatPlayerId, target, 1, 10);
@@ -125,39 +113,33 @@ public class GenericFilterRepositoryHealDoneTests : RepositoryTestsBase
     {
         // Arrange
         const int combatPlayerId = 1;
-        const string target = "Kiril";
-        const int value = 300;
+        const string target = "Boss";
+        const int value = 250;
 
         using var context = CreateInMemoryContext(nameof(GetTargetValueByCombatPlayerIdAsync_Value_ShouldReturnValueBySelectedTarget));
-        context.Set<HealDone>().AddRange(new HealDone
+        context.Set<ResourceRecovery>().AddRange(new ResourceRecovery
         {
             Id = 1,
             Creator = "Solinx",
             Target = target,
             Spell = "Test",
-            IsCrit = false,
-            IsAbsorbed = false,
             Time = TimeSpan.Parse("00:01:10"),
-            Overheal = 10,
             Value = 200,
             CombatPlayerId = combatPlayerId,
         },
-        new HealDone
+        new ResourceRecovery
         {
             Id = 2,
             Creator = "Solinx",
             Target = target,
             Spell = "Test",
-            IsCrit = false,
-            IsAbsorbed = false,
-            Time = TimeSpan.Parse("00:01:12"),
-            Overheal = 0,
-            Value = 100,
+            Time = TimeSpan.Parse("00:01:10"),
+            Value = 50,
             CombatPlayerId = combatPlayerId,
         });
         await context.SaveChangesAsync();
 
-        var repo = new GeneralFilterRepositroy<HealDone>(context);
+        var repo = new GeneralFilterRepositroy<ResourceRecovery>(context);
 
         // Act
         var result = await repo.GetTargetValueByCombatPlayerIdAsync(combatPlayerId, target);
@@ -174,22 +156,19 @@ public class GenericFilterRepositoryHealDoneTests : RepositoryTestsBase
         const string target = "Kiril";
 
         using var context = CreateInMemoryContext(nameof(GetCreatorNamesByCombatPlayerIdAsync_Collection_ShouldReturnCreatorNamesByByCombatPlayerId));
-        context.Set<HealDone>().Add(new HealDone
+        context.Set<ResourceRecovery>().Add(new ResourceRecovery
         {
             Id = 1,
             Creator = "Solinx",
             Target = target,
             Spell = "Test",
-            IsCrit = false,
-            IsAbsorbed = false,
             Time = TimeSpan.Parse("00:01:10"),
-            Overheal = 10,
             Value = 200,
             CombatPlayerId = combatPlayerId,
         });
         await context.SaveChangesAsync();
 
-        var repo = new GeneralFilterRepositroy<HealDone>(context);
+        var repo = new GeneralFilterRepositroy<ResourceRecovery>(context);
 
         // Act
         var result = await repo.GetCreatorNamesByCombatPlayerIdAsync(combatPlayerId);
@@ -208,22 +187,19 @@ public class GenericFilterRepositoryHealDoneTests : RepositoryTestsBase
         const string creator = "Solinx";
 
         using var context = CreateInMemoryContext(nameof(CountCreatorByCombatPlayerIdAsync_Count_ShouldReturnCountCreatorsByCombatPlayerIdAndTargetName));
-        context.Set<HealDone>().Add(new HealDone
+        context.Set<ResourceRecovery>().Add(new ResourceRecovery
         {
             Id = 1,
             Creator = creator,
             Target = "Kiril",
             Spell = "Test",
-            IsCrit = false,
-            IsAbsorbed = false,
             Time = TimeSpan.Parse("00:01:10"),
-            Overheal = 10,
             Value = 200,
             CombatPlayerId = combatPlayerId,
         });
         await context.SaveChangesAsync();
 
-        var repo = new GeneralFilterRepositroy<HealDone>(context);
+        var repo = new GeneralFilterRepositroy<ResourceRecovery>(context);
 
         // Act
         var result = await repo.CountCreatorByCombatPlayerIdAsync(combatPlayerId, creator);
@@ -233,30 +209,27 @@ public class GenericFilterRepositoryHealDoneTests : RepositoryTestsBase
     }
 
     [Fact]
-    public async Task GetByCreatorAsync_Collection_ShouldReturnHealDonesByCreatorName()
+    public async Task GetByCreatorAsync_Collection_ShouldReturnResourcesRecoveryByCreatorName()
     {
         // Arrange
         const int combatPlayerId = 1;
         const string creator = "Solinx";
 
-        using var context = CreateInMemoryContext(nameof(GetByCreatorAsync_Collection_ShouldReturnHealDonesByCreatorName));
+        using var context = CreateInMemoryContext(nameof(GetByCreatorAsync_Collection_ShouldReturnResourcesRecoveryByCreatorName));
 
-        context.Set<HealDone>().Add(new HealDone
+        context.Set<ResourceRecovery>().Add(new ResourceRecovery
         {
             Id = 1,
             Creator = creator,
             Target = "Kiril",
             Spell = "Test",
-            IsCrit = false,
-            IsAbsorbed = false,
             Time = TimeSpan.Parse("00:01:10"),
-            Overheal = 10,
             Value = 200,
             CombatPlayerId = combatPlayerId,
         });
         await context.SaveChangesAsync();
 
-        var repo = new GeneralFilterRepositroy<HealDone>(context);
+        var repo = new GeneralFilterRepositroy<ResourceRecovery>(context);
 
         // Act
         var result = await repo.GetByCreatorAsync(combatPlayerId, creator, 1, 10);
@@ -275,22 +248,19 @@ public class GenericFilterRepositoryHealDoneTests : RepositoryTestsBase
 
         using var context = CreateInMemoryContext(nameof(GetSpellNamesByCombatPlayerIdAsync_Collection_ShouldReturnSpellNamesByCombatPlayerId));
 
-        context.Set<HealDone>().Add(new HealDone
+        context.Set<ResourceRecovery>().Add(new ResourceRecovery
         {
             Id = 1,
             Creator = "Solinx",
             Target = "Kiril",
             Spell = "Test",
-            IsCrit = false,
-            IsAbsorbed = false,
             Time = TimeSpan.Parse("00:01:10"),
-            Overheal = 10,
             Value = 200,
             CombatPlayerId = combatPlayerId,
         });
         await context.SaveChangesAsync();
 
-        var repo = new GeneralFilterRepositroy<HealDone>(context);
+        var repo = new GeneralFilterRepositroy<ResourceRecovery>(context);
 
         // Act
         var result = await repo.GetSpellNamesByCombatPlayerIdAsync(combatPlayerId);
@@ -309,35 +279,29 @@ public class GenericFilterRepositoryHealDoneTests : RepositoryTestsBase
         const string spell = "Test";
 
         using var context = CreateInMemoryContext(nameof(CountSpellByCombatPlayerIdAsync_Count_ShouldReturnCountSpellsByCombatPlayerId));
-        context.Set<HealDone>().AddRange(new HealDone
+        context.Set<ResourceRecovery>().AddRange(new ResourceRecovery
         {
             Id = 1,
             Creator = "Solinx",
-            Target = "Kiril",
+            Target = "Kriil",
             Spell = spell,
-            IsCrit = false,
-            IsAbsorbed = false,
             Time = TimeSpan.Parse("00:01:10"),
-            Overheal = 10,
             Value = 200,
             CombatPlayerId = combatPlayerId,
         },
-        new HealDone
+        new ResourceRecovery
         {
             Id = 2,
             Creator = "Solinx",
-            Target = "Kiril",
+            Target = "Kriil",
             Spell = spell,
-            IsCrit = false,
-            IsAbsorbed = false,
-            Time = TimeSpan.Parse("00:01:12"),
-            Overheal = 0,
-            Value = 100,
+            Time = TimeSpan.Parse("00:01:10"),
+            Value = 50,
             CombatPlayerId = combatPlayerId,
         });
         await context.SaveChangesAsync();
 
-        var repo = new GeneralFilterRepositroy<HealDone>(context);
+        var repo = new GeneralFilterRepositroy<ResourceRecovery>(context);
 
         // Act
         var result = await repo.CountSpellByCombatPlayerIdAsync(combatPlayerId, spell);
@@ -347,30 +311,27 @@ public class GenericFilterRepositoryHealDoneTests : RepositoryTestsBase
     }
 
     [Fact]
-    public async Task GetBySpellAsync_Collection_ShouldReturnHealDonesBySpellName()
+    public async Task GetBySpellAsync_Collection_ShouldReturnResourcesRecoveryBySpellName()
     {
         // Arrange
         const int combatPlayerId = 1;
         const string spell = "Check";
 
-        using var context = CreateInMemoryContext(nameof(GetBySpellAsync_Collection_ShouldReturnHealDonesBySpellName));
+        using var context = CreateInMemoryContext(nameof(GetBySpellAsync_Collection_ShouldReturnResourcesRecoveryBySpellName));
 
-        context.Set<HealDone>().Add(new HealDone
+        context.Set<ResourceRecovery>().Add(new ResourceRecovery
         {
             Id = 1,
             Creator = "Solinx",
             Target = "Kiril",
             Spell = spell,
-            IsCrit = false,
-            IsAbsorbed = false,
             Time = TimeSpan.Parse("00:01:10"),
-            Overheal = 10,
             Value = 200,
             CombatPlayerId = combatPlayerId,
         });
         await context.SaveChangesAsync();
 
-        var repo = new GeneralFilterRepositroy<HealDone>(context);
+        var repo = new GeneralFilterRepositroy<ResourceRecovery>(context);
 
         // Act
         var result = await repo.GetBySpellAsync(combatPlayerId, spell, 1, 10);
