@@ -25,11 +25,12 @@ internal class FriendService(IFriendRepository repository, IMapper mapper) : IFr
         return resultMap;
     }
 
-    public async Task DeleteAsync(int id)
+    public async Task<bool> DeleteAsync(int id)
     {
         ArgumentOutOfRangeException.ThrowIfLessThan(id, 1);
 
-        await _repository.DeleteAsync(id);
+        var entityDeleted = await _repository.DeleteAsync(id);
+        return entityDeleted;
     }
 
     public async Task<IEnumerable<FriendDto>> GetAllAsync()

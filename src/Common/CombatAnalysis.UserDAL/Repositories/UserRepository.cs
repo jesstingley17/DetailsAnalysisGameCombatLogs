@@ -20,18 +20,26 @@ internal class UserRepository(IConnectionMultiplexer redis, UserContext context)
         return entityEntry.Entity;
     }
 
-    public async Task<int> DeleteAsync(string id)
+    public async Task<int> UpdateAsync(string id, AppUser item)
+    {
+        var existing = await _context.Set<AppUser>().FindAsync(id) ?? throw new KeyNotFoundException();
+        _context.Entry(existing).CurrentValues.SetValues(item);
+
+        return await _context.SaveChangesAsync();
+    }
+
+    public async Task<bool> DeleteAsync(string id)
     {
         var entity = await _context.Set<AppUser>().FindAsync(id);
         if (entity == null)
         {
-            return 0;
+            return false;
         }
 
         _context.Set<AppUser>().Remove(entity);
-        var rowsAffected = await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync();
 
-        return rowsAffected;
+        return true;
     }
 
     public async Task<IEnumerable<AppUser>> GetAllAsync()
@@ -87,21 +95,6 @@ internal class UserRepository(IConnectionMultiplexer redis, UserContext context)
         }
 
         return [];
-    }
-
-    public async Task<int> UpdateAsync(string id, AppUser item)
-    {
-        var existing = await _context.Set<AppUser>().FindAsync(id);
-
-        if (existing != null)
-        {
-            _context.Entry(existing).State = EntityState.Detached;
-        }
-
-        _context.Set<AppUser>().Update(item);
-        var rowsAffected = await _context.SaveChangesAsync();
-
-        return rowsAffected;
     }
 
     private async Task<List<AppUser>> SearchUsersByPrefixAsync(string prefix)

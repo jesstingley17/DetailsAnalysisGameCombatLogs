@@ -19,16 +19,26 @@ internal class GenericRepository<TModel, TIdType>(UserContext context) : IGeneri
         return entityEntry.Entity;
     }
 
-    public async Task<int> DeleteAsync(TIdType id)
+    public async Task<int> UpdateAsync(TIdType id, TModel item)
+    {
+        var existing = await _context.Set<TModel>().FindAsync(id) ?? throw new KeyNotFoundException();
+        _context.Entry(existing).CurrentValues.SetValues(item);
+
+        return await _context.SaveChangesAsync();
+    }
+
+    public async Task<bool> DeleteAsync(TIdType id)
     {
         var entity = await _context.Set<TModel>().FindAsync(id);
         if (entity == null)
         {
-            return 0;
+            return false;
         }
 
         _context.Set<TModel>().Remove(entity);
-        return await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync();
+
+        return true;
     }
 
     public async Task<IEnumerable<TModel>> GetAllAsync()
@@ -65,18 +75,5 @@ internal class GenericRepository<TModel, TIdType>(UserContext context) : IGeneri
                                 .ToListAsync();
 
         return query;
-    }
-
-    public async Task<int> UpdateAsync(TIdType id, TModel item)
-    {
-        var existing = await _context.Set<TModel>().FindAsync(id);
-
-        if (existing != null)
-        {
-            _context.Entry(existing).State = EntityState.Detached;
-        }
-
-        _context.Set<TModel>().Update(item);
-        return await _context.SaveChangesAsync();
     }
 }

@@ -41,6 +41,53 @@ public class FriendRepositoryTests : RepositoryTestsBase
         Assert.Single(context.Set<Friend>());
     }
 
+
+    [Fact]
+    public async Task DeleteAsync_True_ShouldDeleteEntity()
+    {
+        // Arrange
+        using var context = CreateInMemoryContext(nameof(DeleteAsync_True_ShouldDeleteEntity));
+        var friend = new Friend(
+            Id: 2,
+            WhoFriendId: "uid-222",
+            ForWhomId: "uid-223"
+        );
+        context.Set<Friend>().Add(friend);
+        await context.SaveChangesAsync();
+
+        var repo = new FriendRepository(context);
+
+        // Act
+        var entityDeleted = await repo.DeleteAsync(friend.Id);
+
+        // Assert
+        Assert.True(entityDeleted);
+        Assert.Empty(context.Set<Friend>());
+    }
+
+    [Fact]
+    public async Task DeleteAsync_False_ShouldNotDeleteEntity()
+    {
+        // Arrange
+        using var context = CreateInMemoryContext(nameof(DeleteAsync_False_ShouldNotDeleteEntity));
+        var friend = new Friend(
+            Id: 2,
+            WhoFriendId: "uid-222",
+            ForWhomId: "uid-223"
+        );
+        await context.Set<Friend>().AddAsync(friend);
+        await context.SaveChangesAsync();
+
+        var repo = new FriendRepository(context);
+
+        // Act
+        var entityDeleted = await repo.DeleteAsync(2222);
+
+        // Assert
+        Assert.False(entityDeleted);
+        Assert.NotEmpty(context.Set<Friend>());
+    }
+
     [Fact]
     public async Task GetAllAsync_ShouldReturnAllEntities()
     {
@@ -118,29 +165,6 @@ public class FriendRepositoryTests : RepositoryTestsBase
         Assert.Equal(user2Username, result.ForWhomUsername);
         Assert.NotEqual(result.WhoFriendId, result.ForWhomId);
         Assert.Single(context.Set<Friend>());
-    }
-
-    [Fact]
-    public async Task DeleteAsync_ShouldRemoveEntity()
-    {
-        // Arrange
-        using var context = CreateInMemoryContext(nameof(DeleteAsync_ShouldRemoveEntity));
-        var friend = new Friend(
-            Id: 2,
-            WhoFriendId: "uid-222",
-            ForWhomId: "uid-223"
-        );
-        context.Set<Friend>().Add(friend);
-        await context.SaveChangesAsync();
-
-        var repo = new FriendRepository(context);
-
-        // Act
-        var rowsAffected = await repo.DeleteAsync(friend.Id);
-
-        // Assert
-        Assert.Equal(1, rowsAffected);
-        Assert.Empty(context.Set<Friend>());
     }
 
     [Fact]

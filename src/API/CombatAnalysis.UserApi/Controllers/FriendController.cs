@@ -73,7 +73,11 @@ public class FriendController(IFriendService service, IMapper mapper, ILogger<Fr
     {
         try
         {
-            await _service.DeleteAsync(id);
+            var entityDeleted = await _service.DeleteAsync(id);
+            if (!entityDeleted)
+            {
+                return NotFound();
+            }
 
             return NoContent();
         }

@@ -3,9 +3,9 @@ using CombatAnalysis.DAL.Interfaces.Entities;
 using CombatAnalysis.DAL.Interfaces.Generic;
 using Microsoft.EntityFrameworkCore;
 
-namespace CombatAnalysis.DAL.Repositories.SQL;
+namespace CombatAnalysis.DAL.Repositories;
 
-internal class SQLCountRepository<TModel>(CombatParserSQLContext context) : ICountRepository<TModel>
+internal class CountRepository<TModel>(CombatParserSQLContext context) : ICountRepository<TModel>
     where TModel : class, ICombatPlayerEntity
 {
     private readonly CombatParserSQLContext _context = context;

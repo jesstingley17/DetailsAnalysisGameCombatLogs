@@ -13,9 +13,9 @@ namespace CombatAnalysis.BL.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static void CombatParserBLDependencies(this IServiceCollection services, string databaseName, string dataProcessingType, string connectionString, int commandTimeout)
+    public static void CombatParserBLDependencies(this IServiceCollection services, string dataProcessingType, string connectionString, int commandTimeout)
     {
-        services.CombatParserDALDependencies(databaseName, dataProcessingType, connectionString, commandTimeout);
+        services.CombatParserDALDependencies(dataProcessingType, connectionString, commandTimeout);
 
         services.AddScoped<ICombatTransactionService, CombatTransactionService>();
 

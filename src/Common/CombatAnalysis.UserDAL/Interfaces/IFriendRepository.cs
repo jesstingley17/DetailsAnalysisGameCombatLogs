@@ -20,8 +20,8 @@ public interface IFriendRepository
     /// Delete exlreadt exist entity by entity ID
     /// </summary>
     /// <param name="id">Entity Id</param>
-    /// <returns>Return count of affected rows in DB</returns>
-    Task<int> DeleteAsync(int id);
+    /// <returns>Return status if entity deleted or no</returns>
+    Task<bool> DeleteAsync(int id);
 
     /// <summary>
     /// Get entity by Id

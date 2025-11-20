@@ -3,7 +3,7 @@ using CombatAnalysis.DAL.Entities;
 using CombatAnalysis.DAL.Interfaces.Filters;
 using Microsoft.EntityFrameworkCore;
 
-namespace CombatAnalysis.DAL.Repositories.SQL.Filters;
+namespace CombatAnalysis.DAL.Repositories.Filters;
 
 internal class DamageFilterRepository(CombatParserSQLContext context) : IDamageFilterRepository
 {

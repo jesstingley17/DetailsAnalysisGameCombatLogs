@@ -4,9 +4,9 @@ using CombatAnalysis.DAL.Interfaces.Generic;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
-namespace CombatAnalysis.DAL.Repositories.SQL.StoredProcedure;
+namespace CombatAnalysis.DAL.Repositories.StoredProcedure;
 
-internal class SQLSPRepository<TModel>(CombatParserSQLContext context) : IGenericRepository<TModel>
+internal class SPGenericRepository<TModel>(CombatParserSQLContext context) : IGenericRepository<TModel>
     where TModel : class, IEntity
 {
     private readonly CombatParserSQLContext _context = context;

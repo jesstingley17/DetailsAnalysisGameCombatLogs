@@ -20,10 +20,10 @@ public static class DataCollectionExtensions
         services.AddScoped<IContextService, ContextService>();
 
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IFriendRepository, FriendRepository>();
         services.AddScoped<IGenericRepository<Customer, string>, GenericRepository<Customer, string>>();
         services.AddScoped<IGenericRepository<BannedUser, int>, GenericRepository<BannedUser, int>>();
         services.AddScoped<IGenericRepository<RequestToConnect, int>, GenericRepository<RequestToConnect, int>>();
 
-        services.AddScoped<IFriendRepository, FriendRepository>();
     }
 }

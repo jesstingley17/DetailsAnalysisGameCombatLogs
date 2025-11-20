@@ -1,10 +1,10 @@
 ﻿using CombatAnalysis.DAL.Entities;
-using CombatAnalysis.DAL.Repositories.SQL;
+using CombatAnalysis.DAL.Repositories;
 using CombatAnalysis.UserDAL.Tests.Factory;
 
 namespace CombatAnalysis.DAL.Tests;
 
-public class SQLCountRepositoryDamageDoneTests : RepositoryTestsBase
+public class CountRepositoryTests : RepositoryTestsBase
 {
     [Fact]
     public async Task CountByCombatPlayerIdAsync_Count_ShouldReturnCountEntityByCombatPlayerId()
@@ -17,7 +17,7 @@ public class SQLCountRepositoryDamageDoneTests : RepositoryTestsBase
         await context.Set<DamageDone>().AddRangeAsync(TestDataFactory.CreateDamageDonColelction());
         await context.SaveChangesAsync();
 
-        var repo = new SQLCountRepository<DamageDone>(context);
+        var repo = new CountRepository<DamageDone>(context);
 
         // Act
         var result = await repo.CountByCombatPlayerIdAsync(combatPlayerId);
@@ -37,7 +37,7 @@ public class SQLCountRepositoryDamageDoneTests : RepositoryTestsBase
         await context.Set<DamageDone>().AddRangeAsync(TestDataFactory.CreateDamageDonColelction());
         await context.SaveChangesAsync();
 
-        var repo = new SQLCountRepository<DamageDone>(context);
+        var repo = new CountRepository<DamageDone>(context);
 
         // Act
         var result = await repo.CountByCombatPlayerIdAsync(combatPlayerId);

@@ -1,10 +1,10 @@
 ﻿using CombatAnalysis.DAL.Entities;
-using CombatAnalysis.DAL.Repositories.SQL;
+using CombatAnalysis.DAL.Repositories;
 using CombatAnalysis.UserDAL.Tests.Factory;
 
 namespace CombatAnalysis.DAL.Tests;
 
-public class SQLRepositoryDamageDoneTests : RepositoryTestsBase
+public class GenericRepositoryTests : RepositoryTestsBase
 {
     [Fact]
     public async Task CreateAsync_Entity_ShouldCreateNewEntityAndReturnCreatedEntity()
@@ -12,7 +12,7 @@ public class SQLRepositoryDamageDoneTests : RepositoryTestsBase
         // Arrange
         using var context = CreateInMemoryContext(nameof(CreateAsync_Entity_ShouldCreateNewEntityAndReturnCreatedEntity));
 
-        var repo = new SQLRepository<DamageDone>(context);
+        var repo = new GenericRepository<DamageDone>(context);
         var damageDone = new DamageDone()
         {
             Id = 1,
@@ -44,7 +44,7 @@ public class SQLRepositoryDamageDoneTests : RepositoryTestsBase
 
         using var context = CreateInMemoryContext(nameof(UpdateAsync_ShouldUpdateEntity));
 
-        var repo = new SQLRepository<DamageDone>(context);
+        var repo = new GenericRepository<DamageDone>(context);
         await context.Set<DamageDone>().AddRangeAsync(TestDataFactory.CreateDamageDonColelction());
         await context.SaveChangesAsync();
 
@@ -79,7 +79,7 @@ public class SQLRepositoryDamageDoneTests : RepositoryTestsBase
 
         using var context = CreateInMemoryContext(nameof(DeleteAsync_ShouldDeleteEntity));
 
-        var repo = new SQLRepository<DamageDone>(context);
+        var repo = new GenericRepository<DamageDone>(context);
         await context.Set<DamageDone>().AddRangeAsync(TestDataFactory.CreateDamageDonColelction());
         await context.SaveChangesAsync();
 
@@ -96,7 +96,7 @@ public class SQLRepositoryDamageDoneTests : RepositoryTestsBase
         // Arrange
         using var context = CreateInMemoryContext(nameof(GetAllAsync_Collection_ShouldReturnAllElements));
 
-        var repo = new SQLRepository<DamageDone>(context);
+        var repo = new GenericRepository<DamageDone>(context);
         await context.Set<DamageDone>().AddRangeAsync(TestDataFactory.CreateDamageDonColelction());
         await context.SaveChangesAsync();
 
@@ -117,7 +117,7 @@ public class SQLRepositoryDamageDoneTests : RepositoryTestsBase
 
         using var context = CreateInMemoryContext(nameof(GetByIdAsync_Entity_ShouldReturnEntityById));
 
-        var repo = new SQLRepository<DamageDone>(context);
+        var repo = new GenericRepository<DamageDone>(context);
         await context.Set<DamageDone>().AddRangeAsync(TestDataFactory.CreateDamageDonColelction());
         await context.SaveChangesAsync();
 
@@ -137,7 +137,7 @@ public class SQLRepositoryDamageDoneTests : RepositoryTestsBase
 
         using var context = CreateInMemoryContext(nameof(GetByParamAsync_Collection_ShouldReturnElementsByParam));
 
-        var repo = new SQLRepository<DamageDone>(context);
+        var repo = new GenericRepository<DamageDone>(context);
         await context.Set<DamageDone>().AddRangeAsync(TestDataFactory.CreateDamageDonColelction());
         await context.SaveChangesAsync();
 

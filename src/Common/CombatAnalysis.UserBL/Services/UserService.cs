@@ -35,11 +35,12 @@ internal class UserService(IUserRepository repository, IMapper mapper) : IUserSe
         await _repository.UpdateAsync(id, map);
     }
 
-    public async Task DeleteAsync(string id)
+    public async Task<bool> DeleteAsync(string id)
     {
         ArgumentException.ThrowIfNullOrEmpty(id);
 
-        await _repository.DeleteAsync(id);
+        var entityDeleted = await _repository.DeleteAsync(id);
+        return entityDeleted;
     }
 
     public async Task<IEnumerable<AppUserDto>> GetAllAsync()

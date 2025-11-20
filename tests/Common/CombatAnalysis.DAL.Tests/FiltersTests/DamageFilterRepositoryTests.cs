@@ -1,7 +1,7 @@
 ﻿using CombatAnalysis.DAL.Entities;
-using CombatAnalysis.DAL.Repositories.SQL.Filters;
+using CombatAnalysis.DAL.Repositories.Filters;
 
-namespace CombatAnalysis.DAL.Tests.FilterRepositories;
+namespace CombatAnalysis.DAL.Tests.FiltersTests;
 
 public class DamageFilterRepositoryTests : RepositoryTestsBase
 {

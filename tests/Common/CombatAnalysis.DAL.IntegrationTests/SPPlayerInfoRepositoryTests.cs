@@ -1,6 +1,6 @@
 ﻿using CombatAnalysis.DAL.Entities;
 using CombatAnalysis.DAL.IntegrationTests.Data;
-using CombatAnalysis.DAL.Repositories.SQL.StoredProcedure;
+using CombatAnalysis.DAL.Repositories.StoredProcedure;
 
 namespace CombatAnalysis.DAL.IntegrationTests;
 
@@ -8,7 +8,7 @@ namespace CombatAnalysis.DAL.IntegrationTests;
 public class SqlServerTestCollection : ICollectionFixture<SqlServerFixture> { }
 
 [Collection("SQL Server Tests DamageDone")]
-public class SQLSPPlayerInfoRepositoryDamageDoneTests(SqlServerFixture fixture)
+public class SPPlayerInfoRepositoryTests(SqlServerFixture fixture)
 {
     private readonly SqlServerFixture _fixture = fixture;
 
@@ -21,7 +21,7 @@ public class SQLSPPlayerInfoRepositoryDamageDoneTests(SqlServerFixture fixture)
         await _fixture.SeedTestDataAsync();
 
         const int combatPlayerId = 5;
-        var repo = new SQLSPPlayerInfoRepository<DamageDone>(_fixture.DbContext);
+        var repo = new SPPlayerInfoRepository<DamageDone>(_fixture.DbContext);
 
         // Act
         var damageDones = await repo.GetByCombatPlayerIdAsync(combatPlayerId);
@@ -45,7 +45,7 @@ public class SQLSPPlayerInfoRepositoryDamageDoneTests(SqlServerFixture fixture)
         const int combatPlayerId = 5;
         const int page = 1;
         const int pageSize = 10;
-        var repo = new SQLSPPlayerInfoRepository<DamageDone>(_fixture.DbContext);
+        var repo = new SPPlayerInfoRepository<DamageDone>(_fixture.DbContext);
 
         // Act
         var damageDones = await repo.GetByCombatPlayerIdAsync(combatPlayerId, page, pageSize);
@@ -67,7 +67,7 @@ public class SQLSPPlayerInfoRepositoryDamageDoneTests(SqlServerFixture fixture)
         await _fixture.SeedTestDataAsync();
 
         const int combatPlayerId = 1;
-        var repo = new SQLSPPlayerInfoRepository<DamageDone>(_fixture.DbContext);
+        var repo = new SPPlayerInfoRepository<DamageDone>(_fixture.DbContext);
 
         // Act
         var damageDones = await repo.GetByCombatPlayerIdAsync(combatPlayerId);
@@ -90,7 +90,7 @@ public class SQLSPPlayerInfoRepositoryDamageDoneTests(SqlServerFixture fixture)
         const int combatPlayerId = 1;
         const int page = 1;
         const int pageSize = 10;
-        var repo = new SQLSPPlayerInfoRepository<DamageDone>(_fixture.DbContext);
+        var repo = new SPPlayerInfoRepository<DamageDone>(_fixture.DbContext);
 
         // Act
         var damageDones = await repo.GetByCombatPlayerIdAsync(combatPlayerId, page, pageSize);

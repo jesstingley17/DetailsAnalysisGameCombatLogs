@@ -8,7 +8,7 @@ public interface IUserRepository
 
     Task<int> UpdateAsync(string id, AppUser item);
 
-    Task<int> DeleteAsync(string id);
+    Task<bool> DeleteAsync(string id);
 
     Task<AppUser?> GetByIdAsync(string id);
 

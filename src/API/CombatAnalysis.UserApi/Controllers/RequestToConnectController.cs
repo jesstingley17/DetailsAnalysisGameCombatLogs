@@ -79,9 +79,13 @@ public class RequestToConnectController(IService<RequestToConnectDto, int> servi
     {
         try
         {
-            await _service.DeleteAsync(id);
+            var entityDeleted = await _service.DeleteAsync(id);
+            if (!entityDeleted)
+            {
+                return NotFound();
+            }
 
-            return NoContent();
+            return BadRequest();
         }
         catch (DbUpdateConcurrencyException ex)
         {

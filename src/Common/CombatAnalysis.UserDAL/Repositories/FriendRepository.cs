@@ -32,17 +32,19 @@ internal class FriendRepository(UserContext context) : IFriendRepository
         return entity;
     }
 
-    public async Task<int> DeleteAsync(int id)
+    public async Task<bool> DeleteAsync(int id)
     {
         var entity = await _context.Set<Friend>().FindAsync(id);
 
         if (entity == null)
         {
-            return 0;
+            return false;
         }
 
         _context.Set<Friend>().Remove(entity);
-        return await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync();
+
+        return true;
     }
 
     public async Task<IEnumerable<FriendDto>> GetAllAsync()

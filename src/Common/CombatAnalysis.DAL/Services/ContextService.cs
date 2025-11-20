@@ -4,15 +4,10 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace CombatAnalysis.DAL.Services;
 
-internal class ContextService : IContextService
+internal class ContextService(CombatParserSQLContext context) : IContextService
 {
-    private readonly CombatParserSQLContext _context;
+    private readonly CombatParserSQLContext _context = context;
     private IDbContextTransaction? _transaction;
-
-    public ContextService(CombatParserSQLContext context)
-    {
-        _context = context;
-    }
 
     public async Task BeginAsync()
     {

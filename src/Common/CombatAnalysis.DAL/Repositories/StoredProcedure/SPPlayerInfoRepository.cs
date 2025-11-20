@@ -3,9 +3,9 @@ using CombatAnalysis.DAL.Interfaces;
 using CombatAnalysis.DAL.Interfaces.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace CombatAnalysis.DAL.Repositories.SQL.StoredProcedure;
+namespace CombatAnalysis.DAL.Repositories.StoredProcedure;
 
-internal class SQLSPPlayerInfoRepository<TModel>(CombatParserSQLContext context) : IPlayerInfoRepository<TModel>
+internal class SPPlayerInfoRepository<TModel>(CombatParserSQLContext context) : IPlayerInfoRepository<TModel>
     where TModel : class, IEntity
 {
     private readonly CombatParserSQLContext _context = context;

@@ -28,7 +28,6 @@ internal class CustomerService(IGenericRepository<Customer, string> repository, 
 
     public async Task UpdateAsync(string id, CustomerDto item)
     {
-        ArgumentException.ThrowIfNullOrEmpty(id);
         ArgumentException.ThrowIfNullOrEmpty(item.Country, nameof(item.Country));
         ArgumentException.ThrowIfNullOrEmpty(item.City, nameof(item.City));
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(item.PostalCode, nameof(item.PostalCode));
@@ -37,11 +36,12 @@ internal class CustomerService(IGenericRepository<Customer, string> repository, 
         await _repository.UpdateAsync(id, map);
     }
 
-    public async Task DeleteAsync(string id)
+    public async Task<bool> DeleteAsync(string id)
     {
         ArgumentException.ThrowIfNullOrEmpty(id);
 
-        await _repository.DeleteAsync(id);
+        var entityDeleted = await _repository.DeleteAsync(id);
+        return entityDeleted;
     }
 
     public async Task<IEnumerable<CustomerDto>> GetAllAsync()

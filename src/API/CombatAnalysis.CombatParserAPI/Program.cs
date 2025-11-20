@@ -2,7 +2,6 @@ using AutoMapper;
 using CombatAnalysis.BL.Extensions;
 using CombatAnalysis.BL.Mapping;
 using CombatAnalysis.CombatParserAPI.Consts;
-using CombatAnalysis.CombatParserAPI.Enums;
 using CombatAnalysis.CombatParserAPI.Helpers;
 using CombatAnalysis.CombatParserAPI.Interfaces;
 using CombatAnalysis.CombatParserAPI.Mapping;
@@ -22,10 +21,7 @@ builder.Configuration.Bind("Database", databasePropsOptions);
 var databaseConfigsOptions = new DBConfiguration();
 builder.Configuration.Bind("DBConfiguration", databaseConfigsOptions);
 
-var connection = databasePropsOptions.Name == nameof(DatabaseType.MSSQL)
-    ? databasePropsOptions.DefaultConnection
-    : databasePropsOptions.FirebaseConnection;
-builder.Services.CombatParserBLDependencies(databasePropsOptions.Name, databasePropsOptions.DataProcessingType, connection, databaseConfigsOptions.CommandTimeout);
+builder.Services.CombatParserBLDependencies(databasePropsOptions.DataProcessingType, databasePropsOptions.DefaultConnection, databaseConfigsOptions.CommandTimeout);
 
 var mappingConfig = new MapperConfiguration(mc =>
 {

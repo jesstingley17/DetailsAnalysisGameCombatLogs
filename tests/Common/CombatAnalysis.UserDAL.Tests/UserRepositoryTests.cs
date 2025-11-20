@@ -1,4 +1,5 @@
-﻿using CombatAnalysis.UserDAL.Entities;
+﻿using Castle.Core.Resource;
+using CombatAnalysis.UserDAL.Entities;
 using CombatAnalysis.UserDAL.Repositories;
 using CombatAnalysis.UserDAL.Tests.Factory;
 using Moq;
@@ -79,48 +80,119 @@ public class UserRepositoryTests : RepositoryTestsBase
     }
 
     [Fact]
-    public async Task UpdateAsync_ShouldUpdateExistingEntity()
+    public async Task UpdateAsync_ShouldUpdateExistedEntityById()
     {
         // Arrange
+        const string id = "uid-22";
         const string updatedUsername = "Alice99";
 
         var mockMultiplexer = new Mock<IConnectionMultiplexer>();
 
-        using var context = CreateInMemoryContext(nameof(UpdateAsync_ShouldUpdateExistingEntity));
-        var user = TestDataFactory.CreateAppUser(username: updatedUsername);
+        using var context = CreateInMemoryContext(nameof(UpdateAsync_ShouldUpdateExistedEntityById));
+        var user = TestDataFactory.CreateAppUser(id: id, username: updatedUsername);
         context.Set<AppUser>().Add(user);
         await context.SaveChangesAsync();
 
         var repo = new UserRepository(mockMultiplexer.Object, context);
 
         // Act
-        var updated = user with { Username = updatedUsername };
-        var rowsAffected = await repo.UpdateAsync(updated.Id, updated);
+        var updateEntity = user with { Username = updatedUsername };
+        await repo.UpdateAsync(id, updateEntity);
+
+        var updatedEntity = await repo.GetByIdAsync(id);
 
         // Assert
-        Assert.Equal(1, rowsAffected);
-        Assert.Equal(updatedUsername, context.Set<AppUser>().First().Username);
+        Assert.NotNull(updatedEntity);
+        Assert.Equal(id, updatedEntity.Id);
+        Assert.Equal(updatedUsername, updatedEntity.Username);
     }
 
     [Fact]
-    public async Task DeleteAsync_ShouldRemoveEntity()
+    public async Task UpdateAsync_ThrowKeyNotFoundException_ShouldNotUpdateExistedEntityById()
+    {
+        // Arrange
+        const string id = "uid-22";
+        const string updatedUsername = "Alice99";
+
+        var mockMultiplexer = new Mock<IConnectionMultiplexer>();
+
+        using var context = CreateInMemoryContext(nameof(UpdateAsync_ThrowKeyNotFoundException_ShouldNotUpdateExistedEntityById));
+        var user = TestDataFactory.CreateAppUser(id: "uid-3", username: updatedUsername);
+        context.Set<AppUser>().Add(user);
+        await context.SaveChangesAsync();
+
+        var repo = new UserRepository(mockMultiplexer.Object, context);
+
+        // Act
+        var updateEntity = user with { Id = id, Username = updatedUsername };
+
+        // Assert
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => repo.UpdateAsync(id, updateEntity));
+    }
+
+    [Fact]
+    public async Task UpdateAsync_ThrowInvalidOperationException_ShouldNotUpdateExistedEntityById()
+    {
+        // Arrange
+        const string id = "uid-22";
+        const string updatedUsername = "Alice99";
+
+        var mockMultiplexer = new Mock<IConnectionMultiplexer>();
+
+        using var context = CreateInMemoryContext(nameof(UpdateAsync_ThrowInvalidOperationException_ShouldNotUpdateExistedEntityById));
+        var user = TestDataFactory.CreateAppUser(id: id, username: updatedUsername);
+        context.Set<AppUser>().Add(user);
+        await context.SaveChangesAsync();
+
+        var repo = new UserRepository(mockMultiplexer.Object, context);
+
+        // Act
+        var updateEntity = user with { Id = "uid-3", Username = updatedUsername };
+
+        // Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(() => repo.UpdateAsync(id, updateEntity));
+    }
+
+    [Fact]
+    public async Task DeleteAsync_True_ShouldDeleteEntity()
     {
         // Arrange
         var mockMultiplexer = new Mock<IConnectionMultiplexer>();
 
-        using var context = CreateInMemoryContext(nameof(DeleteAsync_ShouldRemoveEntity));
+        using var context = CreateInMemoryContext(nameof(DeleteAsync_True_ShouldDeleteEntity));
         var user = TestDataFactory.CreateAppUser();
-        context.Set<AppUser>().Add(user);
+        await context.Set<AppUser>().AddAsync(user);
         await context.SaveChangesAsync();
 
         var repo = new UserRepository(mockMultiplexer.Object, context);
 
         // Act
-        var rowsAffected = await repo.DeleteAsync(user.Id);
+        var entityDeleted = await repo.DeleteAsync(user.Id);
 
         // Assert
-        Assert.Equal(1, rowsAffected);
+        Assert.True(entityDeleted);
         Assert.Empty(context.Set<AppUser>());
+    }
+
+    [Fact]
+    public async Task DeleteAsync_False_ShouldNotDeleteEntity()
+    {
+        // Arrange
+        var mockMultiplexer = new Mock<IConnectionMultiplexer>();
+
+        using var context = CreateInMemoryContext(nameof(DeleteAsync_False_ShouldNotDeleteEntity));
+        var user = TestDataFactory.CreateAppUser();
+        await context.Set<AppUser>().AddAsync(user);
+        await context.SaveChangesAsync();
+
+        var repo = new UserRepository(mockMultiplexer.Object, context);
+
+        // Act
+        var entityDeleted = await repo.DeleteAsync("uid-1");
+
+        // Assert
+        Assert.False(entityDeleted);
+        Assert.NotEmpty(context.Set<AppUser>());
     }
 
     [Fact]

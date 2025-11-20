@@ -8,7 +8,7 @@ public interface IUserService
 
     Task UpdateAsync(string id, AppUserDto item);
 
-    Task DeleteAsync(string id);
+    Task<bool> DeleteAsync(string id);
 
     Task<IEnumerable<AppUserDto>> GetAllAsync();
 
