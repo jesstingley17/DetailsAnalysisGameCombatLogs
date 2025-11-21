@@ -12,35 +12,10 @@ internal class PlayerParseInfoService(IGenericRepository<PlayerParseInfo> reposi
     private readonly IGenericRepository<PlayerParseInfo> _repository = repository;
     private readonly IMapper _mapper = mapper;
 
-    public Task<PlayerParseInfoDto> CreateAsync(PlayerParseInfoDto item)
+    public async Task<PlayerParseInfoDto> CreateAsync(PlayerParseInfoDto item)
     {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(PlayerParseInfoDto), $"The {nameof(PlayerParseInfoDto)} can't be null");
-        }
+        CheckParams(item);
 
-        return CreateInternalAsync(item);
-    }
-
-    public async Task<int> DeleteAsync(int id)
-    {
-        var affectedRows = await _repository.DeleteAsync(id);
-
-        return affectedRows;
-    }
-
-    public Task<int> UpdateAsync(PlayerParseInfoDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(PlayerParseInfoDto), $"The {nameof(PlayerParseInfoDto)} can't be null");
-        }
-
-        return UpdateInternalAsync(item);
-    }
-
-    private async Task<PlayerParseInfoDto> CreateInternalAsync(PlayerParseInfoDto item)
-    {
         var map = _mapper.Map<PlayerParseInfo>(item);
         var createdItem = await _repository.CreateAsync(map);
         var resultMap = _mapper.Map<PlayerParseInfoDto>(createdItem);
@@ -48,20 +23,36 @@ internal class PlayerParseInfoService(IGenericRepository<PlayerParseInfo> reposi
         return resultMap;
     }
 
-    private async Task<int> UpdateInternalAsync(PlayerParseInfoDto item)
+    public async Task<int> UpdateAsync(PlayerParseInfoDto item)
     {
+        CheckParams(item);
+
         var map = _mapper.Map<PlayerParseInfo>(item);
         var rowsAffected = await _repository.UpdateAsync(map);
 
         return rowsAffected;
     }
 
-    private void CheckParams(PlayerParseInfoDto item)
+    public async Task<bool> DeleteAsync(int id)
     {
-        if (item.Difficult < 0)
-        {
-            throw new ArgumentNullException(nameof(PlayerParseInfoDto.Difficult),
-                $"The property {nameof(PlayerParseInfoDto.Difficult)} of the {nameof(PlayerParseInfoDto)} should be positive");
-        }
+        ArgumentOutOfRangeException.ThrowIfLessThan(id, 1);
+
+        var entityDeleted = await _repository.DeleteAsync(id);
+
+        return entityDeleted;
+    }
+
+    private static void CheckParams(PlayerParseInfoDto item)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
+
+        ArgumentOutOfRangeException.ThrowIfNegative(item.SpecId, nameof(item.SpecId));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.ClassId, nameof(item.ClassId));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.BossId, nameof(item.BossId));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.Difficult, nameof(item.Difficult));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.DamageEfficiency, nameof(item.DamageEfficiency));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.HealEfficiency, nameof(item.HealEfficiency));
+
+        ArgumentOutOfRangeException.ThrowIfLessThan(item.CombatPlayerId, 1, nameof(item.CombatPlayerId));
     }
 }

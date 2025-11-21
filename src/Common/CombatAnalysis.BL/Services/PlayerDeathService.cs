@@ -11,34 +11,7 @@ internal class PlayerDeathService(IGenericRepository<PlayerDeath> repository, IM
     private readonly IGenericRepository<PlayerDeath> _repository = repository;
     private readonly IMapper _mapper = mapper;
 
-    public Task<PlayerDeathDto> CreateAsync(PlayerDeathDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(PlayerDeathDto), $"The {nameof(PlayerDeathDto)} can't be null");
-        }
-
-        return CreateInternalAsync(item);
-    }
-
-    public async Task<int> DeleteAsync(int id)
-    {
-        var affectedRows = await _repository.DeleteAsync(id);
-
-        return affectedRows;
-    }
-
-    public Task<int> UpdateAsync(PlayerDeathDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(PlayerDeathDto), $"The {nameof(PlayerDeathDto)} can't be null");
-        }
-
-        return UpdateInternalAsync(item);
-    }
-
-    private async Task<PlayerDeathDto> CreateInternalAsync(PlayerDeathDto item)
+    public async Task<PlayerDeathDto> CreateAsync(PlayerDeathDto item)
     {
         CheckParams(item);
 
@@ -49,7 +22,7 @@ internal class PlayerDeathService(IGenericRepository<PlayerDeath> repository, IM
         return resultMap;
     }
 
-    private async Task<int> UpdateInternalAsync(PlayerDeathDto item)
+    public async Task<int> UpdateAsync(PlayerDeathDto item)
     {
         CheckParams(item);
 
@@ -59,12 +32,24 @@ internal class PlayerDeathService(IGenericRepository<PlayerDeath> repository, IM
         return rowsAffected;
     }
 
-    private void CheckParams(PlayerDeathDto item)
+    public async Task<bool> DeleteAsync(int id)
     {
-        if (string.IsNullOrEmpty(item.Username))
-        {
-            throw new ArgumentNullException(nameof(PlayerDeathDto.Username),
-                $"The property {nameof(PlayerDeathDto.Username)} of the {nameof(PlayerDeathDto)} object can't be null or empty");
-        }
+        ArgumentOutOfRangeException.ThrowIfLessThan(id, 1);
+
+        var entityDeleted = await _repository.DeleteAsync(id);
+
+        return entityDeleted;
+    }
+
+    private static void CheckParams(PlayerDeathDto item)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
+
+        ArgumentException.ThrowIfNullOrEmpty(item.Username, nameof(item.Username));
+        ArgumentException.ThrowIfNullOrEmpty(item.LastHitSpellOrItem, nameof(item.LastHitSpellOrItem));
+
+        ArgumentOutOfRangeException.ThrowIfNegative(item.LastHitValue, nameof(item.LastHitValue));
+
+        ArgumentOutOfRangeException.ThrowIfLessThan(item.CombatPlayerId, 1, nameof(item.CombatPlayerId));
     }
 }

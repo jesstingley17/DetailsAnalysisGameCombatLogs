@@ -6,7 +6,7 @@ using CombatAnalysis.UserDAL.Entities;
 using CombatAnalysis.UserDAL.Interfaces;
 using Moq;
 
-namespace CombatAnalysis.UserBL.Tests;
+namespace CombatAnalysis.UserBL.Tests.ServicesTests;
 
 public class UserServiceTests
 {

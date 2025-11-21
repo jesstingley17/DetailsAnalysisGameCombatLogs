@@ -1,10 +1,10 @@
-﻿using CombatAnalysis.UserBL.Services;
-using CombatAnalysis.UserDAL.Interfaces;
+﻿using CombatAnalysis.BL.Services;
+using CombatAnalysis.DAL.Interfaces;
 using Moq;
 
-namespace CombatAnalysis.UserBL.Tests;
+namespace CombatAnalysis.BL.Tests.ServicesTests;
 
-public class UserTransactionServiceTests
+public class CombatTransactionServiceTests
 {
     [Fact]
     public async Task BeginTransactionAsync_ShouldBeginTransaction()
@@ -12,7 +12,7 @@ public class UserTransactionServiceTests
         // Arrange
         var mockContext = new Mock<IContextService>();
 
-        var service = new UserTransactionService(mockContext.Object);
+        var service = new CombatTransactionService(mockContext.Object);
 
         // Act
         await service.BeginTransactionAsync();
@@ -27,7 +27,7 @@ public class UserTransactionServiceTests
         // Arrange
         var mockContext = new Mock<IContextService>();
 
-        var service = new UserTransactionService(mockContext.Object);
+        var service = new CombatTransactionService(mockContext.Object);
 
         // Act
         await service.CommitTransactionAsync();
@@ -42,7 +42,7 @@ public class UserTransactionServiceTests
         // Arrange
         var mockContext = new Mock<IContextService>();
 
-        var service = new UserTransactionService(mockContext.Object);
+        var service = new CombatTransactionService(mockContext.Object);
 
         // Act
         await service.RollbackTransactionAsync();

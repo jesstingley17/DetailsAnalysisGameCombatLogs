@@ -13,9 +13,9 @@ namespace CombatAnalysis.BL.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static void CombatParserBLDependencies(this IServiceCollection services, string dataProcessingType, string connectionString, int commandTimeout)
+    public static void CombatParserBLDependencies(this IServiceCollection services, string connectionString, int commandTimeout)
     {
-        services.CombatParserDALDependencies(dataProcessingType, connectionString, commandTimeout);
+        services.CombatParserDALDependencies(connectionString, commandTimeout);
 
         services.AddScoped<ICombatTransactionService, CombatTransactionService>();
 
@@ -55,8 +55,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IMutationService<CombatDto>, CombatService>();
         services.AddScoped<IMutationService<CombatPlayerDto>, CombatPlayerService>();
         services.AddScoped<IMutationService<CombatPlayerPositionDto>, CombatPlayerPositionService>();
-        services.AddScoped<IMutationService<PlayerDeathDto>, PlayerDeathService>();
         services.AddScoped<IMutationService<CombatAuraDto>, CombatAuraService>();
+        services.AddScoped<IMutationService<PlayerDeathDto>, PlayerDeathService>();
         services.AddScoped<IMutationService<PlayerParseInfoDto>, PlayerParseInfoService>();
 
         services.AddScoped<IMutationService<DamageDoneDto>, DamageDoneService>();
@@ -77,18 +77,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IQueryService<CombatDto>, CombatService>();
         services.AddScoped<IQueryService<CombatPlayerDto>, CombatPlayerService>();
         services.AddScoped<IQueryService<CombatPlayerPositionDto>, CombatPlayerPositionService>();
-        services.AddScoped<IQueryService<PlayerDeathDto>, PlayerDeathService>();
         services.AddScoped<IQueryService<CombatAuraDto>, CombatAuraService>();
+        services.AddScoped<IQueryService<PlayerDeathDto>, PlayerDeathService>();
         services.AddScoped<IQueryService<PlayerParseInfoDto>, PlayerParseInfoService>();
-
-        services.AddScoped<IQueryService<DamageDoneDto>, DamageDoneService>();
-        services.AddScoped<IQueryService<DamageDoneGeneralDto>, DamageDoneGeneralService>();
-        services.AddScoped<IQueryService<HealDoneDto>, HealDoneService>();
-        services.AddScoped<IQueryService<HealDoneGeneralDto>, HealDoneGeneralService>();
-        services.AddScoped<IQueryService<DamageTakenDto>, DamageTakenService>();
-        services.AddScoped<IQueryService<DamageTakenGeneralDto>, DamageTakenGeneralService>();
-        services.AddScoped<IQueryService<ResourceRecoveryDto>, ResourceRecoveryService>();
-        services.AddScoped<IQueryService<ResourceRecoveryGeneralDto>, ResourceRecoveryGeneralService>();
 
         services.AddScoped<IQueryService<SpecializationScoreDto>, SpecializationScoreService>();
     }

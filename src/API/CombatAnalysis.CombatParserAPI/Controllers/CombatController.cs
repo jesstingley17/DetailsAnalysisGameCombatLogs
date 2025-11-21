@@ -121,7 +121,11 @@ public class CombatController(IQueryService<CombatDto> queryCombatService, IMuta
     {
         try
         {
-            await _mutationCombatService.DeleteAsync(id);
+            var entityDeleted = await _mutationCombatService.DeleteAsync(id);
+            if (!entityDeleted)
+            {
+                return NotFound();
+            }
 
             return NoContent();
         }

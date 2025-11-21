@@ -15,31 +15,34 @@ internal class SpecializationScoreService(ISpecScore specRepository, IGenericRep
     private readonly ISpecScore _specRepository = specRepository;
     private readonly IMapper _mapper = mapper;
 
-    public Task<SpecializationScoreDto> CreateAsync(SpecializationScoreDto item)
+    public async Task<SpecializationScoreDto> CreateAsync(SpecializationScoreDto item)
     {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(SpecializationScoreDto), $"The {nameof(SpecializationScoreDto)} can't be null");
-        }
+        CheckParams(item);
 
-        return CreateInternalAsync(item);
+        var map = _mapper.Map<SpecializationScore>(item);
+        var createdItem = await _repository.CreateAsync(map);
+        var resultMap = _mapper.Map<SpecializationScoreDto>(createdItem);
+
+        return resultMap;
     }
 
-    public async Task<int> DeleteAsync(int id)
+    public async Task<int> UpdateAsync(SpecializationScoreDto item)
     {
-        var affectedRows = await _repository.DeleteAsync(id);
+        CheckParams(item);
 
-        return affectedRows;
+        var map = _mapper.Map<SpecializationScore>(item);
+        var rowsAffected = await _repository.UpdateAsync(map);
+
+        return rowsAffected;
     }
 
-    public Task<int> UpdateAsync(SpecializationScoreDto item)
+    public async Task<bool> DeleteAsync(int id)
     {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(SpecializationScoreDto), $"The {nameof(SpecializationScoreDto)} can't be null");
-        }
+        ArgumentOutOfRangeException.ThrowIfLessThan(id, 1);
 
-        return UpdateInternalAsync(item);
+        var entityDeleted = await _repository.DeleteAsync(id);
+
+        return entityDeleted;
     }
 
     public async Task<IEnumerable<SpecializationScoreDto>> GetBySpecIdAsync(int specId, int bossId, int difficult)
@@ -50,20 +53,14 @@ internal class SpecializationScoreService(ISpecScore specRepository, IGenericRep
         return resultMap;
     }
 
-    private async Task<SpecializationScoreDto> CreateInternalAsync(SpecializationScoreDto item)
+    private static void CheckParams(SpecializationScoreDto item)
     {
-        var map = _mapper.Map<SpecializationScore>(item);
-        var createdItem = await _repository.CreateAsync(map);
-        var resultMap = _mapper.Map<SpecializationScoreDto>(createdItem);
+        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
 
-        return resultMap;
-    }
-
-    private async Task<int> UpdateInternalAsync(SpecializationScoreDto item)
-    {
-        var map = _mapper.Map<SpecializationScore>(item);
-        var rowsAffected = await _repository.UpdateAsync(map);
-
-        return rowsAffected;
+        ArgumentOutOfRangeException.ThrowIfNegative(item.SpecId, nameof(item.SpecId));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.BossId, nameof(item.BossId));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.Difficult, nameof(item.Difficult));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.Damage, nameof(item.Damage));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.Heal, nameof(item.Heal));
     }
 }

@@ -7,7 +7,7 @@ using CombatAnalysis.UserDAL.Interfaces;
 using Moq;
 using System.Linq.Expressions;
 
-namespace CombatAnalysis.UserBL.Tests;
+namespace CombatAnalysis.UserBL.Tests.ServicesTests;
 
 public class CustomerServiceTests
 {

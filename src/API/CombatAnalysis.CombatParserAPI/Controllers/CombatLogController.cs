@@ -93,7 +93,11 @@ public class CombatLogController(IQueryService<CombatLogDto> queryCombatLogServi
     {
         try
         {
-            await _mutationCombatLogService.DeleteAsync(id);
+            var entityDeleted = await _mutationCombatLogService.DeleteAsync(id);
+            if (!entityDeleted)
+            {
+                return NotFound();
+            }
 
             return NoContent();
         }

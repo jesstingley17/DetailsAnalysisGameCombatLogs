@@ -12,34 +12,7 @@ internal class CombatPlayerService(IGenericRepository<CombatPlayer> repository, 
     private readonly IGenericRepository<CombatPlayer> _repository = repository;
     private readonly IMapper _mapper = mapper;
 
-    public Task<CombatPlayerDto> CreateAsync(CombatPlayerDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(CombatPlayerDto), $"The {nameof(CombatPlayerDto)} can't be null");
-        }
-
-        return CreateInternalAsync(item);
-    }
-
-    public async Task<int> DeleteAsync(int id)
-    {
-        var affectedRows = await _repository.DeleteAsync(id);
-
-        return affectedRows;
-    }
-
-    public Task<int> UpdateAsync(CombatPlayerDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(CombatPlayerDto), $"The {nameof(CombatPlayerDto)} can't be null");
-        }
-
-        return UpdateInternalAsync(item);
-    }
-
-    private async Task<CombatPlayerDto> CreateInternalAsync(CombatPlayerDto item)
+    public async Task<CombatPlayerDto> CreateAsync(CombatPlayerDto item)
     {
         CheckParams(item);
 
@@ -50,7 +23,7 @@ internal class CombatPlayerService(IGenericRepository<CombatPlayer> repository, 
         return resultMap;
     }
 
-    private async Task<int> UpdateInternalAsync(CombatPlayerDto item)
+    public async Task<int> UpdateAsync(CombatPlayerDto item)
     {
         CheckParams(item);
 
@@ -60,12 +33,28 @@ internal class CombatPlayerService(IGenericRepository<CombatPlayer> repository, 
         return rowsAffected;
     }
 
-    private void CheckParams(CombatPlayerDto item)
+    public async Task<bool> DeleteAsync(int id)
     {
-        if (string.IsNullOrEmpty(item.Username))
-        {
-            throw new ArgumentNullException(nameof(CombatPlayerDto.Username),
-                $"The property {nameof(CombatPlayerDto.Username)} of the {nameof(CombatPlayerDto)} object can't be null or empty");
-        }
+        ArgumentOutOfRangeException.ThrowIfLessThan(id, 1);
+
+        var entityDeleted = await _repository.DeleteAsync(id);
+
+        return entityDeleted;
+    }
+
+    private static void CheckParams(CombatPlayerDto item)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
+
+        ArgumentException.ThrowIfNullOrEmpty(item.Username, nameof(item.Username));
+        ArgumentException.ThrowIfNullOrEmpty(item.PlayerId, nameof(item.PlayerId));
+
+        ArgumentOutOfRangeException.ThrowIfNegative(item.AverageItemLevel, nameof(item.AverageItemLevel));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.ResourcesRecovery, nameof(item.ResourcesRecovery));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.DamageDone, nameof(item.DamageDone));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.HealDone, nameof(item.HealDone));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.DamageTaken, nameof(item.DamageTaken));
+
+        ArgumentOutOfRangeException.ThrowIfLessThan(item.CombatId, 1, nameof(item.CombatId));
     }
 }

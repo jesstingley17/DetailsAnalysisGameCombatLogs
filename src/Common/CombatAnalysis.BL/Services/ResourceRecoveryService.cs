@@ -1,45 +1,17 @@
 ﻿using AutoMapper;
 using CombatAnalysis.BL.DTO;
 using CombatAnalysis.BL.Interfaces.General;
-using CombatAnalysis.BL.Services.General;
 using CombatAnalysis.DAL.Entities;
 using CombatAnalysis.DAL.Interfaces.Generic;
 
 namespace CombatAnalysis.BL.Services;
 
-internal class ResourceRecoveryService(IGenericRepository<ResourceRecovery> repository, IMapper mapper) : QueryService<ResourceRecoveryDto, ResourceRecovery>(repository, mapper), IMutationService<ResourceRecoveryDto>
+internal class ResourceRecoveryService(IGenericRepository<ResourceRecovery> repository, IMapper mapper) : IMutationService<ResourceRecoveryDto>
 {
     private readonly IGenericRepository<ResourceRecovery> _repository = repository;
     private readonly IMapper _mapper = mapper;
 
-    public Task<ResourceRecoveryDto> CreateAsync(ResourceRecoveryDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(ResourceRecoveryDto), $"The {nameof(ResourceRecoveryDto)} can't be null");
-        }
-
-        return CreateInternalAsync(item);
-    }
-
-    public async Task<int> DeleteAsync(int id)
-    {
-        var affectedRows = await _repository.DeleteAsync(id);
-
-        return affectedRows;
-    }
-
-    public Task<int> UpdateAsync(ResourceRecoveryDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(ResourceRecoveryDto), $"The {nameof(ResourceRecoveryDto)} can't be null");
-        }
-
-        return UpdateInternalAsync(item);
-    }
-
-    private async Task<ResourceRecoveryDto> CreateInternalAsync(ResourceRecoveryDto item)
+    public async Task<ResourceRecoveryDto> CreateAsync(ResourceRecoveryDto item)
     {
         CheckParams(item);
 
@@ -50,7 +22,7 @@ internal class ResourceRecoveryService(IGenericRepository<ResourceRecovery> repo
         return resultMap;
     }
 
-    private async Task<int> UpdateInternalAsync(ResourceRecoveryDto item)
+    public async Task<int> UpdateAsync(ResourceRecoveryDto item)
     {
         CheckParams(item);
 
@@ -60,22 +32,25 @@ internal class ResourceRecoveryService(IGenericRepository<ResourceRecovery> repo
         return rowsAffected;
     }
 
-    private void CheckParams(ResourceRecoveryDto item)
+    public async Task<bool> DeleteAsync(int id)
     {
-        if (string.IsNullOrEmpty(item.Creator))
-        {
-            throw new ArgumentNullException(nameof(ResourceRecoveryDto.Creator),
-                $"The property {nameof(ResourceRecoveryDto.Creator)} of the {nameof(ResourceRecoveryDto)} object can't be null or empty");
-        }
-        else if (string.IsNullOrEmpty(item.Target))
-        {
-            throw new ArgumentNullException(nameof(ResourceRecoveryDto.Target),
-                $"The property {nameof(ResourceRecoveryDto.Target)} of the {nameof(ResourceRecoveryDto)} object can't be null or empty");
-        }
-        else if (string.IsNullOrEmpty(item.Spell))
-        {
-            throw new ArgumentNullException(nameof(ResourceRecoveryDto.Spell),
-                $"The property {nameof(ResourceRecoveryDto.Spell)} of the {nameof(ResourceRecoveryDto)} object can't be null or empty");
-        }
+        ArgumentOutOfRangeException.ThrowIfLessThan(id, 1);
+
+        var entityDeleted = await _repository.DeleteAsync(id);
+
+        return entityDeleted;
+    }
+
+    private static void CheckParams(ResourceRecoveryDto item)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
+
+        ArgumentException.ThrowIfNullOrEmpty(item.Spell, nameof(item.Spell));
+        ArgumentException.ThrowIfNullOrEmpty(item.Creator, nameof(item.Creator));
+        ArgumentException.ThrowIfNullOrEmpty(item.Target, nameof(item.Target));
+
+        ArgumentOutOfRangeException.ThrowIfNegative(item.Value, nameof(item.Value));
+
+        ArgumentOutOfRangeException.ThrowIfLessThan(item.CombatPlayerId, 1, nameof(item.CombatPlayerId));
     }
 }

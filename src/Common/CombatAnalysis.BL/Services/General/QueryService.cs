@@ -5,18 +5,12 @@ using CombatAnalysis.DAL.Interfaces.Generic;
 
 namespace CombatAnalysis.BL.Services.General;
 
-internal class QueryService<TModel, TModelMap> : IQueryService<TModel>
+internal class QueryService<TModel, TModelMap>(IGenericRepository<TModelMap> repository, IMapper mapper) : IQueryService<TModel>
     where TModel : class
     where TModelMap : class, IEntity
 {
-    private readonly IGenericRepository<TModelMap> _repository;
-    private readonly IMapper _mapper;
-
-    public QueryService(IGenericRepository<TModelMap> repository, IMapper mapper)
-    {
-        _repository = repository;
-        _mapper = mapper;
-    }
+    private readonly IGenericRepository<TModelMap> _repository = repository;
+    private readonly IMapper _mapper = mapper;
 
     public async Task<IEnumerable<TModel>> GetAllAsync()
     {
@@ -28,6 +22,8 @@ internal class QueryService<TModel, TModelMap> : IQueryService<TModel>
 
     public async Task<TModel> GetByIdAsync(int id)
     {
+        ArgumentOutOfRangeException.ThrowIfLessThan(id, 1, nameof(id));
+
         var result = await _repository.GetByIdAsync(id);
         var resultMap = _mapper.Map<TModel>(result);
 

@@ -21,7 +21,7 @@ builder.Configuration.Bind("Database", databasePropsOptions);
 var databaseConfigsOptions = new DBConfiguration();
 builder.Configuration.Bind("DBConfiguration", databaseConfigsOptions);
 
-builder.Services.CombatParserBLDependencies(databasePropsOptions.DataProcessingType, databasePropsOptions.DefaultConnection, databaseConfigsOptions.CommandTimeout);
+builder.Services.CombatParserBLDependencies(databasePropsOptions.DefaultConnection, databaseConfigsOptions.CommandTimeout);
 
 var mappingConfig = new MapperConfiguration(mc =>
 {

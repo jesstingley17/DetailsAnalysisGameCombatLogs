@@ -1,6 +1,7 @@
 ﻿using CombatAnalysis.DAL.Data;
 using CombatAnalysis.DAL.Interfaces.Entities;
 using CombatAnalysis.DAL.Interfaces.Generic;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.DAL.Repositories;
@@ -12,63 +13,94 @@ internal class GenericRepository<TModel>(CombatParserSQLContext context) : IGene
 
     public async Task<TModel?> CreateAsync(TModel item)
     {
-        var entityEntry = await _context.Set<TModel>().AddAsync(item);
-        await _context.SaveChangesAsync();
+        var type = item.GetType();
+        var properties = type.GetProperties();
 
-        return entityEntry.Entity;
+        var procName = $"InsertInto{type.Name}";
+        var parameters = new List<SqlParameter>();
+
+        for (var i = 1; i < properties.Length; i++)
+        {
+            if (!properties[i].CanWrite) continue;
+
+            var value = properties[i].GetValue(item);
+
+            parameters.Add(new SqlParameter($"@{properties[i].Name}", value ?? DBNull.Value));
+        }
+
+        var paramPlaceholders = string.Join(",", parameters.Select(p => p.ParameterName));
+
+#pragma warning disable EF1002 // Risk of vulnerability to SQL injection.
+        var data = await _context.Set<TModel>()
+                        .FromSqlRaw($"{procName} {paramPlaceholders}", [.. parameters])
+                        .ToListAsync();
+#pragma warning restore EF1002 // Risk of vulnerability to SQL injection.
+
+        return data.FirstOrDefault();
     }
 
     public async Task<int> UpdateAsync(TModel item)
     {
-        var existing = await _context.Set<TModel>().FindAsync(item.Id);
+        var type = item.GetType();
+        var properties = type.GetProperties();
 
-        if (existing != null)
+        var procName = $"Update{type.Name}";
+        var parameters = new List<SqlParameter>();
+
+        foreach (var prop in properties)
         {
-            _context.Entry(existing).State = EntityState.Detached;
+            if (!prop.CanWrite) continue;
+
+            var value = prop.GetValue(item);
+
+            parameters.Add(new SqlParameter($"@{prop.Name}", value ?? DBNull.Value));
         }
 
-        _context.Set<TModel>().Update(item);
-        return await _context.SaveChangesAsync();
+        var paramPlaceholders = string.Join(",", parameters.Select(p => p.ParameterName));
+
+#pragma warning disable EF1002 // Risk of vulnerability to SQL injection.
+        var rowsAffected = await _context.Database
+                            .ExecuteSqlRawAsync($"{procName} {paramPlaceholders}", [.. parameters]);
+#pragma warning restore EF1002 // Risk of vulnerability to SQL injection.
+
+        return rowsAffected;
     }
 
-    public async Task<int> DeleteAsync(int id)
+    public async Task<bool> DeleteAsync(int id)
     {
-        var entity = await _context.Set<TModel>().FindAsync(id);
-        if (entity == null)
-        {
-            return 0;
-        }
+        var procName = $"Delete{typeof(TModel).Name}ById";
+        var rowsAffected = await _context.Database
+                            .ExecuteSqlAsync($"{procName} @id={id}");
 
-        _context.Set<TModel>().Remove(entity);
-        return await _context.SaveChangesAsync();
+        return rowsAffected > 0;
     }
 
     public async Task<IEnumerable<TModel>> GetAllAsync()
     {
-        var result = await _context.Set<TModel>().AsNoTracking().ToListAsync();
-        return result;
+        var procName = $"GetAll{typeof(TModel).Name}";
+        var data = await _context.Set<TModel>()
+                            .FromSqlRaw(procName)
+                            .ToListAsync();
+
+        return data.Count != 0 ? data : [];
     }
 
     public async Task<TModel?> GetByIdAsync(int id)
     {
-        var entity = await _context.Set<TModel>().FindAsync(id);
-        if (entity != null)
-        {
-            _context.Entry(entity).State = EntityState.Detached;
-        }
+        var procName = $"Get{typeof(TModel).Name}ById";
+        var data = await _context.Set<TModel>()
+                            .FromSql($"{procName} @id={id}")
+                            .FirstOrDefaultAsync();
 
-        return entity;
+        return data;
     }
 
     public async Task<IEnumerable<TModel>> GetByParamAsync(string paramName, object value)
     {
-        var query = _context.Set<TModel>().AsNoTracking();
+        var data = await _context.Set<TModel>()
+                    .Where(x => EF.Property<object>(x, paramName).Equals(value))
+                    .ToListAsync();
 
-        var filteredQuery = query.Where(x => EF.Property<object>(x, paramName).Equals(value));
-        var any = await filteredQuery.AnyAsync();
-
-        var result = any ? filteredQuery.AsEnumerable() : [];
-
-        return result;
+        return data.Count != 0 ? data : [];
     }
 }

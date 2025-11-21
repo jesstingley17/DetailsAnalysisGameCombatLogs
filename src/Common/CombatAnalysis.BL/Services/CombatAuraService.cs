@@ -12,34 +12,7 @@ internal class CombatAuraService(IGenericRepository<CombatAura> repository, IMap
     private readonly IGenericRepository<CombatAura> _repository = repository;
     private readonly IMapper _mapper = mapper;
 
-    public Task<CombatAuraDto> CreateAsync(CombatAuraDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(CombatAuraDto), $"The {nameof(CombatAuraDto)} can't be null");
-        }
-
-        return CreateInternalAsync(item);
-    }
-
-    public async Task<int> DeleteAsync(int id)
-    {
-        var affectedRows = await _repository.DeleteAsync(id);
-
-        return affectedRows;
-    }
-
-    public Task<int> UpdateAsync(CombatAuraDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(CombatAuraDto), $"The {nameof(CombatAuraDto)} can't be null");
-        }
-
-        return UpdateInternalAsync(item);
-    }
-
-    private async Task<CombatAuraDto> CreateInternalAsync(CombatAuraDto item)
+    public async Task<CombatAuraDto> CreateAsync(CombatAuraDto item)
     {
         CheckParams(item);
 
@@ -50,7 +23,7 @@ internal class CombatAuraService(IGenericRepository<CombatAura> repository, IMap
         return resultMap;
     }
 
-    private async Task<int> UpdateInternalAsync(CombatAuraDto item)
+    public async Task<int> UpdateAsync(CombatAuraDto item)
     {
         CheckParams(item);
 
@@ -60,22 +33,27 @@ internal class CombatAuraService(IGenericRepository<CombatAura> repository, IMap
         return rowsAffected;
     }
 
-    private void CheckParams(CombatAuraDto item)
+    public async Task<bool> DeleteAsync(int id)
     {
-        if (string.IsNullOrEmpty(item.Name))
-        {
-            throw new ArgumentNullException(nameof(CombatAuraDto.Name),
-                $"The property {nameof(CombatAuraDto.Name)} of the {nameof(CombatAuraDto)} object can't be null or empty");
-        }
-        else if (string.IsNullOrEmpty(item.Creator))
-        {
-            throw new ArgumentNullException(nameof(CombatAuraDto.Creator),
-                $"The property {nameof(CombatAuraDto.Creator)} of the {nameof(CombatAuraDto)} object can't be null or empty");
-        }
-        else if (string.IsNullOrEmpty(item.Target))
-        {
-            throw new ArgumentNullException(nameof(CombatAuraDto.Target),
-                $"The property {nameof(CombatAuraDto.Target)} of the {nameof(CombatAuraDto)} object can't be null or empty");
-        }
+        ArgumentOutOfRangeException.ThrowIfLessThan(id, 1);
+
+        var entityDeleted = await _repository.DeleteAsync(id);
+
+        return entityDeleted;
+    }
+
+    private static void CheckParams(CombatAuraDto item)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
+
+        ArgumentException.ThrowIfNullOrEmpty(item.Name, nameof(item.Name));
+        ArgumentException.ThrowIfNullOrEmpty(item.Creator, nameof(item.Creator));
+        ArgumentException.ThrowIfNullOrEmpty(item.Target, nameof(item.Target));
+
+        ArgumentOutOfRangeException.ThrowIfNegative(item.AuraCreatorType, nameof(item.AuraCreatorType));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.AuraType, nameof(item.AuraType));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.Stacks, nameof(item.Stacks));
+
+        ArgumentOutOfRangeException.ThrowIfLessThan(item.CombatId, 1, nameof(item.CombatId));
     }
 }

@@ -85,7 +85,7 @@ public class RequestToConnectController(IService<RequestToConnectDto, int> servi
                 return NotFound();
             }
 
-            return BadRequest();
+            return NoContent();
         }
         catch (DbUpdateConcurrencyException ex)
         {

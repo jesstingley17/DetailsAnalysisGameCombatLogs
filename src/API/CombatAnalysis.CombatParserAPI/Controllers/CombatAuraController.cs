@@ -63,7 +63,11 @@ public class CombatAuraController(IQueryService<CombatAuraDto> queryService, IMu
     {
         try
         {
-            await _mutationService.DeleteAsync(id);
+            var entityDeleted = await _mutationService.DeleteAsync(id);
+            if (!entityDeleted)
+            {
+                return NotFound();
+            }
 
             return NoContent();
         }

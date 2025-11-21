@@ -1,6 +1,6 @@
 ﻿using CombatAnalysis.DAL.Entities;
 using CombatAnalysis.DAL.IntegrationTests.Data;
-using CombatAnalysis.DAL.Repositories.StoredProcedure;
+using CombatAnalysis.DAL.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.DAL.IntegrationTests;
@@ -17,7 +17,7 @@ public class SPRepositoryTests(SqlServerFixture fixture)
 
         // Arrange
         var damageDone = new DamageDone { Spell = "Test spell", Value = 50, Time = TimeSpan.FromSeconds(40), Creator = "Player-1", Target = "Enemy-1", DamageType = 0, IsPeriodicDamage = false, IsPet = false, CombatPlayerId = 1 };
-        var repo = new SPGenericRepository<DamageDone>(_fixture.DbContext);
+        var repo = new GenericRepository<DamageDone>(_fixture.DbContext);
 
         // Act
         var createdDamageDone = await repo.CreateAsync(damageDone);
@@ -38,7 +38,7 @@ public class SPRepositoryTests(SqlServerFixture fixture)
 
         // Arrange
         var damageDone = new DamageDone { Spell = "DROP TABLE DamageDone;", Value = 50, Time = TimeSpan.FromSeconds(40), Creator = "Player-1", Target = "Enemy-1", DamageType = 0, IsPeriodicDamage = false, IsPet = false, CombatPlayerId = 1 };
-        var repo = new SPGenericRepository<DamageDone>(_fixture.DbContext);
+        var repo = new GenericRepository<DamageDone>(_fixture.DbContext);
 
         // Act
         await repo.CreateAsync(damageDone);

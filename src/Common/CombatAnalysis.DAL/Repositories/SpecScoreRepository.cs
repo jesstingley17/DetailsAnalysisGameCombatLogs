@@ -3,9 +3,9 @@ using CombatAnalysis.DAL.Entities;
 using CombatAnalysis.DAL.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace CombatAnalysis.DAL.Repositories.StoredProcedure;
+namespace CombatAnalysis.DAL.Repositories;
 
-internal class SPSpecScoreRepository(CombatParserSQLContext context) : ISpecScore
+internal class SpecScoreRepository(CombatParserSQLContext context) : ISpecScore
 {
     private readonly CombatParserSQLContext _context = context;
 

@@ -1,45 +1,17 @@
 ﻿using AutoMapper;
 using CombatAnalysis.BL.DTO;
 using CombatAnalysis.BL.Interfaces.General;
-using CombatAnalysis.BL.Services.General;
 using CombatAnalysis.DAL.Entities;
 using CombatAnalysis.DAL.Interfaces.Generic;
 
 namespace CombatAnalysis.BL.Services;
 
-internal class DamageTakenGeneralService(IGenericRepository<DamageTakenGeneral> repository, IMapper mapper) : QueryService<DamageTakenGeneralDto, DamageTakenGeneral>(repository, mapper), IMutationService<DamageTakenGeneralDto>
+internal class DamageTakenGeneralService(IGenericRepository<DamageTakenGeneral> repository, IMapper mapper) : IMutationService<DamageTakenGeneralDto>
 {
     private readonly IGenericRepository<DamageTakenGeneral> _repository = repository;
     private readonly IMapper _mapper = mapper;
 
-    public Task<DamageTakenGeneralDto> CreateAsync(DamageTakenGeneralDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(DamageTakenGeneralDto), $"The {nameof(DamageTakenGeneralDto)} can't be null");
-        }
-
-        return CreateInternalAsync(item);
-    }
-
-    public async Task<int> DeleteAsync(int id)
-    {
-        var affectedRows = await _repository.DeleteAsync(id);
-
-        return affectedRows;
-    }
-
-    public Task<int> UpdateAsync(DamageTakenGeneralDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(DamageTakenGeneralDto), $"The {nameof(DamageTakenGeneralDto)} can't be null");
-        }
-
-        return UpdateInternalAsync(item);
-    }
-
-    private async Task<DamageTakenGeneralDto> CreateInternalAsync(DamageTakenGeneralDto item)
+    public async Task<DamageTakenGeneralDto> CreateAsync(DamageTakenGeneralDto item)
     {
         CheckParams(item);
 
@@ -50,7 +22,7 @@ internal class DamageTakenGeneralService(IGenericRepository<DamageTakenGeneral> 
         return resultMap;
     }
 
-    private async Task<int> UpdateInternalAsync(DamageTakenGeneralDto item)
+    public async Task<int> UpdateAsync(DamageTakenGeneralDto item)
     {
         CheckParams(item);
 
@@ -60,12 +32,30 @@ internal class DamageTakenGeneralService(IGenericRepository<DamageTakenGeneral> 
         return rowsAffected;
     }
 
-    private void CheckParams(DamageTakenGeneralDto item)
+    public async Task<bool> DeleteAsync(int id)
     {
-        if (string.IsNullOrEmpty(item.Spell))
-        {
-            throw new ArgumentNullException(nameof(DamageTakenGeneralDto.Spell),
-                $"The property {nameof(DamageTakenGeneralDto.Spell)} of the {nameof(DamageTakenGeneralDto)} object can't be null or empty");
-        }
+        ArgumentOutOfRangeException.ThrowIfLessThan(id, 1);
+
+        var entityDeleted = await _repository.DeleteAsync(id);
+
+        return entityDeleted;
+    }
+
+    private static void CheckParams(DamageTakenGeneralDto item)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
+
+        ArgumentException.ThrowIfNullOrEmpty(item.Spell, nameof(item.Spell));
+
+        ArgumentOutOfRangeException.ThrowIfNegative(item.Value, nameof(item.Value));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.DamageTakenPerSecond, nameof(item.DamageTakenPerSecond));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.CritNumber, nameof(item.CritNumber));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.MissNumber, nameof(item.MissNumber));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.CastNumber, nameof(item.CastNumber));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.MinValue, nameof(item.MinValue));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.MaxValue, nameof(item.MaxValue));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.AverageValue, nameof(item.AverageValue));
+
+        ArgumentOutOfRangeException.ThrowIfLessThan(item.CombatPlayerId, 1, nameof(item.CombatPlayerId));
     }
 }

@@ -1,51 +1,19 @@
 ﻿using AutoMapper;
 using CombatAnalysis.BL.DTO;
 using CombatAnalysis.BL.Interfaces.General;
-using CombatAnalysis.BL.Services.General;
 using CombatAnalysis.DAL.Entities;
 using CombatAnalysis.DAL.Interfaces.Generic;
 
 namespace CombatAnalysis.BL.Services;
 
-internal class ResourceRecoveryGeneralService(IGenericRepository<ResourceRecoveryGeneral> repository, IMapper mapper) : QueryService<ResourceRecoveryGeneralDto, ResourceRecoveryGeneral>(repository, mapper), IMutationService<ResourceRecoveryGeneralDto>
+internal class ResourceRecoveryGeneralService(IGenericRepository<ResourceRecoveryGeneral> repository, IMapper mapper) : IMutationService<ResourceRecoveryGeneralDto>
 {
     private readonly IGenericRepository<ResourceRecoveryGeneral> _repository = repository;
     private readonly IMapper _mapper = mapper;
 
-    public Task<ResourceRecoveryGeneralDto> CreateAsync(ResourceRecoveryGeneralDto item)
+    public async Task<ResourceRecoveryGeneralDto> CreateAsync(ResourceRecoveryGeneralDto item)
     {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(ResourceRecoveryGeneralDto), $"The {nameof(ResourceRecoveryGeneralDto)} can't be null");
-        }
-
-        return CreateInternalAsync(item);
-    }
-
-    public async Task<int> DeleteAsync(int id)
-    {
-        var affectedRows = await _repository.DeleteAsync(id);
-
-        return affectedRows;
-    }
-
-    public Task<int> UpdateAsync(ResourceRecoveryGeneralDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(ResourceRecoveryGeneralDto), $"The {nameof(ResourceRecoveryGeneralDto)} can't be null");
-        }
-
-        return UpdateInternalAsync(item);
-    }
-
-    private async Task<ResourceRecoveryGeneralDto> CreateInternalAsync(ResourceRecoveryGeneralDto item)
-    {
-        if (string.IsNullOrEmpty(item.Spell))
-        {
-            throw new ArgumentNullException(nameof(ResourceRecoveryGeneralDto),
-                $"The property {nameof(ResourceRecoveryGeneralDto.Spell)} of the {nameof(ResourceRecoveryGeneralDto)} object can't be null or empty");
-        }
+        CheckParams(item);
 
         var map = _mapper.Map<ResourceRecoveryGeneral>(item);
         var createdItem = await _repository.CreateAsync(map);
@@ -54,13 +22,9 @@ internal class ResourceRecoveryGeneralService(IGenericRepository<ResourceRecover
         return resultMap;
     }
 
-    private async Task<int> UpdateInternalAsync(ResourceRecoveryGeneralDto item)
+    public async Task<int> UpdateAsync(ResourceRecoveryGeneralDto item)
     {
-        if (string.IsNullOrEmpty(item.Spell))
-        {
-            throw new ArgumentNullException(nameof(ResourceRecoveryGeneralDto),
-                $"The property {nameof(ResourceRecoveryGeneralDto.Spell)} of the {nameof(ResourceRecoveryGeneralDto)} object can't be null or empty");
-        }
+        CheckParams(item);
 
         var map = _mapper.Map<ResourceRecoveryGeneral>(item);
         var rowsAffected = await _repository.UpdateAsync(map);
@@ -68,12 +32,28 @@ internal class ResourceRecoveryGeneralService(IGenericRepository<ResourceRecover
         return rowsAffected;
     }
 
-    private void CheckParams(ResourceRecoveryGeneralDto item)
+    public async Task<bool> DeleteAsync(int id)
     {
-        if (string.IsNullOrEmpty(item.Spell))
-        {
-            throw new ArgumentNullException(nameof(ResourceRecoveryGeneralDto.Spell),
-                $"The property {nameof(ResourceRecoveryGeneralDto.Spell)} of the {nameof(ResourceRecoveryGeneralDto)} object can't be null or empty");
-        }
+        ArgumentOutOfRangeException.ThrowIfLessThan(id, 1);
+
+        var entityDeleted = await _repository.DeleteAsync(id);
+
+        return entityDeleted;
+    }
+
+    private static void CheckParams(ResourceRecoveryGeneralDto item)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
+
+        ArgumentException.ThrowIfNullOrEmpty(item.Spell, nameof(item.Spell));
+
+        ArgumentOutOfRangeException.ThrowIfNegative(item.Value, nameof(item.Value));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.ResourcePerSecond, nameof(item.ResourcePerSecond));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.CastNumber, nameof(item.CastNumber));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.MinValue, nameof(item.MinValue));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.MaxValue, nameof(item.MaxValue));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.AverageValue, nameof(item.AverageValue));
+
+        ArgumentOutOfRangeException.ThrowIfLessThan(item.CombatPlayerId, 1, nameof(item.CombatPlayerId));
     }
 }

@@ -7,5 +7,5 @@ public interface IMutationService<TModel>
 
     Task<int> UpdateAsync(TModel item);
 
-    Task<int> DeleteAsync(int id);
+    Task<bool> DeleteAsync(int id);
 }

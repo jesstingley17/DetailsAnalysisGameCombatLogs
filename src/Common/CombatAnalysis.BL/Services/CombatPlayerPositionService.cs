@@ -12,35 +12,10 @@ internal class CombatPlayerPositionService(IGenericRepository<CombatPlayerPositi
     private readonly IGenericRepository<CombatPlayerPosition> _repository = repository;
     private readonly IMapper _mapper = mapper;
 
-    public Task<CombatPlayerPositionDto> CreateAsync(CombatPlayerPositionDto item)
+    public async Task<CombatPlayerPositionDto> CreateAsync(CombatPlayerPositionDto item)
     {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(CombatPlayerPositionDto), $"The {nameof(CombatPlayerPositionDto)} can't be null");
-        }
+        CheckParams(item);
 
-        return CreateInternalAsync(item);
-    }
-
-    public async Task<int> DeleteAsync(int id)
-    {
-        var affectedRows = await _repository.DeleteAsync(id);
-
-        return affectedRows;
-    }
-
-    public Task<int> UpdateAsync(CombatPlayerPositionDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(CombatPlayerPositionDto), $"The {nameof(CombatPlayerPositionDto)} can't be null");
-        }
-
-        return UpdateInternalAsync(item);
-    }
-
-    private async Task<CombatPlayerPositionDto> CreateInternalAsync(CombatPlayerPositionDto item)
-    {
         var map = _mapper.Map<CombatPlayerPosition>(item);
         var createdItem = await _repository.CreateAsync(map);
         var resultMap = _mapper.Map<CombatPlayerPositionDto>(createdItem);
@@ -48,11 +23,33 @@ internal class CombatPlayerPositionService(IGenericRepository<CombatPlayerPositi
         return resultMap;
     }
 
-    private async Task<int> UpdateInternalAsync(CombatPlayerPositionDto item)
+    public async Task<int> UpdateAsync(CombatPlayerPositionDto item)
     {
+        CheckParams(item);
+
         var map = _mapper.Map<CombatPlayerPosition>(item);
         var rowsAffected = await _repository.UpdateAsync(map);
 
         return rowsAffected;
+    }
+
+    public async Task<bool> DeleteAsync(int id)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(id, 1);
+
+        var entityDeleted = await _repository.DeleteAsync(id);
+
+        return entityDeleted;
+    }
+
+    private static void CheckParams(CombatPlayerPositionDto item)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
+
+        ArgumentOutOfRangeException.ThrowIfNegative(item.PositionX, nameof(item.PositionX));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.PositionY, nameof(item.PositionY));
+
+        ArgumentOutOfRangeException.ThrowIfLessThan(item.CombatId, 1, nameof(item.CombatId));
+        ArgumentOutOfRangeException.ThrowIfLessThan(item.CombatPlayerId, 1, nameof(item.CombatPlayerId));
     }
 }

@@ -63,7 +63,11 @@ public class CombatPlayerPositionController(IQueryService<CombatPlayerPositionDt
     {
         try
         {
-            await _mutationCombatPlayerService.DeleteAsync(id);
+            var entityDeleted = await _mutationCombatPlayerService.DeleteAsync(id);
+            if (!entityDeleted)
+            {
+                return NotFound();
+            }
 
             return NoContent();
         }

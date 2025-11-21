@@ -12,34 +12,7 @@ internal class CombatService(IGenericRepository<Combat> repository, IMapper mapp
     private readonly IGenericRepository<Combat> _repository = repository;
     private readonly IMapper _mapper = mapper;
 
-    public Task<CombatDto> CreateAsync(CombatDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(CombatDto), $"The {nameof(CombatDto)} can't be null");
-        }
-
-        return CreateInternalAsync(item);
-    }
-
-    public async Task<int> DeleteAsync(int id)
-    {
-        var affectedRows = await _repository.DeleteAsync(id);
-
-        return affectedRows;
-    }
-
-    public Task<int> UpdateAsync(CombatDto item)
-    {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(CombatDto), $"The {nameof(CombatDto)} can't be null");
-        }
-
-        return UpdateInternalAsync(item);
-    }
-
-    private async Task<CombatDto> CreateInternalAsync(CombatDto item)
+    public async Task<CombatDto> CreateAsync(CombatDto item)
     {
         CheckParams(item);
 
@@ -50,27 +23,40 @@ internal class CombatService(IGenericRepository<Combat> repository, IMapper mapp
         return resultMap;
     }
 
-    private async Task<int> UpdateInternalAsync(CombatDto item)
+    public async Task<int> UpdateAsync(CombatDto item)
     {
         CheckParams(item);
 
         var map = _mapper.Map<Combat>(item);
-        var rowsAffected = await _repository.UpdateAsync(map);
+        var affectedRows = await _repository.UpdateAsync(map);
 
-        return rowsAffected;
+        return affectedRows;
     }
 
-    private void CheckParams(CombatDto item)
+    public async Task<bool> DeleteAsync(int id)
     {
-        if (string.IsNullOrEmpty(item.Name))
-        {
-            throw new ArgumentNullException(nameof(CombatDto.Name),
-                $"The property {nameof(CombatDto.Name)} of the {nameof(CombatDto)} object can't be null or empty");
-        }
-        else if (string.IsNullOrEmpty(item.DungeonName))
-        {
-            throw new ArgumentNullException(nameof(CombatDto.DungeonName),
-                $"The property {nameof(CombatDto.DungeonName)} of the {nameof(CombatDto)} object can't be null or empty");
-        }
+        ArgumentOutOfRangeException.ThrowIfLessThan(id, 1);
+
+        var entityDeleted = await _repository.DeleteAsync(id);
+
+        return entityDeleted;
+    }
+
+    private static void CheckParams(CombatDto item)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
+
+        ArgumentException.ThrowIfNullOrEmpty(item.Name, nameof(item.Name));
+        ArgumentException.ThrowIfNullOrEmpty(item.DungeonName, nameof(item.DungeonName));
+        ArgumentException.ThrowIfNullOrEmpty(item.Name, nameof(item.Name));
+
+        ArgumentOutOfRangeException.ThrowIfNegative(item.LocallyNumber, nameof(item.LocallyNumber));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.Difficulty, nameof(item.Difficulty));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.EnergyRecovery, nameof(item.EnergyRecovery));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.DamageDone, nameof(item.DamageDone));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.HealDone, nameof(item.HealDone));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.DamageTaken, nameof(item.DamageTaken));
+
+        ArgumentOutOfRangeException.ThrowIfLessThan(item.CombatLogId, 1, nameof(item.CombatLogId));
     }
 }
