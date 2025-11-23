@@ -91,7 +91,7 @@ internal class HealDoneGeneralTestDataFactory
         return collection;
     }
 
-    public static List<HealDoneGeneralDto> CreateDtoColelction()
+    public static List<HealDoneGeneralDto> CreateDtoCollection()
     {
         var collection = new List<HealDoneGeneralDto>
         {

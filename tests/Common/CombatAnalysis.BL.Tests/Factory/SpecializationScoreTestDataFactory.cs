@@ -73,7 +73,7 @@ internal class SpecializationScoreTestDataFactory
         return collection;
     }
 
-    public static List<SpecializationScoreDto> CreateDtoColelction()
+    public static List<SpecializationScoreDto> CreateDtoCollection()
     {
         var collection = new List<SpecializationScoreDto>
         {

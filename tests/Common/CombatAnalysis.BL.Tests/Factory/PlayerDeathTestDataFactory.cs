@@ -67,7 +67,7 @@ internal class PlayerDeathTestDataFactory
         return collection;
     }
 
-    public static List<PlayerDeathDto> CreateDtoColelction()
+    public static List<PlayerDeathDto> CreateDtoCollection()
     {
         var collection = new List<PlayerDeathDto>
         {

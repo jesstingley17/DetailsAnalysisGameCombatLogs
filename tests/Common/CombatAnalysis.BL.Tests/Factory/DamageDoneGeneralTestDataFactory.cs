@@ -101,7 +101,7 @@ internal class DamageDoneGeneralTestDataFactory
         return collection;
     }
 
-    public static List<DamageDoneGeneralDto> CreateDtoColelction()
+    public static List<DamageDoneGeneralDto> CreateDtoCollection()
     {
         var collection = new List<DamageDoneGeneralDto>
         {

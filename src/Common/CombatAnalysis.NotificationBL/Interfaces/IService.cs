@@ -9,9 +9,9 @@ public interface IService<TModel, TIdType>
 {
     Task<TModel?> CreateAsync(TModel item);
 
-    Task UpdateAsync(TModel item);
+    Task UpdateAsync(int id, TModel item);
 
-    Task DeleteAsync(TIdType id);
+    Task<bool> DeleteAsync(TIdType id);
 
     Task<IEnumerable<TModel>> GetAllAsync();
 

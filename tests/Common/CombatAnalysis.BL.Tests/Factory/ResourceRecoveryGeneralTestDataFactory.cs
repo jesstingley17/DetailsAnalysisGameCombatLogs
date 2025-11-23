@@ -86,7 +86,7 @@ internal class ResourceRecoveryGeneralTestDataFactory
         return collection;
     }
 
-    public static List<ResourceRecoveryGeneralDto> CreateDtoColelction()
+    public static List<ResourceRecoveryGeneralDto> CreateDtoCollection()
     {
         var collection = new List<ResourceRecoveryGeneralDto>
         {

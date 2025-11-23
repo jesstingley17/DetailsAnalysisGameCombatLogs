@@ -15,6 +15,8 @@ internal class NotificationService(IGenericRepository<Notification, int> reposit
 
     public async Task<NotificationDto?> CreateAsync(NotificationDto item)
     {
+        CheckParams(item);
+
         var map = _mapper.Map<Notification>(item);
         var createdItem = await _repository.CreateAsync(map);
         var resultMap = _mapper.Map<NotificationDto>(createdItem);
@@ -22,9 +24,23 @@ internal class NotificationService(IGenericRepository<Notification, int> reposit
         return resultMap;
     }
 
-    public async Task DeleteAsync(int id)
+    public async Task UpdateAsync(int id, NotificationDto item)
     {
-        await _repository.DeleteAsync(id);
+        ArgumentOutOfRangeException.ThrowIfNotEqual(id, item.Id);
+
+        CheckParams(item);
+
+        var map = _mapper.Map<Notification>(item);
+        await _repository.UpdateAsync(id, map);
+    }
+
+    public async Task<bool> DeleteAsync(int id)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(id, 1);
+
+        var entityDeleted = await _repository.DeleteAsync(id);
+
+        return entityDeleted;
     }
 
     public async Task<IEnumerable<NotificationDto>> GetAllAsync()
@@ -37,6 +53,8 @@ internal class NotificationService(IGenericRepository<Notification, int> reposit
 
     public async Task<NotificationDto?> GetByIdAsync(int id)
     {
+        ArgumentOutOfRangeException.ThrowIfLessThan(id, 1);
+
         var result = await _repository.GetByIdAsync(id);
         var resultMap = _mapper.Map<NotificationDto>(result);
 
@@ -52,9 +70,14 @@ internal class NotificationService(IGenericRepository<Notification, int> reposit
         return resultMap;
     }
 
-    public async Task UpdateAsync(NotificationDto item)
+    private static void CheckParams(NotificationDto item)
     {
-        var map = _mapper.Map<Notification>(item);
-        await _repository.UpdateAsync(map);
+        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
+
+        ArgumentException.ThrowIfNullOrEmpty(item.InitiatorId, nameof(item.InitiatorId));
+        ArgumentException.ThrowIfNullOrEmpty(item.RecipientId, nameof(item.RecipientId));
+
+        ArgumentOutOfRangeException.ThrowIfNegative(item.Type, nameof(item.Type));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.Status, nameof(item.Status));
     }
 }

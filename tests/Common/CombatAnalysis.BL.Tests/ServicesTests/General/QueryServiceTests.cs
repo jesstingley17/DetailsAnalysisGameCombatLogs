@@ -15,7 +15,7 @@ public class QueryServiceTests
     {
         // Arrange
         var combats = CombatTestDataFactory.CreateCollection();
-        var combatsDto = CombatTestDataFactory.CreateDtoColelction();
+        var combatsDto = CombatTestDataFactory.CreateDtoCollection();
 
         var mockMapper = new Mock<IMapper>();
         var mockRepository = new Mock<IGenericRepository<Combat>>();
@@ -145,7 +145,7 @@ public class QueryServiceTests
         const int combatLogId = 1;
 
         var combats = CombatTestDataFactory.CreateCollection();
-        var combatsDto = CombatTestDataFactory.CreateDtoColelction();
+        var combatsDto = CombatTestDataFactory.CreateDtoCollection();
 
         var mockMapper = new Mock<IMapper>();
         var mockRepository = new Mock<IGenericRepository<Combat>>();

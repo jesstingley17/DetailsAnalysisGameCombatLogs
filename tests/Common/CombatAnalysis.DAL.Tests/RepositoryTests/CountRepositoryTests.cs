@@ -2,7 +2,7 @@
 using CombatAnalysis.DAL.Repositories;
 using CombatAnalysis.UserDAL.Tests.Factory;
 
-namespace CombatAnalysis.DAL.Tests;
+namespace CombatAnalysis.DAL.Tests.RepositoryTests;
 
 public class CountRepositoryTests : RepositoryTestsBase
 {
@@ -14,7 +14,7 @@ public class CountRepositoryTests : RepositoryTestsBase
 
         using var context = CreateInMemoryContext(nameof(CountByCombatPlayerIdAsync_Count_ShouldReturnCountEntityByCombatPlayerId));
 
-        await context.Set<DamageDone>().AddRangeAsync(TestDataFactory.CreateDamageDonColelction());
+        await context.Set<DamageDone>().AddRangeAsync(DamageDoneTestDataFactory.CreateCollection());
         await context.SaveChangesAsync();
 
         var repo = new CountRepository<DamageDone>(context);
@@ -34,7 +34,7 @@ public class CountRepositoryTests : RepositoryTestsBase
 
         using var context = CreateInMemoryContext(nameof(CountByCombatPlayerIdAsync_Count_ShouldReturnZeroEntityByCombatPlayerId));
 
-        await context.Set<DamageDone>().AddRangeAsync(TestDataFactory.CreateDamageDonColelction());
+        await context.Set<DamageDone>().AddRangeAsync(DamageDoneTestDataFactory.CreateCollection());
         await context.SaveChangesAsync();
 
         var repo = new CountRepository<DamageDone>(context);

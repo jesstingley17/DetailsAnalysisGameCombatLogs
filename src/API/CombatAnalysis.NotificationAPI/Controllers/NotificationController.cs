@@ -88,7 +88,7 @@ public class NotificationController(IService<NotificationDto, int> notificationS
             }
 
             var mappedNotification = _mapper.Map<NotificationDto>(notification);
-            await _notificationService.UpdateAsync(mappedNotification);
+            await _notificationService.UpdateAsync(id, mappedNotification);
 
             return NoContent();
         }
@@ -105,7 +105,11 @@ public class NotificationController(IService<NotificationDto, int> notificationS
     {
         try
         {
-            await _notificationService.DeleteAsync(id);
+            var entityDeleted = await _notificationService.DeleteAsync(id);
+            if (!entityDeleted)
+            {
+                return NotFound();
+            }
 
             return NoContent();
         }

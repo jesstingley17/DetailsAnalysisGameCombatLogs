@@ -108,7 +108,7 @@ internal class CombatTestDataFactory
         return collection;
     }
 
-    public static List<CombatDto> CreateDtoColelction()
+    public static List<CombatDto> CreateDtoCollection()
     {
         var collection = new List<CombatDto>
         {

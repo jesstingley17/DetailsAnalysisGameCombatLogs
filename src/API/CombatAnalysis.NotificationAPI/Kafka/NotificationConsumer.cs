@@ -70,7 +70,7 @@ public class NotificationConsumer(IOptions<KafkaSettings> kafkaSettings, IOption
 
         notification.Status = (int)NotificationStatus.Read;
         notification.ReadAt = DateTime.UtcNow;
-        await notificationService.UpdateAsync(notification);
+        await notificationService.UpdateAsync(notification.Id, notification);
 
         await chatHubHelper.RequestRecipientNotifications(notificationAction.RecipientId);
     }
@@ -81,7 +81,7 @@ public class NotificationConsumer(IOptions<KafkaSettings> kafkaSettings, IOption
         ArgumentNullException.ThrowIfNull(notification, nameof(notification));
 
         notification.Status = (int)NotificationStatus.Read;
-        await notificationService.UpdateAsync(notification);
+        await notificationService.UpdateAsync(notification.Id, notification);
 
         await chatHubHelper.RequestRecipientNotifications(notificationAction.RecipientId);
     }
@@ -94,7 +94,7 @@ public class NotificationConsumer(IOptions<KafkaSettings> kafkaSettings, IOption
         foreach (var notification in notifications)
         {
             notification.Status = (int)NotificationStatus.Read;
-            await notificationService.UpdateAsync(notification);
+            await notificationService.UpdateAsync(notification.Id, notification);
         }
 
         await chatHubHelper.RequestRecipientNotifications(notificationAction.RecipientId);

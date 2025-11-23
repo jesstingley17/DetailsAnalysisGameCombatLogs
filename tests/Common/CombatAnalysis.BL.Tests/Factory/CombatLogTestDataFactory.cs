@@ -78,7 +78,7 @@ internal class CombatLogTestDataFactory
         return collection;
     }
 
-    public static List<CombatLogDto> CreateDtoColelction()
+    public static List<CombatLogDto> CreateDtoCollection()
     {
         var collection = new List<CombatLogDto>
         {

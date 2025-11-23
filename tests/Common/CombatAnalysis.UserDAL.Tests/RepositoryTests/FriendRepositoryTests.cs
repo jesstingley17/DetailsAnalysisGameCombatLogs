@@ -2,7 +2,7 @@
 using CombatAnalysis.UserDAL.Repositories;
 using CombatAnalysis.UserDAL.Tests.Factory;
 
-namespace CombatAnalysis.UserDAL.Tests;
+namespace CombatAnalysis.UserDAL.Tests.RepositoryTests;
 
 public class FriendRepositoryTests : RepositoryTestsBase
 {
@@ -17,8 +17,8 @@ public class FriendRepositoryTests : RepositoryTestsBase
 
         using var context = CreateInMemoryContext(nameof(CreateAsync_ShouldAddEntity));
         context.Set<AppUser>().AddRange(
-            TestDataFactory.CreateAppUser(id: user1Id, username: user1Username),
-            TestDataFactory.CreateAppUser(id: user2Id, username: user2Username)
+            AppUserTestDataFactory.Create(id: user1Id, username: user1Username),
+            AppUserTestDataFactory.Create(id: user2Id, username: user2Username)
         );
 
         var repo = new FriendRepository(context);
@@ -98,9 +98,9 @@ public class FriendRepositoryTests : RepositoryTestsBase
 
         using var context = CreateInMemoryContext(nameof(GetAllAsync_ShouldReturnAllEntities));
         context.Set<AppUser>().AddRange(
-            TestDataFactory.CreateAppUser(id: user1Id),
-            TestDataFactory.CreateAppUser(id: user2Id),
-            TestDataFactory.CreateAppUser(id: user3Id)
+            AppUserTestDataFactory.Create(id: user1Id),
+            AppUserTestDataFactory.Create(id: user2Id),
+            AppUserTestDataFactory.Create(id: user3Id)
         );
 
         context.Set<Friend>().AddRange(
@@ -140,8 +140,8 @@ public class FriendRepositoryTests : RepositoryTestsBase
 
         using var context = CreateInMemoryContext(nameof(GetByIdAsync_ShouldReturnCorrectEntity));
         context.Set<AppUser>().AddRange(
-            TestDataFactory.CreateAppUser(id: user1Id, username: user1Username),
-            TestDataFactory.CreateAppUser(id: user2Id, username: user2Username)
+            AppUserTestDataFactory.Create(id: user1Id, username: user1Username),
+            AppUserTestDataFactory.Create(id: user2Id, username: user2Username)
         );
 
         var friend = new Friend(
@@ -175,9 +175,9 @@ public class FriendRepositoryTests : RepositoryTestsBase
 
         using var context = CreateInMemoryContext(nameof(GetByParamAsync_ShouldReturnFilteredResults));
         context.Set<AppUser>().AddRange(
-            TestDataFactory.CreateAppUser(id: "uid-222"),
-            TestDataFactory.CreateAppUser(id: "uid-223"),
-            TestDataFactory.CreateAppUser(id: "uid-224")
+            AppUserTestDataFactory.Create(id: "uid-222"),
+            AppUserTestDataFactory.Create(id: "uid-223"),
+            AppUserTestDataFactory.Create(id: "uid-224")
         );
 
         context.Set<Friend>().AddRange(

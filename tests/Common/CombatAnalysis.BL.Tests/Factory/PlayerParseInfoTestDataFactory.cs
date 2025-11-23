@@ -78,7 +78,7 @@ internal class PlayerParseInfoTestDataFactory
         return collection;
     }
 
-    public static List<PlayerParseInfoDto> CreateDtoColelction()
+    public static List<PlayerParseInfoDto> CreateDtoCollection()
     {
         var collection = new List<PlayerParseInfoDto>
         {

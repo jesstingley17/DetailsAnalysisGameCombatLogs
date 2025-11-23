@@ -1,5 +1,6 @@
 ﻿using CombatAnalysis.DAL.Entities;
 using CombatAnalysis.DAL.Repositories.Filters;
+using CombatAnalysis.DAL.Tests.RepositoryTests;
 
 namespace CombatAnalysis.DAL.Tests.FiltersTests;
 

@@ -2,9 +2,9 @@
 
 namespace CombatAnalysis.UserDAL.Tests.Factory;
 
-internal static class TestDataFactory
+internal static class DamageDoneTestDataFactory
 {
-    public static List<DamageDone> CreateDamageDonColelction()
+    public static List<DamageDone> CreateCollection()
     {
         var collection = new List<DamageDone>
         {

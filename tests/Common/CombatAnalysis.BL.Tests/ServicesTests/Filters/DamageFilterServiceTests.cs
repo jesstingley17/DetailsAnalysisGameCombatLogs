@@ -16,7 +16,7 @@ public class DamageFilterServiceTests
         // Arrange
         const int combatId = 1;
 
-        var combatTargetsDto = new List<List<CombatTargetDto>> { CombatTargetTestDataFactory.CreateDtoColelction() };
+        var combatTargetsDto = new List<List<CombatTargetDto>> { CombatTargetTestDataFactory.CreateDtoCollection() };
         var combatTargets = new List<List<CombatTarget>> { CombatTargetTestDataFactory.CreateCollection() };
 
         var mockMapper = new Mock<IMapper>();
@@ -48,7 +48,7 @@ public class DamageFilterServiceTests
         // Arrange
         const int combatId = 0;
 
-        var combatTargetsDto = new List<List<CombatTargetDto>> { CombatTargetTestDataFactory.CreateDtoColelction() };
+        var combatTargetsDto = new List<List<CombatTargetDto>> { CombatTargetTestDataFactory.CreateDtoCollection() };
         var combatTargets = new List<List<CombatTarget>> { CombatTargetTestDataFactory.CreateCollection() };
 
         var mockMapper = new Mock<IMapper>();

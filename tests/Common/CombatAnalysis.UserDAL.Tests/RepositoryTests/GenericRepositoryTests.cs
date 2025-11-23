@@ -1,7 +1,7 @@
 ﻿using CombatAnalysis.UserDAL.Entities;
 using CombatAnalysis.UserDAL.Repositories;
 
-namespace CombatAnalysis.UserDAL.Tests;
+namespace CombatAnalysis.UserDAL.Tests.RepositoryTests;
 
 public class GenericRepositoryTests : RepositoryTestsBase
 {

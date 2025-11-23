@@ -212,15 +212,15 @@ public class UserServiceTests
     public async Task DeleteAsync_ShouldDeleteEntity()
     {
         // Arrange
-        const string customerId = "uid-22";
+        const string userId = "uid-22";
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<Customer, string>>();
+        var mockRepository = new Mock<IUserRepository>();
 
-        var service = new CustomerService(mockRepository.Object, mockMapper.Object);
+        var service = new UserService(mockRepository.Object, mockMapper.Object);
 
         // Act
-        await service.DeleteAsync(customerId);
+        await service.DeleteAsync(userId);
 
         // Verify correct method calls
         mockRepository.Verify(r => r.DeleteAsync(It.IsAny<string>()), Times.Once);

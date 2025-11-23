@@ -19,13 +19,26 @@ internal class GenericRepository<TModel, TIdType>(NotificationContext context) :
         return entityEntry.Entity;
     }
 
-    public async Task DeleteAsync(TIdType id)
+    public async Task<int> UpdateAsync(TIdType id, TModel item)
     {
-        var model = Activator.CreateInstance<TModel>();
-        model.GetType().GetProperty("Id")?.SetValue(model, id);
+        var existing = await _context.Set<TModel>().FindAsync(id) ?? throw new KeyNotFoundException();
+        _context.Entry(existing).CurrentValues.SetValues(item);
 
-        _context.Set<TModel>().Remove(model);
+        return await _context.SaveChangesAsync();
+    }
+
+    public async Task<bool> DeleteAsync(TIdType id)
+    {
+        var entity = await _context.Set<TModel>().FindAsync(id);
+        if (entity == null)
+        {
+            return false;
+        }
+
+        _context.Set<TModel>().Remove(entity);
         await _context.SaveChangesAsync();
+
+        return true;
     }
 
     public async Task<IEnumerable<TModel>> GetAllAsync()
@@ -62,11 +75,5 @@ internal class GenericRepository<TModel, TIdType>(NotificationContext context) :
                                 .ToListAsync();
 
         return query;
-    }
-
-    public async Task UpdateAsync(TModel item)
-    {
-        _context.Entry(item).State = EntityState.Modified;
-        await _context.SaveChangesAsync();
     }
 }

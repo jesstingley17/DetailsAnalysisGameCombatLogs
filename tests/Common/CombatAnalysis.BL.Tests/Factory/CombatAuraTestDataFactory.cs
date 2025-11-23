@@ -88,7 +88,7 @@ internal class CombatAuraTestDataFactory
         return collection;
     }
 
-    public static List<CombatAuraDto> CreateDtoColelction()
+    public static List<CombatAuraDto> CreateDtoCollection()
     {
         var collection = new List<CombatAuraDto>
         {

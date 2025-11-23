@@ -83,7 +83,7 @@ internal class CombatPlayerTestDataFactory
         return collection;
     }
 
-    public static List<CombatPlayerDto> CreateDtoColelction()
+    public static List<CombatPlayerDto> CreateDtoCollection()
     {
         var collection = new List<CombatPlayerDto>
         {

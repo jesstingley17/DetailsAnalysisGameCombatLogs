@@ -8,9 +8,9 @@ public interface IGenericRepository<TModel, TIdType>
 {
     Task<TModel?> CreateAsync(TModel item);
 
-    Task UpdateAsync(TModel item);
+    Task<int> UpdateAsync(TIdType id, TModel item);
 
-    Task DeleteAsync(TIdType id);
+    Task<bool> DeleteAsync(TIdType id);
 
     Task<TModel?> GetByIdAsync(TIdType id);
 

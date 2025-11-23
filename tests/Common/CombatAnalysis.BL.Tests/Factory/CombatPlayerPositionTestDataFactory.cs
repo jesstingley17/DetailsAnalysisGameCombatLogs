@@ -68,10 +68,10 @@ internal class CombatPlayerPositionTestDataFactory
         return collection;
     }
 
-    public static List<CombatPlayerPositionDto> CreateDtoColelction()
+    public static List<CombatPlayerPositionDto> CreateDtoCollection()
     {
         var collection = new List<CombatPlayerPositionDto>
-        {
+        {   
             new () {
                 Id = 1,
                 PositionX = 23,
