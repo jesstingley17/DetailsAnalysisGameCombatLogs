@@ -54,9 +54,9 @@ internal class PersonalChatService(IPersonalChatRepository repository, IMapper m
 
     public async Task<IEnumerable<PersonalChatDto>> GetAllAsync()
     {
-        var allData = await _repository.GetAllAsync();
+        var result = await _repository.GetAllAsync();
 
-        return allData.ToDTOCollection(_mapper);
+        return result.ToDTOCollection(_mapper);
     }
 
     public async Task<PersonalChatDto> GetByIdAsync(int id)
@@ -69,8 +69,8 @@ internal class PersonalChatService(IPersonalChatRepository repository, IMapper m
 
     public async Task<IEnumerable<PersonalChatDto>> GetByUserIdAsync(string userId)
     {
-        var chats = await _repository.GetByUserIdAsync(userId);
+        var result = await _repository.GetByUserIdAsync(userId);
 
-        return chats.ToDTOCollection(_mapper);
+        return result.ToDTOCollection(_mapper);
     }
 }

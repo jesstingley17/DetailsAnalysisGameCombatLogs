@@ -6,7 +6,6 @@ using Chat.Domain.Aggregates;
 using Chat.Domain.Exceptions;
 using Chat.Domain.Repositories;
 using Chat.Domain.ValueObjects;
-using System.Transactions;
 
 namespace Chat.Application.Services;
 
@@ -26,11 +25,7 @@ internal class VoiceChatService(IGenericRepository<VoiceChat, VoiceChatId> repos
 
     public async Task DeleteAsync(string id)
     {
-        using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
-
         await _repository.DeleteAsync(id);
-
-        scope.Complete();
     }
 
     public async Task<IEnumerable<VoiceChatDto>> GetAllAsync()

@@ -2,4 +2,23 @@
 
 namespace Chat.Application.DTOs;
 
-public record PersonalChatMessageDto(int Id, string Username, string Message, DateTimeOffset Time, MessageStatus Status, MessageType Type, MessageMarkedType MarkedType, bool IsEdited, int PersonalChatId, string AppUserId);
+public class PersonalChatMessageDto
+{
+    public int Id { get; set; }
+
+    public string Username { get; set; }
+
+    public string Message { get; set; }
+
+    public DateTimeOffset Time { get; set; }
+
+    public MessageStatus Status { get; set; }
+
+    public MessageType Type { get; set; }
+
+    public MessageMarkedType MarkedType { get; set; }
+
+    public int PersonalChatId { get; set; }
+
+    public string AppUserId { get; set; }
+}

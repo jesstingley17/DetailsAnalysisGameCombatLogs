@@ -1,3 +1,8 @@
 ﻿namespace Chat.Application.DTOs;
 
-public record VoiceChatDto(string Id, string AppUserId);
+public class VoiceChatDto
+{
+    public string Id { get; set; }
+
+    public string AppUserId { get; set; }
+}
