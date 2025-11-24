@@ -1,21 +1,26 @@
 ﻿using CombatAnalysis.DAL.Entities;
+using CombatAnalysis.DAL.IntegrationTests.Data;
 using CombatAnalysis.DAL.Repositories;
-using CombatAnalysis.UserDAL.Tests.Factory;
 
-namespace CombatAnalysis.DAL.Tests.RepositoryTests;
+namespace CombatAnalysis.DAL.IntegrationTests.RepositoryTests;
 
-public class GenericRepositoryTests : RepositoryTestsBase
+[Collection("SQL Server Tests")]
+public class GenericRepositoryTests(SqlServerFixture fixture)
 {
+    private readonly SqlServerFixture _fixture = fixture;
+
     [Fact]
     public async Task CreateAsync_Entity_ShouldCreateNewEntityAndReturnCreatedEntity()
     {
+        using var context = _fixture.CreateContext();
+        using var transaction = await context.Database.BeginTransactionAsync();
+
         // Arrange
-        using var context = CreateInMemoryContext(nameof(CreateAsync_Entity_ShouldCreateNewEntityAndReturnCreatedEntity));
+        await SqlServerFixture.SeedTestDataAsync(context);
 
         var repo = new GenericRepository<DamageDone>(context);
         var damageDone = new DamageDone()
         {
-            Id = 1,
             Creator = "Solinx",
             Target = "Boss",
             Spell = "Test",
@@ -32,22 +37,25 @@ public class GenericRepositoryTests : RepositoryTestsBase
 
         // Assert
         Assert.NotNull(result);
-        Assert.Single(context.Set<DamageDone>());
+        Assert.Equal(3, context.Set<DamageDone>().Count());
+
+        await context.Database.RollbackTransactionAsync();
+
+        await SqlServerFixture.Drop(context);
     }
 
     [Fact]
     public async Task UpdateAsync_ShouldUpdateEntity()
     {
+        using var context = _fixture.CreateContext();
+        using var transaction = await context.Database.BeginTransactionAsync();
+
         // Arrange
-        const string spell = "Damage ability";
+        await SqlServerFixture.SeedTestDataAsync(context);
+
         const int id = 1;
-
-        using var context = CreateInMemoryContext(nameof(UpdateAsync_ShouldUpdateEntity));
-
+        const string spell = "Damage ability";
         var repo = new GenericRepository<DamageDone>(context);
-        await context.Set<DamageDone>().AddRangeAsync(DamageDoneTestDataFactory.CreateCollection());
-        await context.SaveChangesAsync();
-
         var updatedDamageDone = new DamageDone()
         {
             Id = id,
@@ -68,37 +76,48 @@ public class GenericRepositoryTests : RepositoryTestsBase
 
         // Assert
         Assert.NotNull(updatedEntity);
+        Assert.Equal(id, updatedEntity.Id);
         Assert.Equal(spell, updatedEntity.Spell);
+
+        await context.Database.RollbackTransactionAsync();
+
+        await SqlServerFixture.Drop(context);
     }
 
     [Fact]
     public async Task DeleteAsync_ShouldDeleteEntity()
     {
+        using var context = _fixture.CreateContext();
+        using var transaction = await context.Database.BeginTransactionAsync();
+
         // Arrange
-        const int id = 1;
+        await SqlServerFixture.SeedTestDataAsync(context);
 
-        using var context = CreateInMemoryContext(nameof(DeleteAsync_ShouldDeleteEntity));
-
+        const int id = 2;
         var repo = new GenericRepository<DamageDone>(context);
-        await context.Set<DamageDone>().AddRangeAsync(DamageDoneTestDataFactory.CreateCollection());
-        await context.SaveChangesAsync();
 
         // Act
+        var col = await repo.GetAllAsync();
         await repo.DeleteAsync(id);
 
         // Assert
-        Assert.Equal(2, context.Set<DamageDone>().Count());
+        Assert.Equal(1, context.Set<DamageDone>().Count());
+
+        await context.Database.RollbackTransactionAsync();
+
+        await SqlServerFixture.Drop(context);
     }
 
     [Fact]
     public async Task GetAllAsync_Collection_ShouldReturnAllElements()
     {
+        using var context = _fixture.CreateContext();
+        using var transaction = await context.Database.BeginTransactionAsync();
+
         // Arrange
-        using var context = CreateInMemoryContext(nameof(GetAllAsync_Collection_ShouldReturnAllElements));
+        await SqlServerFixture.SeedTestDataAsync(context);
 
         var repo = new GenericRepository<DamageDone>(context);
-        await context.Set<DamageDone>().AddRangeAsync(DamageDoneTestDataFactory.CreateCollection());
-        await context.SaveChangesAsync();
 
         // Act
         var result = await repo.GetAllAsync();
@@ -106,20 +125,24 @@ public class GenericRepositoryTests : RepositoryTestsBase
         // Assert
         Assert.NotNull(result);
         Assert.NotEmpty(result);
-        Assert.Equal(3, result.Count());
+        Assert.Equal(2, result.Count());
+
+        await context.Database.RollbackTransactionAsync();
+
+        await SqlServerFixture.Drop(context);
     }
 
     [Fact]
     public async Task GetByIdAsync_Entity_ShouldReturnEntityById()
     {
+        using var context = _fixture.CreateContext();
+        using var transaction = await context.Database.BeginTransactionAsync();
+
         // Arrange
+        await SqlServerFixture.SeedTestDataAsync(context);
+
         const int id = 1;
-
-        using var context = CreateInMemoryContext(nameof(GetByIdAsync_Entity_ShouldReturnEntityById));
-
         var repo = new GenericRepository<DamageDone>(context);
-        await context.Set<DamageDone>().AddRangeAsync(DamageDoneTestDataFactory.CreateCollection());
-        await context.SaveChangesAsync();
 
         // Act
         var result = await repo.GetByIdAsync(id);
@@ -127,19 +150,23 @@ public class GenericRepositoryTests : RepositoryTestsBase
         // Assert
         Assert.NotNull(result);
         Assert.Equal(id, result.Id);
+
+        await context.Database.RollbackTransactionAsync();
+
+        await SqlServerFixture.Drop(context);
     }
 
     [Fact]
     public async Task GetByParamAsync_Collection_ShouldReturnElementsByParam()
     {
+        using var context = _fixture.CreateContext();
+        using var transaction = await context.Database.BeginTransactionAsync();
+
         // Arrange
-        const string spell = "Test";
+        await SqlServerFixture.SeedTestDataAsync(context);
 
-        using var context = CreateInMemoryContext(nameof(GetByParamAsync_Collection_ShouldReturnElementsByParam));
-
+        const string spell = "Test spell";
         var repo = new GenericRepository<DamageDone>(context);
-        await context.Set<DamageDone>().AddRangeAsync(DamageDoneTestDataFactory.CreateCollection());
-        await context.SaveChangesAsync();
 
         // Act
         var result = await repo.GetByParamAsync(nameof(DamageDone.Spell), spell);
@@ -148,5 +175,9 @@ public class GenericRepositoryTests : RepositoryTestsBase
         Assert.NotNull(result);
         Assert.NotEmpty(result);
         Assert.Single(result);
+
+        await context.Database.RollbackTransactionAsync();
+
+        await SqlServerFixture.Drop(context);
     }
 }

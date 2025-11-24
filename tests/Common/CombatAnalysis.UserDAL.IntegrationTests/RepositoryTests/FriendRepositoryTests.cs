@@ -1,8 +1,8 @@
 ﻿using CombatAnalysis.UserDAL.Entities;
 using CombatAnalysis.UserDAL.Repositories;
-using CombatAnalysis.UserDAL.Tests.Factory;
+using CombatAnalysis.UserDAL.IntegrationTests.Factory;
 
-namespace CombatAnalysis.UserDAL.Tests.RepositoryTests;
+namespace CombatAnalysis.UserDAL.IntegrationTests.RepositoryTests;
 
 public class FriendRepositoryTests : RepositoryTestsBase
 {

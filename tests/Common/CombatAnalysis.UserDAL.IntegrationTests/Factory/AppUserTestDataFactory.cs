@@ -1,6 +1,6 @@
 ﻿using CombatAnalysis.UserDAL.Entities;
 
-namespace CombatAnalysis.UserDAL.Tests.Factory;
+namespace CombatAnalysis.UserDAL.IntegrationTests.Factory;
 
 internal static class AppUserTestDataFactory
 {

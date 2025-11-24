@@ -2,6 +2,7 @@
 using CombatAnalysis.DAL.Entities;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using System;
 using Testcontainers.MsSql;
 
 namespace CombatAnalysis.DAL.IntegrationTests.Data;
@@ -18,32 +19,44 @@ public class SqlServerFixture : IAsyncLifetime
             .Build();
     }
 
-    public CombatParserSQLContext DbContext { get; private set; } = null!;
+    public DbContextOptions<CombatParserSQLContext> Options { get; private set; } = null!;
+
+    public CombatParserSQLContext CreateContext()
+    {
+        return new CombatParserSQLContext(Options);
+    }
 
     public async Task InitializeAsync()
     {
         await _container.StartAsync();
 
         var connectionString = _container.GetConnectionString();
-        var options = new DbContextOptionsBuilder<CombatParserSQLContext>()
+        Options = new DbContextOptionsBuilder<CombatParserSQLContext>()
             .UseSqlServer(connectionString)
             .Options;
-
-        DbContext = new CombatParserSQLContext(options);
 
         // Init DB scheme SQL script
         var solutionRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../../", "../../"));
         await ExecuteSqlScriptAsync(connectionString, $"{solutionRoot}\\databases\\CombatAnalysis.CombatLogs\\InitialCreate.sql");
     }
 
-    public async Task SeedTestDataAsync()
+    public static async Task Drop(CombatParserSQLContext context)
     {
-        DbContext.Set<DamageDone>().AddRange(
+        // Delete all rows
+        await context.Database.ExecuteSqlRawAsync("DELETE FROM DamageDone");
+
+        // Reset IDENTITY column to 0 (so next insert starts at 1)
+        await context.Database.ExecuteSqlRawAsync("DBCC CHECKIDENT('DamageDone', RESEED, 0)");
+    }
+
+    public static async Task SeedTestDataAsync(CombatParserSQLContext context)
+    {
+        await context.Set<DamageDone>().AddRangeAsync(
             new DamageDone { Spell = "Test spell", Value = 50, Time = TimeSpan.FromSeconds(40), Creator = "Player-1", Target = "Enemy-1", DamageType = 0, IsPeriodicDamage = false, IsPet = false, CombatPlayerId = 5 },
             new DamageDone { Spell = "Test spell 2", Value = 150, Time = TimeSpan.FromSeconds(30), Creator = "Player-1", Target = "Enemy-1", DamageType = 0, IsPeriodicDamage = false, IsPet = false, CombatPlayerId = 5 }
         );
 
-        await DbContext.SaveChangesAsync();
+        await context.SaveChangesAsync();
     }
 
     public async Task DisposeAsync()

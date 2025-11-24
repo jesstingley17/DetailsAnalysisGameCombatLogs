@@ -1,7 +1,7 @@
 ﻿using CombatAnalysis.UserDAL.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace CombatAnalysis.UserDAL.Tests.RepositoryTests;
+namespace CombatAnalysis.UserDAL.IntegrationTests.RepositoryTests;
 
 public class RepositoryTestsBase
 {

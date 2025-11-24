@@ -1,3 +1,3 @@
 ﻿using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("CombatAnalysis.NotificationDAL.Tests")]
+[assembly: InternalsVisibleTo("CombatAnalysis.NotificationDAL.IntegrationTests")]

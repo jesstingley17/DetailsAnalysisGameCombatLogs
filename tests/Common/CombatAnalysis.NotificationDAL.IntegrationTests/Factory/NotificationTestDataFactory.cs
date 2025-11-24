@@ -1,6 +1,6 @@
 ﻿using CombatAnalysis.NotificationDAL.Entities;
 
-namespace CombatAnalysis.NotificationDAL.Tests.Factory;
+namespace CombatAnalysis.NotificationDAL.IntegrationTests.Factory;
 
 internal static class NotificationTestDataFactory
 {

@@ -1,8 +1,8 @@
 ﻿using CombatAnalysis.DAL.Entities;
 using CombatAnalysis.DAL.Repositories;
-using CombatAnalysis.UserDAL.Tests.Factory;
+using CombatAnalysis.UserDAL.IntegrationTests.Factory;
 
-namespace CombatAnalysis.DAL.Tests.RepositoryTests;
+namespace CombatAnalysis.DAL.IntegrationTests.RepositoryTests;
 
 public class CountRepositoryTests : RepositoryTestsBase
 {

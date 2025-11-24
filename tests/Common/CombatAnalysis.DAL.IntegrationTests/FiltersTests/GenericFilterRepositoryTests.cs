@@ -1,8 +1,8 @@
 ﻿using CombatAnalysis.DAL.Entities;
 using CombatAnalysis.DAL.Repositories.Filters;
-using CombatAnalysis.DAL.Tests.RepositoryTests;
+using CombatAnalysis.DAL.IntegrationTests.RepositoryTests;
 
-namespace CombatAnalysis.DAL.Tests.FiltersTests;
+namespace CombatAnalysis.DAL.IntegrationTests.FiltersTests;
 
 public class GenericFilterRepositoryTests : RepositoryTestsBase
 {

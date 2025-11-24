@@ -80,6 +80,7 @@ internal class GenericRepository<TModel>(CombatParserSQLContext context) : IGene
         var procName = $"GetAll{typeof(TModel).Name}";
         var data = await _context.Set<TModel>()
                             .FromSqlRaw(procName)
+                            .AsNoTracking()
                             .ToListAsync();
 
         return data.Count != 0 ? data : [];
@@ -90,15 +91,17 @@ internal class GenericRepository<TModel>(CombatParserSQLContext context) : IGene
         var procName = $"Get{typeof(TModel).Name}ById";
         var data = await _context.Set<TModel>()
                             .FromSql($"{procName} @id={id}")
-                            .FirstOrDefaultAsync();
+                            .AsNoTracking()
+                            .ToListAsync();
 
-        return data;
+        return data.FirstOrDefault();
     }
 
     public async Task<IEnumerable<TModel>> GetByParamAsync(string paramName, object value)
     {
         var data = await _context.Set<TModel>()
                     .Where(x => EF.Property<object>(x, paramName).Equals(value))
+                    .AsNoTracking()
                     .ToListAsync();
 
         return data.Count != 0 ? data : [];

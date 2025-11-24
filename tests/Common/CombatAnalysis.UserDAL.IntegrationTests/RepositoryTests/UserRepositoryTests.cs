@@ -1,12 +1,12 @@
 ﻿using Castle.Core.Resource;
 using CombatAnalysis.UserDAL.Entities;
 using CombatAnalysis.UserDAL.Repositories;
-using CombatAnalysis.UserDAL.Tests.Factory;
+using CombatAnalysis.UserDAL.IntegrationTests.Factory;
 using Moq;
 using StackExchange.Redis;
 using System.Text.Json;
 
-namespace CombatAnalysis.UserDAL.Tests.RepositoryTests;
+namespace CombatAnalysis.UserDAL.IntegrationTests.RepositoryTests;
 
 public class UserRepositoryTests : RepositoryTestsBase
 {

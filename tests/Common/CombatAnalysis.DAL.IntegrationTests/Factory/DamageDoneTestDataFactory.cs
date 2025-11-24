@@ -1,6 +1,6 @@
 ﻿using CombatAnalysis.DAL.Entities;
 
-namespace CombatAnalysis.UserDAL.Tests.Factory;
+namespace CombatAnalysis.UserDAL.IntegrationTests.Factory;
 
 internal static class DamageDoneTestDataFactory
 {

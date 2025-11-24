@@ -4,10 +4,10 @@ using CombatAnalysis.DAL.Repositories;
 
 namespace CombatAnalysis.DAL.IntegrationTests;
 
-[CollectionDefinition("SQL Server Tests DamageDone")]
+[CollectionDefinition("SQL Server Tests")]
 public class SqlServerTestCollection : ICollectionFixture<SqlServerFixture> { }
 
-[Collection("SQL Server Tests DamageDone")]
+[Collection("SQL Server Tests")]
 public class SPPlayerInfoRepositoryTests(SqlServerFixture fixture)
 {
     private readonly SqlServerFixture _fixture = fixture;
@@ -15,21 +15,22 @@ public class SPPlayerInfoRepositoryTests(SqlServerFixture fixture)
     [Fact]
     public async Task GetByCombatPlayerIdAsync_ShouldReturnDamageDoneByCombatPlayerId()
     {
-        using var transaction = await _fixture.DbContext.Database.BeginTransactionAsync();
+        using var context = _fixture.CreateContext();
+        using var transaction = await context.Database.BeginTransactionAsync();
 
         // Arrange
-        await _fixture.SeedTestDataAsync();
+        await SqlServerFixture.SeedTestDataAsync(context);
 
         const int combatPlayerId = 5;
-        var repo = new PlayerInfoRepository<DamageDone>(_fixture.DbContext);
+        var repo = new PlayerInfoRepository<DamageDone>(context);
 
         // Act
-        var damageDones = await repo.GetByCombatPlayerIdAsync(combatPlayerId);
+        var result = await repo.GetByCombatPlayerIdAsync(combatPlayerId);
 
         // Assert
-        Assert.NotNull(damageDones);
-        Assert.NotEmpty(damageDones);
-        Assert.Equal(2, damageDones.Count());
+        Assert.NotNull(result);
+        Assert.NotEmpty(result);
+        Assert.Equal(2, result.Count());
 
         await transaction.RollbackAsync();
     }
@@ -37,23 +38,24 @@ public class SPPlayerInfoRepositoryTests(SqlServerFixture fixture)
     [Fact]
     public async Task GetByCombatPlayerIdAsync_ShouldReturnDamageDoneByCombatPlayerIdUsePagination()
     {
-        using var transaction = await _fixture.DbContext.Database.BeginTransactionAsync();
+        using var context = _fixture.CreateContext();
+        using var transaction = await context.Database.BeginTransactionAsync();
 
         // Arrange
-        await _fixture.SeedTestDataAsync();
+        await SqlServerFixture.SeedTestDataAsync(context);
 
         const int combatPlayerId = 5;
         const int page = 1;
         const int pageSize = 10;
-        var repo = new PlayerInfoRepository<DamageDone>(_fixture.DbContext);
+        var repo = new PlayerInfoRepository<DamageDone>(context);
 
         // Act
-        var damageDones = await repo.GetByCombatPlayerIdAsync(combatPlayerId, page, pageSize);
+        var result = await repo.GetByCombatPlayerIdAsync(combatPlayerId, page, pageSize);
 
         // Assert
-        Assert.NotNull(damageDones);
-        Assert.NotEmpty(damageDones);
-        Assert.Equal(2, damageDones.Count());
+        Assert.NotNull(result);
+        Assert.NotEmpty(result);
+        Assert.Equal(2, result.Count());
 
         await transaction.RollbackAsync();
     }
@@ -61,20 +63,21 @@ public class SPPlayerInfoRepositoryTests(SqlServerFixture fixture)
     [Fact]
     public async Task GetByCombatPlayerIdAsync_ShouldReturnEmptyCollectionByCombatPlayerId()
     {
-        using var transaction = await _fixture.DbContext.Database.BeginTransactionAsync();
+        using var context = _fixture.CreateContext();
+        using var transaction = await context.Database.BeginTransactionAsync();
 
         // Arrange
-        await _fixture.SeedTestDataAsync();
+        await SqlServerFixture.SeedTestDataAsync(context);
 
         const int combatPlayerId = 1;
-        var repo = new PlayerInfoRepository<DamageDone>(_fixture.DbContext);
+        var repo = new PlayerInfoRepository<DamageDone>(context);
 
         // Act
-        var damageDones = await repo.GetByCombatPlayerIdAsync(combatPlayerId);
+        var result = await repo.GetByCombatPlayerIdAsync(combatPlayerId);
 
         // Assert
-        Assert.NotNull(damageDones);
-        Assert.Empty(damageDones);
+        Assert.NotNull(result);
+        Assert.Empty(result);
 
         await transaction.RollbackAsync();
     }
@@ -82,22 +85,23 @@ public class SPPlayerInfoRepositoryTests(SqlServerFixture fixture)
     [Fact]
     public async Task GetByCombatPlayerIdAsync_ShouldReturnEmptyCollectionByCombatPlayerIdUsePagination()
     {
-        using var transaction = await _fixture.DbContext.Database.BeginTransactionAsync();
+        using var context = _fixture.CreateContext();
+        using var transaction = await context.Database.BeginTransactionAsync();
 
         // Arrange
-        await _fixture.SeedTestDataAsync();
+        await SqlServerFixture.SeedTestDataAsync(context);
 
         const int combatPlayerId = 1;
         const int page = 1;
         const int pageSize = 10;
-        var repo = new PlayerInfoRepository<DamageDone>(_fixture.DbContext);
+        var repo = new PlayerInfoRepository<DamageDone>(context);
 
         // Act
-        var damageDones = await repo.GetByCombatPlayerIdAsync(combatPlayerId, page, pageSize);
+        var result = await repo.GetByCombatPlayerIdAsync(combatPlayerId, page, pageSize);
 
         // Assert
-        Assert.NotNull(damageDones);
-        Assert.Empty(damageDones);
+        Assert.NotNull(result);
+        Assert.Empty(result);
 
         await transaction.RollbackAsync();
     }

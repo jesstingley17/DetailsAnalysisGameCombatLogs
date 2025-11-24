@@ -1,10 +1,10 @@
 ﻿using CombatAnalysis.NotificationDAL.Entities;
 using CombatAnalysis.NotificationDAL.Repositories;
-using CombatAnalysis.NotificationDAL.Tests.Factory;
-using CombatAnalysis.UserDAL.Tests.RepositoryTests;
+using CombatAnalysis.NotificationDAL.IntegrationTests.Factory;
+using CombatAnalysis.UserDAL.IntegrationTests.RepositoryTests;
 using System.Linq.Expressions;
 
-namespace CombatAnalysis.NotificationDAL.Tests.RepositoryTests;
+namespace CombatAnalysis.NotificationDAL.IntegrationTests.RepositoryTests;
 
 public class GenericRepositoryTests : RepositoryTestsBase
 {
