@@ -14,7 +14,8 @@ internal class GenericRepository<TModel, TId>(ChatContext context) : IGenericRep
 
     public async Task<TModel> CreateAsync(TModel item)
     {
-        var entityEntry = await _context.Set<TModel>().AddAsync(item);
+        var entityEntry = await _context.Set<TModel>()
+            .AddAsync(item);
         await _context.SaveChangesAsync();
 
         return entityEntry.Entity;
@@ -22,7 +23,8 @@ internal class GenericRepository<TModel, TId>(ChatContext context) : IGenericRep
 
     public async Task DeleteAsync(TId id)
     {
-        var entity = await GetByIdAsync(id) 
+        var entity = await _context.Set<TModel>()
+            .SingleOrDefaultAsync(g => g.Id.Equals(id))
                     ?? throw new EntityNotFoundException(typeof(TModel), id);
 
         _context.Set<TModel>().Remove(entity);
@@ -31,13 +33,18 @@ internal class GenericRepository<TModel, TId>(ChatContext context) : IGenericRep
 
     public async Task<IEnumerable<TModel>> GetAllAsync()
     {
-        var collection = await _context.Set<TModel>().AsNoTracking().ToListAsync();
+        var collection = await _context.Set<TModel>()
+            .AsNoTracking()
+            .ToListAsync();
+
         return collection;
     }
 
     public async Task<TModel> GetByIdAsync(TId id)
     {
-        var entity = await _context.Set<TModel>().FirstOrDefaultAsync(g => g.Id.Equals(id))
+        var entity = await _context.Set<TModel>()
+            .AsNoTracking()
+            .SingleOrDefaultAsync(g => g.Id.Equals(id))
                         ?? throw new EntityNotFoundException(typeof(TModel), id);
 
         return entity;

@@ -12,6 +12,7 @@ internal class PersonalChatRepository(ChatContext context) : GenericRepository<P
     public async Task<IEnumerable<PersonalChat>> GetByUserIdAsync(string userId)
     {
         var chats = await context.PersonalChat
+            .AsNoTracking()
             .Where(x => x.InitiatorId == userId || x.CompanionId == userId)
             .ToListAsync();
 
@@ -20,20 +21,22 @@ internal class PersonalChatRepository(ChatContext context) : GenericRepository<P
 
     public async Task UpdateInitiatorUnreadMessageCountAsync(int chatId, int count)
     {
-        var personalChat = await GetByIdAsync(chatId)
-                    ?? throw new EntityNotFoundException(typeof(PersonalChat), chatId);
+        var entity = await _context.Set<PersonalChat>()
+                 .SingleOrDefaultAsync(g => g.Id == chatId)
+                        ?? throw new EntityNotFoundException(typeof(PersonalChat), chatId);
 
-        personalChat.UpdateInitiatorUnreadMessageCount(count);
+        entity.UpdateInitiatorUnreadMessageCount(count);
 
         await _context.SaveChangesAsync();
     }
 
     public async Task UpdateCompanionUnreadMessageCountAsync(int chatId, int count)
     {
-        var personalChat = await GetByIdAsync(chatId)
-                    ?? throw new EntityNotFoundException(typeof(PersonalChat), chatId);
+        var entity = await _context.Set<PersonalChat>()
+                 .SingleOrDefaultAsync(g => g.Id == chatId)
+                        ?? throw new EntityNotFoundException(typeof(PersonalChat), chatId);
 
-        personalChat.UpdateCompanionUnreadMessageCount(count);
+        entity.UpdateCompanionUnreadMessageCount(count);
 
         await _context.SaveChangesAsync();
     }

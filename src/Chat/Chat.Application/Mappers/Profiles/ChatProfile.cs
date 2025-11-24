@@ -30,7 +30,6 @@ public class ChatProfile : Profile
                  .ConstructUsing(dto => new PersonalChatMessage(
                      dto.Username,
                      dto.Message,
-                     dto.Time,
                      dto.PersonalChatId,
                      dto.AppUserId,
                      dto.Status,

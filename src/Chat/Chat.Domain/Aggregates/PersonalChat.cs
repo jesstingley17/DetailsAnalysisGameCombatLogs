@@ -39,6 +39,7 @@ public class PersonalChat : IRepositoryEntity<PersonalChatId>
             InitiatorUnreadMessages = count;
         }
     }
+
     public void UpdateCompanionUnreadMessageCount(int count)
     {
         ArgumentOutOfRangeException.ThrowIfLessThan(count, 0, nameof(count));
@@ -48,5 +49,4 @@ public class PersonalChat : IRepositoryEntity<PersonalChatId>
             CompanionUnreadMessages = count;
         }
     }
-
 }

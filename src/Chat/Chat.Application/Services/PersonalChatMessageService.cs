@@ -23,7 +23,7 @@ internal class PersonalChatMessageService(IPersonalChatMessageRepository reposit
         var chat = await _chatRepository.GetByIdAsync(createMessage.PersonalChatId)
                             ?? throw new PersonalChatNotFoundException(createMessage.PersonalChatId);
 
-        var personalChatMessage = new PersonalChatMessage(createMessage.Username, createMessage.Message, createMessage.Time, chat.Id, createMessage.AppUserId);
+        var personalChatMessage = new PersonalChatMessage(createMessage.Username, createMessage.Message, chat.Id, createMessage.AppUserId);
 
         var createdMessage = await _repository.CreateAsync(personalChatMessage);
 

@@ -78,6 +78,12 @@ public class ChatContext(DbContextOptions<ChatContext> options) : DbContext(opti
 
             builder.Property(m => m.Time).IsRequired();
 
+            builder.Property(c => c.Time)
+                   .HasConversion(
+                       dto => dto.UtcDateTime,
+                       dt => new DateTimeOffset(dt)
+                   );
+
             builder.Property(x => x.Id)
                      .HasConversion(
                          id => id.Value,
@@ -149,6 +155,12 @@ public class ChatContext(DbContextOptions<ChatContext> options) : DbContext(opti
             builder.Property(msg => msg.Message).IsRequired().HasMaxLength(Domain.Entities.PersonalChatMessage.MESSAGE_MAX_LENGTH);
 
             builder.Property(m => m.Time).IsRequired();
+
+            builder.Property(c => c.Time)
+                   .HasConversion(
+                       dto => dto.UtcDateTime,
+                       dt => new DateTimeOffset(dt)
+                   );
 
             builder.Property(x => x.Id)
                      .HasConversion(

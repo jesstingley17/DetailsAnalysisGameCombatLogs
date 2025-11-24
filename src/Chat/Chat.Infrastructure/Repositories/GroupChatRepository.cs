@@ -13,52 +13,57 @@ internal class GroupChatRepository(ChatContext context) : GenericRepository<Grou
 {
     public async Task UpdateNameAsync(int chatId, string newName)
     {
-        var groupChat = await GetByIdAsync(chatId)
-                    ?? throw new EntityNotFoundException(typeof(GroupChat), chatId);
+        var entity = await _context.Set<GroupChat>()
+            .SingleOrDefaultAsync(g => g.Id == chatId)
+                        ?? throw new EntityNotFoundException(typeof(GroupChat), chatId);
 
-        groupChat.UpdateName(newName);
+        entity.UpdateName(newName);
 
         await _context.SaveChangesAsync();
     }
 
     public async Task PassOwnerAsync(int chatId, UserId ownerId)
     {
-        var groupChat = await GetByIdAsync(chatId)
-                    ?? throw new EntityNotFoundException(typeof(GroupChat), chatId);
+        var entity = await _context.Set<GroupChat>()
+            .SingleOrDefaultAsync(g => g.Id == chatId)
+                        ?? throw new EntityNotFoundException(typeof(GroupChat), chatId);
 
-        groupChat.PassOwner(ownerId);
+        entity.PassOwner(ownerId);
 
         await _context.SaveChangesAsync();
     }
 
     public async Task<GroupChatRules?> AddRulesAsync(GroupChatRules rules)
     {
-        var chat = await _context.GroupChat.FirstOrDefaultAsync(g => g.Id == rules.GroupChatId)
+        var entity = await _context.GroupChat
+            .SingleOrDefaultAsync(g => g.Id == rules.GroupChatId)
                 ?? throw new GroupChatNotFoundException(rules.GroupChatId);
 
-        chat.AddRules(chat.Id);
+        entity.AddRules(entity.Id);
 
         await _context.SaveChangesAsync();
 
-        return chat.Rules;
+        return entity.Rules;
     }
 
     public async Task RemoveRulesAsync(int chatId)
     {
-        var chat = await _context.GroupChat.FirstOrDefaultAsync(g => g.Id == chatId)
+        var entity = await _context.GroupChat
+            .SingleOrDefaultAsync(g => g.Id == chatId)
                 ?? throw new GroupChatNotFoundException(chatId);
 
-        chat.RemoveRules();
+        entity.RemoveRules();
 
         await _context.SaveChangesAsync();
     }
 
     public async Task UpdateRulesAsync(GroupChatRules updateRules)
     {
-        var chat = await _context.GroupChat.FirstOrDefaultAsync(g => g.Id == updateRules.GroupChatId)
+        var entity = await _context.GroupChat
+            .SingleOrDefaultAsync(g => g.Id == updateRules.GroupChatId)
                 ?? throw new GroupChatNotFoundException(updateRules.GroupChatId);
 
-        chat.UpdateRules(updateRules.InvitePeople, updateRules.RemovePeople, updateRules.PinMessage, updateRules.Announcements);
+        entity.UpdateRules(updateRules.InvitePeople, updateRules.RemovePeople, updateRules.PinMessage, updateRules.Announcements);
 
         await _context.SaveChangesAsync();
     }

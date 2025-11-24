@@ -12,7 +12,7 @@ public class PersonalChatMessage : IRepositoryEntity<PersonalChatMessageId>
 
     private PersonalChatMessage() { }
 
-    public PersonalChatMessage(string username, string message, DateTimeOffset time, PersonalChatId chatId, UserId appUserId,
+    public PersonalChatMessage(string username, string message, PersonalChatId chatId, UserId appUserId,
                     MessageStatus status = MessageStatus.Sending,
                     MessageType type = MessageType.Default,
                     MessageMarkedType markedType = MessageMarkedType.None)
@@ -23,13 +23,12 @@ public class PersonalChatMessage : IRepositoryEntity<PersonalChatMessageId>
 
         Username = username;
         Message = message;
-        Time = time;
         PersonalChatId = chatId;
         Status = status;
         Type = type;
         MarkedType = markedType;
-        Time = DateTimeOffset.UtcNow;
         AppUserId = appUserId;
+        Time = DateTimeOffset.UtcNow;
     }
 
     public PersonalChatMessageId Id { get; private set; }

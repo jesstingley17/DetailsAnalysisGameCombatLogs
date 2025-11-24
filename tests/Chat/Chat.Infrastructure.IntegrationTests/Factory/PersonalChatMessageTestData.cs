@@ -1,0 +1,52 @@
+﻿using Chat.Domain.Entities;
+using Chat.Domain.Enums;
+using Chat.Domain.ValueObjects;
+
+namespace Chat.Infrastructure.IntegrationTests.Factory;
+
+internal static class PersonalChatMessageTestData
+{
+    public static PersonalChatMessage Create(
+        string? username = null,
+        string? message = null,
+        int? chatId = null,
+        UserId? appUserId = null,
+        MessageStatus? status = null,
+        MessageType? type = null,
+        MessageMarkedType? markedType = null
+    )
+    {
+        var entity = new PersonalChatMessage(
+            username: username ?? "check",
+            message: message ?? "test message",
+            chatId: chatId ?? 1,
+            appUserId: appUserId ?? "uid-1",
+            status: status ?? MessageStatus.Sent,
+            type: type ?? MessageType.Default,
+            markedType: markedType ?? MessageMarkedType.None
+        );
+
+        return entity;
+    }
+
+    public static PersonalChatMessage[] CreateCollection(
+        int size = 3
+    )
+    {
+        var collection = new PersonalChatMessage[size];
+        for (var i = 0; i < size; i++)
+        {
+            collection[i] = new PersonalChatMessage(
+                username: $"chat-{i}",
+                message: $"test message {i}",
+                chatId: i + 1,
+                appUserId: $"uid-{i}",
+                status: MessageStatus.Sent,
+                type: MessageType.Default,
+                markedType: MessageMarkedType.None
+            );
+        }
+
+        return collection;
+    }
+}
