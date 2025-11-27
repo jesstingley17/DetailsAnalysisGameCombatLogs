@@ -7,6 +7,7 @@ using CombatAnalysis.CommunicationDAL.Interfaces;
 using System.Linq.Expressions;
 
 namespace CombatAnalysis.CommunicationBL.Services.Community;
+
 internal class InviteToCommunityService(IGenericRepository<InviteToCommunity, int> repository, IMapper mapper) : IService<InviteToCommunityDto, int>
 {
     private readonly IGenericRepository<InviteToCommunity, int> _repository = repository;
@@ -14,6 +15,8 @@ internal class InviteToCommunityService(IGenericRepository<InviteToCommunity, in
 
     public async Task<InviteToCommunityDto?> CreateAsync(InviteToCommunityDto item)
     {
+        CheckParams(item);
+
         var map = _mapper.Map<InviteToCommunity>(item);
         var createdItem = await _repository.CreateAsync(map);
         var resultMap = _mapper.Map<InviteToCommunityDto>(createdItem);
@@ -21,8 +24,18 @@ internal class InviteToCommunityService(IGenericRepository<InviteToCommunity, in
         return resultMap;
     }
 
+    public async Task UpdateAsync(int id, InviteToCommunityDto item)
+    {
+        CheckParams(item);
+
+        var map = _mapper.Map<InviteToCommunity>(item);
+        await _repository.UpdateAsync(id, map);
+    }
+
     public async Task DeleteAsync(int id)
     {
+        ArgumentOutOfRangeException.ThrowIfLessThan(id, 1);
+
         await _repository.DeleteAsync(id);
     }
 
@@ -36,6 +49,8 @@ internal class InviteToCommunityService(IGenericRepository<InviteToCommunity, in
 
     public async Task<InviteToCommunityDto?> GetByIdAsync(int id)
     {
+        ArgumentOutOfRangeException.ThrowIfLessThan(id, 1);
+
         var result = await _repository.GetByIdAsync(id);
         var resultMap = _mapper.Map<InviteToCommunityDto>(result);
 
@@ -51,9 +66,12 @@ internal class InviteToCommunityService(IGenericRepository<InviteToCommunity, in
         return resultMap;
     }
 
-    public async Task UpdateAsync(int id, InviteToCommunityDto item)
+    private static void CheckParams(InviteToCommunityDto item)
     {
-        var map = _mapper.Map<InviteToCommunity>(item);
-        await _repository.UpdateAsync(id, map);
+        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
+        ArgumentOutOfRangeException.ThrowIfLessThan(item.CommunityId, 1, nameof(item.CommunityId));
+
+        ArgumentException.ThrowIfNullOrEmpty(item.ToAppUserId, nameof(item.ToAppUserId));
+        ArgumentException.ThrowIfNullOrEmpty(item.AppUserId, nameof(item.AppUserId));
     }
 }

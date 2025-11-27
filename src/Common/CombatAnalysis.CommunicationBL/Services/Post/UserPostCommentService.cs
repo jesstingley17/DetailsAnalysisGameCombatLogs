@@ -15,11 +15,7 @@ internal class UserPostCommentService(IGenericRepository<UserPostComment, int> r
 
     public async Task<UserPostCommentDto?> CreateAsync(UserPostCommentDto item)
     {
-        if (string.IsNullOrEmpty(item.Content))
-        {
-            throw new ArgumentNullException(nameof(UserPostCommentDto),
-                $"The property {nameof(UserPostCommentDto.Content)} of the {nameof(UserPostCommentDto)} object can't be null or empty");
-        }
+        CheckParams(item);
 
         var map = _mapper.Map<UserPostComment>(item);
         var createdItem = await _repository.CreateAsync(map);
@@ -28,8 +24,18 @@ internal class UserPostCommentService(IGenericRepository<UserPostComment, int> r
         return resultMap;
     }
 
+    public async Task UpdateAsync(int id, UserPostCommentDto item)
+    {
+        CheckParams(item);
+
+        var map = _mapper.Map<UserPostComment>(item);
+        await _repository.UpdateAsync(id, map);
+    }
+
     public async Task DeleteAsync(int id)
     {
+        ArgumentOutOfRangeException.ThrowIfLessThan(id, 1);
+
         await _repository.DeleteAsync(id);
     }
 
@@ -43,6 +49,8 @@ internal class UserPostCommentService(IGenericRepository<UserPostComment, int> r
 
     public async Task<UserPostCommentDto?> GetByIdAsync(int id)
     {
+        ArgumentOutOfRangeException.ThrowIfLessThan(id, 1);
+
         var result = await _repository.GetByIdAsync(id);
         var resultMap = _mapper.Map<UserPostCommentDto>(result);
 
@@ -58,15 +66,12 @@ internal class UserPostCommentService(IGenericRepository<UserPostComment, int> r
         return resultMap;
     }
 
-    public async Task UpdateAsync(int id, UserPostCommentDto item)
+    private static void CheckParams(UserPostCommentDto item)
     {
-        if (string.IsNullOrEmpty(item.Content))
-        {
-            throw new ArgumentNullException(nameof(UserPostCommentDto),
-                $"The property {nameof(UserPostCommentDto.Content)} of the {nameof(UserPostCommentDto)} object can't be null or empty");
-        }
+        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(item.UserPostId, nameof(item.UserPostId));
 
-        var map = _mapper.Map<UserPostComment>(item);
-        await _repository.UpdateAsync(id, map);
+        ArgumentException.ThrowIfNullOrEmpty(item.Content, nameof(item.Content));
+        ArgumentException.ThrowIfNullOrEmpty(item.AppUserId, nameof(item.AppUserId));
     }
 }

@@ -15,6 +15,8 @@ internal class CommunityPostDislikeService(IGenericRepository<CommunityPostDisli
 
     public async Task<CommunityPostDislikeDto?> CreateAsync(CommunityPostDislikeDto item)
     {
+        CheckParams(item);
+
         var map = _mapper.Map<CommunityPostDislike>(item);
         var createdItem = await _repository.CreateAsync(map);
         var resultMap = _mapper.Map<CommunityPostDislikeDto>(createdItem);
@@ -22,8 +24,18 @@ internal class CommunityPostDislikeService(IGenericRepository<CommunityPostDisli
         return resultMap;
     }
 
+    public async Task UpdateAsync(int id, CommunityPostDislikeDto item)
+    {
+        CheckParams(item);
+
+        var map = _mapper.Map<CommunityPostDislike>(item);
+        await _repository.UpdateAsync(id, map);
+    }
+
     public async Task DeleteAsync(int id)
     {
+        ArgumentOutOfRangeException.ThrowIfLessThan(id, 1);
+
         await _repository.DeleteAsync(id);
     }
 
@@ -37,6 +49,8 @@ internal class CommunityPostDislikeService(IGenericRepository<CommunityPostDisli
 
     public async Task<CommunityPostDislikeDto?> GetByIdAsync(int id)
     {
+        ArgumentOutOfRangeException.ThrowIfLessThan(id, 1);
+
         var result = await _repository.GetByIdAsync(id);
         var resultMap = _mapper.Map<CommunityPostDislikeDto>(result);
 
@@ -52,9 +66,12 @@ internal class CommunityPostDislikeService(IGenericRepository<CommunityPostDisli
         return resultMap;
     }
 
-    public async Task UpdateAsync(int id, CommunityPostDislikeDto item)
+    private static void CheckParams(CommunityPostDislikeDto item)
     {
-        var map = _mapper.Map<CommunityPostDislike>(item);
-        await _repository.UpdateAsync(id, map);
+        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.CommunityPostId, nameof(item.CommunityPostId));
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(item.CommunityId, nameof(item.CommunityId));
+
+        ArgumentException.ThrowIfNullOrEmpty(item.AppUserId, nameof(item.AppUserId));
     }
 }

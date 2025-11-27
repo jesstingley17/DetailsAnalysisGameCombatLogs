@@ -21,17 +21,7 @@ internal class CommunityPostService(ICommunityPostRepository repository, IMapper
 
     public async Task<CommunityPostDto?> CreateAsync(CommunityPostDto item)
     {
-        if (string.IsNullOrEmpty(item.Content))
-        {
-            throw new ArgumentNullException(nameof(CommunityPostDto),
-                $"The property {nameof(CommunityPostDto.Content)} of the {nameof(CommunityPostDto)} object can't be null or empty");
-        }
-
-        if (string.IsNullOrEmpty(item.Owner))
-        {
-            throw new ArgumentNullException(nameof(CommunityPostDto),
-                $"The property {nameof(CommunityPostDto.Owner)} of the {nameof(CommunityPostDto)} object can't be null or empty");
-        }
+        CheckParams(item);
 
         var map = _mapper.Map<CommunityPost>(item);
         var createdItem = await _repository.CreateAsync(map);
@@ -40,8 +30,18 @@ internal class CommunityPostService(ICommunityPostRepository repository, IMapper
         return resultMap;
     }
 
+    public async Task UpdateAsync(int id, CommunityPostDto item)
+    {
+        CheckParams(item);
+
+        var map = _mapper.Map<CommunityPost>(item);
+        await _repository.UpdateAsync(id, map);
+    }
+
     public async Task DeleteAsync(int id)
     {
+        ArgumentOutOfRangeException.ThrowIfLessThan(id, 1);
+
         var transaction = await _sqlContextService.UseTransactionAsync();
         try
         {
@@ -74,6 +74,8 @@ internal class CommunityPostService(ICommunityPostRepository repository, IMapper
 
     public async Task<CommunityPostDto?> GetByIdAsync(int id)
     {
+        ArgumentOutOfRangeException.ThrowIfLessThan(id, 1);
+
         var result = await _repository.GetByIdAsync(id);
         var resultMap = _mapper.Map<CommunityPostDto>(result);
 
@@ -151,18 +153,6 @@ internal class CommunityPostService(ICommunityPostRepository repository, IMapper
         return count;
     }
 
-    public async Task UpdateAsync(int id, CommunityPostDto item)
-    {
-        if (string.IsNullOrEmpty(item.Content))
-        {
-            throw new ArgumentNullException(nameof(CommunityPostDto),
-                $"The property {nameof(CommunityPostDto.Content)} of the {nameof(CommunityPostDto)} object can't be null or empty");
-        }
-
-        var map = _mapper.Map<CommunityPost>(item);
-        await _repository.UpdateAsync(id, map);
-    }
-
     private async Task DeletePostLikesAsync(int postId)
     {
         var postLikes = await _postLikeService.GetByParamAsync(c => c.CommunityPostId, postId);
@@ -188,5 +178,23 @@ internal class CommunityPostService(ICommunityPostRepository repository, IMapper
         {
             await _postCommentService.DeleteAsync(item.Id);
         }
+    }
+
+    private static void CheckParams(CommunityPostDto item)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.PostType, nameof(item.PostType));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.PublicType, nameof(item.PublicType));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.Restrictions, nameof(item.Restrictions));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.LikeCount, nameof(item.LikeCount));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.DislikeCount, nameof(item.DislikeCount));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.CommentCount, nameof(item.CommentCount));
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(item.CommunityId, nameof(item.CommunityId));
+
+        ArgumentException.ThrowIfNullOrEmpty(item.Tags, nameof(item.Tags));
+        ArgumentException.ThrowIfNullOrEmpty(item.CommunityName, nameof(item.CommunityName));
+        ArgumentException.ThrowIfNullOrEmpty(item.Owner, nameof(item.Owner));
+        ArgumentException.ThrowIfNullOrEmpty(item.Content, nameof(item.Content));
+        ArgumentException.ThrowIfNullOrEmpty(item.AppUserId, nameof(item.AppUserId));
     }
 }

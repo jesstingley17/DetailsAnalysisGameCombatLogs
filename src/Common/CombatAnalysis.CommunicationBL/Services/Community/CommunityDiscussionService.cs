@@ -15,16 +15,7 @@ internal class CommunityDiscussionService(IGenericRepository<CommunityDiscussion
 
     public async Task<CommunityDiscussionDto?> CreateAsync(CommunityDiscussionDto item)
     {
-        if (string.IsNullOrEmpty(item.Title))
-        {
-            throw new ArgumentNullException(nameof(CommunityDiscussionDto),
-                $"The property {nameof(CommunityDiscussionDto.Title)} of the {nameof(CommunityDiscussionDto)} object can't be null or empty");
-        }
-        if (string.IsNullOrEmpty(item.Content))
-        {
-            throw new ArgumentNullException(nameof(CommunityDiscussionDto),
-                $"The property {nameof(CommunityDiscussionDto.Content)} of the {nameof(CommunityDiscussionDto)} object can't be null or empty");
-        }
+        CheckParams(item);
 
         var map = _mapper.Map<CommunityDiscussion>(item);
         var createdItem = await _repository.CreateAsync(map);
@@ -33,8 +24,18 @@ internal class CommunityDiscussionService(IGenericRepository<CommunityDiscussion
         return resultMap;
     }
 
+    public async Task UpdateAsync(int id, CommunityDiscussionDto item)
+    {
+        CheckParams(item);
+        
+        var map = _mapper.Map<CommunityDiscussion>(item);
+        await _repository.UpdateAsync(id, map);
+    }
+
     public async Task DeleteAsync(int id)
     {
+        ArgumentOutOfRangeException.ThrowIfLessThan(id, 1);
+
         await _repository.DeleteAsync(id);
     }
 
@@ -48,6 +49,8 @@ internal class CommunityDiscussionService(IGenericRepository<CommunityDiscussion
 
     public async Task<CommunityDiscussionDto?> GetByIdAsync(int id)
     {
+        ArgumentOutOfRangeException.ThrowIfLessThan(id, 1);
+
         var result = await _repository.GetByIdAsync(id);
         var resultMap = _mapper.Map<CommunityDiscussionDto>(result);
 
@@ -63,20 +66,14 @@ internal class CommunityDiscussionService(IGenericRepository<CommunityDiscussion
         return resultMap;
     }
 
-    public async Task UpdateAsync(int id, CommunityDiscussionDto item)
+    private static void CheckParams(CommunityDiscussionDto item)
     {
-        if (string.IsNullOrEmpty(item.Title))
-        {
-            throw new ArgumentNullException(nameof(CommunityDiscussionDto),
-                $"The property {nameof(CommunityDiscussionDto.Title)} of the {nameof(CommunityDiscussionDto)} object can't be null or empty");
-        }
-        if (string.IsNullOrEmpty(item.Content))
-        {
-            throw new ArgumentNullException(nameof(CommunityDiscussionDto),
-                $"The property {nameof(CommunityDiscussionDto.Content)} of the {nameof(CommunityDiscussionDto)} object can't be null or empty");
-        }
+        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
 
-        var map = _mapper.Map<CommunityDiscussion>(item);
-        await _repository.UpdateAsync(id, map);
+        ArgumentException.ThrowIfNullOrEmpty(item.Title, nameof(item.Title));
+        ArgumentException.ThrowIfNullOrEmpty(item.Content, nameof(item.Content));
+        ArgumentException.ThrowIfNullOrEmpty(item.AppUserId, nameof(item.AppUserId));
+
+        ArgumentOutOfRangeException.ThrowIfLessThan(item.CommunityId, 1, nameof(item.CommunityId));
     }
 }

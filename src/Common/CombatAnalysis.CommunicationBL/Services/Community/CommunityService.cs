@@ -2,6 +2,7 @@
 using AutoMapper.Extensions.ExpressionMapping;
 using CombatAnalysis.CommunicationBL.DTO.Community;
 using CombatAnalysis.CommunicationBL.DTO.Post;
+using CombatAnalysis.CommunicationBL.Enums;
 using CombatAnalysis.CommunicationBL.Interfaces;
 using CombatAnalysis.CommunicationDAL.Interfaces;
 using System.Linq.Expressions;
@@ -27,16 +28,7 @@ internal class CommunityService(ICommunityRepository communityRepository, ISqlCo
 
     public async Task<CommunityDto?> CreateAsync(CommunityDto item)
     {
-        if (string.IsNullOrEmpty(item.Name))
-        {
-            throw new ArgumentNullException(nameof(CommunityDto),
-                $"The property {nameof(CommunityDto.Name)} of the {nameof(CommunityDto)} object can't be null or empty");
-        }
-        if (string.IsNullOrEmpty(item.Description))
-        {
-            throw new ArgumentNullException(nameof(CommunityDto),
-                $"The property {nameof(CommunityDto.Description)} of the {nameof(CommunityDto)} object can't be null or empty");
-        }
+        CheckParams(item);
 
         var map = _mapper.Map<CommunicationDAL.Entities.Community.Community>(item);
         var createdItem = await _repository.CreateAsync(map);
@@ -45,8 +37,18 @@ internal class CommunityService(ICommunityRepository communityRepository, ISqlCo
         return resultMap;
     }
 
+    public async Task UpdateAsync(int id, CommunityDto item)
+    {
+        CheckParams(item);
+
+        var map = _mapper.Map<CommunicationDAL.Entities.Community.Community>(item);
+        await _repository.UpdateAsync(id, map);
+    }
+
     public async Task DeleteAsync(int id)
     {
+        ArgumentOutOfRangeException.ThrowIfLessThan(id, 1);
+
         using var transaction = await _sqlContextService.BeginTransactionAsync(true);
         try
         {
@@ -81,6 +83,8 @@ internal class CommunityService(ICommunityRepository communityRepository, ISqlCo
 
     public async Task<CommunityDto?> GetByIdAsync(int id)
     {
+        ArgumentOutOfRangeException.ThrowIfLessThan(id, 1);
+
         var result = await _repository.GetByIdAsync(id);
         var resultMap = _mapper.Map<CommunityDto>(result);
 
@@ -94,23 +98,6 @@ internal class CommunityService(ICommunityRepository communityRepository, ISqlCo
         var resultMap = _mapper.Map<IEnumerable<CommunityDto>>(result);
 
         return resultMap;
-    }
-
-    public async Task UpdateAsync(int id, CommunityDto item)
-    {
-        if (string.IsNullOrEmpty(item.Name))
-        {
-            throw new ArgumentNullException(nameof(CommunityDto),
-                $"The property {nameof(CommunityDto.Name)} of the {nameof(CommunityDto)} object can't be null or empty");
-        }
-        if (string.IsNullOrEmpty(item.Description))
-        {
-            throw new ArgumentNullException(nameof(CommunityDto),
-                $"The property {nameof(CommunityDto.Description)} of the {nameof(CommunityDto)} object can't be null or empty");
-        }
-
-        var map = _mapper.Map<CommunicationDAL.Entities.Community.Community>(item);
-        await _repository.UpdateAsync(id, map);
     }
 
     public async Task<IEnumerable<CommunityDto>> GetAllWithPaginationAsync(int pageSize)
@@ -138,6 +125,8 @@ internal class CommunityService(ICommunityRepository communityRepository, ISqlCo
 
     private async Task DeleteCommunityPostsAsync(int communityId)
     {
+        ArgumentOutOfRangeException.ThrowIfLessThan(communityId, 1);
+
         var posts = await _postService.GetByParamAsync(c => c.CommunityId, communityId);
         foreach (var item in posts)
         {
@@ -201,5 +190,15 @@ internal class CommunityService(ICommunityRepository communityRepository, ISqlCo
         {
             await _communityUserService.DeleteAsync(item.Id);
         }
+    }
+
+    private static void CheckParams(CommunityDto item)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)item.PolicyType, (int)CommunityPolicyType.Public, nameof(item.PolicyType));
+
+        ArgumentException.ThrowIfNullOrEmpty(item.Name, nameof(item.Name));
+        ArgumentException.ThrowIfNullOrEmpty(item.Description, nameof(item.Description));
+        ArgumentException.ThrowIfNullOrEmpty(item.AppUserId, nameof(item.AppUserId));
     }
 }

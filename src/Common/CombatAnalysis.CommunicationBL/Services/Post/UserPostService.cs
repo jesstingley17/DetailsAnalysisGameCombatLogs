@@ -21,17 +21,7 @@ internal class UserPostService(IUserPostRepository repository, IMapper mapper,
 
     public async Task<UserPostDto?> CreateAsync(UserPostDto item)
     {
-        if (string.IsNullOrEmpty(item.Content))
-        {
-            throw new ArgumentNullException(nameof(UserPostDto),
-                $"The property {nameof(UserPostDto.Content)} of the {nameof(UserPostDto)} object can't be null or empty");
-        }
-
-        if (string.IsNullOrEmpty(item.Owner))
-        {
-            throw new ArgumentNullException(nameof(UserPostDto),
-                $"The property {nameof(UserPostDto.Owner)} of the {nameof(UserPostDto)} object can't be null or empty");
-        }
+        CheckParams(item);
 
         var map = _mapper.Map<UserPost>(item);
         var createdItem = await _repository.CreateAsync(map);
@@ -40,8 +30,18 @@ internal class UserPostService(IUserPostRepository repository, IMapper mapper,
         return resultMap;
     }
 
+    public async Task UpdateAsync(int id, UserPostDto item)
+    {
+        CheckParams(item);
+
+        var map = _mapper.Map<UserPost>(item);
+        await _repository.UpdateAsync(id, map);
+    }
+
     public async Task DeleteAsync(int id)
     {
+        ArgumentOutOfRangeException.ThrowIfLessThan(id, 1);
+
         var transaction = await _sqlContextService.UseTransactionAsync();
         try
         {
@@ -74,6 +74,8 @@ internal class UserPostService(IUserPostRepository repository, IMapper mapper,
 
     public async Task<UserPostDto?> GetByIdAsync(int id)
     {
+        ArgumentOutOfRangeException.ThrowIfLessThan(id, 1);
+
         var result = await _repository.GetByIdAsync(id);
         var resultMap = _mapper.Map<UserPostDto>(result);
 
@@ -151,18 +153,6 @@ internal class UserPostService(IUserPostRepository repository, IMapper mapper,
         return count;
     }
 
-    public async Task UpdateAsync(int id, UserPostDto item)
-    {
-        if (string.IsNullOrEmpty(item.Content))
-        {
-            throw new ArgumentNullException(nameof(UserPostDto),
-                $"The property {nameof(UserPostDto.Content)} of the {nameof(UserPostDto)} object can't be null or empty");
-        }
-
-        var map = _mapper.Map<UserPost>(item);
-        await _repository.UpdateAsync(id, map);
-    }
-
     private async Task DeletePostLikesAsync(int postId)
     {
         var postLikes = await _postLikeService.GetByParamAsync(c => c.UserPostId, postId);
@@ -188,5 +178,19 @@ internal class UserPostService(IUserPostRepository repository, IMapper mapper,
         {
             await _postCommentService.DeleteAsync(item.Id);
         }
+    }
+
+    private static void CheckParams(UserPostDto item)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.PublicType, nameof(item.PublicType));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.LikeCount, nameof(item.LikeCount));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.DislikeCount, nameof(item.DislikeCount));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.CommentCount, nameof(item.CommentCount));
+
+        ArgumentException.ThrowIfNullOrEmpty(item.Tags, nameof(item.Tags));
+        ArgumentException.ThrowIfNullOrEmpty(item.Owner, nameof(item.Owner));
+        ArgumentException.ThrowIfNullOrEmpty(item.Content, nameof(item.Content));
+        ArgumentException.ThrowIfNullOrEmpty(item.AppUserId, nameof(item.AppUserId));
     }
 }

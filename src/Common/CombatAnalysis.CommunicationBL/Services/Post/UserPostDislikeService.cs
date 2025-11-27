@@ -15,6 +15,8 @@ internal class UserPostDislikeService(IGenericRepository<UserPostDislike, int> r
 
     public async Task<UserPostDislikeDto?> CreateAsync(UserPostDislikeDto item)
     {
+        CheckParams(item);
+
         var map = _mapper.Map<UserPostDislike>(item);
         var createdItem = await _repository.CreateAsync(map);
         var resultMap = _mapper.Map<UserPostDislikeDto>(createdItem);
@@ -22,8 +24,18 @@ internal class UserPostDislikeService(IGenericRepository<UserPostDislike, int> r
         return resultMap;
     }
 
+    public async Task UpdateAsync(int id, UserPostDislikeDto item)
+    {
+        CheckParams(item);
+
+        var map = _mapper.Map<UserPostDislike>(item);
+        await _repository.UpdateAsync(id, map);
+    }
+
     public async Task DeleteAsync(int id)
     {
+        ArgumentOutOfRangeException.ThrowIfLessThan(id, 1);
+
         await _repository.DeleteAsync(id);
     }
 
@@ -37,6 +49,8 @@ internal class UserPostDislikeService(IGenericRepository<UserPostDislike, int> r
 
     public async Task<UserPostDislikeDto?> GetByIdAsync(int id)
     {
+        ArgumentOutOfRangeException.ThrowIfLessThan(id, 1);
+
         var result = await _repository.GetByIdAsync(id);
         var resultMap = _mapper.Map<UserPostDislikeDto>(result);
 
@@ -52,9 +66,11 @@ internal class UserPostDislikeService(IGenericRepository<UserPostDislike, int> r
         return resultMap;
     }
 
-    public async Task UpdateAsync(int id, UserPostDislikeDto item)
+    private static void CheckParams(UserPostDislikeDto item)
     {
-        var map = _mapper.Map<UserPostDislike>(item);
-        await _repository.UpdateAsync(id, map);
+        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(item.UserPostId, nameof(item.UserPostId));
+
+        ArgumentException.ThrowIfNullOrEmpty(item.AppUserId, nameof(item.AppUserId));
     }
 }

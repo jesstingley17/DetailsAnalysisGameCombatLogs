@@ -15,11 +15,7 @@ internal class CommunityUserService(IGenericRepository<CommunityUser, string> re
 
     public async Task<CommunityUserDto?> CreateAsync(CommunityUserDto item)
     {
-        if (string.IsNullOrEmpty(item.Username))
-        {
-            throw new ArgumentNullException(nameof(CommunityUserDto),
-                $"The property {nameof(CommunityUserDto.Username)} of the {nameof(CommunityUserDto)} object can't be null or empty");
-        }
+        CheckParams(item);
 
         var map = _mapper.Map<CommunityUser>(item);
         var createdItem = await _repository.CreateAsync(map);
@@ -28,8 +24,18 @@ internal class CommunityUserService(IGenericRepository<CommunityUser, string> re
         return resultMap;
     }
 
+    public async Task UpdateAsync(string id, CommunityUserDto item)
+    {
+        CheckParams(item);
+
+        var map = _mapper.Map<CommunityUser>(item);
+        await _repository.UpdateAsync(id, map);
+    }
+
     public async Task DeleteAsync(string id)
     {
+        ArgumentException.ThrowIfNullOrEmpty(id);
+
         await _repository.DeleteAsync(id);
     }
 
@@ -43,6 +49,8 @@ internal class CommunityUserService(IGenericRepository<CommunityUser, string> re
 
     public async Task<CommunityUserDto?> GetByIdAsync(string id)
     {
+        ArgumentException.ThrowIfNullOrEmpty(id);
+
         var result = await _repository.GetByIdAsync(id);
         var resultMap = _mapper.Map<CommunityUserDto>(result);
 
@@ -58,15 +66,12 @@ internal class CommunityUserService(IGenericRepository<CommunityUser, string> re
         return resultMap;
     }
 
-    public async Task UpdateAsync(string id, CommunityUserDto item)
+    private static void CheckParams(CommunityUserDto item)
     {
-        if (string.IsNullOrEmpty(item.Username))
-        {
-            throw new ArgumentNullException(nameof(CommunityUserDto),
-                $"The property {nameof(CommunityUserDto.Username)} of the {nameof(CommunityUserDto)} object can't be null or empty");
-        }
+        ArgumentException.ThrowIfNullOrEmpty(item.Id, nameof(item.Id));
+        ArgumentException.ThrowIfNullOrEmpty(item.Username, nameof(item.Username));
+        ArgumentException.ThrowIfNullOrEmpty(item.AppUserId, nameof(item.AppUserId));
 
-        var map = _mapper.Map<CommunityUser>(item);
-        await _repository.UpdateAsync(id, map);
+        ArgumentOutOfRangeException.ThrowIfLessThan(item.CommunityId, 1, nameof(item.CommunityId));
     }
 }

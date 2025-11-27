@@ -15,11 +15,7 @@ internal class CommunityPostCommentService(IGenericRepository<CommunityPostComme
 
     public async Task<CommunityPostCommentDto?> CreateAsync(CommunityPostCommentDto item)
     {
-        if (string.IsNullOrEmpty(item.Content))
-        {
-            throw new ArgumentNullException(nameof(CommunityPostCommentDto),
-                $"The property {nameof(CommunityPostCommentDto.Content)} of the {nameof(CommunityPostCommentDto)} object can't be null or empty");
-        }
+        CheckParams(item);
 
         var map = _mapper.Map<CommunityPostComment>(item);
         var createdItem = await _repository.CreateAsync(map);
@@ -28,8 +24,18 @@ internal class CommunityPostCommentService(IGenericRepository<CommunityPostComme
         return resultMap;
     }
 
+    public async Task UpdateAsync(int id, CommunityPostCommentDto item)
+    {
+        CheckParams(item);
+
+        var map = _mapper.Map<CommunityPostComment>(item);
+        await _repository.UpdateAsync(id, map);
+    }
+
     public async Task DeleteAsync(int id)
     {
+        ArgumentOutOfRangeException.ThrowIfLessThan(id, 1);
+
         await _repository.DeleteAsync(id);
     }
 
@@ -43,6 +49,8 @@ internal class CommunityPostCommentService(IGenericRepository<CommunityPostComme
 
     public async Task<CommunityPostCommentDto?> GetByIdAsync(int id)
     {
+        ArgumentOutOfRangeException.ThrowIfLessThan(id, 1);
+
         var result = await _repository.GetByIdAsync(id);
         var resultMap = _mapper.Map<CommunityPostCommentDto>(result);
 
@@ -58,15 +66,14 @@ internal class CommunityPostCommentService(IGenericRepository<CommunityPostComme
         return resultMap;
     }
 
-    public async Task UpdateAsync(int id, CommunityPostCommentDto item)
+    private static void CheckParams(CommunityPostCommentDto item)
     {
-        if (string.IsNullOrEmpty(item.Content))
-        {
-            throw new ArgumentNullException(nameof(CommunityPostCommentDto),
-                $"The property {nameof(CommunityPostCommentDto.Content)} of the {nameof(CommunityPostCommentDto)} object can't be null or empty");
-        }
+        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.CommentType, nameof(item.CommentType));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.CommunityPostId, nameof(item.CommunityPostId));
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(item.CommunityId, nameof(item.CommunityId));
 
-        var map = _mapper.Map<CommunityPostComment>(item);
-        await _repository.UpdateAsync(id, map);
+        ArgumentException.ThrowIfNullOrEmpty(item.Content, nameof(item.Content));
+        ArgumentException.ThrowIfNullOrEmpty(item.AppUserId, nameof(item.AppUserId));
     }
 }
