@@ -58,7 +58,7 @@ internal class CommunityUserService(IGenericRepository<CommunityUser, string> re
         return resultMap;
     }
 
-    public async Task UpdateAsync(CommunityUserDto item)
+    public async Task UpdateAsync(string id, CommunityUserDto item)
     {
         if (string.IsNullOrEmpty(item.Username))
         {
@@ -67,6 +67,6 @@ internal class CommunityUserService(IGenericRepository<CommunityUser, string> re
         }
 
         var map = _mapper.Map<CommunityUser>(item);
-        await _repository.UpdateAsync(map);
+        await _repository.UpdateAsync(id, map);
     }
 }

@@ -143,7 +143,7 @@ public class CommunityPostController(ICommunityPostService service, IMapper mapp
             }
 
             var map = _mapper.Map<CommunityPostDto>(communityPost);
-            await _service.UpdateAsync(map);
+            await _service.UpdateAsync(id, map);
 
             return NoContent();
         }

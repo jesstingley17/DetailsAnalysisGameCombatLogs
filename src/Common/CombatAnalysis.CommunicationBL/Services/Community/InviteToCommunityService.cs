@@ -51,9 +51,9 @@ internal class InviteToCommunityService(IGenericRepository<InviteToCommunity, in
         return resultMap;
     }
 
-    public async Task UpdateAsync(InviteToCommunityDto item)
+    public async Task UpdateAsync(int id, InviteToCommunityDto item)
     {
         var map = _mapper.Map<InviteToCommunity>(item);
-        await _repository.UpdateAsync(map);
+        await _repository.UpdateAsync(id, map);
     }
 }

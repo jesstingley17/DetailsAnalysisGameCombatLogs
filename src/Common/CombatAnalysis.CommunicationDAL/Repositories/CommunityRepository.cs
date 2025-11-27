@@ -3,9 +3,9 @@ using CombatAnalysis.CommunicationDAL.Entities.Community;
 using CombatAnalysis.CommunicationDAL.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace CombatAnalysis.CommunicationDAL.Repositories.SQL;
+namespace CombatAnalysis.CommunicationDAL.Repositories;
 
-internal class SQLCommunityRepository(CommunicationSQLContext context) : SQLRepository<Community, int>(context), ICommunityRepository
+internal class CommunityRepository(CommunicationContext context) : GenericRepository<Community, int>(context), ICommunityRepository
 {
     public async Task<IEnumerable<Community>> GetAllWithPaginationAsync(int pageSize)
     {

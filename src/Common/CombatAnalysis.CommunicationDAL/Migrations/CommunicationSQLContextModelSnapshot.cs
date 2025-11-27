@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CombatAnalysis.CommunicationDAL.Migrations
 {
-    [DbContext(typeof(CommunicationSQLContext))]
+    [DbContext(typeof(CommunicationContext))]
     partial class CommunicationSQLContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

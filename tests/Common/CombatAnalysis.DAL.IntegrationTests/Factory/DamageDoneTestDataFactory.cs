@@ -4,6 +4,25 @@ namespace CombatAnalysis.UserDAL.IntegrationTests.Factory;
 
 internal static class DamageDoneTestDataFactory
 {
+    public static DamageDone Create(string spell = "Test spell", int value = 50)
+    {
+        var entity = new DamageDone()
+        {
+            Id = 1,
+            Creator = "Solinx",
+            Target = "Boss",
+            Spell = spell,
+            IsPeriodicDamage = false,
+            Time = TimeSpan.Parse("00:01:10"),
+            Value = value,
+            DamageType = 0,
+            IsPet = false,
+            CombatPlayerId = 1,
+        };
+
+        return entity;
+    }
+
     public static List<DamageDone> CreateCollection()
     {
         var collection = new List<DamageDone>

@@ -4,12 +4,12 @@ using CombatAnalysis.DAL.Interfaces.Generic;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
-namespace CombatAnalysis.DAL.Repositories;
+namespace CombatAnalysis.DAL.Repositories.StoredProcedures;
 
-internal class GenericRepository<TModel>(CombatParserSQLContext context) : IGenericRepository<TModel>
+internal class SPGenericRepository<TModel>(CombatParserContext context) : IGenericRepository<TModel>
     where TModel : class, IEntity
 {
-    private readonly CombatParserSQLContext _context = context;
+    private readonly CombatParserContext _context = context;
 
     public async Task<TModel?> CreateAsync(TModel item)
     {

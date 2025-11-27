@@ -5,12 +5,12 @@ namespace CombatAnalysis.DAL.IntegrationTests.RepositoryTests;
 
 public class RepositoryTestsBase
 {
-    protected static CombatParserSQLContext CreateInMemoryContext(string dbName)
+    protected static CombatParserContext CreateInMemoryContext(string dbName)
     {
-        var options = new DbContextOptionsBuilder<CombatParserSQLContext>()
+        var options = new DbContextOptionsBuilder<CombatParserContext>()
             .UseInMemoryDatabase(databaseName: dbName + Guid.NewGuid().ToString())
             .Options;
 
-        return new CombatParserSQLContext(options);
+        return new CombatParserContext(options);
     }
 }

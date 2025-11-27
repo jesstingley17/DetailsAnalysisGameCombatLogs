@@ -85,7 +85,7 @@ public class CommunityPostCommentController(IService<CommunityPostCommentDto, in
             }
 
             var map = _mapper.Map<CommunityPostCommentDto>(communityPostComment);
-            await _service.UpdateAsync(map);
+            await _service.UpdateAsync(id, map);
 
             return NoContent();
         }

@@ -3,13 +3,13 @@ using CombatAnalysis.CommunicationDAL.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
-namespace CombatAnalysis.CommunicationDAL.Repositories.SQL;
+namespace CombatAnalysis.CommunicationDAL.Repositories;
 
-internal class SQLRepository<TModel, TIdType>(CommunicationSQLContext context) : IGenericRepository<TModel, TIdType>
+internal class GenericRepository<TModel, TIdType>(CommunicationContext context) : IGenericRepository<TModel, TIdType>
     where TModel : class
     where TIdType : notnull
 {
-    protected readonly CommunicationSQLContext _context = context;
+    protected readonly CommunicationContext _context = context;
 
     public async Task<TModel> CreateAsync(TModel item)
     {
@@ -19,16 +19,26 @@ internal class SQLRepository<TModel, TIdType>(CommunicationSQLContext context) :
         return entityEntry.Entity;
     }
 
-    public async Task<int> DeleteAsync(TIdType id)
+    public async Task<int> UpdateAsync(TIdType id, TModel item)
     {
-        var model = Activator.CreateInstance<TModel>();
-        typeof(TModel).GetProperty("Id")?.SetValue(model, id);
+        var existing = await _context.Set<TModel>().FindAsync(id) ?? throw new KeyNotFoundException();
+        _context.Entry(existing).CurrentValues.SetValues(item);
 
-        _context.Attach(model);
-        _context.Set<TModel>().Remove(model);
-        var rowsAffected = await _context.SaveChangesAsync();
+        return await _context.SaveChangesAsync();
+    }
 
-        return rowsAffected;
+    public async Task<bool> DeleteAsync(TIdType id)
+    {
+        var entity = await _context.Set<TModel>().FindAsync(id);
+        if (entity == null)
+        {
+            return false;
+        }
+
+        _context.Set<TModel>().Remove(entity);
+        await _context.SaveChangesAsync();
+
+        return true;
     }
 
     public async Task<IEnumerable<TModel>> GetAllAsync()
@@ -65,13 +75,5 @@ internal class SQLRepository<TModel, TIdType>(CommunicationSQLContext context) :
                                 .ToListAsync();
 
         return query;
-    }
-
-    public async Task<int> UpdateAsync(TModel item)
-    {
-        _context.Entry(item).State = EntityState.Modified;
-        var rowsAffected = await _context.SaveChangesAsync();
-
-        return rowsAffected;
     }
 }

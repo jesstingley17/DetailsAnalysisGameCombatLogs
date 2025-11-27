@@ -58,7 +58,7 @@ internal class UserPostCommentService(IGenericRepository<UserPostComment, int> r
         return resultMap;
     }
 
-    public async Task UpdateAsync(UserPostCommentDto item)
+    public async Task UpdateAsync(int id, UserPostCommentDto item)
     {
         if (string.IsNullOrEmpty(item.Content))
         {
@@ -67,6 +67,6 @@ internal class UserPostCommentService(IGenericRepository<UserPostComment, int> r
         }
 
         var map = _mapper.Map<UserPostComment>(item);
-        await _repository.UpdateAsync(map);
+        await _repository.UpdateAsync(id, map);
     }
 }

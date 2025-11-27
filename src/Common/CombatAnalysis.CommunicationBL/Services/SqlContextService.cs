@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace CombatAnalysis.CommunicationBL.Services;
 
-internal class SqlContextService(CommunicationSQLContext context) : ISqlContextService
+internal class SqlContextService(CommunicationContext context) : ISqlContextService
 {
-    private readonly CommunicationSQLContext _context = context;
+    private readonly CommunicationContext _context = context;
     private IDbContextTransaction? _transaction;
 
     public async Task<IDbContextTransaction> BeginTransactionAsync(bool createSharedTransaction)

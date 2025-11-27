@@ -1,8 +1,8 @@
 ﻿using CombatAnalysis.DAL.Entities;
 using CombatAnalysis.DAL.IntegrationTests.Data;
-using CombatAnalysis.DAL.Repositories;
+using CombatAnalysis.DAL.Repositories.StoredProcedures;
 
-namespace CombatAnalysis.DAL.IntegrationTests;
+namespace CombatAnalysis.DAL.IntegrationTests.RepositoryTests.StoredProcedures;
 
 [CollectionDefinition("SQL Server Tests")]
 public class SqlServerTestCollection : ICollectionFixture<SqlServerFixture> { }
@@ -13,16 +13,16 @@ public class SPPlayerInfoRepositoryTests(SqlServerFixture fixture)
     private readonly SqlServerFixture _fixture = fixture;
 
     [Fact]
-    public async Task GetByCombatPlayerIdAsync_ShouldReturnDamageDoneByCombatPlayerId()
+    public async Task GetByCombatPlayerIdAsync_Collection_ShouldReturnDamageDoneByCombatPlayerId()
     {
         using var context = _fixture.CreateContext();
         using var transaction = await context.Database.BeginTransactionAsync();
 
         // Arrange
-        await SqlServerFixture.SeedTestDataAsync(context);
+        await SqlServerFixture.SeedDamageDoneTestDataAsync(context);
 
         const int combatPlayerId = 5;
-        var repo = new PlayerInfoRepository<DamageDone>(context);
+        var repo = new SPPlayerInfoRepository<DamageDone>(context);
 
         // Act
         var result = await repo.GetByCombatPlayerIdAsync(combatPlayerId);
@@ -36,18 +36,18 @@ public class SPPlayerInfoRepositoryTests(SqlServerFixture fixture)
     }
 
     [Fact]
-    public async Task GetByCombatPlayerIdAsync_ShouldReturnDamageDoneByCombatPlayerIdUsePagination()
+    public async Task GetByCombatPlayerIdAsync_Collection_ShouldReturnDamageDoneByCombatPlayerIdUsePagination()
     {
         using var context = _fixture.CreateContext();
         using var transaction = await context.Database.BeginTransactionAsync();
 
         // Arrange
-        await SqlServerFixture.SeedTestDataAsync(context);
+        await SqlServerFixture.SeedDamageDoneTestDataAsync(context);
 
         const int combatPlayerId = 5;
         const int page = 1;
         const int pageSize = 10;
-        var repo = new PlayerInfoRepository<DamageDone>(context);
+        var repo = new SPPlayerInfoRepository<DamageDone>(context);
 
         // Act
         var result = await repo.GetByCombatPlayerIdAsync(combatPlayerId, page, pageSize);
@@ -61,16 +61,16 @@ public class SPPlayerInfoRepositoryTests(SqlServerFixture fixture)
     }
 
     [Fact]
-    public async Task GetByCombatPlayerIdAsync_ShouldReturnEmptyCollectionByCombatPlayerId()
+    public async Task GetByCombatPlayerIdAsync_Collection_ShouldReturnEmptyCollectionByCombatPlayerId()
     {
         using var context = _fixture.CreateContext();
         using var transaction = await context.Database.BeginTransactionAsync();
 
         // Arrange
-        await SqlServerFixture.SeedTestDataAsync(context);
+        await SqlServerFixture.SeedDamageDoneTestDataAsync(context);
 
         const int combatPlayerId = 1;
-        var repo = new PlayerInfoRepository<DamageDone>(context);
+        var repo = new SPPlayerInfoRepository<DamageDone>(context);
 
         // Act
         var result = await repo.GetByCombatPlayerIdAsync(combatPlayerId);
@@ -83,18 +83,18 @@ public class SPPlayerInfoRepositoryTests(SqlServerFixture fixture)
     }
 
     [Fact]
-    public async Task GetByCombatPlayerIdAsync_ShouldReturnEmptyCollectionByCombatPlayerIdUsePagination()
+    public async Task GetByCombatPlayerIdAsync_Collection_ShouldReturnEmptyCollectionByCombatPlayerIdUsePagination()
     {
         using var context = _fixture.CreateContext();
         using var transaction = await context.Database.BeginTransactionAsync();
 
         // Arrange
-        await SqlServerFixture.SeedTestDataAsync(context);
+        await SqlServerFixture.SeedDamageDoneTestDataAsync(context);
 
         const int combatPlayerId = 1;
         const int page = 1;
         const int pageSize = 10;
-        var repo = new PlayerInfoRepository<DamageDone>(context);
+        var repo = new SPPlayerInfoRepository<DamageDone>(context);
 
         // Act
         var result = await repo.GetByCombatPlayerIdAsync(combatPlayerId, page, pageSize);

@@ -5,10 +5,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.DAL.Repositories;
 
-internal class CountRepository<TModel>(CombatParserSQLContext context) : ICountRepository<TModel>
+internal class CountRepository<TModel>(CombatParserContext context) : ICountRepository<TModel>
     where TModel : class, ICombatPlayerEntity
 {
-    private readonly CombatParserSQLContext _context = context;
+    private readonly CombatParserContext _context = context;
 
     public async Task<int> CountByCombatPlayerIdAsync(int combatPlayerId)
     {

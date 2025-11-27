@@ -5,10 +5,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.DAL.Repositories.Filters;
 
-internal class GeneralFilterRepositroy<TModel>(CombatParserSQLContext context) : IGeneralFilterRepository<TModel>
+internal class GeneralFilterRepositroy<TModel>(CombatParserContext context) : IGeneralFilterRepository<TModel>
     where TModel : class, IGeneralFilterEntity, ICombatPlayerEntity
 {
-    private readonly CombatParserSQLContext _context = context;
+    private readonly CombatParserContext _context = context;
 
     public async Task<IEnumerable<string>> GetTargetNamesByCombatPlayerIdAsync(int combatPlayerId)
     {

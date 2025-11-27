@@ -63,7 +63,7 @@ internal class CommunityDiscussionService(IGenericRepository<CommunityDiscussion
         return resultMap;
     }
 
-    public async Task UpdateAsync(CommunityDiscussionDto item)
+    public async Task UpdateAsync(int id, CommunityDiscussionDto item)
     {
         if (string.IsNullOrEmpty(item.Title))
         {
@@ -77,6 +77,6 @@ internal class CommunityDiscussionService(IGenericRepository<CommunityDiscussion
         }
 
         var map = _mapper.Map<CommunityDiscussion>(item);
-        await _repository.UpdateAsync(map);
+        await _repository.UpdateAsync(id, map);
     }
 }

@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CombatAnalysis.DAL.Migrations
 {
-    [DbContext(typeof(CombatParserSQLContext))]
+    [DbContext(typeof(CombatParserContext))]
     partial class CombatParserSQLContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
@@ -660,7 +660,7 @@ namespace CombatAnalysis.DAL.Migrations
                     b.Property<int>("SpecId")
                         .HasColumnType("int");
 
-                    b.Property<DateTimeOffset>("Updated")
+                    b.Property<DateTimeOffset?>("Updated")
                         .HasColumnType("datetimeoffset");
 
                     b.HasKey("Id");

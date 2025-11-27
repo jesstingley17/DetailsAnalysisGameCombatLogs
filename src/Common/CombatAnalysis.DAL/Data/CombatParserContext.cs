@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.DAL.Data;
 
-public class CombatParserSQLContext(DbContextOptions<CombatParserSQLContext> options) : DbContext(options)
+public class CombatParserContext(DbContextOptions<CombatParserContext> options) : DbContext(options)
 {
 
     #region Combat

@@ -58,7 +58,7 @@ internal class CommunityPostCommentService(IGenericRepository<CommunityPostComme
         return resultMap;
     }
 
-    public async Task UpdateAsync(CommunityPostCommentDto item)
+    public async Task UpdateAsync(int id, CommunityPostCommentDto item)
     {
         if (string.IsNullOrEmpty(item.Content))
         {
@@ -67,6 +67,6 @@ internal class CommunityPostCommentService(IGenericRepository<CommunityPostComme
         }
 
         var map = _mapper.Map<CommunityPostComment>(item);
-        await _repository.UpdateAsync(map);
+        await _repository.UpdateAsync(id, map);
     }
 }

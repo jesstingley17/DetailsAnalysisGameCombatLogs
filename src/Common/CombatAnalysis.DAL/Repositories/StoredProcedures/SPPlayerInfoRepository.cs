@@ -3,12 +3,12 @@ using CombatAnalysis.DAL.Interfaces;
 using CombatAnalysis.DAL.Interfaces.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace CombatAnalysis.DAL.Repositories;
+namespace CombatAnalysis.DAL.Repositories.StoredProcedures;
 
-internal class PlayerInfoRepository<TModel>(CombatParserSQLContext context) : IPlayerInfoRepository<TModel>
+internal class SPPlayerInfoRepository<TModel>(CombatParserContext context) : IPlayerInfoRepository<TModel>
     where TModel : class, IEntity
 {
-    private readonly CombatParserSQLContext _context = context;
+    private readonly CombatParserContext _context = context;
 
     public async Task<IEnumerable<TModel>> GetByCombatPlayerIdAsync(int combatPlayerId)
     {

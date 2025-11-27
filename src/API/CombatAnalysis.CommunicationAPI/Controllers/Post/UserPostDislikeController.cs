@@ -84,7 +84,7 @@ public class UserPostDislikeController(IService<UserPostDislikeDto, int> service
             }
 
             var map = _mapper.Map<UserPostDislikeDto>(userPostDislike);
-            await _service.UpdateAsync(map);
+            await _service.UpdateAsync(id, map);
 
             return NoContent();
         }

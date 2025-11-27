@@ -85,7 +85,7 @@ public class UserPostLikeController(IService<UserPostLikeDto, int> service, IMap
             }
 
             var map = _mapper.Map<UserPostLikeDto>(userPostLike);
-            await _service.UpdateAsync(map);
+            await _service.UpdateAsync(id, map);
 
             return NoContent();
         }

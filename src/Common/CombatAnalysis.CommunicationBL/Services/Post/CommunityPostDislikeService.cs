@@ -52,9 +52,9 @@ internal class CommunityPostDislikeService(IGenericRepository<CommunityPostDisli
         return resultMap;
     }
 
-    public async Task UpdateAsync(CommunityPostDislikeDto item)
+    public async Task UpdateAsync(int id, CommunityPostDislikeDto item)
     {
         var map = _mapper.Map<CommunityPostDislike>(item);
-        await _repository.UpdateAsync(map);
+        await _repository.UpdateAsync(id, map);
     }
 }

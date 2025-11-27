@@ -1,7 +1,6 @@
 using AutoMapper;
 using AutoMapper.Extensions.ExpressionMapping;
 using CombatAnalysis.CommunicationAPI.Consts;
-using CombatAnalysis.CommunicationAPI.Enums;
 using CombatAnalysis.CommunicationAPI.Mapping;
 using CombatAnalysis.CommunicationBL.Extensions;
 using CombatAnalysis.CommunicationBL.Mapping;
@@ -16,10 +15,7 @@ var builder = WebApplication.CreateBuilder(args);
 var databasePropsOptions = new DatabaseProps();
 builder.Configuration.Bind("Database", databasePropsOptions);
 
-var connection = databasePropsOptions.Name == nameof(DatabaseType.MSSQL)
-    ? databasePropsOptions.DefaultConnection
-    : databasePropsOptions.FirebaseConnection;
-builder.Services.CommunicationBLDependencies(databasePropsOptions.Name, connection);
+builder.Services.CommunicationBLDependencies(databasePropsOptions.DefaultConnection);
 
 var mappingConfig = new MapperConfiguration(mc =>
 {

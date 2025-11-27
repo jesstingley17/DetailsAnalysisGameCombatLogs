@@ -143,7 +143,7 @@ public class UserPostController(IUserPostService service, IMapper mapper, ILogge
             }
 
             var map = _mapper.Map<UserPostDto>(userPost);
-            await _service.UpdateAsync(map);
+            await _service.UpdateAsync(id, map);
 
             return NoContent();
         }

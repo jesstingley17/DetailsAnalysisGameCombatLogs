@@ -85,7 +85,7 @@ public class CommunityDiscussionController(IService<CommunityDiscussionDto, int>
             }
 
             var map = _mapper.Map<CommunityDiscussionDto>(communityDiscussion);
-            await _service.UpdateAsync(map);
+            await _service.UpdateAsync(id, map);
 
             return NoContent();
         }

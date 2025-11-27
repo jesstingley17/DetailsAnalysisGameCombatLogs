@@ -2,7 +2,6 @@
 using CombatAnalysis.DAL.Entities;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using System;
 using Testcontainers.MsSql;
 
 namespace CombatAnalysis.DAL.IntegrationTests.Data;
@@ -19,11 +18,11 @@ public class SqlServerFixture : IAsyncLifetime
             .Build();
     }
 
-    public DbContextOptions<CombatParserSQLContext> Options { get; private set; } = null!;
+    public DbContextOptions<CombatParserContext> Options { get; private set; } = null!;
 
-    public CombatParserSQLContext CreateContext()
+    public CombatParserContext CreateContext()
     {
-        return new CombatParserSQLContext(Options);
+        return new CombatParserContext(Options);
     }
 
     public async Task InitializeAsync()
@@ -31,7 +30,7 @@ public class SqlServerFixture : IAsyncLifetime
         await _container.StartAsync();
 
         var connectionString = _container.GetConnectionString();
-        Options = new DbContextOptionsBuilder<CombatParserSQLContext>()
+        Options = new DbContextOptionsBuilder<CombatParserContext>()
             .UseSqlServer(connectionString)
             .Options;
 
@@ -40,7 +39,7 @@ public class SqlServerFixture : IAsyncLifetime
         await ExecuteSqlScriptAsync(connectionString, $"{solutionRoot}\\databases\\CombatAnalysis.CombatLogs\\InitialCreate.sql");
     }
 
-    public static async Task Drop(CombatParserSQLContext context)
+    public static async Task Drop(CombatParserContext context)
     {
         // Delete all rows
         await context.Database.ExecuteSqlRawAsync("DELETE FROM DamageDone");
@@ -49,11 +48,21 @@ public class SqlServerFixture : IAsyncLifetime
         await context.Database.ExecuteSqlRawAsync("DBCC CHECKIDENT('DamageDone', RESEED, 0)");
     }
 
-    public static async Task SeedTestDataAsync(CombatParserSQLContext context)
+    public static async Task SeedDamageDoneTestDataAsync(CombatParserContext context)
     {
         await context.Set<DamageDone>().AddRangeAsync(
             new DamageDone { Spell = "Test spell", Value = 50, Time = TimeSpan.FromSeconds(40), Creator = "Player-1", Target = "Enemy-1", DamageType = 0, IsPeriodicDamage = false, IsPet = false, CombatPlayerId = 5 },
             new DamageDone { Spell = "Test spell 2", Value = 150, Time = TimeSpan.FromSeconds(30), Creator = "Player-1", Target = "Enemy-1", DamageType = 0, IsPeriodicDamage = false, IsPet = false, CombatPlayerId = 5 }
+        );
+
+        await context.SaveChangesAsync();
+    }
+
+    public static async Task SeedSpecializationScoreTestDataAsync(CombatParserContext context)
+    {
+        await context.Set<SpecializationScore>().AddRangeAsync(
+            new SpecializationScore { SpecId = 1, BossId = 1, Difficult = 1, Damage = 1233321, Heal = 1231, Updated = null },
+            new SpecializationScore { SpecId = 1, BossId = 2, Difficult = 1, Damage = 432112, Heal = 2234142, Updated = null }
         );
 
         await context.SaveChangesAsync();

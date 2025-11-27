@@ -8,7 +8,7 @@ public interface IService<TModel, TIdType>
 {
     Task<TModel?> CreateAsync(TModel item);
 
-    Task UpdateAsync(TModel item);
+    Task UpdateAsync(TIdType id, TModel item);
 
     Task DeleteAsync(TIdType id);
 

@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CombatAnalysis.CommunicationDAL.Migrations
 {
-    [DbContext(typeof(CommunicationSQLContext))]
+    [DbContext(typeof(CommunicationContext))]
     [Migration("20250122125652_InitialCreate")]
     partial class InitialCreate
     {

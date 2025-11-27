@@ -151,7 +151,7 @@ internal class CommunityPostService(ICommunityPostRepository repository, IMapper
         return count;
     }
 
-    public async Task UpdateAsync(CommunityPostDto item)
+    public async Task UpdateAsync(int id, CommunityPostDto item)
     {
         if (string.IsNullOrEmpty(item.Content))
         {
@@ -160,7 +160,7 @@ internal class CommunityPostService(ICommunityPostRepository repository, IMapper
         }
 
         var map = _mapper.Map<CommunityPost>(item);
-        await _repository.UpdateAsync(map);
+        await _repository.UpdateAsync(id, map);
     }
 
     private async Task DeletePostLikesAsync(int postId)

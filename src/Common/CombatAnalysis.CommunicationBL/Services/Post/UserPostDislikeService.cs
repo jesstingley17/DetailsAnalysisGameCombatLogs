@@ -52,9 +52,9 @@ internal class UserPostDislikeService(IGenericRepository<UserPostDislike, int> r
         return resultMap;
     }
 
-    public async Task UpdateAsync(UserPostDislikeDto item)
+    public async Task UpdateAsync(int id, UserPostDislikeDto item)
     {
         var map = _mapper.Map<UserPostDislike>(item);
-        await _repository.UpdateAsync(map);
+        await _repository.UpdateAsync(id, map);
     }
 }

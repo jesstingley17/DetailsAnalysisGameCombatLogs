@@ -3,19 +3,19 @@ using CombatAnalysis.DAL.Entities;
 using CombatAnalysis.DAL.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace CombatAnalysis.DAL.Repositories;
+namespace CombatAnalysis.DAL.Repositories.StoredProcedures;
 
-internal class SpecScoreRepository(CombatParserSQLContext context) : ISpecScore
+internal class SPSpecScoreRepository(CombatParserContext context) : ISpecScore
 {
-    private readonly CombatParserSQLContext _context = context;
+    private readonly CombatParserContext _context = context;
 
     public async Task<IEnumerable<SpecializationScore>> GetBySpecIdAsync(int specId, int bossId, int difficult)
     {
         var procName = $"Get{typeof(SpecializationScore).Name}BySpecId";
-        var data = await Task.Run(() => _context.Set<SpecializationScore>()
+        var data = await _context.Set<SpecializationScore>()
                             .FromSql($"{procName} @specId={specId}, @bossId={bossId}, @difficult={difficult}")
-                            .AsEnumerable());
+                            .ToListAsync();
 
-        return data.Any() ? data : [];
+        return data.Count != 0 ? data : [];
     }
 }

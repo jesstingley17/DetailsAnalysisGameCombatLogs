@@ -84,7 +84,7 @@ public class CommunityPostDislikeController(IService<CommunityPostDislikeDto, in
             }
 
             var map = _mapper.Map<CommunityPostDislikeDto>(communityPostDislike);
-            await _service.UpdateAsync(map);
+            await _service.UpdateAsync(id, map);
 
             return NoContent();
         }

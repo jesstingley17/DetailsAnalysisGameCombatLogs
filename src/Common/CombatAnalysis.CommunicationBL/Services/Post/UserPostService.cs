@@ -151,7 +151,7 @@ internal class UserPostService(IUserPostRepository repository, IMapper mapper,
         return count;
     }
 
-    public async Task UpdateAsync(UserPostDto item)
+    public async Task UpdateAsync(int id, UserPostDto item)
     {
         if (string.IsNullOrEmpty(item.Content))
         {
@@ -160,7 +160,7 @@ internal class UserPostService(IUserPostRepository repository, IMapper mapper,
         }
 
         var map = _mapper.Map<UserPost>(item);
-        await _repository.UpdateAsync(map);
+        await _repository.UpdateAsync(id, map);
     }
 
     private async Task DeletePostLikesAsync(int postId)

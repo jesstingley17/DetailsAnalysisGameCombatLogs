@@ -52,9 +52,9 @@ internal class UserPostLikeService(IGenericRepository<UserPostLike, int> reposit
         return resultMap;
     }
 
-    public async Task UpdateAsync(UserPostLikeDto item)
+    public async Task UpdateAsync(int id, UserPostLikeDto item)
     {
         var map = _mapper.Map<UserPostLike>(item);
-        await _repository.UpdateAsync(map);
+        await _repository.UpdateAsync(id, map);
     }
 }

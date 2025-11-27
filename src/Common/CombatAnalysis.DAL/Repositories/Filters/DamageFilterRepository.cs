@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.DAL.Repositories.Filters;
 
-internal class DamageFilterRepository(CombatParserSQLContext context) : IDamageFilterRepository
+internal class DamageFilterRepository(CombatParserContext context) : IDamageFilterRepository
 {
-    private readonly CombatParserSQLContext _context = context;
+    private readonly CombatParserContext _context = context;
 
     public async Task<IEnumerable<List<CombatTarget>>> GetDamageByEachTargetAsync(int combatId)
     {

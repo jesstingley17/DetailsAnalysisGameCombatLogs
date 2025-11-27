@@ -16,5 +16,5 @@ public class SpecializationScore : IEntity
 
     public int Heal { get; set; }
 
-    public DateTimeOffset Updated { get; set; }
+    public DateTimeOffset? Updated { get; set; }
 }

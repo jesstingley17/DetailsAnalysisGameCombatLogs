@@ -93,7 +93,7 @@ public class CommunityUserController(IService<CommunityUserDto, string> service,
             }
 
             var map = _mapper.Map<CommunityUserDto>(communityUser);
-            await _service.UpdateAsync(map);
+            await _service.UpdateAsync(id, map);
 
             return NoContent();
         }

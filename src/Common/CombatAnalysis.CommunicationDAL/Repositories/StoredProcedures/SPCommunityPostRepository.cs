@@ -3,9 +3,9 @@ using CombatAnalysis.CommunicationDAL.Entities.Post;
 using CombatAnalysis.CommunicationDAL.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace CombatAnalysis.CommunicationDAL.Repositories.SQL.StoredProcedure;
+namespace CombatAnalysis.CommunicationDAL.Repositories.StoredProcedures;
 
-internal class SQLSPCommunityPostRepository(CommunicationSQLContext context) : SQLRepository<CommunityPost, int>(context), ICommunityPostRepository
+internal class SPCommunityPostRepository(CommunicationContext context) : GenericRepository<CommunityPost, int>(context), ICommunityPostRepository
 {
     public async Task<IEnumerable<CommunityPost>> GetByCommunityIdAsync(int communityId, int pageSize)
     {

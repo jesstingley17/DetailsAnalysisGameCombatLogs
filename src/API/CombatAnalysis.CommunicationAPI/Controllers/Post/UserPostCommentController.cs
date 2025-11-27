@@ -84,7 +84,7 @@ public class UserPostCommentController(IService<UserPostCommentDto, int> service
             }
 
             var map = _mapper.Map<UserPostCommentDto>(userPostComment);
-            await _service.UpdateAsync(map);
+            await _service.UpdateAsync(id, map);
 
             return NoContent();
         }

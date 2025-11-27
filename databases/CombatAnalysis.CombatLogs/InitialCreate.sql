@@ -237,7 +237,7 @@ CREATE TABLE [SpecializationScore] (
     [Difficult] int NOT NULL,
     [Damage] int NOT NULL,
     [Heal] int NOT NULL,
-    [Updated] datetimeoffset NOT NULL,
+    [Updated] datetimeoffset NULL,
     CONSTRAINT [PK_SpecializationScore] PRIMARY KEY ([Id])
 );
 GO
