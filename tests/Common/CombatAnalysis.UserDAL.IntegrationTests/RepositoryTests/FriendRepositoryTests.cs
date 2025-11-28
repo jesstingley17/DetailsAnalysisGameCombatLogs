@@ -23,11 +23,8 @@ public class FriendRepositoryTests : RepositoryTestsBase
         await context.SaveChangesAsync();
 
         var repo = new FriendRepository(context);
-        var friend = new Friend(
-            Id: 1,
-            WhoFriendId: user1Id,
-            ForWhomId: user2Id
-        );
+
+        var friend = FriendTestDataFactory.Create(whoFriendId: user1Id, forWhomId: user2Id);
 
         // Act
         var result = await repo.CreateAsync(friend);
@@ -50,11 +47,7 @@ public class FriendRepositoryTests : RepositoryTestsBase
         const int id = 2;
 
         using var context = CreateInMemoryContext(nameof(DeleteAsync_True_ShouldDeleteEntity));
-        await context.Set<Friend>().AddAsync(new Friend(
-            Id: id,
-            WhoFriendId: "uid-222",
-            ForWhomId: "uid-223"
-        ));
+        await context.Set<Friend>().AddAsync(FriendTestDataFactory.Create(id: id));
         await context.SaveChangesAsync();
 
         var repo = new FriendRepository(context);
@@ -72,11 +65,7 @@ public class FriendRepositoryTests : RepositoryTestsBase
     {
         // Arrange
         using var context = CreateInMemoryContext(nameof(DeleteAsync_False_ShouldNotDeleteEntity));
-        await context.Set<Friend>().AddAsync(new Friend(
-            Id: 2,
-            WhoFriendId: "uid-222",
-            ForWhomId: "uid-223"
-        ));
+        await context.Set<Friend>().AddAsync(FriendTestDataFactory.Create(id: 2));
         await context.SaveChangesAsync();
 
         var repo = new FriendRepository(context);
@@ -104,16 +93,8 @@ public class FriendRepositoryTests : RepositoryTestsBase
             AppUserTestDataFactory.Create(id: user3Id)
         );
         await context.Set<Friend>().AddRangeAsync(
-            new Friend(
-                Id: 1,
-                WhoFriendId: "uid-222",
-                ForWhomId: "uid-223"
-            ),
-            new Friend(
-                Id: 2,
-                WhoFriendId: "uid-222",
-                ForWhomId: "uid-224"
-            )
+            FriendTestDataFactory.Create(id: 1, whoFriendId: user1Id, forWhomId: user2Id),
+            FriendTestDataFactory.Create(id: 2, whoFriendId: user1Id, forWhomId: user3Id)
         );
         await context.SaveChangesAsync();
 
@@ -143,11 +124,7 @@ public class FriendRepositoryTests : RepositoryTestsBase
             AppUserTestDataFactory.Create(id: user1Id, username: user1Username),
             AppUserTestDataFactory.Create(id: user2Id, username: user2Username)
         );
-        await context.Set<Friend>().AddAsync(new Friend(
-            Id: id,
-            WhoFriendId: user1Id,
-            ForWhomId: user2Id
-        ));
+        await context.Set<Friend>().AddAsync(FriendTestDataFactory.Create(id: id, whoFriendId: user1Id, forWhomId: user2Id));
         await context.SaveChangesAsync();
 
         var repo = new FriendRepository(context);
@@ -170,24 +147,17 @@ public class FriendRepositoryTests : RepositoryTestsBase
     {
         // Arrange
         const string filteredWhoFriendId = "uid-222";
+        const string user2Id = "uid-223";
 
         using var context = CreateInMemoryContext(nameof(GetByParamAsync_Colelction_ShouldReturnFilteredResults));
         await context.Set<AppUser>().AddRangeAsync(
-            AppUserTestDataFactory.Create(id: "uid-222"),
-            AppUserTestDataFactory.Create(id: "uid-223"),
+            AppUserTestDataFactory.Create(id: filteredWhoFriendId),
+            AppUserTestDataFactory.Create(id: user2Id),
             AppUserTestDataFactory.Create(id: "uid-224")
         );
         await context.Set<Friend>().AddRangeAsync(
-            new Friend(
-                Id: 1,
-                WhoFriendId: "uid-222",
-                ForWhomId: "uid-223"
-            ),
-            new Friend(
-                Id: 2,
-                WhoFriendId: "uid-224",
-                ForWhomId: "uid-223"
-            )
+            FriendTestDataFactory.Create(id: 1),
+            FriendTestDataFactory.Create(id: 2, whoFriendId: filteredWhoFriendId, forWhomId: user2Id)
         );
         await context.SaveChangesAsync();
 
