@@ -6,9 +6,9 @@ public interface IResetTokenRepository
 {
     Task CreateAsync(ResetToken resetCode);
 
-    Task<ResetToken> GetByIdAsync(int id);
+    Task<int> UpdateAsync(int id, ResetToken resetCode);
 
-    Task UpdateAsync(ResetToken resetCode);
+    Task<ResetToken> GetByIdAsync(int id);
 
     Task<ResetToken> GetByTokenAsync(string token);
 

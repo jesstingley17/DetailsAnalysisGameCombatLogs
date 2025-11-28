@@ -7,7 +7,7 @@ namespace CombatAnalysis.UserDAL.IntegrationTests.RepositoryTests;
 public class FriendRepositoryTests : RepositoryTestsBase
 {
     [Fact]
-    public async Task CreateAsync_ShouldAddEntity()
+    public async Task CreateAsync_Entity_ShouldAddEntityAndReturnCreated()
     {
         // Arrange
         const string user1Username = "Alice12";
@@ -15,11 +15,12 @@ public class FriendRepositoryTests : RepositoryTestsBase
         const string user2Username = "Drivet5";
         const string user2Id = "uid-223";
 
-        using var context = CreateInMemoryContext(nameof(CreateAsync_ShouldAddEntity));
-        context.Set<AppUser>().AddRange(
+        using var context = CreateInMemoryContext(nameof(CreateAsync_Entity_ShouldAddEntityAndReturnCreated));
+        await context.Set<AppUser>().AddRangeAsync(
             AppUserTestDataFactory.Create(id: user1Id, username: user1Username),
             AppUserTestDataFactory.Create(id: user2Id, username: user2Username)
         );
+        await context.SaveChangesAsync();
 
         var repo = new FriendRepository(context);
         var friend = new Friend(
@@ -46,19 +47,20 @@ public class FriendRepositoryTests : RepositoryTestsBase
     public async Task DeleteAsync_True_ShouldDeleteEntity()
     {
         // Arrange
+        const int id = 2;
+
         using var context = CreateInMemoryContext(nameof(DeleteAsync_True_ShouldDeleteEntity));
-        var friend = new Friend(
-            Id: 2,
+        await context.Set<Friend>().AddAsync(new Friend(
+            Id: id,
             WhoFriendId: "uid-222",
             ForWhomId: "uid-223"
-        );
-        context.Set<Friend>().Add(friend);
+        ));
         await context.SaveChangesAsync();
 
         var repo = new FriendRepository(context);
 
         // Act
-        var entityDeleted = await repo.DeleteAsync(friend.Id);
+        var entityDeleted = await repo.DeleteAsync(id);
 
         // Assert
         Assert.True(entityDeleted);
@@ -70,12 +72,11 @@ public class FriendRepositoryTests : RepositoryTestsBase
     {
         // Arrange
         using var context = CreateInMemoryContext(nameof(DeleteAsync_False_ShouldNotDeleteEntity));
-        var friend = new Friend(
+        await context.Set<Friend>().AddAsync(new Friend(
             Id: 2,
             WhoFriendId: "uid-222",
             ForWhomId: "uid-223"
-        );
-        await context.Set<Friend>().AddAsync(friend);
+        ));
         await context.SaveChangesAsync();
 
         var repo = new FriendRepository(context);
@@ -89,21 +90,20 @@ public class FriendRepositoryTests : RepositoryTestsBase
     }
 
     [Fact]
-    public async Task GetAllAsync_ShouldReturnAllEntities()
+    public async Task GetAllAsync_Collection_ShouldReturnAllEntities()
     {
         // Arrange
         const string user1Id = "uid-222";
         const string user2Id = "uid-223";
         const string user3Id = "uid-224";
 
-        using var context = CreateInMemoryContext(nameof(GetAllAsync_ShouldReturnAllEntities));
-        context.Set<AppUser>().AddRange(
+        using var context = CreateInMemoryContext(nameof(GetAllAsync_Collection_ShouldReturnAllEntities));
+        await context.Set<AppUser>().AddRangeAsync(
             AppUserTestDataFactory.Create(id: user1Id),
             AppUserTestDataFactory.Create(id: user2Id),
             AppUserTestDataFactory.Create(id: user3Id)
         );
-
-        context.Set<Friend>().AddRange(
+        await context.Set<Friend>().AddRangeAsync(
             new Friend(
                 Id: 1,
                 WhoFriendId: "uid-222",
@@ -115,7 +115,6 @@ public class FriendRepositoryTests : RepositoryTestsBase
                 ForWhomId: "uid-224"
             )
         );
-
         await context.SaveChangesAsync();
 
         var repo = new FriendRepository(context);
@@ -130,32 +129,31 @@ public class FriendRepositoryTests : RepositoryTestsBase
     }
 
     [Fact]
-    public async Task GetByIdAsync_ShouldReturnCorrectEntity()
+    public async Task GetByIdAsync_Entity_ShouldReturnCorrectEntity()
     {
         // Arrange
+        const int id = 2;
         const string user1Username = "Alice12";
         const string user1Id = "uid-222";
         const string user2Username = "Drivet5";
         const string user2Id = "uid-223";
 
-        using var context = CreateInMemoryContext(nameof(GetByIdAsync_ShouldReturnCorrectEntity));
-        context.Set<AppUser>().AddRange(
+        using var context = CreateInMemoryContext(nameof(GetByIdAsync_Entity_ShouldReturnCorrectEntity));
+        await context.Set<AppUser>().AddRangeAsync(
             AppUserTestDataFactory.Create(id: user1Id, username: user1Username),
             AppUserTestDataFactory.Create(id: user2Id, username: user2Username)
         );
-
-        var friend = new Friend(
-            Id: 2,
+        await context.Set<Friend>().AddAsync(new Friend(
+            Id: id,
             WhoFriendId: user1Id,
             ForWhomId: user2Id
-        );
-        context.Set<Friend>().Add(friend);
+        ));
         await context.SaveChangesAsync();
 
         var repo = new FriendRepository(context);
 
         // Act
-        var result = await repo.GetByIdAsync(friend.Id);
+        var result = await repo.GetByIdAsync(id);
 
         // Assert
         Assert.NotNull(result);
@@ -168,19 +166,18 @@ public class FriendRepositoryTests : RepositoryTestsBase
     }
 
     [Fact]
-    public async Task GetByParamAsync_ShouldReturnFilteredResults()
+    public async Task GetByParamAsync_Colelction_ShouldReturnFilteredResults()
     {
         // Arrange
         const string filteredWhoFriendId = "uid-222";
 
-        using var context = CreateInMemoryContext(nameof(GetByParamAsync_ShouldReturnFilteredResults));
-        context.Set<AppUser>().AddRange(
+        using var context = CreateInMemoryContext(nameof(GetByParamAsync_Colelction_ShouldReturnFilteredResults));
+        await context.Set<AppUser>().AddRangeAsync(
             AppUserTestDataFactory.Create(id: "uid-222"),
             AppUserTestDataFactory.Create(id: "uid-223"),
             AppUserTestDataFactory.Create(id: "uid-224")
         );
-
-        context.Set<Friend>().AddRange(
+        await context.Set<Friend>().AddRangeAsync(
             new Friend(
                 Id: 1,
                 WhoFriendId: "uid-222",

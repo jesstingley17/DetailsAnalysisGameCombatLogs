@@ -12,7 +12,7 @@ internal static class CustomerTestDataFactory
         string? appUserId = null
         )
     {
-        var customer = new Customer(
+        var entity = new Customer(
             Id: id ?? "uid-22",
             Country: country ?? "country",
             City: city ?? "city",
@@ -20,7 +20,7 @@ internal static class CustomerTestDataFactory
             AppUserId: appUserId ?? "uid-23"
         );
 
-        return customer;
+        return entity;
     }
 
     public static Customer[] CreateCollection(

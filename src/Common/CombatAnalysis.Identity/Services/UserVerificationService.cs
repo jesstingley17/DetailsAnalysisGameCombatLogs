@@ -66,10 +66,10 @@ internal class UserVerificationService(IResetTokenRepository resetTokenRepositor
             identityUser.PasswordHash = hash;
             identityUser.Salt = salt;
 
-            await _identityUserService.UpdateAsync(identityUser);
+            await _identityUserService.UpdateAsync(identityUser.Id, identityUser);
 
             resetToken.IsUsed = true;
-            await _resetTokenRepository.UpdateAsync(resetToken);
+            await _resetTokenRepository.UpdateAsync(resetToken.Id, resetToken);
 
             scope.Complete();
 
@@ -110,7 +110,7 @@ internal class UserVerificationService(IResetTokenRepository resetTokenRepositor
         }
 
         verifyToken.IsUsed = true;
-        await _verifyEmailRepository.UpdateAsync(verifyToken);
+        await _verifyEmailRepository.UpdateAsync(verifyToken.Id, verifyToken);
 
         var identityUser = await _identityUserService.GetByEmailAsync(verifyToken.Email);
         if (identityUser == null)
@@ -119,7 +119,7 @@ internal class UserVerificationService(IResetTokenRepository resetTokenRepositor
         }
 
         identityUser.EmailVerified = true;
-        await _identityUserService.UpdateAsync(identityUser);
+        await _identityUserService.UpdateAsync(identityUser.Id, identityUser);
 
         scope.Complete();
 

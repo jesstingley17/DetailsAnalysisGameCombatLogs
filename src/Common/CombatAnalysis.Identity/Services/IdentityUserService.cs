@@ -6,21 +6,21 @@ using CombatAnalysis.IdentityDAL.Interfaces;
 
 namespace CombatAnalysis.Identity.Services;
 
-internal class IdentityUserService : IIdentityUserService
+internal class IdentityUserService(IIdentityUserRepository identityUserRepository, IMapper mapper) : IIdentityUserService
 {
-    private readonly IIdentityUserRepository _identityUserRepository;
-    private readonly IMapper _mapper;
-
-    public IdentityUserService(IIdentityUserRepository identityUserRepository, IMapper mapper)
-    {
-        _identityUserRepository = identityUserRepository;
-        _mapper = mapper;
-    }
+    private readonly IIdentityUserRepository _identityUserRepository = identityUserRepository;
+    private readonly IMapper _mapper = mapper;
 
     public async Task CreateAsync(IdentityUserDto user)
     {
         var map = _mapper.Map<IdentityUser>(user);
         await _identityUserRepository.SaveAsync(map);
+    }
+
+    public async Task<int> UpdateAsync(string id, IdentityUserDto user)
+    {
+        var map = _mapper.Map<IdentityUser>(user);
+        return await _identityUserRepository.UpdateAsync(id, map);
     }
 
     public async Task<IdentityUserDto> GetByIdAsync(string id)
@@ -44,11 +44,5 @@ internal class IdentityUserService : IIdentityUserService
         var map = _mapper.Map<IdentityUserDto>(identityUser);
 
         return map;
-    }
-
-    public async Task UpdateAsync(IdentityUserDto user)
-    {
-        var map = _mapper.Map<IdentityUser>(user);
-        await _identityUserRepository.UpdateAsync(map);
     }
 }

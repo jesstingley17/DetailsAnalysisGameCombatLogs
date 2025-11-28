@@ -5,19 +5,22 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.IdentityDAL.Repositories;
 
-internal class ResetTokenRepository : IResetTokenRepository
+internal class ResetTokenRepository(AppIdentityContext dbContext) : IResetTokenRepository
 {
-    private readonly AppIdentityContext _context;
-
-    public ResetTokenRepository(AppIdentityContext dbContext)
-    {
-        _context = dbContext;
-    }
+    private readonly AppIdentityContext _context = dbContext;
 
     public async Task CreateAsync(ResetToken resetCode)
     {
         _context.ResetToken.Add(resetCode);
         await _context.SaveChangesAsync();
+    }
+
+    public async Task<int> UpdateAsync(int id, ResetToken item)
+    {
+        var existing = await _context.Set<ResetToken>().FindAsync(id) ?? throw new KeyNotFoundException();
+        _context.Entry(existing).CurrentValues.SetValues(item);
+
+        return await _context.SaveChangesAsync();
     }
 
     public async Task<ResetToken> GetByIdAsync(int id)
@@ -34,12 +37,6 @@ internal class ResetTokenRepository : IResetTokenRepository
             .FirstOrDefaultAsync(c => c.Token == token);
 
         return resetCode;
-    }
-
-    public async Task UpdateAsync(ResetToken resetCode)
-    {
-        _context.ResetToken.Update(resetCode);
-        await _context.SaveChangesAsync();
     }
 
     public async Task RemoveExpiredResetTokenAsync()

@@ -5,19 +5,22 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.IdentityDAL.Repositories;
 
-internal class VerifyEmailTokenRepository : IVerifyEmailTokenRepository
+internal class VerifyEmailTokenRepository(AppIdentityContext dbContext) : IVerifyEmailTokenRepository
 {
-    private readonly AppIdentityContext _context;
-
-    public VerifyEmailTokenRepository(AppIdentityContext dbContext)
-    {
-        _context = dbContext;
-    }
+    private readonly AppIdentityContext _context = dbContext;
 
     public async Task CreateAsync(VerifyEmailToken verifyCode)
     {
         _context.VerifyEmailToken.Add(verifyCode);
         await _context.SaveChangesAsync();
+    }
+
+    public async Task<int> UpdateAsync(int id, VerifyEmailToken item)
+    {
+        var existing = await _context.Set<VerifyEmailToken>().FindAsync(id) ?? throw new KeyNotFoundException();
+        _context.Entry(existing).CurrentValues.SetValues(item);
+
+        return await _context.SaveChangesAsync();
     }
 
     public async Task<VerifyEmailToken> GetByIdAsync(int id)
@@ -34,12 +37,6 @@ internal class VerifyEmailTokenRepository : IVerifyEmailTokenRepository
             .FirstOrDefaultAsync(c => c.Token == token);
 
         return resetCode;
-    }
-
-    public async Task UpdateAsync(VerifyEmailToken verifyCode)
-    {
-        _context.VerifyEmailToken.Update(verifyCode);
-        await _context.SaveChangesAsync();
     }
 
     public async Task RemoveExpiredVerifyEmailTokenAsync()

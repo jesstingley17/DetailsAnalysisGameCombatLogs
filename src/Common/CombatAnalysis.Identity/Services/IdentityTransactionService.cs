@@ -3,14 +3,9 @@ using CombatAnalysis.IdentityDAL.Interfaces;
 
 namespace CombatAnalysis.Identity.Services;
 
-internal class IdentityTransactionService : IIdentityTransactionService
+internal class IdentityTransactionService(IContextService context) : IIdentityTransactionService
 {
-    private readonly IContextService _context;
-
-    public IdentityTransactionService(IContextService context)
-    {
-        _context = context;
-    }
+    private readonly IContextService _context = context;
 
     public async Task BeginTransactionAsync()
     {

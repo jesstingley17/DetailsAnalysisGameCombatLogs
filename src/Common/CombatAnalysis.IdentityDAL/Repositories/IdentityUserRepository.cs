@@ -5,14 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.IdentityDAL.Repositories;
 
-internal class IdentityUserRepository : IIdentityUserRepository
+internal class IdentityUserRepository(AppIdentityContext dbContext) : IIdentityUserRepository
 {
-    private readonly AppIdentityContext _context;
-
-    public IdentityUserRepository(AppIdentityContext dbContext)
-    {
-        _context = dbContext;
-    }
+    private readonly AppIdentityContext _context = dbContext;
 
     public async Task SaveAsync(IdentityUser identityUser)
     {
@@ -20,7 +15,15 @@ internal class IdentityUserRepository : IIdentityUserRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task<IdentityUser> GetByIdAsync(string id)
+    public async Task<int> UpdateAsync(string id, IdentityUser item)
+    {
+        var existing = await _context.Set<IdentityUser>().FindAsync(id) ?? throw new KeyNotFoundException();
+        _context.Entry(existing).CurrentValues.SetValues(item);
+
+        return await _context.SaveChangesAsync();
+    }
+
+    public async Task<IdentityUser?> GetByIdAsync(string id)
     {
         var identityUser = await _context.IdentityUser
             .FirstOrDefaultAsync(c => c.Id == id);
@@ -37,7 +40,7 @@ internal class IdentityUserRepository : IIdentityUserRepository
         return userPresent;
     }
 
-    public async Task<IdentityUser> GetAsync(string email)
+    public async Task<IdentityUser?> GetAsync(string email)
     {
         var entity = await _context.Set<IdentityUser>()
             .FirstOrDefaultAsync(x => x.Email == email);
@@ -48,11 +51,5 @@ internal class IdentityUserRepository : IIdentityUserRepository
         }
 
         return entity;
-    }
-
-    public async Task UpdateAsync(IdentityUser identityUser)
-    {
-        _context.IdentityUser.Update(identityUser);
-        await _context.SaveChangesAsync();
     }
 }

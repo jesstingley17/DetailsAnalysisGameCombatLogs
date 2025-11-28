@@ -6,9 +6,9 @@ public interface IVerifyEmailTokenRepository
 {
     Task CreateAsync(VerifyEmailToken verifyCode);
 
-    Task<VerifyEmailToken> GetByIdAsync(int id);
+    Task<int> UpdateAsync(int id, VerifyEmailToken verifyCode);
 
-    Task UpdateAsync(VerifyEmailToken verifyCode);
+    Task<VerifyEmailToken> GetByIdAsync(int id);
 
     Task<VerifyEmailToken> GetByTokenAsync(string token);
 

@@ -6,11 +6,11 @@ public interface IIdentityUserRepository
 {
     Task SaveAsync(IdentityUser identityUser);
 
-    Task<IdentityUser> GetByIdAsync(string id);
+    Task<int> UpdateAsync(string id, IdentityUser item);
+
+    Task<IdentityUser?> GetByIdAsync(string id);
 
     Task<bool> CheckByEmailAsync(string email);
 
-    Task<IdentityUser> GetAsync(string email);
-
-    Task UpdateAsync(IdentityUser identityUser);
+    Task<IdentityUser?> GetAsync(string email);
 }

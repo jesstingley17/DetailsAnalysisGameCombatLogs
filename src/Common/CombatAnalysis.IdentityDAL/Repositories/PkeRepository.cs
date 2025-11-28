@@ -5,14 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.IdentityDAL.Repositories;
 
-internal class PkeRepository : IPkeRepository
+internal class PkeRepository(AppIdentityContext context) : IPkeRepository
 {
-    private readonly AppIdentityContext _context;
-
-    public PkeRepository(AppIdentityContext context)
-    {
-        _context = context;
-    }
+    private readonly AppIdentityContext _context = context;
 
     public async Task CreateAsync(string clientId, string authorizationCode, string codeChallenge, string codeChallengeMethod, string redirectUri, int expiryTimeMins = 5)
     {
@@ -41,20 +36,12 @@ internal class PkeRepository : IPkeRepository
         return codeChallenge;
     }
 
-    public async Task<AuthorizationCodeChallenge> MarkCodeAsUsed(string id)
+    public async Task<int> MarkCodeAsUsedAsync(AuthorizationCodeChallenge item)
     {
-        var codeChallenge = await _context.AuthorizationCodeChallenge
-            .FirstOrDefaultAsync(c => c.Id == id);
+        var existing = await _context.Set<AuthorizationCodeChallenge>().FindAsync(item.Id) ?? throw new KeyNotFoundException();
+        _context.Entry(existing).CurrentValues.SetValues(item);
 
-        return codeChallenge;
-    }
-
-    public async Task<int> MarkCodeAsUsedAsync(AuthorizationCodeChallenge code)
-    {
-        _context.Entry(code).State = EntityState.Modified;
-        var rowsAffected = await _context.SaveChangesAsync();
-
-        return rowsAffected;
+        return await _context.SaveChangesAsync();
     }
 
     public async Task RemoveExpiredCodesAsync()

@@ -7,17 +7,18 @@ namespace CombatAnalysis.UserDAL.IntegrationTests.RepositoryTests;
 public class GenericRepositoryTests : RepositoryTestsBase
 {
     [Fact]
-    public async Task CreateAsync_Customer_ShouldCreateEntityAndReturnCreatedEntity()
+    public async Task CreateAsync_Entity_ShouldCreateEntityAndReturnCreatedEntity()
     {
         // Arrange
         const string id = "uid-1";
 
-        using var context = CreateInMemoryContext(nameof(CreateAsync_Customer_ShouldCreateEntityAndReturnCreatedEntity));
+        using var context = CreateInMemoryContext(nameof(CreateAsync_Entity_ShouldCreateEntityAndReturnCreatedEntity));
         var repo = new GenericRepository<Customer, string>(context);
-        var customer = CustomerTestDataFactory.Create(id: id);
+
+        var entity = CustomerTestDataFactory.Create(id: id);
 
         // Act
-        var result = await repo.CreateAsync(customer);
+        var result = await repo.CreateAsync(entity);
 
         // Assert
         Assert.NotNull(result);
@@ -27,21 +28,22 @@ public class GenericRepositoryTests : RepositoryTestsBase
     }
 
     [Fact]
-    public async Task UpdateAsync_ShouldUpdateEcistedEntityById()
+    public async Task UpdateAsync_ShouldUpdateExistedEntityById()
     {
         // Arrange
         const string id = "uid-1";
         const string newCity = "Grodno";
 
-        using var context = CreateInMemoryContext(nameof(UpdateAsync_ShouldUpdateEcistedEntityById));
-        var repo = new GenericRepository<Customer, string>(context);
+        using var context = CreateInMemoryContext(nameof(UpdateAsync_ShouldUpdateExistedEntityById));
         await context.Set<Customer>().AddRangeAsync(CustomerTestDataFactory.CreateCollection());
         await context.SaveChangesAsync();
 
-        var customer = CustomerTestDataFactory.Create(id: id, city: newCity);
+        var repo = new GenericRepository<Customer, string>(context);
+
+        var entity = CustomerTestDataFactory.Create(id: id, city: newCity);
 
         // Act
-        await repo.UpdateAsync(id, customer);
+        await repo.UpdateAsync(id, entity);
 
         var updatedEntity = await repo.GetByIdAsync(id);
 
@@ -59,14 +61,15 @@ public class GenericRepositoryTests : RepositoryTestsBase
         const string newCity = "Grodno";
 
         using var context = CreateInMemoryContext(nameof(UpdateAsync_ThrowKeyNotFoundException_ShouldNotUpdateExistedEntityById));
-        var repo = new GenericRepository<Customer, string>(context);
         await context.Set<Customer>().AddRangeAsync(CustomerTestDataFactory.CreateCollection());
         await context.SaveChangesAsync();
 
-        var customer = CustomerTestDataFactory.Create(id: id, city: newCity);
+        var repo = new GenericRepository<Customer, string>(context);
+
+        var entity = CustomerTestDataFactory.Create(id: id, city: newCity);
 
         // Act and Assert
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => repo.UpdateAsync(id, customer));
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => repo.UpdateAsync(id, entity));
     }
 
     [Fact]
@@ -131,12 +134,12 @@ public class GenericRepositoryTests : RepositoryTestsBase
     }
 
     [Fact]
-    public async Task GetByIdAsync_Customer_ShouldReturnCorrectEntity()
+    public async Task GetByIdAsync_Entity_ShouldReturnCorrectEntity()
     {
         // Arrange
         const string customerId = "uid-1";
 
-        using var context = CreateInMemoryContext(nameof(GetByIdAsync_Customer_ShouldReturnCorrectEntity));
+        using var context = CreateInMemoryContext(nameof(GetByIdAsync_Entity_ShouldReturnCorrectEntity));
 
         await context.Set<Customer>().AddRangeAsync(CustomerTestDataFactory.CreateCollection());
         await context.SaveChangesAsync();

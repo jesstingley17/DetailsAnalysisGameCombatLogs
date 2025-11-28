@@ -1,7 +1,6 @@
-﻿using Castle.Core.Resource;
-using CombatAnalysis.UserDAL.Entities;
-using CombatAnalysis.UserDAL.Repositories;
+﻿using CombatAnalysis.UserDAL.Entities;
 using CombatAnalysis.UserDAL.IntegrationTests.Factory;
+using CombatAnalysis.UserDAL.Repositories;
 using Moq;
 using StackExchange.Redis;
 using System.Text.Json;
@@ -11,19 +10,21 @@ namespace CombatAnalysis.UserDAL.IntegrationTests.RepositoryTests;
 public class UserRepositoryTests : RepositoryTestsBase
 {
     [Fact]
-    public async Task CreateAsync_ShouldAddEntity()
+    public async Task CreateAsync_Entity_ShouldAddEntityAndReturnCreatedEntity()
     {
         // Arrange
         const string username = "Alice12";
 
         var mockMultiplexer = new Mock<IConnectionMultiplexer>();
 
-        using var context = CreateInMemoryContext(nameof(CreateAsync_ShouldAddEntity));
+        using var context = CreateInMemoryContext(nameof(CreateAsync_Entity_ShouldAddEntityAndReturnCreatedEntity));
+
         var repo = new UserRepository(mockMultiplexer.Object, context);
-        var user = AppUserTestDataFactory.Create(username: username);
+
+        var entity = AppUserTestDataFactory.Create(username: username);
 
         // Act
-        var result = await repo.CreateAsync(user);
+        var result = await repo.CreateAsync(entity);
 
         // Assert
         Assert.NotNull(result);
@@ -32,17 +33,16 @@ public class UserRepositoryTests : RepositoryTestsBase
     }
 
     [Fact]
-    public async Task GetAllAsync_ShouldReturnAllEntities()
+    public async Task GetAllAsync_Collection_ShouldReturnAllEntities()
     {
         // Arrange
         var mockMultiplexer = new Mock<IConnectionMultiplexer>();
 
-        using var context = CreateInMemoryContext(nameof(GetAllAsync_ShouldReturnAllEntities));
-        context.Set<AppUser>().AddRange(
+        using var context = CreateInMemoryContext(nameof(GetAllAsync_Collection_ShouldReturnAllEntities));
+        await context.Set<AppUser>().AddRangeAsync(
             AppUserTestDataFactory.Create(),
             AppUserTestDataFactory.Create()
         );
-
         await context.SaveChangesAsync();
 
         var repo = new UserRepository(mockMultiplexer.Object, context);
@@ -57,22 +57,22 @@ public class UserRepositoryTests : RepositoryTestsBase
     }
 
     [Fact]
-    public async Task GetByIdAsync_ShouldReturnCorrectEntity()
+    public async Task GetByIdAsync_Entity_ShouldReturnCorrectEntity()
     {
         // Arrange
+        const string id = "uid-1";
         const string entityUsername = "Charlie45";
 
         var mockMultiplexer = new Mock<IConnectionMultiplexer>();
 
-        using var context = CreateInMemoryContext(nameof(GetByIdAsync_ShouldReturnCorrectEntity));
-        var user = AppUserTestDataFactory.Create(username: entityUsername);
-        context.Set<AppUser>().Add(user);
+        using var context = CreateInMemoryContext(nameof(GetByIdAsync_Entity_ShouldReturnCorrectEntity));
+        await context.Set<AppUser>().AddAsync(AppUserTestDataFactory.Create(id: id, username: entityUsername));
         await context.SaveChangesAsync();
 
         var repo = new UserRepository(mockMultiplexer.Object, context);
 
         // Act
-        var result = await repo.GetByIdAsync(user.Id);
+        var result = await repo.GetByIdAsync(id);
 
         // Assert
         Assert.NotNull(result);
@@ -88,9 +88,10 @@ public class UserRepositoryTests : RepositoryTestsBase
 
         var mockMultiplexer = new Mock<IConnectionMultiplexer>();
 
-        using var context = CreateInMemoryContext(nameof(UpdateAsync_ShouldUpdateExistedEntityById));
         var user = AppUserTestDataFactory.Create(id: id, username: updatedUsername);
-        context.Set<AppUser>().Add(user);
+
+        using var context = CreateInMemoryContext(nameof(UpdateAsync_ShouldUpdateExistedEntityById));
+        await context.Set<AppUser>().AddAsync(user);
         await context.SaveChangesAsync();
 
         var repo = new UserRepository(mockMultiplexer.Object, context);
@@ -116,9 +117,10 @@ public class UserRepositoryTests : RepositoryTestsBase
 
         var mockMultiplexer = new Mock<IConnectionMultiplexer>();
 
-        using var context = CreateInMemoryContext(nameof(UpdateAsync_ThrowKeyNotFoundException_ShouldNotUpdateExistedEntityById));
         var user = AppUserTestDataFactory.Create(id: "uid-3", username: updatedUsername);
-        context.Set<AppUser>().Add(user);
+
+        using var context = CreateInMemoryContext(nameof(UpdateAsync_ThrowKeyNotFoundException_ShouldNotUpdateExistedEntityById));
+        await context.Set<AppUser>().AddAsync(user);
         await context.SaveChangesAsync();
 
         var repo = new UserRepository(mockMultiplexer.Object, context);
@@ -139,9 +141,10 @@ public class UserRepositoryTests : RepositoryTestsBase
 
         var mockMultiplexer = new Mock<IConnectionMultiplexer>();
 
-        using var context = CreateInMemoryContext(nameof(UpdateAsync_ThrowInvalidOperationException_ShouldNotUpdateExistedEntityById));
         var user = AppUserTestDataFactory.Create(id: id, username: updatedUsername);
-        context.Set<AppUser>().Add(user);
+
+        using var context = CreateInMemoryContext(nameof(UpdateAsync_ThrowInvalidOperationException_ShouldNotUpdateExistedEntityById));
+        await context.Set<AppUser>().AddAsync(user);
         await context.SaveChangesAsync();
 
         var repo = new UserRepository(mockMultiplexer.Object, context);
@@ -157,17 +160,17 @@ public class UserRepositoryTests : RepositoryTestsBase
     public async Task DeleteAsync_True_ShouldDeleteEntity()
     {
         // Arrange
+        const string id = "uid-22";
         var mockMultiplexer = new Mock<IConnectionMultiplexer>();
 
         using var context = CreateInMemoryContext(nameof(DeleteAsync_True_ShouldDeleteEntity));
-        var user = AppUserTestDataFactory.Create();
-        await context.Set<AppUser>().AddAsync(user);
+        await context.Set<AppUser>().AddAsync(AppUserTestDataFactory.Create(id: id));
         await context.SaveChangesAsync();
 
         var repo = new UserRepository(mockMultiplexer.Object, context);
 
         // Act
-        var entityDeleted = await repo.DeleteAsync(user.Id);
+        var entityDeleted = await repo.DeleteAsync(id);
 
         // Assert
         Assert.True(entityDeleted);
@@ -181,8 +184,7 @@ public class UserRepositoryTests : RepositoryTestsBase
         var mockMultiplexer = new Mock<IConnectionMultiplexer>();
 
         using var context = CreateInMemoryContext(nameof(DeleteAsync_False_ShouldNotDeleteEntity));
-        var user = AppUserTestDataFactory.Create();
-        await context.Set<AppUser>().AddAsync(user);
+        await context.Set<AppUser>().AddAsync(AppUserTestDataFactory.Create());
         await context.SaveChangesAsync();
 
         var repo = new UserRepository(mockMultiplexer.Object, context);
@@ -196,15 +198,15 @@ public class UserRepositoryTests : RepositoryTestsBase
     }
 
     [Fact]
-    public async Task FindByIdentityUserIdAsync_ShouldReturnFilteredResults()
+    public async Task FindByIdentityUserIdAsync_Entity_ShouldReturnFilteredResults()
     {
         // Arrange
         const string identityUserId = "uid-12";
 
         var mockMultiplexer = new Mock<IConnectionMultiplexer>();
 
-        using var context = CreateInMemoryContext(nameof(FindByIdentityUserIdAsync_ShouldReturnFilteredResults));
-        context.Set<AppUser>().AddRange(
+        using var context = CreateInMemoryContext(nameof(FindByIdentityUserIdAsync_Entity_ShouldReturnFilteredResults));
+        await context.Set<AppUser>().AddRangeAsync(
             AppUserTestDataFactory.Create(identityUserId: identityUserId),
             AppUserTestDataFactory.Create()
         );
@@ -221,7 +223,7 @@ public class UserRepositoryTests : RepositoryTestsBase
     }
 
     [Fact]
-    public async Task FindByUsernameStartAtAsync_ShouldReturnFilteredResultsFromRedis()
+    public async Task FindByUsernameStartAtAsync_Collection_ShouldReturnFilteredResultsFromRedis()
     {
         // Arrange
         const string startAt = "Al";
@@ -229,8 +231,8 @@ public class UserRepositoryTests : RepositoryTestsBase
         const string username2 = "Alex";
         const string username3 = "Kiril";
 
-        using var context = CreateInMemoryContext(nameof(FindByUsernameStartAtAsync_ShouldReturnFilteredResultsFromRedis));
-        context.Set<AppUser>().AddRange(
+        using var context = CreateInMemoryContext(nameof(FindByUsernameStartAtAsync_Collection_ShouldReturnFilteredResultsFromRedis));
+        await context.Set<AppUser>().AddRangeAsync(
             AppUserTestDataFactory.Create(username: username1),
             AppUserTestDataFactory.Create(username: username2),
             AppUserTestDataFactory.Create(username: username3)
@@ -285,7 +287,7 @@ public class UserRepositoryTests : RepositoryTestsBase
     }
 
     [Fact]
-    public async Task FindByUsernameStartAtAsync_ShouldReturnFilteredResultsFromDB()
+    public async Task FindByUsernameStartAtAsync_Collection_ShouldReturnFilteredResultsFromDB()
     {
         // Arrange
         const string startAt = "Kir";
@@ -293,8 +295,8 @@ public class UserRepositoryTests : RepositoryTestsBase
         const string username2 = "Alex";
         const string username3 = "Kiril";
 
-        using var context = CreateInMemoryContext(nameof(FindByUsernameStartAtAsync_ShouldReturnFilteredResultsFromDB));
-        context.Set<AppUser>().AddRange(
+        using var context = CreateInMemoryContext(nameof(FindByUsernameStartAtAsync_Collection_ShouldReturnFilteredResultsFromDB));
+        await context.Set<AppUser>().AddRangeAsync(
             AppUserTestDataFactory.Create(username: username1),
             AppUserTestDataFactory.Create(username: username2),
             AppUserTestDataFactory.Create(username: username3)
