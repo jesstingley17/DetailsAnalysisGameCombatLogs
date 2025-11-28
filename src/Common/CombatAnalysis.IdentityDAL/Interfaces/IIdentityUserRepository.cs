@@ -4,7 +4,7 @@ namespace CombatAnalysis.IdentityDAL.Interfaces;
 
 public interface IIdentityUserRepository
 {
-    Task SaveAsync(IdentityUser identityUser);
+    Task CreateAsync(IdentityUser identityUser);
 
     Task<int> UpdateAsync(string id, IdentityUser item);
 

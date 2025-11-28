@@ -9,9 +9,9 @@ internal class IdentityUserRepository(AppIdentityContext dbContext) : IIdentityU
 {
     private readonly AppIdentityContext _context = dbContext;
 
-    public async Task SaveAsync(IdentityUser identityUser)
+    public async Task CreateAsync(IdentityUser identityUser)
     {
-        _context.IdentityUser.Add(identityUser);
+        await _context.Set<IdentityUser>().AddAsync(identityUser);
         await _context.SaveChangesAsync();
     }
 

@@ -18,7 +18,7 @@ public class IdentityUserRepositoryTests : RepositoryTestsBase
         var repo = new IdentityUserRepository(context);
 
         // Act
-        await repo.SaveAsync(identityUser);
+        await repo.CreateAsync(identityUser);
 
         // Assert
         Assert.NotNull(context.Set<IdentityUser>().Find(id));

@@ -3,22 +3,22 @@ using CombatAnalysis.Identity.Security;
 using CombatAnalysis.IdentityDAL.Entities;
 using CombatAnalysis.IdentityDAL.Interfaces;
 using Microsoft.Extensions.Logging;
-using System.Security.Cryptography;
 using System.Transactions;
 
 namespace CombatAnalysis.Identity.Services;
 
 internal class UserVerificationService(IResetTokenRepository resetTokenRepository, IVerifyEmailTokenRepository verifyEmailRepository, IIdentityUserService identityUserService,
-    ILogger<UserVerificationService> logger) : IUserVerification
+    IToken token, ILogger<UserVerificationService> logger) : IUserVerification
 {
     private readonly IResetTokenRepository _resetTokenRepository = resetTokenRepository;
     private readonly IVerifyEmailTokenRepository _verifyEmailRepository = verifyEmailRepository;
     private readonly IIdentityUserService _identityUserService = identityUserService;
+    private readonly IToken _token = token;
     private readonly ILogger<UserVerificationService> _logger = logger;
 
     public async Task<string> GenerateResetTokenAsync(string email)
     {
-        var token = GenerateToken();
+        var token = _token.GenerateToken();
 
         var resetToken = new ResetToken
         {
@@ -35,7 +35,7 @@ internal class UserVerificationService(IResetTokenRepository resetTokenRepositor
 
     public async Task<string> GenerateVerifyEmailTokenAsync(string email)
     {
-        var token = GenerateToken();
+        var token = _token.GenerateToken();
 
         var verifyEmailToken = new VerifyEmailToken
         {
@@ -56,6 +56,7 @@ internal class UserVerificationService(IResetTokenRepository resetTokenRepositor
         try
         {
             var resetToken = await _resetTokenRepository.GetByTokenAsync(token);
+
             ArgumentNullException.ThrowIfNull(resetToken, nameof(resetToken));
             ArgumentOutOfRangeException.ThrowIfEqual(resetToken.IsUsed, true, nameof(resetToken.IsUsed));
             ArgumentOutOfRangeException.ThrowIfLessThan(resetToken.ExpirationTime, DateTime.UtcNow, nameof(resetToken.ExpirationTime));
@@ -87,12 +88,6 @@ internal class UserVerificationService(IResetTokenRepository resetTokenRepositor
         {
             _logger.LogError(ex, ex.Message);
 
-            scope.Dispose();
-
-            return false;
-        }
-        catch (Exception) 
-        {
             scope.Dispose();
 
             return false;
@@ -130,19 +125,5 @@ internal class UserVerificationService(IResetTokenRepository resetTokenRepositor
     {
         await _verifyEmailRepository.RemoveExpiredVerifyEmailTokenAsync();
         await _resetTokenRepository.RemoveExpiredResetTokenAsync();
-    }
-
-    private static string GenerateToken()
-    {
-        using var randomNumberGenerator = RandomNumberGenerator.Create();
-        var randomBytes = new byte[32]; // 256 bits
-        randomNumberGenerator.GetBytes(randomBytes);
-
-        var code = Convert.ToBase64String(randomBytes)
-            .Replace('+', '-')
-            .Replace('/', '_')
-            .Replace("=", "");
-
-        return code;
     }
 }

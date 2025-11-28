@@ -12,11 +12,9 @@ public static class ServiceCollectionExtensions
         services.RegisterDependenciesForDAL(connectionString);
 
         services.AddScoped<IIdentityTransactionService, IdentityTransactionService>();
-
         services.AddScoped<IIdentityUserService, IdentityUserService>();
-
         services.AddScoped<IAuthCodeService, AuthCodeService>();
-
         services.AddScoped<IUserVerification, UserVerificationService>();
+        services.AddScoped<IToken, TokenService>();
     }
 }
