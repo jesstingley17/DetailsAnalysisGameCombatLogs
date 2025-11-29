@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import GroupChatMembers from '../../../chat/components/groupChat/GroupChatMembers';
 import type { AppUserModel } from '../../../user/types/AppUserModel';
 import { useRemoveCommunityAsyncMutation, useUpdateCommunityAsyncMutation } from '../../api/Community.api';
-import { useLazyCommunityUserSearchByUserIdQuery, useRemoveCommunityUserMutation } from '../../api/CommunityUser.api';
+import { useLazyCommunityUserFindByUserIdQuery, useRemoveCommunityUserMutation } from '../../api/CommunityUser.api';
 import { useCreateInviteAsyncMutation, useLazyInviteIsExistQuery } from '../../api/InviteToCommunity.api';
 import type { CommunityModel } from '../../types/CommunityModel';
 import type { CommunityUserModel } from '../../types/CommunityUserModel';
@@ -43,7 +43,7 @@ const CommunityMenu: React.FC<CommunityMenuProps> = ({ setShowMenu, user, commun
     const [showInvitesFailed, setShowInvitesFailed] = useState(false);
 
     const [removeCommunityAsync] = useRemoveCommunityAsyncMutation();
-    const [searchByUserIdAsync] = useLazyCommunityUserSearchByUserIdQuery();
+    const [findByUserIdAsync] = useLazyCommunityUserFindByUserIdQuery();
     const [removeCommunityUserAsync] = useRemoveCommunityUserMutation();
     const [createInviteAsyncMut] = useCreateInviteAsyncMutation();
     const [isInviteExistAsync] = useLazyInviteIsExistQuery();
@@ -51,7 +51,7 @@ const CommunityMenu: React.FC<CommunityMenuProps> = ({ setShowMenu, user, commun
 
     const leaveFromCommunityAsync = async () => {
         try {
-            const myCommunities = await searchByUserIdAsync(user?.id).unwrap();
+            const myCommunities = await findByUserIdAsync(user?.id).unwrap();
 
             const meInCommunity = myCommunities.filter(x => x.communityId === community?.id)[0];
             if (!meInCommunity) {

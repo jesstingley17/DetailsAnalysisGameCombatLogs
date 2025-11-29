@@ -128,10 +128,10 @@ public class CommunityPostController : ControllerBase
         return BadRequest();
     }
 
-    [HttpGet("getByListOfCommunityIds")]
-    public async Task<IActionResult> GetByListOfCommunityIds(string communityIds, int pageSize)
+    [HttpGet("getByListOfCommunityId")]
+    public async Task<IActionResult> GetByListOfCommunityIds(string collectionCommunityId, int pageSize)
     {
-        var responseMessage = await _httpClient.GetAsync($"CommunityPost/getByListOfCommunityIds?communityIds={communityIds}&pageSize={pageSize}");
+        var responseMessage = await _httpClient.GetAsync($"CommunityPost/getByListOfCommunityId?collectionCommunityId={collectionCommunityId}&pageSize={pageSize}");
         if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
         {
             return Unauthorized();
@@ -146,10 +146,10 @@ public class CommunityPostController : ControllerBase
         return BadRequest();
     }
 
-    [HttpGet("getMoreByListOfCommunityIds")]
-    public async Task<IActionResult> GetMoreByListOfCommunityIds(string communityIds, int offset, int pageSize)
+    [HttpGet("getMoreByListOfCommunityId")]
+    public async Task<IActionResult> GetMoreByListOfCommunityIds(string collectionCommunityId, int offset, int pageSize)
     {
-        var responseMessage = await _httpClient.GetAsync($"CommunityPost/getMoreByListOfCommunityIds?communityIds={communityIds}&offset={offset}&pageSize={pageSize}");
+        var responseMessage = await _httpClient.GetAsync($"CommunityPost/getMoreByListOfCommunityId?collectionCommunityId={collectionCommunityId}&offset={offset}&pageSize={pageSize}");
         if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
         {
             return Unauthorized();
@@ -164,10 +164,10 @@ public class CommunityPostController : ControllerBase
         return BadRequest();
     }
 
-    [HttpGet("getNewByListOfCommunityIds")]
-    public async Task<IActionResult> GetNewByListOfCommunityIds(string communityIds, string checkFrom)
+    [HttpGet("getNewByListOfCommunityId")]
+    public async Task<IActionResult> GetNewByListOfCommunityId(string collectionCommunityId, string checkFrom)
     {
-        var responseMessage = await _httpClient.GetAsync($"CommunityPost/getNewByListOfCommunityIds?communityIds={communityIds}&checkFrom={checkFrom}");
+        var responseMessage = await _httpClient.GetAsync($"CommunityPost/getNewByListOfCommunityId?collectionCommunityId={collectionCommunityId}&checkFrom={checkFrom}");
         if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
         {
             return Unauthorized();

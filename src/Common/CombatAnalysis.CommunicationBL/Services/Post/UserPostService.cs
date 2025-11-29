@@ -32,6 +32,8 @@ internal class UserPostService(IUserPostRepository repository, IMapper mapper,
 
     public async Task UpdateAsync(int id, UserPostDto item)
     {
+        ArgumentOutOfRangeException.ThrowIfNotEqual(id, item.Id);
+
         CheckParams(item);
 
         var map = _mapper.Map<UserPost>(item);
@@ -182,13 +184,11 @@ internal class UserPostService(IUserPostRepository repository, IMapper mapper,
 
     private static void CheckParams(UserPostDto item)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
         ArgumentOutOfRangeException.ThrowIfNegative(item.PublicType, nameof(item.PublicType));
         ArgumentOutOfRangeException.ThrowIfNegative(item.LikeCount, nameof(item.LikeCount));
         ArgumentOutOfRangeException.ThrowIfNegative(item.DislikeCount, nameof(item.DislikeCount));
         ArgumentOutOfRangeException.ThrowIfNegative(item.CommentCount, nameof(item.CommentCount));
 
-        ArgumentException.ThrowIfNullOrEmpty(item.Tags, nameof(item.Tags));
         ArgumentException.ThrowIfNullOrEmpty(item.Owner, nameof(item.Owner));
         ArgumentException.ThrowIfNullOrEmpty(item.Content, nameof(item.Content));
         ArgumentException.ThrowIfNullOrEmpty(item.AppUserId, nameof(item.AppUserId));

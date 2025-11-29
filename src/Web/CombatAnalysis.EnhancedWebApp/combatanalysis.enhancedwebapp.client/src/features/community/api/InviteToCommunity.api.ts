@@ -22,8 +22,8 @@ export const InviteToCommunityApi = CommunityApi.injectEndpoints({
             query: id => `/InviteToCommunity/${id}`,
             providesTags: result => result ? [{ type: 'InviteToCommunity', id: result.id }] : [],
         }),
-        inviteSearchByUserId: builder.query<InviteToCommunityModel[], string>({
-            query: id => `/InviteToCommunity/searchByUserId/${id}`,
+        inviteFindByUserId: builder.query<InviteToCommunityModel[], string>({
+            query: id => `/InviteToCommunity/findByUserId/${id}`,
             providesTags: result =>
                 result
                     ? [
@@ -43,6 +43,6 @@ export const {
     useCreateInviteAsyncMutation,
     useRemoveCommunityInviteMutation,
     useGetInviteToCommunityByIdQuery,
-    useInviteSearchByUserIdQuery,
+    useInviteFindByUserIdQuery,
     useLazyInviteIsExistQuery,
 } = InviteToCommunityApi;

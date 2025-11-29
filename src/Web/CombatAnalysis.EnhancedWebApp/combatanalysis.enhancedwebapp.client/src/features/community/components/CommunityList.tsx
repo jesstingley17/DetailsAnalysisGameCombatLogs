@@ -4,7 +4,7 @@ import logger from '@/utils/Logger';
 import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useGetCommunitiesCountQuery, useLazyGetCommunitiesWithPaginationQuery, useLazyGetMoreCommunitiesWithPaginationQuery } from '../api/Community.api';
-import { useCommunityUserSearchByUserIdQuery } from '../api/CommunityUser.api';
+import { useCommunityUserFindByUserIdQuery } from '../api/CommunityUser.api';
 import type { CommunityModel } from '../types/CommunityModel';
 import CommunityItem from './CommunityItem';
 
@@ -17,7 +17,7 @@ const CommunityList: React.FC<{ filterContent: string }> = ({ filterContent }) =
     const [actualCount, setActualCount] = useState(0);
 
     const { data: count, isLoading: countIsLoading } = useGetCommunitiesCountQuery();
-    const { data: userCommunities, isLoading } = useCommunityUserSearchByUserIdQuery(user?.id ?? "");
+    const { data: userCommunities, isLoading } = useCommunityUserFindByUserIdQuery(user?.id ?? "");
 
     const [getCommunities] = useLazyGetCommunitiesWithPaginationQuery();
     const [getMoreCommunities] = useLazyGetMoreCommunitiesWithPaginationQuery();

@@ -3,7 +3,7 @@ import Loading from '@/shared/components/Loading';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useCreateFriendAsyncMutation } from '../../api/Friend.api';
-import { useRemoveRequestAsyncMutation, useSearchByOwnerIdQuery, useSearchByToUserIdQuery } from '../../api/RequestToConnect.api';
+import { useRemoveRequestAsyncMutation, useFindByOwnerIdQuery, useFindByUserIdQuery } from '../../api/RequestToConnect.api';
 import type { FriendModel } from '../../types/FriendModel';
 import type { RequestToConnectModel } from '../../types/RequestToConnectModel';
 import MyRequestItem from './MyRequestItem';
@@ -16,8 +16,8 @@ const RequestToConnect = () => {
 
     const myself = useSelector((state: RootState) => state.user.value);
 
-    const { data: allRequests, isLoading: reqIsLoading } = useSearchByToUserIdQuery(myself?.id ?? "");
-    const { data: allMyRequests, isLoading: myReqIsLoading } = useSearchByOwnerIdQuery(myself?.id ?? "");
+    const { data: allRequests, isLoading: reqIsLoading } = useFindByUserIdQuery(myself?.id ?? "");
+    const { data: allMyRequests, isLoading: myReqIsLoading } = useFindByOwnerIdQuery(myself?.id ?? "");
     const [createFriendAsync] = useCreateFriendAsyncMutation();
     const [removeRequestAsync] = useRemoveRequestAsyncMutation();
 

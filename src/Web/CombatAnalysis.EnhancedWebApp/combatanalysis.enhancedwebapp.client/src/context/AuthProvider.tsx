@@ -1,4 +1,4 @@
-﻿import { useLazySearchCustomerByUserIdQuery } from '@/features/user/api/Customer.api';
+﻿import { useLazyFindCustomerByUserIdQuery } from '@/features/user/api/Customer.api';
 import { useLazyGetUserPrivacyQuery, useLazyRefreshTokenQuery, useLogoutMutation } from '@/features/user/api/Identity.api';
 import { useLazyAuthenticationQuery } from '@/features/user/api/User.api';
 import { updateCustomer } from '@/features/user/store/CustomerSlice';
@@ -19,7 +19,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const [getAuth] = useLazyAuthenticationQuery();
     const [logout] = useLogoutMutation();
-    const [searchCustomer] = useLazySearchCustomerByUserIdQuery();
+    const [findCustomer] = useLazyFindCustomerByUserIdQuery();
 
     const [getUserPrivacy] = useLazyGetUserPrivacyQuery();
     const [refreshToken] = useLazyRefreshTokenQuery();
@@ -78,7 +78,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const getCustomerDataAsync = async (userId: string) => {
         try {
-            const customer = await searchCustomer(userId).unwrap();
+            const customer = await findCustomer(userId).unwrap();
 
             dispatch(updateCustomer(customer));
         } catch (e) {

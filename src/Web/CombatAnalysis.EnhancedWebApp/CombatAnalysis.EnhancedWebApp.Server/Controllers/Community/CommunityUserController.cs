@@ -56,10 +56,10 @@ public class CommunityUserController : ControllerBase
         return BadRequest();
     }
 
-    [HttpGet("searchByUserId/{userId}")]
+    [HttpGet("findByUserId/{userId}")]
     public async Task<IActionResult> SearchByUserId(string userId)
     {
-        var responseMessage = await _httpClient.GetAsync($"CommunityUser/searchByUserId/{userId}");
+        var responseMessage = await _httpClient.GetAsync($"CommunityUser/findByUserId/{userId}");
         if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
         {
             return Unauthorized();

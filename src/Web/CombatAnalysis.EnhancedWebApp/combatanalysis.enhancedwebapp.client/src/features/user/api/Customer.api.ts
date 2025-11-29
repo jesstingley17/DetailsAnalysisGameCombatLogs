@@ -23,8 +23,8 @@ export const CustomerApi = UserApi.injectEndpoints({
             }),
             invalidatesTags: (_result, _error, customer) => [{ type: 'Customer', id: customer.id }],
         }),
-        searchCustomerByUserId: builder.query<CustomerModel, string>({
-            query: id => `/Customer/searchByUserId/${id}`,
+        findCustomerByUserId: builder.query<CustomerModel, string>({
+            query: id => `/Customer/findByUserId/${id}`,
             providesTags: (_result, _error, id) => [{ type: 'Customer', id }],
         }),
     })
@@ -35,5 +35,5 @@ export const {
     useCreateCustomerMutation,
     useLazyGetCustomerByIdQuery,
     useEditCustomerMutation,
-    useLazySearchCustomerByUserIdQuery
+    useLazyFindCustomerByUserIdQuery
 } = CustomerApi;

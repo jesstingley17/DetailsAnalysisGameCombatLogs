@@ -128,10 +128,10 @@ public class UserPostController : ControllerBase
         return BadRequest();
     }
 
-    [HttpGet("getByListOfUserIds")]
-    public async Task<IActionResult> GetByListOfUserIds(string appUserIds, int pageSize)
+    [HttpGet("getByListOfUserId")]
+    public async Task<IActionResult> GetByListOfUserIds(string collectionUserId, int pageSize)
     {
-        var responseMessage = await _httpClient.GetAsync($"UserPost/getByListOfUserIds?appUserIds={appUserIds}&pageSize={pageSize}");
+        var responseMessage = await _httpClient.GetAsync($"UserPost/getByListOfUserId?collectionUserId={collectionUserId}&pageSize={pageSize}");
         if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
         {
             return Unauthorized();
@@ -146,10 +146,10 @@ public class UserPostController : ControllerBase
         return BadRequest();
     }
 
-    [HttpGet("getMoreByListOfUserIds")]
-    public async Task<IActionResult> GetMoreByListOfUserIds(string appUserIds, int offset, int pageSize)
+    [HttpGet("getMoreByListOfUserId")]
+    public async Task<IActionResult> GetMoreByListOfUserIds(string collectionUserId, int offset, int pageSize)
     {
-        var responseMessage = await _httpClient.GetAsync($"UserPost/getMoreByListOfUserIds?appUserIds={appUserIds}&offset={offset}&pageSize={pageSize}");
+        var responseMessage = await _httpClient.GetAsync($"UserPost/getMoreByListOfUserId?collectionUserId={collectionUserId}&offset={offset}&pageSize={pageSize}");
         if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
         {
             return Unauthorized();
@@ -164,10 +164,10 @@ public class UserPostController : ControllerBase
         return BadRequest();
     }
 
-    [HttpGet("getNewByListOfUserIds")]
-    public async Task<IActionResult> GetNewByListOfUserIds(string appUserIds, string checkFrom)
+    [HttpGet("getNewByListOfUserId")]
+    public async Task<IActionResult> GetNewByListOfUserIds(string collectionUserId, string checkFrom)
     {
-        var responseMessage = await _httpClient.GetAsync($"UserPost/getNewByListOfUserIds?appUserIds={appUserIds}&checkFrom={checkFrom}");
+        var responseMessage = await _httpClient.GetAsync($"UserPost/getNewByListOfUserId?collectionUserId={collectionUserId}&checkFrom={checkFrom}");
         if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
         {
             return Unauthorized();

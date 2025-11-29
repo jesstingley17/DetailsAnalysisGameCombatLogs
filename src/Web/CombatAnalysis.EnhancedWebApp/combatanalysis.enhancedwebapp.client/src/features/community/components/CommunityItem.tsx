@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import User from '../../user/components/User';
 import type { AppUserModel } from '../../user/types/AppUserModel';
 import { useGetCommunityByIdQuery } from '../api/Community.api';
-import { useCommunityUserSearchByUserIdQuery, useCreateCommunityUserMutation } from '../api/CommunityUser.api';
+import { useCommunityUserFindByUserIdQuery, useCreateCommunityUserMutation } from '../api/CommunityUser.api';
 import type { CommunityUserModel } from '../types/CommunityUserModel';
 
 interface CommunityItemProps {
@@ -20,7 +20,7 @@ const CommunityItem: React.FC<CommunityItemProps> = ({ id, myself }) => {
     const navigate = useNavigate();
 
     const { data: community, isLoading } = useGetCommunityByIdQuery(id);
-    const { data: myCommunities, isLoading: myCommutiesIsLoading } = useCommunityUserSearchByUserIdQuery(myself?.id ?? "");
+    const { data: myCommunities, isLoading: myCommutiesIsLoading } = useCommunityUserFindByUserIdQuery(myself?.id ?? "");
 
     const [canJoin, setCanJoin] = useState(true);
     const [userInformation, setUserInformation] = useState<JSX.Element | null>(null);

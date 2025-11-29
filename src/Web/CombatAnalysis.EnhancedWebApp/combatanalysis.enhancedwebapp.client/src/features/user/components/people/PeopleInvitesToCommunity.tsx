@@ -2,7 +2,7 @@ import Loading from '@/shared/components/Loading';
 import logger from '@/utils/Logger';
 import { useState, type SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useCommunityUserSearchByUserIdQuery } from '../../../community/api/CommunityUser.api';
+import { useCommunityUserFindByUserIdQuery } from '../../../community/api/CommunityUser.api';
 import { useCreateInviteAsyncMutation, useLazyInviteIsExistQuery } from '../../../community/api/InviteToCommunity.api';
 import type { InviteToCommunityModel } from '../../../community/types/InviteToCommunityModel';
 import type { AppUserModel } from '../../types/AppUserModel';
@@ -19,7 +19,7 @@ interface PeopleInvitesToCommunityProps {
 const PeopleInvitesToCommunity: React.FC<PeopleInvitesToCommunityProps> = ({ myself, targetUser, setOpenInviteToCommunity }) => {
     const { t } = useTranslation('communication/people/people');
 
-    const { data: communityUsers, isLoading } = useCommunityUserSearchByUserIdQuery(myself?.id ?? "");
+    const { data: communityUsers, isLoading } = useCommunityUserFindByUserIdQuery(myself?.id ?? "");
 
     const [communityIdToInvite, setCommunityIdToInvite] = useState<number[]>([]);
 

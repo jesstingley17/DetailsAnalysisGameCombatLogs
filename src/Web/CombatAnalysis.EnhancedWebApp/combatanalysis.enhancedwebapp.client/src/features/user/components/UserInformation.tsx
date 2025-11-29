@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { useChatHub } from '../../../shared/hooks/useChatHub';
 import { useLazyIsExistQuery } from '../../chat/api/PersonalChat.api';
 import { useGetUserByIdQuery } from '../api/Account.api';
-import { useFriendSearchMyFriendsQuery } from '../api/Friend.api';
+import { useFindFriendByUserIdQuery } from '../api/Friend.api';
 import { useCreateRequestAsyncMutation, useLazyRequestIsExistQuery } from '../api/RequestToConnect.api';
 import type { AppUserModel } from '../types/AppUserModel';
 import type { FriendModel } from '../types/FriendModel';
@@ -45,7 +45,7 @@ const UserInformation: React.FC<UserInformationProps> = ({ personId, closeUserIn
     const [showFailedNotification, setShowFailedNotification] = useState(false);
     const [openInviteToCommunity, setOpenInviteToCommunity] = useState(false);
 
-    const { data: myFriends, isLoading } = useFriendSearchMyFriendsQuery(myself?.id ?? "");
+    const { data: myFriends, isLoading } = useFindFriendByUserIdQuery(myself?.id ?? "");
 
     const checkExistOfChatsAsync = async (targetUser: AppUserModel) => {
         if (!myself) {

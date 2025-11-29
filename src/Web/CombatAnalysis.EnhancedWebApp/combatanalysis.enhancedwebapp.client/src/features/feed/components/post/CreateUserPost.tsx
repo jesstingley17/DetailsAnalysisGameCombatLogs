@@ -1,4 +1,5 @@
 import Loading from '@/shared/components/Loading';
+import logger from '@/utils/Logger';
 import { faBan, faCheck, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState, type ChangeEvent } from 'react';
@@ -21,27 +22,30 @@ const CreateUserPost: React.FC<CreateUserPostProps> = ({ user, owner, t }) => {
     const [createNewUserPostAsync] = useCreateUserPostMutation();
 
     const createUserPostAsync = async () => {
-        if (!user || postContent === "") {
-            return;
-        }
+        try {
+            if (!user || postContent === "") {
+                return;
+            }
 
-        const newPost: UserPostModel = {
-            id: 0,
-            owner: owner,
-            content: postContent,
-            publicType: 0,
-            tags: postTags.join(';'),
-            createdAt: new Date(),
-            likeCount: 0,
-            dislikeCount: 0,
-            commentCount: 0,
-            appUserId: user.id
-        }
+            const newPost: UserPostModel = {
+                id: 0,
+                owner: owner,
+                content: postContent,
+                publicType: 0,
+                tags: postTags.join(';'),
+                createdAt: new Date(),
+                likeCount: 0,
+                dislikeCount: 0,
+                commentCount: 0,
+                appUserId: user.id
+            }
 
-        const response = await createNewUserPostAsync(newPost);
-        if (response?.data) {
+            await createNewUserPostAsync(newPost).unwrap();
+
             setShowCreatePost(false);
             setPostContent("");
+        } catch (e) {
+            logger.error("Failed to create User post", e);
         }
     }
 

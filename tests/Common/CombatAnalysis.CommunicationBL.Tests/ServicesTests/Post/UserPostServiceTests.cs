@@ -120,7 +120,7 @@ public class UserPostServiceTests
         // Arrange
         const int id = 0;
 
-        var entityDto = UserPostTestDataFactory.CreateDto(id: id);
+        var entityDto = UserPostTestDataFactory.CreateDto();
 
         var mockMapper = new Mock<IMapper>();
         var mockRepository = new Mock<IUserPostRepository>();

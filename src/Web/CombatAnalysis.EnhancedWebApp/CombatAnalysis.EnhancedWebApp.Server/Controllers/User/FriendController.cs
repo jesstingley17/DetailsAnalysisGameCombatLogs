@@ -38,10 +38,10 @@ public class FriendController : ControllerBase
         return BadRequest();
     }
 
-    [HttpGet("searchMyFriends/{id}")]
+    [HttpGet("findByUserId/{id}")]
     public async Task<IActionResult> SearchMyFriends(string id)
     {
-        var responseMessage = await _httpClient.GetAsync($"Friend/searchByUserId/{id}");
+        var responseMessage = await _httpClient.GetAsync($"Friend/findByUserId/{id}");
         if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
         {
             return Unauthorized();

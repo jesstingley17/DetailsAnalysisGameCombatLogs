@@ -74,10 +74,10 @@ public class InviteToCommunityController : ControllerBase
         return BadRequest();
     }
 
-    [HttpGet("searchByUserId/{id}")]
+    [HttpGet("findByUserId/{id}")]
     public async Task<IActionResult> SearchByUserId(string id)
     {
-        var responseMessage = await _httpClient.GetAsync($"InviteToCommunity/searchByUserId/{id}");
+        var responseMessage = await _httpClient.GetAsync($"InviteToCommunity/findByUserId/{id}");
         if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
         {
             return Unauthorized();

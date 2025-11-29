@@ -1,6 +1,6 @@
 import type { RootState } from '@/app/Store';
 import { useSelector } from 'react-redux';
-import { useCommunityUserSearchByUserIdQuery } from '../../../community/api/CommunityUser.api';
+import { useCommunityUserFindByUserIdQuery } from '../../../community/api/CommunityUser.api';
 import type { CommunityUserModel } from '../../../community/types/CommunityUserModel';
 import type { AppUserModel } from '../../types/AppUserModel';
 import CommunityItem from './CommunityItem';
@@ -13,7 +13,7 @@ interface SelectedUserCommunitiesProps {
 const SelectedUserCommunities: React.FC<SelectedUserCommunitiesProps> = ({ user, t }) => {
     const me = useSelector((state: RootState) => state.user.value);
 
-    const { data: communityUsers, isLoading } = useCommunityUserSearchByUserIdQuery(user?.id || "");
+    const { data: communityUsers, isLoading } = useCommunityUserFindByUserIdQuery(user?.id || "");
 
     if (isLoading) {
         return <div>Loading...</div>;

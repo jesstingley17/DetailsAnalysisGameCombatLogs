@@ -1,4 +1,4 @@
-import { useFriendSearchMyFriendsQuery } from '@/features/user/api/Friend.api';
+import { useFindFriendByUserIdQuery } from '@/features/user/api/Friend.api';
 import { useGetUsersQuery } from '@/features/user/api/User.api';
 import type { AppUserModel } from '@/features/user/types/AppUserModel';
 import type { FriendModel } from '@/features/user/types/FriendModel';
@@ -25,7 +25,7 @@ const AddPeople: React.FC<AddPeopleProps> = ({ user, usersId, peopleToJoin, setP
     const [maxPeopleItems, setMaxPeopleItems] = useState(defaultMaxItems);
     const [maxFriendsItems, setMaxFriendsItems] = useState(defaultMaxItems);
 
-    const { friends } = useFriendSearchMyFriendsQuery(user?.id, {
+    const { friends } = useFindFriendByUserIdQuery(user?.id, {
         selectFromResult: ({ data, isLoading }) => ({
             friends: data?.filter((item) => !usersId.includes(user?.id === item.whoFriendId ? item.forWhomId : item.whoFriendId)),
             isLoading,

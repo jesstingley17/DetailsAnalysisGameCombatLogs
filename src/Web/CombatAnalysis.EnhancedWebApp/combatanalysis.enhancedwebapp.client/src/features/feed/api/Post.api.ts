@@ -60,8 +60,8 @@ export const PostApi = createApi({
                     ]
                     : [{ type: 'UserPost', id: 'LIST' }]
         }),
-        getUserPostByListOfUserIds: builder.query<UserPostModel[], { appUserIds: string, pageSize: number }>({
-            query: ({ appUserIds, pageSize }) => `/UserPost/getByListOfUserIds?appUserIds=${appUserIds}&pageSize=${pageSize}`,
+        getUserPostByListOfUserId: builder.query<UserPostModel[], { collectionUserId: string, pageSize: number }>({
+            query: ({ collectionUserId, pageSize }) => `/UserPost/getByListOfUserId?collectionUserId=${collectionUserId}&pageSize=${pageSize}`,
             providesTags: result =>
                 result
                     ? [
@@ -70,8 +70,8 @@ export const PostApi = createApi({
                     ]
                     : [{ type: 'UserPost', id: 'LIST' }]
         }),
-        getMoreUserPostByListOfUserIds: builder.query<UserPostModel[], { appUserIds: string, offset: number, pageSize: number }>({
-            query: ({ appUserIds, offset, pageSize }) => `/UserPost/getMoreByListOfUserIds?appUserIds=${appUserIds}&offset=${offset}&pageSize=${pageSize}`,
+        getMoreUserPostByListOfUserId: builder.query<UserPostModel[], { collectionUserId: string, offset: number, pageSize: number }>({
+            query: ({ collectionUserId, offset, pageSize }) => `/UserPost/getMoreByListOfUserId?collectionUserId=${collectionUserId}&offset=${offset}&pageSize=${pageSize}`,
             providesTags: result =>
                 result
                     ? [
@@ -80,8 +80,8 @@ export const PostApi = createApi({
                     ]
                     : [{ type: 'UserPost', id: 'LIST' }]
         }),
-        getNewUserPostByListOfUserIds: builder.query<UserPostModel[], { appUserIds: string, checkFrom: string }>({
-            query: ({ appUserIds, checkFrom }) => `/UserPost/getNewByListOfUserIds?appUserIds=${appUserIds}&checkFrom=${checkFrom}`,
+        getNewUserPostByListOfUserId: builder.query<UserPostModel[], { collectionUserId: string, checkFrom: string }>({
+            query: ({ collectionUserId, checkFrom }) => `/UserPost/getNewByListOfUserId?collectionUserId=${collectionUserId}&checkFrom=${checkFrom}`,
             providesTags: result =>
                 result
                     ? [
@@ -117,8 +117,8 @@ export const PostApi = createApi({
                     ]
                     : [{ type: 'CommunityPost', id: 'LIST' }]
         }),
-        getCommunityPostByListOfCommunityIds: builder.query<CommunityPostModel[], { communityIds: string, pageSize: number }>({
-            query: ({ communityIds, pageSize }) => `/CommunityPost/getByListOfCommunityIds?communityIds=${communityIds}&pageSize=${pageSize}`,
+        getCommunityPostByListOfCommunityId: builder.query<CommunityPostModel[], { collectionCommunityId: string, pageSize: number }>({
+            query: ({ collectionCommunityId, pageSize }) => `/CommunityPost/getByListOfCommunityId?collectionCommunityId=${collectionCommunityId}&pageSize=${pageSize}`,
             providesTags: result =>
                 result
                     ? [
@@ -127,8 +127,8 @@ export const PostApi = createApi({
                     ]
                     : [{ type: 'CommunityPost', id: 'LIST' }]
         }),
-        getMoreCommunityPostByListOfCommunityIds: builder.query<CommunityPostModel[], { communityIds: string, offset: number, pageSize: number }>({
-            query: ({ communityIds, offset, pageSize }) => `/CommunityPost/getMoreByListOfCommunityIds?communityIds=${communityIds}&offset=${offset}&pageSize=${pageSize}`,
+        getMoreCommunityPostByListOfCommunityId: builder.query<CommunityPostModel[], { collectionCommunityId: string, offset: number, pageSize: number }>({
+            query: ({ collectionCommunityId, offset, pageSize }) => `/CommunityPost/getMoreByListOfCommunityId?collectionCommunityId=${collectionCommunityId}&offset=${offset}&pageSize=${pageSize}`,
             providesTags: result =>
                 result
                     ? [
@@ -137,8 +137,8 @@ export const PostApi = createApi({
                     ]
                     : [{ type: 'CommunityPost', id: 'LIST' }]
         }),
-        getNewCommunityPostByListOfCommunityIds: builder.query<CommunityPostModel[], { communityIds: string, checkFrom: string }>({
-            query: ({ communityIds, checkFrom }) => `/CommunityPost/getNewByListOfCommunityIds?communityIds=${communityIds}&checkFrom=${checkFrom}`,
+        getNewCommunityPostByListOfCommunityId: builder.query<CommunityPostModel[], { collectionCommunityId: string, checkFrom: string }>({
+            query: ({ collectionCommunityId, checkFrom }) => `/CommunityPost/getNewByListOfCommunityId?collectionCommunityId=${collectionCommunityId}&checkFrom=${checkFrom}`,
             providesTags: result =>
                 result
                     ? [
@@ -159,22 +159,22 @@ export const {
     useLazyGetMoreUserPostsByUserIdQuery,
     useGetNewUserPostsByUserIdQuery,
     useLazyGetNewUserPostsByUserIdQuery,
-    useGetUserPostByListOfUserIdsQuery,
-    useLazyGetUserPostByListOfUserIdsQuery,
-    useGetMoreUserPostByListOfUserIdsQuery,
-    useLazyGetMoreUserPostByListOfUserIdsQuery,
-    useGetNewUserPostByListOfUserIdsQuery,
-    useLazyGetNewUserPostByListOfUserIdsQuery,
+    useGetUserPostByListOfUserIdQuery,
+    useLazyGetUserPostByListOfUserIdQuery,
+    useGetMoreUserPostByListOfUserIdQuery,
+    useLazyGetMoreUserPostByListOfUserIdQuery,
+    useGetNewUserPostByListOfUserIdQuery,
+    useLazyGetNewUserPostByListOfUserIdQuery,
     useGetCommunityPostsByCommunityIdQuery,
     useLazyGetCommunityPostsByCommunityIdQuery,
     useGetMoreCommunityPostsByCommunityIdQuery,
     useLazyGetMoreCommunityPostsByCommunityIdQuery,
     useGetNewCommunityPostsByCommunityIdQuery,
     useLazyGetNewCommunityPostsByCommunityIdQuery,
-    useGetCommunityPostByListOfCommunityIdsQuery,
-    useLazyGetCommunityPostByListOfCommunityIdsQuery,
-    useGetMoreCommunityPostByListOfCommunityIdsQuery,
-    useLazyGetMoreCommunityPostByListOfCommunityIdsQuery,
-    useGetNewCommunityPostByListOfCommunityIdsQuery,
-    useLazyGetNewCommunityPostByListOfCommunityIdsQuery,
+    useGetCommunityPostByListOfCommunityIdQuery,
+    useLazyGetCommunityPostByListOfCommunityIdQuery,
+    useGetMoreCommunityPostByListOfCommunityIdQuery,
+    useLazyGetMoreCommunityPostByListOfCommunityIdQuery,
+    useGetNewCommunityPostByListOfCommunityIdQuery,
+    useLazyGetNewCommunityPostByListOfCommunityIdQuery,
 } = PostApi;

@@ -38,10 +38,10 @@ public class RequestToConnectController : ControllerBase
         return BadRequest();
     }
 
-    [HttpGet("searchByOwnerId/{userId}")]
-    public async Task<IActionResult> SearchByOwnerId(string userId)
+    [HttpGet("findByOwnerId/{userId}")]
+    public async Task<IActionResult> FindByOwnerId(string userId)
     {
-        var responseMessage = await _httpClient.GetAsync($"RequestToConnect/searchByOwnerId/{userId}");
+        var responseMessage = await _httpClient.GetAsync($"RequestToConnect/findByOwnerId/{userId}");
         if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
         {
             return Unauthorized();
@@ -56,10 +56,10 @@ public class RequestToConnectController : ControllerBase
         return BadRequest();
     }
 
-    [HttpGet("searchByToUserId/{userId}")]
-    public async Task<IActionResult> SearchByToUserId(string userId)
+    [HttpGet("findByUserId/{userId}")]
+    public async Task<IActionResult> FindByUserId(string userId)
     {
-        var responseMessage = await _httpClient.GetAsync($"RequestToConnect/searchByToUserId/{userId}");
+        var responseMessage = await _httpClient.GetAsync($"RequestToConnect/findByUserId/{userId}");
         if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
         {
             return Unauthorized();

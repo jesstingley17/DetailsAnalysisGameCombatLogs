@@ -1,18 +1,18 @@
 ﻿import { APP_CONFIG } from '@/config/appConfig';
 import logger from '@/utils/Logger';
 import { useEffect, useRef, useState, type RefObject } from 'react';
-import { useCommunityUserSearchByUserIdQuery } from '../../community/api/CommunityUser.api';
+import { useCommunityUserFindByUserIdQuery } from '../../community/api/CommunityUser.api';
 import type { CommunityUserModel } from '../../community/types/CommunityUserModel';
-import { useFriendSearchMyFriendsQuery } from '../../user/api/Friend.api';
+import { useFindFriendByUserIdQuery } from '../../user/api/Friend.api';
 import type { FriendModel } from '../../user/types/FriendModel';
 import { useLazyGetCommunityPostCountByListOfCommunityIdQuery } from '../api/CommunityPost.api';
 import {
-    useGetCommunityPostByListOfCommunityIdsQuery,
-    useGetNewCommunityPostByListOfCommunityIdsQuery,
-    useGetNewUserPostByListOfUserIdsQuery,
-    useGetUserPostByListOfUserIdsQuery,
-    useLazyGetMoreCommunityPostByListOfCommunityIdsQuery,
-    useLazyGetMoreUserPostByListOfUserIdsQuery
+    useGetCommunityPostByListOfCommunityIdQuery,
+    useGetNewCommunityPostByListOfCommunityIdQuery,
+    useGetNewUserPostByListOfUserIdQuery,
+    useGetUserPostByListOfUserIdQuery,
+    useLazyGetMoreCommunityPostByListOfCommunityIdQuery,
+    useLazyGetMoreUserPostByListOfUserIdQuery
 } from '../api/Post.api';
 import { useLazyGetUserPostCountByUserIdQuery } from '../api/UserPost.api';
 import type { CommunityPostModel } from '../types/CommunityPostModel';
@@ -41,21 +41,21 @@ const useFetchPosts = (myselfId: string): UseFetchUsersPostsResult => {
     const [count, setCount] = useState(0);
     const [communityCount, setCommunityCount] = useState(0);
 
-    const { data: myFriends } = useFriendSearchMyFriendsQuery(myselfId);
-    const { data: myCommunitiesUsers } = useCommunityUserSearchByUserIdQuery(myselfId);
-    const { data: userPosts } = useGetUserPostByListOfUserIdsQuery({ appUserIds: appUserIdsRef.current, pageSize: pageSizeRef.current });
-    const { data: newPosts } = useGetNewUserPostByListOfUserIdsQuery({ appUserIds: appUserIdsRef.current, checkFrom: currentDateRef.current }, {
+    const { data: myFriends } = useFindFriendByUserIdQuery(myselfId);
+    const { data: myCommunitiesUsers } = useCommunityUserFindByUserIdQuery(myselfId);
+    const { data: userPosts } = useGetUserPostByListOfUserIdQuery({ collectionUserId: appUserIdsRef.current, pageSize: pageSizeRef.current });
+    const { data: newPosts } = useGetNewUserPostByListOfUserIdQuery({ collectionUserId: appUserIdsRef.current, checkFrom: currentDateRef.current }, {
         pollingInterval: getUserPostsInterval,
     });
-    const { data: communityPosts } = useGetCommunityPostByListOfCommunityIdsQuery({ communityIds: communityIdsRef.current, pageSize: pageSizeRef.current });
-    const { data: newCommunityPosts } = useGetNewCommunityPostByListOfCommunityIdsQuery({ communityIds: communityIdsRef.current, checkFrom: currentDateRef.current }, {
+    const { data: communityPosts } = useGetCommunityPostByListOfCommunityIdQuery({ collectionCommunityId: communityIdsRef.current, pageSize: pageSizeRef.current });
+    const { data: newCommunityPosts } = useGetNewCommunityPostByListOfCommunityIdQuery({ collectionCommunityId: communityIdsRef.current, checkFrom: currentDateRef.current }, {
         pollingInterval: getUserPostsInterval,
     });
 
     const [getUserPostCountByUserId] = useLazyGetUserPostCountByUserIdQuery();
     const [getCommunityPostsCountAsync] = useLazyGetCommunityPostCountByListOfCommunityIdQuery();
-    const [getMoreUsersPosts] = useLazyGetMoreUserPostByListOfUserIdsQuery();
-    const [getMoreCommunityPosts] = useLazyGetMoreCommunityPostByListOfCommunityIdsQuery();
+    const [getMoreUsersPosts] = useLazyGetMoreUserPostByListOfUserIdQuery();
+    const [getMoreCommunityPosts] = useLazyGetMoreCommunityPostByListOfCommunityIdQuery();
 
     useEffect(() => {
         const getUserPostCount = async () => {

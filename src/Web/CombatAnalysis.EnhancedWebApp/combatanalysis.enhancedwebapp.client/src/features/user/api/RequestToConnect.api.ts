@@ -22,12 +22,12 @@ export const RequestToConnectApi = UserApi.injectEndpoints({
             query: ({ userId, targetUserId }) => `/RequestToConnect/isExist?initiatorId=${userId}&companionId=${targetUserId}`,
             providesTags: (_result, _error, { userId, targetUserId }) => [{ type: 'RequestToConnect', id: `${userId}-${targetUserId}` }]
         }),
-        searchByOwnerId: builder.query<RequestToConnectModel[], string>({
-            query: userId => `/RequestToConnect/searchByOwnerId/${userId}`,
+        findByOwnerId: builder.query<RequestToConnectModel[], string>({
+            query: userId => `/RequestToConnect/findByOwnerId/${userId}`,
             providesTags: (_result, _error, userId) => [{ type: 'RequestToConnect', id: userId }]
         }),
-        searchByToUserId: builder.query<RequestToConnectModel[], string>({
-            query: userId => `/RequestToConnect/searchByToUserId/${userId}`,
+        findByUserId: builder.query<RequestToConnectModel[], string>({
+            query: userId => `/RequestToConnect/findByUserId/${userId}`,
             providesTags: (_result, _error, userId) => [{ type: 'RequestToConnect', id: userId }],
         }),
     })
@@ -38,7 +38,7 @@ export const {
     useRemoveRequestAsyncMutation,
     useRequestIsExistQuery,
     useLazyRequestIsExistQuery,
-    useSearchByOwnerIdQuery,
-    useLazySearchByOwnerIdQuery,
-    useSearchByToUserIdQuery,
+    useFindByOwnerIdQuery,
+    useLazyFindByOwnerIdQuery,
+    useFindByUserIdQuery,
 } = RequestToConnectApi;

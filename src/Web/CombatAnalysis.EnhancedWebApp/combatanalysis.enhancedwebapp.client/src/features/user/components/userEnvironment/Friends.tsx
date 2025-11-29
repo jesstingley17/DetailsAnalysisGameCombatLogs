@@ -4,7 +4,7 @@ import Loading from '@/shared/components/Loading';
 import { useState, type JSX } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
-import { useFriendSearchMyFriendsQuery } from '../../api/Friend.api';
+import { useFindFriendByUserIdQuery } from '../../api/Friend.api';
 import type { FriendModel } from '../../types/FriendModel';
 import User from '../User';
 import RequestsToConnect from './RequestsToConnect';
@@ -18,7 +18,7 @@ const Friends: React.FC = () => {
 
     const [userInformation, setUserInformation] = useState<JSX.Element | null>(null);
 
-    const { data: myFriends, isLoading } = useFriendSearchMyFriendsQuery(myself?.id ?? "");
+    const { data: myFriends, isLoading } = useFindFriendByUserIdQuery(myself?.id ?? "");
 
     if (isLoading || !myFriends || !myself) {
         return (

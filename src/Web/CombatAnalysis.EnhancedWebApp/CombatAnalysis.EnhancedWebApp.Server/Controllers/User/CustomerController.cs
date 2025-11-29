@@ -63,10 +63,10 @@ public class CustomerController : ControllerBase
     }
 
     [ServiceFilter(typeof(RequireAccessTokenAttribute))]
-    [HttpGet("searchByUserId/{id}")]
+    [HttpGet("findByUserId/{id}")]
     public async Task<IActionResult> SearchByUserId(string id)
     {
-        var responseMessage = await _httpClient.GetAsync($"Customer/searchByUserId/{id}");
+        var responseMessage = await _httpClient.GetAsync($"Customer/findByUserId/{id}");
         if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
         {
             return Unauthorized();

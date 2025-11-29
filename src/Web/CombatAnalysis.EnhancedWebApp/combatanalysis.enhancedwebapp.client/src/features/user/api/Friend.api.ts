@@ -18,8 +18,8 @@ export const FriendApi = UserApi.injectEndpoints({
             }),
             invalidatesTags: (_result, _error, id) => [{ type: 'Friend', id }]
         }),
-        friendSearchMyFriends: builder.query<FriendModel[], string>({
-            query: currentUserId => `/Friend/searchMyFriends/${currentUserId}`,
+        findFriendByUserId: builder.query<FriendModel[], string>({
+            query: currentUserId => `/Friend/findByUserId/${currentUserId}`,
             providesTags: (_result, _error, currentUserId) => [{ type: 'Friend', id: currentUserId }],
         }),
     })
@@ -28,5 +28,5 @@ export const FriendApi = UserApi.injectEndpoints({
 export const {
     useCreateFriendAsyncMutation,
     useRemoveFriendAsyncMutation,
-    useFriendSearchMyFriendsQuery
+    useFindFriendByUserIdQuery
 } = FriendApi;

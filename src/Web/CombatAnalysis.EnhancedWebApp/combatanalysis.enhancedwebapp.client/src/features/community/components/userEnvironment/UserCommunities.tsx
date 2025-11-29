@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useState, type ChangeEvent } from "react";
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
-import { useCommunityUserSearchByUserIdQuery } from '../../api/CommunityUser.api';
+import { useCommunityUserFindByUserIdQuery } from '../../api/CommunityUser.api';
 import CreateCommunity from '../create/CreateCommunity';
 import InvitesToCommunity from './InvitesToCommunity';
 import UserCommunitiesItem from './UserCommunitiesItem';
@@ -26,7 +26,7 @@ const UserCommunities: React.FC = () => {
     const [showSearchCommunity, setShowSearchCommunity] = useState(false);
     const [skipFetching, setSkipFetching] = useState(true);
 
-    const { data: myCommunities, isLoading } = useCommunityUserSearchByUserIdQuery(myself?.id ?? "", {
+    const { data: myCommunities, isLoading } = useCommunityUserFindByUserIdQuery(myself?.id ?? "", {
         skip: skipFetching
     });
 
