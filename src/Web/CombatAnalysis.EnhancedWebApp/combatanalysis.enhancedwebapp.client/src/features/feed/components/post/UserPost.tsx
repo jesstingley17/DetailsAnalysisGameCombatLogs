@@ -24,7 +24,7 @@ const UserPost: React.FC<UserPostProps> = ({ myself, post }) => {
     const [updatePost] = useUpdateUserPostMutation();
 
     const [createPostComment] = useCreateUserPostCommentMutation();
-    const [getPostByIdAsync] = useLazyGetUserPostByIdQuery();
+    const [getUserPostById] = useLazyGetUserPostByIdQuery();
 
     const [showComments, setShowComments] = useState(false);
     const [postCommentContent, setPostCommentContent] = useState("");
@@ -39,7 +39,7 @@ const UserPost: React.FC<UserPostProps> = ({ myself, post }) => {
 
     const updatePostAsync = async (postId: number, likesCount: number, dislikesCount: number, commentsCount: number): Promise<void> => {
         try {
-            const userPost = await getPostByIdAsync(postId).unwrap();
+            const userPost = await getUserPostById(postId).unwrap();
 
             const postForUpdate = {
                 ...userPost,

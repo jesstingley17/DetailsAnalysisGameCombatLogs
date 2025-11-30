@@ -106,8 +106,6 @@ const SelectedCommunity = () => {
         );
     }
 
-    console.log(community);
-
     return (
         <div className="communication">
             <CommunicationMenu

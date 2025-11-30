@@ -34,7 +34,7 @@ export const CommunityPostApi = PostApi.injectEndpoints({
             query: communityId => `/CommunityPost/count/${communityId}`,
         }),
         getCommunityPostCountByListOfCommunityId: builder.query<number, string>({
-            query: communityIds => `/CommunityPost/countByListOfCommunities/${communityIds}`,
+            query: collectionCommunityId => `/CommunityPost/countByListOfCommunityId/${collectionCommunityId}`,
         }),
     })
 })

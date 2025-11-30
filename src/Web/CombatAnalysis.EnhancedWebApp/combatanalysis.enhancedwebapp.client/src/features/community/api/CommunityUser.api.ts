@@ -18,8 +18,8 @@ export const CommunityUserApi = CommunityApi.injectEndpoints({
             }),
             invalidatesTags: (_result, _error, id) => [{ type: 'CommunityUser', id }]
         }),
-        communityUserSearchByCommunityId: builder.query<CommunityUserModel[], number>({
-            query: communityId => `/CommunityUser/searchByCommunityId/${communityId}`,
+        communityUserFindByCommunityId: builder.query<CommunityUserModel[], number>({
+            query: communityId => `/CommunityUser/findByCommunityId/${communityId}`,
             providesTags: result =>
                 result
                     ? [
@@ -42,8 +42,8 @@ export const CommunityUserApi = CommunityApi.injectEndpoints({
 })
 
 export const {
-    useCommunityUserSearchByCommunityIdQuery,
-    useLazyCommunityUserSearchByCommunityIdQuery,
+    useCommunityUserFindByCommunityIdQuery,
+    useLazyCommunityUserFindByCommunityIdQuery,
     useCommunityUserFindByUserIdQuery,
     useLazyCommunityUserFindByUserIdQuery,
     useCreateCommunityUserMutation,

@@ -32,6 +32,8 @@ internal class CommunityPostService(ICommunityPostRepository repository, IMapper
 
     public async Task UpdateAsync(int id, CommunityPostDto item)
     {
+        ArgumentOutOfRangeException.ThrowIfNotEqual(id, item.Id);
+
         CheckParams(item);
 
         var map = _mapper.Map<CommunityPost>(item);
@@ -182,7 +184,6 @@ internal class CommunityPostService(ICommunityPostRepository repository, IMapper
 
     private static void CheckParams(CommunityPostDto item)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
         ArgumentOutOfRangeException.ThrowIfNegative(item.PostType, nameof(item.PostType));
         ArgumentOutOfRangeException.ThrowIfNegative(item.PublicType, nameof(item.PublicType));
         ArgumentOutOfRangeException.ThrowIfNegative(item.Restrictions, nameof(item.Restrictions));
@@ -191,7 +192,6 @@ internal class CommunityPostService(ICommunityPostRepository repository, IMapper
         ArgumentOutOfRangeException.ThrowIfNegative(item.CommentCount, nameof(item.CommentCount));
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(item.CommunityId, nameof(item.CommunityId));
 
-        ArgumentException.ThrowIfNullOrEmpty(item.Tags, nameof(item.Tags));
         ArgumentException.ThrowIfNullOrEmpty(item.CommunityName, nameof(item.CommunityName));
         ArgumentException.ThrowIfNullOrEmpty(item.Owner, nameof(item.Owner));
         ArgumentException.ThrowIfNullOrEmpty(item.Content, nameof(item.Content));

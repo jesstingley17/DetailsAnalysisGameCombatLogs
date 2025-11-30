@@ -1,5 +1,6 @@
 import type { RootState } from '@/app/Store';
 import CommunicationMenu from '@/shared/components/CommunicationMenu';
+import logger from '@/utils/Logger';
 import { useRef, useState, type SetStateAction } from "react";
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
@@ -23,33 +24,39 @@ const CreateCommunity: React.FC<{ setShowCreateCommunity: (value: SetStateAction
     const [description, setDescription] = useState("");
     const [isCreating, setIsCreating] = useState(false);
 
-    const [createCommunityAsyncMut] = useCreateCommunityMutation();
-    const [createCommunityUserAsyncMut] = useCreateCommunityUserMutation();
+    const [createCommunity] = useCreateCommunityMutation();
+    const [createCommunityUser] = useCreateCommunityUserMutation();
 
     const createCommunityAsync = async () => {
-        const newCommunity: CommunityModel = {
-            id: 0,
-            name: name,
-            description: description,
-            policyType: 0,
-            appUserId: myself?.id ?? ""
-        };
+        try {
+            const newCommunity: CommunityModel = {
+                id: 0,
+                name: name,
+                description: description,
+                policyType: 0,
+                appUserId: myself?.id ?? ""
+            };
 
-        const createdCommunity = await createCommunityAsyncMut(newCommunity);
-        if (createdCommunity.data !== undefined) {
-            await createCommunityUserAsync(createdCommunity.data.id);
+            const createdCommunity = await createCommunity(newCommunity).unwrap();
+            await createCommunityUserAsync(createdCommunity.id);
+        } catch (e) {
+            logger.error("Failed to create community", e);
         }
     }
 
     const createCommunityUserAsync = async (communityId: number) => {
-        const newCommunityUser: CommunityUserModel = {
-            id: "",
-            username: myself?.username ?? "",
-            appUserId: myself?.id ?? "",
-            communityId: communityId
-        };
+        try {
+            const newCommunityUser: CommunityUserModel = {
+                id: crypto.randomUUID(),
+                username: myself?.username ?? "",
+                appUserId: myself?.id ?? "",
+                communityId: communityId
+            };
 
-        await createCommunityUserAsyncMut(newCommunityUser);
+            await createCommunityUser(newCommunityUser).unwrap();
+        } catch (e) {
+            logger.error(`Failed to create community user for community: ${communityId}`, e);
+        }
     }
 
     const handleCreateNewCommunityAsync = async () => {
@@ -74,8 +81,6 @@ const CreateCommunity: React.FC<{ setShowCreateCommunity: (value: SetStateAction
         }
     }
 
-    console.log(name);
-    console.log(description);
     return (
         <>
             <CommunicationMenu

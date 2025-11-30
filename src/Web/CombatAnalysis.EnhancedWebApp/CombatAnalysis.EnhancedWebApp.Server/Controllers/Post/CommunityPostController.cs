@@ -38,10 +38,10 @@ public class CommunityPostController : ControllerBase
         return BadRequest();
     }
 
-    [HttpGet("countByListOfCommunities/{communityIds}")]
-    public async Task<IActionResult> CountByListOfAppUsers(string communityIds)
+    [HttpGet("countByListOfCommunityId/{collectionCommunityId}")]
+    public async Task<IActionResult> CountByListOfAppUsers(string collectionCommunityId)
     {
-        var responseMessage = await _httpClient.GetAsync($"CommunityPost/countByListOfCommunities/{communityIds}");
+        var responseMessage = await _httpClient.GetAsync($"CommunityPost/countByListOfCommunityId/{collectionCommunityId}");
         if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
         {
             return Unauthorized();

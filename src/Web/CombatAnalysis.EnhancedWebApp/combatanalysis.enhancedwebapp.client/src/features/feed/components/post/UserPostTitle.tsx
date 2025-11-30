@@ -16,7 +16,7 @@ interface UserPostTitleProps {
 const UserPostTitle: React.FC<UserPostTitleProps> = ({ post, isMyPost, dateFormatting }) => {
     const { t } = useTranslation("communication/postTitle");
 
-    const { data: targetUser } = useGetUserByIdQuery(post.appUserId);
+    const { data: targetUser , isLoading} = useGetUserByIdQuery(post.appUserId);
     const [removeUserPost] = useRemoveUserPostMutation();
 
     const [userInformation, setUserInformation] = useState<JSX.Element | null>(null);
@@ -25,13 +25,17 @@ const UserPostTitle: React.FC<UserPostTitleProps> = ({ post, isMyPost, dateForma
         await removeUserPost(post.id);
     }
 
+    if (isLoading) {
+        return (<></>);
+    }
+
     return (
         <>
             <div className="posts__title">
                 <div className="content">
                     <div className="username">
                         <User
-                            targetUserId={targetUser ? targetUser.id : "0"}
+                            targetUserId={targetUser?.id ?? ""}
                             targetUsername={targetUser?.username ?? ""}
                             setUserInformation={setUserInformation}
                         />

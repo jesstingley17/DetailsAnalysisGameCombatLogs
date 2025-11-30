@@ -27,8 +27,8 @@ interface UseFetchUsersPostsResult {
     newCommunityPosts: CommunityPostModel[] | undefined;
     count: number;
     communityCount: number;
-    getMoreUserPostsAsync(currentPostsSize: number): Promise<UserPostModel[]>;
-    getMoreCommunityPostsAsync(currentPostsSize: number): Promise<CommunityPostModel[]>;
+    getMoreUserPostsAsync: (currentPostsSize: number) => Promise<UserPostModel[]>;
+    getMoreCommunityPostsAsync: (currentPostsSize: number) => Promise<CommunityPostModel[]>;
     currentDateRef: RefObject<string>;
 }
 
@@ -53,7 +53,7 @@ const useFetchPosts = (myselfId: string): UseFetchUsersPostsResult => {
     });
 
     const [getUserPostCountByUserId] = useLazyGetUserPostCountByUserIdQuery();
-    const [getCommunityPostsCountAsync] = useLazyGetCommunityPostCountByListOfCommunityIdQuery();
+    const [getCommunityPostsCount] = useLazyGetCommunityPostCountByListOfCommunityIdQuery();
     const [getMoreUsersPosts] = useLazyGetMoreUserPostByListOfUserIdQuery();
     const [getMoreCommunityPosts] = useLazyGetMoreCommunityPostByListOfCommunityIdQuery();
 
@@ -105,17 +105,17 @@ const useFetchPosts = (myselfId: string): UseFetchUsersPostsResult => {
 
         const getCommunityPostByListOfCommunityIds = async () => {
             try {
-                const communityIds: number[] = myCommunitiesUsers
+                const collectionOfCommunityId: number[] = myCommunitiesUsers
                     ? myCommunitiesUsers.map((user: CommunityUserModel) => user.communityId)
                     : [];
 
-                if (communityIds.length === 0) {
+                if (collectionOfCommunityId.length === 0) {
                     return;
                 }
 
-                communityIdsRef.current = communityIds.join(',');
+                communityIdsRef.current = collectionOfCommunityId.join(',');
 
-                const count = await getCommunityPostsCountAsync(communityIdsRef.current).unwrap();
+                const count = await getCommunityPostsCount(communityIdsRef.current).unwrap();
                 setCommunityCount(count);
             } catch (e) {
                 logger.error("Failed to receive community post count", e);
@@ -128,7 +128,7 @@ const useFetchPosts = (myselfId: string): UseFetchUsersPostsResult => {
     const getMoreUserPostsAsync = async (currentPostsSize: number): Promise<UserPostModel[]> => {
         try {
             const arg = {
-                appUserIds: appUserIdsRef.current,
+                collectionUserId: appUserIdsRef.current,
                 offset: currentPostsSize,
                 pageSize: pageSizeRef.current
             };
@@ -145,7 +145,7 @@ const useFetchPosts = (myselfId: string): UseFetchUsersPostsResult => {
     const getMoreCommunityPostsAsync = async (currentPostsSize: number): Promise<CommunityPostModel[]> => {
         try {
             const arg = {
-                communityIds: communityIdsRef.current,
+                collectionCommunityId: communityIdsRef.current,
                 offset: currentPostsSize,
                 pageSize: pageSizeRef.current
             };

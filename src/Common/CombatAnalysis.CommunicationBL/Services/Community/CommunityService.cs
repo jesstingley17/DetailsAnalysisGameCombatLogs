@@ -39,6 +39,8 @@ internal class CommunityService(ICommunityRepository communityRepository, ISqlCo
 
     public async Task UpdateAsync(int id, CommunityDto item)
     {
+        ArgumentOutOfRangeException.ThrowIfNotEqual(id, item.Id);
+
         CheckParams(item);
 
         var map = _mapper.Map<CommunicationDAL.Entities.Community.Community>(item);
@@ -194,7 +196,6 @@ internal class CommunityService(ICommunityRepository communityRepository, ISqlCo
 
     private static void CheckParams(CommunityDto item)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
         ArgumentOutOfRangeException.ThrowIfLessThan((int)item.PolicyType, (int)CommunityPolicyType.Public, nameof(item.PolicyType));
 
         ArgumentException.ThrowIfNullOrEmpty(item.Name, nameof(item.Name));

@@ -34,7 +34,7 @@ export const UserPostApi = PostApi.injectEndpoints({
             query: appUserId => `/UserPost/count/${appUserId}`,
         }),
         getUserPostCountByListOfUserId: builder.query<number, string>({
-            query: appUserIds => `/UserPost/countByListOfAppUsers/${appUserIds}`,
+            query: collectionUserId => `/UserPost/countByListOfUserId/${collectionUserId}`,
         }),
     })
 })

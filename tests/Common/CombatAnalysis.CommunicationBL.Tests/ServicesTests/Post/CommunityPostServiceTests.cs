@@ -124,7 +124,7 @@ public class CommunityPostServiceTests
         // Arrange
         const int id = 0;
 
-        var entityDto = CommunityPostTestDataFactory.CreateDto(id: id);
+        var entityDto = CommunityPostTestDataFactory.CreateDto();
 
         var mockMapper = new Mock<IMapper>();
         var mockRepository = new Mock<ICommunityPostRepository>();

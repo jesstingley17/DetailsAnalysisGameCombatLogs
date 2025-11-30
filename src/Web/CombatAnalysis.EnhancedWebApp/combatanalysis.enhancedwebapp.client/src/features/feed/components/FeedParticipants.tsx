@@ -31,10 +31,10 @@ const FeedParticipants: React.FC<FeedParticipantsProps> = ({ myself, t }) => {
             return;
         }
 
-        const totalPosts = Array.from(userPosts);
-        totalPosts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        const totalUserPosts = Array.from(userPosts);
+        totalUserPosts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-        setCurrentPosts(totalPosts);
+        setCurrentPosts(totalUserPosts);
     }, [userPosts]);
 
     useEffect(() => {
@@ -47,10 +47,10 @@ const FeedParticipants: React.FC<FeedParticipantsProps> = ({ myself, t }) => {
             return;
         }
 
-        const totalPosts = Array.from(communityPosts);
-        totalPosts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        const totalCommunityPosts = Array.from(communityPosts);
+        totalCommunityPosts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-        setCurrentPosts(totalPosts);
+        setCurrentPosts([...currentPosts, ...totalCommunityPosts]);
     }, [communityPosts]);
 
     useEffect(() => {

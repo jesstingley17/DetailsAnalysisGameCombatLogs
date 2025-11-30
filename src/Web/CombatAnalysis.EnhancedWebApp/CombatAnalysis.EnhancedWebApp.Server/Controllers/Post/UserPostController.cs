@@ -29,10 +29,10 @@ public class UserPostController : ControllerBase
         return Ok(count);
     }
 
-    [HttpGet("countByListOfAppUsers/{appUserIds}")]
-    public async Task<IActionResult> CountByListOfAppUsers(string appUserIds)
+    [HttpGet("countByListOfUserId/{collectionUserId}")]
+    public async Task<IActionResult> CountByListOfAppUsers(string collectionUserId)
     {
-        var responseMessage = await _httpClient.GetAsync($"UserPost/countByListOfAppUsers/{appUserIds}");
+        var responseMessage = await _httpClient.GetAsync($"UserPost/countByListOfUserId/{collectionUserId}");
         var count = await responseMessage.Content.ReadFromJsonAsync<int>();
 
         return Ok(count);

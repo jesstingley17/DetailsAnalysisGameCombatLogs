@@ -1,3 +1,4 @@
+import logger from '@/utils/Logger';
 import { faCirclePlus, faCircleQuestion } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { type JSX, useEffect, useState } from 'react';
@@ -40,21 +41,23 @@ const CommunityItem: React.FC<CommunityItemProps> = ({ id, myself }) => {
     }
 
     const createCommunityUserAsync = async () => {
-        const newCommunityUser: CommunityUserModel = {
-            id: "",
-            username: myself?.username ?? "",
-            appUserId: myself?.id ?? "",
-            communityId: id
-        };
+        try {
+            const newCommunityUser: CommunityUserModel = {
+                id: crypto.randomUUID(),
+                username: myself?.username ?? "",
+                appUserId: myself?.id ?? "",
+                communityId: id
+            };
 
-        const createdUser = await createCommunityUserAsyncMut(newCommunityUser);
-        if (createdUser.data !== undefined) {
+            await createCommunityUserAsyncMut(newCommunityUser).unwrap();
             navigate(`/community?id=${id}`);
+        } catch (e) {
+            logger.error(`Failed to create community user to community: ${id}`, e);
         }
     }
 
     if (isLoading || myCommutiesIsLoading) {
-        return <></>;
+        return (<></>);
     }
 
     return (
@@ -98,7 +101,6 @@ const CommunityItem: React.FC<CommunityItemProps> = ({ id, myself }) => {
                 <div className="owner">
                     <User
                         targetUserId={community?.appUserId ?? ""}
-                        targetUsername={""}
                         setUserInformation={setUserInformation}
                     />
                 </div>

@@ -67,10 +67,10 @@ const CommunityPost: React.FC<CommunityPostProps> = ({ userId, communityId, post
                 appUserId: userId
             }
 
-            await createPostComment(newPostComment).unwrap();
+            const createdPost = await createPostComment(newPostComment).unwrap();
             setPostCommentContent("");
 
-            await updatePostAsync(post.id, 0, 0, 1);
+            await updatePostAsync(createdPost.id, 0, 0, 1);
         } catch (e) {
             logger.error("Failed to create community post comment", e);
         }
