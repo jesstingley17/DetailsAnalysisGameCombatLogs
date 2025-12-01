@@ -26,6 +26,8 @@ internal class UserPostLikeService(IGenericRepository<UserPostLike, int> reposit
 
     public async Task UpdateAsync(int id, UserPostLikeDto item)
     {
+        ArgumentOutOfRangeException.ThrowIfNotEqual(id, item.Id);
+
         CheckParams(item);
 
         var map = _mapper.Map<UserPostLike>(item);
@@ -68,7 +70,6 @@ internal class UserPostLikeService(IGenericRepository<UserPostLike, int> reposit
 
     private static void CheckParams(UserPostLikeDto item)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(item.UserPostId, nameof(item.UserPostId));
 
         ArgumentException.ThrowIfNullOrEmpty(item.AppUserId, nameof(item.AppUserId));

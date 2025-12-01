@@ -96,7 +96,7 @@ public class UserPostLikeServiceTests
         // Arrange
         const int id = 0;
 
-        var entityDto = UserPostLikeTestDataFactory.CreateDto(id: id);
+        var entityDto = UserPostLikeTestDataFactory.CreateDto();
 
         var mockMapper = new Mock<IMapper>();
         var mockRepository = new Mock<IGenericRepository<UserPostLike, int>>();

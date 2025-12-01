@@ -1,3 +1,4 @@
+import logger from '@/utils/Logger';
 import { faCircleCheck, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { type JSX, useState } from 'react';
@@ -16,12 +17,12 @@ interface InvitesToCommunityItemProps {
     inviteToCommunity: InviteToCommunityModel;
 }
 
-const InvitesToCommunityItem: React.FC<InvitesToCommunityItemProps>  = ({ user, inviteToCommunity }) => {
+const InvitesToCommunityItem: React.FC<InvitesToCommunityItemProps> = ({ user, inviteToCommunity }) => {
     const { t } = useTranslation('communication/myEnvironment/invitesToCommunityItem');
 
     const { data: community, isLoading: communityIsLoading } = useGetCommunityByIdQuery(inviteToCommunity?.communityId);
     const { data: inviteOwner, isLoading: targetUserIsLoading } = useGetUserByIdQuery(inviteToCommunity?.appUserId);
-    const [createCommunityUserAsyn] = useCreateCommunityUserMutation();
+    const [createCommunityUser] = useCreateCommunityUserMutation();
     const [removeInviteAsync] = useRemoveCommunityInviteMutation();
 
     const [userInformation, setUserInformation] = useState<JSX.Element | null>(null);
@@ -33,26 +34,30 @@ const InvitesToCommunityItem: React.FC<InvitesToCommunityItemProps>  = ({ user, 
             }
 
             const newCommunityUser: CommunityUserModel = {
-                id: " ",
+                id: crypto.randomUUID(),
                 username: user.username,
                 communityId: community.id,
                 appUserId: user.id
             };
 
-            await createCommunityUserAsyn(newCommunityUser);
+            await createCommunityUser(newCommunityUser).unwrap();
 
-            await removeInviteAsync(inviteToCommunity.id);
+            await removeInviteAsync(inviteToCommunity.id).unwrap();
         } catch (e) {
-            console.error(e);
+            logger.error(`Failed to send accept request to community: ${community?.id}`, e);
         }
     }
 
     const rejectRequestAsync = async () => {
-        await removeInviteAsync(inviteToCommunity.id);
+        try {
+            await removeInviteAsync(inviteToCommunity.id).unwrap();
+        } catch (e) {
+            logger.error(`Failed to send reject request to community: ${community?.id}`, e);
+        }
     }
 
     if (communityIsLoading || targetUserIsLoading || !inviteOwner) {
-        return <></>;
+        return (<></>);
     }
 
     return (
@@ -60,7 +65,6 @@ const InvitesToCommunityItem: React.FC<InvitesToCommunityItemProps>  = ({ user, 
             <div className="request-to-connect__content">
                 <User
                     targetUserId={inviteOwner.id}
-                    targetUsername={inviteOwner.id}
                     setUserInformation={setUserInformation}
                 />
                 <div>{t("SentInvite")}</div>

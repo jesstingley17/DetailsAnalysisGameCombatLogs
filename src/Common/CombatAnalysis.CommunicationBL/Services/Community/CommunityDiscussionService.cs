@@ -26,6 +26,8 @@ internal class CommunityDiscussionService(IGenericRepository<CommunityDiscussion
 
     public async Task UpdateAsync(int id, CommunityDiscussionDto item)
     {
+        ArgumentOutOfRangeException.ThrowIfNotEqual(id, item.Id);
+
         CheckParams(item);
         
         var map = _mapper.Map<CommunityDiscussion>(item);
@@ -68,8 +70,6 @@ internal class CommunityDiscussionService(IGenericRepository<CommunityDiscussion
 
     private static void CheckParams(CommunityDiscussionDto item)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
-
         ArgumentException.ThrowIfNullOrEmpty(item.Title, nameof(item.Title));
         ArgumentException.ThrowIfNullOrEmpty(item.Content, nameof(item.Content));
         ArgumentException.ThrowIfNullOrEmpty(item.AppUserId, nameof(item.AppUserId));

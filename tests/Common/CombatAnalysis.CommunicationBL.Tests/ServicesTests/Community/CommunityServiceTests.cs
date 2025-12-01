@@ -130,7 +130,7 @@ public class CommunityServiceTests
         // Arrange
         const int id = 0;
 
-        var entityDto = CommunityTestDataFactory.CreateDto(id: id);
+        var entityDto = CommunityTestDataFactory.CreateDto();
 
         var mockMapper = new Mock<IMapper>();
         var mockRepository = new Mock<ICommunityRepository>();

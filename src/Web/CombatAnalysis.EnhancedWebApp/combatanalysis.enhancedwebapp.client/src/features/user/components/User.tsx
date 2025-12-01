@@ -12,7 +12,7 @@ import './User.scss';
 interface UserProps {
     targetUserId: string;
     setUserInformation: (value: SetStateAction<JSX.Element | null>) => void;
-    targetUsername: string | "";
+    targetUsername?: string | "";
     friendId?: number | 0;
 }
 
@@ -38,7 +38,6 @@ const User: React.FC<UserProps> = ({ targetUserId, setUserInformation, targetUse
     const getUsernameByUserIdAsync = async () => {
         try {
             const user = await getUserById(targetUserId).unwrap();
-            console.log(user);
             setUsername(user.username);
         } catch (e) {
             logger.error(`Failed to get username for user: ${targetUserId}`, e);

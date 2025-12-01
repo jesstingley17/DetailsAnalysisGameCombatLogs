@@ -26,6 +26,8 @@ internal class InviteToCommunityService(IGenericRepository<InviteToCommunity, in
 
     public async Task UpdateAsync(int id, InviteToCommunityDto item)
     {
+        ArgumentOutOfRangeException.ThrowIfNotEqual(id, item.Id);
+
         CheckParams(item);
 
         var map = _mapper.Map<InviteToCommunity>(item);
@@ -68,7 +70,6 @@ internal class InviteToCommunityService(IGenericRepository<InviteToCommunity, in
 
     private static void CheckParams(InviteToCommunityDto item)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
         ArgumentOutOfRangeException.ThrowIfLessThan(item.CommunityId, 1, nameof(item.CommunityId));
 
         ArgumentException.ThrowIfNullOrEmpty(item.ToAppUserId, nameof(item.ToAppUserId));

@@ -26,6 +26,8 @@ internal class CommunityPostLikeService(IGenericRepository<CommunityPostLike, in
 
     public async Task UpdateAsync(int id, CommunityPostLikeDto item)
     {
+        ArgumentOutOfRangeException.ThrowIfNotEqual(id, item.Id);
+
         CheckParams(item);
 
         var map = _mapper.Map<CommunityPostLike>(item);
@@ -68,7 +70,6 @@ internal class CommunityPostLikeService(IGenericRepository<CommunityPostLike, in
 
     private static void CheckParams(CommunityPostLikeDto item)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
         ArgumentOutOfRangeException.ThrowIfNegative(item.CommunityPostId, nameof(item.CommunityPostId));
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(item.CommunityId, nameof(item.CommunityId));
 

@@ -96,7 +96,7 @@ public class UserPostCommentServiceTests
         // Arrange
         const int id = 0;
 
-        var entityDto = UserPostCommentTestDataFactory.CreateDto(id: id);
+        var entityDto = UserPostCommentTestDataFactory.CreateDto();
 
         var mockMapper = new Mock<IMapper>();
         var mockRepository = new Mock<IGenericRepository<UserPostComment, int>>();

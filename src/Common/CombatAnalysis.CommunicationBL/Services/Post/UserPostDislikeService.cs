@@ -26,6 +26,8 @@ internal class UserPostDislikeService(IGenericRepository<UserPostDislike, int> r
 
     public async Task UpdateAsync(int id, UserPostDislikeDto item)
     {
+        ArgumentOutOfRangeException.ThrowIfNotEqual(id, item.Id);
+
         CheckParams(item);
 
         var map = _mapper.Map<UserPostDislike>(item);
@@ -68,7 +70,6 @@ internal class UserPostDislikeService(IGenericRepository<UserPostDislike, int> r
 
     private static void CheckParams(UserPostDislikeDto item)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(item.UserPostId, nameof(item.UserPostId));
 
         ArgumentException.ThrowIfNullOrEmpty(item.AppUserId, nameof(item.AppUserId));

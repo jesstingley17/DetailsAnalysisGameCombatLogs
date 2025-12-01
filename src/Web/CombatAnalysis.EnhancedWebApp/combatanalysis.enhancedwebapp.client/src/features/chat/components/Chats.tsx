@@ -48,6 +48,7 @@ const Chats: React.FC = () => {
             if (searchParams.get("personal") !== null) {
                 const getPersonalChatById = async () => {
                     const id = parseInt(searchParams.get("personal") ?? "1");
+                    console.log(id);
                     const chat = await getPersonalChatByIdAsync(id).unwrap();
                     setSelectedChat(chat);
                 }

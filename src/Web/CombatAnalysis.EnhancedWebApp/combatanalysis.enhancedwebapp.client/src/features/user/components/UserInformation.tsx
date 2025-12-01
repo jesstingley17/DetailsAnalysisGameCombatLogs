@@ -124,6 +124,16 @@ const UserInformation: React.FC<UserInformationProps> = ({ personId, closeUserIn
         navigate(`/user?id=${person?.id}`)
     }
 
+    const isFriend = () => {
+        if (!myFriends || !person) {
+            return false;
+        }
+
+        const isFriend = myFriends.filter((friend: FriendModel) => friend.whoFriendId === person.id || friend.forWhomId === person.id).length > 0;
+
+        return isFriend;
+    }
+
     if (isLoading || personIsLoading || !myFriends || !person) {
         return (<></>);
     }
@@ -153,31 +163,22 @@ const UserInformation: React.FC<UserInformationProps> = ({ personId, closeUserIn
                     person={person}
                 />
                 <ul className="links">
-                    <li>
+                    <li title={t("StartChat") || ""}>
                         <FontAwesomeIcon
                             icon={faCommentDots}
-                            title={t("StartChat") || ""}
                             onClick={async () => await createChatAsync(person)}
                         />
                     </li>
-                    <li>
-                        {myFriends.filter((friend: FriendModel) => friend.whoFriendId === person.id || friend.forWhomId === person.id).length > 0
-                            ? <FontAwesomeIcon
-                                icon={faUserPlus}
-                                title={t("AlreadyFriend") || ""}
-                                className="user-friend"
-                            />
-                            : <FontAwesomeIcon
-                                icon={faUserPlus}
-                                title={t("RequestToConnect") || ""}
-                                onClick={async () => await createRequestToConnectAsync(person)}
-                            />
-                        }
+                    <li title={(isFriend() ? t("AlreadyFriend") : t("RequestToConnect"))|| ""}>
+                        <FontAwesomeIcon
+                            icon={isFriend() ? faUserPlus : faUserPlus}
+                            className={`${isFriend() ? "user-friend" : ""}`}
+                            onClick={isFriend() ? () => {} : async () => await createRequestToConnectAsync(person)}
+                        />
                     </li>
-                    <li>
+                    <li title={t("InviteToCommunity") || ""}>
                         <FontAwesomeIcon
                             icon={faSquarePlus}
-                            title={t("InviteToCommunity") || ""}
                             onClick={() => setOpenInviteToCommunity((item) => !item)}
                         />
                     </li>

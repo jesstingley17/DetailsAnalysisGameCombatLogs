@@ -66,7 +66,7 @@ const PeopleInvitesToCommunity: React.FC<PeopleInvitesToCommunityProps> = ({ mys
             <ul>
                 {
                     communityUsers?.map(item => (
-                        <li key={item.id}>
+                        <li key={item.id} className="community">
                             <TargetCommunity
                                 communityId={item.communityId}
                                 communityIdToInvite={communityIdToInvite}

@@ -98,7 +98,7 @@ public class InviteToCommunityServiceTests
         // Arrange
         const int id = 0;
 
-        var entityDto = InviteToCommunityTestDataFactory.CreateDto(id: id);
+        var entityDto = InviteToCommunityTestDataFactory.CreateDto();
 
         var mockMapper = new Mock<IMapper>();
         var mockRepository = new Mock<IGenericRepository<InviteToCommunity, int>>();

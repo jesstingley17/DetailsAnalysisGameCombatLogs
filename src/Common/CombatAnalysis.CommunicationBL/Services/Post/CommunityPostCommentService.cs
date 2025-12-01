@@ -26,6 +26,8 @@ internal class CommunityPostCommentService(IGenericRepository<CommunityPostComme
 
     public async Task UpdateAsync(int id, CommunityPostCommentDto item)
     {
+        ArgumentOutOfRangeException.ThrowIfNotEqual(id, item.Id);
+
         CheckParams(item);
 
         var map = _mapper.Map<CommunityPostComment>(item);
@@ -68,7 +70,6 @@ internal class CommunityPostCommentService(IGenericRepository<CommunityPostComme
 
     private static void CheckParams(CommunityPostCommentDto item)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
         ArgumentOutOfRangeException.ThrowIfNegative(item.CommentType, nameof(item.CommentType));
         ArgumentOutOfRangeException.ThrowIfNegative(item.CommunityPostId, nameof(item.CommunityPostId));
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(item.CommunityId, nameof(item.CommunityId));

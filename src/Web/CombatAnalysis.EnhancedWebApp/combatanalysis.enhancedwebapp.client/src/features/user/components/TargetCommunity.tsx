@@ -37,14 +37,14 @@ const TargetCommunity: React.FC<TargetCommunityProps> = ({ communityId, communit
     }
 
     return (
-        <div className="community">
+        <>
             <div>{community?.name}</div>
             <FontAwesomeIcon
                 icon={isAddedToList ? faEnvelope : faPlus}
                 title={(isAddedToList ? t("CancelInvite") : t("SendInvite")) || ""}
                 onClick={isAddedToList ? removeCommunityFromList : addCommunityToList}
             />
-        </div>
+        </>
     );
 }
 

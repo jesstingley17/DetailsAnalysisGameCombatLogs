@@ -5,12 +5,14 @@ using CombatAnalysis.Hubs.Enums;
 using CombatAnalysis.Hubs.Interfaces;
 using CombatAnalysis.Hubs.Kafka.Actions;
 using CombatAnalysis.Hubs.Models.Notification;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
 
 namespace CombatAnalysis.Hubs.Hubs;
 
+[Authorize]
 public class NotificationHub : Hub
 {
     private readonly IHttpClientHelper _httpClient;

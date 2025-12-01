@@ -98,7 +98,7 @@ public class CommunityDiscussionCommentServiceTests
         // Arrange
         const int id = 0;
 
-        var entityDto = CommunityDiscussionCommentTestDataFactory.CreateDto(id: id);
+        var entityDto = CommunityDiscussionCommentTestDataFactory.CreateDto();
 
         var mockMapper = new Mock<IMapper>();
         var mockRepository = new Mock<IGenericRepository<CommunityDiscussionComment, int>>();

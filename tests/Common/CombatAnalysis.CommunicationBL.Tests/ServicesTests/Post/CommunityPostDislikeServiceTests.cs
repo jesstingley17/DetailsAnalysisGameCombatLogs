@@ -98,7 +98,7 @@ public class CommunityPostDislikeServiceTests
         // Arrange
         const int id = 0;
 
-        var entityDto = CommunityPostDislikeTestDataFactory.CreateDto(id: id);
+        var entityDto = CommunityPostDislikeTestDataFactory.CreateDto();
 
         var mockMapper = new Mock<IMapper>();
         var mockRepository = new Mock<IGenericRepository<CommunityPostDislike, int>>();
