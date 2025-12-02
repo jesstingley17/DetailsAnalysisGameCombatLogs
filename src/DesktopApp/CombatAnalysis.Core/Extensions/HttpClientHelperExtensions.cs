@@ -27,6 +27,18 @@ internal static class HttpClientHelperExtensions
         return result;
     }
 
+    public static async Task<HttpResponseMessage> PostAsync(this IHttpClientHelper clientHelper, string requestUri, StringContent content, string baseAddress, bool isAuth = false)
+    {
+        if (isAuth)
+        {
+            GetAccessToken(clientHelper);
+        }
+
+        var result = await clientHelper.Client.PostAsync($"{baseAddress}{clientHelper.BaseAddressApi}{requestUri}", content);
+
+        return result;
+    }
+
     public static async Task<HttpResponseMessage> GetAsync(this IHttpClientHelper clientHelper, string requestUri, string baseAddress, bool isAuth = false)
     {
         if (isAuth)

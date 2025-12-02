@@ -50,24 +50,6 @@ public class HealDoneServiceTests
     }
 
     [Fact]
-    public async Task CreateAsync_ThrowArgumentOutOfRangeException_ShouldNotCreateEntityAsIdIsZero()
-    {
-        // Arrange
-        var entityDto = HealDoneTestDataFactory.CreateDto(id: 0);
-
-        var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<HealDone>>();
-
-        var service = new HealDoneService(mockRepository.Object, mockMapper.Object);
-
-        // Act and Assert
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.CreateAsync(entityDto));
-
-        // Verify correct method calls
-        mockRepository.Verify(r => r.CreateAsync(It.IsAny<HealDone>()), Times.Never);
-    }
-
-    [Fact]
     public async Task CreateAsync_ThrowArgumentOutOfRangeException_ShouldNotCreateEntityAsSomeParamsIncorrect()
     {
         // Arrange
@@ -107,24 +89,6 @@ public class HealDoneServiceTests
         // Assert and Verify correct method calls
         mockMapper.Verify(m => m.Map<HealDone>(It.IsAny<HealDoneDto>()), Times.Once);
         mockRepository.Verify(r => r.UpdateAsync(It.IsAny<HealDone>()), Times.Once);
-    }
-
-    [Fact]
-    public async Task UpdateAsync_ThrowException_ShouldNotUpdateEntityAsIdIsNegative()
-    {
-        // Arrange
-        var entityDto = HealDoneTestDataFactory.CreateDto(id: -1);
-
-        var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<HealDone>>();
-
-        var service = new HealDoneService(mockRepository.Object, mockMapper.Object);
-
-        // Act and Assert
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.UpdateAsync(entityDto));
-
-        // Verify correct method calls
-        mockRepository.Verify(r => r.UpdateAsync(It.IsAny<HealDone>()), Times.Never);
     }
 
     [Fact]

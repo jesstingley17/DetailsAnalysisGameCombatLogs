@@ -45,24 +45,6 @@ public class PlayerDeathServiceTests
     }
 
     [Fact]
-    public async Task CreateAsync_ThrowArgumentOutOfRangeException_ShouldNotCreateEntityAsIdIsZero()
-    {
-        // Arrange
-        var entityDto = PlayerDeathTestDataFactory.CreateDto(id: 0);
-
-        var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<PlayerDeath>>();
-
-        var service = new PlayerDeathService(mockRepository.Object, mockMapper.Object);
-
-        // Act and Assert
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.CreateAsync(entityDto));
-
-        // Verify correct method calls
-        mockRepository.Verify(r => r.CreateAsync(It.IsAny<PlayerDeath>()), Times.Never);
-    }
-
-    [Fact]
     public async Task CreateAsync_ThrowArgumentOutOfRangeException_ShouldNotCreateEntityAsSomeParamsIncorrect()
     {
         // Arrange
@@ -102,24 +84,6 @@ public class PlayerDeathServiceTests
         // Assert and Verify correct method calls
         mockMapper.Verify(m => m.Map<PlayerDeath>(It.IsAny<PlayerDeathDto>()), Times.Once);
         mockRepository.Verify(r => r.UpdateAsync(It.IsAny<PlayerDeath>()), Times.Once);
-    }
-
-    [Fact]
-    public async Task UpdateAsync_ThrowException_ShouldNotUpdateEntityAsIdIsNegative()
-    {
-        // Arrange
-        var entityDto = PlayerDeathTestDataFactory.CreateDto(id: -1);
-
-        var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<PlayerDeath>>();
-
-        var service = new PlayerDeathService(mockRepository.Object, mockMapper.Object);
-
-        // Act and Assert
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.UpdateAsync(entityDto));
-
-        // Verify correct method calls
-        mockRepository.Verify(r => r.UpdateAsync(It.IsAny<PlayerDeath>()), Times.Never);
     }
 
     [Fact]

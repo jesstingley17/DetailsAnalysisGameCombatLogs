@@ -45,7 +45,7 @@ public abstract class DetailsGenericTemplate<DetailsModel, GeneralDetailsModel> 
     private ObservableCollection<GeneralDetailsModel>? _generalInformations;
     private ObservableCollection<string>? _sources;
     private int _detailsTypeSelectedIndex;
-    private CancellationTokenSource? _cancelToken;
+    private CancellationTokenSource _cancelToken;
 
     public DetailsGenericTemplate(IHttpClientHelper httpClient, ILogger logger, IMapper mapper, 
         ICombatParserAPIService combatParserAPIService)
@@ -314,7 +314,7 @@ public abstract class DetailsGenericTemplate<DetailsModel, GeneralDetailsModel> 
 
     private async Task LoadCountAsync()
     {
-        var count = await _combatParserAPIService.LoadCountAsync($"{_apiName}/count/{SelectedPlayerId}");
+        var count = await _combatParserAPIService.LoadCountAsync($"{_apiName}/count/{SelectedPlayerId}", _cancelToken.Token);
         Count = count;
 
         if (count == 0)

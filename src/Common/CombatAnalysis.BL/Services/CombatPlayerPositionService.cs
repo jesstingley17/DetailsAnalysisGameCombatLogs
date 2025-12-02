@@ -44,11 +44,6 @@ internal class CombatPlayerPositionService(IGenericRepository<CombatPlayerPositi
 
     private static void CheckParams(CombatPlayerPositionDto item)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
-
-        ArgumentOutOfRangeException.ThrowIfNegative(item.PositionX, nameof(item.PositionX));
-        ArgumentOutOfRangeException.ThrowIfNegative(item.PositionY, nameof(item.PositionY));
-
         ArgumentOutOfRangeException.ThrowIfLessThan(item.CombatId, 1, nameof(item.CombatId));
         ArgumentOutOfRangeException.ThrowIfLessThan(item.CombatPlayerId, 1, nameof(item.CombatPlayerId));
     }

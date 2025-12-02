@@ -46,42 +46,6 @@ public class CombatPlayerPositionServiceTests
     }
 
     [Fact]
-    public async Task CreateAsync_ThrowArgumentOutOfRangeException_ShouldNotCreateEntityAsIdIsZero()
-    {
-        // Arrange
-        var entityDto = CombatPlayerPositionTestDataFactory.CreateDto(id: 0);
-
-        var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<CombatPlayerPosition>>();
-
-        var service = new CombatPlayerPositionService(mockRepository.Object, mockMapper.Object);
-
-        // Act and Assert
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.CreateAsync(entityDto));
-
-        // Verify correct method calls
-        mockRepository.Verify(r => r.CreateAsync(It.IsAny<CombatPlayerPosition>()), Times.Never);
-    }
-
-    [Fact]
-    public async Task CreateAsync_ThrowArgumentOutOfRangeException_ShouldNotCreateEntityAsSomeParamsIncorrect()
-    {
-        // Arrange
-        var entityDto = CombatPlayerPositionTestDataFactory.CreateDto(positionX: -1);
-
-        var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<CombatPlayerPosition>>();
-
-        var service = new CombatPlayerPositionService(mockRepository.Object, mockMapper.Object);
-
-        // Act and Assert
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.CreateAsync(entityDto));
-
-        // Verify correct method calls
-        mockRepository.Verify(r => r.CreateAsync(It.IsAny<CombatPlayerPosition>()), Times.Never);
-    }
-
-    [Fact]
     public async Task UpdateAsync_ShouldUpdateEntity()
     {
         // Arrange
@@ -103,42 +67,6 @@ public class CombatPlayerPositionServiceTests
         // Assert and Verify correct method calls
         mockMapper.Verify(m => m.Map<CombatPlayerPosition>(It.IsAny<CombatPlayerPositionDto>()), Times.Once);
         mockRepository.Verify(r => r.UpdateAsync(It.IsAny<CombatPlayerPosition>()), Times.Once);
-    }
-
-    [Fact]
-    public async Task UpdateAsync_ThrowException_ShouldNotUpdateEntityAsIdIsNegative()
-    {
-        // Arrange
-        var entityDto = CombatPlayerPositionTestDataFactory.CreateDto(id: -1);
-
-        var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<CombatPlayerPosition>>();
-
-        var service = new CombatPlayerPositionService(mockRepository.Object, mockMapper.Object);
-
-        // Act and Assert
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.UpdateAsync(entityDto));
-
-        // Verify correct method calls
-        mockRepository.Verify(r => r.UpdateAsync(It.IsAny<CombatPlayerPosition>()), Times.Never);
-    }
-
-    [Fact]
-    public async Task UpdateAsync_ThrowException_ShouldNotUpdateEntityAsDifficultyIsNegative()
-    {
-        // Arrange
-        var entityDto = CombatPlayerPositionTestDataFactory.CreateDto(positionX: -1);
-
-        var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<CombatPlayerPosition>>();
-
-        var service = new CombatPlayerPositionService(mockRepository.Object, mockMapper.Object);
-
-        // Act and Assert
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(nameof(CombatPlayerPosition.PositionX), () => service.UpdateAsync(entityDto));
-
-        // Verify correct method calls
-        mockRepository.Verify(r => r.UpdateAsync(It.IsAny<CombatPlayerPosition>()), Times.Never);
     }
 
     [Fact]

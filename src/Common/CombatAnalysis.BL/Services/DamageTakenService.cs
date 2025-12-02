@@ -43,8 +43,6 @@ internal class DamageTakenService(IGenericRepository<DamageTaken> repository, IM
 
     private static void CheckParams(DamageTakenDto item)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
-
         ArgumentException.ThrowIfNullOrEmpty(item.Spell, nameof(item.Spell));
         ArgumentException.ThrowIfNullOrEmpty(item.Creator, nameof(item.Creator));
         ArgumentException.ThrowIfNullOrEmpty(item.Target, nameof(item.Target));
@@ -54,7 +52,6 @@ internal class DamageTakenService(IGenericRepository<DamageTaken> repository, IM
         ArgumentOutOfRangeException.ThrowIfNegative(item.Resisted, nameof(item.Resisted));
         ArgumentOutOfRangeException.ThrowIfNegative(item.Absorbed, nameof(item.Absorbed));
         ArgumentOutOfRangeException.ThrowIfNegative(item.Blocked, nameof(item.Blocked));
-        ArgumentOutOfRangeException.ThrowIfNegative(item.RealDamage, nameof(item.RealDamage));
         ArgumentOutOfRangeException.ThrowIfNegative(item.Mitigated, nameof(item.Mitigated));
         ArgumentOutOfRangeException.ThrowIfNegative(item.DamageTakenType, nameof(item.DamageTakenType));
 

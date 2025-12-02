@@ -49,24 +49,6 @@ public class ResourceRecoveryGeneralServiceTests
     }
 
     [Fact]
-    public async Task CreateAsync_ThrowArgumentOutOfRangeException_ShouldNotCreateEntityAsIdIsZero()
-    {
-        // Arrange
-        var entityTakenDto = ResourceRecoveryGeneralTestDataFactory.CreateDto(id: 0);
-
-        var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<ResourceRecoveryGeneral>>();
-
-        var service = new ResourceRecoveryGeneralService(mockRepository.Object, mockMapper.Object);
-
-        // Act and Assert
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.CreateAsync(entityTakenDto));
-
-        // Verify correct method calls
-        mockRepository.Verify(r => r.CreateAsync(It.IsAny<ResourceRecoveryGeneral>()), Times.Never);
-    }
-
-    [Fact]
     public async Task CreateAsync_ThrowArgumentOutOfRangeException_ShouldNotCreateEntityAsSomeParamsIncorrect()
     {
         // Arrange
@@ -106,24 +88,6 @@ public class ResourceRecoveryGeneralServiceTests
         // Assert and Verify correct method calls
         mockMapper.Verify(m => m.Map<ResourceRecoveryGeneral>(It.IsAny<ResourceRecoveryGeneralDto>()), Times.Once);
         mockRepository.Verify(r => r.UpdateAsync(It.IsAny<ResourceRecoveryGeneral>()), Times.Once);
-    }
-
-    [Fact]
-    public async Task UpdateAsync_ThrowException_ShouldNotUpdateEntityAsIdIsNegative()
-    {
-        // Arrange
-        var entityTakenDto = ResourceRecoveryGeneralTestDataFactory.CreateDto(id: -1);
-
-        var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<ResourceRecoveryGeneral>>();
-
-        var service = new ResourceRecoveryGeneralService(mockRepository.Object, mockMapper.Object);
-
-        // Act and Assert
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.UpdateAsync(entityTakenDto));
-
-        // Verify correct method calls
-        mockRepository.Verify(r => r.UpdateAsync(It.IsAny<ResourceRecoveryGeneral>()), Times.Never);
     }
 
     [Fact]

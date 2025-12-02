@@ -43,8 +43,6 @@ internal class HealDoneGeneralService(IGenericRepository<HealDoneGeneral> reposi
 
     private static void CheckParams(HealDoneGeneralDto item)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
-
         ArgumentException.ThrowIfNullOrEmpty(item.Spell, nameof(item.Spell));
 
         ArgumentOutOfRangeException.ThrowIfNegative(item.Value, nameof(item.Value));

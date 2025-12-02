@@ -43,8 +43,6 @@ internal class DamageDoneService(IGenericRepository<DamageDone> repository, IMap
 
     private static void CheckParams(DamageDoneDto item)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
-
         ArgumentException.ThrowIfNullOrEmpty(item.Spell, nameof(item.Spell));
         ArgumentException.ThrowIfNullOrEmpty(item.Creator, nameof(item.Creator));
         ArgumentException.ThrowIfNullOrEmpty(item.Target, nameof(item.Target));

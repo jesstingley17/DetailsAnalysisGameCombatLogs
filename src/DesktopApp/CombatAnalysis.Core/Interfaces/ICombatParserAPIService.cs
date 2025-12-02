@@ -19,7 +19,7 @@ public interface ICombatParserAPIService
 
     Task<IEnumerable<CombatPlayerModel>> LoadCombatPlayersAsync(int combatId);
 
-    Task<int> LoadCountAsync(string address);
+    Task<int> LoadCountAsync(string address, CancellationToken cancellationToken);
 
     Task<CombatLogModel> SaveCombatLogAsync(List<CombatModel> combats, LogType logType, CancellationToken cancellationToken);
 }

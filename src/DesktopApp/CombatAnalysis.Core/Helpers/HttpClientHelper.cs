@@ -11,17 +11,22 @@ internal class HttpClientHelper : IHttpClientHelper
         {
             Timeout = TimeSpan.FromMinutes(10),
         };
-
-        BaseAddressApi = "api/v1/";
     }
 
-    public string BaseAddressApi { get; }
+    public string BaseAddressApi { get; set; } = "api/v1/";
 
     public HttpClient Client { get; set; }
 
     public string BaseAddress { get; set; } = string.Empty;
 
     public async Task<HttpResponseMessage> PostAsync(string requestUri, JsonContent content, CancellationToken cancellationToken)
+    {
+        var result = await Client.PostAsync($"{BaseAddress}{BaseAddressApi}{requestUri}", content, cancellationToken);
+
+        return result;
+    }
+
+    public async Task<HttpResponseMessage> PostAsync(string requestUri, StringContent content, CancellationToken cancellationToken)
     {
         var result = await Client.PostAsync($"{BaseAddress}{BaseAddressApi}{requestUri}", content, cancellationToken);
 

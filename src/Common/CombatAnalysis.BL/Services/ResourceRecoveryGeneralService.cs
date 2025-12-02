@@ -43,16 +43,10 @@ internal class ResourceRecoveryGeneralService(IGenericRepository<ResourceRecover
 
     private static void CheckParams(ResourceRecoveryGeneralDto item)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
-
         ArgumentException.ThrowIfNullOrEmpty(item.Spell, nameof(item.Spell));
 
-        ArgumentOutOfRangeException.ThrowIfNegative(item.Value, nameof(item.Value));
-        ArgumentOutOfRangeException.ThrowIfNegative(item.ResourcePerSecond, nameof(item.ResourcePerSecond));
         ArgumentOutOfRangeException.ThrowIfNegative(item.CastNumber, nameof(item.CastNumber));
-        ArgumentOutOfRangeException.ThrowIfNegative(item.MinValue, nameof(item.MinValue));
         ArgumentOutOfRangeException.ThrowIfNegative(item.MaxValue, nameof(item.MaxValue));
-        ArgumentOutOfRangeException.ThrowIfNegative(item.AverageValue, nameof(item.AverageValue));
 
         ArgumentOutOfRangeException.ThrowIfLessThan(item.CombatPlayerId, 1, nameof(item.CombatPlayerId));
     }

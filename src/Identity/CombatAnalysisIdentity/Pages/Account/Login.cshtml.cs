@@ -1,4 +1,5 @@
-﻿using CombatAnalysisIdentity.Interfaces;
+﻿using CombatAnalysisIdentity.Consts;
+using CombatAnalysisIdentity.Interfaces;
 using CombatAnalysisIdentity.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -45,9 +46,15 @@ public class LoginModel(IUserAuthorizationService authorizationService) : PageMo
         }
 
         await _authorizationService.AuthorizationAsync(HttpContext, Authorization.Email, Authorization.Password);
-        if (Request.Query.TryGetValue("ReturnUrl", out var returnUrl))
+        Request.Query.TryGetValue("client_id", out var clientId);
+
+        if (string.Equals(clientId, Clients.Web, StringComparison.OrdinalIgnoreCase) && Request.Query.TryGetValue("ReturnUrl", out var returnUrl))
         {
             return Redirect(returnUrl.ToString());
+        }
+        else if (string.Equals(clientId, Clients.Desktop, StringComparison.OrdinalIgnoreCase))
+        {
+            return Redirect($"/connect/authorize/callback{Request.QueryString}");
         }
 
         ModelState.AddModelError(string.Empty, "Invalid login attempt");

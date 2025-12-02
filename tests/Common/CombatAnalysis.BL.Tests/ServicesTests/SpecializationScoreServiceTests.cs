@@ -49,25 +49,6 @@ public class SpecializationScoreServiceTests
     }
 
     [Fact]
-    public async Task CreateAsync_ThrowArgumentOutOfRangeException_ShouldNotCreateEntityAsIdIsZero()
-    {
-        // Arrange
-        var entityDto = SpecializationScoreTestDataFactory.CreateDto(id: 0);
-
-        var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<SpecializationScore>>();
-        var mockSpecRepository = new Mock<ISpecScore>();
-
-        var service = new SpecializationScoreService(mockSpecRepository.Object, mockRepository.Object, mockMapper.Object);
-
-        // Act and Assert
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.CreateAsync(entityDto));
-
-        // Verify correct method calls
-        mockRepository.Verify(r => r.CreateAsync(It.IsAny<SpecializationScore>()), Times.Never);
-    }
-
-    [Fact]
     public async Task CreateAsync_ThrowArgumentOutOfRangeException_ShouldNotCreateEntityAsSomeParamsIncorrect()
     {
         // Arrange
@@ -109,25 +90,6 @@ public class SpecializationScoreServiceTests
         // Assert and Verify correct method calls
         mockMapper.Verify(m => m.Map<SpecializationScore>(It.IsAny<SpecializationScoreDto>()), Times.Once);
         mockRepository.Verify(r => r.UpdateAsync(It.IsAny<SpecializationScore>()), Times.Once);
-    }
-
-    [Fact]
-    public async Task UpdateAsync_ThrowException_ShouldNotUpdateEntityAsIdIsNegative()
-    {
-        // Arrange
-        var entityDto = SpecializationScoreTestDataFactory.CreateDto(id: -1);
-
-        var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<SpecializationScore>>();
-        var mockSpecRepository = new Mock<ISpecScore>();
-
-        var service = new SpecializationScoreService(mockSpecRepository.Object, mockRepository.Object, mockMapper.Object);
-
-        // Act and Assert
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.UpdateAsync(entityDto));
-
-        // Verify correct method calls
-        mockRepository.Verify(r => r.UpdateAsync(It.IsAny<SpecializationScore>()), Times.Never);
     }
 
     [Fact]

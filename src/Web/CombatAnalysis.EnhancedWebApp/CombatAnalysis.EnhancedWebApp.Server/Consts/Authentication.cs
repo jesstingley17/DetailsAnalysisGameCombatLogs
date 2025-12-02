@@ -13,4 +13,6 @@ public class Authentication
     public string CodeChallengeMethod { get; set; } = string.Empty;
 
     public int RefreshTokenExpiresSec { get; set; }
+
+    public string CancelUri { get; set; } = string.Empty;
 }

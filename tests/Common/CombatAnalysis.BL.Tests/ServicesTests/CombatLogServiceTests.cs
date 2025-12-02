@@ -48,24 +48,6 @@ public class CombatLogServiceTests
     }
 
     [Fact]
-    public async Task CreateAsync_ThrowArgumentOutOfRangeException_ShouldNotCreateEntityAsIdIsZero()
-    {
-        // Arrange
-        var entityDto = CombatLogTestDataFactory.CreateDto(id: 0);
-
-        var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<CombatLog>>();
-
-        var service = new CombatLogService(mockRepository.Object, mockMapper.Object);
-
-        // Act and Assert
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.CreateAsync(entityDto));
-
-        // Verify correct method calls
-        mockRepository.Verify(r => r.CreateAsync(It.IsAny<CombatLog>()), Times.Never);
-    }
-
-    [Fact]
     public async Task CreateAsync_ThrowArgumentOutOfRangeException_ShouldNotCreateEntityAsSomeParamsIncorrect()
     {
         // Arrange
@@ -105,24 +87,6 @@ public class CombatLogServiceTests
         // Assert and Verify correct method calls
         mockMapper.Verify(m => m.Map<CombatLog>(It.IsAny<CombatLogDto>()), Times.Once);
         mockRepository.Verify(r => r.UpdateAsync(It.IsAny<CombatLog>()), Times.Once);
-    }
-
-    [Fact]
-    public async Task UpdateAsync_ThrowException_ShouldNotUpdateEntityAsIdIsNegative()
-    {
-        // Arrange
-        var entityDto = CombatLogTestDataFactory.CreateDto(id: -1);
-
-        var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<CombatLog>>();
-
-        var service = new CombatLogService(mockRepository.Object, mockMapper.Object);
-
-        // Act and Assert
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.UpdateAsync(entityDto));
-
-        // Verify correct method calls
-        mockRepository.Verify(r => r.UpdateAsync(It.IsAny<CombatLog>()), Times.Never);
     }
 
     [Fact]

@@ -44,8 +44,6 @@ internal class CombatLogService(IGenericRepository<CombatLog> userRepository, IM
 
     private static void CheckParams(CombatLogDto item)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
-
         ArgumentException.ThrowIfNullOrEmpty(item.Name, nameof(item.Name));
 
         ArgumentOutOfRangeException.ThrowIfNegative(item.LogType, nameof(item.LogType));

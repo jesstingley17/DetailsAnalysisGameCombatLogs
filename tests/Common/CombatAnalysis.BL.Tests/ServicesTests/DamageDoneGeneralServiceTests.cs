@@ -52,24 +52,6 @@ public class DamageDoneGeneralServiceTests
     }
 
     [Fact]
-    public async Task CreateAsync_ThrowArgumentOutOfRangeException_ShouldNotCreateEntityAsIdIsZero()
-    {
-        // Arrange
-        var entityGeneralDto = DamageDoneGeneralTestDataFactory.CreateDto(id: 0);
-
-        var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<DamageDoneGeneral>>();
-
-        var service = new DamageDoneGeneralService(mockRepository.Object, mockMapper.Object);
-
-        // Act and Assert
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.CreateAsync(entityGeneralDto));
-
-        // Verify correct method calls
-        mockRepository.Verify(r => r.CreateAsync(It.IsAny<DamageDoneGeneral>()), Times.Never);
-    }
-
-    [Fact]
     public async Task CreateAsync_ThrowArgumentOutOfRangeException_ShouldNotCreateEntityAsSomeParamsIncorrect()
     {
         // Arrange
@@ -109,24 +91,6 @@ public class DamageDoneGeneralServiceTests
         // Assert and Verify correct method calls
         mockMapper.Verify(m => m.Map<DamageDoneGeneral>(It.IsAny<DamageDoneGeneralDto>()), Times.Once);
         mockRepository.Verify(r => r.UpdateAsync(It.IsAny<DamageDoneGeneral>()), Times.Once);
-    }
-
-    [Fact]
-    public async Task UpdateAsync_ThrowException_ShouldNotUpdateEntityAsIdIsNegative()
-    {
-        // Arrange
-        var entityGeneralDto = DamageDoneGeneralTestDataFactory.CreateDto(id: -1);
-
-        var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<DamageDoneGeneral>>();
-
-        var service = new DamageDoneGeneralService(mockRepository.Object, mockMapper.Object);
-
-        // Act and Assert
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.UpdateAsync(entityGeneralDto));
-
-        // Verify correct method calls
-        mockRepository.Verify(r => r.UpdateAsync(It.IsAny<DamageDoneGeneral>()), Times.Never);
     }
 
     [Fact]

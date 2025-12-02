@@ -6,8 +6,10 @@ using CombatAnalysis.Core.Models.Identity;
 using CombatAnalysis.Core.Security;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Diagnostics;
 using System.Net.Http.Json;
+using System.Text;
 
 namespace CombatAnalysis.Core.Services;
 
@@ -26,15 +28,16 @@ internal class IdentityService(IMemoryCache memoryCache, IHttpClientHelper httpC
         _codeVerifier = PKCEHelper.GenerateCodeVerifier();
         var state = PKCEHelper.GenerateCodeVerifier();
         var codeChallenge = PKCEHelper.GenerateCodeChallenge(_codeVerifier);
-
+        
         var authorizationUrl = $"{API.Identity}{authorizationRequestType}?" +
-            $"grantType={AuthenticationGrantType.Code}" +
-            $"&clientId={Authentication.ClientId}" +
-            $"&redirectUri={Authentication.RedirectUri}" +
-            $"&scopes={Authentication.Scopes}" +
+            $"client_id={Authentication.ClientId}" +
+            $"&redirect_uri={Authentication.RedirectUri}" +
+            $"&response_type={AuthenticationGrantType.Code}" +
+            $"&scope={Uri.EscapeDataString(Authentication.Scopes)}" +
             $"&state={state}" +
-            "&codeChallengeMethod=SHA-256" +
-            $"&codeChallenge={codeChallenge}";
+            $"&code_challenge={codeChallenge}" +
+            "&code_challenge_method=S256" +
+            $"&cancel_uri={Authentication.CancelUri}";
 
         var psi = new ProcessStartInfo
         {
@@ -74,28 +77,21 @@ internal class IdentityService(IMemoryCache memoryCache, IHttpClientHelper httpC
     {
         try
         {
-            if (_code == null)
-            {
-                throw new ArgumentNullException(nameof(_code));
-            }
+            ArgumentNullException.ThrowIfNull(_code, nameof(_code));
 
             var encodedAuthorizationCode = Uri.EscapeDataString(_code);
-            var url = $"Token?" +
-                $"grantType={AuthenticationGrantType.Authorization}" +
-                $"&clientId={Authentication.ClientId}" +
-                $"&clientScopes={Authentication.Scopes}" +
-                $"&codeVerifier={_codeVerifier}" +
-                $"&code={encodedAuthorizationCode}" +
-                $"&redirectUri={Authentication.RedirectUri}";
+            var body = new StringContent(
+                $"grant_type=authorization_code&client_id={Authentication.ClientId}&code={encodedAuthorizationCode}&redirect_uri={Authentication.RedirectUri}&code_verifier={_codeVerifier}",
+                Encoding.UTF8,
+                "application/x-www-form-urlencoded"
+            );
 
-            var response = await _httpClient.GetAsync(url, API.Identity);
+            _httpClient.BaseAddressApi = string.Empty;
+            var response = await _httpClient.PostAsync("connect/token", body, API.Identity);
             response.EnsureSuccessStatusCode();
 
             var token = await response.Content.ReadFromJsonAsync<TokenResponseModel>();
-            if (token == null)
-            {
-                throw new ArgumentNullException(nameof(token));
-            }
+            ArgumentNullException.ThrowIfNull(token, nameof(token));
 
             return token;
         }

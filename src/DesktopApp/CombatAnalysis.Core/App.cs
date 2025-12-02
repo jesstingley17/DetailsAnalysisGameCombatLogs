@@ -64,6 +64,7 @@ public class App : MvxApplication
         Authentication.ClientId = Configuration["App:Auth:ClientId"] ?? string.Empty;
         Authentication.Scopes = Configuration["App:Auth:Scopes"] ?? string.Empty;
         Authentication.RedirectUri = Configuration["App:Auth:RedirectUri"] ?? string.Empty;
+        Authentication.CancelUri = Configuration["App:Auth:CancelUri"] ?? string.Empty;
         Authentication.Listener = Configuration["App:Auth:Listener"] ?? string.Empty;
 
         AuthenticationGrantType.Code = Configuration["App:Auth:GrantType:Code"] ?? string.Empty;

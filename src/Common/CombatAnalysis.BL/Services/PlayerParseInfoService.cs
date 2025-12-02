@@ -44,8 +44,6 @@ internal class PlayerParseInfoService(IGenericRepository<PlayerParseInfo> reposi
 
     private static void CheckParams(PlayerParseInfoDto item)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
-
         ArgumentOutOfRangeException.ThrowIfNegative(item.SpecId, nameof(item.SpecId));
         ArgumentOutOfRangeException.ThrowIfNegative(item.ClassId, nameof(item.ClassId));
         ArgumentOutOfRangeException.ThrowIfNegative(item.BossId, nameof(item.BossId));

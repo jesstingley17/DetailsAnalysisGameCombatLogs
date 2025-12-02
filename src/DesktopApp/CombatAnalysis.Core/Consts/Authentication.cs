@@ -9,4 +9,6 @@ internal static class Authentication
     public static string RedirectUri { get; set; }
 
     public static string Listener { get; set; }
+
+    public static string CancelUri { get; set; }
 }

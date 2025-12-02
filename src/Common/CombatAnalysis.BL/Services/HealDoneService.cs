@@ -43,8 +43,6 @@ internal class HealDoneService(IGenericRepository<HealDone> repository, IMapper 
 
     private static void CheckParams(HealDoneDto item)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
-
         ArgumentException.ThrowIfNullOrEmpty(item.Spell, nameof(item.Spell));
         ArgumentException.ThrowIfNullOrEmpty(item.Creator, nameof(item.Creator));
         ArgumentException.ThrowIfNullOrEmpty(item.Target, nameof(item.Target));

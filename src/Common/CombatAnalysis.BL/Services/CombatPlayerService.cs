@@ -44,8 +44,6 @@ internal class CombatPlayerService(IGenericRepository<CombatPlayer> repository, 
 
     private static void CheckParams(CombatPlayerDto item)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
-
         ArgumentException.ThrowIfNullOrEmpty(item.Username, nameof(item.Username));
         ArgumentException.ThrowIfNullOrEmpty(item.PlayerId, nameof(item.PlayerId));
 

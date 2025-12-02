@@ -1,12 +1,23 @@
-﻿namespace CombatAnalysis.Core.Models.Identity;
+﻿using System.Text.Json.Serialization;
+
+namespace CombatAnalysis.Core.Models.Identity;
 
 public class TokenResponseModel
 {
-    public string AccessToken { get; set; } = string.Empty;
+    [JsonPropertyName("access_token")]
+    public string AccessToken { get; set; }
 
-    public string TokenType { get; set; } = string.Empty;
+    [JsonPropertyName("scope")]
+    public string Scope { get; set; }
 
-    public DateTimeOffset Expires { get; set; }
+    [JsonPropertyName("refresh_token")]
+    public string RefreshToken { get; set; }
 
-    public RefreshTokenResponseModel RefreshToken { get; set; }
+    [JsonPropertyName("expires_in")]
+    public int ExpiresInHours { get; set; }
+
+    [JsonPropertyName("token_type")]
+    public string TokenType { get; set; }
+
+    public int RefreshTokenExpiresInHours { get; set; } = 720;
 }

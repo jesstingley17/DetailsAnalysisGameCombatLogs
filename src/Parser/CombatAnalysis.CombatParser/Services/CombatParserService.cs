@@ -35,16 +35,23 @@ internal class CombatParserService(IFileManager fileManager, ILogger logger) : I
 
     public async Task ParseAsync(List<string> combatLogPaths, CancellationToken cancellationToken)
     {
-        var newCombatFromLogs = new StringBuilder();
-        var petsId = new Dictionary<string, List<string>>();
-        var bossCombatStarted = false;
-
-        Clear();
-
-        foreach (var path in combatLogPaths) 
+        try
         {
-            var lines = await fileManager.ReadAllLinesAsync(path, cancellationToken);
-            ProcessCombatLogLines(lines, petsId, ref bossCombatStarted, newCombatFromLogs);
+            var newCombatFromLogs = new StringBuilder();
+            var petsId = new Dictionary<string, List<string>>();
+            var bossCombatStarted = false;
+
+            Clear();
+
+            foreach (var path in combatLogPaths)
+            {
+                var lines = await fileManager.ReadAllLinesAsync(path, cancellationToken);
+                ProcessCombatLogLines(lines, petsId, ref bossCombatStarted, newCombatFromLogs);
+            }
+        }
+        catch (OperationCanceledException ex)
+        {
+            logger.LogError(ex, "Request was canceled by client: {Message}", ex.Message);
         }
     }
 

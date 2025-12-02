@@ -55,8 +55,6 @@ internal class SpecializationScoreService(ISpecScore specRepository, IGenericRep
 
     private static void CheckParams(SpecializationScoreDto item)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
-
         ArgumentOutOfRangeException.ThrowIfNegative(item.SpecId, nameof(item.SpecId));
         ArgumentOutOfRangeException.ThrowIfNegative(item.BossId, nameof(item.BossId));
         ArgumentOutOfRangeException.ThrowIfNegative(item.Difficult, nameof(item.Difficult));

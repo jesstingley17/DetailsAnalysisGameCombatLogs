@@ -241,11 +241,11 @@ internal class CombatParserAPIService : ICombatParserAPIService
         }
     }
 
-    public async Task<int> LoadCountAsync(string address)
+    public async Task<int> LoadCountAsync(string address, CancellationToken token)
     {
         try
         {
-            var response = await _httpClient.GetAsync(address, CancellationToken.None);
+            var response = await _httpClient.GetAsync(address, token);
             response.EnsureSuccessStatusCode();
 
             var details = await response.Content.ReadFromJsonAsync<int>();
@@ -337,7 +337,7 @@ internal class CombatParserAPIService : ICombatParserAPIService
             combatLog.NumberReadyCombats = 0;
             combatLog.CombatsInQueue = numberCombats;
 
-            var response = await _httpClient.PutAsync("CombatLog", JsonContent.Create(combatLog), cancellationToken);
+            var response = await _httpClient.PutAsync($"CombatLog/{combatLog.Id}", JsonContent.Create(combatLog), cancellationToken);
             response.EnsureSuccessStatusCode();
         }
         catch (HttpRequestException ex)

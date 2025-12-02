@@ -44,8 +44,6 @@ internal class CombatService(IGenericRepository<Combat> repository, IMapper mapp
 
     private static void CheckParams(CombatDto item)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
-
         ArgumentException.ThrowIfNullOrEmpty(item.Name, nameof(item.Name));
         ArgumentException.ThrowIfNullOrEmpty(item.DungeonName, nameof(item.DungeonName));
         ArgumentException.ThrowIfNullOrEmpty(item.Name, nameof(item.Name));

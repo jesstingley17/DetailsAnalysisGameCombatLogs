@@ -49,15 +49,15 @@ internal class SecurityStorage
                 Directory.CreateDirectory(_directoryPath);
             }
 
-            var encryptedRefreshToken = _refreshTokenProtector.Protect(token.RefreshToken.Token);
+            var encryptedRefreshToken = _refreshTokenProtector.Protect(token.RefreshToken);
             File.WriteAllText(_refreshTokenFilePath, encryptedRefreshToken);
 
-            _memoryCache.Set(nameof(MemoryCacheValue.RefreshToken), token.RefreshToken.Token, token.RefreshToken.ExpiresAt);
+            _memoryCache.Set(nameof(MemoryCacheValue.RefreshToken), token.RefreshToken, DateTimeOffset.UtcNow.AddHours(token.RefreshTokenExpiresInHours));
 
             var encryptedAccessToken = _accessTokenProtector.Protect(token.AccessToken);
             File.WriteAllText(_accessTokenFilePath, encryptedAccessToken);
 
-            _memoryCache.Set(nameof(MemoryCacheValue.AccessToken), token.AccessToken, token.Expires);
+            _memoryCache.Set(nameof(MemoryCacheValue.AccessToken), token.AccessToken, DateTimeOffset.UtcNow.AddHours(token.ExpiresInHours));
         }
         catch (Exception ex)
         {
@@ -139,7 +139,8 @@ internal class SecurityStorage
             var identityUserId = AccessTokenHelper.GetUserIdFromToken(accessToken);
             ArgumentException.ThrowIfNullOrEmpty(identityUserId, nameof(identityUserId));
 
-            var response = await _httpClient.GetAsync($"Account/find/{identityUserId}", API.UserApi, true);
+            _httpClient.BaseAddressApi = "api/v1/";
+            var response = await _httpClient.GetAsync($"User/find/{identityUserId}", API.UserApi, true);
             response.EnsureSuccessStatusCode();
 
             var user = await response.Content.ReadFromJsonAsync<AppUserModel>();

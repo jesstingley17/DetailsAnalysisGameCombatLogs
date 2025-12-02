@@ -90,8 +90,8 @@ public class AuthenticationController : ControllerBase
                 $"&scope={Uri.EscapeDataString(_authenticationClient.Scopes)}" +
                 $"&state={state}" +
                 $"&code_challenge={codeChallenge}" +
-                $"&code_challenge_method=S256" +
-                $"&cancel_uri=http://localhost:5173/";
+                "&code_challenge_method=S256" +
+                $"&cancel_uri={_authentication.CancelUri}";
 
             HttpContext.Response.Cookies.Append(nameof(AuthenticationCookie.CodeVerifier), codeVerifier, new CookieOptions
             {
@@ -125,7 +125,7 @@ public class AuthenticationController : ControllerBase
         {
             ArgumentNullException.ThrowIfNullOrEmpty(identityPath, nameof(identityPath));
 
-            return Ok(new { uri = $"{_server.Identity}{identityPath}?cancel_uri=http://localhost:5173/" });
+            return Ok(new { uri = $"{_server.Identity}{identityPath}?cancel_uri={_authentication.CancelUri}" });
         }
         catch (ArgumentNullException ex)
         {
@@ -139,7 +139,6 @@ public class AuthenticationController : ControllerBase
     public IActionResult CancelAuthorization()
     {
         HttpContext.Response.Cookies.Delete(nameof(AuthenticationCookie.State));
-
         HttpContext.Response.Cookies.Delete(nameof(AuthenticationCookie.CodeVerifier));
 
         return Ok();

@@ -44,8 +44,6 @@ internal class CombatAuraService(IGenericRepository<CombatAura> repository, IMap
 
     private static void CheckParams(CombatAuraDto item)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
-
         ArgumentException.ThrowIfNullOrEmpty(item.Name, nameof(item.Name));
         ArgumentException.ThrowIfNullOrEmpty(item.Creator, nameof(item.Creator));
         ArgumentException.ThrowIfNullOrEmpty(item.Target, nameof(item.Target));

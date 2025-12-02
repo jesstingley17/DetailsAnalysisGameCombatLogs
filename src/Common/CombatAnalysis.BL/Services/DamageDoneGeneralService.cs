@@ -43,8 +43,6 @@ internal class DamageDoneGeneralService(IGenericRepository<DamageDoneGeneral> re
 
     private static void CheckParams(DamageDoneGeneralDto item)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(item.Id, 1, nameof(item.Id));
-
         ArgumentException.ThrowIfNullOrEmpty(item.Spell, nameof(item.Spell));
 
         ArgumentOutOfRangeException.ThrowIfNegative(item.Value, nameof(item.Value));
