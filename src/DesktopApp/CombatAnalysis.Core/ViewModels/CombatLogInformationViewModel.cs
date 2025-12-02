@@ -84,21 +84,21 @@ public class CombatLogInformationViewModel : ParentTemplate, CombatParser.Interf
 
     #region Commands
 
-    public IMvxCommand OpenUploadedLogsCommand { get; set; }
+    public IMvxCommand OpenUploadedLogsCommand { get; private set; }
 
-    public IMvxAsyncCommand LoadCombatsCommand { get; set; }
+    public IMvxAsyncCommand LoadCombatsCommand { get; private set; }
 
-    public IMvxAsyncCommand LoadCombatsByUserCommand { get; set; }
+    public IMvxAsyncCommand LoadCombatsByUserCommand { get; private set; }
 
-    public IMvxAsyncCommand ReloadCombatsCommand { get; set; }
+    public IMvxAsyncCommand ReloadCombatsCommand { get; private set; }
 
-    public IMvxAsyncCommand DeleteCombatCommand { get; set; }
+    public IMvxAsyncCommand DeleteCombatCommand { get; private set; }
 
-    public IMvxAsyncCommand OpenPlayerAnalysisCommand { get; set; }
+    public IMvxAsyncCommand OpenPlayerAnalysisCommand { get; private set; }
 
-    public IMvxCommand<int> GetLogTypeCommand { get; set; }
+    public IMvxCommand<int> GetLogTypeCommand { get; private set; }
 
-    public IMvxCommand CancelParsingCommand { get; set; }
+    public IMvxCommand CancelParsingCommand { get; private set; }
 
     #endregion
 
@@ -335,13 +335,13 @@ public class CombatLogInformationViewModel : ParentTemplate, CombatParser.Interf
 
     public override void Prepare()
     {
+        base.Prepare();
+
         CombatLogPaths = [.. AppStaticData.SelectedCombatLogFilePaths];
         CombatLogPaths.CollectionChanged += CombatLogPaths_CollectionChanged;
 
         ShowConnectMore = CombatLogPaths.Count > 0;
         GetCombatLogNames();
-
-        base.Prepare();
     }
 
     public override void ViewAppeared()
@@ -350,13 +350,16 @@ public class CombatLogInformationViewModel : ParentTemplate, CombatParser.Interf
 
         CombatLogs?.Clear();
         CheckAuth();
-
-        Task.Run(LoadCombatLogsAsync);
     }
 
     public override void ViewDestroy(bool viewFinishing = true)
     {
         base.ViewDestroy(viewFinishing);
+    }
+
+    public override async Task Initialize()
+    {
+        await LoadCombatLogsAsync();
     }
 
     #endregion
@@ -421,7 +424,7 @@ public class CombatLogInformationViewModel : ParentTemplate, CombatParser.Interf
         foreach (var item in loadedCombats)
         {
             var players = await _combatParserAPIService.LoadCombatPlayersAsync(item.Id);
-            item.Players = players.ToList();
+            item.Players = [.. players];
         }
 
         Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.AllowStep), 1);
@@ -604,7 +607,7 @@ public class CombatLogInformationViewModel : ParentTemplate, CombatParser.Interf
         if (combatLogsData == null)
         {
             CombatLogLoadingStatus = LoadingStatus.Failed;
-            CombatLogs = new ObservableCollection<CombatLogModel>();
+            CombatLogs = [];
 
             return;
         }
@@ -632,7 +635,7 @@ public class CombatLogInformationViewModel : ParentTemplate, CombatParser.Interf
         var user = _memoryCache.Get<AppUserModel>(nameof(MemoryCacheValue.User));
         if (user == null)
         {
-            CombatLogsForTargetUser = new ObservableCollection<CombatLogModel>();
+            CombatLogsForTargetUser = [];
 
             return;
         }

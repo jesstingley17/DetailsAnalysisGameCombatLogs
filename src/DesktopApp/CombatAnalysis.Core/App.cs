@@ -95,6 +95,9 @@ public class App : MvxApplication
             return;
         }
 
+        Mvx.IoCProvider.RegisterSingleton<IMemoryCache>(new MemoryCache(new MemoryCacheOptions()));
+        Mvx.IoCProvider.RegisterSingleton<ICacheService>(new CacheService(Mvx.IoCProvider.Resolve<IMemoryCache>()));
+
         Mvx.IoCProvider.RegisterType<IFileManager, FileManager>();
         Mvx.IoCProvider.RegisterType<ICombatParserAPIService, CombatParserAPIService>();
         Mvx.IoCProvider.RegisterType(() => mappingConfig.CreateMapper());
@@ -105,7 +108,6 @@ public class App : MvxApplication
         });
         Mvx.IoCProvider.RegisterType<IHttpClientHelper, HttpClientHelper>();
         Mvx.IoCProvider.RegisterType<IIdentityService, IdentityService>();
-        Mvx.IoCProvider.RegisterType<ICacheService, CacheService>();
         Mvx.IoCProvider.RegisterType<IChatHubHelper, GroupChatHubHelper>();
         Mvx.IoCProvider.RegisterType<IPersonalChatService, PersonalChatService>();
         Mvx.IoCProvider.RegisterType<IGroupChatService, GroupChatService>();

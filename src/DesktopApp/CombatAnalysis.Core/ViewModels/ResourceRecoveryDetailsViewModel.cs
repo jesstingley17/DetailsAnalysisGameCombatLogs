@@ -5,7 +5,6 @@ using CombatAnalysis.Core.Interfaces;
 using CombatAnalysis.Core.Models;
 using CombatAnalysis.Core.ViewModels.ViewModelTemplates;
 using Microsoft.Extensions.Logging;
-using System.Collections.ObjectModel;
 
 namespace CombatAnalysis.Core.ViewModels;
 
@@ -18,16 +17,14 @@ public class ResourceRecoveryDetailsViewModel : DetailsGenericTemplate<ResourceR
         Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.Step), 6);
     }
 
-    protected override void ExtendedPrepare(CombatPlayerModel parameter)
+    protected override void GetDetailsFromCache(CombatPlayerModel? parameter)
     {
-        var resourcesRecoveryCollection = _cacheService.GetDataFromCache<Dictionary<string, List<ResourceRecovery>>>($"{AppCacheKeys.CombatDetails_ResourcesRecovery}_{SelectedCombat.LocallyNumber}");
-        var resourcesRecoveryCollectionMap = _mapper.Map<List<ResourceRecoveryModel>>(resourcesRecoveryCollection[parameter.PlayerId]);
-        DetailsInformations = new ObservableCollection<ResourceRecoveryModel>(resourcesRecoveryCollectionMap);
-        _allDetailsInformations = new List<ResourceRecoveryModel>(resourcesRecoveryCollectionMap);
+        var resourcesRecoveryCollection = _cacheService?.GetDataFromCache<Dictionary<string, List<ResourceRecovery>>>($"{AppCacheKeys.CombatDetails_ResourcesRecovery}_{SelectedCombat?.LocallyNumber}");
+        var resourcesRecoveryCollectionMap = _mapper.Map<List<ResourceRecoveryModel>>(resourcesRecoveryCollection?[parameter != null ? parameter.PlayerId : string.Empty]);
+        _allDetailsInformations = [.. resourcesRecoveryCollectionMap];
 
-        var resourcesRecoveryGeneralCollection = _cacheService.GetDataFromCache<Dictionary<string, List<ResourceRecoveryGeneral>>>($"{AppCacheKeys.CombatDetails_ResourcesRecoveryGeneral}_{SelectedCombat.LocallyNumber}");
-        var resourcesRecoveryGeneralCollectionMap = _mapper.Map<List<ResourceRecoveryGeneralModel>>(resourcesRecoveryGeneralCollection[parameter.PlayerId]);
-        GeneralInformations = new ObservableCollection<ResourceRecoveryGeneralModel>(resourcesRecoveryGeneralCollectionMap);
-        _allGeneralInformations = new List<ResourceRecoveryGeneralModel>(resourcesRecoveryGeneralCollectionMap);
+        var resourcesRecoveryGeneralCollection = _cacheService?.GetDataFromCache<Dictionary<string, List<ResourceRecoveryGeneral>>>($"{AppCacheKeys.CombatDetails_ResourcesRecoveryGeneral}_{SelectedCombat?.LocallyNumber}");
+        var resourcesRecoveryGeneralCollectionMap = _mapper.Map<List<ResourceRecoveryGeneralModel>>(resourcesRecoveryGeneralCollection?[parameter != null ? parameter.PlayerId : string.Empty]);
+        _allGeneralInformations = [.. resourcesRecoveryGeneralCollectionMap];
     }
 }

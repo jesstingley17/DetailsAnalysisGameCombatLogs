@@ -547,7 +547,7 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
         {
             case 0:
                 sortedCollection = SortedByName == 0
-                    ? Combats.OrderByDescending(x => x.Name).ToList()
+                    ? [.. Combats.OrderByDescending(x => x.Name)]
                     : Combats.OrderBy(x => x.Name).ToList();
                 SortedByName = SortedByName == 0 ? 1 : 0;
 
@@ -559,7 +559,7 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
                 break;
             case 1:
                 sortedCollection = SortedByDamageDone == 0
-                    ? Combats.OrderByDescending(x => x.DamageDone).ToList()
+                    ? [.. Combats.OrderByDescending(x => x.DamageDone)]
                     : Combats.OrderBy(x => x.DamageDone).ToList();
                 SortedByDamageDone = SortedByDamageDone == 0 ? 1 : 0;
 
@@ -571,7 +571,7 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
                 break;
             case 2:
                 sortedCollection = SortedByHealDone == 0
-                    ? Combats.OrderByDescending(x => x.HealDone).ToList()
+                    ? [.. Combats.OrderByDescending(x => x.HealDone)]
                     : Combats.OrderBy(x => x.HealDone).ToList();
                 SortedByHealDone = SortedByHealDone == 0 ? 1 : 0;
 
@@ -583,7 +583,7 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
                 break;
             case 3:
                 sortedCollection = SortedByDamageTaken == 0
-                    ? Combats.OrderByDescending(x => x.DamageTaken).ToList()
+                    ? [.. Combats.OrderByDescending(x => x.DamageTaken)]
                     : Combats.OrderBy(x => x.DamageTaken).ToList();
                 SortedByDamageTaken = SortedByDamageTaken == 0 ? 1 : 0;
 
@@ -595,7 +595,7 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
                 break;
             case 4:
                 sortedCollection = SortedByResources == 0
-                    ? Combats.OrderByDescending(x => x.EnergyRecovery).ToList()
+                    ? [.. Combats.OrderByDescending(x => x.EnergyRecovery)]
                     : Combats.OrderBy(x => x.EnergyRecovery).ToList();
                 SortedByResources = SortedByResources == 0 ? 1 : 0;
 

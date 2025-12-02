@@ -9,7 +9,6 @@ using CombatAnalysis.Core.Models.User;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
-using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
 namespace CombatAnalysis.Core.Security;

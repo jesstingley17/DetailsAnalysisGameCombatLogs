@@ -523,7 +523,7 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
             return;
         }
 
-        PlayersCombat = _mainPlayersCombat != null ? new List<CombatPlayerModel>(_mainPlayersCombat) : new List<CombatPlayerModel>();
+        PlayersCombat = _mainPlayersCombat != null ? [.. _mainPlayersCombat] : [];
         if (MinHealDone > 0)
         {
             ApplyMinHealDone();
@@ -547,7 +547,7 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
             return;
         }
 
-        PlayersCombat = _mainPlayersCombat != null ? new List<CombatPlayerModel>(_mainPlayersCombat) : new List<CombatPlayerModel>();
+        PlayersCombat = _mainPlayersCombat != null ? [.. _mainPlayersCombat] : [];
         if (MinDamageDone > 0)
         {
             ApplyMinDamageDone();
@@ -571,7 +571,7 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
             return;
         }
 
-        PlayersCombat = _mainPlayersCombat != null ? new List<CombatPlayerModel>(_mainPlayersCombat) : new List<CombatPlayerModel>();
+        PlayersCombat = _mainPlayersCombat != null ? [.. _mainPlayersCombat] : [];
         if (MinDamageDone > 0)
         {
             ApplyMinDamageDone();
@@ -595,7 +595,7 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
             return;
         }
 
-        PlayersCombat = _mainPlayersCombat != null ? new List<CombatPlayerModel>(_mainPlayersCombat) : new List<CombatPlayerModel>();
+        PlayersCombat = _mainPlayersCombat != null ? [.. _mainPlayersCombat] : [];
         if (MinHPS > 0)
         {
             ApplyMinHPS();
@@ -619,7 +619,7 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
             return;
         }
 
-        PlayersCombat = _mainPlayersCombat != null ? new List<CombatPlayerModel>(_mainPlayersCombat) : new List<CombatPlayerModel>();
+        PlayersCombat = _mainPlayersCombat != null ? [.. _mainPlayersCombat] : [];
         if (MinDPS > 0)
         {
             ApplyMinDPS();
@@ -643,7 +643,7 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
             return;
         }
 
-        PlayersCombat = _mainPlayersCombat != null ? new List<CombatPlayerModel>(_mainPlayersCombat) : new List<CombatPlayerModel>();
+        PlayersCombat = _mainPlayersCombat != null ? [.. _mainPlayersCombat] : [];
         if (MinDPS > 0)
         {
             ApplyMinDPS();
@@ -719,7 +719,7 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
         var minHeal = TranslationSource.Instance["CombatAnalysis.App.Localizations.Resources.CombatPlayers.Resource.MinHeal"];
         var minResurces = TranslationSource.Instance["CombatAnalysis.App.Localizations.Resources.CombatPlayers.Resource.MinResources"];
 
-        FilterList = new List<string> { "", minDamage, minHeal, minResurces };
+        FilterList = ["", minDamage, minHeal, minResurces];
     }
 
     private void GetValuePerSecondFiltersName()
@@ -728,7 +728,7 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
         var minHPS = TranslationSource.Instance["CombatAnalysis.App.Localizations.Resources.CombatPlayers.Resource.MinHPS"];
         var minRPS = TranslationSource.Instance["CombatAnalysis.App.Localizations.Resources.CombatPlayers.Resource.MinRPS"];
 
-        FilterList = new List<string> { "", minDPS, minHPS, minRPS };
+        FilterList = ["", minDPS, minHPS, minRPS];
     }
 
     private void UseFilter(int index)
@@ -780,7 +780,7 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
         MinHealDone = 0;
         MinEnergyRecovery = 0;
 
-        PlayersCombat = _mainPlayersCombat != null ? new List<CombatPlayerModel>(_mainPlayersCombat) : new List<CombatPlayerModel>();
+        PlayersCombat = _mainPlayersCombat != null ? [.. _mainPlayersCombat] : [];
     }
 
     private void FilterInformationByMinDamageDone(int minDamageDone)
@@ -799,7 +799,7 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
             }
         }
 
-        PlayersCombat = new List<CombatPlayerModel>(temporaryPlayersCombat);
+        PlayersCombat = [.. temporaryPlayersCombat];
     }
 
     private void FilterInformationByMinHealDone(int minHealDone)
@@ -818,7 +818,7 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
             }
         }
 
-        PlayersCombat = new List<CombatPlayerModel>(temporaryPlayersCombat);
+        PlayersCombat = [.. temporaryPlayersCombat];
     }
 
     private void FilterInformationByMinEnergyRecovery(int minEnergyRecovery)
@@ -837,7 +837,7 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
             }
         }
 
-        PlayersCombat = new List<CombatPlayerModel>(temporaryPlayersCombat);
+        PlayersCombat = [.. temporaryPlayersCombat];
     }
 
     private void FilterInformationByMinDPS(int minDPS)
@@ -856,7 +856,7 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
             }
         }
 
-        PlayersCombat = new List<CombatPlayerModel>(temporaryPlayersCombat);
+        PlayersCombat = [.. temporaryPlayersCombat];
     }
 
     private void FilterInformationByMinHPS(int minHPS)
@@ -875,7 +875,7 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
             }
         }
 
-        PlayersCombat = new List<CombatPlayerModel>(temporaryPlayersCombat);
+        PlayersCombat = [.. temporaryPlayersCombat];
     }
 
     private void FilterInformationByMinRPS(int minRPS)
@@ -894,6 +894,6 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
             }
         }
 
-        PlayersCombat = new List<CombatPlayerModel>(temporaryPlayersCombat);
+        PlayersCombat = [.. temporaryPlayersCombat];
     }
 }

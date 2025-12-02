@@ -309,7 +309,7 @@
 
         <StackPanel Grid.Row="3" Grid.Column="2" Grid.ColumnSpan="2" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0 -15">
             <CheckBox Style="{DynamicResource CheckBoxStyle1}" VerticalContentAlignment="Center" 
-                  Content="{loc:Loc ShowPets}" Width="200" Margin="40 10" IsChecked="{Binding IsShowPets}" />
+                  Content="{loc:Loc ShowPets}" Width="200" Margin="40 10" IsChecked="{Binding IsShowPets}" Command="{Binding ShowPetsCommand}" />
         </StackPanel>
 
         <StackPanel Grid.Column="2" Grid.Row="3" VerticalAlignment="Bottom" HorizontalAlignment="Left" Orientation="Horizontal">

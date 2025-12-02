@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CombatAnalysis.Core.Consts;
+using CombatAnalysis.Core.Enums;
 using CombatAnalysis.Core.Extensions;
 using CombatAnalysis.Core.Interfaces;
 using CombatAnalysis.Core.Interfaces.Entities;
@@ -28,6 +29,7 @@ public abstract class DetailsGenericTemplate<DetailsModel, GeneralDetailsModel> 
 
     protected readonly int _pageSize = 20;
 
+    private CombatPlayerModel? _parameter;
     private int _page = 1;
     private int _count;
     private int _maxPages;
@@ -41,7 +43,7 @@ public abstract class DetailsGenericTemplate<DetailsModel, GeneralDetailsModel> 
     private long _totalValue;
     private ObservableCollection<DetailsModel>? _detailsInformations;
     private ObservableCollection<GeneralDetailsModel>? _generalInformations;
-    private ObservableCollection<string>? spells;
+    private ObservableCollection<string>? _sources;
     private int _detailsTypeSelectedIndex;
 
     public DetailsGenericTemplate(IHttpClientHelper httpClient, ILogger logger, IMapper mapper, 
@@ -68,13 +70,13 @@ public abstract class DetailsGenericTemplate<DetailsModel, GeneralDetailsModel> 
 
     #region Commands
 
-    public IMvxAsyncCommand FirstPageCommand { get; set; }
+    public IMvxAsyncCommand FirstPageCommand { get; private set; }
 
-    public IMvxAsyncCommand PrevPageCommand { get; set; }
+    public IMvxAsyncCommand PrevPageCommand { get; private set; }
 
-    public IMvxAsyncCommand NextPageCommand { get; set; }
+    public IMvxAsyncCommand NextPageCommand { get; private set; }
 
-    public IMvxAsyncCommand LastPageCommand { get; set; }
+    public IMvxAsyncCommand LastPageCommand { get; private set; }
 
     #endregion
 
@@ -192,10 +194,10 @@ public abstract class DetailsGenericTemplate<DetailsModel, GeneralDetailsModel> 
 
     public ObservableCollection<string>? Sources
     {
-        get { return spells; }
+        get { return _sources; }
         set
         {
-            SetProperty(ref spells, value);
+            SetProperty(ref _sources, value);
         }
     }
 
@@ -203,37 +205,33 @@ public abstract class DetailsGenericTemplate<DetailsModel, GeneralDetailsModel> 
 
     public override void Prepare(CombatPlayerModel parameter)
     {
-        if (parameter == null)
+        _parameter = parameter;
+
+        SelectedPlayer = parameter.Username;
+        SelectedPlayerId = parameter.Id;
+        TotalValue = parameter.DamageDone;
+    }
+
+    public override async Task Initialize()
+    {
+        await base.Initialize();
+
+        if (_parameter == null)
         {
             return;
         }
 
-        SelectedPlayer = parameter.Username;
-        SelectedPlayerId = parameter.Id;
-
-        SetTotalValue(parameter);
-
         if (SelectedCombat?.Id > 0)
         {
-            Task.Run(async () =>
-            {
-                GetAPINameFromDetailsModelName();
-                GetAPINameFromGeneralDetailsModelName();
-
-                await LoadCountAsync();
-
-                await LoadDetailsAsync(Page, _pageSize);
-                await LoadGenericDetailsAsync();
-
-                GetSources();
-            });
+            GetAPINameFromDetailsModelName();
+            GetAPINameFromGeneralDetailsModelName();
         }
-        else
-        {
-            ExtendedPrepare(parameter);
 
-            GetSources();
-        }
+        await LoadGeneralDetailsAsync();
+        await LoadDetailsAsync(Page, _pageSize);
+        await LoadCountAsync();
+
+        GetSources();
     }
 
     public void GetSources()
@@ -245,7 +243,7 @@ public abstract class DetailsGenericTemplate<DetailsModel, GeneralDetailsModel> 
         }
 
         var resourceMangaer = new ResourceManager("CombatAnalysis.App.Localizations.Resources.DetailsGeneralTemplate.Resource", Assembly.Load("CombatAnalysis.App"));
-        var allSourcesName = resourceMangaer.GetString("All");
+        var allSourcesName = resourceMangaer.GetString(SourcesType.All.ToString());
         if (!string.IsNullOrEmpty(allSourcesName))
         {
             sources.Insert(0, allSourcesName);
@@ -254,7 +252,25 @@ public abstract class DetailsGenericTemplate<DetailsModel, GeneralDetailsModel> 
         Sources = new ObservableCollection<string>(sources);
     }
 
-    protected abstract void ExtendedPrepare(CombatPlayerModel parameter);
+    protected abstract void GetDetailsFromCache(CombatPlayerModel? parameter);
+
+    protected void LoadDetailsFromCache(int page, int pageSize)
+    {
+        GetDetailsFromCache(_parameter);
+
+        if (_allDetailsInformations != null && _allDetailsInformations.Count > 0)
+        {
+            var range = _allDetailsInformations.GetRange((page - 1) * pageSize, pageSize > _allDetailsInformations.Count ? _allDetailsInformations.Count - 1 : pageSize);
+            DetailsInformations = new(range ?? []);
+        }
+    }
+
+    protected void LoadGeneralDetailsFromCache()
+    {
+        GetDetailsFromCache(_parameter);
+
+        GeneralInformations = new(_allGeneralInformations ?? []);
+    }
 
     private async Task LoadFirstPageAsync()
     {
@@ -288,58 +304,70 @@ public abstract class DetailsGenericTemplate<DetailsModel, GeneralDetailsModel> 
 
     private async Task LoadCountAsync()
     {
-        if (_combatParserAPIService == null)
-        {
-            return;
-        }
-
         var count = await _combatParserAPIService.LoadCountAsync($"{_apiName}/count/{SelectedPlayerId}");
         Count = count;
 
-        var pages = (double)count / (double)_pageSize;
-        var maxPages = (int)Math.Ceiling(pages);
-        MaxPages = maxPages;
+        if (count == 0)
+        {
+            CalculateMaxPages(_allDetailsInformations != null ? _allDetailsInformations.Count : 1);
+        }
+        else
+        {
+            CalculateMaxPages(Count);
+        }
+    }
+
+    private async Task LoadGeneralDetailsAsync()
+    {
+        var generalInformations = await _combatParserAPIService.LoadCombatDetailsAsync<GeneralDetailsModel>(_httpClient, _logger, $"{_generalApiName}/getByCombatPlayerId/{SelectedPlayerId}");
+        if (generalInformations.Any())
+        {
+            _allGeneralInformations = [.. generalInformations.ToList()];
+            GeneralInformations = new ObservableCollection<GeneralDetailsModel>(_allGeneralInformations);
+        }
+        else
+        {
+            LoadGeneralDetailsFromCache();
+        }
     }
 
     private async Task LoadDetailsAsync(int page, int pageSize)
     {
-        if (_combatParserAPIService == null)
+        var detailsInformations = await _combatParserAPIService.LoadCombatDetailsAsync<DetailsModel>(_httpClient, _logger, $"{_apiName}/getByCombatPlayerId?combatPlayerId={SelectedPlayerId}&page={page}&pageSize={pageSize}");
+        if (detailsInformations.Any())
         {
-            return;
+            _allDetailsInformations = [.. detailsInformations.ToList()];
+            DetailsInformations = new ObservableCollection<DetailsModel>(_allDetailsInformations);
         }
-
-        var details = await _combatParserAPIService.LoadCombatDetailsAsync<DetailsModel>(_httpClient, _logger, $"{_apiName}/getByCombatPlayerId?combatPlayerId={SelectedPlayerId}&page={page}&pageSize={pageSize}");
-        _allDetailsInformations = new List<DetailsModel>(details.ToList());
-        DetailsInformations = new ObservableCollection<DetailsModel>(_allDetailsInformations);
-    }
-
-    private async Task LoadGenericDetailsAsync()
-    {
-        if (_combatParserAPIService == null)
+        else
         {
-            return;
+            LoadDetailsFromCache(page, pageSize);
         }
-
-        var generalDetails = await _combatParserAPIService.LoadCombatDetailsAsync<GeneralDetailsModel>(_httpClient, _logger, $"{_generalApiName}/getByCombatPlayerId/{SelectedPlayerId}");
-        _allGeneralInformations = new List<GeneralDetailsModel>(generalDetails.ToList());
-        GeneralInformations = new ObservableCollection<GeneralDetailsModel>(_allGeneralInformations);
-    }
-
-    private void SetTotalValue(CombatPlayerModel parameter)
-    {
-        TotalValue = parameter.DamageDone;
     }
 
     private void Filter()
     {
-        if (_allDetailsInformations == null)
+        if (_allDetailsInformations == null || string.IsNullOrEmpty(SelectedSource))
         {
+            return;
+        }
+
+        if (string.Equals(SelectedSource, SourcesType.All.ToString(), StringComparison.OrdinalIgnoreCase))
+        {
+            LoadDetailsFromCache(Page, _pageSize);
+
             return;
         }
 
         DetailsInformations = _allDetailsInformations.Any(x => x.Spell == SelectedSource)
             ? new ObservableCollection<DetailsModel>(_allDetailsInformations.Where(x => x.Spell == SelectedSource))
             : new ObservableCollection<DetailsModel>(_allDetailsInformations);
+
+        var range = DetailsInformations.ToList().GetRange((Page - 1) * _pageSize, _pageSize);
+        DetailsInformations = new(range ?? []);
+
+        var count = DetailsInformations.Count();
+        CalculateMaxPages(count);
     }
 
     private void GetAPINameFromDetailsModelName()
@@ -350,5 +378,12 @@ public abstract class DetailsGenericTemplate<DetailsModel, GeneralDetailsModel> 
     private void GetAPINameFromGeneralDetailsModelName()
     {
         _generalApiName = typeof(GeneralDetailsModel).Name.Replace("Model", "");
+    }
+
+    private void CalculateMaxPages(int count)
+    {
+        var pages = (double)count / (double)_pageSize;
+        var maxPages = (int)Math.Ceiling(pages);
+        MaxPages = maxPages;
     }
 }

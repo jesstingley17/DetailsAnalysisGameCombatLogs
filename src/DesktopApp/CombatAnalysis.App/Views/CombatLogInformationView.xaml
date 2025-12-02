@@ -106,8 +106,17 @@
                                         Visibility="{Binding CombatLogs.Count, Converter={StaticResource IntToVisibility}, ConverterParameter='true:0:>'}"
                                         IsEnabled="{Binding CombatListSelectedIndex, Converter={StaticResource IntToXAMLBool}, ConverterParameter='-1:>'}"/>
                                 <ScrollViewer MaxHeight="200" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-                                    <ListBox Style="{DynamicResource ListBoxStyle1}" ItemsSource="{Binding CombatLogs}" SelectedIndex="{Binding CombatListSelectedIndex}"
-                                        Visibility="{Binding CombatLogs.Count, Converter={StaticResource IntToVisibility}, ConverterParameter='true:0:>'}">
+                                    <ListBox ItemsSource="{Binding CombatLogs}" SelectedIndex="{Binding CombatListSelectedIndex}">
+                                        <ListBox.Style>
+                                            <Style TargetType="ListBox">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding CombatLogs.Count}" Value="0">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ListBox.Style>
                                         <ListBox.ItemTemplate>
                                             <DataTemplate>
                                                 <StackPanel HorizontalAlignment="Center" Width="300" Margin="10">
@@ -173,8 +182,17 @@
                                     </Icon:PackIconMaterial>
                                 </StackPanel>
                                 <ScrollViewer MaxHeight="200" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-                                    <ListBox Style="{DynamicResource ListBoxStyle1}" ItemsSource="{Binding CombatLogsForTargetUser}" SelectedIndex="{Binding CombatListSelectedIndex}"
-                                        Visibility="{Binding CombatLogsForTargetUser.Count, Converter={StaticResource IntToVisibility}, ConverterParameter='true:0:>'}">
+                                    <ListBox ItemsSource="{Binding CombatLogsForTargetUser}" SelectedIndex="{Binding CombatListSelectedIndex}">
+                                        <ListBox.Style>
+                                            <Style TargetType="ListBox">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding CombatLogsForTargetUser.Count}" Value="0">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ListBox.Style>
                                         <ListBox.ItemTemplate>
                                             <DataTemplate>
                                                 <StackPanel HorizontalAlignment="Center" Width="300" Margin="10">
@@ -224,8 +242,17 @@
                 <TextBlock HorizontalAlignment="Center" Text="{loc:Loc UploadFile}" Margin="0 20" FontSize="16" Foreground="White" />
                 <Button Click="SelectCmbatLogFiles" Content="{loc:Loc SelectFile}" Width="125" FontSize="16"
                         Margin="15 0" Style="{StaticResource showButton}" />
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="20" 
-                            Visibility="{Binding CombatLogNames.Count, Converter={StaticResource IntToVisibility}, ConverterParameter=true:0:>}">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="20">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Visible"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding CombatLogNames.Count}" Value="0">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
                     <ScrollViewer MaxHeight="150" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
                         <ListBox Style="{DynamicResource ListBoxStyle1}" ItemsSource="{Binding CombatLogNames}">
                             <ListBox.ItemTemplate>

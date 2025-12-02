@@ -5,7 +5,6 @@ using CombatAnalysis.Core.Interfaces;
 using CombatAnalysis.Core.Models;
 using CombatAnalysis.Core.ViewModels.ViewModelTemplates;
 using Microsoft.Extensions.Logging;
-using System.Collections.ObjectModel;
 
 namespace CombatAnalysis.Core.ViewModels;
 
@@ -18,16 +17,14 @@ public class HealDoneDetailsViewModel : DetailsGenericTemplate<HealDoneModel, He
         Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.Step), 4);
     }
 
-    protected override void ExtendedPrepare(CombatPlayerModel parameter)
+    protected override void GetDetailsFromCache(CombatPlayerModel? parameter)
     {
         var healDoneCollection = _cacheService?.GetDataFromCache<Dictionary<string, List<HealDone>>>($"{AppCacheKeys.CombatDetails_HealDone}_{SelectedCombat?.LocallyNumber}");
-        var healDoneCollectionMap = _mapper.Map<List<HealDoneModel>>(healDoneCollection?[parameter.PlayerId]);
-        DetailsInformations = new ObservableCollection<HealDoneModel>(healDoneCollectionMap);
-        _allDetailsInformations = new List<HealDoneModel>(healDoneCollectionMap);
+        var healDoneCollectionMap = _mapper.Map<List<HealDoneModel>>(healDoneCollection?[parameter != null ? parameter.PlayerId : string.Empty]);
+        _allDetailsInformations = [.. healDoneCollectionMap];
 
         var healDoneGeneralCollection = _cacheService?.GetDataFromCache<Dictionary<string, List<HealDoneGeneral>>>($"{AppCacheKeys.CombatDetails_HealDoneGeneral}_{SelectedCombat?.LocallyNumber}");
-        var healDoneGeneralCollectionMap = _mapper.Map<List<HealDoneGeneralModel>>(healDoneGeneralCollection?[parameter.PlayerId]);
-        GeneralInformations = new ObservableCollection<HealDoneGeneralModel>(healDoneGeneralCollectionMap);
-        _allGeneralInformations = new List<HealDoneGeneralModel>(healDoneGeneralCollectionMap);
+        var healDoneGeneralCollectionMap = _mapper.Map<List<HealDoneGeneralModel>>(healDoneGeneralCollection?[parameter != null ? parameter.PlayerId : string.Empty]);
+        _allGeneralInformations = [.. healDoneGeneralCollectionMap];
     }
 }

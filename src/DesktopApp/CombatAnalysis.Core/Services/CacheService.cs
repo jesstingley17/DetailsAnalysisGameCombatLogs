@@ -1,17 +1,11 @@
 ﻿using CombatAnalysis.Core.Interfaces;
 using Microsoft.Extensions.Caching.Memory;
-using MvvmCross.IoC;
 
 namespace CombatAnalysis.Core.Services;
 
-internal class CacheService : ICacheService
+internal class CacheService(IMemoryCache cache) : ICacheService
 {
-    private readonly IMemoryCache _cache;
-
-    public CacheService()
-    {
-        _cache = new MemoryCache(new MemoryCacheOptions());
-    }
+    private readonly IMemoryCache _cache = cache;
 
     public void SaveDataToCache<TModel>(string key, TModel data, int expirationInMinutes = 30)
         where TModel : class
@@ -22,15 +16,11 @@ internal class CacheService : ICacheService
         });
     }
 
-    public TModel GetDataFromCache<TModel>(string key)
+    public TModel? GetDataFromCache<TModel>(string key)
         where TModel : class
     {
-        if (_cache.TryGetValue(key, out TModel? data))
-        {
-            return data ?? (TModel)typeof(TModel).CreateDefault();
-        }
-
-        return (TModel)typeof(TModel).CreateDefault();
+        _cache.TryGetValue(key, out TModel? data);
+        return data;
     }
 
     public void RemoveDataFromCache(string key)
