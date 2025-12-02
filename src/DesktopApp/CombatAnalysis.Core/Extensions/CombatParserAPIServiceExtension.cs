@@ -6,19 +6,16 @@ namespace CombatAnalysis.Core.Extensions;
 
 internal static class CombatParserAPIServiceExtension
 {
-    public static async Task<IEnumerable<T>> LoadCombatDetailsAsync<T>(this ICombatParserAPIService _, IHttpClientHelper httpClient, ILogger logger, string address)
+    public static async Task<IEnumerable<T>> LoadCombatDetailsAsync<T>(this ICombatParserAPIService _, IHttpClientHelper httpClient, ILogger logger, string address, CancellationToken token)
         where T : class
     {
         try
         {
-            var response = await httpClient.GetAsync(address, CancellationToken.None);
+            var response = await httpClient.GetAsync(address, token);
             response.EnsureSuccessStatusCode();
 
             var details = await response.Content.ReadFromJsonAsync<IEnumerable<T>>();
-            if (details == null)
-            {
-                throw new ArgumentNullException(nameof(details));
-            }
+            ArgumentNullException.ThrowIfNull(details, nameof(details));
 
             return details;
         }
@@ -26,19 +23,19 @@ internal static class CombatParserAPIServiceExtension
         {
             logger.LogError(ex, ex.Message);
 
-            return new List<T>();
+            return [];
         }
         catch (HttpRequestException ex)
         {
             logger.LogError(ex, "HTTP request error: {Message}", ex.Message);
 
-            return new List<T>();
+            return [];
         }
-        catch (Exception ex)
+        catch (OperationCanceledException ex)
         {
-            logger.LogError(ex, "An unexpected error occurred: {Message}", ex.Message);
+            logger.LogError(ex, "Request was canceled by client: {Message}", ex.Message);
 
-            return new List<T>();
+            return [];
         }
     }
 }

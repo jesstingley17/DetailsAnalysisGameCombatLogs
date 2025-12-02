@@ -35,6 +35,7 @@
             <converters:TheNativeIntToVisibilityConverter x:Key="IntToVisibility" />
             <combatLogsConverters:TheNativeDifficultyToVisibilityConverter x:Key="DifficultyToVisibilityConverter" />
             <combatLogsConverters:TheNativeDifficultyToStringConverter x:Key="DifficultyToStringConverter" />
+            <combatLogsConverters:IntToEnhancedIntConverter x:Key="IntToEnhancedInt" />
         </Grid.Resources>
         
         <ContentControl Grid.RowSpan="5" Grid.ColumnSpan="3" Content="{Binding Basic}">
@@ -51,27 +52,35 @@
                        Style="{StaticResource titleText}" TextWrapping="Wrap" Foreground="White"/>
         </StackPanel>
 
-        <StackPanel Grid.Column="3" Grid.Row="1" Orientation="Horizontal"
-                    HorizontalAlignment="Center" VerticalAlignment="Center">
-            <Button Content="{loc:Loc Refresh}" FontSize="14" Width="100" Height="35" Command="{Binding RefreshCommand}"
-                    Style="{StaticResource showButton}"/>
-            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White"
+        <Grid Grid.Column="3" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <CheckBox Grid.Column="0" Style="{DynamicResource CheckBoxStyle1}" VerticalContentAlignment="Center" Content="{loc:Loc OnlyWin}" IsChecked="{Binding OnlyWin}" Width="125" Margin="20 0" />
+            <TextBlock Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" Margin="10 0"
                        Text="{loc:Loc Title}" FontSize="18" FontWeight="Bold"
-                       Margin="100 0" Style="{StaticResource titleText}"/>
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" 
-                        Visibility="{Binding ResponseStatus, Converter={StaticResource IntToVisibility}, ConverterParameter=true:3}" Margin="-5">
+                       Style="{StaticResource titleText}"/>
+            <Button Grid.Column="2" Content="{loc:Loc Refresh}" FontSize="14" Width="100" Height="35" Margin="10 0" Command="{Binding RefreshCommand}"
+                    Style="{StaticResource showButton}"/>
+            <StackPanel Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10 0"
+                        Visibility="{Binding ResponseStatus, Converter={StaticResource IntToVisibility}, ConverterParameter=false:3}">
                 <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
                        Text="{loc:Loc LoadingFailed}" Foreground="Red" FontSize="12" FontWeight="Bold"
                        TextWrapping="Wrap" Margin="5" Style="{StaticResource titleText}"/>
                 <Button Content="{loc:Loc Repeat}" FontSize="14" Width="100"
                         mvx:Bi.nd="Command RepeatSaveCommand" Style="{StaticResource showButton}"/>
             </StackPanel>
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" 
-                        Visibility="{Binding ResponseStatus, Converter={StaticResource IntToVisibility}, ConverterParameter=true:1}" Margin="-5">
+            <StackPanel Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10 0"
+                        Visibility="{Binding ResponseStatus, Converter={StaticResource IntToVisibility}, ConverterParameter=false:1}">
                 <Button Content="{loc:Loc Cancel}" FontSize="14" Width="100"
                         mvx:Bi.nd="Command CancelCommand" Style="{StaticResource showButton}"/>
             </StackPanel>
-        </StackPanel>
+        </Grid>
 
         <DataGrid CellStyle="{DynamicResource DataGridCellStyle1}" ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}" 
                   RowStyle="{DynamicResource DataGridRowStyle1}" Style="{DynamicResource DataGridStyle1}"
@@ -136,9 +145,9 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <StackPanel>
-                                <TextBlock Text="{Binding Path=DamageDone}" TextAlignment="Center" FontSize="12" Opacity="0.5" 
+                                <TextBlock Text="{Binding Path=DamageDone, Converter={StaticResource IntToEnhancedInt}}" TextAlignment="Center" FontSize="12" Opacity="0.5" 
                                            Visibility="{Binding IsWin, Converter={StaticResource BoolToVisibility}, ConverterParameter=true:true}"/>
-                                <TextBlock Text="{Binding Path=DamageDone}" TextAlignment="Center" FontSize="12"
+                                <TextBlock Text="{Binding Path=DamageDone, Converter={StaticResource IntToEnhancedInt}}" TextAlignment="Center" FontSize="12"
                                            Visibility="{Binding IsWin, Converter={StaticResource BoolToVisibility}, ConverterParameter=true:false}"/>
                             </StackPanel>
                         </DataTemplate>
@@ -164,9 +173,9 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <StackPanel>
-                                <TextBlock Text="{Binding Path=HealDone}" TextAlignment="Center" Margin="10" FontSize="12" Opacity="0.5" 
+                                <TextBlock Text="{Binding Path=HealDone, Converter={StaticResource IntToEnhancedInt}}" TextAlignment="Center" Margin="10" FontSize="12" Opacity="0.5" 
                                            Visibility="{Binding IsWin, Converter={StaticResource BoolToVisibility}, ConverterParameter=true:true}"/>
-                                <TextBlock Text="{Binding Path=HealDone}" TextAlignment="Center" Margin="10" FontSize="12"
+                                <TextBlock Text="{Binding Path=HealDone, Converter={StaticResource IntToEnhancedInt}}" TextAlignment="Center" Margin="10" FontSize="12"
                                            Visibility="{Binding IsWin, Converter={StaticResource BoolToVisibility}, ConverterParameter=true:false}"/>
                             </StackPanel>
                         </DataTemplate>
@@ -192,9 +201,9 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <StackPanel>
-                                <TextBlock Text="{Binding Path=DamageTaken}" TextAlignment="Center" Margin="10" FontSize="12" Opacity="0.5" 
+                                <TextBlock Text="{Binding Path=DamageTaken, Converter={StaticResource IntToEnhancedInt}}" TextAlignment="Center" Margin="10" FontSize="12" Opacity="0.5" 
                                            Visibility="{Binding IsWin, Converter={StaticResource BoolToVisibility}, ConverterParameter=true:true}"/>
-                                <TextBlock Text="{Binding Path=DamageTaken}" TextAlignment="Center" Margin="10" FontSize="12" 
+                                <TextBlock Text="{Binding Path=DamageTaken, Converter={StaticResource IntToEnhancedInt}}" TextAlignment="Center" Margin="10" FontSize="12" 
                                            Visibility="{Binding IsWin, Converter={StaticResource BoolToVisibility}, ConverterParameter=true:false}"/>
                             </StackPanel>
                         </DataTemplate>
@@ -220,9 +229,9 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <StackPanel>
-                                <TextBlock Text="{Binding Path=EnergyRecovery}" TextAlignment="Center" Margin="10" FontSize="12" Opacity="0.5" 
+                                <TextBlock Text="{Binding Path=EnergyRecovery, Converter={StaticResource IntToEnhancedInt}}" TextAlignment="Center" Margin="10" FontSize="12" Opacity="0.5" 
                                            Visibility="{Binding IsWin, Converter={StaticResource BoolToVisibility}, ConverterParameter=true:true}"/>
-                                <TextBlock Text="{Binding Path=EnergyRecovery}" TextAlignment="Center" Margin="10" FontSize="12" 
+                                <TextBlock Text="{Binding Path=EnergyRecovery, Converter={StaticResource IntToEnhancedInt}}" TextAlignment="Center" Margin="10" FontSize="12" 
                                            Visibility="{Binding IsWin, Converter={StaticResource BoolToVisibility}, ConverterParameter=true:false}"/>
                             </StackPanel>
                         </DataTemplate>

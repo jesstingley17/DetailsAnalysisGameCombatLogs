@@ -45,6 +45,7 @@ public abstract class DetailsGenericTemplate<DetailsModel, GeneralDetailsModel> 
     private ObservableCollection<GeneralDetailsModel>? _generalInformations;
     private ObservableCollection<string>? _sources;
     private int _detailsTypeSelectedIndex;
+    private CancellationTokenSource? _cancelToken;
 
     public DetailsGenericTemplate(IHttpClientHelper httpClient, ILogger logger, IMapper mapper, 
         ICombatParserAPIService combatParserAPIService)
@@ -227,11 +228,20 @@ public abstract class DetailsGenericTemplate<DetailsModel, GeneralDetailsModel> 
             GetAPINameFromGeneralDetailsModelName();
         }
 
+        _cancelToken = new CancellationTokenSource();
+
         await LoadGeneralDetailsAsync();
         await LoadDetailsAsync(Page, _pageSize);
         await LoadCountAsync();
 
         GetSources();
+    }
+
+    public override void ViewDestroy(bool viewFinishing = true)
+    {
+        _cancelToken?.Cancel();
+
+        base.ViewDestroy(viewFinishing);
     }
 
     public void GetSources()
@@ -319,7 +329,7 @@ public abstract class DetailsGenericTemplate<DetailsModel, GeneralDetailsModel> 
 
     private async Task LoadGeneralDetailsAsync()
     {
-        var generalInformations = await _combatParserAPIService.LoadCombatDetailsAsync<GeneralDetailsModel>(_httpClient, _logger, $"{_generalApiName}/getByCombatPlayerId/{SelectedPlayerId}");
+        var generalInformations = await _combatParserAPIService.LoadCombatDetailsAsync<GeneralDetailsModel>(_httpClient, _logger, $"{_generalApiName}/getByCombatPlayerId/{SelectedPlayerId}", _cancelToken.Token);
         if (generalInformations.Any())
         {
             _allGeneralInformations = [.. generalInformations.ToList()];
@@ -333,7 +343,7 @@ public abstract class DetailsGenericTemplate<DetailsModel, GeneralDetailsModel> 
 
     private async Task LoadDetailsAsync(int page, int pageSize)
     {
-        var detailsInformations = await _combatParserAPIService.LoadCombatDetailsAsync<DetailsModel>(_httpClient, _logger, $"{_apiName}/getByCombatPlayerId?combatPlayerId={SelectedPlayerId}&page={page}&pageSize={pageSize}");
+        var detailsInformations = await _combatParserAPIService.LoadCombatDetailsAsync<DetailsModel>(_httpClient, _logger, $"{_apiName}/getByCombatPlayerId?combatPlayerId={SelectedPlayerId}&page={page}&pageSize={pageSize}", _cancelToken.Token);
         if (detailsInformations.Any())
         {
             _allDetailsInformations = [.. detailsInformations.ToList()];

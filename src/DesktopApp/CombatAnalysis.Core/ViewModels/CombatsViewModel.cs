@@ -20,6 +20,7 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
     private readonly int _maxCombatInformationStepIndex = 4;
 
     private ObservableCollection<CombatModel>? _combats;
+    private ObservableCollection<CombatModel>? _fullCombats;
     private CombatModel? _selectedCombat;
     private int _selectedCombatIndex = -1;
     private string? _dungeonName;
@@ -47,6 +48,7 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
     private double _indexOfDeath;
     private int _combatInformationStep;
     private bool _showAverageInformation;
+    private bool _onlyWin;
 
     private int _sortedByName = -1;
     private int _sortedByDamageDone = -1;
@@ -170,6 +172,17 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
         set
         {
             SetProperty(ref _maxCombats, value);
+        }
+    }
+
+    public bool OnlyWin
+    {
+        get { return _onlyWin; }
+        set
+        {
+            SetProperty(ref _onlyWin, value);
+
+            Filter();
         }
     }
 
@@ -420,7 +433,8 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
             return;
         }
 
-        Combats = new ObservableCollection<CombatModel>(parameter.Item1);
+        _fullCombats = new ObservableCollection<CombatModel>(parameter.Item1);
+        Combats = new ObservableCollection<CombatModel>(_fullCombats);
         MaxCombats = Combats.Count;
 
         GetUniqueDungeonNames(parameter.Item1);
@@ -762,5 +776,16 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
             player.ResourcesRecoveryPerSecond = player.ResourcesRecovery / duration.TotalSeconds;
             player.DamageTakenPerSecond = player.DamageTaken / duration.TotalSeconds;
         }
+    }
+
+    private void Filter()
+    {
+        if (_fullCombats == null)
+        {
+            return;
+        }
+
+        var filterOnlyWinCombats = _fullCombats.Where(c => c.IsWin);
+        Combats = new ObservableCollection<CombatModel>(OnlyWin ? filterOnlyWinCombats : _fullCombats);
     }
 }

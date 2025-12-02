@@ -240,4 +240,7 @@
   <data name="Open" xml:space="preserve">
     <value>Open</value>
   </data>
+  <data name="OnlyWin" xml:space="preserve">
+    <value>Only win</value>
+  </data>
 </root>

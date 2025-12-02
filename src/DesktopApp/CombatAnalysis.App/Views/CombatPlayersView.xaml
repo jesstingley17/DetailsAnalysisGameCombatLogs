@@ -6,6 +6,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:converters="clr-namespace:CombatAnalysis.App.Converters"
+    xmlns:convertersCombat="clr-namespace:CombatAnalysis.App.Converters.CombatLogs"
     xmlns:loc="clr-namespace:CombatAnalysis.App.Localizations"
     xmlns:resx="clr-namespace:CombatAnalysis.App.Localizations.Resources.CombatPlayers"
     xmlns:local="clr-namespace:CombatAnalysis.App.Views.ViewTemplates"
@@ -19,6 +20,7 @@
             <converters:TheNativeIntToVisibilityConverter x:Key="IntToVisibility" />
             <converters:TheNativeBoolToVisibilityConverter x:Key="BoolToVisibility" />
             <converters:NullToVisibilityConverter x:Key="NullToVisibility" />
+            <convertersCombat:IntToEnhancedIntConverter x:Key="IntToEnhancedInt" />
         </Grid.Resources>
         
         <Grid.RowDefinitions>
@@ -118,91 +120,199 @@
         <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" Grid.Column="2" Grid.Row="1" Grid.ColumnSpan="2" Margin="0 -5"
                     HorizontalAlignment="Center" Visibility="{Binding CombatInformationType, Converter={StaticResource IntToVisibility}, ConverterParameter='false:0:='}"> 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" Width="200"
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" Width="250"
                             Visibility="{Binding UseFilterByMinDamageDone, Converter={StaticResource BoolToVisibility}, ConverterParameter=true:false}">
-                    <Icon:PackIconMaterial Kind="Close" Cursor="Hand" Foreground="Red" Width="10" Margin="-20 6" HorizontalAlignment="Center" VerticalAlignment="Top">
+                    <Icon:PackIconMaterial Kind="Close" Cursor="Hand" Foreground="Red" Width="10" Margin="0 10" HorizontalAlignment="Center" VerticalAlignment="Top">
                         <Icon:PackIconMaterial.InputBindings>
                             <MouseBinding Command="{Binding UseFilterByMinDamageDoneCommand}" Gesture="LeftClick"/>
                         </Icon:PackIconMaterial.InputBindings>
                     </Icon:PackIconMaterial>
                     <StackPanel Margin="20 0">
-                        <TextBlock Text="{loc:Loc MinDamage}" Margin="0 5" FontSize="12" Foreground="White"/>
-                        <StackPanel Orientation="Horizontal" Cursor="Hand" ToolTip="{loc:Loc EditValue}"
-                                    Visibility="{Binding OpenEditMinDamageDone, Converter={StaticResource BoolToVisibility}, ConverterParameter=true:true}">
-                            <TextBlock Text="{Binding MinDamageDone}" Width="90" Margin="0 5" FontSize="12" FontWeight="Bold" Foreground="White"/>
-                            <Icon:PackIconMaterial Kind="Pen" Foreground="White" Width="13" Margin="10 6" HorizontalAlignment="Center" VerticalAlignment="Top">
-                                <Icon:PackIconMaterial.InputBindings>
-                                    <MouseBinding Command="{Binding OpenEditMinDamageDoneCommand}" Gesture="LeftClick"/>
-                                </Icon:PackIconMaterial.InputBindings>
-                            </Icon:PackIconMaterial>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Cursor="Hand" ToolTip="{loc:Loc EditValue}"
-                                    Visibility="{Binding OpenEditMinDamageDone, Converter={StaticResource BoolToVisibility}, ConverterParameter=true:false}">
-                            <TextBox Text="{Binding MinDamageDone, UpdateSourceTrigger=PropertyChanged}" Width="90" Margin="0 5" FontSize="12" FontWeight="Bold" Foreground="White"/>
-                            <Icon:PackIconMaterial Kind="GamepadDown" Foreground="Green" Width="13" Margin="10 6" HorizontalAlignment="Center" VerticalAlignment="Top">
+                        <StackPanel Orientation="Horizontal" Margin="0 5">
+                            <TextBlock Text="{loc:Loc MinDamage}" Margin="0 5" FontSize="14" Foreground="White"/>
+                            <Icon:PackIconMaterial Margin="15 5" Foreground="White" Width="13" HorizontalAlignment="Center" VerticalAlignment="Top">
+                                <Icon:PackIconMaterial.Style>
+                                    <Style TargetType="Icon:PackIconMaterial">
+                                        <Setter Property="Kind" Value="Pen"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding OpenEditMinDamageDone}" Value="True">
+                                                <Setter Property="Kind" Value="GamepadDown"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Icon:PackIconMaterial.Style>
                                 <Icon:PackIconMaterial.InputBindings>
                                     <MouseBinding Command="{Binding ApplyMinDamageDoneCommand}" Gesture="LeftClick"/>
                                 </Icon:PackIconMaterial.InputBindings>
                             </Icon:PackIconMaterial>
                         </StackPanel>
+                        <Grid Cursor="Hand" ToolTip="{loc:Loc EditValue}" HorizontalAlignment="Center">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="20"/>
+                                <RowDefinition Height="20"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBox Grid.Row="0" Text="{Binding MinDamageDone, UpdateSourceTrigger=PropertyChanged}" FontSize="14" FontWeight="Bold" Foreground="Black" Width="125">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding OpenEditMinDamageDone}" Value="True">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                                <TextBox.InputBindings>
+                                    <KeyBinding Command="{Binding ApplyMinDamageDoneCommand}" Gesture="Enter" />
+                                </TextBox.InputBindings>
+                            </TextBox>
+                            <TextBlock Grid.Row="1" Text="{Binding MinDamageDone}" FontSize="14" FontWeight="Bold" Foreground="White" Width="125">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding OpenEditMinDamageDone}" Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                                <TextBlock.InputBindings>
+                                    <MouseBinding Command="{Binding OpenEditMinDamageDoneCommand}" Gesture="LeftClick"/>
+                                </TextBlock.InputBindings>
+                            </TextBlock>
+                        </Grid>
                     </StackPanel>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" Width="200"
                             Visibility="{Binding UseFilterByMinHealDone, Converter={StaticResource BoolToVisibility}, ConverterParameter=true:false}">
-                    <Icon:PackIconMaterial Kind="Close" Cursor="Hand" Foreground="Red" Width="10" Margin="-20 6" HorizontalAlignment="Center" VerticalAlignment="Top">
+                    <Icon:PackIconMaterial Kind="Close" Cursor="Hand" Foreground="Red" Width="10" Margin="0 10" HorizontalAlignment="Center" VerticalAlignment="Top">
                         <Icon:PackIconMaterial.InputBindings>
                             <MouseBinding Command="{Binding UseFilterByMinHealDoneCommand}" Gesture="LeftClick"/>
                         </Icon:PackIconMaterial.InputBindings>
                     </Icon:PackIconMaterial>
                     <StackPanel Margin="20 0">
-                        <TextBlock Text="{loc:Loc MinHeal}" Margin="0 5" FontSize="12" Foreground="White" />
-                        <StackPanel Orientation="Horizontal" Cursor="Hand" ToolTip="{loc:Loc EditValue}"
-                                    Visibility="{Binding OpenEditMinHealDone, Converter={StaticResource BoolToVisibility}, ConverterParameter=true:true}">
-                            <TextBlock Text="{Binding MinHealDone}" Width="90" Margin="0 5" FontSize="12" FontWeight="Bold" Foreground="White"/>
-                            <Icon:PackIconMaterial Kind="Pen" Foreground="White" Width="13" Margin="10 6" HorizontalAlignment="Center" VerticalAlignment="Top">
-                                <Icon:PackIconMaterial.InputBindings>
-                                    <MouseBinding Command="{Binding OpenEditMinHealDoneCommand}" Gesture="LeftClick"/>
-                                </Icon:PackIconMaterial.InputBindings>
-                            </Icon:PackIconMaterial>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Cursor="Hand" ToolTip="{loc:Loc EditValue}"
-                                    Visibility="{Binding OpenEditMinHealDone, Converter={StaticResource BoolToVisibility}, ConverterParameter=true:false}">
-                            <TextBox Text="{Binding MinHealDone, UpdateSourceTrigger=PropertyChanged}" Width="90" Margin="0 5" FontSize="12" FontWeight="Bold" Foreground="White"/>
-                            <Icon:PackIconMaterial Kind="GamepadDown" Foreground="Green" Width="13" Margin="10 6" HorizontalAlignment="Center" VerticalAlignment="Top">
+                        <StackPanel Orientation="Horizontal" Margin="0 5">
+                            <TextBlock Text="{loc:Loc MinHeal}" Margin="0 5" FontSize="14" Foreground="White"/>
+                            <Icon:PackIconMaterial Margin="15 5" Foreground="White" Width="13" HorizontalAlignment="Center" VerticalAlignment="Top">
+                                <Icon:PackIconMaterial.Style>
+                                    <Style TargetType="Icon:PackIconMaterial">
+                                        <Setter Property="Kind" Value="Pen"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding OpenEditMinHealDone}" Value="True">
+                                                <Setter Property="Kind" Value="GamepadDown"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Icon:PackIconMaterial.Style>
                                 <Icon:PackIconMaterial.InputBindings>
                                     <MouseBinding Command="{Binding ApplyMinHealDoneCommand}" Gesture="LeftClick"/>
                                 </Icon:PackIconMaterial.InputBindings>
                             </Icon:PackIconMaterial>
                         </StackPanel>
+                        <Grid Cursor="Hand" ToolTip="{loc:Loc EditValue}" HorizontalAlignment="Center">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="20"/>
+                                <RowDefinition Height="20"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBox Grid.Row="0" Text="{Binding MinHealDone, UpdateSourceTrigger=PropertyChanged}" FontSize="14" FontWeight="Bold" Foreground="Black" Width="125">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding OpenEditMinHealDone}" Value="True">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                                <TextBox.InputBindings>
+                                    <KeyBinding Command="{Binding ApplyMinHealDoneCommand}" Gesture="Enter" />
+                                </TextBox.InputBindings>
+                            </TextBox>
+                            <TextBlock Grid.Row="1" Text="{Binding MinHealDone}" FontSize="14" Foreground="White">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding OpenEditMinHealDone}" Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                                <TextBlock.InputBindings>
+                                    <MouseBinding Command="{Binding OpenEditMinHealDoneCommand}" Gesture="LeftClick"/>
+                                </TextBlock.InputBindings>
+                            </TextBlock>
+                        </Grid>
                     </StackPanel>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" Width="200"
                             Visibility="{Binding UseFilterByMinEnergyRecovery, Converter={StaticResource BoolToVisibility}, ConverterParameter=true:false}">
-                    <Icon:PackIconMaterial Kind="Close" Cursor="Hand" Foreground="Red" Width="10" Margin="-20 6" HorizontalAlignment="Center" VerticalAlignment="Top">
+                    <Icon:PackIconMaterial Kind="Close" Cursor="Hand" Foreground="Red" Width="10" Margin="0 10" HorizontalAlignment="Center" VerticalAlignment="Top">
                         <Icon:PackIconMaterial.InputBindings>
                             <MouseBinding Command="{Binding UseFilterByMinEnergyRecoveryCommand}" Gesture="LeftClick"/>
                         </Icon:PackIconMaterial.InputBindings>
                     </Icon:PackIconMaterial>
                     <StackPanel Margin="20 0">
-                        <TextBlock Text="{loc:Loc MinResources}" Margin="0 5" FontSize="12" Foreground="White"/>
-                        <StackPanel Orientation="Horizontal" Cursor="Hand" ToolTip="{loc:Loc EditValue}"
-                                    Visibility="{Binding OpenEditMinEnergyRecovery, Converter={StaticResource BoolToVisibility}, ConverterParameter=true:true}">
-                            <TextBlock Text="{Binding MinEnergyRecovery}" Width="90" Margin="0 5" FontSize="12" FontWeight="Bold" Foreground="White"/>
-                            <Icon:PackIconMaterial Kind="Pen" Foreground="White" Width="13" Margin="10 6" HorizontalAlignment="Center" VerticalAlignment="Top">
-                                <Icon:PackIconMaterial.InputBindings>
-                                    <MouseBinding Command="{Binding OpenEditEnergyRecoveryCommand}" Gesture="LeftClick"/>
-                                </Icon:PackIconMaterial.InputBindings>
-                            </Icon:PackIconMaterial>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Cursor="Hand" ToolTip="{loc:Loc EditValue}"
-                                    Visibility="{Binding OpenEditMinEnergyRecovery, Converter={StaticResource BoolToVisibility}, ConverterParameter=true:false}">
-                            <TextBox Text="{Binding MinEnergyRecovery, UpdateSourceTrigger=PropertyChanged}" Width="90" Margin="0 5" FontSize="12" FontWeight="Bold" Foreground="White"/>
-                            <Icon:PackIconMaterial Kind="GamepadDown" Foreground="Green" Width="13" Margin="10 6" HorizontalAlignment="Center" VerticalAlignment="Top">
+                        <StackPanel Orientation="Horizontal" Margin="0 5">
+                            <TextBlock Text="{loc:Loc MinResources}" Margin="0 5" FontSize="14" Foreground="White"/>
+                            <Icon:PackIconMaterial Margin="15 5" Foreground="White" Width="13" HorizontalAlignment="Center" VerticalAlignment="Top">
+                                <Icon:PackIconMaterial.Style>
+                                    <Style TargetType="Icon:PackIconMaterial">
+                                        <Setter Property="Kind" Value="Pen"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding OpenEditMinEnergyRecovery}" Value="True">
+                                                <Setter Property="Kind" Value="GamepadDown"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Icon:PackIconMaterial.Style>
                                 <Icon:PackIconMaterial.InputBindings>
                                     <MouseBinding Command="{Binding ApplyMinEnergyRecoveryCommand}" Gesture="LeftClick"/>
                                 </Icon:PackIconMaterial.InputBindings>
                             </Icon:PackIconMaterial>
                         </StackPanel>
+                        <Grid Cursor="Hand" ToolTip="{loc:Loc EditValue}" HorizontalAlignment="Center">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="20"/>
+                                <RowDefinition Height="20"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBox Grid.Row="0" Text="{Binding MinEnergyRecovery, UpdateSourceTrigger=PropertyChanged}" FontSize="14" FontWeight="Bold" Foreground="Black" Width="125">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding OpenEditMinEnergyRecovery}" Value="True">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                                <TextBox.InputBindings>
+                                    <KeyBinding Command="{Binding ApplyMinEnergyRecoveryCommand}" Gesture="Enter" />
+                                </TextBox.InputBindings>
+                            </TextBox>
+                            <TextBlock Grid.Row="1" Text="{Binding MinEnergyRecovery}" FontSize="14" Foreground="White">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding OpenEditMinEnergyRecovery}" Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                                <TextBlock.InputBindings>
+                                    <MouseBinding Command="{Binding ApplyMinEnergyRecoveryCommand}" Gesture="LeftClick"/>
+                                </TextBlock.InputBindings>
+                            </TextBlock>
+                        </Grid>
                     </StackPanel>
                 </StackPanel>
             </StackPanel>
@@ -324,7 +434,7 @@
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel>
-                                    <TextBlock Text="{Binding Path=DamageDone}" HorizontalAlignment="Center" FontSize="12" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding Path=DamageDone, Converter={StaticResource IntToEnhancedInt}}" HorizontalAlignment="Center" FontSize="12" VerticalAlignment="Center" />
                                 </StackPanel>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
@@ -339,7 +449,7 @@
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel>
-                                    <TextBlock Text="{Binding Path=HealDone}" HorizontalAlignment="Center" FontSize="12" VerticalAlignment="Center" />
+                                    <TextBlock Text="{Binding Path=HealDone, Converter={StaticResource IntToEnhancedInt}}" HorizontalAlignment="Center" FontSize="12" VerticalAlignment="Center" />
                                 </StackPanel>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
@@ -354,7 +464,7 @@
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel>
-                                    <TextBlock Text="{Binding Path=DamageTaken}" HorizontalAlignment="Center" FontSize="12" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding Path=DamageTaken, Converter={StaticResource IntToEnhancedInt}}" HorizontalAlignment="Center" FontSize="12" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
@@ -369,7 +479,7 @@
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel>
-                                    <TextBlock Text="{Binding Path=ResourcesRecovery}" HorizontalAlignment="Center" FontSize="12" VerticalAlignment="Center" />
+                                    <TextBlock Text="{Binding Path=ResourcesRecovery, Converter={StaticResource IntToEnhancedInt}}" HorizontalAlignment="Center" FontSize="12" VerticalAlignment="Center" />
                                 </StackPanel>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>

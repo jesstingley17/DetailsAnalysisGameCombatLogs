@@ -515,10 +515,11 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
 
     public void ApplyMinDamageDone()
     {
+        OpenEditMinDamageDone = !OpenEditMinDamageDone;
+
         if (MinDamageDone > 0)
         {
             FilterInformationByMinDamageDone(MinDamageDone);
-            OpenEditMinDamageDone = false;
 
             return;
         }
@@ -533,16 +534,15 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
         {
             ApplyMinEnergyRecovery();
         }
-
-        OpenEditMinDamageDone = false;
     }
 
     public void ApplyMinHealDone()
     {
+        OpenEditMinHealDone = !OpenEditMinHealDone;
+
         if (MinHealDone > 0)
         {
             FilterInformationByMinHealDone(MinHealDone);
-            OpenEditMinHealDone = false;
 
             return;
         }
@@ -557,16 +557,15 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
         {
             ApplyMinEnergyRecovery();
         }
-
-        OpenEditMinHealDone = false;
     }
 
     public void ApplyMinEnergyRecovery()
     {
+        OpenEditMinEnergyRecovery = !OpenEditMinEnergyRecovery;
+
         if (MinEnergyRecovery > 0)
         {
             FilterInformationByMinEnergyRecovery(MinEnergyRecovery);
-            OpenEditMinEnergyRecovery = false;
 
             return;
         }
@@ -581,8 +580,6 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
         {
             ApplyMinHealDone();
         }
-
-        OpenEditMinEnergyRecovery = false;
     }
 
     public void ApplyMinDPS()
@@ -719,7 +716,7 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
         var minHeal = TranslationSource.Instance["CombatAnalysis.App.Localizations.Resources.CombatPlayers.Resource.MinHeal"];
         var minResurces = TranslationSource.Instance["CombatAnalysis.App.Localizations.Resources.CombatPlayers.Resource.MinResources"];
 
-        FilterList = ["", minDamage, minHeal, minResurces];
+        FilterList = ["No any", minDamage, minHeal, minResurces];
     }
 
     private void GetValuePerSecondFiltersName()
@@ -728,7 +725,7 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
         var minHPS = TranslationSource.Instance["CombatAnalysis.App.Localizations.Resources.CombatPlayers.Resource.MinHPS"];
         var minRPS = TranslationSource.Instance["CombatAnalysis.App.Localizations.Resources.CombatPlayers.Resource.MinRPS"];
 
-        FilterList = ["", minDPS, minHPS, minRPS];
+        FilterList = ["No any", minDPS, minHPS, minRPS];
     }
 
     private void UseFilter(int index)
@@ -785,13 +782,13 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
 
     private void FilterInformationByMinDamageDone(int minDamageDone)
     {
-        if (PlayersCombat == null)
+        if (_mainPlayersCombat == null)
         {
             return;
         }
 
         var temporaryPlayersCombat = new List<CombatPlayerModel>();
-        foreach (var player in PlayersCombat)
+        foreach (var player in _mainPlayersCombat)
         {
             if (player.DamageDone >= minDamageDone)
             {

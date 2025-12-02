@@ -144,7 +144,7 @@
                     </StackPanel>
 
                     <StackPanel Margin="10 10 0 0">
-                        <StackPanel Orientation="Horizontal" Margin="10 -20" HorizontalAlignment="Right"  Opacity="0.5"
+                        <StackPanel Orientation="Horizontal" Margin="30 -20" HorizontalAlignment="Right" Opacity="0.5"
                                 Visibility="{Binding IsAuth, Converter={StaticResource BoolToVisibility}, ConverterParameter='true:true'}">
                             <Button Style="{StaticResource textBoxButton}" Cursor="Help" ToolTip="{loc:Loc ChatLoginRequired}">
                                 <Icon:PackIconMaterial Kind="CloudQuestion" Foreground="White"/>
