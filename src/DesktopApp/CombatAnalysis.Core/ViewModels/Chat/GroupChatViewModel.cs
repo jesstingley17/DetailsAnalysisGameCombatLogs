@@ -12,7 +12,7 @@ public class GroupChatViewModel(GroupChatModel groupChat) : INotifyPropertyChang
 
     public string Name => _groupChat.Name;
 
-    public string AppUserId => _groupChat.AppUserId;
+    public string OwnerId => _groupChat.OwnerId;
 
     public int UnreadMessages
     {

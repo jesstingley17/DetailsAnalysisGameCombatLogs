@@ -443,7 +443,7 @@ public class GroupChatMessagesViewModel : MvxViewModel, IImprovedMvxViewModel
 
             foreach (var item in _allMessages)
             {
-                if (item.ChatId == SelectedChat?.Id
+                if (item.GroupChatId == SelectedChat?.Id
                     && !Messages.Any(x => x.Id == item.Id))
                 {
                     Messages.Add(item);
@@ -517,9 +517,8 @@ public class GroupChatMessagesViewModel : MvxViewModel, IImprovedMvxViewModel
         try
         {
             ArgumentNullException.ThrowIfNull(SelectedChat, nameof(SelectedChat));
-            ArgumentNullException.ThrowIfNullOrEmpty(MeInChatId, nameof(MeInChatId));
 
-            var messages = await _groupChatService.LoadMessagesAsync(SelectedChat.Id, MeInChatId);
+            var messages = await _groupChatService.LoadMessagesAsync(SelectedChat.Id);
 
             _allMessages = [];
             foreach (var item in messages)
@@ -527,26 +526,11 @@ public class GroupChatMessagesViewModel : MvxViewModel, IImprovedMvxViewModel
                 _allMessages.Add(new GroupChatMessageViewModel(item));
             }
 
-            await LoadUnreadMessagesAsync();
             await FillAsync();
         }
         catch (ArgumentNullException ex)
         {
             _logger.LogError(ex, "Failed to load group chat messages: Parameter '{ParamName}' was null.", ex.ParamName);
-        }
-    }
-
-    private async Task LoadUnreadMessagesAsync()
-    {
-        ArgumentNullException.ThrowIfNull(_allMessages, nameof(_allMessages));
-
-        foreach (var message in _allMessages)
-        {
-            var unreadGroupChatMessages = await _groupChatService.LoadUnreadMessagesAsync(message.Id);
-            if (!unreadGroupChatMessages.Any())
-            {
-                message.IsRead = true;
-            }
         }
     }
 

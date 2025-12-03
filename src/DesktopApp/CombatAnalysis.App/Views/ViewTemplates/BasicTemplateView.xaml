@@ -175,7 +175,7 @@
                         </Button>
                     </StackPanel>
                     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5">
-                        <TextBlock Margin="5" FontSize="13" FontWeight="Bold" Foreground="White" Text="{loc:Loc Loading}"
+                        <TextBlock Margin="5 10" FontSize="13" FontWeight="Bold" Foreground="White" Text="{loc:Loc Loading}"
                                Visibility="{Binding ResponseStatus, Converter={StaticResource IntToVisibility}, ConverterParameter='true:1:='}"
                                ToolTip="{loc:Loc LoadingDescribe}"/>
                         <StackPanel Orientation="Horizontal">

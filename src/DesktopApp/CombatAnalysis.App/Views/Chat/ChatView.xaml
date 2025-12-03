@@ -91,13 +91,10 @@
                                  ItemsSource="{Binding MyGroupChats}" SelectedItem="{Binding SelectedMyGroupChat}" Background="Transparent">
                             <ListBox.Style>
                                 <Style TargetType="ListBox">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Setter Property="Visibility" Value="Visible"/>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding MyGroupChats.Count}" Value="0">
                                             <Setter Property="Visibility" Value="Collapsed"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding MyGroupChats.Count}" Value="1">
-                                            <Setter Property="Visibility" Value="Visible"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>

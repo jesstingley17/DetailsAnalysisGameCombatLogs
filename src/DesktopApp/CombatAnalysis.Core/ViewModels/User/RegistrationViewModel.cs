@@ -57,7 +57,7 @@ public class RegistrationViewModel : ParentTemplate
             Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.Username), user.Username);
         }
 
-        await AsyncDispatcher.ExecuteOnMainThreadAsync(() =>
+        await InvokeOnMainThreadAsync(() =>
         {
             CloseRegistrationWindow?.Invoke();
         });

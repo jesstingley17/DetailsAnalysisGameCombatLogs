@@ -378,8 +378,23 @@
                 <TextBlock HorizontalAlignment="Center" Text="{Binding DungeonName}" FontSize="15" Margin="0 5" Foreground="White"/>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                     <ProgressBar Style="{DynamicResource ProgressBarStyle2}" Minimum="0" Maximum="{Binding MaxCombats}" Value="{Binding CurrentCombatNumber}" Height="20" Width="500"/>
+                    <StackPanel Orientation="Horizontal" Margin="10 0">
+                        <TextBlock Text="{Binding CurrentCombatNumber}" Foreground="White" />
+                        <TextBlock Text=" / " Foreground="White"/>
+                        <TextBlock Text="{Binding MaxCombats}" Foreground="White"/>
+                    </StackPanel>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="0 5" HorizontalAlignment="Center">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Visible"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding CurrentCombatNumber}" Value="0">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
                     <TextBlock HorizontalAlignment="Center" Text="{loc:Loc Uploaded}" FontSize="14" FontWeight="Bold" Foreground="White"/>
                     <TextBlock HorizontalAlignment="Center" Margin="20 0" Text="{Binding Name}" FontSize="15" Foreground="White"/>
                 </StackPanel>

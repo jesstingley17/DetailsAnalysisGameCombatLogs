@@ -13,7 +13,7 @@ public interface IGroupChatService
 
     Task<GroupChatModel> LoadChatAsync(GroupChatUserModel groupChatUser);
 
-    Task<IEnumerable<GroupChatMessageModel>> LoadMessagesAsync(int chatId, string groupChatUserId);
+    Task<IEnumerable<GroupChatMessageModel>> LoadMessagesAsync(int chatId);
 
     Task<IEnumerable<UnreadGroupChatMessageModel>> LoadUnreadMessagesAsync(int messageId);
 

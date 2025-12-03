@@ -130,7 +130,7 @@ public class CreateGroupChatViewModel : MvxViewModel
     private void UpdateGroupChatModel(AppUserModel user)
     {
         _groupChat.Name = string.IsNullOrEmpty(Name) ? " " : Name;
-        _groupChat.AppUserId = user.Id;
+        _groupChat.OwnerId = user.Id;
     }
 
     public delegate void CloseCreateChatWindowEventHandler();

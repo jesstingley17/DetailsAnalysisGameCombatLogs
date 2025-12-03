@@ -106,7 +106,7 @@ public class AuthorizationViewModel : ParentTemplate
         Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.Username), user.Username);
         Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.IsAuth), true);
 
-        await AsyncDispatcher.ExecuteOnMainThreadAsync(() =>
+        await InvokeOnMainThreadAsync(() =>
         {
             CloseAuthorizationWindow?.Invoke();
         });
@@ -129,7 +129,7 @@ public class AuthorizationViewModel : ParentTemplate
             Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.Username), user.Username);
         }
 
-        await AsyncDispatcher.ExecuteOnMainThreadAsync(() =>
+        await InvokeOnMainThreadAsync(() =>
         {
             CloseAuthorizationWindow?.Invoke();
         });

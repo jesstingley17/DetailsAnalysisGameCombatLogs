@@ -226,7 +226,7 @@ public class PersonalChatMessagesVewModel : MvxViewModel, IImprovedMvxViewModel
 
             foreach (var item in _allMessages)
             {
-                if (item.ChatId == SelectedChat?.Id
+                if (item.PersonalChatId == SelectedChat?.Id
                     && !Messages.Any(x => x.Id == item.Id))
                 {
                     Messages.Add(item);

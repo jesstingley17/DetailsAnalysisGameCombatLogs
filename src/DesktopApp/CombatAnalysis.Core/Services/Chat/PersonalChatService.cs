@@ -19,7 +19,7 @@ internal class PersonalChatService(IHttpClientHelper httpClientHelper, ILogger<P
     {
         try
         {
-            var response = await _httpClientHelper.GetAsync($"PersonalChatMessage/getByChatId?chatId={chatId}&pageSize=20", API.ChatApi, true);
+            var response = await _httpClientHelper.GetAsync($"PersonalChatMessage/getByChatId?chatId={chatId}&page={1}&pageSize=20", API.ChatApi, true);
             response.EnsureSuccessStatusCode();
 
             var messages = await response.Content.ReadFromJsonAsync<IEnumerable<PersonalChatMessageModel>>();
@@ -87,7 +87,7 @@ internal class PersonalChatService(IHttpClientHelper httpClientHelper, ILogger<P
     public async Task UpdatePersonalChatAsync(PersonalChatModel chat, string accountId)
     {
         var companionId = chat.CompanionId == accountId ? chat.InitiatorId : chat.CompanionId;
-        var response = await _httpClientHelper.GetAsync($"Account/{companionId}", API.UserApi, true);
+        var response = await _httpClientHelper.GetAsync($"User/{companionId}", API.UserApi, true);
         response.EnsureSuccessStatusCode();
 
         var companion = await response.Content.ReadFromJsonAsync<AppUserModel>();

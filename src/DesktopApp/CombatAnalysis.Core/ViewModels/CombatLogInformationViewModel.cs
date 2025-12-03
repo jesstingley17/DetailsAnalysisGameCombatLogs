@@ -359,6 +359,8 @@ public class CombatLogInformationViewModel : ParentTemplate, CombatParser.Interf
 
     public override async Task Initialize()
     {
+        await base.Initialize();
+
         await LoadCombatLogsAsync();
     }
 

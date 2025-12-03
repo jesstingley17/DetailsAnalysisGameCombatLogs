@@ -34,7 +34,7 @@ public class PersonalChatMessageViewModel(PersonalChatMessageModel message) : IN
 
     public bool IsEdited => _message.IsEdited;
 
-    public int ChatId => _message.ChatId;
+    public int PersonalChatId => _message.PersonalChatId;
 
     public string AppUserId => _message.AppUserId;
 

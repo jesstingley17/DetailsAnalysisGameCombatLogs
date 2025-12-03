@@ -276,24 +276,21 @@ public class ChatViewModel : ParentTemplate
             var groupChatUsers = await _groupChatService.LoadChatUsersByUserIdAsync(MyAccount.Id);
             foreach (var user in groupChatUsers)
             {
-                await SubscribeToGroupChatUnreadMessagesAsync(user.Id, user.ChatId);
+                await SubscribeToGroupChatUnreadMessagesAsync(user.Id, user.GroupChatId);
             }
 
             var groupChats = await _groupChatService.LoadChatsAsync(groupChatUsers);
 
-            await InvokeOnMainThreadAsync(() =>
-            {
-                MyGroupChats.Clear();
-            });
+            await InvokeOnMainThreadAsync(MyGroupChats.Clear);
 
             foreach (var groupChat in groupChats)
             {
-                await InvokeOnMainThreadAsync(() =>
+                InvokeOnMainThread(() =>
                 {
                     MyGroupChats.Add(new GroupChatViewModel(groupChat));
                 });
             }
-
+            
             GroupChatLoadingResponse = LoadingStatus.Successful;
         }
         catch (ArgumentNullException ex)
@@ -302,8 +299,10 @@ public class ChatViewModel : ParentTemplate
 
             GroupChatLoadingResponse = LoadingStatus.Failed;
         }
-        catch (ChatServiceException)
+        catch (ChatServiceException ex)
         {
+            _logger.LogError(ex, ex.Message);
+
             GroupChatLoadingResponse = LoadingStatus.Failed;
         }
         catch (Exception)
@@ -330,10 +329,7 @@ public class ChatViewModel : ParentTemplate
                 await SubscribeToPersonalChatUnreadMessagesAsync(chat.Id);
             }
 
-            await InvokeOnMainThreadAsync(() =>
-            {
-                MyPersonalChats.Clear();
-            });
+            await InvokeOnMainThreadAsync(MyPersonalChats.Clear);
 
             foreach (var personalChat in personalChats)
             {
@@ -353,8 +349,10 @@ public class ChatViewModel : ParentTemplate
 
             PersonalChatLoadingResponse = LoadingStatus.Failed;
         }
-        catch (ChatServiceException)
+        catch (ChatServiceException ex)
         {
+            _logger.LogError(ex, ex.Message);
+
             GroupChatLoadingResponse = LoadingStatus.Failed;
         }
         catch (Exception)
@@ -388,15 +386,13 @@ public class ChatViewModel : ParentTemplate
 
     #endregion
 
-    public override void Prepare()
+    public override async Task Initialize()
     {
-        base.Prepare();
+        await base.Initialize();
 
-        Task.Run(async () => {
-            await InitChatSignalRAsync();
-            await LoadGroupChatsAsync();
-            await LoadPersonalChatsAsync();
-        });
+        await InitChatSignalRAsync();
+        await LoadGroupChatsAsync();
+        await LoadPersonalChatsAsync();
     }
 
     public override void ViewDestroy(bool viewFinishing = true)

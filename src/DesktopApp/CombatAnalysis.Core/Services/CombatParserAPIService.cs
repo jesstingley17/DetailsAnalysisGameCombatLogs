@@ -28,7 +28,7 @@ internal class CombatParserAPIService : ICombatParserAPIService
         _httpClient.BaseAddress = API.CombatParserApi;
     }
 
-    public async Task<bool> SaveAsync(List<CombatModel> combats, CombatLogModel combatLog, Action<int, string, string> combatUploaded, CancellationToken cancellationToken)
+    public async Task<bool> SaveAsync(List<CombatModel> combats, CombatLogModel combatLog, Action<int, string, string> uplodedCallback, CancellationToken cancellationToken)
     {
         try
         {
@@ -45,7 +45,7 @@ internal class CombatParserAPIService : ICombatParserAPIService
                 response.EnsureSuccessStatusCode();
 
                 currentCombatNumber++;
-                combatUploaded(currentCombatNumber, item.DungeonName, item.Name);
+                uplodedCallback(currentCombatNumber, item.DungeonName, item.Name);
             }
 
             combatsAreUploaded = true;
@@ -58,9 +58,9 @@ internal class CombatParserAPIService : ICombatParserAPIService
 
             return false;
         }
-        catch (TaskCanceledException ex)
+        catch (OperationCanceledException ex)
         {
-            _logger.LogWarning(ex, "Task was canceled: {Message}", ex.Message);
+            _logger.LogWarning(ex, "Request was canceled by client: {Message}", ex.Message);
 
             return false;
         }
@@ -315,9 +315,9 @@ internal class CombatParserAPIService : ICombatParserAPIService
 
             return new CombatLogModel();
         }
-        catch (TaskCanceledException ex)
+        catch (OperationCanceledException ex)
         {
-            _logger.LogWarning(ex, "Task was canceled: {Message}", ex.Message);
+            _logger.LogWarning(ex, "Request was canceled by client: {Message}", ex.Message);
 
             return new CombatLogModel();
         }
@@ -344,9 +344,9 @@ internal class CombatParserAPIService : ICombatParserAPIService
         {
             _logger.LogError(ex, "HTTP request error: {Message}", ex.Message);
         }
-        catch (TaskCanceledException ex)
+        catch (OperationCanceledException ex)
         {
-            _logger.LogWarning(ex, "Task was canceled: {Message}", ex.Message);
+            _logger.LogWarning(ex, "Request was canceled by client: {Message}", ex.Message);
         }
         catch (Exception ex)
         {

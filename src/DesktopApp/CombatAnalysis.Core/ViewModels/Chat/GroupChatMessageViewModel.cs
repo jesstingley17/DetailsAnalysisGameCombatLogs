@@ -37,11 +37,9 @@ public class GroupChatMessageViewModel(GroupChatMessageModel message) : INotifyP
         }
     }
 
-    public int ChatId => _message.ChatId;
+    public int GroupChatId => _message.GroupChatId;
 
     public string GroupChatUserId => _message.GroupChatUserId;
-
-    public int? GroupChatMessageId => _message.GroupChatMessageId;
 
     public event PropertyChangedEventHandler PropertyChanged;
 

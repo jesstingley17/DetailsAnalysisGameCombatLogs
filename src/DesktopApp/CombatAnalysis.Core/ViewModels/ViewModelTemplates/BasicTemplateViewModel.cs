@@ -304,7 +304,7 @@ public class BasicTemplateViewModel : MvxViewModel, IImprovedMvxViewModel, IVMDa
         LoginIsRan = true;
 
         await _mvvmNavigation.Navigate<HomeViewModel>();
-        await AsyncDispatcher.ExecuteOnMainThreadAsync(() =>
+        await InvokeOnMainThreadAsync(() =>
         {
             OpenAuthorizationWindow?.Invoke();
         });
@@ -313,7 +313,7 @@ public class BasicTemplateViewModel : MvxViewModel, IImprovedMvxViewModel, IVMDa
     public async Task RegistrationAsync()
     {
         await _mvvmNavigation.Navigate<HomeViewModel>();
-        await AsyncDispatcher.ExecuteOnMainThreadAsync(() =>
+        await InvokeOnMainThreadAsync(() =>
         {
             OpenRegistrationWindow?.Invoke();
         });

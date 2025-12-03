@@ -18,7 +18,7 @@ internal class UserService(IHttpClientHelper httpClientHelper, ILogger<UserServi
     {
         try
         {
-            var response = await _httpClientHelper.GetAsync("Account", API.UserApi, true);
+            var response = await _httpClientHelper.GetAsync("User", API.UserApi, true);
             response.EnsureSuccessStatusCode();
 
             var users = await response.Content.ReadFromJsonAsync<IEnumerable<AppUserModel>>();

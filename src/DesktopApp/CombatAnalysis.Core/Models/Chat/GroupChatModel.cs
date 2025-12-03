@@ -8,5 +8,5 @@ public class GroupChatModel
 
     public int UnreadMessages { get; set; }
 
-    public string AppUserId { get; set; }
+    public string OwnerId { get; set; }
 }

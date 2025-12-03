@@ -509,8 +509,8 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
             return;
         }
 
-        var combatsAreUploaded = await _combatParserAPIService.SaveAsync(combatsForUploadAgain, combotLogToRepeat, CombatUploaded, token);
-        if (!combatsAreUploaded)
+        var combatsUploaded = await _combatParserAPIService.SaveAsync(combatsForUploadAgain, combotLogToRepeat, CombatUploaded, token);
+        if (!combatsUploaded)
         {
             Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.ResponseStatus), LoadingStatus.Failed);
 

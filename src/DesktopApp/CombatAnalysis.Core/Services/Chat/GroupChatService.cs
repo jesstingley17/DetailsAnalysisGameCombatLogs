@@ -42,7 +42,7 @@ internal class GroupChatService(IHttpClientHelper httpClientHelper, ILogger<Grou
     {
         try
         {
-            var response = await _httpClientHelper.GetAsync($"GroupChatUser/findByUserId/{accountId}", API.ChatApi, true);
+            var response = await _httpClientHelper.GetAsync($"GroupChatUser/findAllByAppUserId/{accountId}", API.ChatApi, true);
             response.EnsureSuccessStatusCode();
 
             var myGroupChatUsers = await response.Content.ReadFromJsonAsync<IEnumerable<GroupChatUserModel>>();
@@ -65,7 +65,7 @@ internal class GroupChatService(IHttpClientHelper httpClientHelper, ILogger<Grou
             var groupChats = new List<GroupChatModel>();
             foreach (var groupChatUser in groupChatUsers)
             {
-                var response = await _httpClientHelper.GetAsync($"GroupChat/{groupChatUser.ChatId}", API.ChatApi, true);
+                var response = await _httpClientHelper.GetAsync($"GroupChat/{groupChatUser.GroupChatId}", API.ChatApi, true);
                 response.EnsureSuccessStatusCode();
 
                 var groupChat = await response.Content.ReadFromJsonAsync<GroupChatModel>();
@@ -88,7 +88,7 @@ internal class GroupChatService(IHttpClientHelper httpClientHelper, ILogger<Grou
     {
         try
         {
-            var response = await _httpClientHelper.GetAsync($"GroupChat/{groupChatUser.ChatId}", API.ChatApi, true);
+            var response = await _httpClientHelper.GetAsync($"GroupChat/{groupChatUser.GroupChatId}", API.ChatApi, true);
             response.EnsureSuccessStatusCode();
 
             var groupChat = await response.Content.ReadFromJsonAsync<GroupChatModel>();
@@ -104,11 +104,11 @@ internal class GroupChatService(IHttpClientHelper httpClientHelper, ILogger<Grou
         }
     }
 
-    public async Task<IEnumerable<GroupChatMessageModel>> LoadMessagesAsync(int chatId, string groupChatUserId)
+    public async Task<IEnumerable<GroupChatMessageModel>> LoadMessagesAsync(int chatId)
     {
         try
         {
-            var response = await _httpClientHelper.GetAsync($"GroupChatMessage/getByChatId?chatId={chatId}&groupChatUserId={groupChatUserId}&pageSize=20", API.ChatApi, true);
+            var response = await _httpClientHelper.GetAsync($"GroupChatMessage/getByChatId?chatId={chatId}&page={1}&pageSize=20", API.ChatApi, true);
             response.EnsureSuccessStatusCode();
 
             var messages = await response.Content.ReadFromJsonAsync<IEnumerable<GroupChatMessageModel>>();
@@ -150,7 +150,7 @@ internal class GroupChatService(IHttpClientHelper httpClientHelper, ILogger<Grou
         {
             var groupChatUser = new GroupChatUserModel
             {
-                ChatId = chatId,
+                GroupChatId = chatId,
                 AppUserId = userId,
             };
 
@@ -199,7 +199,7 @@ internal class GroupChatService(IHttpClientHelper httpClientHelper, ILogger<Grou
     {
         try
         {
-            var response = await _httpClientHelper.GetAsync($"GroupChatUser/findMeInChat?chatId={chatId}&appUserId={accountId}", API.ChatApi, true);
+            var response = await _httpClientHelper.GetAsync($"GroupChatUser/findByAppUserId?chatId={chatId}&appUserId={accountId}", API.ChatApi, true);
             response.EnsureSuccessStatusCode();
 
             var userInChat = await response.Content.ReadFromJsonAsync<GroupChatUserModel>();
