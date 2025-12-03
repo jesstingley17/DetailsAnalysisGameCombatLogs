@@ -4,24 +4,18 @@ using CombatAnalysis.CommunicationBL.DTO.Post;
 using CombatAnalysis.CommunicationBL.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.CommunicationAPI.Controllers.Post;
 
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class UserPostController : ControllerBase
+public class UserPostController(IUserPostService service, IMapper mapper, ILogger<UserPostController> logger) : ControllerBase
 {
-    private readonly IUserPostService _service;
-    private readonly IMapper _mapper;
-    private readonly ILogger<UserPostController> _logger;
-
-    public UserPostController(IUserPostService service, IMapper mapper, ILogger<UserPostController> logger)
-    {
-        _service = service;
-        _mapper = mapper;
-        _logger = logger;
-    }
+    private readonly IUserPostService _service = service;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<UserPostController> _logger = logger;
 
     [HttpGet("count/{appUserId}")]
     public async Task<IActionResult> Count(string appUserId)
@@ -31,10 +25,10 @@ public class UserPostController : ControllerBase
         return Ok(count);
     }
 
-    [HttpGet("countByListOfAppUsers/{appUserIds}")]
-    public async Task<IActionResult> CountByListOfAppUsers(string appUserIds)
+    [HttpGet("countByListOfUserId/{collectionUserId}")]
+    public async Task<IActionResult> CountByListOfAppUsers(string collectionUserId)
     {
-        var appUserIdList = appUserIds.Split(',');
+        var appUserIdList = collectionUserId.Split(',');
         var count = await _service.CountByListOfAppUserIdAsync(appUserIdList);
 
         return Ok(count);
@@ -81,84 +75,100 @@ public class UserPostController : ControllerBase
         return Ok(posts);
     }
 
-    [HttpGet("getByListOfUserIds")]
-    public async Task<IActionResult> GetByListOfUserIds(string appUserIds, int pageSize)
+    [HttpGet("getByListOfUserId")]
+    public async Task<IActionResult> GetByListOfUserId(string collectionUserId, int pageSize)
     {
-        var posts = await _service.GetByListOfAppUserIdAsync(appUserIds, pageSize);
+        var posts = await _service.GetByListOfAppUserIdAsync(collectionUserId, pageSize);
 
         return Ok(posts);
     }
 
-    [HttpGet("getMoreByListOfUserIds")]
-    public async Task<IActionResult> GetMoreByListOfUserIds(string appUserIds, int offset, int pageSize)
+    [HttpGet("getMoreByListOfUserId")]
+    public async Task<IActionResult> GetMoreByListOfUserId(string collectionUserId, int offset, int pageSize)
     {
-        var posts = await _service.GetMoreByListOfAppUserIdAsync(appUserIds, offset, pageSize);
+        var posts = await _service.GetMoreByListOfAppUserIdAsync(collectionUserId, offset, pageSize);
 
         return Ok(posts);
     }
 
-    [HttpGet("getNewByListOfUserIds")]
-    public async Task<IActionResult> GetNewByListOfUserIds(string appUserIds, string checkFrom)
+    [HttpGet("getNewByListOfUserId")]
+    public async Task<IActionResult> GetNewByListOfUserId(string collectionUserId, string checkFrom)
     {
         var checkFromData = DateTimeOffset.Parse(checkFrom);
-        var posts = await _service.GetNewByListOfAppUserIdAsync(appUserIds, checkFromData);
+        var posts = await _service.GetNewByListOfAppUserIdAsync(collectionUserId, checkFromData);
 
         return Ok(posts);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(UserPostModel model)
+    public async Task<IActionResult> Create([FromBody] UserPostModel userPost)
     {
         try
         {
-            var map = _mapper.Map<UserPostDto>(model);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid UserPost cretae request received: {@UserPost}", userPost);
+
+                return ValidationProblem(ModelState);
+            }
+
+            var map = _mapper.Map<UserPostDto>(userPost);
             var result = await _service.CreateAsync(map);
 
             return Ok(result);
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, $"Create Post failed: ${ex.Message}", model);
+            _logger.LogError(ex, "Failed to create user post.");
 
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Create Post failed: ${ex.Message}", model);
-
-            return BadRequest();
+            return StatusCode(500, "Internal server error.");
         }
     }
 
-    [HttpPut]
-    public async Task<IActionResult> Update(UserPostModel model)
+    [HttpPut("{id:int:min(1)}")]
+    public async Task<IActionResult> Update(int id, [FromBody] UserPostModel userPost)
     {
         try
         {
-            var map = _mapper.Map<UserPostDto>(model);
-            var result = await _service.UpdateAsync(map);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid UserPost update request received: {@UserPost}", userPost);
 
-            return Ok(result);
+                return ValidationProblem(ModelState);
+            }
+
+            if (id != userPost.Id)
+            {
+                return BadRequest("Route ID and body ID do not match.");
+            }
+
+            var map = _mapper.Map<UserPostDto>(userPost);
+            await _service.UpdateAsync(id, map);
+
+            return NoContent();
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, $"Update Post failed: ${ex.Message}", model);
+            _logger.LogError(ex, "Failed to update user post.");
 
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Update Post failed: ${ex.Message}", model);
-
-            return BadRequest();
+            return StatusCode(500, "Internal server error.");
         }
     }
 
     [HttpDelete("{id:int:min(1)}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var rowsAffected = await _service.DeleteAsync(id);
+        try
+        {
+            await _service.DeleteAsync(id);
 
-        return Ok(rowsAffected);
+            return NoContent();
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
+
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
+        }
     }
 }

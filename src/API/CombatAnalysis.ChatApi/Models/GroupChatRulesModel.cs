@@ -1,16 +1,13 @@
-﻿namespace CombatAnalysis.ChatApi.Models;
+﻿using Chat.Domain.Enums.GroupChatRules;
+using System.ComponentModel.DataAnnotations;
 
-public class GroupChatRulesModel
-{
-    public int Id { get; set; }
+namespace CombatAnalysis.ChatAPI.Models;
 
-    public int InvitePeople { get; set; }
-
-    public int RemovePeople { get; set; }
-
-    public int PinMessage { get; set; }
-
-    public int Announcements { get; set; }
-
-    public int ChatId { get; set; }
-}
+public record GroupChatRulesModel(
+    [Range(0, int.MaxValue)] int Id,
+    [Range((int)InvitePeopleRestrictions.Anyone, (int)InvitePeopleRestrictions.Owner)] InvitePeopleRestrictions InvitePeople,
+    [Range((int)RemovePeopleRestrictions.Anyone, (int)RemovePeopleRestrictions.Owner)] RemovePeopleRestrictions RemovePeople,
+    [Range((int)PinMessageRestrictions.Anyone, (int)PinMessageRestrictions.Owner)] PinMessageRestrictions PinMessage,
+    [Range((int)AnnouncementsRestrictions.Anyone, (int)AnnouncementsRestrictions.Owner)] AnnouncementsRestrictions Announcements,
+    [Range(1, int.MaxValue)] int GroupChatId
+    );

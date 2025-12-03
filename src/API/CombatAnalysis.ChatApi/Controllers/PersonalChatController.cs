@@ -1,32 +1,25 @@
 ﻿using AutoMapper;
-using CombatAnalysis.ChatApi.Models;
-using CombatAnalysis.ChatBL.DTO;
-using CombatAnalysis.ChatBL.Interfaces;
+using Chat.Application.DTOs;
+using Chat.Application.Interfaces;
+using Chat.Domain.Exceptions;
+using Chat.Infrastructure.Exceptions;
+using CombatAnalysis.ChatAPI.Core;
+using CombatAnalysis.ChatAPI.Models;
+using CombatAnalysis.ChatAPI.Patches;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
-namespace CombatAnalysis.ChatApi.Controllers;
+namespace CombatAnalysis.ChatAPI.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-[Authorize]
-public class PersonalChatController : ControllerBase
+[AllowAnonymous]
+public class PersonalChatController(IPersonalChatService chatService, IMapper mapper, ILogger<PersonalChatController> logger) : ControllerBase
 {
-    private readonly IService<PersonalChatDto, int> _chatService;
-    private readonly IService<PersonalChatMessageCountDto, int> _chatMessageCountService;
-    private readonly IMapper _mapper;
-    private readonly ILogger<PersonalChatController> _logger;
-    private readonly IChatTransactionService _chatTransactionService;
-
-    public PersonalChatController(IService<PersonalChatDto, int> chatService, IService<PersonalChatMessageCountDto, int> chatMessageCountService, IMapper mapper,
-        IChatTransactionService chatTransactionService, ILogger<PersonalChatController> logger)
-    {
-        _chatService = chatService;
-        _chatMessageCountService = chatMessageCountService;
-        _mapper = mapper;
-        _chatTransactionService = chatTransactionService;
-        _logger = logger;
-    }
+    private readonly IPersonalChatService _chatService = chatService;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<PersonalChatController> _logger = logger;
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
@@ -39,116 +32,134 @@ public class PersonalChatController : ControllerBase
     [HttpGet("{id:int:min(1)}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var result = await _chatService.GetByIdAsync(id);
+        try
+        {
+            var personalChat = await _chatService.GetByIdAsync(id);
 
-        return Ok(result);
+            return Ok(personalChat);
+        }
+        catch (PersonalChatNotFoundException ex)
+        {
+            _logger.LogWarning("Get personal chat {Id} failed. Personal chat not found.", ex.PersonalChatId);
+
+            return this.ExtractDomainCode(ex.Code);
+        }
+        catch (DomainException ex)
+        {
+            _logger.LogError(ex, "Get personal chat {Id} failed. Something wrong during extracting personal chat.", id);
+
+            return this.ExtractDomainCode(ex.Code);
+        }
+    }
+
+    [HttpGet("getByUserId/{userId:minlength(8)}")]
+    public async Task<IActionResult> GetByUserId(string userId)
+    {
+        try
+        {
+            var personalChats = await _chatService.GetByUserIdAsync(userId);
+
+            return Ok(personalChats);
+        }
+        catch (PersonalChatNotFoundException ex)
+        {
+            _logger.LogWarning("Get personal chats by user {Id} failed. Personal chat not found.", userId);
+
+            return this.ExtractDomainCode(ex.Code);
+        }
+        catch (DomainException ex)
+        {
+            _logger.LogError(ex, "Get personal chat by user {Id} failed. Something wrong during extracting personal chat.", userId);
+
+            return this.ExtractDomainCode(ex.Code);
+        }
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(PersonalChatModel personalChatModel)
+    public async Task<IActionResult> Create([FromBody] PersonalChatModel personalChat)
     {
         try
         {
-            if (personalChatModel == null)
+            if (!ModelState.IsValid)
             {
-                throw new ArgumentNullException(nameof(personalChatModel));
+                _logger.LogWarning("Invalid PersonalChat create received: {@PersonalChat}", personalChat);
+
+                return ValidationProblem(ModelState);
             }
 
-            await _chatTransactionService.BeginTransactionAsync();
-
-            var map = _mapper.Map<PersonalChatDto>(personalChatModel);
+            var map = _mapper.Map<PersonalChatDto>(personalChat);
             var createdPersonalChat = await _chatService.CreateAsync(map);
-
-            await CreateMessageCountAsync(createdPersonalChat);
-
-            await _chatTransactionService.CommitTransactionAsync();
 
             return Ok(createdPersonalChat);
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, $"Create Personal Chat failed: ${ex.Message}", personalChatModel);
+            _logger.LogError(ex, "Failed to create personal chat.");
 
-            await _chatTransactionService.RollbackTransactionAsync();
-
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Create Personal Chat failed: ${ex.Message}", personalChatModel);
-
-            await _chatTransactionService.RollbackTransactionAsync();
-
-            return BadRequest();
+            return StatusCode(500, "Internal server error.");
         }
     }
 
-    [HttpPost("personalChatIsAlreadyExists")]
-    public async Task<IActionResult> PersonalChatCheck(PersonalChatModel model)
-    {
-        var allData = await _chatService.GetAllAsync();
-        foreach (var item in allData)
-        {
-            if ((item.InitiatorId == model.InitiatorId && item.CompanionId == model.CompanionId)
-                || (item.InitiatorId == model.CompanionId && item.CompanionId == model.InitiatorId))
-            {
-                return Ok(item.Id);
-            }
-        }
-
-        return Ok(0);
-    }
-
-    [HttpPut]
-    public async Task<IActionResult> Update(PersonalChatModel model)
+    [HttpPatch("{id:int:min(1)}")]
+    public async Task<IActionResult> PartialUpdate(int id, [FromBody] PersonalChatPatch chat)
     {
         try
         {
-            var map = _mapper.Map<PersonalChatDto>(model);
-            var result = await _chatService.UpdateAsync(map);
+            if (id != chat.Id)
+            {
+                return BadRequest("Route ID and body ID do not match.");
+            }
 
-            return Ok(result);
+            await _chatService.UpdateChatAsync(chat.Id, chat.InitiatorUnreadMessages, chat.CompanionUnreadMessages);
+
+            return NoContent();
         }
-        catch (ArgumentNullException ex)
+        catch (EntityNotFoundException ex)
         {
-            _logger.LogError(ex, $"Update Personal Chat failed: ${ex.Message}", model);
+            _logger.LogWarning("Update personal chat {Id} failed. Entity '{Entity}' ({EntityId}) not found.", id, nameof(ex.EntityType), ex.EntityId);
 
-            return BadRequest();
+            return this.ExtractDomainCode(ex.Code);
         }
-        catch (Exception ex)
+        catch (DomainException ex)
         {
-            _logger.LogError(ex, $"Update Personal Chat failed: ${ex.Message}", model);
+            _logger.LogError(ex, "Update personal chat {Id} failed. Something wrong during updaring personal chat.", id);
 
-            return BadRequest();
+            return this.ExtractDomainCode(ex.Code);
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
+
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
         }
     }
 
     [HttpDelete("{id:int:min(1)}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var rowsAffected = await _chatService.DeleteAsync(id);
-
-        return Ok(rowsAffected);
-    }
-
-    private async Task CreateMessageCountAsync(PersonalChatDto chat)
-    {
-        var initiatorMessageCount = new PersonalChatMessageCountDto
+        try
         {
-            ChatId = chat.Id,
-            AppUserId = chat.InitiatorId,
-            Count = 0
-        };
+            await _chatService.DeleteAsync(id);
 
-        await _chatMessageCountService.CreateAsync(initiatorMessageCount);
-
-        var companionMessageCount = new PersonalChatMessageCountDto
+            return NoContent();
+        }
+        catch (EntityNotFoundException ex)
         {
-            ChatId = chat.Id,
-            AppUserId = chat.CompanionId,
-            Count = 0
-        };
+            _logger.LogWarning("Delete personal chat {Id} failed. Entity '{Entity}' ({EntityId}) not found.", id, nameof(ex.EntityType), ex.EntityId);
 
-        await _chatMessageCountService.CreateAsync(companionMessageCount);
+            return this.ExtractDomainCode(ex.Code);
+        }
+        catch (DomainException ex)
+        {
+            _logger.LogError(ex, "Delete personal chat {Id} failed. Something wrong during deleting personal chat.", id);
+
+            return this.ExtractDomainCode(ex.Code);
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
+
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
+        }
     }
 }

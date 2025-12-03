@@ -1,20 +1,18 @@
-﻿namespace CombatAnalysis.ChatApi.Models;
+﻿using Chat.Domain.Entities;
+using Chat.Domain.Enums;
+using System.ComponentModel.DataAnnotations;
 
-public class GroupChatMessageModel
-{
-    public int Id { get; set; }
+namespace CombatAnalysis.ChatAPI.Models;
 
-    public string Username { get; set; }
-
-    public string Message { get; set; }
-
-    public string Time { get; set; }
-
-    public int Status { get; set; }
-
-    public int Type { get; set; }
-
-    public int ChatId { get; set; }
-
-    public string GroupChatUserId { get; set; }
-}
+public record GroupChatMessageModel(
+    int Id,
+    [Required] [StringLength(GroupChatMessage.MESSAGE_MAX_LENGTH)] string Username,
+    [Required] [StringLength(GroupChatMessage.MESSAGE_MAX_LENGTH)] string Message,
+    [Required] DateTimeOffset Time,
+    [Range((int)MessageStatus.Sending, (int)MessageStatus.Read)] MessageStatus Status,
+    [Range((int)MessageType.Default, (int)MessageType.Log)] MessageType Type,
+    [Range((int)MessageMarkedType.None, (int)MessageMarkedType.Emotions)] MessageMarkedType MarkedType,
+    [Required] bool IsEdited,
+    [Range(1, int.MaxValue)] int GroupChatId,
+    [Required] string GroupChatUserId
+    );

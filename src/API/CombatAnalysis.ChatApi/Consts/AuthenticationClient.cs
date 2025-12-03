@@ -1,10 +1,8 @@
-﻿namespace CombatAnalysis.ChatApi.Consts;
+﻿namespace CombatAnalysis.ChatAPI.Consts;
 
-internal static class AuthenticationClient
+internal class AuthenticationClient
 {
-    public static string WebClientId { get; set; }
+    public string Audiences { get; set; }
 
-    public static string DesktopClientId { get; set; }
-
-    public static string Scope { get; set; }
+    public string Scopes { get; set; }
 }

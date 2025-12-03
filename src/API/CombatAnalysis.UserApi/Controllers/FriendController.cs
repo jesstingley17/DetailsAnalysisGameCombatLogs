@@ -1,27 +1,21 @@
 ﻿using AutoMapper;
+using CombatAnalysis.UserAPI.Models;
 using CombatAnalysis.UserBL.DTO;
 using CombatAnalysis.UserBL.Interfaces;
-using CombatAnalysis.UserApi.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
-namespace CombatAnalysis.UserApi.Controllers;
+namespace CombatAnalysis.UserAPI.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class FriendController : ControllerBase
+public class FriendController(IFriendService service, IMapper mapper, ILogger<FriendController> logger) : ControllerBase
 {
-    private readonly IService<FriendDto, int> _service;
-    private readonly IMapper _mapper;
-    private readonly ILogger<FriendController> _logger;
-
-    public FriendController(IService<FriendDto, int> service, IMapper mapper, ILogger<FriendController> logger)
-    {
-        _service = service;
-        _mapper = mapper;
-        _logger = logger;
-    }
+    private readonly IFriendService _service = service;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<FriendController> _logger = logger;
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
@@ -39,8 +33,8 @@ public class FriendController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("searchByUserId/{id}")]
-    public async Task<IActionResult> SearchByUserId(string id)
+    [HttpGet("findByUserId/{id}")]
+    public async Task<IActionResult> FindByUserId(string id)
     {
         var forWhomId = await _service.GetByParamAsync(nameof(FriendModel.ForWhomId), id);
         var whoFriendId = await _service.GetByParamAsync(nameof(FriendModel.WhoFriendId), id);
@@ -50,59 +44,49 @@ public class FriendController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(FriendModel model)
+    public async Task<IActionResult> Create([FromBody] FriendModel friend)
     {
         try
         {
-            var map = _mapper.Map<FriendDto>(model);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid Friend create received: {@Friend}", friend);
+
+                return ValidationProblem(ModelState);
+            }
+
+            var map = _mapper.Map<FriendCreateDto>(friend);
             var result = await _service.CreateAsync(map);
 
             return Ok(result);
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, $"Create Friend failed: ${ex.Message}", model);
+            _logger.LogError(ex, "Failed to create friend.");
 
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Create Friend failed: ${ex.Message}", model);
-
-            return BadRequest();
-        }
-    }
-
-    [HttpPut]
-    public async Task<IActionResult> Update(CustomerModel model)
-    {
-        try
-        {
-            var map = _mapper.Map<FriendDto>(model);
-            var result = await _service.UpdateAsync(map);
-
-            return Ok(result);
-        }
-        catch (ArgumentNullException ex)
-        {
-            _logger.LogError(ex, $"Update Friend failed: ${ex.Message}", model);
-
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Update Friend failed: ${ex.Message}", model);
-
-            return BadRequest();
+            return StatusCode(500, "Internal server error.");
         }
     }
 
     [HttpDelete("{id:int:min(1)}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var rowsAffected = await _service.DeleteAsync(id);
+        try
+        {
+            var entityDeleted = await _service.DeleteAsync(id);
+            if (!entityDeleted)
+            {
+                return NotFound();
+            }
 
-        return Ok(rowsAffected);
+            return NoContent();
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
+
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
+        }
     }
 }
 

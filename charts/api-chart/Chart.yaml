@@ -1,6 +1,0 @@
-apiVersion: v2
-name: APIHelmChart
-description: Helm Chart for Combat analysis API
-type: application
-version: 0.2.0
-appVersion: "0.2.0"

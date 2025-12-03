@@ -4,9 +4,7 @@ namespace CombatAnalysisIdentity.Interfaces;
 
 public interface IUserAuthorizationService
 {
-    Task<string> AuthorizationAsync(HttpRequest request, string email, string password);
-
-    Task<bool> ClientValidationAsync(HttpRequest request);
+    Task AuthorizationAsync(HttpContext context, string email, string password);
 
     Task<bool> CreateUserAsync(IdentityUserModel identityUser, AppUserModel appUser, CustomerModel customer);
 

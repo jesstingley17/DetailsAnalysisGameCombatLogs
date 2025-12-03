@@ -1,73 +1,60 @@
 ﻿using AutoMapper;
-using CombatAnalysis.UserBL.DTO;
-using CombatAnalysis.UserBL.Interfaces;
 using CombatAnalysis.Identity.DTO;
 using CombatAnalysis.Identity.Interfaces;
 using CombatAnalysis.Identity.Security;
+using CombatAnalysis.UserBL.DTO;
+using CombatAnalysis.UserBL.Interfaces;
 using CombatAnalysisIdentity.Consts;
 using CombatAnalysisIdentity.Interfaces;
 using CombatAnalysisIdentity.Models;
-using CombatAnalysisIdentity.Security;
+using Duende.IdentityModel;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.Options;
+using System.Security.Claims;
 using System.Text.RegularExpressions;
 
 namespace CombatAnalysisIdentity.Services;
 
-internal class UserAuthorizationService : IUserAuthorizationService
+internal class UserAuthorizationService(IMapper mapper, IOptions<Cluster> api, IIdentityUserService identityUserService, 
+    ILogger<UserAuthorizationService> logger, IUserService appUserService, ICustomerService customerService,
+    IUserTransactionService userTransactionService, IIdentityTransactionService identityTransactionService) : IUserAuthorizationService
 {
-    private readonly IMapper _mapper;
-    private readonly IOAuthCodeFlowService _oAuthCodeFlowService;
-    private readonly IIdentityUserService _identityUserService;
-    private readonly IUserService<AppUserDto> _appUserService;
-    private readonly IService<CustomerDto, string> _customerService;
-    private readonly ICustomerTransactionService _userTransactionService;
-    private readonly IIdentityTransactionService _identityTransactionService;
-    private readonly ILogger<UserAuthorizationService> _logger;
-    private AuthorizationRequestModel _authorizationRequest = new AuthorizationRequestModel();
+    private readonly IMapper _mapper = mapper;
+    private readonly IIdentityUserService _identityUserService = identityUserService;
+    private readonly Cluster _api = api.Value;
+    private readonly IUserService _appUserService = appUserService;
+    private readonly ICustomerService _customerService = customerService;
+    private readonly IUserTransactionService _userTransactionService = userTransactionService;
+    private readonly IIdentityTransactionService _identityTransactionService = identityTransactionService;
+    private readonly ILogger<UserAuthorizationService> _logger = logger;
 
-    public UserAuthorizationService(IMapper mapper, IOAuthCodeFlowService oAuthCodeFlowService, IIdentityUserService identityUserService, ILogger<UserAuthorizationService> logger,
-        IUserService<AppUserDto> appUserService, IService<CustomerDto, string> customerService, ICustomerTransactionService customerTransactionService, IIdentityTransactionService identityTransactionService)
-    {
-        _mapper = mapper;
-        _oAuthCodeFlowService = oAuthCodeFlowService;
-        _identityUserService = identityUserService;
-        _appUserService = appUserService;
-        _customerService = customerService;
-        _logger = logger;
-        _userTransactionService = customerTransactionService;
-        _identityTransactionService = identityTransactionService;
-    }
-
-    async Task<string> IUserAuthorizationService.AuthorizationAsync(HttpRequest request, string email, string password)
+    async Task IUserAuthorizationService.AuthorizationAsync(HttpContext context, string email, string password)
     {
         var user = await _identityUserService.GetByEmailAsync(email);
         if (user == null)
         {
-            return string.Empty;
+            return;
         }
 
         var passwordIsValid = PasswordHashing.VerifyPassword(password, user.PasswordHash, user.Salt);
         if (!passwordIsValid)
         {
-            return string.Empty;
+            return;
         }
 
-        GetAuthorizationRequestData(request);
+        var claims = new List<Claim>
+        {
+            new(JwtClaimTypes.Subject, user.Id),
+            new(JwtClaimTypes.Name, user.Email)
+        };
 
-        var authorizationCode = await _oAuthCodeFlowService.GenerateAuthorizationCodeAsync(user.Id, _authorizationRequest.ClientTd, _authorizationRequest.CodeChallenge, _authorizationRequest.CodeChallengeMethod, _authorizationRequest.RedirectUri);
+        var claimsIdentity = new ClaimsIdentity(claims, "Cookies");
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
-        var encodedAuthorizationCode = Uri.EscapeDataString(authorizationCode);
-        var redirectUrl = $"{Authentication.Protocol}://{_authorizationRequest.RedirectUri}?code={encodedAuthorizationCode}&state={_authorizationRequest.State}";
-
-        return redirectUrl;
-    }
-
-    async Task<bool> IUserAuthorizationService.ClientValidationAsync(HttpRequest request)
-    {
-        GetAuthorizationRequestData(request);
-
-        var clientIsValid = await _oAuthCodeFlowService.ValidateClientAsync(_authorizationRequest.ClientTd, _authorizationRequest.RedirectUri, _authorizationRequest.Scope);
-
-        return clientIsValid;
+        await context.SignInAsync("Cookies", claimsPrincipal, new AuthenticationProperties
+        {
+            IsPersistent = true
+        });
     }
 
     async Task<bool> IUserAuthorizationService.CreateUserAsync(IdentityUserModel identityUser, AppUserModel appUser, CustomerModel customer)
@@ -123,7 +110,7 @@ internal class UserAuthorizationService : IUserAuthorizationService
         try
         {
             var httpClient = new HttpClient();
-            var response = await httpClient.GetAsync($"{API.User}api/v1/Account/check/{username}");
+            var response = await httpClient.GetAsync($"{_api.User}api/v1/Account/check/{username}");
             response.EnsureSuccessStatusCode();
 
             var usernameAlreadyUsed = await response.Content.ReadFromJsonAsync<bool>();
@@ -176,43 +163,5 @@ internal class UserAuthorizationService : IUserAuthorizationService
         }
 
         return true;
-    }
-
-    private void GetAuthorizationRequestData(HttpRequest request)
-    {
-        if (request.Query.TryGetValue(AuthorizationRequest.RedirectUri.ToString(), out var redirectUri))
-        {
-            _authorizationRequest.RedirectUri = redirectUri;
-        }
-
-        if (request.Query.TryGetValue(AuthorizationRequest.GrantType.ToString(), out var grantType))
-        {
-            _authorizationRequest.GrantType = grantType;
-        }
-
-        if (request.Query.TryGetValue(AuthorizationRequest.ClientId.ToString(), out var clientId))
-        {
-            _authorizationRequest.ClientTd = clientId;
-        }
-
-        if (request.Query.TryGetValue(AuthorizationRequest.Scope.ToString(), out var scope))
-        {
-            _authorizationRequest.Scope = scope;
-        }
-
-        if (request.Query.TryGetValue(AuthorizationRequest.State.ToString(), out var state))
-        {
-            _authorizationRequest.State = state;
-        }
-
-        if (request.Query.TryGetValue(AuthorizationRequest.CodeChallengeMethod.ToString(), out var codeChallengeMethod))
-        {
-            _authorizationRequest.CodeChallengeMethod = codeChallengeMethod;
-        }
-
-        if (request.Query.TryGetValue(AuthorizationRequest.CodeChallenge.ToString(), out var codeChallenge))
-        {
-            _authorizationRequest.CodeChallenge = codeChallenge;
-        }
     }
 }

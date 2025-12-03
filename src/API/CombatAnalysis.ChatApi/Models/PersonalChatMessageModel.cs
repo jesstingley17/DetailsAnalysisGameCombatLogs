@@ -1,20 +1,39 @@
-﻿namespace CombatAnalysis.ChatApi.Models;
+﻿using Chat.Domain.Enums;
+using System.ComponentModel.DataAnnotations;
+
+namespace CombatAnalysis.ChatAPI.Models;
 
 public class PersonalChatMessageModel
 {
+    [Range(0, int.MaxValue)]
     public int Id { get; set; }
 
-    public string Username { get; set; }
+    [Required]
+    [StringLength(32)]
+    public string Username { get; set; } = string.Empty;
 
-    public string Message { get; set; }
+    [Required]
+    [StringLength(256)]
+    public string Message { get; set; } = string.Empty;
 
-    public string Time { get; set; }
+    [Required]
+    public DateTimeOffset Time { get; set; }
 
-    public int Status { get; set; }
+    [Range((int)MessageStatus.Sending, (int)MessageStatus.Read)]
+    public MessageStatus Status { get; set; }
 
-    public int Type { get; set; }
+    [Range((int)MessageType.Default, (int)MessageType.Log)]
+    public MessageType Type { get; set; }
 
-    public int ChatId { get; set; }
+    [Range((int)MessageMarkedType.None, (int)MessageMarkedType.Emotions)]
+    public MessageMarkedType MarkedType { get; set; }
 
-    public string AppUserId { get; set; }
+    [Required]
+    public bool IsEdited { get; set; }
+
+    [Range(1, int.MaxValue)]
+    public int PersonalChatId { get; set; }
+
+    [Required]
+    public string AppUserId { get; set; } = string.Empty;
 }

@@ -2,31 +2,26 @@ using AutoMapper;
 using CombatAnalysis.BL.Extensions;
 using CombatAnalysis.BL.Mapping;
 using CombatAnalysis.CombatParserAPI.Consts;
-using CombatAnalysis.CombatParserAPI.Enums;
 using CombatAnalysis.CombatParserAPI.Helpers;
 using CombatAnalysis.CombatParserAPI.Interfaces;
 using CombatAnalysis.CombatParserAPI.Mapping;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using Serilog.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var envName = builder.Environment.EnvironmentName;
+builder.Services.Configure<Players>(builder.Configuration.GetSection("Players"));
 
-if (string.Equals(envName, "Development", StringComparison.OrdinalIgnoreCase))
-{
-    CreateEnvironmentHelper.UseAppsettings(builder.Configuration);
-}
-else
-{
-    CreateEnvironmentHelper.UseEnvVariables();
-}
+var databasePropsOptions = new DatabaseProps();
+builder.Configuration.Bind("Database", databasePropsOptions);
 
-var connection = DatabaseProps.Name == nameof(DatabaseType.MSSQL)
-    ? DatabaseProps.MSSQLConnectionString
-    : DatabaseProps.FirebaseConnectionString;
-builder.Services.CombatParserBLDependencies(DatabaseProps.Name, DatabaseProps.DataProcessingType, connection, DBConfiguration.CommandTimeout);
+var databaseConfigsOptions = new DBConfiguration();
+builder.Configuration.Bind("DBConfiguration", databaseConfigsOptions);
+
+builder.Services.CombatParserBLDependencies(databasePropsOptions.DefaultConnection, databaseConfigsOptions.CommandTimeout);
 
 var mappingConfig = new MapperConfiguration(mc =>
 {
@@ -44,7 +39,7 @@ builder.Services.AddScoped<IPlayerParseInfoHelper, PlayerParseInfoHelper>();
 
 builder.Services.Configure<KestrelServerOptions>(options =>
 {
-    options.Limits.MaxRequestBodySize = DBConfiguration.MaxRequestBodySize;
+    options.Limits.MaxRequestBodySize = databaseConfigsOptions.MaxRequestBodySize;
 });
 builder.Services.AddControllers();
 
@@ -59,8 +54,8 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Warning()
-    .WriteTo.Console()
+    .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Debug)
+    .WriteTo.File("logs/parserapi.log", rollingInterval: RollingInterval.Day, retainedFileCountLimit: 7, restrictedToMinimumLevel: LogEventLevel.Error)
     .CreateLogger();
 
 builder.Host.UseSerilog();
@@ -69,7 +64,7 @@ var app = builder.Build();
 
 app.UseRouting();
 
-app.UseAuthentication(); // Enable authentication middleware
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseSwagger();
@@ -83,5 +78,26 @@ app.UseStaticFiles();
 app.UseHttpsRedirection();
 
 app.MapControllers();
+
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.StatusCode = 500;
+        context.Response.ContentType = "application/json";
+
+        var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
+        var ex = exceptionHandlerPathFeature?.Error;
+
+        Log.Error(ex, "Unhandled exception occurred");
+
+        var result = new
+        {
+            message = "An unexpected error occurred. Please try again later."
+        };
+
+        await context.Response.WriteAsJsonAsync(result);
+    });
+});
 
 app.Run();

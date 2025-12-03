@@ -1,6 +1,4 @@
 using CombatAnalysis.Identity.Interfaces;
-using CombatAnalysis.Identity.Security;
-using CombatAnalysisIdentity.Consts;
 using CombatAnalysisIdentity.Interfaces;
 using CombatAnalysisIdentity.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -8,26 +6,20 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace CombatAnalysisIdentity.Pages;
 
-public class NewPasswordModel : PageModel
+public class NewPasswordModel(IUserAuthorizationService authorizationService, IUserVerification userVerification) : PageModel
 {
-    private readonly IUserAuthorizationService _authorizationService;
-    private readonly IUserVerification _userVerification;
+    private readonly IUserAuthorizationService _authorizationService = authorizationService;
+    private readonly IUserVerification _userVerification = userVerification;
 
-    public NewPasswordModel(IUserAuthorizationService authorizationService, IUserVerification userVerification)
-    {
-        _authorizationService = authorizationService;
-        _userVerification = userVerification;
-    }
-
-    public string AppUrl { get; } = API.Identity;
+    public string CancelRequestUri { get; private set; } = string.Empty;
 
     [BindProperty]
     public PasswordResetModel PasswordReset{ get; set; }
 
-    public string Protocol { get; } = Authentication.Protocol;
-
     public IActionResult OnGet(string token)
     {
+        CancelRequestUri = Request.Query["redirectUri"]!;
+
         PasswordReset = new PasswordResetModel
         {
             Token = token,
@@ -38,6 +30,8 @@ public class NewPasswordModel : PageModel
 
     public async Task<IActionResult> OnPostAsync()
     {
+        CancelRequestUri = Request.Query["redirectUri"]!;
+
         if (!ModelState.IsValid)
         {
             ModelState.AddModelError(string.Empty, "Confirm password should be equal Password");
@@ -56,7 +50,7 @@ public class NewPasswordModel : PageModel
         var wasReseted = await _userVerification.ResetPasswordAsync(PasswordReset.Token, PasswordReset.Password);
         if (wasReseted)
         {
-            var redirectUri = $"{Authentication.Protocol}://{Request.Query["redirectUri"]}?accessRestored=true";
+            var redirectUri = $"{Request.Query["redirectUri"]}?accessRestored=true";
 
             return Redirect(redirectUri);
         }

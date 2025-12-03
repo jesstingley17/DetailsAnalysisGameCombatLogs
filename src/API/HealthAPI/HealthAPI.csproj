@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\CombatAnalysis.Identity\CombatAnalysis.Identity.csproj" />
+    <ProjectReference Include="..\..\Common\CombatAnalysis.Identity\CombatAnalysis.Identity.csproj" />
   </ItemGroup>
 
 </Project>

@@ -6,19 +6,15 @@ using CombatAnalysis.CombatParser.Entities;
 using CombatAnalysis.CombatParserAPI.Consts;
 using CombatAnalysis.CombatParserAPI.Interfaces;
 using CombatAnalysis.CombatParserAPI.Models;
+using Microsoft.Extensions.Options;
 
 namespace CombatAnalysis.CombatParserAPI.Helpers;
 
-internal class PlayerParseInfoHelper : IPlayerParseInfoHelper
+internal class PlayerParseInfoHelper(IOptions<Players> players, IMapper mapper, IServiceScopeFactory serviceScopeFactory) : IPlayerParseInfoHelper
 {
-    private readonly IMapper _mapper;
-    private readonly IServiceScopeFactory _serviceScopeFactory;
-
-    public PlayerParseInfoHelper(IMapper mapper, IServiceScopeFactory serviceScopeFactory)
-    {
-        _mapper = mapper;
-        _serviceScopeFactory = serviceScopeFactory;
-    }
+    private readonly Players _players = players.Value;
+    private readonly IMapper _mapper = mapper;
+    private readonly IServiceScopeFactory _serviceScopeFactory = serviceScopeFactory;
 
     public async Task UploadPlayerParseInfoAsync(Combat combat, CombatPlayerModel combatPlayer, List<DamageDoneGeneral> damageDoneGeneralList, List<HealDoneGeneral> healDoneGeneralList)
     {
@@ -43,7 +39,7 @@ internal class PlayerParseInfoHelper : IPlayerParseInfoHelper
 
         playerParseInfo.ClassId = classId;
 
-        var bosses = PlayerInfoConfiguration.Bosses;
+        var bosses = _players.Bosses;
         foreach (var item in bosses)
         {
             if (item.Value == combat.Name)
@@ -59,10 +55,10 @@ internal class PlayerParseInfoHelper : IPlayerParseInfoHelper
         await UploadPlayerParseInfoAsync(playerParseInfo, mapData.Id);
     }
 
-    private static int GetSpecializationId(List<DamageDoneGeneral> damageDoneGeneralList, List<HealDoneGeneral> healDoneGeneralList)
+    private int GetSpecializationId(List<DamageDoneGeneral> damageDoneGeneralList, List<HealDoneGeneral> healDoneGeneralList)
     {
         var damageSpells = damageDoneGeneralList.Select(damageDone => damageDone.Spell).ToList();
-        var specs = PlayerInfoConfiguration.Specs;
+        var specs = _players.Specs;
         foreach (var item in specs)
         {
             var isUseThisSpec = damageSpells.Contains(item.Value);
@@ -85,9 +81,9 @@ internal class PlayerParseInfoHelper : IPlayerParseInfoHelper
         return -1;
     }
 
-    private static int GetPlayerClassInfo(int specId)
+    private int GetPlayerClassInfo(int specId)
     {
-        var classes = PlayerInfoConfiguration.Classes;
+        var classes = _players.Classes;
         var classId = classes?.FirstOrDefault(playerClass => playerClass.Value.Contains(specId.ToString())).Key;
         if (string.IsNullOrEmpty(classId))
         {

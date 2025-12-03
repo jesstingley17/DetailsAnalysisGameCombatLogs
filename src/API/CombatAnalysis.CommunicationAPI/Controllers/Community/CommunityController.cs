@@ -4,27 +4,20 @@ using CombatAnalysis.CommunicationBL.DTO.Community;
 using CombatAnalysis.CommunicationBL.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.CommunicationAPI.Controllers.Community;
 
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class CommunityController : ControllerBase
+public class CommunityController(ICommunityService service, IMapper mapper, ILogger<CommunityController> logger) : ControllerBase
 {
-    private readonly ICommunityService _service;
-    private readonly IMapper _mapper;
-    private readonly ILogger<CommunityController> _logger;
-
-    public CommunityController(ICommunityService service, IMapper mapper, ILogger<CommunityController> logger)
-    {
-        _service = service;
-        _mapper = mapper;
-        _logger = logger;
-    }
+    private readonly ICommunityService _service = service;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<CommunityController> _logger = logger;
 
     [HttpGet]
-    [AllowAnonymous]
     public async Task<IActionResult> GetAll()
     {
         var result = await _service.GetAllAsync();
@@ -32,8 +25,23 @@ public class CommunityController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("getWithPagination")]
+    public async Task<IActionResult> GetWithPagination(int pageSize)
+    {
+        var communitites = await _service.GetAllWithPaginationAsync(pageSize);
+
+        return Ok(communitites);
+    }
+
+    [HttpGet("getMoreWithPagination")]
+    public async Task<IActionResult> GetMoreWithPagination(int offset, int pageSize)
+    {
+        var communitites = await _service.GetMoreWithPaginationAsync(offset, pageSize);
+
+        return Ok(communitites);
+    }
+
     [HttpGet("{id:int:min(1)}")]
-    [AllowAnonymous]
     public async Task<IActionResult> GetById(int id)
     {
         var result = await _service.GetByIdAsync(id);
@@ -42,75 +50,75 @@ public class CommunityController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(CommunityModel model)
+    public async Task<IActionResult> Create([FromBody] CommunityModel community)
     {
         try
         {
-            var map = _mapper.Map<CommunityDto>(model);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid Community create request received: {@Community}", community);
+
+                return ValidationProblem(ModelState);
+            }
+
+            var map = _mapper.Map<CommunityDto>(community);
             var result = await _service.CreateAsync(map);
 
             return Ok(result);
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, $"Create Community failed: ${ex.Message}", model);
+            _logger.LogError(ex, "Failed to create community.");
 
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Create Community failed: ${ex.Message}", model);
-
-            return BadRequest();
+            return StatusCode(500, "Internal server error.");
         }
     }
 
-    [HttpPut]
-    public async Task<IActionResult> Update(CommunityModel model)
+    [HttpPut("{id:int:min(1)}")]
+    public async Task<IActionResult> Update(int id, [FromBody] CommunityModel community)
     {
         try
         {
-            var map = _mapper.Map<CommunityDto>(model);
-            var result = await _service.UpdateAsync(map);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid Community update request received: {@Community}", community);
 
-            return Ok(result);
+                return ValidationProblem(ModelState);
+            }
+
+            if (id != community.Id)
+            {
+                return BadRequest("Route ID and body ID do not match.");
+            }
+
+            var map = _mapper.Map<CommunityDto>(community);
+            await _service.UpdateAsync(id, map);
+
+            return NoContent();
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, $"Update Community failed: ${ex.Message}", model);
+            _logger.LogError(ex, "Failed to update community.");
 
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Update Community failed: ${ex.Message}", model);
-
-            return BadRequest();
+            return StatusCode(500, "Internal server error.");
         }
     }
 
     [HttpDelete("{id:int:min(1)}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var rowsAffected = await _service.DeleteAsync(id);
+        try
+        {
+            await _service.DeleteAsync(id);
 
-        return Ok(rowsAffected);
-    }
+            return NoContent();
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
 
-    [HttpGet("getWithPagination")]
-    public async Task<IActionResult> GetWithPaginationAsync(int pageSize)
-    {
-        var communitites = await _service.GetAllWithPaginationAsync(pageSize);
-
-        return Ok(communitites);
-    }
-
-    [HttpGet("getMoreWithPagination")]
-    public async Task<IActionResult> GetMoreWithPaginationAsync(int offset, int pageSize)
-    {
-        var communitites = await _service.GetMoreWithPaginationAsync(offset, pageSize);
-
-        return Ok(communitites);
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
+        }
     }
 
     [HttpGet("count")]

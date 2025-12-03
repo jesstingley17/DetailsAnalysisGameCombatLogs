@@ -10,6 +10,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="logs\**" />
+    <Content Remove="logs\**" />
+    <EmbeddedResource Remove="logs\**" />
+    <None Remove="logs\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.12" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.1">
       <PrivateAssets>all</PrivateAssets>
@@ -21,8 +28,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\CombatAnalysis.BL\CombatAnalysis.BL.csproj" />
-    <ProjectReference Include="..\..\CombatAnalysis.CombatParser\CombatAnalysis.CombatParser.csproj" />
+    <ProjectReference Include="..\..\Common\CombatAnalysis.BL\CombatAnalysis.BL.csproj" />
+    <ProjectReference Include="..\..\Common\CombatAnalysis.Identity\CombatAnalysis.Identity.csproj" />
+    <ProjectReference Include="..\..\Parser\CombatAnalysis.CombatParser\CombatAnalysis.CombatParser.csproj" />
   </ItemGroup>
 
 </Project>

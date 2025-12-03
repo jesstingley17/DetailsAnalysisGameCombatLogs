@@ -1,8 +1,9 @@
 ﻿using AutoMapper;
-using CombatAnalysis.ChatApi.Models;
-using CombatAnalysis.ChatBL.DTO;
+using Chat.Application.DTOs;
+using CombatAnalysis.ChatAPI.Models;
+using CombatAnalysis.ChatAPI.Patches;
 
-namespace CombatAnalysis.ChatApi.Mapping;
+namespace CombatAnalysis.ChatAPI.Mapping;
 
 internal class ChatMapper : Profile
 {
@@ -11,12 +12,16 @@ internal class ChatMapper : Profile
         CreateMap<VoiceChatDto, VoiceChatModel>().ReverseMap();
         CreateMap<PersonalChatDto, PersonalChatModel>().ReverseMap();
         CreateMap<PersonalChatMessageDto, PersonalChatMessageModel>().ReverseMap();
-        CreateMap<PersonalChatMessageCountDto, PersonalChatMessageCountModel>().ReverseMap();
         CreateMap<GroupChatDto, GroupChatModel>().ReverseMap();
+        CreateMap<GroupChatDto, GroupChatPatch>().ReverseMap();
         CreateMap<GroupChatRulesDto, GroupChatRulesModel>().ReverseMap();
         CreateMap<GroupChatMessageDto, GroupChatMessageModel>().ReverseMap();
-        CreateMap<UnreadGroupChatMessageDto, UnreadGroupChatMessageModel>().ReverseMap();
-        CreateMap<GroupChatMessageCountDto, GroupChatMessageCountModel>().ReverseMap();
         CreateMap<GroupChatUserDto, GroupChatUserModel>().ReverseMap();
+
+        CreateMap<PersonalChatPatch, PersonalChatDto>()
+         .ConstructUsing(dto => new PersonalChatDto {
+             InitiatorUnreadMessages = dto.InitiatorUnreadMessages,
+             CompanionUnreadMessages = dto.CompanionUnreadMessages
+         }).ReverseMap();
     }
 }

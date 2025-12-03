@@ -10,20 +10,12 @@ using CombatAnalysis.CombatParserAPI.Models;
 
 namespace CombatAnalysis.CombatParserAPI.Helpers;
 
-public class CombatDataHelper : ICombatDataHelper
+public class CombatDataHelper(IMapper mapper, ILogger<CombatDataHelper> logger, IPlayerParseInfoHelper playerParseInfoHelper, IServiceScopeFactory serviceScopeFactory) : ICombatDataHelper
 {
-    private readonly IMapper _mapper;
-    private readonly ILogger<CombatDataHelper> _logger;
-    private readonly IPlayerParseInfoHelper _playerParseInfoHelper;
-    private readonly IServiceScopeFactory _serviceScopeFactory;
-
-    public CombatDataHelper(IMapper mapper, ILogger<CombatDataHelper> logger, IPlayerParseInfoHelper playerParseInfoHelper, IServiceScopeFactory serviceScopeFactory)
-    {
-        _mapper = mapper;
-        _logger = logger;
-        _playerParseInfoHelper = playerParseInfoHelper;
-        _serviceScopeFactory = serviceScopeFactory;
-    }
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<CombatDataHelper> _logger = logger;
+    private readonly IPlayerParseInfoHelper _playerParseInfoHelper = playerParseInfoHelper;
+    private readonly IServiceScopeFactory _serviceScopeFactory = serviceScopeFactory;
 
     public async Task SaveCombatPlayerAsync(CombatModel combat)
     {
@@ -41,21 +33,6 @@ public class CombatDataHelper : ICombatDataHelper
         var uploadCombatAuraTasks = combatDetails.Auras.Select(item => UploadCombatAuraData(item.Value, combat.Id)).ToList();
         await Task.WhenAll(uploadCombatAuraTasks);
     }
-
-    //public async Task DeleteCombatPlayerDataAsync(CombatPlayerDto combatPlayer)
-    //{
-    //    await DeleteDataAsync(combatPlayer.Id, _damageDoneService);
-    //    await DeleteDataAsync(combatPlayer.Id, _damageDoneGeneralService);
-
-    //    await DeleteDataAsync(combatPlayer.Id, _healDoneService);
-    //    await DeleteDataAsync(combatPlayer.Id, _healDoneGeneralService);
-
-    //    await DeleteDataAsync(combatPlayer.Id, _damageTakenService);
-    //    await DeleteDataAsync(combatPlayer.Id, _damageTakenGeneralService);
-
-    //    await DeleteDataAsync(combatPlayer.Id, _resourceRecoveryService);
-    //    await DeleteDataAsync(combatPlayer.Id, _resourceRecoveryGeneralService);
-    //}
 
     private async Task UploadAsync(Combat combat, CombatPlayerModel combatPlayer, CombatDetails combatDetails, int combatId)
     {
@@ -148,21 +125,4 @@ public class CombatDataHelper : ICombatDataHelper
             }
         }
     }
-
-    //private static async Task DeleteDataAsync<TServiceModel>(int combatPlayerId, IMutationService<TServiceModel> service)
-    //    where TServiceModel : class
-    //{
-    //    var dataForRemove = await service.GetByParamAsync("CombatPlayerId", combatPlayerId);
-    //    foreach (var item in dataForRemove)
-    //    {
-    //        var property = item.GetType().GetProperty("Id");
-    //        var propertyValue = (int)property.GetValue(item);
-
-    //        var rowsAffected = await service.DeleteAsync(propertyValue);
-    //        if (rowsAffected == 0)
-    //        {
-    //            throw new ArgumentException($"Did not deleted");
-    //        }
-    //    }
-    //}
 }

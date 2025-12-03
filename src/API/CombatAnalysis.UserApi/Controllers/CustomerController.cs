@@ -1,27 +1,21 @@
 ﻿using AutoMapper;
+using CombatAnalysis.UserAPI.Models;
 using CombatAnalysis.UserBL.DTO;
 using CombatAnalysis.UserBL.Interfaces;
-using CombatAnalysis.UserApi.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
-namespace CombatAnalysis.UserApi.Controllers;
+namespace CombatAnalysis.UserAPI.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class CustomerController : ControllerBase
+public class CustomerController(ICustomerService service, IMapper mapper, ILogger<CustomerController> logger) : ControllerBase
 {
-    private readonly IService<CustomerDto, string> _service;
-    private readonly IMapper _mapper;
-    private readonly ILogger<CustomerController> _logger;
-
-    public CustomerController(IService<CustomerDto, string> service, IMapper mapper, ILogger<CustomerController> logger)
-    {
-        _service = service;
-        _mapper = mapper;
-        _logger = logger;
-    }
+    private readonly ICustomerService _service = service;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<CustomerController> _logger = logger;
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
@@ -39,43 +33,42 @@ public class CustomerController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("searchByUserId/{id}")]
-    public async Task<IActionResult> SearchByUserId(string id)
+    [HttpGet("findByUserId/{id}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> CustomerByUserId(string id)
     {
-        var result = await _service.GetByParamAsync(nameof(CustomerModel.AppUserId), id);
+        var result = await _service.GetByParamAsync(c => c.AppUserId, id);
 
         return Ok(result);
     }
 
-    [HttpPut]
-    public async Task<IActionResult> Update(CustomerModel model)
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(string id, [FromBody] CustomerModel customer)
     {
         try
         {
-            var map = _mapper.Map<CustomerDto>(model);
-            var result = await _service.UpdateAsync(map);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid Customer update request received: {@Customer}", customer);
 
-            return Ok(result);
+                return ValidationProblem(ModelState);
+            }
+
+            if (id != customer.Id)
+            {
+                return BadRequest("Route ID and body ID do not match.");
+            }
+
+            var map = _mapper.Map<CustomerDto>(customer);
+            await _service.UpdateAsync(id, map);
+
+            return NoContent();
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateConcurrencyException ex)
         {
-            _logger.LogError(ex, $"Update Customer failed: ${ex.Message}", model);
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
 
-            return BadRequest();
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Update Customer failed: ${ex.Message}", model);
-
-            return BadRequest();
-        }
-    }
-
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(string id)
-    {
-        var rowsAffected = await _service.DeleteAsync(id);
-
-        return Ok(rowsAffected);
     }
 }

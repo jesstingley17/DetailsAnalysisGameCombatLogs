@@ -4,27 +4,20 @@ using CombatAnalysis.BL.Interfaces;
 using CombatAnalysis.BL.Interfaces.General;
 using CombatAnalysis.CombatParserAPI.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.CombatParserAPI.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-public class DamageTakenGeneralController : ControllerBase
+public class DamageTakenGeneralController(IMutationService<DamageTakenGeneralDto> mutationService,
+    IPlayerInfoService<DamageTakenGeneralDto> playerInfoService, IMapper mapper,
+    ILogger<DamageTakenGeneralController> logger) : ControllerBase
 {
-    private readonly IMutationService<DamageTakenGeneralDto> _mutationService;
-    private readonly IPlayerInfoService<DamageTakenGeneralDto> _playerInfoService;
-    private readonly IMapper _mapper;
-    private readonly ILogger<DamageTakenGeneralController> _logger;
-
-    public DamageTakenGeneralController(IMutationService<DamageTakenGeneralDto> mutationService, 
-        IPlayerInfoService<DamageTakenGeneralDto> playerInfoService, IMapper mapper,
-        ILogger<DamageTakenGeneralController> logger)
-    {
-        _mutationService = mutationService;
-        _playerInfoService = playerInfoService;
-        _mapper = mapper;
-        _logger = logger;
-    }
+    private readonly IMutationService<DamageTakenGeneralDto> _mutationService = mutationService;
+    private readonly IPlayerInfoService<DamageTakenGeneralDto> _playerInfoService = playerInfoService;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<DamageTakenGeneralController> _logger = logger;
 
     [HttpGet("getByCombatPlayerId/{combatPlayerId:int:min(1)}")]
     public async Task<IActionResult> GetByCombatPlayerId(int combatPlayerId)
@@ -35,20 +28,27 @@ public class DamageTakenGeneralController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(DamageTakenGeneralModel model)
+    public async Task<IActionResult> Create([FromBody] DamageTakenGeneralModel damageTakenGeneral)
     {
         try
         {
-            var map = _mapper.Map<DamageTakenGeneralDto>(model);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid DamageTakenGeneral create received: {@DamageTakenGeneral}", damageTakenGeneral);
+
+                return ValidationProblem(ModelState);
+            }
+
+            var map = _mapper.Map<DamageTakenGeneralDto>(damageTakenGeneral);
             var createdItem = await _mutationService.CreateAsync(map);
 
             return Ok(createdItem);
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, ex.Message);
+            _logger.LogError(ex, "Failed to create combat damage taken general.");
 
-            return BadRequest();
+            return StatusCode(500, "Internal server error.");
         }
     }
 }

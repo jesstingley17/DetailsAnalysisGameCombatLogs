@@ -1,100 +1,102 @@
 ﻿using AutoMapper;
-using CombatAnalysis.ChatApi.Models;
-using CombatAnalysis.ChatBL.DTO;
-using CombatAnalysis.ChatBL.Interfaces;
+using Chat.Application.DTOs;
+using Chat.Application.Interfaces;
+using Chat.Domain.Exceptions;
+using Chat.Infrastructure.Exceptions;
+using CombatAnalysis.ChatAPI.Core;
+using CombatAnalysis.ChatAPI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
-namespace CombatAnalysis.ChatApi.Controllers;
+namespace CombatAnalysis.ChatAPI.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class VoiceChatController : ControllerBase
+public class VoiceChatController(IVoiceChatService service, IMapper mapper, ILogger<VoiceChatController> logger)
+    : ControllerBase
 {
-    private readonly IService<VoiceChatDto, string> _service;
-    private readonly IMapper _mapper;
-    private readonly ILogger<VoiceChatController> _logger;
-
-    public VoiceChatController(IService<VoiceChatDto, string> service, IMapper mapper, ILogger<VoiceChatController> logger)
-    {
-        _service = service;
-        _mapper = mapper;
-        _logger = logger;
-    }
+    private readonly IVoiceChatService _service = service;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<VoiceChatController> _logger = logger;
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var result = await _service.GetAllAsync();
-        var map = _mapper.Map<IEnumerable<VoiceChatModel>>(result);
+        var voiceChats = await _service.GetAllAsync();
 
-        return Ok(map);
+        return Ok(voiceChats);
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:minlength(8)}")]
     public async Task<IActionResult> GetById(string id)
     {
-        var result = await _service.GetByIdAsync(id);
-        var map = _mapper.Map<VoiceChatModel>(result);
+        try
+        {
+            var voiceChat = await _service.GetByIdAsync(id);
 
-        return Ok(map);
+            return Ok(voiceChat);
+        }
+        catch (VoiceChatNotFoundException ex)
+        {
+            _logger.LogWarning("Get voice chat {Id} failed. Voice chat not found.", ex.VoiceChatId);
+
+            return NotFound();
+        }
+        catch (DomainException ex)
+        {
+            _logger.LogError(ex, "Get voice chat {Id} failed. Something wrong during extracting voice chat.", id);
+
+            return this.ExtractDomainCode(ex.Code);
+        }
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(VoiceChatModel model)
+    public async Task<IActionResult> Create([FromBody] VoiceChatModel voiceChat)
     {
         try
         {
-            var map = _mapper.Map<VoiceChatDto>(model);
-            var result = await _service.CreateAsync(map);
-            var resultMap = _mapper.Map<VoiceChatModel>(result);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid VoiceChat create received: {@VoiceChat}", voiceChat);
 
-            return Ok(resultMap);
+                return ValidationProblem(ModelState);
+            }
+
+            var map = _mapper.Map<VoiceChatDto>(voiceChat);
+            var createdVoiceChat = await _service.CreateAsync(map);
+
+            return Ok(createdVoiceChat);
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, $"Create Voice Chat failed: ${ex.Message}", model);
+            _logger.LogError(ex, "Failed to create voice chat.");
 
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Create Voice Chat failed: ${ex.Message}", model);
-
-            return BadRequest();
+            return StatusCode(500, "Internal server error.");
         }
     }
 
-    [HttpPut]
-    public async Task<IActionResult> Update(VoiceChatModel model)
-    {
-        try
-        {
-            var map = _mapper.Map<VoiceChatDto>(model);
-            var result = await _service.UpdateAsync(map);
-
-            return Ok(result);
-        }
-        catch (ArgumentNullException ex)
-        {
-            _logger.LogError(ex, $"Update Voice Chat failed: ${ex.Message}", model);
-
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Update Voice Chat failed: ${ex.Message}", model);
-
-            return BadRequest();
-        }
-    }
-
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:minlength(8)}")]
     public async Task<IActionResult> Delete(string id)
     {
-        var affectedRows = await _service.DeleteAsync(id);
+        try
+        {
+            await _service.DeleteAsync(id);
 
-        return Ok(affectedRows);
+            return NoContent();
+        }
+        catch (EntityNotFoundException ex)
+        {
+            _logger.LogWarning("Delete voice chat {Id} failed. Entity '{Entity}' ({EntityId}) not found.", id, nameof(ex.EntityType), ex.EntityId);
+
+            return NotFound();
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
+
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
+        }
     }
 }

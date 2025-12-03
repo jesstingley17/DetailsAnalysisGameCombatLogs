@@ -4,24 +4,18 @@ using CombatAnalysis.CommunicationBL.DTO.Post;
 using CombatAnalysis.CommunicationBL.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.CommunicationAPI.Controllers.Post;
 
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class UserPostDislikeController : ControllerBase
+public class UserPostDislikeController(IService<UserPostDislikeDto, int> service, IMapper mapper, ILogger<UserPostDislikeController> logger) : ControllerBase
 {
-    private readonly IService<UserPostDislikeDto, int> _service;
-    private readonly IMapper _mapper;
-    private readonly ILogger<UserPostDislikeController> _logger;
-
-    public UserPostDislikeController(IService<UserPostDislikeDto, int> service, IMapper mapper, ILogger<UserPostDislikeController> logger)
-    {
-        _service = service;
-        _mapper = mapper;
-        _logger = logger;
-    }
+    private readonly IService<UserPostDislikeDto, int> _service = service;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<UserPostDislikeController> _logger = logger;
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
@@ -39,67 +33,83 @@ public class UserPostDislikeController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("searchByPostId/{id:int:min(1)}")]
-    public async Task<IActionResult> SearchByPostId(int id)
+    [HttpGet("findByPostId/{userPostId:int:min(1)}")]
+    public async Task<IActionResult> SearchByPostId(int userPostId)
     {
-        var result = await _service.GetByParamAsync(nameof(UserPostDislikeModel.UserPostId), id);
+        var result = await _service.GetByParamAsync(c => c.UserPostId, userPostId);
 
         return Ok(result);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(UserPostDislikeModel model)
+    public async Task<IActionResult> Create([FromBody] UserPostDislikeModel userPostDislike)
     {
         try
         {
-            var map = _mapper.Map<UserPostDislikeDto>(model);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid UserPostDislike cretae request received: {@UserPostDislike}", userPostDislike);
+
+                return ValidationProblem(ModelState);
+            }
+
+            var map = _mapper.Map<UserPostDislikeDto>(userPostDislike);
             var result = await _service.CreateAsync(map);
 
             return Ok(result);
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, $"Create Post Dislike failed: ${ex.Message}", model);
+            _logger.LogError(ex, "Failed to create user post dislike.");
 
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Create Post Dislike failed: ${ex.Message}", model);
-
-            return BadRequest();
+            return StatusCode(500, "Internal server error.");
         }
     }
 
-    [HttpPut]
-    public async Task<IActionResult> Update(UserPostDislikeModel model)
+    [HttpPut("{id:int:min(1)}")]
+    public async Task<IActionResult> Update(int id, [FromBody] UserPostDislikeModel userPostDislike)
     {
         try
         {
-            var map = _mapper.Map<UserPostDislikeDto>(model);
-            var result = await _service.UpdateAsync(map);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid UserPostDislike update request received: {@UserPostDislike}", userPostDislike);
 
-            return Ok(result);
+                return ValidationProblem(ModelState);
+            }
+
+            if (id != userPostDislike.Id)
+            {
+                return BadRequest("Route ID and body ID do not match.");
+            }
+
+            var map = _mapper.Map<UserPostDislikeDto>(userPostDislike);
+            await _service.UpdateAsync(id, map);
+
+            return NoContent();
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, $"Update Post Dislike failed: ${ex.Message}", model);
+            _logger.LogError(ex, "Failed to update user post dislike.");
 
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Update Post Dislike failed: ${ex.Message}", model);
-
-            return BadRequest();
+            return StatusCode(500, "Internal server error.");
         }
     }
 
     [HttpDelete("{id:int:min(1)}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var rowsAffected = await _service.DeleteAsync(id);
+        try
+        {
+            await _service.DeleteAsync(id);
 
-        return Ok(rowsAffected);
+            return NoContent();
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
+
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
+        }
     }
 }

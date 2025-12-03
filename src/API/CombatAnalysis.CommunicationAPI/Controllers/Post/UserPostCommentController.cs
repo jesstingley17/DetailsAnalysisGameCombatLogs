@@ -4,24 +4,18 @@ using CombatAnalysis.CommunicationBL.DTO.Post;
 using CombatAnalysis.CommunicationBL.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.CommunicationAPI.Controllers.Post;
 
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class UserPostCommentController : ControllerBase
+public class UserPostCommentController(IService<UserPostCommentDto, int> service, IMapper mapper, ILogger<UserPostCommentController> logger) : ControllerBase
 {
-    private readonly IService<UserPostCommentDto, int> _service;
-    private readonly IMapper _mapper;
-    private readonly ILogger<UserPostCommentController> _logger;
-
-    public UserPostCommentController(IService<UserPostCommentDto, int> service, IMapper mapper, ILogger<UserPostCommentController> logger)
-    {
-        _service = service;
-        _mapper = mapper;
-        _logger = logger;
-    }
+    private readonly IService<UserPostCommentDto, int> _service = service;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<UserPostCommentController> _logger = logger;
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
@@ -42,64 +36,80 @@ public class UserPostCommentController : ControllerBase
     [HttpGet("searchByPostId/{id}")]
     public async Task<IActionResult> SearchByPostId(int id)
     {
-        var result = await _service.GetByParamAsync(nameof(UserPostCommentModel.UserPostId), id);
+        var result = await _service.GetByParamAsync(c => c.UserPostId, id);
 
         return Ok(result);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(UserPostCommentModel model)
+    public async Task<IActionResult> Create([FromBody] UserPostCommentModel userPostComment)
     {
         try
         {
-            var map = _mapper.Map<UserPostCommentDto>(model);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid UserPostComment cretae request received: {@UserPostComment}", userPostComment);
+
+                return ValidationProblem(ModelState);
+            }
+
+            var map = _mapper.Map<UserPostCommentDto>(userPostComment);
             var result = await _service.CreateAsync(map);
 
             return Ok(result);
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, $"Create Post Comment failed: ${ex.Message}", model);
+            _logger.LogError(ex, "Failed to create user post comment.");
 
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Create Post Comment failed: ${ex.Message}", model);
-
-            return BadRequest();
+            return StatusCode(500, "Internal server error.");
         }
     }
 
-    [HttpPut]
-    public async Task<IActionResult> Update(UserPostCommentModel model)
+    [HttpPut("{id:int:min(1)}")]
+    public async Task<IActionResult> Update(int id, [FromBody] UserPostCommentModel userPostComment)
     {
         try
         {
-            var map = _mapper.Map<UserPostCommentDto>(model);
-            var result = await _service.UpdateAsync(map);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid UserPostComment update request received: {@UserPostComment}", userPostComment);
 
-            return Ok(result);
+                return ValidationProblem(ModelState);
+            }
+
+            if (id != userPostComment.Id)
+            {
+                return BadRequest("Route ID and body ID do not match.");
+            }
+
+            var map = _mapper.Map<UserPostCommentDto>(userPostComment);
+            await _service.UpdateAsync(id, map);
+
+            return NoContent();
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, $"Update Post Comment failed: ${ex.Message}", model);
+            _logger.LogError(ex, "Failed to update user post comment.");
 
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Update Post Comment failed: ${ex.Message}", model);
-
-            return BadRequest();
+            return StatusCode(500, "Internal server error.");
         }
     }
 
     [HttpDelete("{id:int:min(1)}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var rowsAffected = await _service.DeleteAsync(id);
+        try
+        {
+            await _service.DeleteAsync(id);
 
-        return Ok(rowsAffected);
+            return NoContent();
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
+
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
+        }
     }
 }

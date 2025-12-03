@@ -1,6 +1,6 @@
-﻿namespace CombatAnalysis.UserApi.Consts;
+﻿namespace CombatAnalysis.UserAPI.Consts;
 
-internal static class API
+internal class API
 {
-    public static string Identity { get; set; }
+    public string Identity { get; set; }
 }

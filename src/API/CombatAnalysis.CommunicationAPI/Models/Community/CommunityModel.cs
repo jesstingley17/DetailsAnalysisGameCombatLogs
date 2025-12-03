@@ -1,14 +1,12 @@
-﻿namespace CombatAnalysis.CommunicationAPI.Models.Community;
+﻿using CombatAnalysis.CommunicationBL.Enums;
+using System.ComponentModel.DataAnnotations;
 
-public class CommunityModel
-{
-    public int Id { get; set; }
+namespace CombatAnalysis.CommunicationAPI.Models.Community;
 
-    public string Name { get; set; }
-
-    public string Description { get; set; }
-
-    public int PolicyType { get; set; }
-
-    public string AppUserId { get; set; }
-}
+public record CommunityModel(
+    [Range(0, int.MaxValue)] int Id,
+    [Required] string Name,
+    [Required] string Description,
+    [Range((int)CommunityPolicyType.Public, (int)CommunityPolicyType.Private)] CommunityPolicyType PolicyType,
+    [Required] string AppUserId
+    );

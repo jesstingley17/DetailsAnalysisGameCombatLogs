@@ -1,10 +1,9 @@
-﻿namespace CombatAnalysis.UserApi.Models;
+﻿using System.ComponentModel.DataAnnotations;
 
-public class BannedUserModel
-{
-    public int Id { get; set; }
+namespace CombatAnalysis.UserAPI.Models;
 
-    public string WhomBannedId { get; set; }
-
-    public string BannedUserId { get; set; }
-}
+public record BannedUserModel(
+    [Required] int Id,
+    [Required] string WhomBannedId,
+    [Required] string BannedUserId
+    );

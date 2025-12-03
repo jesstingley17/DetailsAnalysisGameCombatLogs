@@ -1,16 +1,12 @@
-﻿namespace CombatAnalysis.CommunicationAPI.Models.Community;
+﻿using System.ComponentModel.DataAnnotations;
 
-public class CommunityDiscussionModel
-{
-    public int Id { get; set; }
+namespace CombatAnalysis.CommunicationAPI.Models.Community;
 
-    public string Title { get; set; }
-
-    public string Content { get; set; }
-
-    public string When { get; set; }
-
-    public string AppUserId { get; set; }
-
-    public int CommunityId { get; set; }
-}
+public record CommunityDiscussionModel(
+    [Range(0, int.MaxValue)] int Id,
+    [Required] string Title,
+    [Required] string Content,
+    [Required] DateTimeOffset When,
+    [Required] string AppUserId,
+    [Range(0, int.MaxValue)] int CommunityId
+    );

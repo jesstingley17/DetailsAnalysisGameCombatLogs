@@ -1,8 +1,10 @@
 ﻿namespace CombatAnalysisIdentity.Consts;
 
-internal static class DatabaseProps
+internal class DatabaseProps
 {
-    public static string DefaultConnectionString { get; set; }
+    public string Identity { get; set; }
 
-    public static string UserConnectionString { get; set; }
+    public string AppIdentity { get; set; }
+
+    public string UserConnection { get; set; }
 }

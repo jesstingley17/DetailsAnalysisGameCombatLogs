@@ -1,8 +1,8 @@
 ﻿namespace HealthAPI.Consts;
 
-internal static class AuthenticationClient
+internal class AuthenticationClient
 {
-    public static string ClientId { get; set; }
+    public string Audiences { get; set; }
 
-    public static string Scope { get; set; }
+    public string Scopes { get; set; }
 }

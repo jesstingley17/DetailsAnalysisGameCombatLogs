@@ -1,20 +1,25 @@
-﻿using CombatAnalysis.Hubs.Interfaces;
+﻿using CombatAnalysis.Hubs.Consts;
+using CombatAnalysis.Hubs.Interfaces;
 using CombatAnalysis.Hubs.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
 
 namespace CombatAnalysis.Hubs.Hubs;
 
+[Authorize]
 public class VoiceChatHub : Hub
 {
     private readonly IHttpClientHelper _httpClient;
     private readonly ILogger<VoiceChatHub> _logger;
     private static readonly ConcurrentDictionary<string, HashSet<string>> _groupUsers = new();
 
-    public VoiceChatHub(IHttpClientHelper httpClient, ILogger<VoiceChatHub> logger)
+    public VoiceChatHub(IHttpClientHelper httpClient, IOptions<Cluster> cluster, ILogger<VoiceChatHub> logger)
     {
-        _httpClient = httpClient;
         _logger = logger;
+        _httpClient = httpClient;
+        _httpClient.APIUrl = cluster.Value.Chat;
     }
 
     public async Task JoinRoom(string room, string userId)
@@ -105,6 +110,10 @@ public class VoiceChatHub : Hub
         if (_groupUsers.TryGetValue(room, out var users))
         {
             await Clients.Caller.SendAsync("ReceiveConnectedUsers", users);
+        }
+        else
+        {
+            await Clients.Caller.SendAsync("ReceiveConnectedUsers", null);
         }
     }
 

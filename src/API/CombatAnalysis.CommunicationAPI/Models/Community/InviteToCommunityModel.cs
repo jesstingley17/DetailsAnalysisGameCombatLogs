@@ -1,14 +1,11 @@
-﻿namespace CombatAnalysis.CommunicationAPI.Models.Community;
+﻿using System.ComponentModel.DataAnnotations;
 
-public class InviteToCommunityModel
-{
-    public int Id { get; set; }
+namespace CombatAnalysis.CommunicationAPI.Models.Community;
 
-    public int CommunityId { get; set; }
-
-    public string ToAppUserId { get; set; }
-
-    public DateTimeOffset When { get; set; }
-
-    public string AppUserId { get; set; }
-}
+public record InviteToCommunityModel(
+    [Range(0, int.MaxValue)] int Id,
+    [Range(0, int.MaxValue)] int CommunityId,
+    [Required] string ToAppUserId,
+    [Required] DateTimeOffset When,
+    [Required] string AppUserId
+    );

@@ -2,6 +2,8 @@
 
 public interface IHttpClientHelper
 {
+    string APIUrl { get; set; }
+
     Task<HttpResponseMessage> PostAsync(string requestAddress, JsonContent content);
 
     Task<HttpResponseMessage> GetAsync(string requestAddress);

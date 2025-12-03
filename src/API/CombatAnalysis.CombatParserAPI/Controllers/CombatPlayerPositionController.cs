@@ -3,82 +3,58 @@ using CombatAnalysis.BL.DTO;
 using CombatAnalysis.BL.Interfaces.General;
 using CombatAnalysis.CombatParserAPI.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.CombatParserAPI.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-public class CombatPlayerPositionController : ControllerBase
+public class CombatPlayerPositionController(IQueryService<CombatPlayerPositionDto> queryCombatPlayerPosition, IMutationService<CombatPlayerPositionDto> mutationCombatPlayerService,
+    IMapper mapper, ILogger<CombatPlayerPositionController> logger) : ControllerBase
 {
-    private readonly IQueryService<CombatPlayerPositionDto> _queryCombatPlayerPosition;
-    private readonly IMutationService<CombatPlayerPositionDto> _mutationCombatPlayerService;
-    private readonly IMapper _mapper;
-    private readonly ILogger<CombatPlayerPositionController> _logger;
-
-    public CombatPlayerPositionController(IQueryService<CombatPlayerPositionDto> queryCombatPlayerPosition, IMutationService<CombatPlayerPositionDto> mutationCombatPlayerService,
-        IMapper mapper, ILogger<CombatPlayerPositionController> logger)
-    {
-        _queryCombatPlayerPosition = queryCombatPlayerPosition;
-        _mutationCombatPlayerService = mutationCombatPlayerService;
-        _mapper = mapper;
-        _logger = logger;
-    }
+    private readonly IQueryService<CombatPlayerPositionDto> _queryCombatPlayerPosition = queryCombatPlayerPosition;
+    private readonly IMutationService<CombatPlayerPositionDto> _mutationCombatPlayerService = mutationCombatPlayerService;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<CombatPlayerPositionController> _logger = logger;
 
     [HttpGet("getByCombatId/{combatId:int:min(1)}")]
     public async Task<IActionResult> GetByCombatId(int combatId)
     {
-        try
-        {
-            var combatPlayerPositions = await _queryCombatPlayerPosition.GetByParamAsync(nameof(CombatPlayerPositionModel.CombatId), combatId);
+        var combatPlayerPositions = await _queryCombatPlayerPosition.GetByParamAsync(nameof(CombatPlayerPositionModel.CombatId), combatId);
 
-            return Ok(combatPlayerPositions);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error get combat player positions by combat id: {Message}", ex.Message);
-
-            return BadRequest();
-        }
+        return Ok(combatPlayerPositions);
     }
 
     [HttpGet("{id:int:min(1)}")]
     public async Task<IActionResult> GetById(int id)
     {
-        try
-        {
-            var combatPlayerPosition = await _queryCombatPlayerPosition.GetByIdAsync(id);
+        var combatPlayerPosition = await _queryCombatPlayerPosition.GetByIdAsync(id);
 
-            return Ok(combatPlayerPosition);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error get combat player positions by id: {Message}", ex.Message);
-
-            return BadRequest();
-        }
+        return Ok(combatPlayerPosition);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(CombatPlayerPositionModel model)
+    public async Task<IActionResult> Create([FromBody] CombatPlayerPositionModel combatPlayerPosition)
     {
         try
         {
-            var map = _mapper.Map<CombatPlayerPositionDto>(model);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid CombatPlayerPosition create received: {@CombatPlayerPosition}", combatPlayerPosition);
+
+                return ValidationProblem(ModelState);
+            }
+
+            var map = _mapper.Map<CombatPlayerPositionDto>(combatPlayerPosition);
             var createdItem = await _mutationCombatPlayerService.CreateAsync(map);
 
             return Ok(createdItem);
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, ex.Message);
+            _logger.LogError(ex, "Failed to create combat player position.");
 
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
-
-            return BadRequest();
+            return StatusCode(500, "Internal server error.");
         }
     }
 
@@ -87,18 +63,19 @@ public class CombatPlayerPositionController : ControllerBase
     {
         try
         {
-            var item = await GetById(id);
-            var map = _mapper.Map<CombatPlayerPositionDto>(item);
+            var entityDeleted = await _mutationCombatPlayerService.DeleteAsync(id);
+            if (!entityDeleted)
+            {
+                return NotFound();
+            }
 
-            var rowsAffected = await _mutationCombatPlayerService.DeleteAsync(map);
-
-            return Ok(rowsAffected);
+            return NoContent();
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateConcurrencyException ex)
         {
-            _logger.LogError(ex, ex.Message);
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
 
-            return BadRequest();
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
         }
     }
 }

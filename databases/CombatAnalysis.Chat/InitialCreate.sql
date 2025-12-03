@@ -11,33 +11,40 @@ GO
 BEGIN TRANSACTION;
 CREATE TABLE [GroupChat] (
     [Id] int NOT NULL IDENTITY,
-    [Name] nvarchar(max) NOT NULL,
-    [AppUserId] nvarchar(max) NOT NULL,
+    [Name] nvarchar(100) NOT NULL,
+    [OwnerId] nvarchar(max) NOT NULL,
     CONSTRAINT [PK_GroupChat] PRIMARY KEY ([Id])
 );
-GO
+
+CREATE TABLE [PersonalChat] (
+    [Id] int NOT NULL IDENTITY,
+    [InitiatorId] nvarchar(max) NOT NULL,
+    [InitiatorUnreadMessages] int NOT NULL,
+    [CompanionId] nvarchar(max) NOT NULL,
+    [CompanionUnreadMessages] int NOT NULL,
+    CONSTRAINT [PK_PersonalChat] PRIMARY KEY ([Id])
+);
+
+CREATE TABLE [VoiceChat] (
+    [Id] nvarchar(450) NOT NULL,
+    [AppUserId] nvarchar(max) NOT NULL,
+    CONSTRAINT [PK_VoiceChat] PRIMARY KEY ([Id])
+);
 
 CREATE TABLE [GroupChatMessage] (
     [Id] int NOT NULL IDENTITY,
-    [Username] nvarchar(max) NOT NULL,
-    [Message] nvarchar(max) NOT NULL,
+    [Username] nvarchar(64) NOT NULL,
+    [Message] nvarchar(256) NOT NULL,
     [Time] datetimeoffset NOT NULL,
     [Status] int NOT NULL,
     [Type] int NOT NULL,
-    [ChatId] int NOT NULL,
+    [MarkedType] int NOT NULL,
+    [IsEdited] bit NOT NULL,
+    [GroupChatId] int NOT NULL,
     [GroupChatUserId] nvarchar(max) NOT NULL,
-    CONSTRAINT [PK_GroupChatMessage] PRIMARY KEY ([Id])
+    CONSTRAINT [PK_GroupChatMessage] PRIMARY KEY ([Id]),
+    CONSTRAINT [FK_GroupChatMessage_GroupChat_GroupChatId] FOREIGN KEY ([GroupChatId]) REFERENCES [GroupChat] ([Id]) ON DELETE CASCADE
 );
-GO
-
-CREATE TABLE [GroupChatMessageCount] (
-    [Id] int NOT NULL IDENTITY,
-    [Count] int NOT NULL,
-    [ChatId] int NOT NULL,
-    [GroupChatUserId] nvarchar(max) NOT NULL,
-    CONSTRAINT [PK_GroupChatMessageCount] PRIMARY KEY ([Id])
-);
-GO
 
 CREATE TABLE [GroupChatRules] (
     [Id] int NOT NULL IDENTITY,
@@ -45,111 +52,47 @@ CREATE TABLE [GroupChatRules] (
     [RemovePeople] int NOT NULL,
     [PinMessage] int NOT NULL,
     [Announcements] int NOT NULL,
-    [ChatId] int NOT NULL,
-    CONSTRAINT [PK_GroupChatRules] PRIMARY KEY ([Id])
+    [GroupChatId] int NOT NULL,
+    CONSTRAINT [PK_GroupChatRules] PRIMARY KEY ([Id]),
+    CONSTRAINT [FK_GroupChatRules_GroupChat_GroupChatId] FOREIGN KEY ([GroupChatId]) REFERENCES [GroupChat] ([Id]) ON DELETE CASCADE
 );
-GO
 
 CREATE TABLE [GroupChatUser] (
     [Id] nvarchar(450) NOT NULL,
-    [Username] nvarchar(max) NOT NULL,
-    [ChatId] int NOT NULL,
+    [Username] nvarchar(64) NOT NULL,
+    [UnreadMessages] int NOT NULL,
+    [LastReadMessageId] int NULL,
+    [GroupChatId] int NOT NULL,
     [AppUserId] nvarchar(max) NOT NULL,
-    CONSTRAINT [PK_GroupChatUser] PRIMARY KEY ([Id])
+    CONSTRAINT [PK_GroupChatUser] PRIMARY KEY ([Id]),
+    CONSTRAINT [FK_GroupChatUser_GroupChat_GroupChatId] FOREIGN KEY ([GroupChatId]) REFERENCES [GroupChat] ([Id]) ON DELETE CASCADE
 );
-GO
-
-CREATE TABLE [PersonalChat] (
-    [Id] int NOT NULL IDENTITY,
-    [InitiatorId] nvarchar(max) NOT NULL,
-    [CompanionId] nvarchar(max) NOT NULL,
-    CONSTRAINT [PK_PersonalChat] PRIMARY KEY ([Id])
-);
-GO
 
 CREATE TABLE [PersonalChatMessage] (
     [Id] int NOT NULL IDENTITY,
-    [Username] nvarchar(max) NOT NULL,
-    [Message] nvarchar(max) NOT NULL,
+    [Username] nvarchar(64) NOT NULL,
+    [Message] nvarchar(256) NOT NULL,
     [Time] datetimeoffset NOT NULL,
     [Status] int NOT NULL,
     [Type] int NOT NULL,
-    [ChatId] int NOT NULL,
+    [MarkedType] int NOT NULL,
+    [IsEdited] bit NOT NULL,
+    [PersonalChatId] int NOT NULL,
     [AppUserId] nvarchar(max) NOT NULL,
-    CONSTRAINT [PK_PersonalChatMessage] PRIMARY KEY ([Id])
+    CONSTRAINT [PK_PersonalChatMessage] PRIMARY KEY ([Id]),
+    CONSTRAINT [FK_PersonalChatMessage_PersonalChat_PersonalChatId] FOREIGN KEY ([PersonalChatId]) REFERENCES [PersonalChat] ([Id]) ON DELETE CASCADE
 );
-GO
 
-CREATE TABLE [PersonalChatMessageCount] (
-    [Id] int NOT NULL IDENTITY,
-    [Count] int NOT NULL,
-    [ChatId] int NOT NULL,
-    [AppUserId] nvarchar(max) NOT NULL,
-    CONSTRAINT [PK_PersonalChatMessageCount] PRIMARY KEY ([Id])
-);
-GO
+CREATE INDEX [IX_GroupChatMessage_GroupChatId] ON [GroupChatMessage] ([GroupChatId]);
 
-CREATE TABLE [UnreadGroupChatMessage] (
-    [Id] int NOT NULL IDENTITY,
-    [GroupChatUserId] nvarchar(max) NOT NULL,
-    [GroupChatMessageId] int NOT NULL,
-    CONSTRAINT [PK_UnreadGroupChatMessage] PRIMARY KEY ([Id])
-);
-GO
+CREATE UNIQUE INDEX [IX_GroupChatRules_GroupChatId] ON [GroupChatRules] ([GroupChatId]);
 
-CREATE TABLE [VoiceChat] (
-    [Id] nvarchar(450) NOT NULL,
-    [AppUserId] nvarchar(max) NOT NULL,
-    CONSTRAINT [PK_VoiceChat] PRIMARY KEY ([Id])
-);
-GO
+CREATE INDEX [IX_GroupChatUser_GroupChatId] ON [GroupChatUser] ([GroupChatId]);
 
-CREATE PROCEDURE GetPersonalChatMessageByChatIdPagination (@chatId INT, @pageSize INT)
-AS
-BEGIN
-	SELECT TOP (@pageSize) * 
-	FROM PersonalChatMessage
-	WHERE ChatId = @chatId
-	ORDER BY Id DESC
-END
-GO
-
-CREATE PROCEDURE GetPersonalChatMessageByChatIdMore (@chatId INT, @offset INT, @pageSize INT)
-AS
-BEGIN
-	SELECT * 
-	FROM PersonalChatMessage
-	WHERE ChatId = @chatId
-	ORDER BY Id DESC
-	OFFSET @offset ROWS
-	FETCH NEXT @pageSize ROWS ONLY
-END
-GO
-
-CREATE PROCEDURE GetGroupChatMessageByChatIdPagination (@chatId INT, @pageSize INT)
-AS
-BEGIN
-	SELECT TOP (@pageSize) * 
-	FROM GroupChatMessage
-	WHERE ChatId = @chatId
-	ORDER BY Id DESC
-END
-GO
-
-CREATE PROCEDURE GetGroupChatMessageByChatIdMore (@chatId INT, @offset INT, @pageSize INT)
-AS
-BEGIN
-	SELECT * 
-	FROM GroupChatMessage
-	WHERE ChatId = @chatId
-	ORDER BY Id DESC
-	OFFSET @offset ROWS
-	FETCH NEXT @pageSize ROWS ONLY
-END
-GO
+CREATE INDEX [IX_PersonalChatMessage_PersonalChatId] ON [PersonalChatMessage] ([PersonalChatId]);
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'20250122135024_InitialCreate', N'9.0.1');
+VALUES (N'20251004104606_Prod', N'9.0.9');
 
 COMMIT;
 GO

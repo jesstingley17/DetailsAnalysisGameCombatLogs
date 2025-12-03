@@ -5,103 +5,64 @@ using CombatAnalysis.BL.Interfaces.General;
 using CombatAnalysis.CombatParserAPI.Interfaces;
 using CombatAnalysis.CombatParserAPI.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.CombatParserAPI.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-public class CombatController : ControllerBase
+public class CombatController(IQueryService<CombatDto> queryCombatService, IMutationService<CombatDto> mutationCombatService,
+    IQueryService<CombatLogDto> queryCombatLogService, IMutationService<CombatLogDto> mutationCombatLogService,
+    IMutationService<CombatPlayerDto> mutationCombatPlayerService, IMapper mapper,
+    ILogger<CombatController> logger, ICombatDataHelper saveCombatDataHelper,
+    ICombatTransactionService combatTransactionService) : ControllerBase
 {
-    private readonly IQueryService<CombatDto> _queryCombatService;
-    private readonly IMutationService<CombatDto> _mutationCombatService;
-    private readonly IQueryService<CombatLogDto> _queryCombatLogService;
-    private readonly IMutationService<CombatLogDto> _mutationCombatLogService;
-    private readonly IMutationService<CombatPlayerDto> _mutationCombatPlayerService;
-    private readonly IMapper _mapper;
-    private readonly ILogger<CombatController> _logger;
-    private readonly ICombatDataHelper _saveCombatDataHelper;
-    private readonly ICombatTransactionService _combatTransactionService;
-
-    public CombatController(IQueryService<CombatDto> queryCombatService, IMutationService<CombatDto> mutationCombatService,
-        IQueryService<CombatLogDto> queryCombatLogService, IMutationService<CombatLogDto> mutationCombatLogService, 
-        IMutationService<CombatPlayerDto> mutationCombatPlayerService, IMapper mapper, 
-        ILogger<CombatController> logger, ICombatDataHelper saveCombatDataHelper,
-        ICombatTransactionService combatTransactionService)
-    {
-        _queryCombatService = queryCombatService;
-        _mutationCombatService = mutationCombatService;
-        _queryCombatLogService = queryCombatLogService;
-        _mutationCombatLogService = mutationCombatLogService;
-        _mutationCombatPlayerService = mutationCombatPlayerService;
-        _mapper = mapper;
-        _logger = logger;
-        _saveCombatDataHelper = saveCombatDataHelper;
-        _combatTransactionService = combatTransactionService;
-    }
+    private readonly IQueryService<CombatDto> _queryCombatService = queryCombatService;
+    private readonly IMutationService<CombatDto> _mutationCombatService = mutationCombatService;
+    private readonly IQueryService<CombatLogDto> _queryCombatLogService = queryCombatLogService;
+    private readonly IMutationService<CombatLogDto> _mutationCombatLogService = mutationCombatLogService;
+    private readonly IMutationService<CombatPlayerDto> _mutationCombatPlayerService = mutationCombatPlayerService;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<CombatController> _logger = logger;
+    private readonly ICombatDataHelper _saveCombatDataHelper = saveCombatDataHelper;
+    private readonly ICombatTransactionService _combatTransactionService = combatTransactionService;
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        try
-        {
-            var combats = await _queryCombatService.GetAllAsync();
+        var combats = await _queryCombatService.GetAllAsync();
 
-            return Ok(combats);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
-
-            return BadRequest();
-        }
+        return Ok(combats);
     }
 
     [HttpGet("{id:int:min(1)}")]
     public async Task<IActionResult> GetById(int id)
     {
-        try
-        {
-            var combat = await _queryCombatService.GetByIdAsync(id);
+        var combat = await _queryCombatService.GetByIdAsync(id);
 
-            return Ok(combat);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
-
-            return BadRequest();
-        }
+        return Ok(combat);
     }
 
     [HttpGet("getByCombatLogId/{combatLogId:int:min(1)}")]
     public async Task<IActionResult> GetByCombatLogId(int combatLogId)
     {
-        try
-        {
-            var combats = await _queryCombatService.GetByParamAsync(nameof(CombatModel.CombatLogId), combatLogId);
+        var combats = await _queryCombatService.GetByParamAsync(nameof(CombatModel.CombatLogId), combatLogId);
 
-            return Ok(combats);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error find Combat byt combat log Id: {Message}", ex.Message);
-
-            return BadRequest();
-        }
+        return Ok(combats);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(CombatModel combat)
+    public async Task<IActionResult> Create([FromBody] CombatModel combat)
     {
-        if (combat == null)
-        {
-            _logger.LogError("Create combat called with null model.");
-
-            return BadRequest("Create combat called with null model.");
-        }
-
         try
         {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid Combat create received: {@Combat}", combat);
+
+                return ValidationProblem(ModelState);
+            }
+
             await _combatTransactionService.BeginTransactionAsync();
 
             var createdCombat = await CreateCombatAsync(combat);
@@ -111,64 +72,47 @@ public class CombatController : ControllerBase
 
             await UpdateCombatAsync(createdCombat);
 
-            var affectedRows = await UpdateCombatLog(createdCombat.CombatLogId);
-            if (affectedRows == 0)
-            {
-                return BadRequest();
-            }
+            await UpdateCombatLog(createdCombat.CombatLogId);
 
             await _combatTransactionService.CommitTransactionAsync();
 
-            return Ok();
+            return Ok(createdCombat);
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, "Argument(s) should not have a null value while Creating combat: {Message}", ex.Message);
+            _logger.LogError(ex, "Failed to create combat.");
 
-            await _combatTransactionService.RollbackTransactionAsync();
-
-            return BadRequest();
-        }
-        catch (ArgumentException ex)
-        {
-            _logger.LogError(ex, "Argument(s) incorrect while Creating combat: {Message}", ex.Message);
-
-            await _combatTransactionService.RollbackTransactionAsync();
-
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error creating combat: {Message}", ex.Message);
-
-            await _combatTransactionService.RollbackTransactionAsync();
-
-            return BadRequest();
+            return StatusCode(500, "Internal server error.");
         }
     }
 
-    [HttpPut]
-    public async Task<IActionResult> Update(CombatModel model)
+    [HttpPut("{id:int:min(1)}")]
+    public async Task<IActionResult> Update(int id, [FromBody] CombatModel combat)
     {
-        if (model == null)
-        {
-            _logger.LogError("Update combat called with null model.");
-
-            return BadRequest("Model cannot be null.");
-        }
-
         try
         {
-            var map = _mapper.Map<CombatDto>(model);
-            var rowsAffected = await _mutationCombatService.UpdateAsync(map);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid Combat update request received: {@Combat}", combat);
 
-            return Ok(rowsAffected);
+                return ValidationProblem(ModelState);
+            }
+
+            if (id != combat.Id)
+            {
+                return BadRequest("Route ID and body ID do not match.");
+            }
+
+            var map = _mapper.Map<CombatDto>(combat);
+            await _mutationCombatService.UpdateAsync(map);
+
+            return NoContent();
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateConcurrencyException ex)
         {
-            _logger.LogError(ex, "Error update Combat {Message}", ex.Message);
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
 
-            return BadRequest();
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
         }
     }
 
@@ -177,18 +121,19 @@ public class CombatController : ControllerBase
     {
         try
         {
-            var item = await GetById(id);
-            var map = _mapper.Map<CombatDto>(item);
+            var entityDeleted = await _mutationCombatService.DeleteAsync(id);
+            if (!entityDeleted)
+            {
+                return NotFound();
+            }
 
-            var deletedId = await _mutationCombatService.DeleteAsync(map);
-
-            return Ok(deletedId);
+            return NoContent();
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateConcurrencyException ex)
         {
-            _logger.LogError(ex, ex.Message);
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
 
-            return BadRequest();
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
         }
     }
 
@@ -196,10 +141,7 @@ public class CombatController : ControllerBase
     {
         var map = _mapper.Map<CombatPlayerDto>(model);
         var createdItem = await _mutationCombatPlayerService.CreateAsync(map);
-        if (createdItem == null)
-        {
-            throw new ArgumentException("Combat player did not created");
-        }
+        ArgumentNullException.ThrowIfNull(createdItem, nameof(createdItem));
 
         return createdItem;
     }
@@ -207,9 +149,10 @@ public class CombatController : ControllerBase
     private async Task<CombatDto> CreateCombatAsync(CombatModel model)
     {
         var map = _mapper.Map<CombatDto>(model);
-        var combat = await _mutationCombatService.CreateAsync(map);
+        var createdCombat = await _mutationCombatService.CreateAsync(map);
+        ArgumentNullException.ThrowIfNull(createdCombat, nameof(createdCombat));
 
-        return combat;
+        return createdCombat;
     }
 
     private async Task CreateCombatPlayersAsync(CombatModel combat)
@@ -232,21 +175,15 @@ public class CombatController : ControllerBase
     private async Task UpdateCombatAsync(CombatDto combat)
     {
         combat.IsReady = true;
-        var rowsAffected = await _mutationCombatService.UpdateAsync(combat);
-        if (rowsAffected == 0)
-        {
-            throw new InvalidOperationException("Failed to update combat");
-        }
+        await _mutationCombatService.UpdateAsync(combat);
     }
 
-    private async Task<int> UpdateCombatLog(int combatLogId)
+    private async Task UpdateCombatLog(int combatLogId)
     {
         var combatLog = await _queryCombatLogService.GetByIdAsync(combatLogId);
         combatLog.CombatsInQueue--;
         combatLog.NumberReadyCombats++;
 
-        var affectedRows = await _mutationCombatLogService.UpdateAsync(combatLog);
-
-        return affectedRows;
+        await _mutationCombatLogService.UpdateAsync(combatLog);
     }
 }

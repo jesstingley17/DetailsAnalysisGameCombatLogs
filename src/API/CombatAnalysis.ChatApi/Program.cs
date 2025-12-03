@@ -1,68 +1,87 @@
 using AutoMapper;
-using CombatAnalysis.ChatApi.Consts;
-using CombatAnalysis.ChatApi.Enums;
-using CombatAnalysis.ChatApi.Helpers;
-using CombatAnalysis.ChatApi.Mapping;
-using CombatAnalysis.ChatBL.Extensions;
-using CombatAnalysis.ChatBL.Mapping;
+using AutoMapper.Extensions.ExpressionMapping;
+using Chat.Application.Consts;
+using Chat.Application.Extensions;
+using Chat.Application.Mappers.Profiles;
+using Chat.Infrastructure.Extensions;
+using CombatAnalysis.ChatAPI.Consts;
+using CombatAnalysis.ChatAPI.Helpers;
+using CombatAnalysis.ChatAPI.Interfaces;
+using CombatAnalysis.ChatAPI.Kafka;
+using CombatAnalysis.ChatAPI.Mapping;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using Serilog.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var envName = builder.Environment.EnvironmentName;
+builder.Services.Configure<KafkaSettings>(builder.Configuration.GetSection("Kafka"));
+builder.Services.Configure<Hubs>(builder.Configuration.GetSection("Hubs"));
 
-if (string.Equals(envName, "Development", StringComparison.OrdinalIgnoreCase))
-{
-    CreateEnvironmentHelper.UseAppsettings(builder.Configuration);
-}
-else
-{
-    CreateEnvironmentHelper.UseEnvVariables();
-}
+var databasePropsOptions = new DatabaseProps();
+builder.Configuration.Bind("Database", databasePropsOptions);
 
-var connection = DatabaseProps.Name == nameof(DatabaseType.MSSQL)
-    ? DatabaseProps.MSSQLConnectionString
-    : DatabaseProps.FirebaseConnectionString;
-builder.Services.ChatBLDependencies(DatabaseProps.Name, DatabaseProps.DataProcessingType, connection);
+var connectionString = databasePropsOptions.DefaultConnection;
+builder.Services.AddChatApplication();
+builder.Services.AddChatInfrastructure(connectionString);
 
 var mappingConfig = new MapperConfiguration(mc =>
 {
+    mc.AddExpressionMapping();
     mc.AddProfile(new ChatMapper());
-    mc.AddProfile(new ChatBLMapper());
+    mc.AddProfile(new ChatProfile());
 });
 
 var mapper = mappingConfig.CreateMapper();
 builder.Services.AddSingleton(mapper);
+
+var authenticationOptions = new Authentication();
+builder.Configuration.Bind("Authentication", authenticationOptions);
+var authenticationClientOptions = new AuthenticationClient();
+builder.Configuration.Bind("Authentication:Client", authenticationClientOptions);
+var apiOptions = new API();
+builder.Configuration.Bind("API", apiOptions);
+
+var audiences = authenticationClientOptions.Audiences.Split(',');
 builder.Services.AddAuthentication("Bearer")
     .AddJwtBearer(options =>
     {
-        options.Authority = Authentication.Authority;
+        options.Authority = authenticationOptions.Authority;
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Authentication.IssuerSigningKey),
             ValidateIssuer = true,
-            ValidIssuer = Authentication.Issuer,
+            ValidIssuer = authenticationOptions.Issuer,
             ValidateAudience = true,
-            ValidAudiences = [AuthenticationClient.WebClientId, AuthenticationClient.DesktopClientId],
-            ClockSkew = TimeSpan.Zero
+            ValidAudiences = audiences,
+            ClockSkew = TimeSpan.Zero,
         };
         // Skip checking HTTPS (should be HTTPS in production)
         options.RequireHttpsMetadata = false;
     });
 
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("ApiScope", builder =>
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("ApiScope", builder =>
     {
         builder.RequireAuthenticatedUser();
-        builder.RequireClaim("scope", AuthenticationClient.Scope);
+        builder.RequireClaim("scope", authenticationClientOptions.Scopes.Split(','));
     });
+
+builder.Services.AddTransient<IChatHubHelper, ChatHubHelper>();
+builder.Services.AddHostedService<PersonalChatMessageConsumer>();
+builder.Services.AddHostedService<GroupChatConsumer>();
+builder.Services.AddHostedService<GroupChatMemberConsumer>();
+builder.Services.AddHostedService<GroupChatMessageConsumer>();
+
+builder.Services.AddSingleton<IKafkaProducerService<string, string>, KafkaProducer<string, string>>();
+
+builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
 });
 
-builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -72,41 +91,35 @@ builder.Services.AddSwaggerGen(options =>
         Version = "v1",
     });
 
-    options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Type = SecuritySchemeType.OAuth2,
-        Flows = new OpenApiOAuthFlows
-        {
-            ClientCredentials = new OpenApiOAuthFlow
-            {
-                TokenUrl = new Uri($"{API.Identity}connect/token"),
-                Scopes = new Dictionary<string, string>
-                {
-                    { AuthenticationClient.Scope, "Request API #1" }
-                }
-            }
-        }
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter 'Bearer' followed by your access token.\nExample: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'"
     });
 
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
         {
+            new OpenApiSecurityScheme
             {
-                new OpenApiSecurityScheme
+                Reference = new OpenApiReference
                 {
-                    Reference = new OpenApiReference
-                    {
-                        Type = ReferenceType.SecurityScheme,
-                        Id = "oauth2"
-                    },
-                },
-                new[] { AuthenticationClient.Scope }
-            }
-        });
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
 });
 
 Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Debug()
-    .WriteTo.Console()
+    .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Debug)
+    .WriteTo.File("logs/chatapi.log", rollingInterval: RollingInterval.Day, retainedFileCountLimit: 7, restrictedToMinimumLevel: LogEventLevel.Error)
     .CreateLogger();
 
 builder.Host.UseSerilog();
@@ -115,7 +128,7 @@ var app = builder.Build();
 
 app.UseRouting();
 
-app.UseAuthentication(); // Enable authentication middleware
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseSwagger();
@@ -123,13 +136,32 @@ app.UseSwaggerUI(options =>
 {
     options.SwaggerEndpoint("/swagger/v1/swagger.json", "Chat API v1");
     options.InjectStylesheet("/swagger-ui/swaggerDark.css");
-    options.OAuthClientId(AuthenticationClient.WebClientId);
-    options.OAuthScopes(AuthenticationClient.Scope);
 });
 
 app.UseStaticFiles();
 app.UseHttpsRedirection();
 
-app.MapControllers();
+app.MapControllers().RequireAuthorization("ApiScope");
+
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.StatusCode = 500;
+        context.Response.ContentType = "application/json";
+
+        var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
+        var ex = exceptionHandlerPathFeature?.Error;
+
+        Log.Error(ex, "Unhandled exception occurred");
+
+        var result = new
+        {
+            message = "An unexpected error occurred. Please try again later."
+        };
+
+        await context.Response.WriteAsJsonAsync(result);
+    });
+});
 
 app.Run();

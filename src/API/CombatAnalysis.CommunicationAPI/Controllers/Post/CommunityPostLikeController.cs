@@ -4,24 +4,18 @@ using CombatAnalysis.CommunicationBL.DTO.Post;
 using CombatAnalysis.CommunicationBL.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.CommunicationAPI.Controllers.Post;
 
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class CommunityPostLikeController : ControllerBase
+public class CommunityPostLikeController(IService<CommunityPostLikeDto, int> service, IMapper mapper, ILogger<CommunityPostLikeController> logger) : ControllerBase
 {
-    private readonly IService<CommunityPostLikeDto, int> _service;
-    private readonly IMapper _mapper;
-    private readonly ILogger<CommunityPostLikeController> _logger;
-
-    public CommunityPostLikeController(IService<CommunityPostLikeDto, int> service, IMapper mapper, ILogger<CommunityPostLikeController> logger)
-    {
-        _service = service;
-        _mapper = mapper;
-        _logger = logger;
-    }
+    private readonly IService<CommunityPostLikeDto, int> _service = service;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<CommunityPostLikeController> _logger = logger;
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
@@ -39,67 +33,53 @@ public class CommunityPostLikeController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("searchByPostId/{id:int:min(1)}")]
-    public async Task<IActionResult> SearchByPostId(int id)
+    [HttpGet("findByPostId/{communityPostId:int:min(1)}")]
+    public async Task<IActionResult> SearchByPostId(int communityPostId)
     {
-        var result = await _service.GetByParamAsync(nameof(CommunityPostLikeModel.CommunityPostId), id);
+        var result = await _service.GetByParamAsync(c => c.CommunityPostId, communityPostId);
 
         return Ok(result);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(CommunityPostLikeModel model)
+    public async Task<IActionResult> Create([FromBody] CommunityPostLikeModel communityPostLike)
     {
         try
         {
-            var map = _mapper.Map<CommunityPostLikeDto>(model);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid CommunityPostLike cretae request received: {@CommunityPostLike}", communityPostLike);
+
+                return ValidationProblem(ModelState);
+            }
+
+            var map = _mapper.Map<CommunityPostLikeDto>(communityPostLike);
             var result = await _service.CreateAsync(map);
 
             return Ok(result);
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, ex.Message);
+            _logger.LogError(ex, "Failed to create community post like.");
 
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Create Post Dislike failed: ${ex.Message}", model);
-
-            return BadRequest();
-        }
-    }
-
-    [HttpPut]
-    public async Task<IActionResult> Update(CommunityPostLikeModel model)
-    {
-        try
-        {
-            var map = _mapper.Map<CommunityPostLikeDto>(model);
-            var result = await _service.UpdateAsync(map);
-
-            return Ok(result);
-        }
-        catch (ArgumentNullException ex)
-        {
-            _logger.LogError(ex, $"Update Post Like failed: ${ex.Message}", model);
-
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Update Post Like failed: ${ex.Message}", model);
-
-            return BadRequest();
+            return StatusCode(500, "Internal server error.");
         }
     }
 
     [HttpDelete("{id:int:min(1)}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var rowsAffected = await _service.DeleteAsync(id);
+        try
+        {
+            await _service.DeleteAsync(id);
 
-        return Ok(rowsAffected);
+            return NoContent();
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
+
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
+        }
     }
 }

@@ -1,8 +1,8 @@
-﻿namespace CombatAnalysis.ChatApi.Models;
+﻿using System.ComponentModel.DataAnnotations;
 
-public class VoiceChatModel
-{
-    public string Id { get; set; }
+namespace CombatAnalysis.ChatAPI.Models;
 
-    public string AppUserId { get; set; }
-}
+public record VoiceChatModel(
+    [Required] string Id,
+    [Required] string AppUserId
+    );

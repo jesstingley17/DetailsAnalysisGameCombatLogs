@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using CombatAnalysis.UserBL.DTO;
-using CombatAnalysis.UserApi.Models;
+using CombatAnalysis.UserAPI.Models;
 
-namespace CombatAnalysis.UserApi.Mapping;
+namespace CombatAnalysis.UserAPI.Mapping;
 
 internal class UserApiMapper : Profile
 {
@@ -11,7 +11,7 @@ internal class UserApiMapper : Profile
         CreateMap<AppUserDto, AppUserModel>().ReverseMap();
         CreateMap<CustomerDto, CustomerModel>().ReverseMap();
         CreateMap<BannedUserDto, BannedUserModel>().ReverseMap();
-        CreateMap<FriendDto, FriendModel>().ReverseMap();
+        CreateMap<FriendCreateDto, FriendModel>().ReverseMap();
         CreateMap<RequestToConnectDto, RequestToConnectModel>().ReverseMap();
     }
 }

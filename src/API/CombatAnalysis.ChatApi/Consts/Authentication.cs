@@ -1,10 +1,8 @@
-﻿namespace CombatAnalysis.ChatApi.Consts;
+﻿namespace CombatAnalysis.ChatAPI.Consts;
 
-internal static class Authentication
+internal class Authentication
 {
-    public static byte[] IssuerSigningKey { get; set; }
+    public string Issuer { get; set; }
 
-    public static string Issuer { get; set; }
-
-    public static string Authority { get; set; }
+    public string Authority { get; set; }
 }

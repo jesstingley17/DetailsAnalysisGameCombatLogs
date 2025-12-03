@@ -1,0 +1,23 @@
+{
+  "identity": {
+    "loginPath": "connect/authorize",
+    "registryPath": "Account/Registration",
+    "verifyEmail": "initVerification"
+  },
+  "communication": {
+    "chatPageSize": 50,
+    "communityPageSize": 5,
+    "communityPostPageSize": 5
+  },
+  "hubs": {
+    "url": "https://localhost:7026/",
+    "notification": "notificationHub",
+    "personalChat": "personalChatHub",
+    "personalChatMessages": "personalChatMessagesHub",
+    "personalChatUnreadMessage": "personalChatUnreadMessageHub",
+    "groupChat": "groupChatHub",
+    "groupChatMessages": "groupChatMessagesHub",
+    "groupChatUnreadMessage": "groupChatUnreadMessageHub",
+    "voiceChat": "voiceChatHub"
+  }
+}

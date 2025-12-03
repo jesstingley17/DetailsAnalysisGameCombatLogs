@@ -1,27 +1,21 @@
 ﻿using AutoMapper;
+using CombatAnalysis.UserAPI.Models;
 using CombatAnalysis.UserBL.DTO;
 using CombatAnalysis.UserBL.Interfaces;
-using CombatAnalysis.UserApi.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
-namespace CombatAnalysis.UserApi.Controllers;
+namespace CombatAnalysis.UserAPI.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class RequestToConnectController : ControllerBase
+public class RequestToConnectController(IService<RequestToConnectDto, int> service, IMapper mapper, ILogger<RequestToConnectController> logger) : ControllerBase
 {
-    private readonly IService<RequestToConnectDto, int> _service;
-    private readonly IMapper _mapper;
-    private readonly ILogger<RequestToConnectController> _logger;
-
-    public RequestToConnectController(IService<RequestToConnectDto, int> service, IMapper mapper, ILogger<RequestToConnectController> logger)
-    {
-        _service = service;
-        _mapper = mapper;
-        _logger = logger;
-    }
+    private readonly IService<RequestToConnectDto, int> _service = service;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<RequestToConnectController> _logger = logger;
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
@@ -39,75 +33,65 @@ public class RequestToConnectController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("searchByOwnerId/{id}")]
-    public async Task<IActionResult> SearchByOwnerId(string id)
+    [HttpGet("findByOwnerId/{id}")]
+    public async Task<IActionResult> FindByOwnerId(string id)
     {
-        var result = await _service.GetByParamAsync(nameof(RequestToConnectModel.AppUserId), id);
+        var result = await _service.GetByParamAsync(c => c.AppUserId, id);
 
         return Ok(result);
     }
 
-    [HttpGet("searchByToUserId/{id}")]
-    public async Task<IActionResult> SearchByToUserId(string id)
+    [HttpGet("findByUserId/{id}")]
+    public async Task<IActionResult> FindByUserId(string id)
     {
-        var result = await _service.GetByParamAsync(nameof(RequestToConnectModel.ToAppUserId), id);
+        var result = await _service.GetByParamAsync(c => c.ToAppUserId, id);
 
         return Ok(result);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(RequestToConnectModel model)
+    public async Task<IActionResult> Create([FromBody] RequestToConnectModel request)
     {
         try
         {
-            var map = _mapper.Map<RequestToConnectDto>(model);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid RequestToConnect create received: {@RequestToConnect}", request);
+
+                return ValidationProblem(ModelState);
+            }
+
+            var map = _mapper.Map<RequestToConnectDto>(request);
             var result = await _service.CreateAsync(map);
 
             return Ok(result);
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, $"Create Request to Connect failed: ${ex.Message}", model);
+            _logger.LogError(ex, "Failed to create request to connect.");
 
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Create Request to Connect failed: ${ex.Message}", model);
-
-            return BadRequest();
-        }
-    }
-
-    [HttpPut]
-    public async Task<IActionResult> Update(RequestToConnectModel model)
-    {
-        try
-        {
-            var map = _mapper.Map<RequestToConnectDto>(model);
-            var result = await _service.UpdateAsync(map);
-
-            return Ok(result);
-        }
-        catch (ArgumentNullException ex)
-        {
-            _logger.LogError(ex, $"Update Request to Connect failed: ${ex.Message}", model);
-
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Update Request to Connect failed: ${ex.Message}", model);
-
-            return BadRequest();
+            return StatusCode(500, "Internal server error.");
         }
     }
 
     [HttpDelete("{id:int:min(1)}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var rowsAffected = await _service.DeleteAsync(id);
+        try
+        {
+            var entityDeleted = await _service.DeleteAsync(id);
+            if (!entityDeleted)
+            {
+                return NotFound();
+            }
 
-        return Ok(rowsAffected);
+            return NoContent();
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
+
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
+        }
     }
 }

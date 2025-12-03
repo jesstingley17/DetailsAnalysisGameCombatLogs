@@ -1,150 +1,245 @@
 ﻿using AutoMapper;
-using CombatAnalysis.ChatApi.Models;
-using CombatAnalysis.ChatApi.Models.Containers;
-using CombatAnalysis.ChatBL.DTO;
-using CombatAnalysis.ChatBL.Interfaces;
+using Chat.Application.DTOs;
+using Chat.Application.Interfaces;
+using Chat.Domain.Exceptions;
+using Chat.Infrastructure.Exceptions;
+using CombatAnalysis.ChatAPI.Core;
+using CombatAnalysis.ChatAPI.Models;
+using CombatAnalysis.ChatAPI.Patches;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
-namespace CombatAnalysis.ChatApi.Controllers;
+namespace CombatAnalysis.ChatAPI.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class GroupChatController : ControllerBase
+public class GroupChatController(IGroupChatService chatService, IMapper mapper, ILogger<GroupChatController> logger) : ControllerBase
 {
-    private readonly IService<GroupChatDto, int> _chatService;
-    private readonly IService<GroupChatRulesDto, int> _chatRulesService;
-    private readonly IServiceTransaction<GroupChatUserDto, string> _chatUserService;
-    private readonly IService<GroupChatMessageCountDto, int> _chatMessageCountService;
-    private readonly IMapper _mapper;
-    private readonly ILogger<GroupChatController> _logger;
-    private readonly IChatTransactionService _chatTransactionService;
-
-    public GroupChatController(IService<GroupChatDto, int> chatService, IService<GroupChatMessageCountDto, int> chatMessageCountService, IService<GroupChatRulesDto, int> chatRulesService,
-        IServiceTransaction<GroupChatUserDto, string> chatUserService, IMapper mapper, IChatTransactionService chatTransactionService,
-        ILogger<GroupChatController> logger)
-    {
-        _chatService = chatService;
-        _chatMessageCountService = chatMessageCountService;
-        _chatRulesService = chatRulesService;
-        _chatUserService = chatUserService;
-        _mapper = mapper;
-        _chatTransactionService = chatTransactionService;
-        _logger = logger;
-    }
+    private readonly IGroupChatService _chatService = chatService;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<GroupChatController> _logger = logger;
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var result = await _chatService.GetAllAsync();
+        var groupChats = await _chatService.GetAllAsync();
 
-        return Ok(result);
+        return Ok(groupChats);
     }
 
     [HttpGet("{id:int:min(1)}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var result = await _chatService.GetByIdAsync(id);
+        try
+        {
+            var groupChat = await _chatService.GetByIdAsync(id);
 
-        return Ok(result);
+            return Ok(groupChat);
+        }
+        catch (GroupChatNotFoundException ex)
+        {
+            _logger.LogWarning("Get group chat {Id} failed. Group chat not found.", ex.GroupChatId);
+
+            return this.ExtractDomainCode(ex.Code);
+        }
+        catch (DomainException ex)
+        {
+            _logger.LogError(ex, "Get group chat {Id} failed. Something wrong during extracting group chat.", id);
+
+            return this.ExtractDomainCode(ex.Code);
+        }
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(GroupChatContainerModel container)
+    public async Task<IActionResult> Create([FromBody] GroupChatModel groupChat)
     {
         try
         {
-            if (container == null)
+            if (!ModelState.IsValid)
             {
-                throw new ArgumentNullException(nameof(container));
+                _logger.LogWarning("Invalid GroupChatModel create received: {@GroupChat}", groupChat);
+
+                return ValidationProblem(ModelState);
             }
 
-            await _chatTransactionService.BeginTransactionAsync();
+            var map = _mapper.Map<GroupChatDto>(groupChat);
+            var createdGroupChat = await _chatService.CreateAsync(map);
 
-            var chatMap = _mapper.Map<GroupChatDto>(container.GroupChat);
-            var result = await _chatService.CreateAsync(chatMap);
-
-            await CreateChatRefsAsync(result.Id, container.GroupChatRules, container.GroupChatUser);
-
-            await _chatTransactionService.CommitTransactionAsync();
-
-            return Ok(result);
+            return Ok(createdGroupChat);
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, $"Create Group Chat failed: ${ex.Message}", container);
+            _logger.LogError(ex, "Failed to create group chat.");
 
-            await _chatTransactionService.RollbackTransactionAsync();
-
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Create Group Chat failed: ${ex.Message}", container);
-
-            await _chatTransactionService.RollbackTransactionAsync();
-
-            return BadRequest();
+            return StatusCode(500, "Internal server error.");
         }
     }
 
-    [HttpPut]
-    public async Task<IActionResult> Update(GroupChatModel chat)
+    [HttpPatch("{id:int:min(1)}")]
+    public async Task<IActionResult> PartialUpdate(int id, [FromBody] GroupChatPatch chat)
     {
         try
         {
-            if (chat == null)
+            if (!ModelState.IsValid)
             {
-                throw new ArgumentNullException(nameof(chat));
+                _logger.LogWarning("Invalid GroupChat update request received: {@GroupChat}", chat);
+
+                return ValidationProblem(ModelState);
             }
 
-            var chatMap = _mapper.Map<GroupChatDto>(chat);
-            var result = await _chatService.UpdateAsync(chatMap);
+            if (id != chat.Id)
+            {
+                return BadRequest("Route ID and body ID do not match.");
+            }
 
-            return Ok(result);
+            await _chatService.UpdateChatAsync(chat.Id, chat.Name, chat.OwnerId);
+
+            return NoContent();
         }
-        catch (ArgumentNullException ex)
+        catch (EntityNotFoundException ex)
         {
-            _logger.LogError(ex, $"Update Group Chat failed: ${ex.Message}", chat);
+            _logger.LogWarning("Update group chat {Id} failed. Entity '{Entity}' ({EntityId}) not found.", id, nameof(ex.EntityType), ex.EntityId);
 
-            return BadRequest();
+            return this.ExtractDomainCode(ex.Code);
         }
-        catch (Exception ex)
+        catch (DomainException ex)
         {
-            _logger.LogError(ex, $"Update Group Chat failed: ${ex.Message}", chat);
+            _logger.LogError(ex, "Update group chat {Id} failed. Something wrong during updating group chat.", id);
 
-            return BadRequest();
+            return this.ExtractDomainCode(ex.Code);
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
+
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
         }
     }
 
     [HttpDelete("{id:int:min(1)}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var result = await _chatService.DeleteAsync(id);
+        try
+        {
+            await _chatService.DeleteAsync(id);
 
-        return Ok(result);
+            return NoContent();
+        }
+        catch (EntityNotFoundException ex)
+        {
+            _logger.LogWarning("Delete group chat {Id} failed. Entity '{Entity}' ({EntityId}) not found.", id, nameof(ex.EntityType), ex.EntityId);
+
+            return this.ExtractDomainCode(ex.Code);
+        }
+        catch (DomainException ex)
+        {
+            _logger.LogError(ex, "Delete group chat {Id} failed. Something wrong during deleting group chat message.", id);
+
+            return this.ExtractDomainCode(ex.Code);
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
+
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
+        }
     }
 
-    private async Task CreateChatRefsAsync(int chatId, GroupChatRulesModel chatRules, GroupChatUserModel chatUser)
+    [HttpPost("addRules")]
+    public async Task<IActionResult> AddRules([FromBody] GroupChatRulesModel groupChatRules)
     {
-        chatRules.ChatId = chatId;
-
-        var chatRulesMap = _mapper.Map<GroupChatRulesDto>(chatRules);
-        await _chatRulesService.CreateAsync(chatRulesMap);
-
-        chatUser.ChatId = chatId;
-
-        var chatUserMap = _mapper.Map<GroupChatUserDto>(chatUser);
-        var result = await _chatUserService.CreateAsync(chatUserMap);
-
-        var messageCount = new GroupChatMessageCountDto
+        try
         {
-            ChatId = chatId,
-            GroupChatUserId = result.Id,
-            Count = 0
-        };
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid GroupChatRulesModel create received: {@GroupChatRules}", groupChatRules);
 
-        await _chatMessageCountService.CreateAsync(messageCount);
+                return ValidationProblem(ModelState);
+            }
+
+            var map = _mapper.Map<GroupChatRulesDto>(groupChatRules);
+            var rules = await _chatService.AddRulesAsync(map);
+
+            return Ok(rules);
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex, "Failed to add group chat rules.");
+
+            return StatusCode(500, "Internal server error.");
+        }
+    }
+
+    [HttpPut("updateRules/{chatId:int:min(1)}")]
+    public async Task<IActionResult> UpdateRules(int chatId, [FromBody] GroupChatRulesModel groupChatRules)
+    {
+        try
+        {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid GroupChatRulesModel update received: {@GroupChatRules}", groupChatRules);
+
+                return ValidationProblem(ModelState);
+            }
+
+            if (chatId != groupChatRules.GroupChatId)
+            {
+                return BadRequest("Route ID and body ID do not match.");
+            }
+
+            var chatRulesDto = _mapper.Map<GroupChatRulesDto>(groupChatRules);
+            await _chatService.UpdateRulesAsync(chatRulesDto);
+
+            return NoContent();
+        }
+        catch (EntityNotFoundException ex)
+        {
+            _logger.LogWarning("Update group chat {Id} failed. Entity '{Entity}' ({EntityId}) not found.", chatId, nameof(ex.EntityType), ex.EntityId);
+
+            return this.ExtractDomainCode(ex.Code);
+        }
+        catch (DomainException ex)
+        {
+            _logger.LogError(ex, "Update group chat {Id} failed. Something wrong during updating group chat message.", chatId);
+
+            return this.ExtractDomainCode(ex.Code);
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
+
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
+        }
+    }
+
+    [HttpGet("getRules/{chatId:int:min(1)}")]
+    public async Task<IActionResult> GetRules(int chatId)
+    {
+        try
+        {
+            var groupChatRules = await _chatService.GetRulesAsync(chatId);
+
+            return Ok(groupChatRules);
+        }
+        catch (GroupChatNotFoundException ex)
+        {
+            _logger.LogWarning("Get group chat rules for chat {Id} failed: Group chat not found.", chatId);
+
+            return this.ExtractDomainCode(ex.Code);
+        }
+        catch (GroupChatRulesNotFoundException ex)
+        {
+            _logger.LogWarning("Get group chat rules for chat {Id} failed: Group chat rules not found.", chatId);
+
+            return this.ExtractDomainCode(ex.Code);
+        }
+        catch (DomainException ex)
+        {
+            _logger.LogError(ex, "Get group chat rules for chat {Id} failed. Something wrong during extracting group chat rules.", chatId);
+
+            return this.ExtractDomainCode(ex.Code);
+        }
     }
 }

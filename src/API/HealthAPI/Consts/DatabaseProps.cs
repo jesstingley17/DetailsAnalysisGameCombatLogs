@@ -1,6 +1,6 @@
 ﻿namespace HealthAPI.Consts;
 
-internal static class DatabaseProps
+internal class DatabaseProps
 {
-    public static string ConnectionString { get; set; }
+    public string DefaultConnection { get; set; }
 }

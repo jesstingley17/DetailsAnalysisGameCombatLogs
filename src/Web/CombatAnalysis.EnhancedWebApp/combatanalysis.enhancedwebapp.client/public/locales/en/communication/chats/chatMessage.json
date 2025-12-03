@@ -1,0 +1,22 @@
+{
+  "Edit": "Edit",
+  "Delete": "Delete",
+  "CloseMenu": "Close menu",
+  "AreYouSure": "Are you sure?",
+  "Cancel": "Cancel",
+  "Save": "Save",
+  "Delivery": "Message delivery",
+  "Delivered": "Message delivered",
+  "Read": "Message read",
+  "OpenCombatLog": "Open information about selected combat log",
+  "Open": "Open",
+  "CombatsLog": "Combats log",
+  "OpenLink": "Open link in new Browser tab",
+  "NotRelevant": "Message marked by owner as 'Not relevant'",
+  "WithEmotions": "Message marked by owner as 'With emotions'",
+  "Edited": "Edited",
+  "UnmarkNotRelevant": "Unmark message as 'Not relevant'",
+  "MarkNotRelevant": "Mark message as 'Not relevant'",
+  "UnmarkWithEmotions": "Unmark message as 'With emotions'",
+  "MarkWithEmotions": "Mark message as 'With emotions'"
+}

@@ -3,26 +3,19 @@ using CombatAnalysis.BL.Interfaces;
 using CombatAnalysis.BL.Interfaces.General;
 using CombatAnalysis.CombatParserAPI.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.CombatParserAPI.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-public class PlayerDeathController : ControllerBase
+public class PlayerDeathController(IMutationService<PlayerDeathDto> mutationService, IPlayerInfoService<PlayerDeathDto> service,
+    IMapper mapper, ILogger<PlayerDeathController> logger) : ControllerBase
 {
-    private readonly IMutationService<PlayerDeathDto> _mutationService;
-    private readonly IPlayerInfoService<PlayerDeathDto> _playerInfoService;
-    private readonly IMapper _mapper;
-    private readonly ILogger<PlayerDeathController> _logger;
-
-    public PlayerDeathController(IMutationService<PlayerDeathDto> mutationService, IPlayerInfoService<PlayerDeathDto> service,
-        IMapper mapper, ILogger<PlayerDeathController> logger)
-    {
-        _mutationService = mutationService;
-        _playerInfoService = service;
-        _mapper = mapper;
-        _logger = logger;
-    }
+    private readonly IMutationService<PlayerDeathDto> _mutationService = mutationService;
+    private readonly IPlayerInfoService<PlayerDeathDto> _playerInfoService = service;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<PlayerDeathController> _logger = logger;
 
     [HttpGet("getByCombatPlayerId/{combatPlayerId:int:min(1)}")]
     public async Task<IActionResult> Find(int combatPlayerId)
@@ -33,20 +26,27 @@ public class PlayerDeathController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(PlayerDeathModel model)
+    public async Task<IActionResult> Create([FromBody] PlayerDeathModel playerDeath)
     {
         try
         {
-            var map = _mapper.Map<PlayerDeathDto>(model);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid PlayerDeath create received: {@PlayerDeath}", playerDeath);
+
+                return ValidationProblem(ModelState);
+            }
+
+            var map = _mapper.Map<PlayerDeathDto>(playerDeath);
             var createdItem = await _mutationService.CreateAsync(map);
 
             return Ok(createdItem);
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, ex.Message);
+            _logger.LogError(ex, "Failed to create player death.");
 
-            return BadRequest();
+            return StatusCode(500, "Internal server error.");
         }
     }
 }

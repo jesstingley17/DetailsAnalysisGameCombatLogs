@@ -1,0 +1,19 @@
+{
+  "Damage": "Damage",
+  "Healing": "Healing",
+  "DamageTaken": "Damage taken",
+  "ResourcesRecovery": "Resources recovery",
+  "Players": "Players",
+  "SelectCombat": "Select combat",
+  "ShowCommonStatistics": "Show common statistics",
+  "HideCommonStatistics": "Hide common statistics",
+  "SearchPlayer": "Search player",
+  "Clean": "Clean",
+  "TypeUsername": "Type player",
+  "Search": "Search",
+  "Dashboard": "Dashboard",
+  "Details": "Details",
+  "ZeroDeaths": "0 deaths",
+  "Username": "Username",
+  "Filter": "Filter"
+}

@@ -17,7 +17,7 @@ public class RegistrationDataModel
 
     [Required]
     [DataType(DataType.Password)]
-    [Compare("Password", ErrorMessage = "Password and confirm password should be equal")]
+    [Compare(nameof(Password), ErrorMessage = "Password and confirm password should be equal")]
     public string ConfirmPassword { get; set; }
 
     [Required]
@@ -32,11 +32,13 @@ public class RegistrationDataModel
     public string LastName { get; set; }
 
     [Required]
+    [DataType(DataType.PhoneNumber)]
     public int PhoneNumber { get; set; }
 
     [Required]
     public string Country { get; set; }
 
+    [Required]
     public string City { get; set; }
 
     [Required]

@@ -1,21 +1,14 @@
 using CombatAnalysis.Identity.Interfaces;
-using CombatAnalysis.Identity.Security;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysisIdentity.Pages;
 
-public class VerificationModel : PageModel
+public class VerificationModel(IUserVerification userVerification, ILogger<VerificationModel> logger) : PageModel
 {
-    private readonly IUserVerification _userVerification;
-    private readonly ILogger<VerificationModel> _logger;
-
-    public VerificationModel(IUserVerification userVerification, ILogger<VerificationModel> logger)
-    {
-        _userVerification = userVerification;
-        _logger = logger;
-    }
+    private readonly IUserVerification _userVerification = userVerification;
+    private readonly ILogger<VerificationModel> _logger = logger;
 
     public async Task<IActionResult> OnGetAsync(string token)
     {
@@ -24,7 +17,7 @@ public class VerificationModel : PageModel
             var wasVerified = await _userVerification.VerifyEmailAsync(token);
             if (wasVerified)
             {
-                var redirectUri = $"{Authentication.Protocol}://{Request.Query["redirectUri"]}?verified=true";
+                var redirectUri = $"{Request.Query["redirectUri"]}?verified=true";
 
                 return Redirect(redirectUri);
             }

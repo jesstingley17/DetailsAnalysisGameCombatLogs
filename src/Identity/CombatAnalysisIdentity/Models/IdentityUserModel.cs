@@ -1,6 +1,8 @@
-﻿namespace CombatAnalysisIdentity.Models;
+﻿using Microsoft.AspNetCore.Identity;
 
-public class IdentityUserModel
+namespace CombatAnalysisIdentity.Models;
+
+public class IdentityUserModel : IdentityUser
 {
     public string Id { get; set; }
 

@@ -5,190 +5,109 @@ using CombatAnalysis.BL.Interfaces.Filters;
 using CombatAnalysis.BL.Interfaces.General;
 using CombatAnalysis.CombatParserAPI.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.CombatParserAPI.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-public class DamageTakenController : ControllerBase
+public class DamageTakenController(IMutationService<DamageTakenDto> mutationService, IPlayerInfoService<DamageTakenDto> playerInfoService,
+    ICountService<DamageTakenDto> countService, IGeneralFilterService<DamageTakenDto> filterService,
+    IMapper mapper, ILogger<DamageTakenController> logger) : ControllerBase
 {
-    private readonly IMutationService<DamageTakenDto> _mutationService;
-    private readonly IPlayerInfoService<DamageTakenDto> _playerInfoService;
-    private readonly ICountService<DamageTakenDto> _countService;
-    private readonly IGeneralFilterService<DamageTakenDto> _filterService;
-    private readonly IMapper _mapper;
-    private readonly ILogger<DamageTakenController> _logger;
-
-    public DamageTakenController(IMutationService<DamageTakenDto> mutationService, IPlayerInfoService<DamageTakenDto> playerInfoService, 
-        ICountService<DamageTakenDto> countService, IGeneralFilterService<DamageTakenDto> filterService, 
-        IMapper mapper, ILogger<DamageTakenController> logger)
-    {
-        _mutationService = mutationService;
-        _playerInfoService = playerInfoService;
-        _countService = countService;
-        _filterService = filterService;
-        _mapper = mapper;
-        _logger = logger;
-    }
+    private readonly IMutationService<DamageTakenDto> _mutationService = mutationService;
+    private readonly IPlayerInfoService<DamageTakenDto> _playerInfoService = playerInfoService;
+    private readonly ICountService<DamageTakenDto> _countService = countService;
+    private readonly IGeneralFilterService<DamageTakenDto> _filterService = filterService;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<DamageTakenController> _logger = logger;
 
     [HttpGet("getByCombatPlayerId")]
     public async Task<IActionResult> GetByCombatPlayerId(int combatPlayerId, int page, int pageSize)
     {
-        try
-        {
-            var damageTakens = await _playerInfoService.GetByCombatPlayerIdAsync(combatPlayerId, page, pageSize);
+        var damageTakens = await _playerInfoService.GetByCombatPlayerIdAsync(combatPlayerId, page, pageSize);
 
-            return Ok(damageTakens);
-
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error get damage taken by combat player id: {Message}", ex.Message);
-
-            return BadRequest();
-        }
+        return Ok(damageTakens);
     }
 
     [HttpGet("count/{combatPlayerId}")]
     public async Task<IActionResult> Count(int combatPlayerId)
     {
-        try
-        {
-            var count = await _countService.CountByCombatPlayerIdAsync(combatPlayerId);
+        var count = await _countService.CountByCombatPlayerIdAsync(combatPlayerId);
 
-            return Ok(count);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error get damage taken count: {Message}", ex.Message);
-
-            return BadRequest();
-        }
+        return Ok(count);
     }
 
     [HttpGet("getUniqueCreators/{combatPlayerId}")]
     public async Task<IActionResult> GetUniqueCreators(int combatPlayerId)
     {
-        try
-        {
-            var uniqueTargets = await _filterService.GetCreatorNamesByCombatPlayerIdAsync(combatPlayerId);
+        var uniqueTargets = await _filterService.GetCreatorNamesByCombatPlayerIdAsync(combatPlayerId);
 
-            return Ok(uniqueTargets);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error get unique damage taken creators: {Message}", ex.Message);
-
-            return BadRequest();
-        }
+        return Ok(uniqueTargets);
     }
 
     [HttpGet("getByCreator")]
     public async Task<IActionResult> GetByCreator(int combatPlayerId, string creator, int page, int pageSize)
     {
-        try
-        {
-            var damageTakens = await _filterService.GetCreatorByCombatPlayerIdAsync(combatPlayerId, creator, page, pageSize);
+        var damageTakens = await _filterService.GetByCreatorAsync(combatPlayerId, creator, page, pageSize);
 
-            return Ok(damageTakens);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error find damage taken by creator: {Message}", ex.Message);
-
-            return BadRequest();
-        }
+        return Ok(damageTakens);
     }
 
     [HttpGet("countByCreator")]
     public async Task<IActionResult> CountByCreator(int combatPlayerId, string creator)
     {
-        try
-        {
-            var count = await _filterService.CountCreatorByCombatPlayerIdAsync(combatPlayerId, creator);
+        var count = await _filterService.CountCreatorByCombatPlayerIdAsync(combatPlayerId, creator);
 
-            return Ok(count);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error get damage taken count by creator: {Message}", ex.Message);
-
-            return BadRequest();
-        }
+        return Ok(count);
     }
 
     [HttpGet("getUniqueSpells/{combatPlayerId}")]
     public async Task<IActionResult> GetUniqueSpells(int combatPlayerId)
     {
-        try
-        {
-            var uniqueSpells = await _filterService.GetSpellNamesByCombatPlayerIdAsync(combatPlayerId);
+        var uniqueSpells = await _filterService.GetSpellNamesByCombatPlayerIdAsync(combatPlayerId);
 
-            return Ok(uniqueSpells);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error get unique damage taken spells: {Message}", ex.Message);
-
-            return BadRequest();
-        }
+        return Ok(uniqueSpells);
     }
 
     [HttpGet("getBySpell")]
     public async Task<IActionResult> GetBySpell(int combatPlayerId, string spell, int page, int pageSize)
     {
-        try
-        {
-            var daamgeTakens = await _filterService.GetSpellByCombatPlayerIdAsync(combatPlayerId, spell, page, pageSize);
+        var daamgeTakens = await _filterService.GetBySpellAsync(combatPlayerId, spell, page, pageSize);
 
-            return Ok(daamgeTakens);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error find damage taken by spell: {Message}", ex.Message);
-
-            return BadRequest();
-        }
+        return Ok(daamgeTakens);
     }
 
     [HttpGet("countBySpell")]
     public async Task<IActionResult> CountBySpell(int combatPlayerId, string spell)
     {
-        try
-        {
-            var count = await _filterService.CountSpellByCombatPlayerIdAsync(combatPlayerId, spell);
+        var count = await _filterService.CountSpellByCombatPlayerIdAsync(combatPlayerId, spell);
 
-            return Ok(count);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error get damage taken count by spell: {Message}", ex.Message);
-
-            return BadRequest();
-        }
+        return Ok(count);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(DamageTakenModel model)
+    public async Task<IActionResult> Create([FromBody] DamageTakenModel damageTaken)
     {
         try
         {
-            var map = _mapper.Map<DamageTakenDto>(model);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid DamageTaken create received: {@DamageTaken}", damageTaken);
+
+                return ValidationProblem(ModelState);
+            }
+
+            var map = _mapper.Map<DamageTakenDto>(damageTaken);
             var createdItem = await _mutationService.CreateAsync(map);
 
             return Ok(createdItem);
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, ex.Message);
+            _logger.LogError(ex, "Failed to create combat damage taken.");
 
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
-
-            return BadRequest();
+            return StatusCode(500, "Internal server error.");
         }
     }
 }

@@ -1,10 +1,10 @@
 ﻿namespace CombatAnalysisIdentity.Consts;
 
-internal static class AuthenticationGrantType
+public class AuthenticationGrantType
 {
-    public static string Code { get; set; }
+    public string Code { get; set; }
 
-    public static string Authorization { get; set; }
+    public string Authorization { get; set; }
 
-    public static string RefreshToken { get; set; }
+    public string RefreshToken { get; set; }
 }

@@ -1,27 +1,21 @@
 ﻿using AutoMapper;
+using CombatAnalysis.UserAPI.Models;
 using CombatAnalysis.UserBL.DTO;
 using CombatAnalysis.UserBL.Interfaces;
-using CombatAnalysis.UserApi.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
-namespace CombatAnalysis.UserApi.Controllers;
+namespace CombatAnalysis.UserAPI.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class BannedUserController : ControllerBase
+public class BannedUserController(IService<BannedUserDto, int> service, IMapper mapper, ILogger<BannedUserController> logger) : ControllerBase
 {
-    private readonly IService<BannedUserDto, int> _service;
-    private readonly IMapper _mapper;
-    private readonly ILogger<BannedUserController> _logger;
-
-    public BannedUserController(IService<BannedUserDto, int> service, IMapper mapper, ILogger<BannedUserController> logger)
-    {
-        _service = service;
-        _mapper = mapper;
-        _logger = logger;
-    }
+    private readonly IService<BannedUserDto, int> _service = service;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<BannedUserController> _logger = logger;
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
@@ -40,58 +34,48 @@ public class BannedUserController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(BannedUserModel model)
+    public async Task<IActionResult> Create([FromBody] BannedUserModel bannedUser)
     {
         try
         {
-            var map = _mapper.Map<BannedUserDto>(model);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid BannedUser create received: {@BannedUser}", bannedUser);
+
+                return ValidationProblem(ModelState);
+            }
+
+            var map = _mapper.Map<BannedUserDto>(bannedUser);
             var result = await _service.CreateAsync(map);
 
             return Ok(result);
         }
-        catch (ArgumentNullException ex)
+        catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, $"Create Banned User failed: ${ex.Message}", model);
+            _logger.LogError(ex, "Failed to create banned user.");
 
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Create Banned User failed: ${ex.Message}", model);
-
-            return BadRequest();
-        }
-    }
-
-    [HttpPut]
-    public async Task<IActionResult> Update(BannedUserModel model)
-    {
-        try
-        {
-            var map = _mapper.Map<BannedUserDto>(model);
-            var result = await _service.UpdateAsync(map);
-
-            return Ok(result);
-        }
-        catch (ArgumentNullException ex)
-        {
-            _logger.LogError(ex, $"Update Banned User failed: ${ex.Message}", model);
-
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Update Banned User failed: ${ex.Message}", model);
-
-            return BadRequest();
+            return StatusCode(500, "Internal server error.");
         }
     }
 
     [HttpDelete("{id:int:min(1)}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var rowsAffected = await _service.DeleteAsync(id);
+        try
+        {
+            var entityDeleted = await _service.DeleteAsync(id);
+            if (!entityDeleted)
+            {
+                return NotFound();
+            }
 
-        return Ok(rowsAffected);
+            return NoContent();
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
+
+            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
+        }
     }
 }
