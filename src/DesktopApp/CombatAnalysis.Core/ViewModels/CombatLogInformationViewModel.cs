@@ -416,7 +416,6 @@ public class CombatLogInformationViewModel : ParentTemplate, CombatParser.Interf
 
         UploadingLogs = true;
 
-        _combatParserAPIService.SetUpPort();
         var loadedCombats = await _combatParserAPIService.LoadCombatsAsync(combatLog.Id);
         if (loadedCombats == null)
         {
@@ -602,8 +601,6 @@ public class CombatLogInformationViewModel : ParentTemplate, CombatParser.Interf
         NoCombatsUploaded = false;
 
         CombatLogLoadingStatus = LoadingStatus.Pending;
-
-        _combatParserAPIService.SetUpPort();
 
         var combatLogsData = await _combatParserAPIService.LoadCombatLogsAsync();
         if (combatLogsData == null)

@@ -632,15 +632,15 @@
                     Visibility="{Binding CombatInformationType, Converter={StaticResource IntToVisibility}, ConverterParameter='true:0:='}">
                 <StackPanel Margin="140 0">
                     <TextBlock Text="{loc:Loc AverageDamage}" FontSize="13" Foreground="White" />
-                    <TextBlock Text="{Binding AverageDamage}" TextAlignment="Center" Foreground="White" Margin="0 5" FontSize="16" FontWeight="Bold" VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding AverageDamage, Converter={StaticResource IntToEnhancedInt}}" TextAlignment="Center" Foreground="White" Margin="0 5" FontSize="16" FontWeight="Bold" VerticalAlignment="Center" />
                 </StackPanel>
                 <StackPanel Margin="90 0">
                     <TextBlock Text="{loc:Loc AverageHeal}" FontSize="13" Foreground="White" />
-                    <TextBlock Text="{Binding AverageHeal}" TextAlignment="Center" Foreground="White" Margin="0 5" FontSize="16" FontWeight="Bold" VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding AverageHeal, Converter={StaticResource IntToEnhancedInt}}" TextAlignment="Center" Foreground="White" Margin="0 5" FontSize="16" FontWeight="Bold" VerticalAlignment="Center" />
                 </StackPanel>
                 <StackPanel Margin="140 0">
                     <TextBlock Text="{loc:Loc AverageResources}" FontSize="13" Foreground="White" />
-                    <TextBlock Text="{Binding AverageResources}" TextAlignment="Center" Foreground="White" Margin="0 5" FontSize="16" FontWeight="Bold" VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding AverageResources, Converter={StaticResource IntToEnhancedInt}}" TextAlignment="Center" Foreground="White" Margin="0 5" FontSize="16" FontWeight="Bold" VerticalAlignment="Center" />
                 </StackPanel>
             </StackPanel>
 
@@ -667,15 +667,15 @@
                     Visibility="{Binding CombatInformationType, Converter={StaticResource IntToVisibility}, ConverterParameter='true:0:='}">
                 <StackPanel Margin="140 0">
                     <TextBlock Text="{loc:Loc TotalDamage}" FontSize="13" Foreground="White" />
-                    <TextBlock Text="{Binding TotalDamage}" TextAlignment="Center" Foreground="White" Margin="0 5" FontSize="16" FontWeight="Bold" VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding TotalDamage, Converter={StaticResource IntToEnhancedInt}}" TextAlignment="Center" Foreground="White" Margin="0 5" FontSize="16" FontWeight="Bold" VerticalAlignment="Center" />
                 </StackPanel>
                 <StackPanel Margin="90 0">
                     <TextBlock Text="{loc:Loc TotalHeal}" FontSize="13" Foreground="White" />
-                    <TextBlock Text="{Binding TotalHeal}" TextAlignment="Center" Foreground="White" Margin="0 5" FontSize="16" FontWeight="Bold" VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding TotalHeal, Converter={StaticResource IntToEnhancedInt}}" TextAlignment="Center" Foreground="White" Margin="0 5" FontSize="16" FontWeight="Bold" VerticalAlignment="Center" />
                 </StackPanel>
                 <StackPanel Margin="140 0">
                     <TextBlock Text="{loc:Loc TotalResoures}" FontSize="13" Foreground="White" />
-                    <TextBlock Text="{Binding TotalResoures}" TextAlignment="Center" Foreground="White" Margin="0 5" FontSize="16" FontWeight="Bold" VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding TotalResoures, Converter={StaticResource IntToEnhancedInt}}" TextAlignment="Center" Foreground="White" Margin="0 5" FontSize="16" FontWeight="Bold" VerticalAlignment="Center" />
                 </StackPanel>
             </StackPanel>
 

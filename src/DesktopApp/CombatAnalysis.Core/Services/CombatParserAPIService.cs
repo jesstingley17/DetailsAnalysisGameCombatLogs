@@ -21,10 +21,7 @@ internal class CombatParserAPIService : ICombatParserAPIService
         _httpClient = httpClient;
         _logger = logger;
         _memoryCache = memoryCache;
-    }
 
-    public void SetUpPort()
-    {
         _httpClient.BaseAddress = API.CombatParserApi;
     }
 

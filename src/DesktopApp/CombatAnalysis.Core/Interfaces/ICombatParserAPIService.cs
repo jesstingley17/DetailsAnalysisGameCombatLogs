@@ -5,8 +5,6 @@ namespace CombatAnalysis.Core.Interfaces;
 
 public interface ICombatParserAPIService
 {
-    void SetUpPort();
-
     Task<bool> SaveAsync(List<CombatModel> combats, CombatLogModel combatLog, Action<int, string, string> combatUploaded, CancellationToken cancellationToken);
 
     Task DeleteCombatLogByUserAsync(int id);

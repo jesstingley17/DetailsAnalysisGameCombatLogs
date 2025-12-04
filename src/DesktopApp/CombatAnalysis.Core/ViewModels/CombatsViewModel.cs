@@ -533,7 +533,6 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
             return;
         }
 
-        _combatParserAPIService.SetUpPort();
         var loadedCombats = await _combatParserAPIService.LoadCombatsAsync(combatLog.Id);
         if (loadedCombats == null || !loadedCombats.Any())
         {
