@@ -45,7 +45,6 @@ public class CombatLogInformationViewModel : ParentTemplate, CombatParser.Interf
     private bool _isAuth;
     private LogType _logType;
     private LoadingStatus _combatLogLoadingStatus;
-    private LoadingStatus _combatLogByUserLoadingStatus;
     private bool _removingInProgress;
     private bool _uploadingLogs;
     private bool _noCombatsUploaded;
@@ -278,15 +277,6 @@ public class CombatLogInformationViewModel : ParentTemplate, CombatParser.Interf
         set
         {
             SetProperty(ref _combatLogLoadingStatus, value);
-        }
-    }
-
-    public LoadingStatus CombatLogByUserLoadingStatus
-    {
-        get { return _combatLogByUserLoadingStatus; }
-        set
-        {
-            SetProperty(ref _combatLogByUserLoadingStatus, value);
         }
     }
 

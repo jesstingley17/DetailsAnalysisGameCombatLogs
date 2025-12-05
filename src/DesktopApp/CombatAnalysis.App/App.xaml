@@ -23,6 +23,8 @@
 
                 <ResourceDictionary Source="pack://application:,,,/CombatAnalysis.App;component/Styles/Views/HomeViewStyles.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/CombatAnalysis.App;component/Styles/Views/ChatViewStyles.xaml"/>
+
+                <ResourceDictionary Source="pack://application:,,,/CombatAnalysis.App;component/Styles/Animations/LoadingAnimations.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

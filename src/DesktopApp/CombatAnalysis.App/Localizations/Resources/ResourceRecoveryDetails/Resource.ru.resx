@@ -180,4 +180,7 @@
   <data name="Creator" xml:space="preserve">
     <value>Инициатор</value>
   </data>
+  <data name="Loading" xml:space="preserve">
+    <value>Загрузка</value>
+  </data>
 </root>

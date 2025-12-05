@@ -44,7 +44,6 @@ internal class PlayerDeathService(IGenericRepository<PlayerDeath> repository, IM
     private static void CheckParams(PlayerDeathDto item)
     {
         ArgumentException.ThrowIfNullOrEmpty(item.Username, nameof(item.Username));
-        ArgumentException.ThrowIfNullOrEmpty(item.LastHitSpellOrItem, nameof(item.LastHitSpellOrItem));
 
         ArgumentOutOfRangeException.ThrowIfNegative(item.LastHitValue, nameof(item.LastHitValue));
 

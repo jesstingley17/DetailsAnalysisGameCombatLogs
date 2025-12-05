@@ -46,6 +46,7 @@ public abstract class DetailsGenericTemplate<DetailsModel, GeneralDetailsModel> 
     private ObservableCollection<string>? _sources;
     private int _detailsTypeSelectedIndex;
     private CancellationTokenSource _cancelToken;
+    private LoadingStatus _loadingStatus;
 
     public DetailsGenericTemplate(IHttpClientHelper httpClient, ILogger logger, IMapper mapper, 
         ICombatParserAPIService combatParserAPIService)
@@ -202,6 +203,15 @@ public abstract class DetailsGenericTemplate<DetailsModel, GeneralDetailsModel> 
         }
     }
 
+    public LoadingStatus LoadingStatus
+    {
+        get { return _loadingStatus; }
+        set
+        {
+            SetProperty(ref _loadingStatus, value);
+        }
+    }
+
     #endregion
 
     public override void Prepare(CombatPlayerModel parameter)
@@ -230,11 +240,15 @@ public abstract class DetailsGenericTemplate<DetailsModel, GeneralDetailsModel> 
 
         _cancelToken = new CancellationTokenSource();
 
+        LoadingStatus = LoadingStatus.Pending;
+
         await LoadGeneralDetailsAsync();
         await LoadDetailsAsync(Page, _pageSize);
         await LoadCountAsync();
 
         GetSources();
+
+        LoadingStatus = LoadingStatus.Successful;
     }
 
     public override void ViewDestroy(bool viewFinishing = true)

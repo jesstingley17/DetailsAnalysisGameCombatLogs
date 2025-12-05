@@ -91,15 +91,22 @@
                             <StackPanel IsEnabled="{Binding IsParsing, Converter={StaticResource BoolToXAMLBool},ConverterParameter=true}" 
                                     HorizontalAlignment="Center" VerticalAlignment="Top" Margin="20">
                                 <TextBlock Text="{loc:Loc Loading}" Opacity="0.6" HorizontalAlignment="Center" Margin="0 10" Foreground="White"
-                                           Visibility="{Binding CombatLogLoadingStatus, Converter={StaticResource IntToVisibility}, ConverterParameter='true:1:='}"/>
+                                           Visibility="{Binding CombatLogLoadingStatus, Converter={StaticResource IntToVisibility}, ConverterParameter='true:1:='}">
+                                    <TextBlock.Triggers>
+                                        <EventTrigger RoutedEvent="Loaded">
+                                            <BeginStoryboard Storyboard="{StaticResource FadeLoadingStoryboard}" />
+                                        </EventTrigger>
+                                    </TextBlock.Triggers>
+                                </TextBlock>
                                 <TextBlock Text="{loc:Loc LoadingFailed}" Foreground="Orange" HorizontalAlignment="Center" Margin="0 10"
                                            Visibility="{Binding CombatLogLoadingStatus, Converter={StaticResource IntToVisibility}, ConverterParameter='true:3:='}"/>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                     <TextBlock HorizontalAlignment="Center" Text="{loc:Loc PublicLogs}" Margin="0" FontSize="16" Foreground="White" />
-                                    <Button Style="{StaticResource userButton}" Margin="5 -10" mvx:Bi.nd="Command ReloadCombatsCommand"
-                                            IsEnabled="{Binding IsParsing, Converter={StaticResource BoolToXAMLBool},ConverterParameter=true}">
-                                        <Icon:PackIconMaterial Kind="Reload" Foreground="White"/>
-                                    </Button>
+                                    <Icon:PackIconMaterial Kind="Reload" Foreground="White" Cursor="Hand"  Margin="15 5" Background="Transparent" ToolTip="{loc:Loc Repeat}">
+                                        <Icon:PackIconMaterial.InputBindings>
+                                            <MouseBinding Command="{Binding ReloadCombatsCommand}" Gesture="LeftClick"/>
+                                        </Icon:PackIconMaterial.InputBindings>
+                                    </Icon:PackIconMaterial>
                                 </StackPanel>
                                 <Button mvx:Bi.nd="Command LoadCombatsCommand" Content="{loc:Loc Upload}" Width="100" FontSize="16"
                                         Margin="10,10" Style="{StaticResource showButton}"
@@ -135,7 +142,13 @@
                                     </ListBox>
                                 </ScrollViewer>
                                 <StackPanel Visibility="{Binding UploadingLogs, Converter={StaticResource BoolToVisibility}, ConverterParameter=true:false}">
-                                    <TextBlock Text="Loading..." FontSize="13" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="White" Margin="0 5"/>
+                                    <TextBlock Text="{loc:Loc Loading}" FontSize="13" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="White" Margin="0 5">
+                                        <TextBlock.Triggers>
+                                            <EventTrigger RoutedEvent="Loaded">
+                                                <BeginStoryboard Storyboard="{StaticResource FadeLoadingStoryboard}" />
+                                            </EventTrigger>
+                                        </TextBlock.Triggers>
+                                    </TextBlock>
                                 </StackPanel>
                                 <StackPanel Visibility="{Binding NoCombatsUploaded, Converter={StaticResource BoolToVisibility}, ConverterParameter=true:false}">
                                     <TextBlock Text="No any uploaded combats" FontSize="13" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="White" Margin="0 5"/>
@@ -159,14 +172,22 @@
                             <StackPanel IsEnabled="{Binding IsParsing, Converter={StaticResource BoolToXAMLBool},ConverterParameter=true}" 
                                     HorizontalAlignment="Center" VerticalAlignment="Top" Margin="20">
                                 <TextBlock Text="{loc:Loc Loading}" Opacity="0.6" HorizontalAlignment="Center" Margin="0 10" Foreground="White"
-                                           Visibility="{Binding CombatLogByUserLoadingStatus, Converter={StaticResource IntToVisibility}, ConverterParameter='true:1:='}"/>
+                                           Visibility="{Binding CombatLogLoadingStatus, Converter={StaticResource IntToVisibility}, ConverterParameter='true:1:='}">
+                                    <TextBlock.Triggers>
+                                        <EventTrigger RoutedEvent="Loaded">
+                                            <BeginStoryboard Storyboard="{StaticResource FadeLoadingStoryboard}" />
+                                        </EventTrigger>
+                                    </TextBlock.Triggers>
+                                </TextBlock>
                                 <TextBlock Text="{loc:Loc LoadingFailed}" Foreground="Orange" HorizontalAlignment="Center" Margin="0 10"
-                                           Visibility="{Binding CombatLogByUserLoadingStatus, Converter={StaticResource IntToVisibility}, ConverterParameter='true:3:='}"/>
+                                           Visibility="{Binding CombatLogLoadingStatus, Converter={StaticResource IntToVisibility}, ConverterParameter='true:3:='}"/>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                     <TextBlock HorizontalAlignment="Center" Text="{loc:Loc PersonalLogs}" Margin="0" FontSize="16" Foreground="White" />
-                                    <Button Style="{StaticResource userButton}" Margin="5 -10" mvx:Bi.nd="Command ReloadCombatsByUserCommand">
-                                        <Icon:PackIconMaterial Kind="Reload" Foreground="White"/>
-                                    </Button>
+                                    <Icon:PackIconMaterial Kind="Reload" Foreground="White" Cursor="Hand"  Margin="15 5" Background="Transparent" ToolTip="{loc:Loc Repeat}">
+                                        <Icon:PackIconMaterial.InputBindings>
+                                            <MouseBinding Command="{Binding ReloadCombatsCommand}" Gesture="LeftClick"/>
+                                        </Icon:PackIconMaterial.InputBindings>
+                                    </Icon:PackIconMaterial>
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal" Width="250" IsEnabled="{Binding RemovingInProgress, Converter={StaticResource BoolToXAMLBool}, ConverterParameter=true}">
                                     <Button mvx:Bi.nd="Command LoadCombatsByUserCommand" Content="{loc:Loc Upload}" Width="100" FontSize="16"
@@ -211,9 +232,15 @@
                                     </ListBox>
                                 </ScrollViewer>
                                 <StackPanel Visibility="{Binding UploadingLogs, Converter={StaticResource BoolToVisibility}, ConverterParameter=true:false}">
-                                    <TextBlock Text="Loading..." FontSize="13" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="White" Margin="0 5"/>
+                                    <TextBlock Text="{loc:Loc Loading}" FontSize="13" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="White" Margin="0 5">
+                                        <TextBlock.Triggers>
+                                            <EventTrigger RoutedEvent="Loaded">
+                                                <BeginStoryboard Storyboard="{StaticResource FadeLoadingStoryboard}" />
+                                            </EventTrigger>
+                                        </TextBlock.Triggers>
+                                    </TextBlock>
                                 </StackPanel>
-                                <StackPanel Visibility="{Binding CombatLogByUserLoadingStatus, Converter={StaticResource IntToVisibility}, ConverterParameter='true:2:='}">
+                                <StackPanel Visibility="{Binding CombatLogLoadingStatus, Converter={StaticResource IntToVisibility}, ConverterParameter='true:2:='}">
                                     <TextBlock Text="{loc:Loc Empty}" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="White" Margin="5"
                                            Visibility="{Binding CombatLogsForTargetUser.Count, Converter={StaticResource IntToVisibility}, ConverterParameter='true:0:='}"/>
                                 </StackPanel>
@@ -287,33 +314,54 @@
             </StackPanel>
         </Grid>
 
-        <StackPanel Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2"
-                    VerticalAlignment="Center" HorizontalAlignment="Center">
-            <StackPanel Margin="30" IsEnabled="{Binding CombatLogNames.Count, Converter={StaticResource IntToXAMLBool}, ConverterParameter=0:>}">
-                <Button Name="combatLogFileAnalysis" Width="150" Margin="0 10" Content="{loc:Loc Analysing}" FontSize="16"
+        <Grid Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2" Margin="0 30" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            
+            <StackPanel Grid.Row="0" IsEnabled="{Binding CombatLogNames.Count, Converter={StaticResource IntToXAMLBool}, ConverterParameter=0:>}">
+                <Button Name="combatLogFileAnalysis" Width="150" Margin="0 20" Content="{loc:Loc Processing}" FontSize="16"
                         mvx:Bi.nd="Command OpenPlayerAnalysisCommand" Style="{StaticResource showButton}" />
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" IsEnabled="{Binding IsAllowSaveLogs, Converter={StaticResource BoolToXAMLBool}, ConverterParameter=false}">
                     <CheckBox Style="{DynamicResource CheckBoxStyle1}" Name="isSaveCombatLog" Width="150"
                               VerticalAlignment="Center" VerticalContentAlignment="Center"
                               Content="{loc:Loc SaveData}" IsChecked="{Binding IsNeedSave}" FontSize="14"
                               IsEnabled="{Binding IsAuth, Converter={StaticResource BoolToXAMLBool}, ConverterParameter=false}" />
-                    <TextBlock Text="{loc:Loc ToSaveYouShouldBeLogin}" TextAlignment="Center" Opacity="0.5" Foreground="White"
+                    <TextBlock Text="{loc:Loc ToSaveYouShouldBeLogin}" TextAlignment="Center" Opacity="0.5" Foreground="White" Margin="0 5"
                             Visibility="{Binding IsAuth, Converter={StaticResource BoolToVisibility}, ConverterParameter=false:true}"/>
                 </StackPanel>
             </StackPanel>
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal" Margin="0 20"
+            <StackPanel Grid.Row="1" Margin="0 10" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal"
                         Visibility="{Binding IsParsing, Converter={StaticResource BoolToVisibility}, ConverterParameter=true}">
-                <TextBlock Width="175" Text="{loc:Loc Processing}" FontSize="16" TextAlignment="Center" Foreground="White" Margin="10" />
-                <Button Content="{loc:Loc Cancel}" FontSize="11" Width="70" Style="{StaticResource showButton}" mvx:Bi.nd="Command CancelParsingCommand" />
+                <TextBlock Width="175" Text="{loc:Loc Processing}" FontSize="16" TextAlignment="Center" Foreground="White">
+                    <TextBlock.Triggers>
+                        <EventTrigger RoutedEvent="Loaded">
+                            <BeginStoryboard Storyboard="{StaticResource FadeLoadingStoryboard}" />
+                        </EventTrigger>
+                    </TextBlock.Triggers>
+                </TextBlock>
+                <Icon:PackIconMaterial Kind="WindowClose" Foreground="Red" HorizontalAlignment="Right" Cursor="Hand" Background="Transparent" Margin="0 5" ToolTip="{loc:Loc Cancel}">
+                    <Icon:PackIconMaterial.InputBindings>
+                        <MouseBinding Command="{Binding CancelParsingCommand}" Gesture="LeftClick"/>
+                    </Icon:PackIconMaterial.InputBindings>
+                </Icon:PackIconMaterial>
             </StackPanel>
-            <TextBlock Margin="0 20" TextWrapping="Wrap" Text="{loc:Loc ProcessingFailed}"
+            <StackPanel Grid.Row="2">
+                <TextBlock TextWrapping="Wrap" Text="{loc:Loc ProcessingFailed}"
                        Visibility="{Binding FileIsCorrect, Converter={StaticResource BoolToVisibility}, ConverterParameter=true:true}"
                        FontSize="16" TextAlignment="Center" Foreground="Orange" />
-            <StackPanel HorizontalAlignment="Center" Visibility="{Binding CombatLogUploadingFailed, Converter={StaticResource BoolToVisibility}, ConverterParameter=true}">
-                <TextBlock Text="{loc:Loc CombatLogUploadingFailed}" FontSize="14" TextAlignment="Center" TextWrapping="Wrap"
-                       VerticalAlignment="Center" MaxWidth="650" Foreground="Red" />
-                <Button Content="{loc:Loc Repeat}" Margin="20" FontSize="14" Width="100" Style="{StaticResource showButton}" mvx:Bi.nd="Command OpenPlayerAnalysisCommand" />
+                <StackPanel Margin="0 10" Orientation="Horizontal" HorizontalAlignment="Center" Visibility="{Binding CombatLogUploadingFailed, Converter={StaticResource BoolToVisibility}, ConverterParameter=true:false}">
+                    <TextBlock Text="{loc:Loc CombatLogUploadingFailed}" FontSize="14" TextWrapping="Wrap"
+                       MaxWidth="650" Foreground="Red" Margin="20 0" />
+                    <Icon:PackIconMaterial Kind="Reload" Foreground="White" Cursor="Hand" Width="20" Height="20" Background="Transparent" ToolTip="{loc:Loc Repeat}">
+                        <Icon:PackIconMaterial.InputBindings>
+                            <MouseBinding Command="{Binding OpenPlayerAnalysisCommand}" Gesture="LeftClick"/>
+                        </Icon:PackIconMaterial.InputBindings>
+                    </Icon:PackIconMaterial>
+                </StackPanel>
             </StackPanel>
-        </StackPanel>
+        </Grid>
     </Grid>
 </views:MvxWpfView>

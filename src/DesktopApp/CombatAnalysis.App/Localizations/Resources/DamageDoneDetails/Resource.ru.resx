@@ -207,4 +207,7 @@
   <data name="Value" xml:space="preserve">
     <value>Значение</value>
   </data>
+  <data name="Loading" xml:space="preserve">
+    <value>Загрузка</value>
+  </data>
 </root>

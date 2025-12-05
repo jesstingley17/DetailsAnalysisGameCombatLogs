@@ -139,7 +139,7 @@
     <value>Файл:</value>
   </data>
   <data name="Loading" xml:space="preserve">
-    <value>Загрузка...</value>
+    <value>Загрузка</value>
   </data>
   <data name="LoadingFailed" xml:space="preserve">
     <value>Ошибка загрузки</value>
@@ -160,7 +160,7 @@
     <value>Для просмотра 'Личные логи' вы должны быть авторизованым</value>
   </data>
   <data name="Processing" xml:space="preserve">
-    <value>Работа с данными...</value>
+    <value>Обработка</value>
   </data>
   <data name="ProcessingFailed" xml:space="preserve">
     <value>Ошибка: файл поврежден или не поддерживается</value>
