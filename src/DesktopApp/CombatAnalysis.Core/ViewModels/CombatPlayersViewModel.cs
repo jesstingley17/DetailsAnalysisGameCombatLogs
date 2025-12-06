@@ -132,10 +132,10 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
 
     #region Player stats modal window properties
 
-    public bool IsModalOpen 
-    { 
-        get => _isModalOpen; 
-        set => SetProperty(ref _isModalOpen, value); 
+    public bool IsModalOpen
+    {
+        get => _isModalOpen;
+        set => SetProperty(ref _isModalOpen, value);
     }
 
     public double ModalWidth { get; set; } = 600;
@@ -932,7 +932,7 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
 
     private void SelectMainStat()
     {
-        if (SelectedPlayer == null)
+        if (SelectedPlayer == null || SelectedPlayer.Stats == null)
         {
             return;
         }
