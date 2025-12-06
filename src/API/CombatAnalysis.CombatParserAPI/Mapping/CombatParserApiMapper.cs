@@ -24,8 +24,10 @@ internal class CombatParserApiMapper : Profile
         CreateMap<ResourceRecoveryGeneralDto, ResourceRecoveryGeneralModel>().ReverseMap();
         CreateMap<PlayerDeathDto, PlayerDeathModel>().ReverseMap();
         CreateMap<PlayerParseInfoDto, PlayerParseInfoModel>().ReverseMap();
+        CreateMap<PlayerStatsDto, PlayerStatsModel>().ReverseMap();
 
         CreateMap<PlayerDeath, PlayerDeathModel>().ReverseMap();
+        CreateMap<PlayerStats, PlayerStatsModel>().ReverseMap();
         CreateMap<Combat, CombatModel>().ReverseMap();
         CreateMap<CombatPlayer, CombatPlayerModel>().ReverseMap();
         CreateMap<DamageDone, DamageDoneModel>().ReverseMap();
@@ -38,6 +40,7 @@ internal class CombatParserApiMapper : Profile
         CreateMap<ResourceRecoveryGeneral, ResourceRecoveryGeneralModel>().ReverseMap();
 
         CreateMap<PlayerDeathDto, PlayerDeath>().ReverseMap();
+        CreateMap<PlayerStatsDto, PlayerStats>().ReverseMap();
         CreateMap<CombatDto, Combat>().ReverseMap();
         CreateMap<CombatAuraDto, CombatAura>().ReverseMap();
         CreateMap<CombatPlayerPositionDto, CombatPlayerPosition>().ReverseMap();

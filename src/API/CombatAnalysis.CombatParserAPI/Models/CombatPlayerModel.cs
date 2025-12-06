@@ -28,6 +28,9 @@ public class CombatPlayerModel
     [Range(0, int.MaxValue)]
     public int DamageTaken { get; set; }
 
+    [Required]
+    public PlayerStatsModel Stats { get; set; }
+
     [Range(0, int.MaxValue)]
     public int CombatId { get; set; }
 }

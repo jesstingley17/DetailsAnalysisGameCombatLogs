@@ -58,6 +58,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IMutationService<CombatAuraDto>, CombatAuraService>();
         services.AddScoped<IMutationService<PlayerDeathDto>, PlayerDeathService>();
         services.AddScoped<IMutationService<PlayerParseInfoDto>, PlayerParseInfoService>();
+        services.AddScoped<IMutationService<PlayerStatsDto>, PlayerStatsService>();
 
         services.AddScoped<IMutationService<DamageDoneDto>, DamageDoneService>();
         services.AddScoped<IMutationService<DamageDoneGeneralDto>, DamageDoneGeneralService>();
@@ -80,6 +81,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IQueryService<CombatAuraDto>, CombatAuraService>();
         services.AddScoped<IQueryService<PlayerDeathDto>, PlayerDeathService>();
         services.AddScoped<IQueryService<PlayerParseInfoDto>, PlayerParseInfoService>();
+        services.AddScoped<IQueryService<PlayerStatsDto>, PlayerStatsService>();
 
         services.AddScoped<IQueryService<SpecializationScoreDto>, SpecializationScoreService>();
     }

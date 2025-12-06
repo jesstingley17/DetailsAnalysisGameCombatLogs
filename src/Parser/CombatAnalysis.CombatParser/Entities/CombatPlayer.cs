@@ -16,6 +16,8 @@ public class CombatPlayer
 
     public int DamageTaken { get; set; }
 
+    public PlayerStats Stats { get; set; }
+
     public PlayerParseInfo PlayerParseInfo { get; set; }
 
     public int CombatId { get; set; }

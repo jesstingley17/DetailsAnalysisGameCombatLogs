@@ -240,6 +240,9 @@
                                         </TextBlock.Triggers>
                                     </TextBlock>
                                 </StackPanel>
+                                <StackPanel Visibility="{Binding NoCombatsUploaded, Converter={StaticResource BoolToVisibility}, ConverterParameter=true:false}">
+                                    <TextBlock Text="No any uploaded combats" FontSize="13" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="White" Margin="0 5"/>
+                                </StackPanel>
                                 <StackPanel Visibility="{Binding CombatLogLoadingStatus, Converter={StaticResource IntToVisibility}, ConverterParameter='true:2:='}">
                                     <TextBlock Text="{loc:Loc Empty}" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="White" Margin="5"
                                            Visibility="{Binding CombatLogsForTargetUser.Count, Converter={StaticResource IntToVisibility}, ConverterParameter='true:0:='}"/>

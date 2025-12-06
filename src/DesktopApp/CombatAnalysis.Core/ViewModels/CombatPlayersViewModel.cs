@@ -47,12 +47,17 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
     private double _totalHealPerSecond;
     private double _totalResourcesPerSecond;
 
+    // Player stats modal window
+    private bool _isModalOpen;
+    private int _playerMainStat = -1;
+
     public CombatPlayersViewModel()
     {
         Basic.Parent = this;
         Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.Step), 2);
 
-        SwitchBetweenValuesCommand = new MvxCommand<int>(SwitchBetweenValues);
+        SwitchBetweenValuesCommand = new MvxCommand<int>(SwitchValues);
+        OpenStatsCommand = new MvxCommand(OpenModal);
 
         OpenEditMinDamageDoneCommand = new MvxCommand(() => OpenEditMinDamageDone = true);
         ApplyMinDamageDoneCommand = new MvxCommand(ApplyMinDamageDone);
@@ -82,6 +87,8 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
     #region Commands
 
     public IMvxCommand SwitchBetweenValuesCommand { get; set; }
+
+    public IMvxCommand OpenStatsCommand { get; set; }
 
     public IMvxCommand OpenEditMinDamageDoneCommand { get; set; }
 
@@ -120,6 +127,28 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
     public IMvxCommand UseFilterByMinRPSCommand { get; set; }
 
     public IMvxCommand FilterClearCommand { get; set; }
+
+    #endregion
+
+    #region Player stats modal window properties
+
+    public bool IsModalOpen 
+    { 
+        get => _isModalOpen; 
+        set => SetProperty(ref _isModalOpen, value); 
+    }
+
+    public double ModalWidth { get; set; } = 600;
+
+    public double ModalHeight { get; set; } = 500;
+
+    public string ModalTitle { get; set; } = "Player Stats";
+
+    public int PlayerMainStat
+    {
+        get => _playerMainStat;
+        set => SetProperty(ref _playerMainStat, value);
+    }
 
     #endregion
 
@@ -513,6 +542,13 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
 
     #endregion
 
+    public void OpenModal()
+    {
+        SelectMainStat();
+
+        IsModalOpen = !IsModalOpen;
+    }
+
     public void ApplyMinDamageDone()
     {
         OpenEditMinDamageDone = !OpenEditMinDamageDone;
@@ -654,7 +690,7 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
         OpenEditMinRPS = false;
     }
 
-    public void SwitchBetweenValues(int type)
+    public void SwitchValues(int type)
     {
         switch (type)
         {
@@ -892,5 +928,18 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
         }
 
         PlayersCombat = [.. temporaryPlayersCombat];
+    }
+
+    private void SelectMainStat()
+    {
+        if (SelectedPlayer == null)
+        {
+            return;
+        }
+
+        PlayerMainStat = SelectedPlayer.Stats.Strength > SelectedPlayer.Stats.Intelligence && SelectedPlayer.Stats.Strength > SelectedPlayer.Stats.Agility
+            ? 0 :
+                SelectedPlayer.Stats.Intelligence > SelectedPlayer.Stats.Strength && SelectedPlayer.Stats.Intelligence > SelectedPlayer.Stats.Agility
+                ? 2 : 1;
     }
 }

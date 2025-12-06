@@ -1,6 +1,8 @@
-﻿namespace CombatAnalysis.Core.Models;
+﻿using CombatAnalysis.DAL.Interfaces.Entities;
 
-public class PlayerStatsModel
+namespace CombatAnalysis.BL.DTO;
+
+public class PlayerStatsDto : IEntity
 {
     public int Id { get; set; }
 

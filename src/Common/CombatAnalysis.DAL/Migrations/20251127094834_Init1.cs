@@ -1,5 +1,6 @@
-﻿using System;
+﻿using CombatAnalysis.DAL.Helpers;
 using Microsoft.EntityFrameworkCore.Migrations;
+using System;
 
 #nullable disable
 
@@ -18,6 +19,8 @@ namespace CombatAnalysis.DAL.Migrations
                 nullable: true,
                 oldClrType: typeof(DateTimeOffset),
                 oldType: "datetimeoffset");
+
+            MigrationHelper.CreateProcedures(migrationBuilder);
         }
 
         /// <inheritdoc />
@@ -32,6 +35,8 @@ namespace CombatAnalysis.DAL.Migrations
                 oldClrType: typeof(DateTimeOffset),
                 oldType: "datetimeoffset",
                 oldNullable: true);
+
+            MigrationHelper.DropProcedures(migrationBuilder);
         }
     }
 }

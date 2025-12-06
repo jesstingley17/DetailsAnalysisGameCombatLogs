@@ -301,17 +301,21 @@ internal class CombatParserService(IFileManager fileManager, ILogger logger) : I
 
         foreach (var item in combatInformations)
         {
-            var combatInfoToArray = item.Split(new char[2] { ' ', ',' });
-            var combatEquipmentsInfoToArray = item.Split(new char[2] { '[', ']' });
+            var combatInfoAsArray = item.Split([' ', ',']);
+            var combatEquipmentsInfoToArray = item.Split(['[', ']']);
 
-            var username = GetCombatPlayerUsernameById(combat.Data, combatInfoToArray[4]);
+            var username = GetCombatPlayerUsernameById(combat.Data, combatInfoAsArray[4]);
             var averageItemLevel = GetAverageItemLevel(combatEquipmentsInfoToArray[1]);
+
+            var usefullInformarion = combatInfoAsArray.Skip(4).ToArray();
+            var stats = GetStats(usefullInformarion);
 
             var combatPlayerData = new CombatPlayer
             {
                 Username = username,
-                PlayerId = combatInfoToArray[4],
+                PlayerId = combatInfoAsArray[4],
                 AverageItemLevel = double.Round(averageItemLevel, 2),
+                Stats = stats,
             };
 
             players.Add(combatPlayerData);
@@ -388,5 +392,31 @@ internal class CombatParserService(IFileManager fileManager, ILogger logger) : I
 
         var averageILvl = ilvl.Average();
         return averageILvl;
+    }
+
+    private static PlayerStats GetStats(string[] combatInfo)
+    {
+        var stats = new PlayerStats
+        {
+            Faction = int.Parse(combatInfo[1]),
+            Strength = int.Parse(combatInfo[2]),
+            Agility = int.Parse(combatInfo[3]),
+            Stamina = int.Parse(combatInfo[4]),
+            Intelligence = int.Parse(combatInfo[5]),
+            Spirit = int.Parse(combatInfo[6]),
+            Dodge = int.Parse(combatInfo[7]),
+            Parry = int.Parse(combatInfo[8]),
+            Crit = int.Parse(combatInfo[10]),
+            Haste = int.Parse(combatInfo[13]),
+            Hit = int.Parse(combatInfo[16]),
+            Expertise = int.Parse(combatInfo[19]),
+            Armor = int.Parse(combatInfo[22]),
+        };
+
+        var segment = new ArraySegment<string>(combatInfo, 25, 6);
+        var talents = string.Join(',', segment);
+        stats.Talents = talents;
+
+        return stats;
     }
 }

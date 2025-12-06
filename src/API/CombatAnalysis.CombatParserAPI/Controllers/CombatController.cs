@@ -13,7 +13,7 @@ namespace CombatAnalysis.CombatParserAPI.Controllers;
 [ApiController]
 public class CombatController(IQueryService<CombatDto> queryCombatService, IMutationService<CombatDto> mutationCombatService,
     IQueryService<CombatLogDto> queryCombatLogService, IMutationService<CombatLogDto> mutationCombatLogService,
-    IMutationService<CombatPlayerDto> mutationCombatPlayerService, IMapper mapper,
+    IMutationService<CombatPlayerDto> mutationCombatPlayerService, IMutationService<PlayerStatsDto> mutationPlayerStatsService, IMapper mapper,
     ILogger<CombatController> logger, ICombatDataHelper saveCombatDataHelper,
     ICombatTransactionService combatTransactionService) : ControllerBase
 {
@@ -22,6 +22,7 @@ public class CombatController(IQueryService<CombatDto> queryCombatService, IMuta
     private readonly IQueryService<CombatLogDto> _queryCombatLogService = queryCombatLogService;
     private readonly IMutationService<CombatLogDto> _mutationCombatLogService = mutationCombatLogService;
     private readonly IMutationService<CombatPlayerDto> _mutationCombatPlayerService = mutationCombatPlayerService;
+    private readonly IMutationService<PlayerStatsDto> _mutationPlayerStatsService = mutationPlayerStatsService;
     private readonly IMapper _mapper = mapper;
     private readonly ILogger<CombatController> _logger = logger;
     private readonly ICombatDataHelper _saveCombatDataHelper = saveCombatDataHelper;
@@ -167,6 +168,10 @@ public class CombatController(IQueryService<CombatDto> queryCombatService, IMuta
 
             var createdCombatPlayer = await UploadCombatPlayerAsync(player);
             player.Id = createdCombatPlayer.Id;
+
+            player.Stats.CombatPlayerId = player.Id;
+
+            await CreatePlayerStatsAsync(player);
         }
 
         await _saveCombatDataHelper.SaveCombatPlayerAsync(combat);
@@ -185,5 +190,13 @@ public class CombatController(IQueryService<CombatDto> queryCombatService, IMuta
         combatLog.NumberReadyCombats++;
 
         await _mutationCombatLogService.UpdateAsync(combatLog);
+    }
+
+    private async Task CreatePlayerStatsAsync(CombatPlayerModel player)
+    {
+        var map = _mapper.Map<PlayerStatsDto>(player.Stats);
+        var createdStats = await _mutationPlayerStatsService.CreateAsync(map);
+
+        ArgumentNullException.ThrowIfNull(createdStats, nameof(createdStats));
     }
 }
