@@ -747,7 +747,7 @@
                 <StackPanel Grid.Row="3" Grid.Column="0">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                         <TextBlock Text="Strength: " FontSize="14" />
-                        <TextBlock Text="{Binding SelectedPlayer.Stats.Strength}" FontSize="14" Opacity="0.5"/>
+                        <TextBlock Text="{Binding SelectedPlayerStats.Strength}" FontSize="14" Opacity="0.5"/>
                         <Icon:PackIconMaterial Kind="Star" Cursor="Hand" Foreground="Green" Margin="10 0">
                             <Icon:PackIconMaterial.Style>
                                 <Style TargetType="Icon:PackIconMaterial">
@@ -763,7 +763,7 @@
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                         <TextBlock Text="Agility: " FontSize="14"/>
-                        <TextBlock Text="{Binding SelectedPlayer.Stats.Agility}" FontSize="14" Opacity="0.5"/>
+                        <TextBlock Text="{Binding SelectedPlayerStats.Agility}" FontSize="14" Opacity="0.5"/>
                         <Icon:PackIconMaterial Kind="Star" Cursor="Hand" Foreground="Green" Margin="10 0">
                             <Icon:PackIconMaterial.Style>
                                 <Style TargetType="Icon:PackIconMaterial">
@@ -779,7 +779,7 @@
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                         <TextBlock Text="Intelligence: " FontSize="14"/>
-                        <TextBlock Text="{Binding SelectedPlayer.Stats.Intelligence}" FontSize="14" Opacity="0.5"/>
+                        <TextBlock Text="{Binding SelectedPlayerStats.Intelligence}" FontSize="14" Opacity="0.5"/>
                         <Icon:PackIconMaterial Kind="Star" Cursor="Hand" Foreground="Green" Margin="10 0">
                             <Icon:PackIconMaterial.Style>
                                 <Style TargetType="Icon:PackIconMaterial">
@@ -795,26 +795,26 @@
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                         <TextBlock Text="Stamina: " FontSize="14"/>
-                        <TextBlock Text="{Binding SelectedPlayer.Stats.Stamina}" FontSize="14" Opacity="0.5"/>
+                        <TextBlock Text="{Binding SelectedPlayerStats.Stamina}" FontSize="14" Opacity="0.5"/>
                     </StackPanel>
                 </StackPanel>
 
                 <StackPanel Grid.Row="3" Grid.Column="1">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                         <TextBlock Text="Crit: " FontSize="14"/>
-                        <TextBlock Text="{Binding SelectedPlayer.Stats.Crit}" FontSize="14" Opacity="0.5"/>
+                        <TextBlock Text="{Binding SelectedPlayerStats.Crit}" FontSize="14" Opacity="0.5"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                         <TextBlock Text="Haste: " FontSize="14"/>
-                        <TextBlock Text="{Binding SelectedPlayer.Stats.Haste}" FontSize="14" Opacity="0.5"/>
+                        <TextBlock Text="{Binding SelectedPlayerStats.Haste}" FontSize="14" Opacity="0.5"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                         <TextBlock Text="Hit: " FontSize="14"/>
-                        <TextBlock Text="{Binding SelectedPlayer.Stats.Hit}" FontSize="14" Opacity="0.5"/>
+                        <TextBlock Text="{Binding SelectedPlayerStats.Hit}" FontSize="14" Opacity="0.5"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                         <TextBlock Text="Armor: " FontSize="14"/>
-                        <TextBlock Text="{Binding SelectedPlayer.Stats.Armor}" FontSize="14" Opacity="0.5"/>
+                        <TextBlock Text="{Binding SelectedPlayerStats.Armor}" FontSize="14" Opacity="0.5"/>
                     </StackPanel>
                 </StackPanel>
 
@@ -823,10 +823,10 @@
                 </StackPanel>
                 
                 <StackPanel Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3">
-                    <TextBlock Text="{Binding SelectedPlayer.Stats.Talents}" FontSize="14"/>
+                    <TextBlock Text="{Binding SelectedPlayerStats.Talents}" FontSize="14"/>
                 </StackPanel>
-                
-                <Button Grid.Row="6" Grid.ColumnSpan="2" Command="{Binding OpenStatsCommand}"
+
+                <Button Grid.Row="6" Grid.ColumnSpan="2" Command="{Binding CloseStatsCommand}"
                                     Content="Close" Width="100" Height="40" FontSize="14"
                                     Style="{StaticResource showButton}"/>
             </Grid>

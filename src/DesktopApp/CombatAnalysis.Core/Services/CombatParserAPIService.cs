@@ -205,10 +205,7 @@ internal class CombatParserAPIService : ICombatParserAPIService
             response.EnsureSuccessStatusCode();
 
             var combatPlayers = await response.Content.ReadFromJsonAsync<IEnumerable<CombatPlayerModel>>();
-            if (combatPlayers == null)
-            {
-                throw new ArgumentNullException(nameof(combatPlayers));
-            }
+            ArgumentNullException.ThrowIfNull(combatPlayers, nameof(combatPlayers));
 
             foreach (var item in combatPlayers)
             {
@@ -222,19 +219,51 @@ internal class CombatParserAPIService : ICombatParserAPIService
         {
             _logger.LogError(ex, ex.Message);
 
-            return new List<CombatPlayerModel>();
+            return [];
         }
         catch (HttpRequestException ex)
         {
             _logger.LogError(ex, "HTTP request error: {Message}", ex.Message);
 
-            return new List<CombatPlayerModel>();
+            return [];
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "An unexpected error occurred: {Message}", ex.Message);
 
-            return new List<CombatPlayerModel>();
+            return [];
+        }
+    }
+
+    public async Task<PlayerStatsModel?> LoadCombatPlayerStatsAsync(int combatPlayerId)
+    {
+        try
+        {
+            var response = await _httpClient.GetAsync($"PlayerStats/getByCombatPlayerId/{combatPlayerId}", CancellationToken.None);
+            response.EnsureSuccessStatusCode();
+
+            var playerStats = await response.Content.ReadFromJsonAsync<PlayerStatsModel>();
+            ArgumentNullException.ThrowIfNull(playerStats, nameof(playerStats));
+
+            return playerStats;
+        }
+        catch (ArgumentNullException ex)
+        {
+            _logger.LogError(ex, ex.Message);
+
+            return null;
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "HTTP request error: {Message}", ex.Message);
+
+            return null;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An unexpected error occurred: {Message}", ex.Message);
+
+            return null;
         }
     }
 

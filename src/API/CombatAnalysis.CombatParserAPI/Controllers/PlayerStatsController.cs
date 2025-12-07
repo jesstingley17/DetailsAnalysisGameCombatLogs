@@ -9,20 +9,21 @@ namespace CombatAnalysis.CombatParserAPI.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-public class PlayerStatsController(IQueryService<PlayerStatsModel> queryService, IMutationService<PlayerStatsModel> mutationService,
-    IMapper mapper, ILogger<PlayerParseInfoController> logger) : ControllerBase
+public class PlayerStatsController(IQueryService<PlayerStatsDto> queryService, IMutationService<PlayerStatsDto> mutationService,
+    IMapper mapper, ILogger<PlayerStatsController> logger) : ControllerBase
 {
-    private readonly IQueryService<PlayerStatsModel> _queryService = queryService;
-    private readonly IMutationService<PlayerStatsModel> _mutationService = mutationService;
+    private readonly IQueryService<PlayerStatsDto> _queryService = queryService;
+    private readonly IMutationService<PlayerStatsDto> _mutationService = mutationService;
     private readonly IMapper _mapper = mapper;
-    private readonly ILogger<PlayerParseInfoController> _logger = logger;
+    private readonly ILogger<PlayerStatsController> _logger = logger;
 
     [HttpGet("getByCombatPlayerId/{combatPlayerId:int:min(1)}")]
     public async Task<IActionResult> GetByCombatPlayerId(int combatPlayerId)
     {
-        var playerParseInfo = await _queryService.GetByParamAsync(nameof(PlayerParseInfoModel.CombatPlayerId), combatPlayerId);
+        var playerStats = await _queryService.GetByParamAsync(nameof(PlayerStatsModel.CombatPlayerId), combatPlayerId);
+        var firstPlayerStats = playerStats.SingleOrDefault();
 
-        return Ok(playerParseInfo);
+        return Ok(firstPlayerStats);
     }
 
     [HttpGet("{id:int:min(1)}")]
@@ -34,7 +35,7 @@ public class PlayerStatsController(IQueryService<PlayerStatsModel> queryService,
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] PlayerParseInfoModel playerStats)
+    public async Task<IActionResult> Create([FromBody] PlayerStatsModel playerStats)
     {
         try
         {
@@ -45,7 +46,7 @@ public class PlayerStatsController(IQueryService<PlayerStatsModel> queryService,
                 return ValidationProblem(ModelState);
             }
 
-            var map = _mapper.Map<PlayerStatsModel>(playerStats);
+            var map = _mapper.Map<PlayerStatsDto>(playerStats);
             var createdItem = await _mutationService.CreateAsync(map);
 
             return Ok(createdItem);

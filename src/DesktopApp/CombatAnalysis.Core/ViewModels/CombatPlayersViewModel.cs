@@ -1,4 +1,5 @@
-﻿using CombatAnalysis.Core.Localizations;
+﻿using CombatAnalysis.Core.Interfaces;
+using CombatAnalysis.Core.Localizations;
 using CombatAnalysis.Core.Models;
 using CombatAnalysis.Core.ViewModels.Base;
 using CombatAnalysis.Core.ViewModels.ViewModelTemplates;
@@ -8,10 +9,13 @@ namespace CombatAnalysis.Core.ViewModels;
 
 public class CombatPlayersViewModel : ParentTemplate<CombatModel>
 {
+    private readonly ICombatParserAPIService _combatParserAPIService;
+
     private CombatModel? _combat;
     private List<CombatPlayerModel>? _playersCombat;
     private List<CombatPlayerModel>? _mainPlayersCombat;
     private CombatPlayerModel? _selectedPlayer;
+    private PlayerStatsModel? _selectedPlayerStats;
     private List<string>? _filterList;
     private int _combatInformationType;
     private int _selectedFilterIndex;
@@ -51,13 +55,16 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
     private bool _isModalOpen;
     private int _playerMainStat = -1;
 
-    public CombatPlayersViewModel()
+    public CombatPlayersViewModel(ICombatParserAPIService combatParserAPIService)
     {
+        _combatParserAPIService = combatParserAPIService;
+
         Basic.Parent = this;
         Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.Step), 2);
 
         SwitchBetweenValuesCommand = new MvxCommand<int>(SwitchValues);
-        OpenStatsCommand = new MvxCommand(OpenModal);
+        OpenStatsCommand = new MvxAsyncCommand(OpenStatsAsync);
+        CloseStatsCommand = new MvxCommand(CloseStats);
 
         OpenEditMinDamageDoneCommand = new MvxCommand(() => OpenEditMinDamageDone = true);
         ApplyMinDamageDoneCommand = new MvxCommand(ApplyMinDamageDone);
@@ -88,7 +95,9 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
 
     public IMvxCommand SwitchBetweenValuesCommand { get; set; }
 
-    public IMvxCommand OpenStatsCommand { get; set; }
+    public IMvxAsyncCommand OpenStatsCommand { get; set; }
+
+    public IMvxCommand CloseStatsCommand { get; set; }
 
     public IMvxCommand OpenEditMinDamageDoneCommand { get; set; }
 
@@ -185,6 +194,15 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
                     basicTemplateViewModel.PetsId = (Combat?.PetsId) ?? new Dictionary<string, List<string>>();
                 }
             }
+        }
+    }
+
+    public PlayerStatsModel? SelectedPlayerStats
+    {
+        get => _selectedPlayerStats;
+        set
+        {
+            SetProperty(ref _selectedPlayerStats, value);
         }
     }
 
@@ -542,11 +560,26 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
 
     #endregion
 
-    public void OpenModal()
+    public async Task OpenStatsAsync()
     {
+        if (SelectedPlayer == null)
+        {
+            return;
+        }
+
+        SelectedPlayerStats = SelectedPlayer.Stats != null
+            ? SelectedPlayer.Stats
+            : await _combatParserAPIService.LoadCombatPlayerStatsAsync(SelectedPlayer.Id);
+
         SelectMainStat();
 
-        IsModalOpen = !IsModalOpen;
+        IsModalOpen = true;
+    }
+
+    public void CloseStats()
+    {
+        SelectedPlayerStats = null;
+        IsModalOpen = false;
     }
 
     public void ApplyMinDamageDone()
@@ -932,14 +965,14 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
 
     private void SelectMainStat()
     {
-        if (SelectedPlayer == null || SelectedPlayer.Stats == null)
+        if (SelectedPlayer == null || SelectedPlayerStats == null)
         {
             return;
         }
 
-        PlayerMainStat = SelectedPlayer.Stats.Strength > SelectedPlayer.Stats.Intelligence && SelectedPlayer.Stats.Strength > SelectedPlayer.Stats.Agility
+        PlayerMainStat = SelectedPlayerStats.Strength > SelectedPlayerStats.Intelligence && SelectedPlayerStats.Strength > SelectedPlayerStats.Agility
             ? 0 :
-                SelectedPlayer.Stats.Intelligence > SelectedPlayer.Stats.Strength && SelectedPlayer.Stats.Intelligence > SelectedPlayer.Stats.Agility
+                SelectedPlayerStats.Intelligence > SelectedPlayerStats.Strength && SelectedPlayerStats.Intelligence > SelectedPlayerStats.Agility
                 ? 2 : 1;
     }
 }

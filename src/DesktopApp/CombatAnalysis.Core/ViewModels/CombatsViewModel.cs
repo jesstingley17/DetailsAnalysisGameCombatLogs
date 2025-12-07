@@ -542,7 +542,7 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
         foreach (var item in loadedCombats)
         {
             var players = await _combatParserAPIService.LoadCombatPlayersAsync(item.Id);
-            item.Players = players.ToList();
+            item.Players = [.. players];
         }
 
         Combats = new ObservableCollection<CombatModel>(loadedCombats);
