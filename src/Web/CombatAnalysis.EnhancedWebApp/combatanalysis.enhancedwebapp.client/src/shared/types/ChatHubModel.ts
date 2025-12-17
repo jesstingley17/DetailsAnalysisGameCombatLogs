@@ -1,5 +1,6 @@
 import type { GroupChatMessageModel } from '@/features/chat/types/GroupChatMessageModel';
 import type { GroupChatUserModel } from '@/features/chat/types/GroupChatUserModel';
+import type { ChatMessagePatch } from '@/features/chat/types/patches/ChatMessagePatch';
 import type { PersonalChatMessageModel } from '@/features/chat/types/PersonalChatMessageModel';
 import type { PersonalChatModel } from '@/features/chat/types/PersonalChatModel';
 import * as signalR from '@microsoft/signalr';
@@ -18,7 +19,7 @@ export type ChatHubContextModel = {
     connectToPersonalChatUnreadMessagesAsync: (myPersonalChatsId: number[]) => Promise<void>;
     subscribeToPersonalChat: (callback: (chat: PersonalChatModel) => void) => void;
     subscribeToPersonalChatMessages: (callback: (message: PersonalChatMessageModel) => void) => void;
-    subscribeToPersonalChatMessageEdit: (callback: (messageId: number) => void) => void;
+    subscribeToPersonalChatMessageEdit: (callback: (mssagePatch: ChatMessagePatch) => void) => void;
     subscribeToPersonalMessageHasBeenRead: (callback: (messageId: number) => void) => void;
     subscribeToUnreadPersonalMessagesUpdated: (callback: (targetChatId: number, targetMeInChatId: string, count: number) => void) => void;
 
@@ -31,7 +32,7 @@ export type ChatHubContextModel = {
     connectToGroupChatUnreadMessagesAsync: (myGroupChatsId: number[]) => Promise<void>;
     subscribeToGroupChat: (callback: (groupChatUser: GroupChatUserModel) => void) => void;
     subscribeToGroupChatMessages: (callback: (message: GroupChatMessageModel) => void) => void;
-    subscribeToGroupChatMessageEdit: (callback: (messageId: number) => void) => void;
+    subscribeToGroupChatMessageEdit: (callback: (mssagePatch: ChatMessagePatch) => void) => void;
     subscribeToGroupMessageDelivered: (chatId: number) => void;
     subscribeToUnreadGroupMessagesUpdated: (callback: (targetChatId: number, targetMeInChatId: string, count: number) => void) => void;
     subscribeToGroupMessageHasBeenRead: (callback: (messageId: number) => void) => void;

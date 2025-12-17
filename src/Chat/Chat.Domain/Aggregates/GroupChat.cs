@@ -51,6 +51,17 @@ public class GroupChat : IRepositoryEntity<GroupChatId>
         }
     }
 
+    public void EditMessage(GroupChatMessageId messageId, string newMessage)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(newMessage, nameof(newMessage));
+
+        var groupChatMessage = Messages.SingleOrDefault(m => m.Id == messageId);
+        if (groupChatMessage != null)
+        {
+            groupChatMessage.EditMessage(newMessage);
+        }
+    }
+
     public void PassOwner(UserId ownerId)
     {
         ArgumentNullException.ThrowIfNull(ownerId, nameof(ownerId));

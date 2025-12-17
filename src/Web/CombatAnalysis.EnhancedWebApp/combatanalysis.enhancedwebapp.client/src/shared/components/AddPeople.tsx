@@ -4,7 +4,9 @@ import type { AppUserModel } from '@/features/user/types/AppUserModel';
 import type { FriendModel } from '@/features/user/types/FriendModel';
 import { faEye, faEyeSlash, faMagnifyingGlassMinus, faMagnifyingGlassPlus, faPlus, faUserPlus, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import type { RootState } from '@/app/Store';
 import { useRef, useState, type ChangeEvent, type SetStateAction } from 'react';
+import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import AddFriendItem from './AddFriendItem';
 
@@ -13,21 +15,22 @@ import './AddPeople.scss';
 const defaultMaxItems = 3;
 
 interface AddPeopleProps {
-    user: AppUserModel;
     usersId: string[];
     peopleToJoin: AppUserModel[];
     setPeopleToJoin: (value: SetStateAction<AppUserModel[]>) => void;
 }
 
-const AddPeople: React.FC<AddPeopleProps> = ({ user, usersId, peopleToJoin, setPeopleToJoin }) => {
+const AddPeople: React.FC<AddPeopleProps> = ({ usersId, peopleToJoin, setPeopleToJoin }) => {
     const { t } = useTranslation('addPeople');
+
+    const myself = useSelector((state: RootState) => state.user.value);
 
     const [maxPeopleItems, setMaxPeopleItems] = useState(defaultMaxItems);
     const [maxFriendsItems, setMaxFriendsItems] = useState(defaultMaxItems);
 
-    const { friends } = useFindFriendByUserIdQuery(user?.id, {
+    const { friends } = useFindFriendByUserIdQuery(myself?.id ?? "", {
         selectFromResult: ({ data, isLoading }) => ({
-            friends: data?.filter((item) => !usersId.includes(user?.id === item.whoFriendId ? item.forWhomId : item.whoFriendId)),
+            friends: data?.filter((item) => !usersId.includes(myself?.id === item.whoFriendId ? item.forWhomId : item.whoFriendId)),
             isLoading,
         }),
     });
@@ -85,7 +88,7 @@ const AddPeople: React.FC<AddPeopleProps> = ({ user, usersId, peopleToJoin, setP
                     ? items.slice(0, maxItems).map((item: FriendModel) => (
                         <li key={item.id} className="person">
                             <AddFriendItem
-                                friendUserId={item.whoFriendId === user.id ? item.forWhomId : item.whoFriendId}
+                                friendUserId={item.whoFriendId === myself?.id ? item.forWhomId : item.whoFriendId}
                                 filterContent={filterContent.current?.value || ""}
                                 addUserToList={handleAddUserToJoin}
                                 removeUserToList={handleRemoveUserFromToJoin}

@@ -14,7 +14,7 @@ const emptyMessageNotificationTimeout = 4000;
 
 interface MessageInputProps {
     chatId: number;
-    initiator: GroupChatUserModel | AppUserModel;
+    initiator: (GroupChatUserModel | AppUserModel) | null;
     targetChatType: number;
     t: (key: string) => string;
     recipientId?: string;
@@ -67,7 +67,7 @@ const MessageInput: React.FC<MessageInputProps> = ({ chatId, initiator, targetCh
         if (targetChatType === chatType["group"]) {
             const groupChatMessage = {
                 id: 0,
-                username: initiator.username,
+                username: initiator?.username,
                 message: messageInput.current.value,
                 time: new Date(),
                 status: 0,
@@ -75,7 +75,7 @@ const MessageInput: React.FC<MessageInputProps> = ({ chatId, initiator, targetCh
                 markedType: 0,
                 isEdited: false,
                 groupChatId: chatId,
-                groupChatUserId: initiator.id
+                groupChatUserId: initiator?.id
             };
 
             await chatHub.groupChatMessagesHubConnectionRef.current?.invoke("SendMessage", groupChatMessage);
@@ -83,7 +83,7 @@ const MessageInput: React.FC<MessageInputProps> = ({ chatId, initiator, targetCh
         else {
             const personalChatMessage = {
                 id: 0,
-                username: initiator.username,
+                username: initiator?.username,
                 message: messageInput.current.value,
                 time: new Date(),
                 status: 0,
@@ -91,7 +91,7 @@ const MessageInput: React.FC<MessageInputProps> = ({ chatId, initiator, targetCh
                 markedType: 0,
                 isEdited: false,
                 personalChatId: chatId,
-                appUserId: initiator.id
+                appUserId: initiator?.id
             };
 
             await chatHub.personalChatMessagesHubConnectionRef.current?.invoke("SendMessage", personalChatMessage, recipientId);

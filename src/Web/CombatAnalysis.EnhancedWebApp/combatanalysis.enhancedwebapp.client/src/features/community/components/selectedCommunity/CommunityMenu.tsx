@@ -249,7 +249,6 @@ const CommunityMenu: React.FC<CommunityMenuProps> = ({ setShowMenu, user, commun
                     {itemIndex === 1 &&
                         <div className="members">
                             <GroupChatMembers
-                                myself={user}
                                 communicationId={community.id}
                                 isPopup={false}
                                 removeUsersAsync={removeUsersAsync}

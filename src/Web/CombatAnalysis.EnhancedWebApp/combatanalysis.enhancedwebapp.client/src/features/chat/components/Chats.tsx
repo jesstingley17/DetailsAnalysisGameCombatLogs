@@ -116,12 +116,10 @@ const Chats: React.FC = () => {
                             ? "ownerId" in selectedChat
                                 ? <GroupChat
                                     chat={selectedChat}
-                                    myself={myself}
                                     setSelectedChat={setSelectedChat}
                                 />
                                 : <PersonalChat
                                     chat={selectedChat}
-                                    myself={myself}
                                     setSelectedChat={setSelectedChat}
                                     companionId={getCompanionId((selectedChat && "initiatorId" in selectedChat) ? selectedChat : null)}
                                 />
@@ -173,12 +171,10 @@ const Chats: React.FC = () => {
                         ? "ownerId" in selectedChat
                             ? <GroupChat
                                 chat={selectedChat}
-                                myself={myself}
                                 setSelectedChat={setSelectedChat}
                             />
                             : <PersonalChat
                                 chat={selectedChat}
-                                myself={myself}
                                 setSelectedChat={setSelectedChat}
                                 companionId={getCompanionId((selectedChat && "initiatorId" in selectedChat) ? selectedChat : null)}
                             />

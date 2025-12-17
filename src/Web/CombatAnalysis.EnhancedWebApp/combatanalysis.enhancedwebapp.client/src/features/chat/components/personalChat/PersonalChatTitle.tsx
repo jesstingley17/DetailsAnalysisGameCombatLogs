@@ -10,13 +10,10 @@ interface PersonalChatTitleProps {
     chat: PersonalChatModel;
     companionUsername: string;
     setSelectedChat: (value: SetStateAction<PersonalChatModel | GroupChatModel | null>) => void;
-    haveMoreMessages: boolean;
-    setHaveMoreMessage: (value: SetStateAction<boolean>) => void;
-    loadMoreMessagesAsync: () => Promise<void>;
     t: (key: string) => string;
 }
 
-const PersonalChatTitle: React.FC<PersonalChatTitleProps> = ({ chat, companionUsername, setSelectedChat, haveMoreMessages, setHaveMoreMessage, loadMoreMessagesAsync, t }) => {
+const PersonalChatTitle: React.FC<PersonalChatTitleProps> = ({ chat, companionUsername, setSelectedChat, t }) => {
     const [removePersonalChatAsync] = useRemovePersonalChatAsyncMutation();
 
     const [showRemoveChatAlert, setShowRemoveChatAlert] = useState(false);
@@ -28,12 +25,6 @@ const PersonalChatTitle: React.FC<PersonalChatTitleProps> = ({ chat, companionUs
         } catch (e) {
             logger.error("Failed to remove personal chat", e);
         }
-    }
-
-    const handleLoadMoreMessagesAsync = async () => {
-        setHaveMoreMessage(false);
-
-        await loadMoreMessagesAsync();
     }
 
     return (
@@ -57,9 +48,6 @@ const PersonalChatTitle: React.FC<PersonalChatTitleProps> = ({ chat, companionUs
                     </div>
                 }
             </div>
-            {haveMoreMessages &&
-                <div className="load-more" onClick={handleLoadMoreMessagesAsync}>Load more</div>
-            }
         </>
     );
 }

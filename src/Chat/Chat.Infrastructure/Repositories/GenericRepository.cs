@@ -43,7 +43,6 @@ internal class GenericRepository<TModel, TId>(ChatContext context) : IGenericRep
     public async Task<TModel> GetByIdAsync(TId id)
     {
         var entity = await _context.Set<TModel>()
-            .AsNoTracking()
             .SingleOrDefaultAsync(g => g.Id.Equals(id))
                         ?? throw new EntityNotFoundException(typeof(TModel), id);
 

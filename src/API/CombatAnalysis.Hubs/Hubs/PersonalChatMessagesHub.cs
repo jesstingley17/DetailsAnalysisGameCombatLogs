@@ -8,6 +8,7 @@ using CombatAnalysis.Hubs.Consts;
 using CombatAnalysis.Hubs.Enums;
 using CombatAnalysis.Hubs.Interfaces;
 using CombatAnalysis.Hubs.Models;
+using CombatAnalysis.Hubs.Patches;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
@@ -112,18 +113,23 @@ public class PersonalChatMessagesHub : Hub
         }
     }
 
-    public async Task RequestEditedMessage(int chatId, int chatMessageId)
+    public async Task RequestEditedMessage(MessagePatch messagePatch)
     {
         try
         {
-            ArgumentOutOfRangeException.ThrowIfLessThan(chatId, 1, nameof(chatId));
-            ArgumentOutOfRangeException.ThrowIfLessThan(chatMessageId, 1, nameof(chatMessageId));
+            ArgumentNullException.ThrowIfNull(messagePatch, nameof(messagePatch));
+            ArgumentOutOfRangeException.ThrowIfLessThan(messagePatch.Id, 1, nameof(messagePatch.Id));
+            ArgumentOutOfRangeException.ThrowIfLessThan(messagePatch.ChatId, 1, nameof(messagePatch.ChatId));
 
-            await Clients.Group(chatId.ToString()).SendAsync("ReceiveEditedMessage", chatMessageId);
+            await Clients.Group(messagePatch.ChatId.ToString()).SendAsync("ReceiveEditedMessage", messagePatch);
         }
         catch (ArgumentOutOfRangeException ex)
         {
             _logger.LogError(ex, "Invalid argument. Parameter '{ParamName}' was out of range.", ex.ParamName);
+        }
+        catch (ArgumentNullException ex)
+        {
+            _logger.LogError(ex, "Request edited personal chat message has been read failed. Parameter '{ParamName}' was null.", ex.ParamName);
         }
     }
 

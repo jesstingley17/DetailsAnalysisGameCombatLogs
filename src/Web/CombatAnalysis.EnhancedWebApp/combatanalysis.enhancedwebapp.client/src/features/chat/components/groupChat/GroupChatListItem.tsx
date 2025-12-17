@@ -1,5 +1,7 @@
 import type { ChatHubContextModel } from '@/shared/types/ChatHubModel';
+import { updateGroupChatUser } from '@/features/chat/store/GroupChatUserSlice';
 import { useEffect, useState, type SetStateAction } from 'react';
+import { useDispatch } from 'react-redux';
 import { useGetGroupChatByIdQuery } from '../../api/GroupChat.api';
 import type { GroupChatModel } from '../../types/GroupChatModel';
 import type { GroupChatUserModel } from '../../types/GroupChatUserModel';
@@ -12,6 +14,8 @@ interface GroupChatListItemProps {
 }
 
 const GroupChatListItem: React.FC<GroupChatListItemProps> = ({ myselfInChat, setSelectedGroupChat, chatHub }) => {
+    const dispatch = useDispatch();
+    
     const [unreadMessageCount, setUnreadMessageCount] = useState(-1);
 
     const { data: chat, isLoading } = useGetGroupChatByIdQuery(myselfInChat.groupChatId);
@@ -41,6 +45,7 @@ const GroupChatListItem: React.FC<GroupChatListItemProps> = ({ myselfInChat, set
 
         if (chat) {
             setSelectedGroupChat(chat);
+            dispatch(updateGroupChatUser(myselfInChat));
         }
     }
 

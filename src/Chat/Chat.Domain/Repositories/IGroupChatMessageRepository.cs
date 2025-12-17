@@ -1,11 +1,12 @@
-﻿using Chat.Domain.Entities;
+﻿using Chat.Domain.DTOs;
+using Chat.Domain.Entities;
 using Chat.Domain.ValueObjects;
 
 namespace Chat.Domain.Repositories;
 
 public interface IGroupChatMessageRepository : IGenericRepository<GroupChatMessage, GroupChatMessageId>
 {
-    Task<IEnumerable<GroupChatMessage>> GetByChatIdAsync(int chatId, int page, int pageSize);
+    Task<IEnumerable<GroupChatMessageDto>> GetByChatIdAsync(int chatId, int page, int pageSize);
 
     Task ReadMessagesLessThanAsync(int chatId, int messageId);
 

@@ -29,6 +29,13 @@ public static class GroupChatMessageMapper
         return map;
     }
 
+    public static IEnumerable<GroupChatMessageDto> ToDTOCollection(this IEnumerable<Domain.DTOs.GroupChatMessageDto> groupChatMessages, IMapper mapper)
+    {
+        var map = mapper.Map<IEnumerable<GroupChatMessageDto>>(groupChatMessages);
+
+        return map;
+    }
+
     public static Expression<Func<GroupChatMessage, TValue>> ToExpression<TValue>(this Expression<Func<GroupChatMessageDto, TValue>> expression, IMapper mapper)
     {
         var map = mapper.MapExpression<Expression<Func<GroupChatMessage, TValue>>>(expression);

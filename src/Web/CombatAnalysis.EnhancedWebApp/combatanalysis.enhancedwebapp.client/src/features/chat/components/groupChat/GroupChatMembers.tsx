@@ -1,17 +1,17 @@
 import type { ChatHubContextModel } from '@/shared/types/ChatHubModel';
 import { faMagnifyingGlassMinus, faMagnifyingGlassPlus, faUserXmark, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import type { RootState } from '@/app/Store';
 import { useEffect, useState, type ChangeEvent, type SetStateAction } from 'react';
+import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import type { CommunityUserModel } from '../../../community/types/CommunityUserModel';
-import type { AppUserModel } from '../../../user/types/AppUserModel';
 import type { GroupChatUserModel } from '../../types/GroupChatUserModel';
 import GroupChatMembersItem from './GroupChatMembersItem';
 
 import './GroupChatMembers.scss';
 
 interface GroupChatMembersProps {
-    myself: AppUserModel;
     communicationId: number;
     isPopup: boolean;
     removeUsersAsync(peopleToRemove: (GroupChatUserModel | CommunityUserModel)[]): Promise<void>;
@@ -20,8 +20,10 @@ interface GroupChatMembersProps {
     chatHub: ChatHubContextModel | null;
 }
 
-const GroupChatMembers: React.FC<GroupChatMembersProps> = ({ myself, communicationId, isPopup, removeUsersAsync, setShowMembers, canRemovePeople, chatHub }) => {
+const GroupChatMembers: React.FC<GroupChatMembersProps> = ({ communicationId, isPopup, removeUsersAsync, setShowMembers, canRemovePeople, chatHub }) => {
     const { t } = useTranslation('communication/members');
+
+    const myself = useSelector((state: RootState) => state.user.value);
 
     const [showRemoveUser, setShowRemoveUser] = useState(false);
     const [showSearchPeople, setShowSearchPeople] = useState(false);
@@ -35,7 +37,7 @@ const GroupChatMembers: React.FC<GroupChatMembersProps> = ({ myself, communicati
         }
 
         (async () => {
-            await chatHub?.groupChatHubConnectionRef.current?.invoke("RequestMembers", communicationId, myself.id);
+            await chatHub?.groupChatHubConnectionRef.current?.invoke("RequestMembers", communicationId, myself?.id);
         })();
 
         chatHub.subscribeToGroupChatMembers((members: GroupChatUserModel[]) => {
@@ -77,7 +79,6 @@ const GroupChatMembers: React.FC<GroupChatMembersProps> = ({ myself, communicati
         return existUsers?.map(user => (
             <li className="user-target-community" key={user.id}>
                 <GroupChatMembersItem
-                    myself={myself}
                     user={user}
                     usersToRemove={usersToRemove}
                     setUsersToRemove={setUsersToRemove}

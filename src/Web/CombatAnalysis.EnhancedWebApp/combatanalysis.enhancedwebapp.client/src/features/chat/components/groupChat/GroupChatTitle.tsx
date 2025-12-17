@@ -1,21 +1,23 @@
 ﻿import logger from '@/utils/Logger';
 import { faCloudArrowUp, faGear, faPen, faPhone } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import type { RootState } from '@/app/Store';
 import { useEffect, useRef, useState, type SetStateAction } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { AppUserModel } from '../../../user/types/AppUserModel';
 import { usePartialUpdateGroupChatMutation } from '../../api/GroupChat.api';
 import type { GroupChatModel } from '../../types/GroupChatModel';
+import { useSelector } from 'react-redux';
 
 interface GroupChatTitleProps {
-    myself: AppUserModel;
     chat: GroupChatModel;
     settingsIsShow: boolean;
     setSettingsIsShow: (value: SetStateAction<boolean>) => void;
     t: (key: string) => string;
 }
 
-const GroupChatTitle: React.FC<GroupChatTitleProps> = ({ myself, chat, settingsIsShow, setSettingsIsShow, t }) => {
+const GroupChatTitle: React.FC<GroupChatTitleProps> = ({ chat, settingsIsShow, setSettingsIsShow, t }) => {
+    const myself = useSelector((state: RootState) => state.user.value);
+
     const navigate = useNavigate();
 
     const [editNameOn, setEditNameOn] = useState(false);
