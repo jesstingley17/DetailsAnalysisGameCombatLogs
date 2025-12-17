@@ -24,6 +24,18 @@ export const ChatApi = createApi({
                 url: `/GroupChatMessage/getByChatId?chatId=${chatId}&page=${page}&pageSize=${pageSize}`,
             }),
             transformResponse: (response: GroupChatMessageModel[]) => response.reverse(),
+            serializeQueryArgs: ({ endpointName, queryArgs }) => `${endpointName}-${queryArgs.chatId}`,
+            merge: (currentCache, newItems) => {
+                newItems.forEach(item => {
+                    const index = currentCache.findIndex(d => d.id === item.id);
+                    if (index === -1) {
+                        currentCache.push(item);
+                    } else {
+                        currentCache[index] = item;
+                    }
+                });
+            },
+            forceRefetch: ({ currentArg, previousArg }) => currentArg?.page !== previousArg?.page,
             providesTags: result =>
                 result
                     ? [

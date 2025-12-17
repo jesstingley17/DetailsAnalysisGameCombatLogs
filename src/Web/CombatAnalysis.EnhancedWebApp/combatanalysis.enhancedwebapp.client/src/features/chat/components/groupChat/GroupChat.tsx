@@ -2,6 +2,7 @@
 import { APP_CONFIG } from '@/config/appConfig';
 import { useChatHub } from '@/shared/hooks/useChatHub';
 import logger from '@/utils/Logger';
+import InfiniteScrollTrigger from '@/events/InfiniteScrollTrigger';
 import { memo, useEffect, useRef, useState, type SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { AppUserModel } from '../../../user/types/AppUserModel';
@@ -17,6 +18,7 @@ import ChatMessage from '../ChatMessage';
 import MessageInput from '../MessageInput';
 import GroupChatMenu from './GroupChatMenu';
 import GroupChatTitle from './GroupChatTitle';
+import { useGetMessagesByGroupChatIdQuery } from '../../api/Chat.api';
 
 import './GroupChat.scss';
 
@@ -31,26 +33,29 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
 
     const chatHub = useChatHub();
 
-    let page = 1;
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(false);
 
     const [settingsIsShow, setSettingsIsShow] = useState(false);
     const [groupChatUsersId, setGroupChatUsersId] = useState<string[]>([]);
 
-    const [haveMoreMessages, setHaveMoreMessage] = useState(false);
-    const [currentMessages, setCurrentMessages] = useState<GroupChatMessageModel[]>([]);
-    const [messagesIsLoaded, setMessagesIsLoaded] = useState(false);
-    const [areLoadingOldMessages, setAreLoadingOldMessages] = useState(true);
-
     const chatContainerRef = useRef<HTMLUListElement | null>(null);
     const pageSizeRef = useRef<number>(APP_CONFIG.communication.chatPageSize ? +APP_CONFIG.communication.chatPageSize : 5);
 
-    const { messages, count, IasGroupChatUser, groupChatUsers } = useGroupChatData(chat.id, myself.id, page, pageSizeRef);
+    const { IasGroupChatUser, groupChatUsers } = useGroupChatData(chat.id, myself.id);
+    const { data: messages, isLoading } = useGetMessagesByGroupChatIdQuery({ chatId: chat.id, page, pageSize: pageSizeRef.current });
 
     const [partialUpdateGroupChatMessage] = usePartialUpdateGroupChatMessageMutation();
 
     useEffect(() => {
-        setCurrentMessages([]);
+        if (!messages) {
+            return;
+        }
 
+        setHasMore(((page - 1) * pageSizeRef.current) < messages.length);
+    }, [page, messages]);
+
+    useEffect(() => {
         if (!chatHub) {
             return;
         }
@@ -59,7 +64,7 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
             await chatHub.connectToGroupChatMessagesAsync(chat.id);
 
             chatHub.subscribeToGroupChatMessages((message: GroupChatMessageModel) => {
-                setCurrentMessages(prevMessages => [...prevMessages, message]);
+                // setCurrentMessages(prevMessages => [...prevMessages, message]);
             });
 
             chatHub.subscribeToGroupChatMessageEdit((messageId: number) => {
@@ -75,62 +80,6 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
             })();
         }
     }, [chat]);
-
-    useEffect(() => {
-        if (!messages) {
-            return;
-        }
-
-        setCurrentMessages(messages);
-    }, [messages]);
-
-    useEffect(() => {
-        if (!messages) {
-            return;
-        }
-
-        const handleScroll = () => {
-            const chatContainer: HTMLUListElement | null = chatContainerRef.current;
-
-            if (!messages || !chatContainer || !count) {
-                return;
-            }
-
-            if (chatContainer.scrollTop === 0) {
-                const moreMessagesCount = count - currentMessages.length + (messages === null ? 0 : messages.length) - pageSizeRef.current;
-
-                setHaveMoreMessage(moreMessagesCount > 0);
-            }
-            else if (chatContainer.scrollHeight - chatContainer.scrollTop === chatContainer.clientHeight) {
-                setHaveMoreMessage(false);
-            }
-        }
-
-        const scrollContainer = chatContainerRef.current;
-        scrollContainer?.addEventListener("scroll", handleScroll);
-
-        return () => {
-            scrollContainer?.removeEventListener("scroll", handleScroll);
-        }
-    }, [currentMessages, messages]);
-
-    useEffect(() => {
-        if (!currentMessages || messagesIsLoaded) {
-            return;
-        }
-
-        scrollToBottom();
-
-        setMessagesIsLoaded(true);
-    }, [currentMessages]);
-
-    useEffect(() => {
-        if (!currentMessages || areLoadingOldMessages) {
-            return;
-        }
-
-        scrollToBottom();
-    }, [currentMessages]);
 
     useEffect(() => {
         if (!groupChatUsers) {
@@ -157,33 +106,8 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
         }
     }
 
-    const saveScrollState = () => {
-        const chatContainer: HTMLUListElement | null = chatContainerRef.current;
-        if (!chatContainer) {
-            return;
-        }
-
-        const previousScrollHeight = chatContainer.scrollHeight;
-        const previousScrollTop = chatContainer.scrollTop;
-
-        setTimeout(() => {
-            chatContainer.scrollTop = chatContainer.scrollHeight - previousScrollHeight + previousScrollTop;
-        }, 0);
-    }
-
-    const scrollToBottom = () => {
-        const chatContainer = chatContainerRef.current;
-        if (chatContainer !== null) {
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-    }
-
-    const handleLoadMoreMessagesAsync = async () => {
-        setAreLoadingOldMessages(true);
-
-        page++;
-
-        saveScrollState();
+    if (isLoading || !messages) {
+        return (<></>);
     }
 
     return (
@@ -194,13 +118,10 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
                     myself={myself}
                     settingsIsShow={settingsIsShow}
                     setSettingsIsShow={setSettingsIsShow}
-                    haveMoreMessages={haveMoreMessages}
-                    setHaveMoreMessage={setHaveMoreMessage}
-                    loadMoreMessagesAsync={handleLoadMoreMessagesAsync}
                     t={t}
                 />
                 <ul className="chat-messages" ref={chatContainerRef}>
-                    {currentMessages.map((message) => (
+                    {messages.map((message) => (
                         <li className="message" key={message.id}>
                             {(IasGroupChatUser && groupChatUsers && chatHub) &&
                                 <ChatMessage
@@ -217,12 +138,18 @@ const GroupChat: React.FC<GroupChatProps> = ({ myself, chat, setSelectedChat }) 
                             }
                         </li>
                     ))}
+                    <li className="message">
+                        <InfiniteScrollTrigger
+                            onLoadMore={() => setPage(p => p + 1)}
+                            hasMore={hasMore}
+                            isLoading={isLoading}
+                        />
+                    </li>
                 </ul>
                 {IasGroupChatUser &&
                     <MessageInput
                         chatId={chat.id}
                         initiator={IasGroupChatUser}
-                        setAreLoadingOldMessages={setAreLoadingOldMessages}
                         targetChatType={1}
                         t={t}
                     />

@@ -12,13 +12,10 @@ interface GroupChatTitleProps {
     chat: GroupChatModel;
     settingsIsShow: boolean;
     setSettingsIsShow: (value: SetStateAction<boolean>) => void;
-    haveMoreMessages: boolean;
-    setHaveMoreMessage: (value: SetStateAction<boolean>) => void;
-    loadMoreMessagesAsync: () => Promise<void>;
     t: (key: string) => string;
 }
 
-const GroupChatTitle: React.FC<GroupChatTitleProps> = ({ myself, chat, settingsIsShow, setSettingsIsShow, haveMoreMessages, setHaveMoreMessage, loadMoreMessagesAsync, t }) => {
+const GroupChatTitle: React.FC<GroupChatTitleProps> = ({ myself, chat, settingsIsShow, setSettingsIsShow, t }) => {
     const navigate = useNavigate();
 
     const [editNameOn, setEditNameOn] = useState(false);
@@ -57,12 +54,6 @@ const GroupChatTitle: React.FC<GroupChatTitleProps> = ({ myself, chat, settingsI
 
     const call = () => {
         navigate(`/chats/voice/${chat.id}/${chat.name}`);
-    }
-
-    const handleLoadMoreMessagesAsync = async () => {
-        setHaveMoreMessage(false);
-
-        await loadMoreMessagesAsync();
     }
 
     return (
@@ -105,9 +96,6 @@ const GroupChatTitle: React.FC<GroupChatTitleProps> = ({ myself, chat, settingsI
                     />
                 </div>
             </div>
-            {haveMoreMessages &&
-                <div className="load-more" onClick={handleLoadMoreMessagesAsync}>Load more...</div>
-            }
         </>
     );
 }

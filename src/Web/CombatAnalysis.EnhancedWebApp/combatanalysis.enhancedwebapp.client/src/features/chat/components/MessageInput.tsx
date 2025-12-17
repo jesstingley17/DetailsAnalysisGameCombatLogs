@@ -1,7 +1,7 @@
 import { useChatHub } from '@/shared/hooks/useChatHub';
 import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useEffect, useRef, useState, type SetStateAction } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { AppUserModel } from '../../user/types/AppUserModel';
 import type { GroupChatUserModel } from '../types/GroupChatUserModel';
 
@@ -15,13 +15,12 @@ const emptyMessageNotificationTimeout = 4000;
 interface MessageInputProps {
     chatId: number;
     initiator: GroupChatUserModel | AppUserModel;
-    setAreLoadingOldMessages: (value: SetStateAction<boolean>) => void;
     targetChatType: number;
     t: (key: string) => string;
     recipientId?: string;
 }
 
-const MessageInput: React.FC<MessageInputProps> = ({ chatId, initiator, setAreLoadingOldMessages, targetChatType, t, recipientId }) => {
+const MessageInput: React.FC<MessageInputProps> = ({ chatId, initiator, targetChatType, t, recipientId }) => {
     const chatHub = useChatHub();
 
     const messageInput = useRef<HTMLInputElement | null>(null);
@@ -64,8 +63,6 @@ const MessageInput: React.FC<MessageInputProps> = ({ chatId, initiator, setAreLo
 
             return;
         }
-
-        setAreLoadingOldMessages(false);
 
         if (targetChatType === chatType["group"]) {
             const groupChatMessage = {

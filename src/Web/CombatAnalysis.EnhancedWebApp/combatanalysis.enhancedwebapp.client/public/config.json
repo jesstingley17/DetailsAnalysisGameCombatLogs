@@ -5,7 +5,7 @@
     "verifyEmail": "initVerification"
   },
   "communication": {
-    "chatPageSize": 50,
+    "chatPageSize": 10,
     "communityPageSize": 5,
     "communityPostPageSize": 5
   },
