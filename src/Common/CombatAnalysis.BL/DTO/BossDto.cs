@@ -1,8 +1,6 @@
-﻿using CombatAnalysis.DAL.Interfaces.Entities;
+﻿namespace CombatAnalysis.BL.DTO;
 
-namespace CombatAnalysis.DAL.Entities;
-
-public class Boss : IEntity
+public class BossDto
 {
     public int Id { get; set; }
 

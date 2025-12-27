@@ -10,7 +10,6 @@ internal class CombatTestDataFactory
         var entity = new Combat
         {
             Id = id,
-            LocallyNumber = 1,
             DungeonName = "Test",
             Name = "Boss name",
             Difficulty = difficulty,
@@ -33,7 +32,6 @@ internal class CombatTestDataFactory
         var entityDto = new CombatDto
         {
             Id = id,
-            LocallyNumber = 1,
             DungeonName = "Test",
             Name = "Boss name",
             Difficulty = difficulty,
@@ -57,7 +55,6 @@ internal class CombatTestDataFactory
         {
             new () {
                 Id = 1,
-                LocallyNumber = 1,
                 DungeonName = "Test",
                 Name = "Boss name",
                 Difficulty = 0,
@@ -73,7 +70,6 @@ internal class CombatTestDataFactory
             },
             new () {
                 Id = 2,
-                LocallyNumber = 1,
                 DungeonName = "Test",
                 Name = "Boss name 1",
                 Difficulty = 0,
@@ -89,7 +85,6 @@ internal class CombatTestDataFactory
             },
             new () {
                 Id = 3,
-                LocallyNumber = 1,
                 DungeonName = "Test",
                 Name = "Boss name 2",
                 Difficulty = 0,

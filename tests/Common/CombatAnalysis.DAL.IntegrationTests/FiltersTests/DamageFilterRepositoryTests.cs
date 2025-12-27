@@ -19,7 +19,6 @@ public class DamageFilterRepositoryTests : RepositoryTestsBase
         context.Set<Combat>().Add(new Combat
         {
             Id = combatId,
-            LocallyNumber = 1,
             DungeonName = "Dung",
             Name = "Test",
             Difficulty = 1,

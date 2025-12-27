@@ -22,4 +22,6 @@ public interface ICombatParserAPIService
     Task<int> LoadCountAsync(string address, CancellationToken cancellationToken);
 
     Task<CombatLogModel> SaveCombatLogAsync(List<CombatModel> combats, LogType logType, CancellationToken cancellationToken);
+
+    Task GetBossAsync(List<CombatModel> combats, CancellationToken cancellationToken);
 }

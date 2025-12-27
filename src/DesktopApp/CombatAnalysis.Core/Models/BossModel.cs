@@ -1,11 +1,7 @@
-﻿using CombatAnalysis.DAL.Interfaces.Entities;
+﻿namespace CombatAnalysis.Core.Models;
 
-namespace CombatAnalysis.DAL.Entities;
-
-public class Boss : IEntity
+public class BossModel
 {
-    public int Id { get; set; }
-
     public int GameId { get; set; }
 
     public string Name { get; set; } = string.Empty;

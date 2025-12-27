@@ -40,7 +40,7 @@ internal class SecurityStorage
         _accessTokenProtector = protectionProvider.CreateProtector(AccessTokenPurpose, AccessTokenSecret);
     }
 
-    public void SaveTokens(TokenResponseModel token)
+    public void SaveAccessToken(TokenResponseModel token)
     {
         try
         {
@@ -65,7 +65,7 @@ internal class SecurityStorage
         }
     }
 
-    public void RemoveTokens()
+    public void RemoveAccessToken()
     {
         try
         {
@@ -89,7 +89,7 @@ internal class SecurityStorage
     {
         try
         {
-            GetTokens();
+            GetAccessToken();
 
             var user = await GetUserByAccessTokenAsync();
             _memoryCache.Set(nameof(MemoryCacheValue.User), user, TimeSpan.FromDays(3));
@@ -104,7 +104,7 @@ internal class SecurityStorage
         }
     }
 
-    public void GetTokens()
+    public void GetAccessToken()
     {
         try
         {

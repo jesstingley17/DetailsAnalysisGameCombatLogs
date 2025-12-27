@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CombatAnalysis.DAL.Migrations
 {
     [DbContext(typeof(CombatParserContext))]
-    partial class CombatParserSQLContextModelSnapshot : ModelSnapshot
+    partial class CombatParserContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
@@ -25,11 +25,26 @@ namespace CombatAnalysis.DAL.Migrations
             modelBuilder.Entity("CombatAnalysis.DAL.Entities.Boss", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Difficult")
+                        .HasColumnType("int");
+
+                    b.Property<int>("GameId")
+                        .HasColumnType("int");
+
+                    b.Property<long>("Health")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Size")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -38,83 +53,507 @@ namespace CombatAnalysis.DAL.Migrations
                     b.HasData(
                         new
                         {
-                            Id = 1395,
-                            Name = "Каменные стражи"
+                            Id = 1,
+                            Difficult = 3,
+                            GameId = 1395,
+                            Health = 130841100L,
+                            Name = "Каменные стражи",
+                            Size = 10
                         },
                         new
                         {
-                            Id = 1390,
-                            Name = "Фэн Проклятый"
+                            Id = 2,
+                            Difficult = 5,
+                            GameId = 1395,
+                            Health = 235513980L,
+                            Name = "Каменные стражи",
+                            Size = 10
                         },
                         new
                         {
-                            Id = 1434,
-                            Name = "Душелов Гара'джал"
+                            Id = 3,
+                            Difficult = 3,
+                            GameId = 1390,
+                            Health = 152647950L,
+                            Name = "Фэн Проклятый",
+                            Size = 10
                         },
                         new
                         {
-                            Id = 1436,
-                            Name = "Призрачные короли"
+                            Id = 4,
+                            Difficult = 5,
+                            GameId = 1390,
+                            Health = 209345760L,
+                            Name = "Фэн Проклятый",
+                            Size = 10
                         },
                         new
                         {
-                            Id = 1500,
-                            Name = "Элегон"
+                            Id = 5,
+                            Difficult = 3,
+                            GameId = 1434,
+                            Health = 117756990L,
+                            Name = "Душелов Гара'джал",
+                            Size = 10
                         },
                         new
                         {
-                            Id = 1407,
-                            Name = "Воля императора"
+                            Id = 6,
+                            Difficult = 5,
+                            GameId = 1434,
+                            Health = 179252307L,
+                            Name = "Душелов Гара'джал",
+                            Size = 10
                         },
                         new
                         {
-                            Id = 1409,
-                            Name = "Вечные защитники"
+                            Id = 7,
+                            Difficult = 3,
+                            GameId = 1436,
+                            Health = 174454800L,
+                            Name = "Призрачные короли",
+                            Size = 10
                         },
                         new
                         {
-                            Id = 1505,
-                            Name = "Цулон"
+                            Id = 8,
+                            Difficult = 5,
+                            GameId = 1436,
+                            Health = 261682200L,
+                            Name = "Призрачные короли",
+                            Size = 10
                         },
                         new
                         {
-                            Id = 1506,
-                            Name = "Лэй Ши"
+                            Id = 9,
+                            Difficult = 3,
+                            GameId = 1500,
+                            Health = 294392475L,
+                            Name = "Элегон",
+                            Size = 10
                         },
                         new
                         {
-                            Id = 1431,
-                            Name = "Ша Страха"
+                            Id = 10,
+                            Difficult = 5,
+                            GameId = 1500,
+                            Health = 339750723L,
+                            Name = "Элегон",
+                            Size = 10
                         },
                         new
                         {
-                            Id = 1507,
-                            Name = "Императорский визирь Зор'лок"
+                            Id = 11,
+                            Difficult = 3,
+                            GameId = 1407,
+                            Health = 314018640L,
+                            Name = "Воля императора",
+                            Size = 10
                         },
                         new
                         {
-                            Id = 1504,
-                            Name = "Повелитель клинков Та'як"
+                            Id = 12,
+                            Difficult = 5,
+                            GameId = 1407,
+                            Health = 471027960L,
+                            Name = "Воля императора",
+                            Size = 10
                         },
                         new
                         {
-                            Id = 1463,
-                            Name = "Гаралон"
+                            Id = 13,
+                            Difficult = 3,
+                            GameId = 1409,
+                            Health = 213968815L,
+                            Name = "Вечные защитники",
+                            Size = 10
                         },
                         new
                         {
-                            Id = 1498,
-                            Name = "Повелитель ветров Мел'джарак"
+                            Id = 14,
+                            Difficult = 5,
+                            GameId = 1409,
+                            Health = 344082093L,
+                            Name = "Вечные защитники",
+                            Size = 10
                         },
                         new
                         {
-                            Id = 1499,
-                            Name = "Ваятель янтаря Ун'сок"
+                            Id = 15,
+                            Difficult = 3,
+                            GameId = 1505,
+                            Health = 174454800L,
+                            Name = "Цулон",
+                            Size = 10
                         },
                         new
                         {
-                            Id = 1501,
-                            Name = "Великая императрица Шек'зир"
+                            Id = 16,
+                            Difficult = 5,
+                            GameId = 1505,
+                            Health = 279127680L,
+                            Name = "Цулон",
+                            Size = 10
+                        },
+                        new
+                        {
+                            Id = 17,
+                            Difficult = 3,
+                            GameId = 1506,
+                            Health = 138168195L,
+                            Name = "Лэй Ши",
+                            Size = 10
+                        },
+                        new
+                        {
+                            Id = 18,
+                            Difficult = 5,
+                            GameId = 1506,
+                            Health = 301457900L,
+                            Name = "Лэй Ши",
+                            Size = 10
+                        },
+                        new
+                        {
+                            Id = 19,
+                            Difficult = 3,
+                            GameId = 1431,
+                            Health = 184704020L,
+                            Name = "Ша Страха",
+                            Size = 10
+                        },
+                        new
+                        {
+                            Id = 20,
+                            Difficult = 5,
+                            GameId = 1431,
+                            Health = 544037304L,
+                            Name = "Ша Страха",
+                            Size = 10
+                        },
+                        new
+                        {
+                            Id = 21,
+                            Difficult = 3,
+                            GameId = 1507,
+                            Health = 174454800L,
+                            Name = "Императорский визирь Зор'лок",
+                            Size = 10
+                        },
+                        new
+                        {
+                            Id = 22,
+                            Difficult = 5,
+                            GameId = 1507,
+                            Health = 218068500L,
+                            Name = "Императорский визирь Зор'лок",
+                            Size = 10
+                        },
+                        new
+                        {
+                            Id = 23,
+                            Difficult = 3,
+                            GameId = 1504,
+                            Health = 150467265L,
+                            Name = "Повелитель клинков Та'як",
+                            Size = 10
+                        },
+                        new
+                        {
+                            Id = 24,
+                            Difficult = 5,
+                            GameId = 1504,
+                            Health = 196261650L,
+                            Name = "Повелитель клинков Та'як",
+                            Size = 10
+                        },
+                        new
+                        {
+                            Id = 25,
+                            Difficult = 3,
+                            GameId = 1463,
+                            Health = 218068500L,
+                            Name = "Гаралон",
+                            Size = 10
+                        },
+                        new
+                        {
+                            Id = 26,
+                            Difficult = 5,
+                            GameId = 1463,
+                            Health = 290759446L,
+                            Name = "Гаралон",
+                            Size = 10
+                        },
+                        new
+                        {
+                            Id = 27,
+                            Difficult = 3,
+                            GameId = 1498,
+                            Health = 270404940L,
+                            Name = "Повелитель ветров Мел'джарак",
+                            Size = 10
+                        },
+                        new
+                        {
+                            Id = 28,
+                            Difficult = 5,
+                            GameId = 1498,
+                            Health = 588784950L,
+                            Name = "Повелитель ветров Мел'джарак",
+                            Size = 10
+                        },
+                        new
+                        {
+                            Id = 29,
+                            Difficult = 3,
+                            GameId = 1499,
+                            Health = 218068500L,
+                            Name = "Ваятель янтаря Ун'сок",
+                            Size = 10
+                        },
+                        new
+                        {
+                            Id = 30,
+                            Difficult = 5,
+                            GameId = 1499,
+                            Health = 340186860L,
+                            Name = "Ваятель янтаря Ун'сок",
+                            Size = 10
+                        },
+                        new
+                        {
+                            Id = 31,
+                            Difficult = 3,
+                            GameId = 1501,
+                            Health = 196261650L,
+                            Name = "Великая императрица Шек'зир",
+                            Size = 10
+                        },
+                        new
+                        {
+                            Id = 32,
+                            Difficult = 5,
+                            GameId = 1501,
+                            Health = 307476585L,
+                            Name = "Великая императрица Шек'зир",
+                            Size = 10
+                        },
+                        new
+                        {
+                            Id = 33,
+                            Difficult = 3,
+                            GameId = 1577,
+                            Health = 207601212L,
+                            Name = "Джин'рок Разрушитель",
+                            Size = 10
+                        },
+                        new
+                        {
+                            Id = 34,
+                            Difficult = 5,
+                            GameId = 1577,
+                            Health = 317507736L,
+                            Name = "Джин'рок Разрушитель",
+                            Size = 10
+                        },
+                        new
+                        {
+                            Id = 35,
+                            Difficult = 3,
+                            GameId = 1575,
+                            Health = 357632340L,
+                            Name = "Хорридон",
+                            Size = 10
+                        },
+                        new
+                        {
+                            Id = 36,
+                            Difficult = 5,
+                            GameId = 1575,
+                            Health = 654205500L,
+                            Name = "Хорридон",
+                            Size = 10
+                        },
+                        new
+                        {
+                            Id = 37,
+                            Difficult = 3,
+                            GameId = 1570,
+                            Health = 299538888L,
+                            Name = "Совет старейшин",
+                            Size = 10
+                        },
+                        new
+                        {
+                            Id = 38,
+                            Difficult = 5,
+                            GameId = 1570,
+                            Health = 470330152L,
+                            Name = "Совет старейшин",
+                            Size = 10
+                        },
+                        new
+                        {
+                            Id = 39,
+                            Difficult = 3,
+                            GameId = 1565,
+                            Health = 179999841L,
+                            Name = "Тортос",
+                            Size = 10
+                        },
+                        new
+                        {
+                            Id = 40,
+                            Difficult = 5,
+                            GameId = 1565,
+                            Health = 319999818L,
+                            Name = "Тортос",
+                            Size = 10
+                        },
+                        new
+                        {
+                            Id = 41,
+                            Difficult = 3,
+                            GameId = 1578,
+                            Health = 263317712L,
+                            Name = "Мегера",
+                            Size = 10
+                        },
+                        new
+                        {
+                            Id = 42,
+                            Difficult = 5,
+                            GameId = 1578,
+                            Health = 342297774L,
+                            Name = "Мегера",
+                            Size = 10
+                        },
+                        new
+                        {
+                            Id = 43,
+                            Difficult = 3,
+                            GameId = 1573,
+                            Health = 244236720L,
+                            Name = "Цзи-Кунь",
+                            Size = 10
+                        },
+                        new
+                        {
+                            Id = 44,
+                            Difficult = 5,
+                            GameId = 1573,
+                            Health = 366355080L,
+                            Name = "Цзи-Кунь",
+                            Size = 10
+                        },
+                        new
+                        {
+                            Id = 45,
+                            Difficult = 3,
+                            GameId = 1572,
+                            Health = 261682200L,
+                            Name = "Дуруму Позабытый",
+                            Size = 10
+                        },
+                        new
+                        {
+                            Id = 46,
+                            Difficult = 5,
+                            GameId = 1572,
+                            Health = 392523300L,
+                            Name = "Дуруму Позабытый",
+                            Size = 10
+                        },
+                        new
+                        {
+                            Id = 47,
+                            Difficult = 3,
+                            GameId = 1574,
+                            Health = 218068500L,
+                            Name = "Изначалий",
+                            Size = 10
+                        },
+                        new
+                        {
+                            Id = 48,
+                            Difficult = 5,
+                            GameId = 1574,
+                            Health = 258193104L,
+                            Name = "Изначалий",
+                            Size = 10
+                        },
+                        new
+                        {
+                            Id = 49,
+                            Difficult = 3,
+                            GameId = 1576,
+                            Health = 80999797L,
+                            Name = "Темный Анимус",
+                            Size = 10
+                        },
+                        new
+                        {
+                            Id = 50,
+                            Difficult = 5,
+                            GameId = 1576,
+                            Health = 288000023L,
+                            Name = "Темный Анимус",
+                            Size = 10
+                        },
+                        new
+                        {
+                            Id = 51,
+                            Difficult = 3,
+                            GameId = 1559,
+                            Health = 119937675L,
+                            Name = "Кон Железный",
+                            Size = 10
+                        },
+                        new
+                        {
+                            Id = 52,
+                            Difficult = 5,
+                            GameId = 1559,
+                            Health = 155700909L,
+                            Name = "Кон Железный",
+                            Size = 10
+                        },
+                        new
+                        {
+                            Id = 53,
+                            Difficult = 3,
+                            GameId = 1560,
+                            Health = 219812670L,
+                            Name = "Небесные сестры",
+                            Size = 10
+                        },
+                        new
+                        {
+                            Id = 54,
+                            Difficult = 5,
+                            GameId = 1560,
+                            Health = 628036200L,
+                            Name = "Небесные сестры",
+                            Size = 10
+                        },
+                        new
+                        {
+                            Id = 55,
+                            Difficult = 3,
+                            GameId = 1579,
+                            Health = 329283435L,
+                            Name = "Лэй Шэнь",
+                            Size = 10
+                        },
+                        new
+                        {
+                            Id = 56,
+                            Difficult = 5,
+                            GameId = 1579,
+                            Health = 580498347L,
+                            Name = "Лэй Шэнь",
+                            Size = 10
                         });
                 });
 
@@ -125,6 +564,9 @@ namespace CombatAnalysis.DAL.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BoosId")
+                        .HasColumnType("int");
 
                     b.Property<int>("CombatLogId")
                         .HasColumnType("int");
@@ -156,9 +598,6 @@ namespace CombatAnalysis.DAL.Migrations
 
                     b.Property<bool>("IsWin")
                         .HasColumnType("bit");
-
-                    b.Property<int>("LocallyNumber")
-                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()

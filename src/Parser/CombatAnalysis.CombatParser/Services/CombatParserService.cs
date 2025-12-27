@@ -189,11 +189,16 @@ internal class CombatParserService(IFileManager fileManager, ILogger logger) : I
             return;
         }
 
+        var boss = new Boss
+        {
+            GameId = GetGameBossId(builtCombat[0]),
+            Difficult = GetDifficulty(builtCombat[0]),
+            Size = GetGroupSize(builtCombat[0])
+        };
+
         var combat = new Combat
         {
-            BossId = GetBossId(builtCombat[0]),
-            Name = GetCombatName(builtCombat[0]),
-            Difficulty = GetDifficulty(builtCombat[0]),
+            Boss = boss,
             Data = builtCombat,
             IsWin = GetCombatResult(builtCombat[^1]),
             StartDate = GetTime(builtCombat[0]),
@@ -215,35 +220,31 @@ internal class CombatParserService(IFileManager fileManager, ILogger logger) : I
         AddNewCombat(combat);
     }
 
-    private static int GetBossId(string encounterStart)
+    private static int GetGameBossId(string encounterStart)
     {
         var data = encounterStart.Split("  ")[1];
-        var id = data.Split(',')[1];
-        var convertToInt = Convert.ToInt32(id);
+        var gameBossId = data.Split(',')[1];
+        var convertToInt = Convert.ToInt32(gameBossId);
 
         return convertToInt;
-    }
-
-    private static string GetCombatName(string encounterStart)
-    {
-        var data = encounterStart.Split("  ")[1];
-        var name = data.Split(',')[2];
-        var clearName = name.Trim('"');
-
-        return clearName;
     }
 
     private static int GetDifficulty(string encounterStart)
     {
         var data = encounterStart.Split("  ")[1];
         var difficulty = data.Split(',')[3];
+        var convertToInt = Convert.ToInt32(difficulty);
 
-        if (int.TryParse(difficulty, out var diff))
-        {
-            return diff;
-        }
+        return convertToInt;
+    }
 
-        return 0;
+    private static int GetGroupSize(string encounterStart)
+    {
+        var data = encounterStart.Split("  ")[1];
+        var groupSize = data.Split(',')[4];
+        var convertToInt = Convert.ToInt32(groupSize);
+
+        return convertToInt;
     }
 
     private static bool GetCombatResult(string combatFinish)

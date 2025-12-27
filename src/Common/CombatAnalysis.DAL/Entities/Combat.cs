@@ -6,11 +6,9 @@ public class Combat : IEntity
 {
     public int Id { get; set; }
 
-    public int LocallyNumber { get; set; }
+    public string DungeonName { get; set; } = string.Empty;
 
-    public string DungeonName { get; set; }
-
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
 
     public int Difficulty { get; set; }
 
@@ -34,6 +32,8 @@ public class Combat : IEntity
     }
 
     public bool IsReady { get; set; }
+
+    public int BoosId { get; set; }
 
     public int CombatLogId { get; set; }
 }

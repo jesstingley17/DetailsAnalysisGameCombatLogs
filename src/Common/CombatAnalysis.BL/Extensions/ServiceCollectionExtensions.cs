@@ -19,6 +19,7 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<ICombatTransactionService, CombatTransactionService>();
 
+        services.AddScoped<IBossService, BossService>();
         services.AddScoped<IPlayerInfoService<DamageDoneGeneralDto>, PlayerInfoService<DamageDoneGeneralDto, DamageDoneGeneral>>();
         services.AddScoped<IPlayerInfoService<DamageDoneDto>, PlayerInfoService<DamageDoneDto, DamageDone>>();
         services.AddScoped<ICountService<DamageDoneDto>, CountService<DamageDoneDto, DamageDone>>();

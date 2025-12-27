@@ -116,9 +116,9 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding Path=Name}" TextAlignment="Center" Margin="10" FontSize="12" Opacity="0.5"
+                                <TextBlock Text="{Binding Path=Boss.Name}" TextAlignment="Center" Margin="10" FontSize="12" Opacity="0.5"
                                            Visibility="{Binding IsWin, Converter={StaticResource BoolToVisibility}, ConverterParameter=true:true}"/>
-                                <TextBlock Text="{Binding Path=Name}" TextAlignment="Center" Margin="10" FontSize="12"
+                                <TextBlock Text="{Binding Path=Boss.Name}" TextAlignment="Center" Margin="10" FontSize="12"
                                            Visibility="{Binding IsWin, Converter={StaticResource BoolToVisibility}, ConverterParameter=true:false}"/>
                                 <TextBlock Text="{Binding Path=UniqueCombatCount}" TextAlignment="Center" Margin="10" FontSize="12"/>
                             </StackPanel>

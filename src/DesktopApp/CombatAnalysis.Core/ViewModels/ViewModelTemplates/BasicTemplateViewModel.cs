@@ -334,7 +334,7 @@ public class BasicTemplateViewModel : MvxViewModel, IImprovedMvxViewModel, IVMDa
         IsAuth = false;
         Username = string.Empty;
 
-        _securityStorage.RemoveTokens();
+        _securityStorage.RemoveAccessToken();
 
         Step = -1;
         await _mvvmNavigation.Close(Parent);

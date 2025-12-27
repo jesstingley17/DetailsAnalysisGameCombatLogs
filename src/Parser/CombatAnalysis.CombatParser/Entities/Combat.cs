@@ -4,10 +4,6 @@ public class Combat
 {
     public string DungeonName { get; set; } = string.Empty;
 
-    public string Name { get; set; } = string.Empty;
-
-    public int Difficulty { get; set; }
-
     public List<string> Data { get; set; } = [];
 
     public int ResourcesRecovery { get; set; }
@@ -35,5 +31,5 @@ public class Combat
 
     public bool IsReady { get; set; }
 
-    public int BossId { get; set; }
+    public Boss Boss { get; set; } = new();
 }

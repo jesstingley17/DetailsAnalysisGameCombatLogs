@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using CombatAnalysis.CombatParser.Details;
-using CombatAnalysis.CombatParser.Entities;
 using CombatAnalysis.CombatParser.Interfaces;
 using CombatAnalysis.Core.Consts;
 using CombatAnalysis.Core.Enums;
@@ -17,7 +16,7 @@ using System.Collections.ObjectModel;
 
 namespace CombatAnalysis.Core.ViewModels;
 
-public class CombatLogInformationViewModel : ParentTemplate, CombatParser.Interfaces.IObserver<Combat>, IAuthObserver
+public class CombatLogInformationViewModel : ParentTemplate, IAuthObserver
 {
     private readonly IMvxNavigationService _mvvmNavigation;
     private readonly IMapper _mapper;
@@ -310,17 +309,6 @@ public class CombatLogInformationViewModel : ParentTemplate, CombatParser.Interf
         }
     }
 
-    public void Update(Combat data)
-    {
-        if (string.IsNullOrEmpty(data.Name))
-        {
-            return;
-        }
-
-        DungeonName = data.DungeonName;
-        CombatName = data.Name;
-    }
-
     #region Ovveride methods
 
     public override void Prepare()
@@ -481,13 +469,15 @@ public class CombatLogInformationViewModel : ParentTemplate, CombatParser.Interf
 
         await _parser.ParseAsync(combatLogPaths, _cancellationTokenSource.Token);
 
+        var combatsList = _mapper.Map<List<CombatModel>>(_parser.Combats);
+
+        await _combatParserAPIService.GetBossAsync(combatsList, _cancellationTokenSource.Token);
+
         ClearCache();
 
         AppStaticData.PreparedCombatsCount = _parser.Combats.Count;
 
         CreateCache(_parser.CombatDetails);
-
-        var combatsList = _mapper.Map<List<CombatModel>>(_parser.Combats);
 
         _parser.Clear();
 

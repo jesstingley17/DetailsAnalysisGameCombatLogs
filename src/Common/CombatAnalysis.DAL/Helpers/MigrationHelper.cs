@@ -7,7 +7,7 @@ namespace CombatAnalysis.DAL.Helpers;
 internal static class MigrationHelper
 {
     private static readonly Type[] _types =
-    {
+    [
             typeof(CombatLog),
             typeof(CombatPlayer),
             typeof(CombatAura),
@@ -25,18 +25,18 @@ internal static class MigrationHelper
             typeof(ResourceRecovery),
             typeof(ResourceRecoveryGeneral),
             typeof(PlayerDeath),
-    };
+    ];
 
     private static readonly Type[] _paginationTypes =
-    {
+    [
             typeof(DamageDone),
             typeof(HealDone),
             typeof(DamageTaken),
             typeof(ResourceRecovery),
-    };
+    ];
 
     private static readonly Type[] _typesByCombatPlayer =
-    {
+    [
             typeof(DamageDone),
             typeof(DamageDoneGeneral),
             typeof(HealDone),
@@ -49,7 +49,7 @@ internal static class MigrationHelper
             typeof(PlayerParseInfo),
             typeof(PlayerStats),
             typeof(PlayerDeath),
-    };
+    ];
 
     public static void CreateProcedures(MigrationBuilder migrationBuilder)
     {
@@ -143,6 +143,83 @@ internal static class MigrationHelper
         }
 
         migrationBuilder.Sql($"DROP PROCEDURE IF EXISTS Get{nameof(SpecializationScore)}BySpecId");
+    }
+
+    public static Boss[] GenerateBossCollection()
+    {
+        Boss[] collection =
+        {
+            // Подземелье Могу'шан
+            new() { GameId = 1395, Name = "Каменные стражи", Health = 130841100, Difficult = 3, Size = 10 },
+            new() { GameId = 1395, Name = "Каменные стражи", Health = 235513980, Difficult = 5, Size = 10 },
+            new() { GameId = 1390, Name = "Фэн Проклятый", Health = 152647950, Difficult = 3, Size = 10 },
+            new() { GameId = 1390, Name = "Фэн Проклятый", Health = 209345760, Difficult = 5, Size = 10 },
+            new() { GameId = 1434, Name = "Душелов Гара'джал", Health = 117756990, Difficult = 3, Size = 10 },
+            new() { GameId = 1434, Name = "Душелов Гара'джал", Health = 179252307, Difficult = 5, Size = 10 },
+            new() { GameId = 1436, Name = "Призрачные короли", Health = 174454800, Difficult = 3, Size = 10 },
+            new() { GameId = 1436, Name = "Призрачные короли", Health = 261682200, Difficult = 5, Size = 10 },
+            new() { GameId = 1500, Name = "Элегон", Health = 294392475, Difficult = 3, Size = 10 },
+            new() { GameId = 1500, Name = "Элегон", Health = 339750723, Difficult = 5, Size = 10 },
+            new() { GameId = 1407, Name = "Воля императора", Health = 314018640, Difficult = 3, Size = 10 },
+            new() { GameId = 1407, Name = "Воля императора", Health = 471027960, Difficult = 5, Size = 10 },
+
+            // Терраса Вечной Весны
+            new() { GameId = 1409, Name = "Вечные защитники", Health = 213968815, Difficult = 3, Size = 10 },
+            new() { GameId = 1409, Name = "Вечные защитники", Health = 344082093, Difficult = 5, Size = 10 },
+            new() { GameId = 1505, Name = "Цулон", Health = 174454800, Difficult = 3 , Size = 10 },
+            new() { GameId = 1505, Name = "Цулон", Health = 279127680, Difficult = 5 , Size = 10 },
+            new() { GameId = 1506, Name = "Лэй Ши", Health = 138168195, Difficult = 3 , Size = 10 },
+            new() { GameId = 1506, Name = "Лэй Ши", Health = 301457900, Difficult = 5 , Size = 10 },
+            new() { GameId = 1431, Name = "Ша Страха", Health = 184704020, Difficult = 3 , Size = 10 },
+            new() { GameId = 1431, Name = "Ша Страха", Health = 544037304, Difficult = 5 , Size = 10 },
+
+            // Сердце Страха
+            new() { GameId = 1507, Name = "Императорский визирь Зор'лок", Health = 174454800, Difficult = 3, Size = 10 },
+            new() { GameId = 1507, Name = "Императорский визирь Зор'лок", Health = 218068500, Difficult = 5, Size = 10 },
+            new() { GameId = 1504, Name = "Повелитель клинков Та'як", Health = 150467265, Difficult = 3, Size = 10 },
+            new() { GameId = 1504, Name = "Повелитель клинков Та'як", Health = 196261650, Difficult = 5, Size = 10 },
+            new() { GameId = 1463, Name = "Гаралон", Health = 218068500, Difficult = 3, Size = 10 },
+            new() { GameId = 1463, Name = "Гаралон", Health = 290759446, Difficult = 5, Size = 10 },
+            new() { GameId = 1498, Name = "Повелитель ветров Мел'джарак", Health = 270404940, Difficult = 3, Size = 10 },
+            new() { GameId = 1498, Name = "Повелитель ветров Мел'джарак", Health = 588784950, Difficult = 5, Size = 10 },
+            new() { GameId = 1499, Name = "Ваятель янтаря Ун'сок", Health = 218068500, Difficult = 3, Size = 10 },
+            new() { GameId = 1499, Name = "Ваятель янтаря Ун'сок", Health = 340186860, Difficult = 5, Size = 10 },
+            new() { GameId = 1501, Name = "Великая императрица Шек'зир", Health = 196261650, Difficult = 3, Size = 10 },
+            new() { GameId = 1501, Name = "Великая императрица Шек'зир", Health = 307476585, Difficult = 5, Size = 10 },
+
+            // Престол Гроз
+            new() { GameId = 1577, Name = "Джин'рок Разрушитель", Health = 207601212, Difficult = 3, Size = 10 },
+            new() { GameId = 1577, Name = "Джин'рок Разрушитель", Health = 317507736, Difficult = 5, Size = 10 },
+            new() { GameId = 1575, Name = "Хорридон", Health = 357632340, Difficult = 3, Size = 10 },
+            new() { GameId = 1575, Name = "Хорридон", Health = 654205500, Difficult = 5, Size = 10 },
+            new() { GameId = 1570, Name = "Совет старейшин", Health = 299538888, Difficult = 3, Size = 10 },
+            new() { GameId = 1570, Name = "Совет старейшин", Health = 470330152, Difficult = 5, Size = 10 },
+            new() { GameId = 1565, Name = "Тортос", Health = 179999841, Difficult = 3, Size = 10 },
+            new() { GameId = 1565, Name = "Тортос", Health = 319999818, Difficult = 5, Size = 10 },
+            new() { GameId = 1578, Name = "Мегера", Health = 263317712, Difficult = 3, Size = 10 },
+            new() { GameId = 1578, Name = "Мегера", Health = 342297774, Difficult = 5, Size = 10 },
+            new() { GameId = 1573, Name = "Цзи-Кунь", Health = 244236720, Difficult = 3, Size = 10 },
+            new() { GameId = 1573, Name = "Цзи-Кунь", Health = 366355080, Difficult = 5, Size = 10 },
+            new() { GameId = 1572, Name = "Дуруму Позабытый", Health = 261682200, Difficult = 3, Size = 10 },
+            new() { GameId = 1572, Name = "Дуруму Позабытый", Health = 392523300, Difficult = 5, Size = 10 },
+            new() { GameId = 1574, Name = "Изначалий", Health = 218068500, Difficult = 3, Size = 10 },
+            new() { GameId = 1574, Name = "Изначалий", Health = 258193104, Difficult = 5, Size = 10 },
+            new() { GameId = 1576, Name = "Темный Анимус", Health = 80999797, Difficult = 3, Size = 10 },
+            new() { GameId = 1576, Name = "Темный Анимус", Health = 288000023, Difficult = 5, Size = 10 },
+            new() { GameId = 1559, Name = "Кон Железный", Health = 119937675, Difficult = 3, Size = 10 },
+            new() { GameId = 1559, Name = "Кон Железный", Health = 155700909, Difficult = 5, Size = 10 },
+            new() { GameId = 1560, Name = "Небесные сестры", Health = 219812670, Difficult = 3, Size = 10 },
+            new() { GameId = 1560, Name = "Небесные сестры", Health = 628036200, Difficult = 5, Size = 10 },
+            new() { GameId = 1579, Name = "Лэй Шэнь", Health = 329283435, Difficult = 3, Size = 10 },
+            new() { GameId = 1579, Name = "Лэй Шэнь", Health = 580498347, Difficult = 5, Size = 10 }
+        };
+
+        for (int i = 0; i < collection.Length; i++)
+        {
+            collection[i].Id = i + 1;
+        }
+
+        return collection;
     }
 
     private static void CreateProceduresWithPaginations(MigrationBuilder migrationBuilder)

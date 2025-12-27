@@ -42,7 +42,7 @@ internal class CombatParserAPIService : ICombatParserAPIService
                 response.EnsureSuccessStatusCode();
 
                 currentCombatNumber++;
-                uplodedCallback(currentCombatNumber, item.DungeonName, item.Name);
+                uplodedCallback(currentCombatNumber, item.DungeonName, item.Boss.Name);
             }
 
             combatsAreUploaded = true;
@@ -353,6 +353,36 @@ internal class CombatParserAPIService : ICombatParserAPIService
 
             return new CombatLogModel();
         }
+    }
+
+    public async Task GetBossAsync(List<CombatModel> combats, CancellationToken cancellationToken)
+    {
+        try
+        {
+            foreach (var combat in combats)
+            { 
+                var boss = await LoadBossAsync(combat.Boss.GameId, combat.Boss.Difficult, combat.Boss.Size, cancellationToken);
+                combat.Boss = boss ?? new();
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "HTTP request error: {Message}", ex.Message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An unexpected error occurred: {Message}", ex.Message);
+        }
+    }
+
+    private async Task<BossModel?> LoadBossAsync(int gameBossId, int difficult, int groupSize, CancellationToken cancellationToken)
+    {
+        var response = await _httpClient.GetAsync($"Boss?gameBossId={gameBossId}&difficult={difficult}&groupSize={groupSize}", cancellationToken);
+        response.EnsureSuccessStatusCode();
+
+        var boss = await response.Content.ReadFromJsonAsync<BossModel>();
+
+        return boss;
     }
 
     private async Task SetReadyForCombatLogAsync(CombatLogModel combatLog, int numberCombats, CancellationToken cancellationToken)

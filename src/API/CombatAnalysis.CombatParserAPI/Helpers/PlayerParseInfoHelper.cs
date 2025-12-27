@@ -20,7 +20,7 @@ internal class PlayerParseInfoHelper(IOptions<Players> players, IMapper mapper, 
     {
         var playerParseInfo = new PlayerParseInfoModel
         {
-            Difficult = combat.Difficulty
+            Difficult = combat.Boss.Difficult
         };
 
         var specId = GetSpecializationId(damageDoneGeneralList, healDoneGeneralList);
@@ -39,15 +39,15 @@ internal class PlayerParseInfoHelper(IOptions<Players> players, IMapper mapper, 
 
         playerParseInfo.ClassId = classId;
 
-        var bosses = _players.Bosses;
-        foreach (var item in bosses)
-        {
-            if (item.Value == combat.Name)
-            {
-                playerParseInfo.BossId = int.Parse(item.Key);
-                break;
-            }
-        }
+        //var bosses = _players.Bosses;
+        //foreach (var item in bosses)
+        //{
+        //    if (item.Value == combat.Boss.Name)
+        //    {
+        //        playerParseInfo.BossId = int.Parse(item.Key);
+        //        break;
+        //    }
+        //}
 
         var mapData = _mapper.Map<CombatPlayerDto>(combatPlayer);
 
