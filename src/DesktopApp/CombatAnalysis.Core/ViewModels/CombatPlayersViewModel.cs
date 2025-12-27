@@ -11,8 +11,13 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
 {
     private readonly ICombatParserAPIService _combatParserAPIService;
 
+    private int _selectedTabIndex = 1;
+    private int _bestDamageDone;
+    private int _bestHealDone;
+    private int _bestDamageTaken;
+    private int _bestResourcesRecovery;
     private CombatModel? _combat;
-    private List<CombatPlayerModel>? _playersCombat;
+    private List<CombatPlayerModel>? _players;
     private List<CombatPlayerModel>? _mainPlayersCombat;
     private CombatPlayerModel? _selectedPlayer;
     private PlayerStatsModel? _selectedPlayerStats;
@@ -62,8 +67,6 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
         Basic.Parent = this;
         Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.Step), 2);
 
-        SwitchBetweenValuesCommand = new MvxCommand<int>(SwitchValues);
-        OpenStatsCommand = new MvxAsyncCommand(OpenStatsAsync);
         CloseStatsCommand = new MvxCommand(CloseStats);
 
         OpenEditMinDamageDoneCommand = new MvxCommand(() => OpenEditMinDamageDone = true);
@@ -92,10 +95,6 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
     }
 
     #region Commands
-
-    public IMvxCommand SwitchBetweenValuesCommand { get; set; }
-
-    public IMvxAsyncCommand OpenStatsCommand { get; set; }
 
     public IMvxCommand CloseStatsCommand { get; set; }
 
@@ -163,14 +162,57 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
 
     #region View model properties
 
-    public bool ShowEffeciency { get; set; }
-
-    public List<CombatPlayerModel>? PlayersCombat
+    public int SelectedTabIndex
     {
-        get => _playersCombat;
+        get { return _selectedTabIndex; }
         set
         {
-            SetProperty(ref _playersCombat, value);
+            SetProperty(ref _selectedTabIndex, value);
+        }
+    }
+
+    public int BestDamageDone
+    {
+        get { return _bestDamageDone; }
+        set
+        {
+            SetProperty(ref _bestDamageDone, value);
+        }
+    }
+
+    public int BestHealDone
+    {
+        get { return _bestHealDone; }
+        set
+        {
+            SetProperty(ref _bestHealDone, value);
+        }
+    }
+
+    public int BestDamageTaken
+    {
+        get { return _bestDamageTaken; }
+        set
+        {
+            SetProperty(ref _bestDamageTaken, value);
+        }
+    }
+
+    public int BestResourcesRecovery
+    {
+        get { return _bestResourcesRecovery; }
+        set
+        {
+            SetProperty(ref _bestResourcesRecovery, value);
+        }
+    }
+
+    public List<CombatPlayerModel>? Players
+    {
+        get => _players;
+        set
+        {
+            SetProperty(ref _players, value);
 
             if (value != null && value.Count > 0)
             {
@@ -191,8 +233,10 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
                 if (Basic is BasicTemplateViewModel basicTemplateViewModel)
                 {
                     basicTemplateViewModel.Data = value;
-                    basicTemplateViewModel.PetsId = (Combat?.PetsId) ?? new Dictionary<string, List<string>>();
+                    basicTemplateViewModel.PetsId = (Combat?.PetsId) ?? [];
                 }
+
+                AsyncDispatcher.ExecuteOnMainThreadAsync(OpenStatsAsync);
             }
         }
     }
@@ -567,9 +611,7 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
             return;
         }
 
-        SelectedPlayerStats = SelectedPlayer.Stats != null
-            ? SelectedPlayer.Stats
-            : await _combatParserAPIService.LoadCombatPlayerStatsAsync(SelectedPlayer.Id);
+        SelectedPlayerStats = SelectedPlayer.Stats ?? await _combatParserAPIService.LoadCombatPlayerStatsAsync(SelectedPlayer.Id);
 
         SelectMainStat();
 
@@ -593,7 +635,7 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
             return;
         }
 
-        PlayersCombat = _mainPlayersCombat != null ? [.. _mainPlayersCombat] : [];
+        Players = _mainPlayersCombat != null ? [.. _mainPlayersCombat] : [];
         if (MinHealDone > 0)
         {
             ApplyMinHealDone();
@@ -616,7 +658,7 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
             return;
         }
 
-        PlayersCombat = _mainPlayersCombat != null ? [.. _mainPlayersCombat] : [];
+        Players = _mainPlayersCombat != null ? [.. _mainPlayersCombat] : [];
         if (MinDamageDone > 0)
         {
             ApplyMinDamageDone();
@@ -639,7 +681,7 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
             return;
         }
 
-        PlayersCombat = _mainPlayersCombat != null ? [.. _mainPlayersCombat] : [];
+        Players = _mainPlayersCombat != null ? [.. _mainPlayersCombat] : [];
         if (MinDamageDone > 0)
         {
             ApplyMinDamageDone();
@@ -661,7 +703,7 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
             return;
         }
 
-        PlayersCombat = _mainPlayersCombat != null ? [.. _mainPlayersCombat] : [];
+        Players = _mainPlayersCombat != null ? [.. _mainPlayersCombat] : [];
         if (MinHPS > 0)
         {
             ApplyMinHPS();
@@ -685,7 +727,7 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
             return;
         }
 
-        PlayersCombat = _mainPlayersCombat != null ? [.. _mainPlayersCombat] : [];
+        Players = _mainPlayersCombat != null ? [.. _mainPlayersCombat] : [];
         if (MinDPS > 0)
         {
             ApplyMinDPS();
@@ -709,7 +751,7 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
             return;
         }
 
-        PlayersCombat = _mainPlayersCombat != null ? [.. _mainPlayersCombat] : [];
+        Players = _mainPlayersCombat != null ? [.. _mainPlayersCombat] : [];
         if (MinDPS > 0)
         {
             ApplyMinDPS();
@@ -723,24 +765,6 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
         OpenEditMinRPS = false;
     }
 
-    public void SwitchValues(int type)
-    {
-        switch (type)
-        {
-            case 0:
-                GetTotalValueFiltersName();
-                break;
-            case 1:
-                GetValuePerSecondFiltersName();
-                break;
-            default:
-                break;
-        }
-
-        CombatInformationType = type;
-        ClearFilter();
-    }
-
     public override void ViewAppeared()
     {
         GetTotalValueFiltersName();
@@ -750,33 +774,52 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
 
     public override void Prepare(CombatModel parameter)
     {
-        PlayersCombat = parameter.Players;
         Combat = parameter;
         _mainPlayersCombat = parameter.Players;
 
-        ShowEffeciency = PlayersCombat.Any(x => x.PlayerParseInfo != null);
+        Players = [.. parameter.Players
+            .Select(p => {
+                var damageDonePercentages = (double)p.DamageDone / (double)parameter.DamageDone;
+                p.DamageDonePercentages = double.Round(damageDonePercentages * 100, 2);
 
-        SelectedPlayer = PlayersCombat[0];
+                var healDonePercentages = (double)p.HealDone / (double)parameter.HealDone;
+                p.HealDonePercentages = double.Round(healDonePercentages * 100, 2);
 
-        var damageDone = PlayersCombat.Average(x => x.DamageDone);
-        var healDone = PlayersCombat.Average(x => x.HealDone);
-        var energyRecovery = PlayersCombat.Average(x => x.ResourcesRecovery);
+                var damageTakenPercentages = (double)p.DamageTaken / (double)parameter.DamageTaken;
+                p.DamageTakenPercentages = double.Round(damageTakenPercentages * 100, 2);
+
+                var resourcesRecoveryPercentages = (double)p.ResourcesRecovery / (double)parameter.ResourcesRecovery;
+                p.ResourcesRecoveryPercentages = double.Round(resourcesRecoveryPercentages * 100, 2);
+
+                return p;
+            })];
+
+        BestDamageDone = Players.Max(p => p.DamageDone);
+        BestHealDone = Players.Max(p => p.HealDone);
+        BestDamageTaken = Players.Max(p => p.DamageTaken);
+        BestResourcesRecovery = Players.Max(p => p.ResourcesRecovery);
+
+        SelectedPlayer = Players[0];
+
+        var damageDone = Players.Average(x => x.DamageDone);
+        var healDone = Players.Average(x => x.HealDone);
+        var energyRecovery = Players.Average(x => x.ResourcesRecovery);
 
         AverageDamage = double.Round(damageDone, 2);
         AverageHeal = double.Round(healDone, 2);
         AverageResources = double.Round(energyRecovery, 2);
 
-        AverageDamagePerSecond = PlayersCombat.Average(x => x.DamageDonePerSecond);
-        AverageHealPerSecond = PlayersCombat.Average(x => x.HealDonePerSecond);
-        AverageResourcesPerSecond = PlayersCombat.Average(x => x.ResourcesRecoveryPerSecond);
+        AverageDamagePerSecond = Players.Average(x => x.DamageDonePerSecond);
+        AverageHealPerSecond = Players.Average(x => x.HealDonePerSecond);
+        AverageResourcesPerSecond = Players.Average(x => x.ResourcesRecoveryPerSecond);
 
-        TotalDamage = PlayersCombat.Sum(x => x.DamageDone);
-        TotalHeal = PlayersCombat.Sum(x => x.HealDone);
-        TotalResoures = PlayersCombat.Sum(x => x.ResourcesRecovery);
+        TotalDamage = Players.Sum(x => x.DamageDone);
+        TotalHeal = Players.Sum(x => x.HealDone);
+        TotalResoures = Players.Sum(x => x.ResourcesRecovery);
 
-        TotalDamagePerSecond = PlayersCombat.Sum(x => x.DamageDonePerSecond);
-        TotalHealPerSecond = PlayersCombat.Sum(x => x.HealDonePerSecond);
-        TotalResourcesPerSecond = PlayersCombat.Sum(x => x.ResourcesRecoveryPerSecond);
+        TotalDamagePerSecond = Players.Sum(x => x.DamageDonePerSecond);
+        TotalHealPerSecond = Players.Sum(x => x.HealDonePerSecond);
+        TotalResourcesPerSecond = Players.Sum(x => x.ResourcesRecoveryPerSecond);
     }
 
     private void GetTotalValueFiltersName()
@@ -786,15 +829,6 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
         var minResurces = TranslationSource.Instance["CombatAnalysis.App.Localizations.Resources.CombatPlayers.Resource.MinResources"];
 
         FilterList = ["No any", minDamage, minHeal, minResurces];
-    }
-
-    private void GetValuePerSecondFiltersName()
-    {
-        var minDPS = TranslationSource.Instance["CombatAnalysis.App.Localizations.Resources.CombatPlayers.Resource.MinDPS"];
-        var minHPS = TranslationSource.Instance["CombatAnalysis.App.Localizations.Resources.CombatPlayers.Resource.MinHPS"];
-        var minRPS = TranslationSource.Instance["CombatAnalysis.App.Localizations.Resources.CombatPlayers.Resource.MinRPS"];
-
-        FilterList = ["No any", minDPS, minHPS, minRPS];
     }
 
     private void UseFilter(int index)
@@ -846,7 +880,7 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
         MinHealDone = 0;
         MinEnergyRecovery = 0;
 
-        PlayersCombat = _mainPlayersCombat != null ? [.. _mainPlayersCombat] : [];
+        Players = _mainPlayersCombat != null ? [.. _mainPlayersCombat] : [];
     }
 
     private void FilterInformationByMinDamageDone(int minDamageDone)
@@ -865,18 +899,18 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
             }
         }
 
-        PlayersCombat = [.. temporaryPlayersCombat];
+        Players = [.. temporaryPlayersCombat];
     }
 
     private void FilterInformationByMinHealDone(int minHealDone)
     {
-        if (PlayersCombat == null)
+        if (Players == null)
         {
             return;
         }
 
         var temporaryPlayersCombat = new List<CombatPlayerModel>();
-        foreach (var player in PlayersCombat)
+        foreach (var player in Players)
         {
             if (player.HealDone >= minHealDone)
             {
@@ -884,18 +918,18 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
             }
         }
 
-        PlayersCombat = [.. temporaryPlayersCombat];
+        Players = [.. temporaryPlayersCombat];
     }
 
     private void FilterInformationByMinEnergyRecovery(int minEnergyRecovery)
     {
-        if (PlayersCombat == null)
+        if (Players == null)
         {
             return;
         }
 
         var temporaryPlayersCombat = new List<CombatPlayerModel>();
-        foreach (var player in PlayersCombat)
+        foreach (var player in Players)
         {
             if (player.ResourcesRecovery >= minEnergyRecovery)
             {
@@ -903,18 +937,18 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
             }
         }
 
-        PlayersCombat = [.. temporaryPlayersCombat];
+        Players = [.. temporaryPlayersCombat];
     }
 
     private void FilterInformationByMinDPS(int minDPS)
     {
-        if (PlayersCombat == null)
+        if (Players == null)
         {
             return;
         }
 
         var temporaryPlayersCombat = new List<CombatPlayerModel>();
-        foreach (var player in PlayersCombat)
+        foreach (var player in Players)
         {
             if (player.DamageDonePerSecond >= minDPS)
             {
@@ -922,18 +956,18 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
             }
         }
 
-        PlayersCombat = [.. temporaryPlayersCombat];
+        Players = [.. temporaryPlayersCombat];
     }
 
     private void FilterInformationByMinHPS(int minHPS)
     {
-        if (PlayersCombat == null)
+        if (Players == null)
         {
             return;
         }
 
         var temporaryPlayersCombat = new List<CombatPlayerModel>();
-        foreach (var player in PlayersCombat)
+        foreach (var player in Players)
         {
             if (player.HealDonePerSecond >= minHPS)
             {
@@ -941,18 +975,18 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
             }
         }
 
-        PlayersCombat = [.. temporaryPlayersCombat];
+        Players = [.. temporaryPlayersCombat];
     }
 
     private void FilterInformationByMinRPS(int minRPS)
     {
-        if (PlayersCombat == null)
+        if (Players == null)
         {
             return;
         }
 
         var temporaryPlayersCombat = new List<CombatPlayerModel>();
-        foreach (var player in PlayersCombat)
+        foreach (var player in Players)
         {
             if (player.ResourcesRecoveryPerSecond >= minRPS)
             {
@@ -960,7 +994,7 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
             }
         }
 
-        PlayersCombat = [.. temporaryPlayersCombat];
+        Players = [.. temporaryPlayersCombat];
     }
 
     private void SelectMainStat()

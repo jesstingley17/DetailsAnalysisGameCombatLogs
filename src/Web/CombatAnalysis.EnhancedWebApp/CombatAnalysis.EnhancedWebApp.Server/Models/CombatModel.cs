@@ -8,7 +8,7 @@ public class CombatModel
 
     public string Name { get; set; }
 
-    public int EnergyRecovery { get; set; }
+    public int ResourcesRecovery { get; set; }
 
     public long DamageDone { get; set; }
 

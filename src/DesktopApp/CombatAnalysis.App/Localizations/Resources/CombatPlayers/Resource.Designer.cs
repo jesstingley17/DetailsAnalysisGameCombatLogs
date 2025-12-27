@@ -19,7 +19,7 @@ namespace CombatAnalysis.App.Localizations.Resources.CombatPlayers {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "18.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class Resource {
@@ -151,20 +151,29 @@ namespace CombatAnalysis.App.Localizations.Resources.CombatPlayers {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Damage per sec..
-        /// </summary>
-        public static string DamagePerSecond {
-            get {
-                return ResourceManager.GetString("DamagePerSecond", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Damage taken.
         /// </summary>
         public static string DamageTaken {
             get {
                 return ResourceManager.GetString("DamageTaken", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to DPS.
+        /// </summary>
+        public static string DPS {
+            get {
+                return ResourceManager.GetString("DPS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to DTPS.
+        /// </summary>
+        public static string DTPS {
+            get {
+                return ResourceManager.GetString("DTPS", resourceCulture);
             }
         }
         
@@ -196,11 +205,11 @@ namespace CombatAnalysis.App.Localizations.Resources.CombatPlayers {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Healing per sec..
+        ///   Looks up a localized string similar to HPS.
         /// </summary>
-        public static string HealingPerSecond {
+        public static string HPS {
             get {
-                return ResourceManager.GetString("HealingPerSecond", resourceCulture);
+                return ResourceManager.GetString("HPS", resourceCulture);
             }
         }
         
@@ -286,11 +295,11 @@ namespace CombatAnalysis.App.Localizations.Resources.CombatPlayers {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Resources per sec..
+        ///   Looks up a localized string similar to RPS.
         /// </summary>
-        public static string ResourcesPerSecond {
+        public static string RPS {
             get {
-                return ResourceManager.GetString("ResourcesPerSecond", resourceCulture);
+                return ResourceManager.GetString("RPS", resourceCulture);
             }
         }
         

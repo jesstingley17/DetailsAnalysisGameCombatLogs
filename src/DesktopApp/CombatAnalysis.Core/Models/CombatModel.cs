@@ -4,17 +4,21 @@ public class CombatModel
 {
     public int Id { get; set; }
 
-    public int LocallyNumber { get; set; }
+    public int Number { get; set; }
 
-    public string DungeonName { get; set; }
+    public int UniqueCombatCount { get; set; }
 
-    public string Name { get; set; }
+    public int[] Items { get; set; } = [];
+
+    public string DungeonName { get; set; } = string.Empty;
+
+    public string Name { get; set; } = string.Empty;
 
     public int Difficulty { get; set; }
 
-    public List<string> Data { get; set; }
+    public List<string> Data { get; set; } = [];
 
-    public int EnergyRecovery { get; set; }
+    public int ResourcesRecovery { get; set; }
 
     public long DamageDone { get; set; }
 
@@ -28,9 +32,9 @@ public class CombatModel
 
     public DateTimeOffset FinishDate { get; set; }
 
-    public List<CombatPlayerModel> Players { get; set; }
+    public List<CombatPlayerModel> Players { get; set; } = [];
 
-    public Dictionary<string, List<string>> PetsId { get; set; }
+    public Dictionary<string, List<string>> PetsId { get; set; } = [];
 
     public string Duration
     {
@@ -39,7 +43,7 @@ public class CombatModel
 
     public bool IsReady { get; set; }
 
-    public int CombatLogId { get; set; }
+    public int BossId { get; set; }
 
-    public bool IsSelected { get; set; }
+    public int CombatLogId { get; set; }
 }

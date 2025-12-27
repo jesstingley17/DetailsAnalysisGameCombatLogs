@@ -287,6 +287,7 @@ public class GroupChatMessageServiceTests
         const int pageSize = 2;
 
         var groupChatsDto = GroupChatMessageTestData.CreateDtoCollection();
+        var groupChatsDomainDto = GroupChatMessageTestData.CreateDomainDtoCollection();
         var groupChats = GroupChatMessageTestData.CreateCollection();
 
         var mockMapper = new Mock<IMapper>();
@@ -296,7 +297,7 @@ public class GroupChatMessageServiceTests
 
         mockMapper.Setup(m => m.Map<IEnumerable<GroupChatMessageDto>>(It.IsAny<IEnumerable<GroupChatMessage>>())).Returns(groupChatsDto);
 
-        mockRepository.Setup(m => m.GetByChatIdAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(groupChats);
+        mockRepository.Setup(m => m.GetByChatIdAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(groupChatsDomainDto);
 
         var service = new GroupChatMessageService(mockRepository.Object, mockChatRepository.Object, mockChatUserRepository.Object, mockMapper.Object);
 

@@ -19,10 +19,11 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
     private readonly CombatParserAPIService _combatParserAPIService;
     private readonly int _maxCombatInformationStepIndex = 4;
 
-    private ObservableCollection<CombatModel>? _combats;
+    private ObservableCollection<CombatModel>? _uniqueCombats;
     private ObservableCollection<CombatModel>? _fullCombats;
     private CombatModel? _selectedCombat;
     private int _selectedCombatIndex = -1;
+    private int _selectedUniqueCombatNumber = -1;
     private string? _dungeonName;
     private string? _dungeonNames;
     private string? _name;
@@ -48,7 +49,6 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
     private double _indexOfDeath;
     private int _combatInformationStep;
     private bool _showAverageInformation;
-    private bool _onlyWin;
 
     private int _sortedByName = -1;
     private int _sortedByDamageDone = -1;
@@ -103,12 +103,12 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
 
     #region View model properties
 
-    public ObservableCollection<CombatModel>? Combats
+    public ObservableCollection<CombatModel>? UniqueCombats
     {
-        get { return _combats; }
+        get { return _uniqueCombats; }
         set
         {
-            SetProperty(ref _combats, value);
+            SetProperty(ref _uniqueCombats, value);
         }
     }
 
@@ -117,6 +117,11 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
         get { return _selectedCombat; }
         set
         {
+            if (value != null)
+            {
+                value.Number = SelectedCombatIndex;
+            }
+
             SetProperty(ref _selectedCombat, value);
         }
     }
@@ -127,6 +132,20 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
         set
         {
             SetProperty(ref _selectedCombatIndex, value);
+        }
+    }
+
+    public int SelectedUniqueCombatNumber
+    {
+        get { return _selectedUniqueCombatNumber; }
+        set
+        {
+            SetProperty(ref _selectedUniqueCombatNumber, value);
+            if (value > 0 && SelectedCombat != null && _fullCombats != null)
+            {
+                SelectedCombat = _fullCombats.Where(c => c.BossId == SelectedCombat.BossId).ToArray()[value - 1];
+                Task.Run(async () => await ShowDetailsCommand.ExecuteAsync());
+            }
         }
     }
 
@@ -172,17 +191,6 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
         set
         {
             SetProperty(ref _maxCombats, value);
-        }
-    }
-
-    public bool OnlyWin
-    {
-        get { return _onlyWin; }
-        set
-        {
-            SetProperty(ref _onlyWin, value);
-
-            Filter();
         }
     }
 
@@ -434,8 +442,21 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
         }
 
         _fullCombats = new ObservableCollection<CombatModel>(parameter.Item1);
-        Combats = new ObservableCollection<CombatModel>(_fullCombats);
-        MaxCombats = Combats.Count;
+
+        var uniqueCombats = _fullCombats
+            .GroupBy(c => c.BossId)
+            .Select(c =>
+            {
+                var combat = c.Last();
+                combat.UniqueCombatCount = c.Count();
+                combat.Items = [.. Enumerable.Range(1, combat.UniqueCombatCount - 1)];
+                return combat;
+            })
+            .GroupBy(c => c.FinishDate)
+            .Select(c => c.Last())
+            .ToList();
+        UniqueCombats = new ObservableCollection<CombatModel>(uniqueCombats);
+        MaxCombats = UniqueCombats.Count;
 
         GetUniqueDungeonNames(parameter.Item1);
 
@@ -474,7 +495,7 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
         var responseStatusObservable = Basic as IResponseStatusObservable;
         responseStatusObservable?.RemoveObserver(this);
 
-        Combats?.Clear();
+        UniqueCombats?.Clear();
         MaxCombats = 0;
 
         base.ViewDestroy(viewFinishing);
@@ -501,7 +522,7 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
         Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.ResponseStatus), LoadingStatus.Pending);
         Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.UploadedCombatsCount), 0);
 
-        var combatsForUploadAgain = Combats?.Where(combat => !combat.IsReady).ToList();
+        var combatsForUploadAgain = UniqueCombats?.Where(combat => !combat.IsReady).ToList();
         var combotLogToRepeat = ((BasicTemplateViewModel)Basic).CombatLog;
         if (combatsForUploadAgain == null || combotLogToRepeat == null || combotLogToRepeat.Id == 0)
         {
@@ -545,23 +566,23 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
             item.Players = [.. players];
         }
 
-        Combats = new ObservableCollection<CombatModel>(loadedCombats);
+        UniqueCombats = new ObservableCollection<CombatModel>(loadedCombats);
     }
 
     public void CombatsSort(int sortNumber)
     {
-        if (Combats == null)
+        if (UniqueCombats == null)
         {
             return;
         }
 
-        var sortedCollection = Combats.ToList();
+        var sortedCollection = UniqueCombats.ToList();
         switch (sortNumber)
         {
             case 0:
                 sortedCollection = SortedByName == 0
-                    ? [.. Combats.OrderByDescending(x => x.Name)]
-                    : Combats.OrderBy(x => x.Name).ToList();
+                    ? [.. UniqueCombats.OrderByDescending(x => x.Name)]
+                    : UniqueCombats.OrderBy(x => x.Name).ToList();
                 SortedByName = SortedByName == 0 ? 1 : 0;
 
                 SortedByDamageDone = -1;
@@ -572,8 +593,8 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
                 break;
             case 1:
                 sortedCollection = SortedByDamageDone == 0
-                    ? [.. Combats.OrderByDescending(x => x.DamageDone)]
-                    : Combats.OrderBy(x => x.DamageDone).ToList();
+                    ? [.. UniqueCombats.OrderByDescending(x => x.DamageDone)]
+                    : UniqueCombats.OrderBy(x => x.DamageDone).ToList();
                 SortedByDamageDone = SortedByDamageDone == 0 ? 1 : 0;
 
                 SortedByName = -1;
@@ -584,8 +605,8 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
                 break;
             case 2:
                 sortedCollection = SortedByHealDone == 0
-                    ? [.. Combats.OrderByDescending(x => x.HealDone)]
-                    : Combats.OrderBy(x => x.HealDone).ToList();
+                    ? [.. UniqueCombats.OrderByDescending(x => x.HealDone)]
+                    : UniqueCombats.OrderBy(x => x.HealDone).ToList();
                 SortedByHealDone = SortedByHealDone == 0 ? 1 : 0;
 
                 SortedByName = -1;
@@ -596,8 +617,8 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
                 break;
             case 3:
                 sortedCollection = SortedByDamageTaken == 0
-                    ? [.. Combats.OrderByDescending(x => x.DamageTaken)]
-                    : Combats.OrderBy(x => x.DamageTaken).ToList();
+                    ? [.. UniqueCombats.OrderByDescending(x => x.DamageTaken)]
+                    : UniqueCombats.OrderBy(x => x.DamageTaken).ToList();
                 SortedByDamageTaken = SortedByDamageTaken == 0 ? 1 : 0;
 
                 SortedByName = SortedByName == -1 ? 0 : 1;
@@ -608,8 +629,8 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
                 break;
             case 4:
                 sortedCollection = SortedByResources == 0
-                    ? [.. Combats.OrderByDescending(x => x.EnergyRecovery)]
-                    : Combats.OrderBy(x => x.EnergyRecovery).ToList();
+                    ? [.. UniqueCombats.OrderByDescending(x => x.ResourcesRecovery)]
+                    : UniqueCombats.OrderBy(x => x.ResourcesRecovery).ToList();
                 SortedByResources = SortedByResources == 0 ? 1 : 0;
 
                 SortedByName = -1;
@@ -620,7 +641,7 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
                 break;
         }
 
-        Combats = new ObservableCollection<CombatModel>(sortedCollection);
+        UniqueCombats = new ObservableCollection<CombatModel>(sortedCollection);
     }
 
     public void UploadingCancel()
@@ -775,16 +796,5 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
             player.ResourcesRecoveryPerSecond = player.ResourcesRecovery / duration.TotalSeconds;
             player.DamageTakenPerSecond = player.DamageTaken / duration.TotalSeconds;
         }
-    }
-
-    private void Filter()
-    {
-        if (_fullCombats == null)
-        {
-            return;
-        }
-
-        var filterOnlyWinCombats = _fullCombats.Where(c => c.IsWin);
-        Combats = new ObservableCollection<CombatModel>(OnlyWin ? filterOnlyWinCombats : _fullCombats);
     }
 }

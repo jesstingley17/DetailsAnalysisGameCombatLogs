@@ -2,6 +2,7 @@
 using Chat.Domain.Entities;
 using Chat.Domain.Enums;
 using Chat.Domain.ValueObjects;
+using System.Net.NetworkInformation;
 
 namespace Chat.Application.Tests.Factory;
 
@@ -95,6 +96,31 @@ internal static class GroupChatMessageTestData
                 Type = MessageType.Default,
                 MarkedType = MessageMarkedType.None
             };
+        }
+
+        return collection;
+    }
+
+    public static Domain.DTOs.GroupChatMessageDto[] CreateDomainDtoCollection(
+        int size = 3
+    )
+    {
+        var collection = new Domain.DTOs.GroupChatMessageDto[size];
+        for (var i = 0; i < size; i++)
+        {
+            collection[i] = new Domain.DTOs.GroupChatMessageDto(
+                Id: 1 + i,
+                Username: $"check-{i}",
+                Message: $"test message {i}",
+                Time: DateTimeOffset.Now,
+                Status: MessageStatus.Sent,
+                Type: MessageType.Default,
+                MarkedType: MessageMarkedType.None,
+                IsEdited: false,
+                GroupChatId: 1 + i,
+                GroupChatUserId: $"uid-1-{i}",
+                AppUserId: $"uid-2-{i}"
+                );
         }
 
         return collection;

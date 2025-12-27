@@ -2,7 +2,7 @@
   "Damage": "Урон",
   "Healing": "Исцеление",
   "DamageTaken": "Получено урона",
-  "EnergyRecovery": "Восстановлено ресурсов",
+  "ResourcesRecovery": "Восстановлено ресурсов",
   "Deaths": "Смертей",
   "Buffs": "Усилений",
   "CombatStatus": "Статус боя",

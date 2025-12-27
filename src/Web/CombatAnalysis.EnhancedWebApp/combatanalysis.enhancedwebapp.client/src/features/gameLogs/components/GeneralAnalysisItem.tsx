@@ -132,9 +132,9 @@ const GeneralAnalysisItem: React.FC<GeneralAnalysisItemProps> = ({ uniqueCombats
                     <FontAwesomeIcon
                         icon={faBolt}
                         className="list-group-item__player-statistic-item"
-                        title={t("EnergyRecovery") || ""}
+                        title={t("ResourcesRecovery") || ""}
                     />
-                    <div>{getValueShortName(uniqueCombats[selectedCombatIndex].energyRecovery)}</div>
+                    <div>{getValueShortName(uniqueCombats[selectedCombatIndex].resourcesRecovery)}</div>
                 </li>
                 <li className="list-group-item">
                     <FontAwesomeIcon

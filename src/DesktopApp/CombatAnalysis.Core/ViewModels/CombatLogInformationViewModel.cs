@@ -485,7 +485,7 @@ public class CombatLogInformationViewModel : ParentTemplate, CombatParser.Interf
 
         AppStaticData.PreparedCombatsCount = _parser.Combats.Count;
 
-        SaveDataInCache(_parser.CombatDetails);
+        CreateCache(_parser.CombatDetails);
 
         var combatsList = _mapper.Map<List<CombatModel>>(_parser.Combats);
 
@@ -518,33 +518,33 @@ public class CombatLogInformationViewModel : ParentTemplate, CombatParser.Interf
     {
         for (var i = 0; i < AppStaticData.PreparedCombatsCount; i++)
         {
-            _cacheService.RemoveDataFromCache($"{AppCacheKeys.CombatDetails_DamageDone}_{i}");
-            _cacheService.RemoveDataFromCache($"{AppCacheKeys.CombatDetails_DamageDoneGeneral}_{i}");
-            _cacheService.RemoveDataFromCache($"{AppCacheKeys.CombatDetails_HealDone}_{i}");
-            _cacheService.RemoveDataFromCache($"{AppCacheKeys.CombatDetails_HealDoneGeneral}_{i}");
-            _cacheService.RemoveDataFromCache($"{AppCacheKeys.CombatDetails_DamageTaken}_{i}");
-            _cacheService.RemoveDataFromCache($"{AppCacheKeys.CombatDetails_DamageTakenGeneral}_{i}");
-            _cacheService.RemoveDataFromCache($"{AppCacheKeys.CombatDetails_ResourcesRecovery}_{i}");
-            _cacheService.RemoveDataFromCache($"{AppCacheKeys.CombatDetails_ResourcesRecoveryGeneral}_{i}");
+            _cacheService.Remove($"{AppCacheKeys.CombatDetails_DamageDone}_{i}");
+            _cacheService.Remove($"{AppCacheKeys.CombatDetails_DamageDoneGeneral}_{i}");
+            _cacheService.Remove($"{AppCacheKeys.CombatDetails_HealDone}_{i}");
+            _cacheService.Remove($"{AppCacheKeys.CombatDetails_HealDoneGeneral}_{i}");
+            _cacheService.Remove($"{AppCacheKeys.CombatDetails_DamageTaken}_{i}");
+            _cacheService.Remove($"{AppCacheKeys.CombatDetails_DamageTakenGeneral}_{i}");
+            _cacheService.Remove($"{AppCacheKeys.CombatDetails_ResourcesRecovery}_{i}");
+            _cacheService.Remove($"{AppCacheKeys.CombatDetails_ResourcesRecoveryGeneral}_{i}");
         }
     }
 
-    private void SaveDataInCache(List<CombatDetails> combatDetails)
+    private void CreateCache(List<CombatDetails> combatDetails)
     {
         for (var i = 0; i < combatDetails.Count; i++)
         {
-            var currentCombatDetails = combatDetails[i];
+            var combat = combatDetails[i];
 
-            _cacheService.SaveDataToCache($"{AppCacheKeys.CombatDetails_Positions}_{i}", currentCombatDetails.Positions);
+            _cacheService.Add($"{AppCacheKeys.CombatDetails_Positions}_{i}", combat.Positions);
 
-            _cacheService.SaveDataToCache($"{AppCacheKeys.CombatDetails_DamageDone}_{i}", currentCombatDetails.DamageDone);
-            _cacheService.SaveDataToCache($"{AppCacheKeys.CombatDetails_DamageDoneGeneral}_{i}", currentCombatDetails.DamageDoneGeneral);
-            _cacheService.SaveDataToCache($"{AppCacheKeys.CombatDetails_HealDone}_{i}", currentCombatDetails.HealDone);
-            _cacheService.SaveDataToCache($"{AppCacheKeys.CombatDetails_HealDoneGeneral}_{i}", currentCombatDetails.HealDoneGeneral);
-            _cacheService.SaveDataToCache($"{AppCacheKeys.CombatDetails_DamageTaken}_{i}", currentCombatDetails.DamageTaken);
-            _cacheService.SaveDataToCache($"{AppCacheKeys.CombatDetails_DamageTakenGeneral}_{i}", currentCombatDetails.DamageTakenGeneral);
-            _cacheService.SaveDataToCache($"{AppCacheKeys.CombatDetails_ResourcesRecovery}_{i}", currentCombatDetails.ResourcesRecovery);
-            _cacheService.SaveDataToCache($"{AppCacheKeys.CombatDetails_ResourcesRecoveryGeneral}_{i}", currentCombatDetails.ResourcesRecoveryGeneral);
+            _cacheService.Add($"{AppCacheKeys.CombatDetails_DamageDone}_{i}", combat.DamageDone);
+            _cacheService.Add($"{AppCacheKeys.CombatDetails_DamageDoneGeneral}_{i}", combat.DamageDoneGeneral);
+            _cacheService.Add($"{AppCacheKeys.CombatDetails_HealDone}_{i}", combat.HealDone);
+            _cacheService.Add($"{AppCacheKeys.CombatDetails_HealDoneGeneral}_{i}", combat.HealDoneGeneral);
+            _cacheService.Add($"{AppCacheKeys.CombatDetails_DamageTaken}_{i}", combat.DamageTaken);
+            _cacheService.Add($"{AppCacheKeys.CombatDetails_DamageTakenGeneral}_{i}", combat.DamageTakenGeneral);
+            _cacheService.Add($"{AppCacheKeys.CombatDetails_ResourcesRecovery}_{i}", combat.ResourcesRecovery);
+            _cacheService.Add($"{AppCacheKeys.CombatDetails_ResourcesRecoveryGeneral}_{i}", combat.ResourcesRecoveryGeneral);
         }
     }
 

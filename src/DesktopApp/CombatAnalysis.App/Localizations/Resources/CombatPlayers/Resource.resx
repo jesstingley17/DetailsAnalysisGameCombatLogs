@@ -147,9 +147,6 @@
   <data name="Damage" xml:space="preserve">
     <value>Damage</value>
   </data>
-  <data name="DamagePerSecond" xml:space="preserve">
-    <value>Damage per sec.</value>
-  </data>
   <data name="DamageTaken" xml:space="preserve">
     <value>Damage taken</value>
   </data>
@@ -162,8 +159,8 @@
   <data name="Healing" xml:space="preserve">
     <value>Healing</value>
   </data>
-  <data name="HealingPerSecond" xml:space="preserve">
-    <value>Healing per sec.</value>
+  <data name="HPS" xml:space="preserve">
+    <value>HPS</value>
   </data>
   <data name="Lose" xml:space="preserve">
     <value>Lose</value>
@@ -192,8 +189,8 @@
   <data name="Resources" xml:space="preserve">
     <value>Resources</value>
   </data>
-  <data name="ResourcesPerSecond" xml:space="preserve">
-    <value>Resources per sec.</value>
+  <data name="RPS" xml:space="preserve">
+    <value>RPS</value>
   </data>
   <data name="SelectedPlayer" xml:space="preserve">
     <value>Selected player: </value>
@@ -230,5 +227,11 @@
   </data>
   <data name="Win" xml:space="preserve">
     <value>Win</value>
+  </data>
+  <data name="DPS" xml:space="preserve">
+    <value>DPS</value>
+  </data>
+  <data name="DTPS" xml:space="preserve">
+    <value>DTPS</value>
   </data>
 </root>

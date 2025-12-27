@@ -2,9 +2,9 @@
 
 public interface ICacheService
 {
-    void SaveDataToCache<TModel>(string key, TModel data, int expirationInMinutes = 30) where TModel : class;
+    void Add<TModel>(string key, TModel data, int expirationInMinutes = 30) where TModel : class;
 
-    TModel GetDataFromCache<TModel>(string key) where TModel : class;
+    TModel Get<TModel>(string key) where TModel : class;
 
-    void RemoveDataFromCache(string key);
+    void Remove(string key);
 }

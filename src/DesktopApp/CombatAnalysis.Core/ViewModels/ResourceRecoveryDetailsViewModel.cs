@@ -19,11 +19,11 @@ public class ResourceRecoveryDetailsViewModel : DetailsGenericTemplate<ResourceR
 
     protected override void GetDetailsFromCache(CombatPlayerModel? parameter)
     {
-        var resourcesRecoveryCollection = _cacheService?.GetDataFromCache<Dictionary<string, List<ResourceRecovery>>>($"{AppCacheKeys.CombatDetails_ResourcesRecovery}_{SelectedCombat?.LocallyNumber}");
+        var resourcesRecoveryCollection = _cacheService?.Get<Dictionary<string, List<ResourceRecovery>>>($"{AppCacheKeys.CombatDetails_ResourcesRecovery}_{SelectedCombat?.Number}");
         var resourcesRecoveryCollectionMap = _mapper.Map<List<ResourceRecoveryModel>>(resourcesRecoveryCollection?[parameter != null ? parameter.PlayerId : string.Empty]);
         _allDetailsInformations = [.. resourcesRecoveryCollectionMap];
 
-        var resourcesRecoveryGeneralCollection = _cacheService?.GetDataFromCache<Dictionary<string, List<ResourceRecoveryGeneral>>>($"{AppCacheKeys.CombatDetails_ResourcesRecoveryGeneral}_{SelectedCombat?.LocallyNumber}");
+        var resourcesRecoveryGeneralCollection = _cacheService?.Get<Dictionary<string, List<ResourceRecoveryGeneral>>>($"{AppCacheKeys.CombatDetails_ResourcesRecoveryGeneral}_{SelectedCombat?.Number}");
         var resourcesRecoveryGeneralCollectionMap = _mapper.Map<List<ResourceRecoveryGeneralModel>>(resourcesRecoveryGeneralCollection?[parameter != null ? parameter.PlayerId : string.Empty]);
         _allGeneralInformations = [.. resourcesRecoveryGeneralCollectionMap];
     }

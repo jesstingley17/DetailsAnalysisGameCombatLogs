@@ -40,11 +40,11 @@ public class DamageDoneDetailsViewModel : DetailsGenericTemplate<DamageDoneModel
 
     protected override void GetDetailsFromCache(CombatPlayerModel? parameter)
     {
-        var damageDoneCollection = _cacheService?.GetDataFromCache<Dictionary<string, List<DamageDone>>>($"{AppCacheKeys.CombatDetails_DamageDone}_{SelectedCombat?.LocallyNumber}");
+        var damageDoneCollection = _cacheService?.Get<Dictionary<string, List<DamageDone>>>($"{AppCacheKeys.CombatDetails_DamageDone}_{SelectedCombat?.Number}");
         var damageDoneCollectionMap = _mapper.Map<List<DamageDoneModel>>(damageDoneCollection?[parameter != null ? parameter.PlayerId : string.Empty]);
         _allDetailsInformations = [.. damageDoneCollectionMap];
 
-        var damageDoneGeneralCollection = _cacheService?.GetDataFromCache<Dictionary<string, List<DamageDoneGeneral>>>($"{AppCacheKeys.CombatDetails_DamageDoneGeneral}_{SelectedCombat?.LocallyNumber}");
+        var damageDoneGeneralCollection = _cacheService?.Get<Dictionary<string, List<DamageDoneGeneral>>>($"{AppCacheKeys.CombatDetails_DamageDoneGeneral}_{SelectedCombat?.Number}");
         var damageDoneGeneralCollectionMap = _mapper.Map<List<DamageDoneGeneralModel>>(damageDoneGeneralCollection?[parameter != null ? parameter.PlayerId : string.Empty]);
         _allGeneralInformations = [.. damageDoneGeneralCollectionMap];
     }

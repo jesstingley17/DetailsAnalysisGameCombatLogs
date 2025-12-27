@@ -23,7 +23,7 @@ public class CombatModel
     public List<string> Data { get; set; }
 
     [Range(0, int.MaxValue)]
-    public int EnergyRecovery { get; set; }
+    public int ResourcesRecovery { get; set; }
 
     [Range(0, int.MaxValue)]
     public long DamageDone { get; set; }

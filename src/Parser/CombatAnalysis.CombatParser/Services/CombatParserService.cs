@@ -17,8 +17,6 @@ internal class CombatParserService(IFileManager fileManager, ILogger logger) : I
 
     private readonly TimeSpan _minCombatDuration = TimeSpan.Parse("00:00:20");
 
-    private int _combatNumber = 0;
-
     public List<Combat> Combats { get; set; } = [];
 
     public List<CombatDetails> CombatDetails { get; set; } = [];
@@ -59,7 +57,6 @@ internal class CombatParserService(IFileManager fileManager, ILogger logger) : I
     {
         Combats.Clear();
         _zones.Clear();
-        _combatNumber = 0;
     }
 
     private void ProcessCombatLogLines(string[] lines, Dictionary<string, List<string>> petsId, ref bool bossCombatStarted, StringBuilder newCombatFromLogs)
@@ -194,6 +191,7 @@ internal class CombatParserService(IFileManager fileManager, ILogger logger) : I
 
         var combat = new Combat
         {
+            BossId = GetBossId(builtCombat[0]),
             Name = GetCombatName(builtCombat[0]),
             Difficulty = GetDifficulty(builtCombat[0]),
             Data = builtCombat,
@@ -217,18 +215,27 @@ internal class CombatParserService(IFileManager fileManager, ILogger logger) : I
         AddNewCombat(combat);
     }
 
-    private static string GetCombatName(string combatStart)
+    private static int GetBossId(string encounterStart)
     {
-        var data = combatStart.Split("  ")[1];
+        var data = encounterStart.Split("  ")[1];
+        var id = data.Split(',')[1];
+        var convertToInt = Convert.ToInt32(id);
+
+        return convertToInt;
+    }
+
+    private static string GetCombatName(string encounterStart)
+    {
+        var data = encounterStart.Split("  ")[1];
         var name = data.Split(',')[2];
         var clearName = name.Trim('"');
 
         return clearName;
     }
 
-    private static int GetDifficulty(string combatStart)
+    private static int GetDifficulty(string encounterStart)
     {
-        var data = combatStart.Split("  ")[1];
+        var data = encounterStart.Split("  ")[1];
         var difficulty = data.Split(',')[3];
 
         if (int.TryParse(difficulty, out var diff))
@@ -272,7 +279,7 @@ internal class CombatParserService(IFileManager fileManager, ILogger logger) : I
         combat.DamageDone = players.Sum(player => player.DamageDone);
         combat.HealDone = players.Sum(player => player.HealDone);
         combat.DamageTaken = players.Sum(player => player.DamageTaken);
-        combat.EnergyRecovery = players.Sum(player => player.ResourcesRecovery);
+        combat.ResourcesRecovery = players.Sum(player => player.ResourcesRecovery);
     }
 
     private void AddNewCombat(Combat combat)
@@ -285,10 +292,7 @@ internal class CombatParserService(IFileManager fileManager, ILogger logger) : I
             }
         }
 
-        combat.LocallyNumber = _combatNumber;
         Combats.Add(combat);
-
-        _combatNumber++;
     }
 
     private List<CombatPlayer> GetCombatPlayers(Combat combat)

@@ -7,7 +7,7 @@ internal class CacheService(IMemoryCache cache) : ICacheService
 {
     private readonly IMemoryCache _cache = cache;
 
-    public void SaveDataToCache<TModel>(string key, TModel data, int expirationInMinutes = 30)
+    public void Add<TModel>(string key, TModel data, int expirationInMinutes = 30)
         where TModel : class
     {
         _cache.Set(key, data, new MemoryCacheEntryOptions
@@ -16,14 +16,14 @@ internal class CacheService(IMemoryCache cache) : ICacheService
         });
     }
 
-    public TModel? GetDataFromCache<TModel>(string key)
+    public TModel? Get<TModel>(string key)
         where TModel : class
     {
         _cache.TryGetValue(key, out TModel? data);
         return data;
     }
 
-    public void RemoveDataFromCache(string key)
+    public void Remove(string key)
     {
         _cache.Remove(key);
     }

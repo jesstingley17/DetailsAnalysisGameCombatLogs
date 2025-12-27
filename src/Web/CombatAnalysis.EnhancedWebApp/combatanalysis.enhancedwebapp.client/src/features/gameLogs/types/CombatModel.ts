@@ -2,7 +2,7 @@ export type CombatModel = {
     id: number;
     dungeonName: string;
     name: string;
-    energyRecovery: number;
+    resourcesRecovery: number;
     damageDone: number;
     healDone: number;
     damageTaken: number;

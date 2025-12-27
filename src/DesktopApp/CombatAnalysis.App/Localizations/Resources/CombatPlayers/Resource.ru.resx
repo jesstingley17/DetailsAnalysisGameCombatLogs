@@ -147,9 +147,6 @@
   <data name="Damage" xml:space="preserve">
     <value>Урон</value>
   </data>
-  <data name="DamagePerSecond" xml:space="preserve">
-    <value>Урон в сек.</value>
-  </data>
   <data name="DamageTaken" xml:space="preserve">
     <value>Пол. урона</value>
   </data>
@@ -162,8 +159,8 @@
   <data name="Healing" xml:space="preserve">
     <value>Исцеление</value>
   </data>
-  <data name="HealingPerSecond" xml:space="preserve">
-    <value>Исцеление в сек.</value>
+  <data name="HPS" xml:space="preserve">
+    <value>ИВС</value>
   </data>
   <data name="Lose" xml:space="preserve">
     <value>Поражение</value>
@@ -192,8 +189,8 @@
   <data name="Resources" xml:space="preserve">
     <value>Ресурсы</value>
   </data>
-  <data name="ResourcesPerSecond" xml:space="preserve">
-    <value>Ресурсы в сек.</value>
+  <data name="RPS" xml:space="preserve">
+    <value>РВС</value>
   </data>
   <data name="SelectedPlayer" xml:space="preserve">
     <value>Выбранный игрок: </value>
@@ -230,5 +227,11 @@
   </data>
   <data name="Win" xml:space="preserve">
     <value>Победа</value>
+  </data>
+  <data name="DPS" xml:space="preserve">
+    <value>УВС</value>
+  </data>
+  <data name="DTPS" xml:space="preserve">
+    <value>ПУВС</value>
   </data>
 </root>

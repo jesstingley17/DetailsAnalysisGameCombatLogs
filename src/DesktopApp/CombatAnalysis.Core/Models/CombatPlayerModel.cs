@@ -4,9 +4,9 @@ public class CombatPlayerModel
 {
     public int Id { get; set; }
 
-    public string Username { get; set; }
+    public string Username { get; set; } = string.Empty;
 
-    public string PlayerId { get; set; }
+    public string PlayerId { get; set; } = string.Empty;
 
     public double AverageItemLevel { get; set; }
 
@@ -26,9 +26,17 @@ public class CombatPlayerModel
 
     public double ResourcesRecoveryPerSecond { get; set; }
 
-    public PlayerStatsModel Stats { get; set; }
+    public PlayerStatsModel Stats { get; set; } = new();
 
-    public PlayerParseInfoModel PlayerParseInfo { get; set; }
+    public PlayerParseInfoModel PlayerParseInfo { get; set; } = new();
+
+    public double DamageDonePercentages { get; set; }
+
+    public double HealDonePercentages { get; set; }
+
+    public double DamageTakenPercentages { get; set; }
+
+    public double ResourcesRecoveryPercentages { get; set; }
 
     public int CombatId { get; set; }
 }

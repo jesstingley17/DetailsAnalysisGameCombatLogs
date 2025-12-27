@@ -2,17 +2,15 @@
 
 public class Combat
 {
-    public int LocallyNumber { get; set; }
+    public string DungeonName { get; set; } = string.Empty;
 
-    public string DungeonName { get; set; }
-
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
 
     public int Difficulty { get; set; }
 
-    public List<string> Data { get; set; }
+    public List<string> Data { get; set; } = [];
 
-    public int EnergyRecovery { get; set; }
+    public int ResourcesRecovery { get; set; }
 
     public int DamageDone { get; set; }
 
@@ -26,9 +24,9 @@ public class Combat
 
     public DateTimeOffset FinishDate { get; set; }
 
-    public List<CombatPlayer> Players { get; set; }
+    public List<CombatPlayer> Players { get; set; } = [];
 
-    public Dictionary<string, List<string>> PetsId { get; set; }
+    public Dictionary<string, List<string>> PetsId { get; set; } = [];
 
     public string Duration
     {
@@ -36,4 +34,6 @@ public class Combat
     }
 
     public bool IsReady { get; set; }
+
+    public int BossId { get; set; }
 }
