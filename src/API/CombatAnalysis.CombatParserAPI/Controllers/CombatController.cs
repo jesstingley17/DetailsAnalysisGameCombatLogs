@@ -12,7 +12,6 @@ namespace CombatAnalysis.CombatParserAPI.Controllers;
 [Route("api/v1/[controller]")]
 [ApiController]
 public class CombatController(IBossService bossService, IQueryService<CombatDto> queryCombatService, IMutationService<CombatDto> mutationCombatService,
-    IQueryService<CombatLogDto> queryCombatLogService, IMutationService<CombatLogDto> mutationCombatLogService,
     IMutationService<CombatPlayerDto> mutationCombatPlayerService, IMutationService<PlayerStatsDto> mutationPlayerStatsService, IMapper mapper,
     ILogger<CombatController> logger, ICombatDataHelper saveCombatDataHelper,
     ICombatTransactionService combatTransactionService) : ControllerBase
@@ -20,8 +19,6 @@ public class CombatController(IBossService bossService, IQueryService<CombatDto>
     private readonly IBossService _bossService = bossService;
     private readonly IQueryService<CombatDto> _queryCombatService = queryCombatService;
     private readonly IMutationService<CombatDto> _mutationCombatService = mutationCombatService;
-    private readonly IQueryService<CombatLogDto> _queryCombatLogService = queryCombatLogService;
-    private readonly IMutationService<CombatLogDto> _mutationCombatLogService = mutationCombatLogService;
     private readonly IMutationService<CombatPlayerDto> _mutationCombatPlayerService = mutationCombatPlayerService;
     private readonly IMutationService<PlayerStatsDto> _mutationPlayerStatsService = mutationPlayerStatsService;
     private readonly IMapper _mapper = mapper;
@@ -81,8 +78,6 @@ public class CombatController(IBossService bossService, IQueryService<CombatDto>
             await CreateCombatPlayersAsync(combat);
 
             await UpdateCombatAsync(createdCombat);
-
-            await UpdateCombatLog(createdCombat.CombatLogId);
 
             await _combatTransactionService.CommitTransactionAsync();
 
@@ -190,15 +185,6 @@ public class CombatController(IBossService bossService, IQueryService<CombatDto>
     {
         combat.IsReady = true;
         await _mutationCombatService.UpdateAsync(combat);
-    }
-
-    private async Task UpdateCombatLog(int combatLogId)
-    {
-        var combatLog = await _queryCombatLogService.GetByIdAsync(combatLogId);
-        combatLog.CombatsInQueue--;
-        combatLog.NumberReadyCombats++;
-
-        await _mutationCombatLogService.UpdateAsync(combatLog);
     }
 
     private async Task CreatePlayerStatsAsync(CombatPlayerModel player)

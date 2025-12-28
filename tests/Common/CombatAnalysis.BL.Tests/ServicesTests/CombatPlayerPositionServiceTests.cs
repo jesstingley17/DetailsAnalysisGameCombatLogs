@@ -18,7 +18,7 @@ public class CombatPlayerPositionServiceTests
         var entity = CombatPlayerPositionTestDataFactory.Create();
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<CombatPlayerPosition>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<CombatPlayerPosition>>();
 
         mockMapper.Setup(m => m.Map<CombatPlayerPosition>(entityDto)).Returns(entity);
         mockMapper.Setup(m => m.Map<CombatPlayerPositionDto>(entity)).Returns(entityDto);
@@ -53,7 +53,7 @@ public class CombatPlayerPositionServiceTests
         var entity = CombatPlayerPositionTestDataFactory.Create();
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<CombatPlayerPosition>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<CombatPlayerPosition>>();
 
         mockMapper.Setup(m => m.Map<CombatPlayerPosition>(entityDto)).Returns(entity);
 
@@ -76,7 +76,7 @@ public class CombatPlayerPositionServiceTests
         const int id = 1;
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<CombatPlayerPosition>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<CombatPlayerPosition>>();
 
         mockRepository.Setup(r => r.DeleteAsync(id)).ReturnsAsync(true);
 
@@ -99,7 +99,7 @@ public class CombatPlayerPositionServiceTests
         const int id = 2;
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<CombatPlayerPosition>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<CombatPlayerPosition>>();
 
         mockRepository.Setup(r => r.DeleteAsync(id)).ReturnsAsync(false);
 
@@ -122,7 +122,7 @@ public class CombatPlayerPositionServiceTests
         const int id = 0;
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<CombatPlayerPosition>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<CombatPlayerPosition>>();
 
         var service = new CombatPlayerPositionService(mockRepository.Object, mockMapper.Object);
 

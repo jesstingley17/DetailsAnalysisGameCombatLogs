@@ -7,6 +7,7 @@ using CombatAnalysis.DAL.Interfaces.Generic;
 using CombatAnalysis.DAL.Repositories;
 using CombatAnalysis.DAL.Repositories.Filters;
 using CombatAnalysis.DAL.Repositories.StoredProcedures;
+using CombatAnalysis.DAL.Repositories.StoredProcedures.Batch;
 using CombatAnalysis.DAL.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,6 +26,13 @@ public static class DataCollectionExtensions
         });
 
         services.AddScoped<IContextService, ContextService>();
+
+        services.AddScoped<IGenericRepositoryBatch<CombatAura>, SPCombatAuraRepositoryBatch>();
+        services.AddScoped<IGenericRepositoryBatch<CombatPlayerPosition>, SPCombatPlayerPositionRepositoryBatch>();
+        services.AddScoped<IGenericRepositoryBatch<DamageDone>, SPDamageDoneRepositoryBatch>();
+        services.AddScoped<IGenericRepositoryBatch<HealDone>, SPHealDoneRepositoryBatch>();
+        services.AddScoped<IGenericRepositoryBatch<DamageTaken>, SPDamageTakenRepositoryBatch>();
+        services.AddScoped<IGenericRepositoryBatch<ResourceRecovery>, SPResourceRecoveryRepositoryBatch>();
 
         services.AddScoped<IBossRepository, BossRepository>();
         services.AddScoped<IPlayerInfoRepository<Combat>, SPPlayerInfoRepository<Combat>>();

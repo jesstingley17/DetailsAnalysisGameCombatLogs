@@ -18,7 +18,7 @@ public class CombatAuraServiceTests
         var entity = CombatAuraTestDataFactory.Create();
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<CombatAura>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<CombatAura>>();
 
         mockMapper.Setup(m => m.Map<CombatAura>(entityDto)).Returns(entity);
         mockMapper.Setup(m => m.Map<CombatAuraDto>(entity)).Returns(entityDto);
@@ -56,7 +56,7 @@ public class CombatAuraServiceTests
         var entityDto = CombatAuraTestDataFactory.CreateDto(name: "");
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<CombatAura>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<CombatAura>>();
 
         var service = new CombatAuraService(mockRepository.Object, mockMapper.Object);
 
@@ -75,7 +75,7 @@ public class CombatAuraServiceTests
         var entity = CombatAuraTestDataFactory.Create();
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<CombatAura>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<CombatAura>>();
 
         mockMapper.Setup(m => m.Map<CombatAura>(entityDto)).Returns(entity);
 
@@ -98,7 +98,7 @@ public class CombatAuraServiceTests
         var entityDto = CombatAuraTestDataFactory.CreateDto(name: "");
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<CombatAura>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<CombatAura>>();
 
         var service = new CombatAuraService(mockRepository.Object, mockMapper.Object);
 
@@ -116,7 +116,7 @@ public class CombatAuraServiceTests
         const int id = 1;
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<CombatAura>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<CombatAura>>();
 
         mockRepository.Setup(r => r.DeleteAsync(id)).ReturnsAsync(true);
 
@@ -139,7 +139,7 @@ public class CombatAuraServiceTests
         const int id = 2;
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<CombatAura>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<CombatAura>>();
 
         mockRepository.Setup(r => r.DeleteAsync(id)).ReturnsAsync(false);
 
@@ -162,7 +162,7 @@ public class CombatAuraServiceTests
         const int id = 0;
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<CombatAura>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<CombatAura>>();
 
         var service = new CombatAuraService(mockRepository.Object, mockMapper.Object);
 

@@ -535,29 +535,25 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
 
     public async Task SaveCombatsAsync()
     {
-        var token = ((BasicTemplateViewModel)Basic).RequestCancelationToken();
+        try
+        {
+            var token = ((BasicTemplateViewModel)Basic).RequestCancelationToken();
 
-        CurrentCombatNumber = 0;
+            CurrentCombatNumber = 0;
 
-        Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.ResponseStatus), LoadingStatus.Pending);
+            Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.ResponseStatus), LoadingStatus.Pending);
 
-        var combatsForUploadAgain = UniqueCombats?.Where(combat => !combat.IsReady).ToList();
-        var combotLogToRepeat = ((BasicTemplateViewModel)Basic).CombatLog;
-        if (combatsForUploadAgain == null || combotLogToRepeat == null || combotLogToRepeat.Id == 0)
+            var combats = _allCombats?.ToList();
+            var combatLog = ((BasicTemplateViewModel)Basic).CombatLog;
+
+            await _combatParserAPIService.SaveAsync(combats, combatLog, CombatUploaded, token);
+
+            Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.ResponseStatus), LoadingStatus.Successful);
+        }
+        catch (Exception)
         {
             Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.ResponseStatus), LoadingStatus.Failed);
-            return;
         }
-
-        var combatsUploaded = await _combatParserAPIService.SaveAsync(combatsForUploadAgain, combotLogToRepeat, CombatUploaded, token);
-        if (!combatsUploaded)
-        {
-            Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.ResponseStatus), LoadingStatus.Failed);
-
-            return;
-        }
-
-        Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.ResponseStatus), LoadingStatus.Successful);
     }
 
     public void Update(LoadingStatus status)

@@ -18,7 +18,7 @@ public class HealDoneServiceTests
         var entity = HealDoneTestDataFactory.Create();
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<HealDone>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<HealDone>>();
 
         mockMapper.Setup(m => m.Map<HealDone>(entityDto)).Returns(entity);
         mockMapper.Setup(m => m.Map<HealDoneDto>(entity)).Returns(entityDto);
@@ -56,7 +56,7 @@ public class HealDoneServiceTests
         var entityDto = HealDoneTestDataFactory.CreateDto(spell: "");
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<HealDone>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<HealDone>>();
 
         var service = new HealDoneService(mockRepository.Object, mockMapper.Object);
 
@@ -75,7 +75,7 @@ public class HealDoneServiceTests
         var entity = HealDoneTestDataFactory.Create();
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<HealDone>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<HealDone>>();
 
         mockMapper.Setup(m => m.Map<HealDone>(entityDto)).Returns(entity);
 
@@ -98,7 +98,7 @@ public class HealDoneServiceTests
         var entityDto = HealDoneTestDataFactory.CreateDto(spell: "");
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<HealDone>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<HealDone>>();
 
         var service = new HealDoneService(mockRepository.Object, mockMapper.Object);
 
@@ -116,7 +116,7 @@ public class HealDoneServiceTests
         const int id = 1;
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<HealDone>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<HealDone>>();
 
         mockRepository.Setup(r => r.DeleteAsync(id)).ReturnsAsync(true);
 
@@ -139,7 +139,7 @@ public class HealDoneServiceTests
         const int id = 2;
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<HealDone>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<HealDone>>();
 
         mockRepository.Setup(r => r.DeleteAsync(id)).ReturnsAsync(false);
 
@@ -162,7 +162,7 @@ public class HealDoneServiceTests
         const int id = 0;
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<HealDone>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<HealDone>>();
 
         var service = new HealDoneService(mockRepository.Object, mockMapper.Object);
 

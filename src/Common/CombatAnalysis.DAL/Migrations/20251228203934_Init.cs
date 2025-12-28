@@ -38,8 +38,6 @@ namespace CombatAnalysis.DAL.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     DungeonName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Difficulty = table.Column<int>(type: "int", nullable: false),
                     DamageDone = table.Column<int>(type: "int", nullable: false),
                     HealDone = table.Column<int>(type: "int", nullable: false),
                     DamageTaken = table.Column<int>(type: "int", nullable: false),
@@ -48,7 +46,7 @@ namespace CombatAnalysis.DAL.Migrations
                     StartDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     FinishDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     IsReady = table.Column<bool>(type: "bit", nullable: false),
-                    BoosId = table.Column<int>(type: "int", nullable: false),
+                    BossId = table.Column<int>(type: "int", nullable: false),
                     CombatLogId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -450,6 +448,7 @@ namespace CombatAnalysis.DAL.Migrations
                     { 56, 5, 1579, 580498347L, "Лэй Шэнь", 10 }
                 });
 
+            MigrationHelper.CreateTableTypes(migrationBuilder);
             MigrationHelper.CreateProcedures(migrationBuilder);
         }
 
@@ -510,6 +509,7 @@ namespace CombatAnalysis.DAL.Migrations
             migrationBuilder.DropTable(
                 name: "SpecializationScore");
 
+            MigrationHelper.DropTableTypes(migrationBuilder);
             MigrationHelper.DropProcedures(migrationBuilder);
         }
     }

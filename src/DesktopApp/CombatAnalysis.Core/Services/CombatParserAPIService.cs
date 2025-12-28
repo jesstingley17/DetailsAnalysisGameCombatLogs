@@ -25,15 +25,13 @@ internal class CombatParserAPIService : ICombatParserAPIService
         _httpClient.BaseAddress = API.CombatParserApi;
     }
 
-    public async Task<bool> SaveAsync(List<CombatModel> combats, CombatLogModel combatLog, Action<string, string> uplodedCallback, CancellationToken cancellationToken)
+    public async Task SaveAsync(List<CombatModel> combats, CombatLogModel combatLog, Action<string, string> uplodedCallback, CancellationToken cancellationToken)
     {
+        var readyCombatsNumber = 0;
+
         try
         {
-            var combatsAreUploaded = false;
-
-            await SetReadyForCombatLogAsync(combatLog, combats.Count, cancellationToken);
-
-            foreach (var item in combats)
+            var combatTasks = combats.Select(async item =>
             {
                 item.CombatLogId = combatLog.Id;
 
@@ -41,29 +39,37 @@ internal class CombatParserAPIService : ICombatParserAPIService
                 response.EnsureSuccessStatusCode();
 
                 uplodedCallback(item.DungeonName, item.Boss.Name);
-            }
 
-            combatsAreUploaded = true;
+                readyCombatsNumber++;
+            });
 
-            return combatsAreUploaded;
+            await Task.WhenAll(combatTasks);
+
+            await UpdateCombatLogAsync(combatLog, readyCombatsNumber, 0, cancellationToken);
         }
         catch (HttpRequestException ex)
         {
             _logger.LogError(ex, "HTTP request error: {Message}", ex.Message);
 
-            return false;
+            await UpdateCombatLogAsync(combatLog, readyCombatsNumber, combats.Count - readyCombatsNumber, cancellationToken);
+
+            throw;
         }
         catch (OperationCanceledException ex)
         {
             _logger.LogWarning(ex, "Request was canceled by client: {Message}", ex.Message);
 
-            return false;
+            await UpdateCombatLogAsync(combatLog, readyCombatsNumber, combats.Count - readyCombatsNumber, cancellationToken);
+
+            throw;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "An unexpected error occurred: {Message}", ex.Message);
 
-            return false;
+            await UpdateCombatLogAsync(combatLog, readyCombatsNumber, combats.Count - readyCombatsNumber, cancellationToken);
+
+            throw;
         }
     }
 
@@ -292,10 +298,7 @@ internal class CombatParserAPIService : ICombatParserAPIService
         try
         {
             var user = _memoryCache.Get<AppUserModel>(nameof(MemoryCacheValue.User));
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            ArgumentNullException.ThrowIfNull(user, nameof(user));
 
             var dungeonNames = combats
                  .GroupBy(group => group.DungeonName)
@@ -311,16 +314,16 @@ internal class CombatParserAPIService : ICombatParserAPIService
                 Date = DateTimeOffset.UtcNow,
                 LogType = (int)logType,
                 AppUserId = user.Id,
+                IsReady = true,
+                NumberReadyCombats = 0,
+                CombatsInQueue = combats.Count
             };
 
             var response = await _httpClient.PostAsync("CombatLog", JsonContent.Create(combatLog), cancellationToken);
             response.EnsureSuccessStatusCode();
 
             var createdCombatLog = await response.Content.ReadFromJsonAsync<CombatLogModel>(cancellationToken: cancellationToken);
-            if (createdCombatLog == null)
-            {
-                throw new ArgumentNullException(nameof(createdCombatLog));
-            }
+            ArgumentNullException.ThrowIfNull(createdCombatLog, nameof(createdCombatLog));
 
             return createdCombatLog;
         }
@@ -382,13 +385,12 @@ internal class CombatParserAPIService : ICombatParserAPIService
         return boss;
     }
 
-    private async Task SetReadyForCombatLogAsync(CombatLogModel combatLog, int numberCombats, CancellationToken cancellationToken)
+    private async Task UpdateCombatLogAsync(CombatLogModel combatLog, int numberReadyCombats, int combatsInQueue, CancellationToken cancellationToken)
     {
         try
         {
-            combatLog.IsReady = true;
-            combatLog.NumberReadyCombats = 0;
-            combatLog.CombatsInQueue = numberCombats;
+            combatLog.NumberReadyCombats = numberReadyCombats;
+            combatLog.CombatsInQueue = combatsInQueue;
 
             var response = await _httpClient.PutAsync($"CombatLog/{combatLog.Id}", JsonContent.Create(combatLog), cancellationToken);
             response.EnsureSuccessStatusCode();

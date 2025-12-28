@@ -1,16 +1,24 @@
 ﻿using AutoMapper;
 using CombatAnalysis.BL.DTO;
-using CombatAnalysis.BL.Interfaces.General;
+using CombatAnalysis.BL.Interfaces;
 using CombatAnalysis.BL.Services.General;
 using CombatAnalysis.DAL.Entities;
 using CombatAnalysis.DAL.Interfaces.Generic;
 
 namespace CombatAnalysis.BL.Services;
 
-internal class CombatAuraService(IGenericRepository<CombatAura> repository, IMapper mapper) : QueryService<CombatAuraDto, CombatAura>(repository, mapper), IMutationService<CombatAuraDto>
+internal class CombatAuraService(IGenericRepositoryBatch<CombatAura> repository, IMapper mapper) : QueryService<CombatAuraDto, CombatAura>(repository, mapper), IMutationServiceBatch<CombatAuraDto>
 {
-    private readonly IGenericRepository<CombatAura> _repository = repository;
+    private readonly IGenericRepositoryBatch<CombatAura> _repository = repository;
     private readonly IMapper _mapper = mapper;
+
+    public async Task CreateBatchAsync(List<CombatAuraDto> items)
+    {
+        ArgumentNullException.ThrowIfNull(items, nameof(items));
+
+        var map = _mapper.Map<IEnumerable<CombatAura>>(items);
+        await _repository.CreateBatchAsync(map);
+    }
 
     public async Task<CombatAuraDto> CreateAsync(CombatAuraDto item)
     {

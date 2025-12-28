@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CombatAnalysis.DAL.Migrations
 {
     [DbContext(typeof(CombatParserContext))]
-    [Migration("20251227191850_Init")]
+    [Migration("20251228203934_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -568,7 +568,7 @@ namespace CombatAnalysis.DAL.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("BoosId")
+                    b.Property<int>("BossId")
                         .HasColumnType("int");
 
                     b.Property<int>("CombatLogId")
@@ -578,9 +578,6 @@ namespace CombatAnalysis.DAL.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("DamageTaken")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Difficulty")
                         .HasColumnType("int");
 
                     b.Property<string>("DungeonName")
@@ -601,10 +598,6 @@ namespace CombatAnalysis.DAL.Migrations
 
                     b.Property<bool>("IsWin")
                         .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTimeOffset>("StartDate")
                         .HasColumnType("datetimeoffset");

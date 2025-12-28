@@ -52,22 +52,23 @@ public static class ServiceCollectionExtensions
 
     private static void SetMutationServices(IServiceCollection services)
     {
+        services.AddScoped<IMutationServiceBatch<CombatAuraDto>, CombatAuraService>();
+        services.AddScoped<IMutationServiceBatch<CombatPlayerPositionDto>, CombatPlayerPositionService>();
+        services.AddScoped<IMutationServiceBatch<DamageDoneDto>, DamageDoneService>();
+        services.AddScoped<IMutationServiceBatch<HealDoneDto>, HealDoneService>();
+        services.AddScoped<IMutationServiceBatch<DamageTakenDto>, DamageTakenService>();
+        services.AddScoped<IMutationServiceBatch<ResourceRecoveryDto>, ResourceRecoveryService>();
+
         services.AddScoped<IMutationService<CombatLogDto>, CombatLogService>();
         services.AddScoped<IMutationService<CombatDto>, CombatService>();
         services.AddScoped<IMutationService<CombatPlayerDto>, CombatPlayerService>();
-        services.AddScoped<IMutationService<CombatPlayerPositionDto>, CombatPlayerPositionService>();
-        services.AddScoped<IMutationService<CombatAuraDto>, CombatAuraService>();
         services.AddScoped<IMutationService<PlayerDeathDto>, PlayerDeathService>();
         services.AddScoped<IMutationService<PlayerParseInfoDto>, PlayerParseInfoService>();
         services.AddScoped<IMutationService<PlayerStatsDto>, PlayerStatsService>();
 
-        services.AddScoped<IMutationService<DamageDoneDto>, DamageDoneService>();
         services.AddScoped<IMutationService<DamageDoneGeneralDto>, DamageDoneGeneralService>();
-        services.AddScoped<IMutationService<HealDoneDto>, HealDoneService>();
         services.AddScoped<IMutationService<HealDoneGeneralDto>, HealDoneGeneralService>();
-        services.AddScoped<IMutationService<DamageTakenDto>, DamageTakenService>();
         services.AddScoped<IMutationService<DamageTakenGeneralDto>, DamageTakenGeneralService>();
-        services.AddScoped<IMutationService<ResourceRecoveryDto>, ResourceRecoveryService>();
         services.AddScoped<IMutationService<ResourceRecoveryGeneralDto>, ResourceRecoveryGeneralService>();
 
         services.AddScoped<IMutationService<SpecializationScoreDto>, SpecializationScoreService>();
