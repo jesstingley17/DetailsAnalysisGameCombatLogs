@@ -25,11 +25,10 @@ internal class CombatParserAPIService : ICombatParserAPIService
         _httpClient.BaseAddress = API.CombatParserApi;
     }
 
-    public async Task<bool> SaveAsync(List<CombatModel> combats, CombatLogModel combatLog, Action<int, string, string> uplodedCallback, CancellationToken cancellationToken)
+    public async Task<bool> SaveAsync(List<CombatModel> combats, CombatLogModel combatLog, Action<string, string> uplodedCallback, CancellationToken cancellationToken)
     {
         try
         {
-            var currentCombatNumber = 0;
             var combatsAreUploaded = false;
 
             await SetReadyForCombatLogAsync(combatLog, combats.Count, cancellationToken);
@@ -41,8 +40,7 @@ internal class CombatParserAPIService : ICombatParserAPIService
                 var response = await _httpClient.PostAsync("Combat", JsonContent.Create(item), cancellationToken);
                 response.EnsureSuccessStatusCode();
 
-                currentCombatNumber++;
-                uplodedCallback(currentCombatNumber, item.DungeonName, item.Boss.Name);
+                uplodedCallback(item.DungeonName, item.Boss.Name);
             }
 
             combatsAreUploaded = true;
@@ -170,10 +168,7 @@ internal class CombatParserAPIService : ICombatParserAPIService
             response.EnsureSuccessStatusCode();
 
             var combats = await response.Content.ReadFromJsonAsync<IEnumerable<CombatModel>>();
-            if (combats == null)
-            {
-                throw new ArgumentNullException(nameof(combats));
-            }
+            ArgumentNullException.ThrowIfNull(combats, nameof(combats));
 
             return combats;
         }
@@ -181,19 +176,19 @@ internal class CombatParserAPIService : ICombatParserAPIService
         {
             _logger.LogError(ex, ex.Message);
 
-            return new List<CombatModel>();
+            return [];
         }
         catch (HttpRequestException ex)
         {
             _logger.LogError(ex, "HTTP request error: {Message}", ex.Message);
 
-            return new List<CombatModel>();
+            return [];
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "An unexpected error occurred: {Message}", ex.Message);
 
-            return new List<CombatModel>();
+            return [];
         }
     }
 
@@ -364,6 +359,8 @@ internal class CombatParserAPIService : ICombatParserAPIService
                 var boss = await LoadBossAsync(combat.Boss.GameId, combat.Boss.Difficult, combat.Boss.Size, cancellationToken);
                 combat.Boss = boss ?? new();
             }
+
+            GetBossHealthPercentage(combats);
         }
         catch (HttpRequestException ex)
         {
@@ -458,5 +455,22 @@ internal class CombatParserAPIService : ICombatParserAPIService
         combatLogDungeonName.Remove(combatLogDungeonName.Length - 1, 1);
 
         return combatLogDungeonName.ToString();
+    }
+
+    private static void GetBossHealthPercentage(List<CombatModel> combats)
+    {
+        foreach (var item in combats)
+        {
+            if (item.IsWin)
+            {
+                continue;
+            }
+
+            var damageToBoss = item.Players.Sum(x => x.DamageDoneToBoss);
+            var leftHealth = item.Boss.Health - damageToBoss;
+            var precentage = (double)leftHealth / (double)item.Boss.Health;
+
+            item.BossHealthPercentage = Math.Round(precentage * 100, 2);
+        }
     }
 }

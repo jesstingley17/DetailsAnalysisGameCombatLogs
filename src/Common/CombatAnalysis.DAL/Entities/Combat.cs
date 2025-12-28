@@ -8,10 +8,6 @@ public class Combat : IEntity
 
     public string DungeonName { get; set; } = string.Empty;
 
-    public string Name { get; set; } = string.Empty;
-
-    public int Difficulty { get; set; }
-
     public int DamageDone { get; set; }
 
     public int HealDone { get; set; }
@@ -33,7 +29,7 @@ public class Combat : IEntity
 
     public bool IsReady { get; set; }
 
-    public int BoosId { get; set; }
+    public int BossId { get; set; }
 
     public int CombatLogId { get; set; }
 }

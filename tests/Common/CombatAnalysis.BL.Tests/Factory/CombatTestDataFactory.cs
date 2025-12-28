@@ -11,8 +11,6 @@ internal class CombatTestDataFactory
         {
             Id = id,
             DungeonName = "Test",
-            Name = "Boss name",
-            Difficulty = difficulty,
             DamageDone = 10000,
             HealDone = 3000,
             DamageTaken = 110,
@@ -27,14 +25,12 @@ internal class CombatTestDataFactory
         return entity;
     }
 
-    public static CombatDto CreateDto(int id = 1, int difficulty = 0)
+    public static CombatDto CreateDto(int id = 1, string dungeonName = "dungeon")
     {
         var entityDto = new CombatDto
         {
             Id = id,
-            DungeonName = "Test",
-            Name = "Boss name",
-            Difficulty = difficulty,
+            DungeonName = dungeonName,
             DamageDone = 10000,
             HealDone = 3000,
             DamageTaken = 110,
@@ -56,8 +52,6 @@ internal class CombatTestDataFactory
             new () {
                 Id = 1,
                 DungeonName = "Test",
-                Name = "Boss name",
-                Difficulty = 0,
                 DamageDone = 10000,
                 HealDone = 3000,
                 DamageTaken = 110,
@@ -71,8 +65,6 @@ internal class CombatTestDataFactory
             new () {
                 Id = 2,
                 DungeonName = "Test",
-                Name = "Boss name 1",
-                Difficulty = 0,
                 DamageDone = 1500,
                 HealDone = 30000,
                 DamageTaken = 210,
@@ -86,8 +78,6 @@ internal class CombatTestDataFactory
             new () {
                 Id = 3,
                 DungeonName = "Test",
-                Name = "Boss name 2",
-                Difficulty = 0,
                 DamageDone = 25000,
                 HealDone = 114000,
                 DamageTaken = 2500,
@@ -109,10 +99,7 @@ internal class CombatTestDataFactory
         {
             new () {
                 Id = 1,
-                LocallyNumber = 1,
                 DungeonName = "Test",
-                Name = "Boss name",
-                Difficulty = 0,
                 DamageDone = 10000,
                 HealDone = 3000,
                 DamageTaken = 110,
@@ -125,10 +112,7 @@ internal class CombatTestDataFactory
             },
             new () {
                 Id = 2,
-                LocallyNumber = 1,
                 DungeonName = "Test",
-                Name = "Boss name 1",
-                Difficulty = 0,
                 DamageDone = 1500,
                 HealDone = 30000,
                 DamageTaken = 210,
@@ -141,10 +125,7 @@ internal class CombatTestDataFactory
             },
             new () {
                 Id = 3,
-                LocallyNumber = 1,
                 DungeonName = "Test",
-                Name = "Boss name 2",
-                Difficulty = 0,
                 DamageDone = 25000,
                 HealDone = 114000,
                 DamageTaken = 2500,

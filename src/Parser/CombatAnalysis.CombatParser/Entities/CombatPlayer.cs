@@ -8,6 +8,8 @@ public class CombatPlayer
 
     public double AverageItemLevel { get; set; }
 
+    public int DamageDoneToBoss { get; set; }
+
     public int ResourcesRecovery { get; set; }
 
     public int DamageDone { get; set; }

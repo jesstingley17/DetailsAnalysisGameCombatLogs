@@ -201,26 +201,6 @@
                 <TextBlock Text="  " FontSize="13" Foreground="White"/>
                 <TextBlock Text="{Binding AppVersion}" FontSize="13" FontWeight="DemiBold" Foreground="White"/>
             </StackPanel>
-
-            <StackPanel Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="10" mvx:Bi.nd="Command GeneralAnalysisCommand"
-                    Visibility="{Binding ResponseStatus, Converter={StaticResource IntToVisibility}, ConverterParameter=true:1}">
-                <Icon:PackIconMaterial Kind="ChartTimelineVariantShimmer" Style="{StaticResource menuButtonIcon}" mvx:Bi.nd="Command GeneralAnalysisCommand" Foreground="White">
-                    <Icon:PackIconMaterial.InputBindings>
-                        <MouseBinding Command="{Binding GeneralAnalysisCommand}" Gesture="LeftClick"/>
-                    </Icon:PackIconMaterial.InputBindings>
-                </Icon:PackIconMaterial>
-                <ProgressBar Style="{DynamicResource ProgressBarStyle2}" Minimum="0" Maximum="{Binding UploadingCombatsCount}" Value="{Binding UploadedCombatsCount}" 
-                         Height="15" Width="150">
-                    <ProgressBar.ToolTip>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Already uploaded: "/>
-                            <TextBlock Text="{Binding UploadedCombatsCount}"/>
-                            <TextBlock Text=" / "/>
-                            <TextBlock Text="{Binding UploadingCombatsCount}"/>
-                        </StackPanel>
-                    </ProgressBar.ToolTip>
-                </ProgressBar>
-            </StackPanel>
         </Grid>
     </Grid>
 </views:MvxWpfView>

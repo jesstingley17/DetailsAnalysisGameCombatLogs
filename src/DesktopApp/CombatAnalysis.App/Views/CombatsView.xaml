@@ -112,15 +112,18 @@
                     </DataGridTemplateColumn.HeaderTemplate>
                 </DataGridTemplateColumn>
                 
-                <DataGridTemplateColumn IsReadOnly="True" Width="180">
+                <DataGridTemplateColumn IsReadOnly="True" Width="200">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding Path=Boss.Name}" TextAlignment="Center" Margin="10" FontSize="12" Opacity="0.5"
+                            <StackPanel HorizontalAlignment="Center">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding Path=Boss.Name}" TextAlignment="Center" Margin="10" FontSize="12" Opacity="0.5"
                                            Visibility="{Binding IsWin, Converter={StaticResource BoolToVisibility}, ConverterParameter=true:true}"/>
-                                <TextBlock Text="{Binding Path=Boss.Name}" TextAlignment="Center" Margin="10" FontSize="12"
+                                    <TextBlock Text="{Binding Path=Boss.Name}" TextAlignment="Center" Margin="10" FontSize="12"
                                            Visibility="{Binding IsWin, Converter={StaticResource BoolToVisibility}, ConverterParameter=true:false}"/>
-                                <TextBlock Text="{Binding Path=UniqueCombatCount}" TextAlignment="Center" Margin="10" FontSize="12"/>
+                                    <TextBlock Text="{Binding Path=UniqueCombatCount}" TextAlignment="Center" Margin="10" FontSize="12"/>
+                                </StackPanel>
+                                <TextBlock Text="{Binding Path=BossHealthPercentage}" TextAlignment="Center" Margin="10" FontSize="12"/>
                             </StackPanel>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
@@ -268,7 +271,7 @@
 
             <DataGrid.RowDetailsTemplate>
                 <DataTemplate>
-                    <StackPanel Orientation="Horizontal" Margin="10">
+                    <StackPanel Orientation="Horizontal" Margin="5">
                         <ListBox ItemsSource="{Binding Path=Items}" SelectedItem="{Binding DataContext.SelectedUniqueCombatNumber, RelativeSource={RelativeSource AncestorType=DataGrid}}">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
@@ -278,9 +281,10 @@
 
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding}"
-                                               FontSize="14"
-                                               Margin="6"/>
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Key}" FontSize="14" Margin="5"/>
+                                        <TextBlock Text="{Binding Value}" FontSize="14" Margin="5"/>
+                                    </StackPanel>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
@@ -399,11 +403,11 @@
             <StackPanel Visibility="{Binding ResponseStatus, Converter={StaticResource IntToVisibility}, ConverterParameter=true:1}">
                 <TextBlock HorizontalAlignment="Center" Text="{Binding DungeonName}" FontSize="15" Margin="0 5" Foreground="White"/>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                    <ProgressBar Style="{DynamicResource ProgressBarStyle2}" Minimum="0" Maximum="{Binding MaxCombats}" Value="{Binding CurrentCombatNumber}" Height="20" Width="500"/>
+                    <ProgressBar Style="{DynamicResource ProgressBarStyle2}" Minimum="0" Maximum="{Binding CombatsNumber}" Value="{Binding CurrentCombatNumber}" Height="20" Width="500"/>
                     <StackPanel Orientation="Horizontal" Margin="10 0">
                         <TextBlock Text="{Binding CurrentCombatNumber}" Foreground="White" />
                         <TextBlock Text=" / " Foreground="White"/>
-                        <TextBlock Text="{Binding MaxCombats}" Foreground="White"/>
+                        <TextBlock Text="{Binding CombatsNumber}" Foreground="White"/>
                     </StackPanel>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="0 5" HorizontalAlignment="Center">

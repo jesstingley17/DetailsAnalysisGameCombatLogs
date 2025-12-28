@@ -540,11 +540,6 @@ public class CombatLogInformationViewModel : ParentTemplate, IAuthObserver
 
     private async Task UploadingCombatLogAsync(List<CombatModel> combatList, Tuple<List<CombatModel>, LogType> dataForGeneralAnalysis)
     {
-        var token = ((BasicTemplateViewModel)Basic).RequestCancelationToken();
-
-        Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.ResponseStatus), LoadingStatus.Pending);
-        Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.UploadedCombatsCount), 0);
-
         var createdCombatLog = await _combatParserAPIService.SaveCombatLogAsync(combatList, LogType, CancellationToken.None);
         if (createdCombatLog.AppUserId == null)
         {
@@ -555,25 +550,14 @@ public class CombatLogInformationViewModel : ParentTemplate, IAuthObserver
             return;
         }
 
-        Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.AllowStep), 1);
-
-        await _mvvmNavigation.Navigate<CombatsViewModel, Tuple<List<CombatModel>, LogType>>(dataForGeneralAnalysis);
-
-        Basic.Handler.PropertyUpdate<CombatsViewModel>(Basic.SavedViewModel, nameof(CombatsViewModel.ResponseStatus), LoadingStatus.Pending);
-
         Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.Combats), combatList);
         Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.CombatLog), createdCombatLog);
 
-        var combatsAreUploaded = await _combatParserAPIService.SaveAsync(combatList, createdCombatLog, CombatUploaded, token);
-        if (!combatsAreUploaded)
-        {
-            Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.ResponseStatus), LoadingStatus.Failed);
+        Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.AllowStep), 1);
 
-            return;
-        }
+        Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.IsCombatLogsMustSave), true);
 
-        var responseStatus = LoadingStatus.Successful;
-        Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.ResponseStatus), responseStatus);
+        await _mvvmNavigation.Navigate<CombatsViewModel, Tuple<List<CombatModel>, LogType>>(dataForGeneralAnalysis);
     }
 
     private async Task LoadCombatLogsAsync()
@@ -621,14 +605,5 @@ public class CombatLogInformationViewModel : ParentTemplate, IAuthObserver
 
         var combatLogsForTargetUser = combatLogs.Where(x => x.AppUserId == user.Id).ToList();
         CombatLogsForTargetUser = new ObservableCollection<CombatLogModel>(combatLogsForTargetUser);
-    }
-
-    private void CombatUploaded(int number, string dungeonName, string name)
-    {
-        Basic.Handler.PropertyUpdate<CombatsViewModel>(Basic.SavedViewModel, nameof(CombatsViewModel.CurrentCombatNumber), number);
-        Basic.Handler.PropertyUpdate<CombatsViewModel>(Basic.SavedViewModel, nameof(CombatsViewModel.DungeonName), dungeonName);
-        Basic.Handler.PropertyUpdate<CombatsViewModel>(Basic.SavedViewModel, nameof(CombatsViewModel.Name), name);
-
-        ((BasicTemplateViewModel)Basic).UploadedCombatsCount++;
     }
 }

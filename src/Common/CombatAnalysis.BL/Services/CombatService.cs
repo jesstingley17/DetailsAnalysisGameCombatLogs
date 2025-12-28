@@ -44,12 +44,8 @@ internal class CombatService(IGenericRepository<Combat> repository, IMapper mapp
 
     private static void CheckParams(CombatDto item)
     {
-        ArgumentException.ThrowIfNullOrEmpty(item.Name, nameof(item.Name));
         ArgumentException.ThrowIfNullOrEmpty(item.DungeonName, nameof(item.DungeonName));
-        ArgumentException.ThrowIfNullOrEmpty(item.Name, nameof(item.Name));
 
-        ArgumentOutOfRangeException.ThrowIfNegative(item.LocallyNumber, nameof(item.LocallyNumber));
-        ArgumentOutOfRangeException.ThrowIfNegative(item.Difficulty, nameof(item.Difficulty));
         ArgumentOutOfRangeException.ThrowIfNegative(item.EnergyRecovery, nameof(item.EnergyRecovery));
         ArgumentOutOfRangeException.ThrowIfNegative(item.DamageDone, nameof(item.DamageDone));
         ArgumentOutOfRangeException.ThrowIfNegative(item.HealDone, nameof(item.HealDone));

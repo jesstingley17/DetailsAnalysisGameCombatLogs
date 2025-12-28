@@ -336,11 +336,11 @@ internal class CombatParserService(IFileManager fileManager, ILogger logger) : I
 
         foreach (var item in players)
         {
+            item.DamageDoneToBoss = combatDetails.DamageDone[item.PlayerId].Where(x => x.TargetIsBoss).Sum(x => x.Value);
             item.DamageDone = combatDetails.DamageDone[item.PlayerId].Sum(x => x.Value);
             item.HealDone = combatDetails.HealDone[item.PlayerId].Sum(x => x.Value);
             item.DamageTaken = combatDetails.DamageTaken[item.PlayerId].Sum(x => x.Value);
             item.ResourcesRecovery = combatDetails.ResourcesRecovery[item.PlayerId].Sum(x => x.Value);
-
         }
 
         return players;

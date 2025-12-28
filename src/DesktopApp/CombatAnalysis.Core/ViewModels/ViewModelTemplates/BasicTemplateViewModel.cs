@@ -26,7 +26,6 @@ public class BasicTemplateViewModel : MvxViewModel, IImprovedMvxViewModel, IVMDa
     private string? _username;
     private int _step = -1;
     private bool _isRegistrationNotActivated = true;
-    private int _uploadingCombatsCount = 1;
 
     private List<CombatModel>? _combats;
     private CombatModel? _selectedCombat;
@@ -82,6 +81,8 @@ public class BasicTemplateViewModel : MvxViewModel, IImprovedMvxViewModel, IVMDa
 
     public IMvxViewModel SavedViewModel { get; set; }
 
+    public bool IsCombatLogsMustSave { get; set; }
+
     public List<CombatModel> Combats
     {
         set
@@ -89,10 +90,9 @@ public class BasicTemplateViewModel : MvxViewModel, IImprovedMvxViewModel, IVMDa
             if (value != null)
             {
                 _combats = value;
-                UploadingCombatsCount = value.Count;
             }
         }
-        get => _combats ?? new List<CombatModel>();
+        get => _combats ?? [];
     }
 
     public CancellationTokenSource CancellationTokenSource { get; set; } = new();
@@ -263,24 +263,6 @@ public class BasicTemplateViewModel : MvxViewModel, IImprovedMvxViewModel, IVMDa
         set
         {
             SetProperty(ref _logPanelStatusIsVisibly, value);
-        }
-    }
-
-    public int UploadingCombatsCount
-    {
-        get { return _uploadingCombatsCount; }
-        set
-        {
-            SetProperty(ref _uploadingCombatsCount, value);
-        }
-    }
-
-    public int UploadedCombatsCount
-    {
-        get { return _uploadedCombatsCount; }
-        set
-        {
-            SetProperty(ref _uploadedCombatsCount, value);
         }
     }
 

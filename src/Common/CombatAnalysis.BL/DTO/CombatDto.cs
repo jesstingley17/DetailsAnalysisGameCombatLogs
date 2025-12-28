@@ -4,13 +4,7 @@ public class CombatDto
 {
     public int Id { get; set; }
 
-    public int LocallyNumber { get; set; }
-
-    public string DungeonName { get; set; }
-
-    public string Name { get; set; }
-
-    public int Difficulty { get; set; }
+    public string DungeonName { get; set; } = string.Empty;
 
     public int EnergyRecovery { get; set; }
 
@@ -32,6 +26,8 @@ public class CombatDto
     }
 
     public bool IsReady { get; set; }
+
+    public int BossId { get; set; }
 
     public int CombatLogId { get; set; }
 }

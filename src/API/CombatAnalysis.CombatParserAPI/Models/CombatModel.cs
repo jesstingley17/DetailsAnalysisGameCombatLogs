@@ -7,20 +7,14 @@ public class CombatModel
     [Range(0, int.MaxValue)]
     public int Id { get; set; }
 
-    [Range(0, int.MaxValue)]
-    public int LocallyNumber { get; set; }
-
     [Required]
-    public string DungeonName { get; set; }
-
-    [Required]
-    public string Name { get; set; }
+    public string DungeonName { get; set; } = string.Empty;
 
     [Range(0, int.MaxValue)]
-    public int Difficulty { get; set; }
+    public double BossHealthPercentage { get; set; }
 
     [Required]
-    public List<string> Data { get; set; }
+    public List<string> Data { get; set; } = [];
 
     [Range(0, int.MaxValue)]
     public int ResourcesRecovery { get; set; }
@@ -44,10 +38,13 @@ public class CombatModel
     public DateTimeOffset FinishDate { get; set; }
 
     [Required]
-    public List<CombatPlayerModel> Players { get; set; }
+    public List<CombatPlayerModel> Players { get; set; } = [];
 
     [Required]
-    public Dictionary<string, List<string>> PetsId { get; set; }
+    public Dictionary<string, List<string>> PetsId { get; set; } = [];
+
+    [Required]
+    public BossModel Boss { get; set; } = new();
 
     [Required]
     public string Duration
@@ -58,6 +55,6 @@ public class CombatModel
     [Required]
     public bool IsReady { get; set; }
 
-    [Range(0, int.MaxValue)]
+    [Range(1, int.MaxValue)]
     public int CombatLogId { get; set; }
 }

@@ -33,10 +33,7 @@ public class CombatServiceTests
         // Assert
         Assert.NotNull(result);
         Assert.Equal(entityDto.Id, result.Id);
-        Assert.Equal(entityDto.LocallyNumber, result.LocallyNumber);
         Assert.Equal(entityDto.DungeonName, result.DungeonName);
-        Assert.Equal(entityDto.Name, result.Name);
-        Assert.Equal(entityDto.Difficulty, result.Difficulty);
         Assert.Equal(entityDto.DamageDone, result.DamageDone);
         Assert.Equal(entityDto.HealDone, result.HealDone);
         Assert.Equal(entityDto.DamageTaken, result.DamageTaken);
@@ -58,7 +55,7 @@ public class CombatServiceTests
     public async Task CreateAsync_ThrowArgumentOutOfRangeException_ShouldNotCreateEntityAsSomeParamsIncorrect()
     {
         // Arrange
-        var entityDto = CombatTestDataFactory.CreateDto(difficulty: -1);
+        var entityDto = CombatTestDataFactory.CreateDto(dungeonName: "");
 
         var mockMapper = new Mock<IMapper>();
         var mockRepository = new Mock<IGenericRepository<Combat>>();
@@ -100,7 +97,7 @@ public class CombatServiceTests
     public async Task UpdateAsync_ThrowException_ShouldNotUpdateEntityAsDifficultyIsNegative()
     {
         // Arrange
-        var entityDto = CombatTestDataFactory.CreateDto(difficulty: -1);
+        var entityDto = CombatTestDataFactory.CreateDto(dungeonName: "");
 
         var mockMapper = new Mock<IMapper>();
         var mockRepository = new Mock<IGenericRepository<Combat>>();
@@ -108,7 +105,7 @@ public class CombatServiceTests
         var service = new CombatService(mockRepository.Object, mockMapper.Object);
 
         // Act and Assert
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(nameof(Combat.Difficulty), () => service.UpdateAsync(entityDto));
+        await Assert.ThrowsAsync<ArgumentException>(nameof(Combat.DungeonName), () => service.UpdateAsync(entityDto));
 
         // Verify correct method calls
         mockRepository.Verify(r => r.UpdateAsync(It.IsAny<Combat>()), Times.Never);

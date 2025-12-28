@@ -14,6 +14,8 @@ public class DamageDone : ICombatPlayerEntity
 
     public string Target { get; set; }
 
+    public bool TargetIsBoss { get; set; }
+
     public int DamageType { get; set; }
 
     public bool IsPeriodicDamage { get; set; }

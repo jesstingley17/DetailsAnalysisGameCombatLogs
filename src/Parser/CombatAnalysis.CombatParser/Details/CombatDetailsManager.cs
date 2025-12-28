@@ -361,6 +361,7 @@ internal class CombatDetailsManager(List<string> playersId, DateTimeOffset comba
             Time = GetTimeFromStart(combatDataLine[0]),
             Creator = combatDataLine[3].Trim('"'),
             Target = combatDataLine[7].Trim('"'),
+            TargetIsBoss = combatDataLine[6].Contains(CombatLogKeyWords.Boss),
             Spell = spellOrItem,
             IsPeriodicDamage = isPeriodicDamage,
             DamageType = (int)damageType,

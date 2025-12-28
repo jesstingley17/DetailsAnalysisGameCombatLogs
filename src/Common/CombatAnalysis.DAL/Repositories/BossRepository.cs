@@ -9,6 +9,14 @@ internal class BossRepository(CombatParserContext context) : IBossRepository
 {
     private readonly CombatParserContext _context = context;
 
+    public async Task<Boss?> GetById(int bossId)
+    {
+        var boss = await _context.Set<Boss>()
+             .SingleOrDefaultAsync(b => b.Id == bossId);
+
+        return boss;
+    }
+
     public async Task<Boss?> GetAsync(int gameBossId, int difficult, int groupSize)
     {
         var boss = await _context.Set<Boss>()

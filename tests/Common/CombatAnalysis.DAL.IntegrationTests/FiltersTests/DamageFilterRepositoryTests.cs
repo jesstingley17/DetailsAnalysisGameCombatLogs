@@ -20,8 +20,6 @@ public class DamageFilterRepositoryTests : RepositoryTestsBase
         {
             Id = combatId,
             DungeonName = "Dung",
-            Name = "Test",
-            Difficulty = 1,
             DamageDone = 3456,
             HealDone = 200,
             DamageTaken = 0,

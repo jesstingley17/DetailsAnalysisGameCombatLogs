@@ -24,12 +24,12 @@ public class Combat
 
     public Dictionary<string, List<string>> PetsId { get; set; } = [];
 
+    public Boss Boss { get; set; } = new();
+
     public string Duration
     {
         get { return (FinishDate - StartDate).ToString(@"hh\:mm\:ss"); }
     }
 
     public bool IsReady { get; set; }
-
-    public Boss Boss { get; set; } = new();
 }

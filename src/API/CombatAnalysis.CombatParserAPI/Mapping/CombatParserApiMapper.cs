@@ -9,8 +9,16 @@ internal class CombatParserApiMapper : Profile
 {
     public CombatParserApiMapper()
     {
+        CreateMap<CombatDto, CombatModel>()
+            .ForPath(dest => dest.Boss.Id,
+               opt => opt.MapFrom(src => src.BossId));
+        CreateMap<CombatModel, CombatDto>()
+            .ForMember(dest => dest.BossId,
+               opt => opt.MapFrom(src => src.Boss.Id));
+
+        CreateMap<BossModel, Boss>().ReverseMap();
+        CreateMap<BossModel, BossDto>().ReverseMap();
         CreateMap<CombatLogDto, CombatLogModel>().ReverseMap();
-        CreateMap<CombatDto, CombatModel>().ReverseMap();
         CreateMap<CombatAuraDto, CombatAuraModel>().ReverseMap();
         CreateMap<CombatPlayerDto, CombatPlayerModel>().ReverseMap();
         CreateMap<CombatPlayerPositionDto, CombatPlayerPositionModel>().ReverseMap();

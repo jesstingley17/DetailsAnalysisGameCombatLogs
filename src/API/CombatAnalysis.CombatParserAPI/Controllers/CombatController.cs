@@ -11,12 +11,13 @@ namespace CombatAnalysis.CombatParserAPI.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-public class CombatController(IQueryService<CombatDto> queryCombatService, IMutationService<CombatDto> mutationCombatService,
+public class CombatController(IBossService bossService, IQueryService<CombatDto> queryCombatService, IMutationService<CombatDto> mutationCombatService,
     IQueryService<CombatLogDto> queryCombatLogService, IMutationService<CombatLogDto> mutationCombatLogService,
     IMutationService<CombatPlayerDto> mutationCombatPlayerService, IMutationService<PlayerStatsDto> mutationPlayerStatsService, IMapper mapper,
     ILogger<CombatController> logger, ICombatDataHelper saveCombatDataHelper,
     ICombatTransactionService combatTransactionService) : ControllerBase
 {
+    private readonly IBossService _bossService = bossService;
     private readonly IQueryService<CombatDto> _queryCombatService = queryCombatService;
     private readonly IMutationService<CombatDto> _mutationCombatService = mutationCombatService;
     private readonly IQueryService<CombatLogDto> _queryCombatLogService = queryCombatLogService;
@@ -48,8 +49,16 @@ public class CombatController(IQueryService<CombatDto> queryCombatService, IMuta
     public async Task<IActionResult> GetByCombatLogId(int combatLogId)
     {
         var combats = await _queryCombatService.GetByParamAsync(nameof(CombatModel.CombatLogId), combatLogId);
+        var map = _mapper.Map<IEnumerable<CombatModel>>(combats);
+        foreach (var item in map)
+        {
+            var boss = await _bossService.GetById(item.Boss.Id);
+            var bossMapp = _mapper.Map<BossModel>(boss);
 
-        return Ok(combats);
+            item.Boss = bossMapp;
+        }
+
+        return Ok(map);
     }
 
     [HttpPost]

@@ -8,9 +8,11 @@ public class CombatModel
 
     public int UniqueCombatCount { get; set; }
 
-    public int[] Items { get; set; } = [];
+    public Dictionary<int, double> Items { get; set; }
 
     public string DungeonName { get; set; } = string.Empty;
+
+    public double BossHealthPercentage { get; set; }
 
     public List<string> Data { get; set; } = [];
 
