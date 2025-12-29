@@ -1,15 +1,23 @@
 ﻿using AutoMapper;
 using CombatAnalysis.BL.DTO;
-using CombatAnalysis.BL.Interfaces.General;
+using CombatAnalysis.BL.Interfaces;
 using CombatAnalysis.DAL.Entities;
 using CombatAnalysis.DAL.Interfaces.Generic;
 
 namespace CombatAnalysis.BL.Services;
 
-internal class ResourceRecoveryGeneralService(IGenericRepository<ResourceRecoveryGeneral> repository, IMapper mapper) : IMutationService<ResourceRecoveryGeneralDto>
+internal class ResourceRecoveryGeneralService(IGenericRepositoryBatch<ResourceRecoveryGeneral> repository, IMapper mapper) : IMutationServiceBatch<ResourceRecoveryGeneralDto>
 {
-    private readonly IGenericRepository<ResourceRecoveryGeneral> _repository = repository;
+    private readonly IGenericRepositoryBatch<ResourceRecoveryGeneral> _repository = repository;
     private readonly IMapper _mapper = mapper;
+
+    public async Task CreateBatchAsync(List<ResourceRecoveryGeneralDto> items)
+    {
+        ArgumentNullException.ThrowIfNull(items, nameof(items));
+
+        var map = _mapper.Map<IEnumerable<ResourceRecoveryGeneral>>(items);
+        await _repository.CreateBatchAsync(map);
+    }
 
     public async Task<ResourceRecoveryGeneralDto> CreateAsync(ResourceRecoveryGeneralDto item)
     {

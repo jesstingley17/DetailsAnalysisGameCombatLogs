@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using CombatAnalysis.BL.DTO;
 using CombatAnalysis.BL.Interfaces;
-using CombatAnalysis.BL.Interfaces.General;
 using CombatAnalysis.CombatParser.Details;
 using CombatAnalysis.CombatParser.Entities;
 using CombatAnalysis.CombatParser.Extensions;
@@ -55,37 +54,19 @@ public class CombatDataHelper(IMapper mapper, ILogger<CombatDataHelper> logger, 
             UploadPlayerInfoBatch<HealDone, HealDoneDto>(combatDetails.HealDone[combatPlayer.PlayerId], combatPlayer.Id),
             UploadPlayerInfoBatch<DamageTaken, DamageTakenDto>(combatDetails.DamageTaken[combatPlayer.PlayerId], combatPlayer.Id),
             UploadPlayerInfoBatch<ResourceRecovery, ResourceRecoveryDto>(combatDetails.ResourcesRecovery[combatPlayer.PlayerId], combatPlayer.Id),
-
-            UploadPlayerInfoData<DamageDoneGeneral, DamageDoneGeneralDto>(combatDetails.DamageDoneGeneral[combatPlayer.PlayerId], combatPlayer.Id),
-            UploadPlayerInfoData<HealDoneGeneral, HealDoneGeneralDto>(combatDetails.HealDoneGeneral[combatPlayer.PlayerId], combatPlayer.Id),
-            UploadPlayerInfoData<DamageTakenGeneral, DamageTakenGeneralDto>(combatDetails.DamageTakenGeneral[combatPlayer.PlayerId], combatPlayer.Id),
-            UploadPlayerInfoData<ResourceRecoveryGeneral, ResourceRecoveryGeneralDto>(combatDetails.ResourcesRecoveryGeneral[combatPlayer.PlayerId], combatPlayer.Id),
-            UploadPlayerInfoData<PlayerDeath, PlayerDeathDto>(combatDetails.PlayersDeath[combatPlayer.PlayerId], combatPlayer.Id),
+            UploadPlayerInfoBatch<DamageDoneGeneral, DamageDoneGeneralDto>(combatDetails.DamageDoneGeneral[combatPlayer.PlayerId], combatPlayer.Id),
+            UploadPlayerInfoBatch<HealDoneGeneral, HealDoneGeneralDto>(combatDetails.HealDoneGeneral[combatPlayer.PlayerId], combatPlayer.Id),
+            UploadPlayerInfoBatch<DamageTakenGeneral, DamageTakenGeneralDto>(combatDetails.DamageTakenGeneral[combatPlayer.PlayerId], combatPlayer.Id),
+            UploadPlayerInfoBatch<ResourceRecoveryGeneral, ResourceRecoveryGeneralDto>(combatDetails.ResourcesRecoveryGeneral[combatPlayer.PlayerId], combatPlayer.Id),
+            UploadPlayerInfoBatch<PlayerDeath, PlayerDeathDto>(combatDetails.PlayersDeath[combatPlayer.PlayerId], combatPlayer.Id),
         };
 
         await Task.WhenAll(uploadTasks);
 
-        if (combat.IsWin)
-        {
-            await _playerParseInfoHelper.UploadPlayerParseInfoAsync(combat, combatPlayer, combatDetails.DamageDoneGeneral[combatPlayer.PlayerId], combatDetails.HealDoneGeneral[combatPlayer.PlayerId]);
-        }
-    }
-
-    private async Task UploadPlayerInfoData<TModel, TModelMap>(List<TModel> data, int combatPlayerId)
-        where TModel : class,  ICombatPlayerEntity
-        where TModelMap : class, BL.Interfaces.Entity.ICombatPlayerEntity
-    {
-        using var scope = _serviceScopeFactory.CreateScope();
-        var scopedService = scope.ServiceProvider.GetRequiredService<IMutationService<TModelMap>>();
-
-        foreach (var item in data)
-        {
-            var map = _mapper.Map<TModelMap>(item);
-            map.CombatPlayerId = combatPlayerId;
-
-            var createdItem = await scopedService.CreateAsync(map);
-            ArgumentNullException.ThrowIfNull(createdItem, nameof(createdItem));
-        }
+        //if (combat.IsWin)
+        //{
+        //    await _playerParseInfoHelper.UploadPlayerParseInfoAsync(combat, combatPlayer, combatDetails.DamageDoneGeneral[combatPlayer.PlayerId], combatDetails.HealDoneGeneral[combatPlayer.PlayerId]);
+        //}
     }
 
     private async Task UploadPlayerInfoBatch<TModel, TModelMap>(List<TModel> data, int combatPlayerId)

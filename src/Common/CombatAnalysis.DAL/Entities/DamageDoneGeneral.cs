@@ -6,11 +6,11 @@ public class DamageDoneGeneral : ICombatPlayerEntity
 {
     public int Id { get; set; }
 
+    public string Spell { get; set; }
+
     public int Value { get; set; }
 
     public double DamagePerSecond { get; set; }
-
-    public string Spell { get; set; }
 
     public int CritNumber { get; set; }
 

@@ -1079,9 +1079,6 @@ namespace CombatAnalysis.DAL.Migrations
                     b.Property<int>("DamageEfficiency")
                         .HasColumnType("int");
 
-                    b.Property<int>("Difficult")
-                        .HasColumnType("int");
-
                     b.Property<int>("HealEfficiency")
                         .HasColumnType("int");
 
@@ -1236,9 +1233,6 @@ namespace CombatAnalysis.DAL.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("Damage")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Difficult")
                         .HasColumnType("int");
 
                     b.Property<int>("Heal")

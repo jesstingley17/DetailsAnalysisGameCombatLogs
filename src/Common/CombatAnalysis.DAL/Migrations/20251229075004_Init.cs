@@ -158,9 +158,9 @@ namespace CombatAnalysis.DAL.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    Spell = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Value = table.Column<int>(type: "int", nullable: false),
                     DamagePerSecond = table.Column<double>(type: "float", nullable: false),
-                    Spell = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CritNumber = table.Column<int>(type: "int", nullable: false),
                     MissNumber = table.Column<int>(type: "int", nullable: false),
                     CastNumber = table.Column<int>(type: "int", nullable: false),
@@ -291,10 +291,9 @@ namespace CombatAnalysis.DAL.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     SpecId = table.Column<int>(type: "int", nullable: false),
                     ClassId = table.Column<int>(type: "int", nullable: false),
-                    BossId = table.Column<int>(type: "int", nullable: false),
-                    Difficult = table.Column<int>(type: "int", nullable: false),
                     DamageEfficiency = table.Column<int>(type: "int", nullable: false),
                     HealEfficiency = table.Column<int>(type: "int", nullable: false),
+                    BossId = table.Column<int>(type: "int", nullable: false),
                     CombatPlayerId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -375,7 +374,6 @@ namespace CombatAnalysis.DAL.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     SpecId = table.Column<int>(type: "int", nullable: false),
                     BossId = table.Column<int>(type: "int", nullable: false),
-                    Difficult = table.Column<int>(type: "int", nullable: false),
                     Damage = table.Column<int>(type: "int", nullable: false),
                     Heal = table.Column<int>(type: "int", nullable: false),
                     Updated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)

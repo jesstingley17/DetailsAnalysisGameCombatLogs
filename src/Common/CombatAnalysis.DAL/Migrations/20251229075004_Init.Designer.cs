@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CombatAnalysis.DAL.Migrations
 {
     [DbContext(typeof(CombatParserContext))]
-    [Migration("20251228203934_Init")]
+    [Migration("20251229075004_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -1082,9 +1082,6 @@ namespace CombatAnalysis.DAL.Migrations
                     b.Property<int>("DamageEfficiency")
                         .HasColumnType("int");
 
-                    b.Property<int>("Difficult")
-                        .HasColumnType("int");
-
                     b.Property<int>("HealEfficiency")
                         .HasColumnType("int");
 
@@ -1239,9 +1236,6 @@ namespace CombatAnalysis.DAL.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("Damage")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Difficult")
                         .HasColumnType("int");
 
                     b.Property<int>("Heal")

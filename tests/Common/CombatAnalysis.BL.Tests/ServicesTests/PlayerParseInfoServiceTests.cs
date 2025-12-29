@@ -18,7 +18,7 @@ public class PlayerParseInfoServiceTests
         var entity = PlayerParseInfoTestDataFactory.Create();
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<PlayerParseInfo>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<PlayerParseInfo>>();
 
         mockMapper.Setup(m => m.Map<PlayerParseInfo>(entityDto)).Returns(entity);
         mockMapper.Setup(m => m.Map<PlayerParseInfoDto>(entity)).Returns(entityDto);
@@ -54,7 +54,7 @@ public class PlayerParseInfoServiceTests
         var entityDto = PlayerParseInfoTestDataFactory.CreateDto(specId: -1);
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<PlayerParseInfo>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<PlayerParseInfo>>();
 
         var service = new PlayerParseInfoService(mockRepository.Object, mockMapper.Object);
 
@@ -73,7 +73,7 @@ public class PlayerParseInfoServiceTests
         var entity = PlayerParseInfoTestDataFactory.Create();
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<PlayerParseInfo>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<PlayerParseInfo>>();
 
         mockMapper.Setup(m => m.Map<PlayerParseInfo>(entityDto)).Returns(entity);
 
@@ -96,7 +96,7 @@ public class PlayerParseInfoServiceTests
         var entityDto = PlayerParseInfoTestDataFactory.CreateDto(specId: -1);
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<PlayerParseInfo>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<PlayerParseInfo>>();
 
         var service = new PlayerParseInfoService(mockRepository.Object, mockMapper.Object);
 
@@ -114,7 +114,7 @@ public class PlayerParseInfoServiceTests
         const int id = 1;
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<PlayerParseInfo>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<PlayerParseInfo>>();
 
         mockRepository.Setup(r => r.DeleteAsync(id)).ReturnsAsync(true);
 
@@ -137,7 +137,7 @@ public class PlayerParseInfoServiceTests
         const int id = 2;
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<PlayerParseInfo>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<PlayerParseInfo>>();
 
         mockRepository.Setup(r => r.DeleteAsync(id)).ReturnsAsync(false);
 
@@ -160,7 +160,7 @@ public class PlayerParseInfoServiceTests
         const int id = 0;
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<PlayerParseInfo>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<PlayerParseInfo>>();
 
         var service = new PlayerParseInfoService(mockRepository.Object, mockMapper.Object);
 

@@ -14,16 +14,13 @@ public class PlayerParseInfoModel
     public int ClassId { get; set; }
 
     [Range(0, int.MaxValue)]
-    public int BossId { get; set; }
-
-    [Range(0, int.MaxValue)]
-    public int Difficult { get; set; }
-
-    [Range(0, int.MaxValue)]
     public int DamageEfficiency { get; set; }
 
     [Range(0, int.MaxValue)]
     public int HealEfficiency { get; set; }
+
+    [Range(0, int.MaxValue)]
+    public int BossId { get; set; }
 
     [Range(0, int.MaxValue)]
     public int CombatPlayerId { get; set; }

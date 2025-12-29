@@ -18,10 +18,7 @@ internal class PlayerParseInfoHelper(IOptions<Players> players, IMapper mapper, 
 
     public async Task UploadPlayerParseInfoAsync(Combat combat, CombatPlayerModel combatPlayer, List<DamageDoneGeneral> damageDoneGeneralList, List<HealDoneGeneral> healDoneGeneralList)
     {
-        var playerParseInfo = new PlayerParseInfoModel
-        {
-            Difficult = combat.Boss.Difficult
-        };
+        var playerParseInfo = new PlayerParseInfoModel();
 
         var specId = GetSpecializationId(damageDoneGeneralList, healDoneGeneralList);
         if (specId < 0)
@@ -101,7 +98,7 @@ internal class PlayerParseInfoHelper(IOptions<Players> players, IMapper mapper, 
         using var scope = _serviceScopeFactory.CreateScope();
         var scopedService = scope.ServiceProvider.GetRequiredService<ISpecScoreService>();
 
-        var score = await scopedService.GetBySpecIdAsync(playerParseInfo.SpecId, playerParseInfo.BossId, playerParseInfo.Difficult);
+        var score = await scopedService.GetBySpecIdAsync(playerParseInfo.SpecId, playerParseInfo.BossId);
 
         var scopedMutationService = scope.ServiceProvider.GetRequiredService<IMutationService<SpecializationScoreDto>>();
         if (!score.Any())
@@ -113,7 +110,6 @@ internal class PlayerParseInfoHelper(IOptions<Players> players, IMapper mapper, 
             {
                 SpecId = playerParseInfo.SpecId,
                 BossId = playerParseInfo.BossId,
-                Difficult = playerParseInfo.Difficult,
                 Damage = combatPlayer.DamageDone,
                 Heal = combatPlayer.HealDone,
                 Updated = DateTimeOffset.UtcNow,

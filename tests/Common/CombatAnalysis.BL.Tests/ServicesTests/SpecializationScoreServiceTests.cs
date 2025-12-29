@@ -19,7 +19,7 @@ public class SpecializationScoreServiceTests
         var entity = SpecializationScoreTestDataFactory.Create();
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<SpecializationScore>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<SpecializationScore>>();
         var mockSpecRepository = new Mock<ISpecScore>();
 
         mockMapper.Setup(m => m.Map<SpecializationScore>(entityDto)).Returns(entity);
@@ -37,7 +37,6 @@ public class SpecializationScoreServiceTests
         Assert.Equal(entityDto.Id, result.Id);
         Assert.Equal(entityDto.SpecId, result.SpecId);
         Assert.Equal(entityDto.BossId, result.BossId);
-        Assert.Equal(entityDto.Difficult, result.Difficult);
         Assert.Equal(entityDto.Damage, result.Damage);
         Assert.Equal(entityDto.Heal, result.Heal);
         Assert.Equal(entityDto.Updated, result.Updated);
@@ -52,10 +51,10 @@ public class SpecializationScoreServiceTests
     public async Task CreateAsync_ThrowArgumentOutOfRangeException_ShouldNotCreateEntityAsSomeParamsIncorrect()
     {
         // Arrange
-        var entityDto = SpecializationScoreTestDataFactory.CreateDto(difficult: -1);
+        var entityDto = SpecializationScoreTestDataFactory.CreateDto(damage: -1);
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<SpecializationScore>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<SpecializationScore>>();
         var mockSpecRepository = new Mock<ISpecScore>();
 
         var service = new SpecializationScoreService(mockSpecRepository.Object, mockRepository.Object, mockMapper.Object);
@@ -75,7 +74,7 @@ public class SpecializationScoreServiceTests
         var entity = SpecializationScoreTestDataFactory.Create();
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<SpecializationScore>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<SpecializationScore>>();
         var mockSpecRepository = new Mock<ISpecScore>();
 
         mockMapper.Setup(m => m.Map<SpecializationScore>(entityDto)).Returns(entity);
@@ -96,16 +95,16 @@ public class SpecializationScoreServiceTests
     public async Task UpdateAsync_ThrowException_ShouldNotUpdateEntityAsDifficultyIsNegative()
     {
         // Arrange
-        var entityDto = SpecializationScoreTestDataFactory.CreateDto(difficult: -1);
+        var entityDto = SpecializationScoreTestDataFactory.CreateDto(damage: -1);
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<SpecializationScore>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<SpecializationScore>>();
         var mockSpecRepository = new Mock<ISpecScore>();
 
         var service = new SpecializationScoreService(mockSpecRepository.Object, mockRepository.Object, mockMapper.Object);
 
         // Act and Assert
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(nameof(SpecializationScore.Difficult), () => service.UpdateAsync(entityDto));
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(nameof(SpecializationScore.Damage), () => service.UpdateAsync(entityDto));
 
         // Verify correct method calls
         mockRepository.Verify(r => r.UpdateAsync(It.IsAny<SpecializationScore>()), Times.Never);
@@ -118,7 +117,7 @@ public class SpecializationScoreServiceTests
         const int id = 1;
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<SpecializationScore>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<SpecializationScore>>();
         var mockSpecRepository = new Mock<ISpecScore>();
 
         mockRepository.Setup(r => r.DeleteAsync(id)).ReturnsAsync(true);
@@ -142,7 +141,7 @@ public class SpecializationScoreServiceTests
         const int id = 2;
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<SpecializationScore>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<SpecializationScore>>();
         var mockSpecRepository = new Mock<ISpecScore>();
 
         mockRepository.Setup(r => r.DeleteAsync(id)).ReturnsAsync(false);
@@ -166,7 +165,7 @@ public class SpecializationScoreServiceTests
         const int id = 0;
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<SpecializationScore>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<SpecializationScore>>();
         var mockSpecRepository = new Mock<ISpecScore>();
 
         var service = new SpecializationScoreService(mockSpecRepository.Object, mockRepository.Object, mockMapper.Object);

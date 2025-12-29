@@ -1,16 +1,24 @@
 ﻿using AutoMapper;
 using CombatAnalysis.BL.DTO;
-using CombatAnalysis.BL.Interfaces.General;
+using CombatAnalysis.BL.Interfaces;
 using CombatAnalysis.BL.Services.General;
 using CombatAnalysis.DAL.Entities;
 using CombatAnalysis.DAL.Interfaces.Generic;
 
 namespace CombatAnalysis.BL.Services;
 
-internal class PlayerParseInfoService(IGenericRepository<PlayerParseInfo> repository, IMapper mapper) : QueryService<PlayerParseInfoDto, PlayerParseInfo>(repository, mapper), IMutationService<PlayerParseInfoDto>
+internal class PlayerParseInfoService(IGenericRepositoryBatch<PlayerParseInfo> repository, IMapper mapper) : QueryService<PlayerParseInfoDto, PlayerParseInfo>(repository, mapper), IMutationServiceBatch<PlayerParseInfoDto>
 {
-    private readonly IGenericRepository<PlayerParseInfo> _repository = repository;
+    private readonly IGenericRepositoryBatch<PlayerParseInfo> _repository = repository;
     private readonly IMapper _mapper = mapper;
+
+    public async Task CreateBatchAsync(List<PlayerParseInfoDto> items)
+    {
+        ArgumentNullException.ThrowIfNull(items, nameof(items));
+
+        var map = _mapper.Map<IEnumerable<PlayerParseInfo>>(items);
+        await _repository.CreateBatchAsync(map);
+    }
 
     public async Task<PlayerParseInfoDto> CreateAsync(PlayerParseInfoDto item)
     {

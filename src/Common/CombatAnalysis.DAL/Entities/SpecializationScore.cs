@@ -10,8 +10,6 @@ public class SpecializationScore : IEntity
 
     public int BossId { get; set; }
 
-    public int Difficult { get; set; }
-
     public int Damage { get; set; }
 
     public int Heal { get; set; }

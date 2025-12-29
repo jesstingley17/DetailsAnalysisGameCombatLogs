@@ -17,14 +17,13 @@ public class SPSpecScoreRepositoryTests(SqlServerFixture fixture)
         // Arrange
         const int specId = 1;
         const int bossId = 1;
-        const int difficult = 1;
 
         await SqlServerFixture.SeedSpecializationScoreTestDataAsync(context);
 
         var repo = new SPSpecScoreRepository(context);
 
         // Act
-        var result = await repo.GetBySpecIdAsync(specId, bossId, difficult);
+        var result = await repo.GetBySpecIdAsync(specId, bossId);
 
         // Assert
         Assert.NotNull(result);

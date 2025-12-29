@@ -18,7 +18,7 @@ public class DamageTakenGeneralServiceTests
         var entity = DamageTakenGeneralTestDataFactory.Create();
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<DamageTakenGeneral>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<DamageTakenGeneral>>();
 
         mockMapper.Setup(m => m.Map<DamageTakenGeneral>(entityTakenDto)).Returns(entity);
         mockMapper.Setup(m => m.Map<DamageTakenGeneralDto>(entity)).Returns(entityTakenDto);
@@ -58,7 +58,7 @@ public class DamageTakenGeneralServiceTests
         var entityTakenDto = DamageTakenGeneralTestDataFactory.CreateDto(spell: "");
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<DamageTakenGeneral>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<DamageTakenGeneral>>();
 
         var service = new DamageTakenGeneralService(mockRepository.Object, mockMapper.Object);
 
@@ -77,7 +77,7 @@ public class DamageTakenGeneralServiceTests
         var entity = DamageTakenGeneralTestDataFactory.Create();
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<DamageTakenGeneral>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<DamageTakenGeneral>>();
 
         mockMapper.Setup(m => m.Map<DamageTakenGeneral>(entityTakenDto)).Returns(entity);
 
@@ -100,7 +100,7 @@ public class DamageTakenGeneralServiceTests
         var entityTakenDto = DamageTakenGeneralTestDataFactory.CreateDto(spell: "");
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<DamageTakenGeneral>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<DamageTakenGeneral>>();
 
         var service = new DamageTakenGeneralService(mockRepository.Object, mockMapper.Object);
 
@@ -118,7 +118,7 @@ public class DamageTakenGeneralServiceTests
         const int id = 1;
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<DamageTakenGeneral>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<DamageTakenGeneral>>();
 
         mockRepository.Setup(r => r.DeleteAsync(id)).ReturnsAsync(true);
 
@@ -141,7 +141,7 @@ public class DamageTakenGeneralServiceTests
         const int id = 2;
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<DamageTakenGeneral>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<DamageTakenGeneral>>();
 
         mockRepository.Setup(r => r.DeleteAsync(id)).ReturnsAsync(false);
 
@@ -164,7 +164,7 @@ public class DamageTakenGeneralServiceTests
         const int id = 0;
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<DamageTakenGeneral>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<DamageTakenGeneral>>();
 
         var service = new DamageTakenGeneralService(mockRepository.Object, mockMapper.Object);
 

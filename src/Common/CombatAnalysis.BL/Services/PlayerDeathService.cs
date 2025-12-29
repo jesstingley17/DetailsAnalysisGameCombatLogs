@@ -1,15 +1,23 @@
 ﻿using AutoMapper;
-using CombatAnalysis.BL.Interfaces.General;
+using CombatAnalysis.BL.Interfaces;
 using CombatAnalysis.BL.Services.General;
 using CombatAnalysis.DAL.Entities;
 using CombatAnalysis.DAL.Interfaces.Generic;
 
 namespace CombatAnalysis.BL.Services;
 
-internal class PlayerDeathService(IGenericRepository<PlayerDeath> repository, IMapper mapper) : QueryService<PlayerDeathDto, PlayerDeath>(repository, mapper), IMutationService<PlayerDeathDto>
+internal class PlayerDeathService(IGenericRepositoryBatch<PlayerDeath> repository, IMapper mapper) : QueryService<PlayerDeathDto, PlayerDeath>(repository, mapper), IMutationServiceBatch<PlayerDeathDto>
 {
-    private readonly IGenericRepository<PlayerDeath> _repository = repository;
+    private readonly IGenericRepositoryBatch<PlayerDeath> _repository = repository;
     private readonly IMapper _mapper = mapper;
+
+    public async Task CreateBatchAsync(List<PlayerDeathDto> items)
+    {
+        ArgumentNullException.ThrowIfNull(items, nameof(items));
+
+        var map = _mapper.Map<IEnumerable<PlayerDeath>>(items);
+        await _repository.CreateBatchAsync(map);
+    }
 
     public async Task<PlayerDeathDto> CreateAsync(PlayerDeathDto item)
     {

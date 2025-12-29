@@ -13,7 +13,6 @@ internal class PlayerParseInfoTestDataFactory
             SpecId = specId,
             ClassId = 1,
             BossId = 1,
-            Difficult = 1,
             DamageEfficiency = 23132,
             HealEfficiency = 23134,
             CombatPlayerId = 1
@@ -48,7 +47,6 @@ internal class PlayerParseInfoTestDataFactory
                 SpecId = 1,
                 ClassId = 1,
                 BossId = 1,
-                Difficult = 1,
                 DamageEfficiency = 23132,
                 HealEfficiency = 23134,
                 CombatPlayerId = 1
@@ -58,7 +56,6 @@ internal class PlayerParseInfoTestDataFactory
                 SpecId = 1,
                 ClassId = 1,
                 BossId = 2,
-                Difficult = 1,
                 DamageEfficiency = 13132,
                 HealEfficiency = 21134,
                 CombatPlayerId = 1
@@ -68,7 +65,6 @@ internal class PlayerParseInfoTestDataFactory
                 SpecId = 1,
                 ClassId = 1,
                 BossId = 3,
-                Difficult = 1,
                 DamageEfficiency = 43132,
                 HealEfficiency = 23234,
                 CombatPlayerId = 1

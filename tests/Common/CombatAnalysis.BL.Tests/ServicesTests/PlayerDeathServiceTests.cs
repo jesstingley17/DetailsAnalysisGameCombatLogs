@@ -17,7 +17,7 @@ public class PlayerDeathServiceTests
         var entity = PlayerDeathTestDataFactory.Create();
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<PlayerDeath>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<PlayerDeath>>();
 
         mockMapper.Setup(m => m.Map<PlayerDeath>(entityDto)).Returns(entity);
         mockMapper.Setup(m => m.Map<PlayerDeathDto>(entity)).Returns(entityDto);
@@ -51,7 +51,7 @@ public class PlayerDeathServiceTests
         var entityDto = PlayerDeathTestDataFactory.CreateDto(username: "");
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<PlayerDeath>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<PlayerDeath>>();
 
         var service = new PlayerDeathService(mockRepository.Object, mockMapper.Object);
 
@@ -70,7 +70,7 @@ public class PlayerDeathServiceTests
         var entity = PlayerDeathTestDataFactory.Create();
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<PlayerDeath>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<PlayerDeath>>();
 
         mockMapper.Setup(m => m.Map<PlayerDeath>(entityDto)).Returns(entity);
 
@@ -93,7 +93,7 @@ public class PlayerDeathServiceTests
         var entityDto = PlayerDeathTestDataFactory.CreateDto(username: "");
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<PlayerDeath>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<PlayerDeath>>();
 
         var service = new PlayerDeathService(mockRepository.Object, mockMapper.Object);
 
@@ -111,7 +111,7 @@ public class PlayerDeathServiceTests
         const int id = 1;
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<PlayerDeath>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<PlayerDeath>>();
 
         mockRepository.Setup(r => r.DeleteAsync(id)).ReturnsAsync(true);
 
@@ -134,7 +134,7 @@ public class PlayerDeathServiceTests
         const int id = 2;
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<PlayerDeath>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<PlayerDeath>>();
 
         mockRepository.Setup(r => r.DeleteAsync(id)).ReturnsAsync(false);
 
@@ -157,7 +157,7 @@ public class PlayerDeathServiceTests
         const int id = 0;
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<PlayerDeath>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<PlayerDeath>>();
 
         var service = new PlayerDeathService(mockRepository.Object, mockMapper.Object);
 

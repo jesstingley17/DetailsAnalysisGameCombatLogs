@@ -27,6 +27,13 @@ public static class DataCollectionExtensions
 
         services.AddScoped<IContextService, ContextService>();
 
+        services.AddScoped<IGenericRepositoryBatch<PlayerParseInfo>, SPPlayerParseInfoRepositoryBatch>();
+        services.AddScoped<IGenericRepositoryBatch<SpecializationScore>, SPSpecializationScoreRepositoryBatch>();
+        services.AddScoped<IGenericRepositoryBatch<PlayerDeath>, SPPlayerDeathRepositoryBatch>();
+        services.AddScoped<IGenericRepositoryBatch<DamageDoneGeneral>, SPDamageDoneGeneralRepositoryBatch>();
+        services.AddScoped<IGenericRepositoryBatch<HealDoneGeneral>, SPHealDoneGeneralRepositoryBatch>();
+        services.AddScoped<IGenericRepositoryBatch<DamageTakenGeneral>, SPDamageTakenGeneralRepositoryBatch>();
+        services.AddScoped<IGenericRepositoryBatch<ResourceRecoveryGeneral>, SPResourceRecoveryGeneralRepositoryBatch>();
         services.AddScoped<IGenericRepositoryBatch<CombatAura>, SPCombatAuraRepositoryBatch>();
         services.AddScoped<IGenericRepositoryBatch<CombatPlayerPosition>, SPCombatPlayerPositionRepositoryBatch>();
         services.AddScoped<IGenericRepositoryBatch<DamageDone>, SPDamageDoneRepositoryBatch>();

@@ -18,7 +18,7 @@ public class ResourceRecoveryGeneralServiceTests
         var entity = ResourceRecoveryGeneralTestDataFactory.Create();
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<ResourceRecoveryGeneral>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<ResourceRecoveryGeneral>>();
 
         mockMapper.Setup(m => m.Map<ResourceRecoveryGeneral>(entityTakenDto)).Returns(entity);
         mockMapper.Setup(m => m.Map<ResourceRecoveryGeneralDto>(entity)).Returns(entityTakenDto);
@@ -55,7 +55,7 @@ public class ResourceRecoveryGeneralServiceTests
         var entityTakenDto = ResourceRecoveryGeneralTestDataFactory.CreateDto(spell: "");
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<ResourceRecoveryGeneral>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<ResourceRecoveryGeneral>>();
 
         var service = new ResourceRecoveryGeneralService(mockRepository.Object, mockMapper.Object);
 
@@ -74,7 +74,7 @@ public class ResourceRecoveryGeneralServiceTests
         var entity = ResourceRecoveryGeneralTestDataFactory.Create();
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<ResourceRecoveryGeneral>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<ResourceRecoveryGeneral>>();
 
         mockMapper.Setup(m => m.Map<ResourceRecoveryGeneral>(entityTakenDto)).Returns(entity);
 
@@ -97,7 +97,7 @@ public class ResourceRecoveryGeneralServiceTests
         var entityTakenDto = ResourceRecoveryGeneralTestDataFactory.CreateDto(spell: "");
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<ResourceRecoveryGeneral>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<ResourceRecoveryGeneral>>();
 
         var service = new ResourceRecoveryGeneralService(mockRepository.Object, mockMapper.Object);
 
@@ -115,7 +115,7 @@ public class ResourceRecoveryGeneralServiceTests
         const int id = 1;
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<ResourceRecoveryGeneral>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<ResourceRecoveryGeneral>>();
 
         mockRepository.Setup(r => r.DeleteAsync(id)).ReturnsAsync(true);
 
@@ -138,7 +138,7 @@ public class ResourceRecoveryGeneralServiceTests
         const int id = 2;
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<ResourceRecoveryGeneral>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<ResourceRecoveryGeneral>>();
 
         mockRepository.Setup(r => r.DeleteAsync(id)).ReturnsAsync(false);
 
@@ -161,7 +161,7 @@ public class ResourceRecoveryGeneralServiceTests
         const int id = 0;
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<ResourceRecoveryGeneral>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<ResourceRecoveryGeneral>>();
 
         var service = new ResourceRecoveryGeneralService(mockRepository.Object, mockMapper.Object);
 

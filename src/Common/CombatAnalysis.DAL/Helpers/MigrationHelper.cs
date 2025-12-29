@@ -30,20 +30,20 @@ internal static class MigrationHelper
     private static readonly Type[] _insertValueTypes =
     [
             typeof(CombatLog),
-            typeof(CombatPlayer),
-            typeof(PlayerParseInfo),
-            typeof(PlayerStats),
-            typeof(SpecializationScore),
             typeof(Combat),
+            typeof(CombatPlayer),
+            typeof(PlayerStats),
+    ];
+
+    private static readonly Type[] _tableTypes =
+    [       
+            typeof(PlayerParseInfo),
+            typeof(SpecializationScore),
             typeof(PlayerDeath),
             typeof(DamageDoneGeneral),
             typeof(HealDoneGeneral),
             typeof(DamageTakenGeneral),
             typeof(ResourceRecoveryGeneral),
-    ];
-
-    private static readonly Type[] _tableTypes =
-    [
             typeof(CombatAura),
             typeof(CombatPlayerPosition),
             typeof(DamageDone),
@@ -327,17 +327,15 @@ internal static class MigrationHelper
 
         var propertySpecId = classType.GetProperty(nameof(SpecializationScore.SpecId));
         var propertyBossId = classType.GetProperty(nameof(SpecializationScore.BossId));
-        var propertyDifficult = classType.GetProperty(nameof(SpecializationScore.Difficult));
         migrationBuilder.Sql($"" +
             "EXEC('" +
             $"CREATE OR ALTER PROCEDURE Get{classType.Name}BySpecId (@specId {Converter(propertySpecId.PropertyType)}, " +
-                                                                  $"@bossId {Converter(propertyBossId.PropertyType)}, " +
-                                                                  $"@difficult {Converter(propertyDifficult.PropertyType)})\n" +
+                                                                  $"@bossId {Converter(propertyBossId.PropertyType)})\n" +
             "AS\n" +
             "BEGIN\n" +
             "\tSELECT * \n" +
             $"\tFROM {classType.Name}\n" +
-            "\tWHERE SpecId = @specId AND BossId = @bossId AND Difficult = @difficult\n" +
+            "\tWHERE SpecId = @specId AND BossId = @bossId\n" +
             "END" +
             "');");
     }

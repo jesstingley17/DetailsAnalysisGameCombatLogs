@@ -1,15 +1,23 @@
 ﻿using AutoMapper;
 using CombatAnalysis.BL.DTO;
-using CombatAnalysis.BL.Interfaces.General;
+using CombatAnalysis.BL.Interfaces;
 using CombatAnalysis.DAL.Entities;
 using CombatAnalysis.DAL.Interfaces.Generic;
 
 namespace CombatAnalysis.BL.Services;
 
-internal class HealDoneGeneralService(IGenericRepository<HealDoneGeneral> repository, IMapper mapper) : IMutationService<HealDoneGeneralDto>
+internal class HealDoneGeneralService(IGenericRepositoryBatch<HealDoneGeneral> repository, IMapper mapper) : IMutationServiceBatch<HealDoneGeneralDto>
 {
-    private readonly IGenericRepository<HealDoneGeneral> _repository = repository;
+    private readonly IGenericRepositoryBatch<HealDoneGeneral> _repository = repository;
     private readonly IMapper _mapper = mapper;
+
+    public async Task CreateBatchAsync(List<HealDoneGeneralDto> items)
+    {
+        ArgumentNullException.ThrowIfNull(items, nameof(items));
+
+        var map = _mapper.Map<IEnumerable<HealDoneGeneral>>(items);
+        await _repository.CreateBatchAsync(map);
+    }
 
     public async Task<HealDoneGeneralDto> CreateAsync(HealDoneGeneralDto item)
     {

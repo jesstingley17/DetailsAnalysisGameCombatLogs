@@ -123,7 +123,18 @@
                                            Visibility="{Binding IsWin, Converter={StaticResource BoolToVisibility}, ConverterParameter=true:false}"/>
                                     <TextBlock Text="{Binding Path=UniqueCombatCount}" TextAlignment="Center" Margin="10" FontSize="12"/>
                                 </StackPanel>
-                                <TextBlock Text="{Binding Path=BossHealthPercentage}" TextAlignment="Center" Margin="10" FontSize="12"/>
+                                <TextBlock Text="{Binding Path=BossHealthPercentage}" TextAlignment="Center" Margin="10" FontSize="12">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Path=BossHealthPercentage}" Value="0">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                             </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                </TextBlock>
                             </StackPanel>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>

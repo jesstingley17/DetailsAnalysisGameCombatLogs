@@ -1,15 +1,23 @@
 ﻿using AutoMapper;
 using CombatAnalysis.BL.DTO;
-using CombatAnalysis.BL.Interfaces.General;
+using CombatAnalysis.BL.Interfaces;
 using CombatAnalysis.DAL.Entities;
 using CombatAnalysis.DAL.Interfaces.Generic;
 
 namespace CombatAnalysis.BL.Services;
 
-internal class DamageDoneGeneralService(IGenericRepository<DamageDoneGeneral> repository, IMapper mapper) : IMutationService<DamageDoneGeneralDto>
+internal class DamageDoneGeneralService(IGenericRepositoryBatch<DamageDoneGeneral> repository, IMapper mapper) : IMutationServiceBatch<DamageDoneGeneralDto>
 {
-    private readonly IGenericRepository<DamageDoneGeneral> _repository = repository;
+    private readonly IGenericRepositoryBatch<DamageDoneGeneral> _repository = repository;
     private readonly IMapper _mapper = mapper;
+
+    public async Task CreateBatchAsync(List<DamageDoneGeneralDto> items)
+    {
+        ArgumentNullException.ThrowIfNull(items, nameof(items));
+
+        var map = _mapper.Map<IEnumerable<DamageDoneGeneral>>(items);
+        await _repository.CreateBatchAsync(map);
+    }
 
     public async Task<DamageDoneGeneralDto> CreateAsync(DamageDoneGeneralDto item)
     {
