@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CombatAnalysis.DAL.Migrations
 {
     [DbContext(typeof(CombatParserContext))]
-    [Migration("20251229075004_Init")]
+    [Migration("20260102120950_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -777,6 +777,12 @@ namespace CombatAnalysis.DAL.Migrations
                     b.Property<bool>("IsPet")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsSingleTarget")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsTargetBoss")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Spell")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -1043,7 +1049,7 @@ namespace CombatAnalysis.DAL.Migrations
                     b.Property<int>("CombatPlayerId")
                         .HasColumnType("int");
 
-                    b.Property<string>("LastHitSpellOrItem")
+                    b.Property<string>("LastHitSpell")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

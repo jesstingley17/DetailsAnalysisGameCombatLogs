@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using CombatAnalysis.BL.DTO;
 using CombatAnalysis.BL.Interfaces;
-using CombatAnalysis.BL.Interfaces.General;
 using CombatAnalysis.CombatParserAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,10 +9,10 @@ namespace CombatAnalysis.CombatParserAPI.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-public class HealDoneGeneralController(IMutationService<HealDoneGeneralDto> mutationService, IPlayerInfoService<HealDoneGeneralDto> playerInfoService,
+public class HealDoneGeneralController(IMutationServiceBatch<HealDoneGeneralDto> mutationService, IPlayerInfoService<HealDoneGeneralDto> playerInfoService,
     IMapper mapper, ILogger<CombatPlayerController> logger) : ControllerBase
 {
-    private readonly IMutationService<HealDoneGeneralDto> _mutationService = mutationService;
+    private readonly IMutationServiceBatch<HealDoneGeneralDto> _mutationService = mutationService;
     private readonly IPlayerInfoService<HealDoneGeneralDto> _playerInfoService = playerInfoService;
     private readonly IMapper _mapper = mapper;
     private readonly ILogger<CombatPlayerController> _logger = logger;

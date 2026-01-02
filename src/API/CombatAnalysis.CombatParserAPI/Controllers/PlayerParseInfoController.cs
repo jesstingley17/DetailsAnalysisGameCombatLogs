@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CombatAnalysis.BL.DTO;
+using CombatAnalysis.BL.Interfaces;
 using CombatAnalysis.BL.Interfaces.General;
 using CombatAnalysis.CombatParserAPI.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -9,11 +10,11 @@ namespace CombatAnalysis.CombatParserAPI.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-public class PlayerParseInfoController(IQueryService<PlayerParseInfoDto> queryService, IMutationService<PlayerParseInfoDto> mutationService,
+public class PlayerParseInfoController(IQueryService<PlayerParseInfoDto> queryService, IMutationServiceBatch<PlayerParseInfoDto> mutationService,
     IMapper mapper, ILogger<PlayerParseInfoController> logger) : ControllerBase
 {
     private readonly IQueryService<PlayerParseInfoDto> _queryService = queryService;
-    private readonly IMutationService<PlayerParseInfoDto> _mutationService = mutationService;
+    private readonly IMutationServiceBatch<PlayerParseInfoDto> _mutationService = mutationService;
     private readonly IMapper _mapper = mapper;
     private readonly ILogger<PlayerParseInfoController> _logger = logger;
 

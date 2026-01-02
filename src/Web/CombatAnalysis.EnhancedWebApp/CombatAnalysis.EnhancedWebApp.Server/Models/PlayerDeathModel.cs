@@ -1,12 +1,12 @@
-﻿namespace CombatAnalysis.WebApp.Models;
+﻿namespace CombatAnalysis.EnhancedWebApp.Server.Models;
 
 public class PlayerDeathModel
 {
     public int Id { get; set; }
 
-    public string Username { get; set; }
+    public string Username { get; set; } = string.Empty;
 
-    public string LastHitSpellOrItem { get; set; }
+    public string LastHitSpell { get; set; } = string.Empty;
 
     public int LastHitValue { get; set; }
 

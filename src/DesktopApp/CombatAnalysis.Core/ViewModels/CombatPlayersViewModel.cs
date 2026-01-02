@@ -168,6 +168,7 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
         set
         {
             SetProperty(ref _selectedTabIndex, value);
+            OrderBy(value);
         }
     }
 
@@ -792,7 +793,8 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
                 p.ResourcesRecoveryPercentages = double.Round(resourcesRecoveryPercentages * 100, 2);
 
                 return p;
-            })];
+            })
+            .OrderByDescending(p => p.DamageDone)];
 
         BestDamageDone = Players.Max(p => p.DamageDone);
         BestHealDone = Players.Max(p => p.HealDone);
@@ -820,6 +822,23 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
         TotalDamagePerSecond = Players.Sum(x => x.DamageDonePerSecond);
         TotalHealPerSecond = Players.Sum(x => x.HealDonePerSecond);
         TotalResourcesPerSecond = Players.Sum(x => x.ResourcesRecoveryPerSecond);
+    }
+
+    private void OrderBy(int tabindex)
+    {
+        if (Players == null)
+        {
+            return;
+        }
+
+        Players = tabindex switch
+        {
+            1 => [.. Players.OrderByDescending(p => p.DamageDone)],
+            2 => [.. Players.OrderByDescending(p => p.HealDone)],
+            3 => [.. Players.OrderByDescending(p => p.DamageTaken)],
+            4 => [.. Players.OrderByDescending(p => p.ResourcesRecovery)],
+            _ => [.. Players.OrderByDescending(p => p.DamageDone)],
+        };
     }
 
     private void GetTotalValueFiltersName()

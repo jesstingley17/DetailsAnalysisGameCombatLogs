@@ -65,7 +65,7 @@
                     </DataGridTemplateColumn.CellTemplate>
                     <DataGridTemplateColumn.HeaderTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{loc:Loc Healing}" TextAlignment="Center" FontSize="12" />
+                            <TextBlock Text="{loc:Loc HealDone}" TextAlignment="Center" FontSize="12" />
                         </DataTemplate>
                     </DataGridTemplateColumn.HeaderTemplate>
                 </DataGridTemplateColumn>

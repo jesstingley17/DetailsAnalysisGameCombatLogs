@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using CombatAnalysis.BL.DTO;
 using CombatAnalysis.BL.Interfaces;
-using CombatAnalysis.BL.Interfaces.General;
 using CombatAnalysis.CombatParserAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,10 +9,10 @@ namespace CombatAnalysis.CombatParserAPI.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-public class ResourceRecoveryGeneralController(IMutationService<ResourceRecoveryGeneralDto> mutationService, IPlayerInfoService<ResourceRecoveryGeneralDto> playerInfoService,
+public class ResourceRecoveryGeneralController(IMutationServiceBatch<ResourceRecoveryGeneralDto> mutationService, IPlayerInfoService<ResourceRecoveryGeneralDto> playerInfoService,
     IMapper mapper, ILogger<ResourceRecoveryGeneralController> logger) : ControllerBase
 {
-    private readonly IMutationService<ResourceRecoveryGeneralDto> _mutationService = mutationService;
+    private readonly IMutationServiceBatch<ResourceRecoveryGeneralDto> _mutationService = mutationService;
     private readonly IPlayerInfoService<ResourceRecoveryGeneralDto> _playerInfoService = playerInfoService;
     private readonly IMapper _mapper = mapper;
     private readonly ILogger<ResourceRecoveryGeneralController> _logger = logger;

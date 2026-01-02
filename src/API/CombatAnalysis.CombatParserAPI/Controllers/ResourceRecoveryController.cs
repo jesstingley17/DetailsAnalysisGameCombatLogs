@@ -11,11 +11,11 @@ namespace CombatAnalysis.CombatParserAPI.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-public class ResourceRecoveryController(IMutationService<ResourceRecoveryDto> mutationService, IPlayerInfoService<ResourceRecoveryDto> playerInfoService,
+public class ResourceRecoveryController(IMutationServiceBatch<ResourceRecoveryDto> mutationService, IPlayerInfoService<ResourceRecoveryDto> playerInfoService,
     ICountService<ResourceRecoveryDto> countService, IGeneralFilterService<ResourceRecoveryDto> filterService,
     IMapper mapper, ILogger<ResourceRecoveryController> logger) : ControllerBase
 {
-    private readonly IMutationService<ResourceRecoveryDto> _mutationService = mutationService;
+    private readonly IMutationServiceBatch<ResourceRecoveryDto> _mutationService = mutationService;
     private readonly IPlayerInfoService<ResourceRecoveryDto> _playerInfoService = playerInfoService;
     private readonly ICountService<ResourceRecoveryDto> _countService = countService;
     private readonly IGeneralFilterService<ResourceRecoveryDto> _filterService = filterService;

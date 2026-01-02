@@ -1,4 +1,4 @@
-﻿namespace CombatAnalysis.WebApp.Models;
+﻿namespace CombatAnalysis.EnhancedWebApp.Server.Models;
 
 public class DamageTakenGeneralModel
 {

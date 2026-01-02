@@ -42,7 +42,7 @@ public class CombatDataHelper(IMapper mapper, ILogger<CombatDataHelper> logger, 
             if (lastDamageTaken != null)
             {
                 item.LastHitValue = lastDamageTaken.Value;
-                item.LastHitSpellOrItem = lastDamageTaken.Spell;
+                item.LastHitSpell = lastDamageTaken.Spell;
             }
         }
 

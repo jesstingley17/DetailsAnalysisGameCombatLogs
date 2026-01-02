@@ -11,11 +11,11 @@ namespace CombatAnalysis.CombatParserAPI.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-public class HealDoneController(IMutationService<HealDoneDto> mutationService, IPlayerInfoService<HealDoneDto> playerInfoService,
+public class HealDoneController(IMutationServiceBatch<HealDoneDto> mutationService, IPlayerInfoService<HealDoneDto> playerInfoService,
     ICountService<HealDoneDto> countService, IGeneralFilterService<HealDoneDto> filterService,
     IMapper mapper, ILogger<HealDoneController> logger) : ControllerBase
 {
-    private readonly IMutationService<HealDoneDto> _mutationService = mutationService;
+    private readonly IMutationServiceBatch<HealDoneDto> _mutationService = mutationService;
     private readonly IPlayerInfoService<HealDoneDto> _playerInfoService = playerInfoService;
     private readonly ICountService<HealDoneDto> _countService = countService;
     private readonly IGeneralFilterService<HealDoneDto> _filterService = filterService;

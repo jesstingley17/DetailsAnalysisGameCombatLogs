@@ -142,8 +142,10 @@ namespace CombatAnalysis.DAL.Migrations
                     Time = table.Column<TimeSpan>(type: "time", nullable: false),
                     Creator = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Target = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsTargetBoss = table.Column<bool>(type: "bit", nullable: false),
                     DamageType = table.Column<int>(type: "int", nullable: false),
                     IsPeriodicDamage = table.Column<bool>(type: "bit", nullable: false),
+                    IsSingleTarget = table.Column<bool>(type: "bit", nullable: false),
                     IsPet = table.Column<bool>(type: "bit", nullable: false),
                     CombatPlayerId = table.Column<int>(type: "int", nullable: false)
                 },
@@ -273,7 +275,7 @@ namespace CombatAnalysis.DAL.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Username = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    LastHitSpellOrItem = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    LastHitSpell = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     LastHitValue = table.Column<int>(type: "int", nullable: false),
                     Time = table.Column<TimeSpan>(type: "time", nullable: false),
                     CombatPlayerId = table.Column<int>(type: "int", nullable: false)

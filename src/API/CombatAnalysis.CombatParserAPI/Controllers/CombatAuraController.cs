@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CombatAnalysis.BL.DTO;
+using CombatAnalysis.BL.Interfaces;
 using CombatAnalysis.BL.Interfaces.General;
 using CombatAnalysis.CombatParserAPI.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -9,11 +10,11 @@ namespace CombatAnalysis.CombatParserAPI.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-public class CombatAuraController(IQueryService<CombatAuraDto> queryService, IMutationService<CombatAuraDto> mutationService,
+public class CombatAuraController(IQueryService<CombatAuraDto> queryService, IMutationServiceBatch<CombatAuraDto> mutationService,
     IMapper mapper, ILogger<CombatAuraController> logger) : ControllerBase
 {
     private readonly IQueryService<CombatAuraDto> _queryService = queryService;
-    private readonly IMutationService<CombatAuraDto> _mutationService = mutationService;
+    private readonly IMutationServiceBatch<CombatAuraDto> _mutationService = mutationService;
     private readonly IMapper _mapper = mapper;
     private readonly ILogger<CombatAuraController> _logger = logger;
 

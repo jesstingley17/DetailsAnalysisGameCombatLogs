@@ -1,4 +1,4 @@
-﻿namespace CombatAnalysis.EnhancedWebApp.Server.Authorization;
+﻿namespace CombatAnalysis.EnhancedWebApp.Server.Models.Authorization;
 
 public class RefreshTokenModel
 {

@@ -144,9 +144,9 @@ namespace CombatAnalysis.App.Localizations.Resources.CombatPlayers {
         /// <summary>
         ///   Looks up a localized string similar to Damage.
         /// </summary>
-        public static string Damage {
+        public static string DamageDone {
             get {
-                return ResourceManager.GetString("Damage", resourceCulture);
+                return ResourceManager.GetString("DamageDone", resourceCulture);
             }
         }
         
@@ -198,9 +198,9 @@ namespace CombatAnalysis.App.Localizations.Resources.CombatPlayers {
         /// <summary>
         ///   Looks up a localized string similar to Healing.
         /// </summary>
-        public static string Healing {
+        public static string HealDone {
             get {
-                return ResourceManager.GetString("Healing", resourceCulture);
+                return ResourceManager.GetString("HealDone", resourceCulture);
             }
         }
         
@@ -210,6 +210,15 @@ namespace CombatAnalysis.App.Localizations.Resources.CombatPlayers {
         public static string HPS {
             get {
                 return ResourceManager.GetString("HPS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Info.
+        /// </summary>
+        public static string Info {
+            get {
+                return ResourceManager.GetString("Info", resourceCulture);
             }
         }
         
@@ -288,9 +297,9 @@ namespace CombatAnalysis.App.Localizations.Resources.CombatPlayers {
         /// <summary>
         ///   Looks up a localized string similar to Resources.
         /// </summary>
-        public static string Resources {
+        public static string ResourcesRecovery {
             get {
-                return ResourceManager.GetString("Resources", resourceCulture);
+                return ResourceManager.GetString("ResourcesRecovery", resourceCulture);
             }
         }
         

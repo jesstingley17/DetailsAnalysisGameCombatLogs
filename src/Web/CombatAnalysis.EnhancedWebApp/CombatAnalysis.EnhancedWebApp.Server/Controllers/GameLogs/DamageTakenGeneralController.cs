@@ -1,6 +1,6 @@
 ﻿using CombatAnalysis.EnhancedWebApp.Server.Consts;
 using CombatAnalysis.EnhancedWebApp.Server.Interfaces;
-using CombatAnalysis.WebApp.Models;
+using CombatAnalysis.EnhancedWebApp.Server.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 

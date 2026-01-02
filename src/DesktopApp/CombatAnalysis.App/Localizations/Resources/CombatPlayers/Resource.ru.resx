@@ -144,7 +144,7 @@
   <data name="CombatName" xml:space="preserve">
     <value>Название боя</value>
   </data>
-  <data name="Damage" xml:space="preserve">
+  <data name="DamageDone" xml:space="preserve">
     <value>Урон</value>
   </data>
   <data name="DamageTaken" xml:space="preserve">
@@ -156,7 +156,7 @@
   <data name="Filters" xml:space="preserve">
     <value>Фильтры</value>
   </data>
-  <data name="Healing" xml:space="preserve">
+  <data name="HealDone" xml:space="preserve">
     <value>Исцеление</value>
   </data>
   <data name="HPS" xml:space="preserve">
@@ -186,7 +186,7 @@
   <data name="Player" xml:space="preserve">
     <value>Игрок</value>
   </data>
-  <data name="Resources" xml:space="preserve">
+  <data name="ResourcesRecovery" xml:space="preserve">
     <value>Ресурсы</value>
   </data>
   <data name="RPS" xml:space="preserve">
@@ -233,5 +233,8 @@
   </data>
   <data name="DTPS" xml:space="preserve">
     <value>ПУВС</value>
+  </data>
+  <data name="Info" xml:space="preserve">
+    <value>Информация</value>
   </data>
 </root>

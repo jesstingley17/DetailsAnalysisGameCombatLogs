@@ -22,7 +22,7 @@ internal class SPPlayerDeathRepositoryBatch(CombatParserContext context) : SPGen
 
         var table = new DataTable();
         table.Columns.Add(nameof(PlayerDeath.Username), firstElement.Username.GetType());
-        table.Columns.Add(nameof(PlayerDeath.LastHitSpellOrItem), firstElement.LastHitSpellOrItem.GetType());
+        table.Columns.Add(nameof(PlayerDeath.LastHitSpell), firstElement.LastHitSpell.GetType());
         table.Columns.Add(nameof(PlayerDeath.LastHitValue), firstElement.LastHitValue.GetType());
         table.Columns.Add(nameof(PlayerDeath.Time), firstElement.Time.GetType());
         table.Columns.Add(nameof(PlayerDeath.CombatPlayerId), firstElement.CombatPlayerId.GetType());
@@ -31,7 +31,7 @@ internal class SPPlayerDeathRepositoryBatch(CombatParserContext context) : SPGen
         {
             table.Rows.Add(
                 item.Username,
-                item.LastHitSpellOrItem,
+                item.LastHitSpell,
                 item.LastHitValue,
                 item.Time,
                 item.CombatPlayerId);

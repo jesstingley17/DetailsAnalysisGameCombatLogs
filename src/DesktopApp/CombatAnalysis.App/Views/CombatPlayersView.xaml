@@ -387,19 +387,19 @@
 
         <TabControl Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2" Background="Transparent" BorderThickness="0" Margin="25"
                     SelectedIndex="{Binding SelectedTabIndex}">
-            <TabItem Header="Info" FontSize="16">
+            <TabItem Header="{loc:Loc Info}" FontSize="16">
                 <playersUC:PlayerInfo Foreground="White" />
             </TabItem>
-            <TabItem Header="Damage done" FontSize="16">
+            <TabItem Header="{loc:Loc DamageDone}" FontSize="16">
                 <playersUC:DamageDoneList Foreground="White" />
             </TabItem>
-            <TabItem Header="Heal done" FontSize="16">
+            <TabItem Header="{loc:Loc HealDone}" FontSize="16">
                 <playersUC:HealDoneList Foreground="White" />
             </TabItem>
-            <TabItem Header="Damage taken" FontSize="16">
+            <TabItem Header="{loc:Loc DamageTaken}" FontSize="16">
                 <playersUC:DamageTakenList Foreground="White" />
             </TabItem>
-            <TabItem Header="Resources recovery" FontSize="16">
+            <TabItem Header="{loc:Loc ResourcesRecovery}" FontSize="16">
                 <playersUC:ResourcesRecoveryList Foreground="White" />
             </TabItem>
         </TabControl>

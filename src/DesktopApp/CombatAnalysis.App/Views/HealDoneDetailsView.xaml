@@ -2,6 +2,7 @@
     x:Class="CombatAnalysis.App.Views.HealDoneDetailsView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:Icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:convertersCombat="clr-namespace:CombatAnalysis.App.Converters.CombatLogs"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -30,6 +31,7 @@
         <Grid.Resources>
             <converters:TheNativeBoolToVisibilityConverter x:Key="BoolToVisibility" />
             <converters:TheNativeIntToVisibilityConverter x:Key="IntToVisibility" />
+            <convertersCombat:IntToEnhancedIntConverter x:Key="IntToEnhancedInt" />
         </Grid.Resources>
         
         <ContentControl Grid.ColumnSpan="3" Grid.RowSpan="4" Content="{Binding Basic}">
@@ -100,7 +102,7 @@
                 <DataGridTemplateColumn SortMemberPath="Value" IsReadOnly="True" MinWidth="150">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding Path=Value}" TextAlignment="Center" Margin="10" FontSize="12" />
+                            <TextBlock Text="{Binding Path=Value, Converter={StaticResource IntToEnhancedInt}}" TextAlignment="Center" Margin="10" FontSize="12" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                     <DataGridTemplateColumn.HeaderTemplate>
@@ -113,7 +115,7 @@
                 <DataGridTemplateColumn SortMemberPath="AverageValue" IsReadOnly="True" MinWidth="150">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding Path=AverageValue, StringFormat=00.00}" TextAlignment="Center" Margin="10" FontSize="12" />
+                            <TextBlock Text="{Binding Path=AverageValue, StringFormat=00.00, Converter={StaticResource IntToEnhancedInt}}" TextAlignment="Center" Margin="10" FontSize="12" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                     <DataGridTemplateColumn.HeaderTemplate>
@@ -152,7 +154,7 @@
                 <DataGridTemplateColumn SortMemberPath="MaxValue" IsReadOnly="True" MinWidth="150">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding Path=MaxValue}" TextAlignment="Center" Margin="10" FontSize="12" />
+                            <TextBlock Text="{Binding Path=MaxValue, Converter={StaticResource IntToEnhancedInt}}" TextAlignment="Center" Margin="10" FontSize="12" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                     <DataGridTemplateColumn.HeaderTemplate>
@@ -165,7 +167,7 @@
                 <DataGridTemplateColumn SortMemberPath="MinValue" IsReadOnly="True" MinWidth="150">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding Path=MinValue}" TextAlignment="Center" Margin="10" FontSize="12" />
+                            <TextBlock Text="{Binding Path=MinValue, Converter={StaticResource IntToEnhancedInt}}" TextAlignment="Center" Margin="10" FontSize="12" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                     <DataGridTemplateColumn.HeaderTemplate>
@@ -217,7 +219,7 @@
                     <DataGridTemplateColumn SortMemberPath="Value" IsReadOnly="True" MinWidth="100">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding Path=Value}" TextAlignment="Center" Margin="10" FontSize="12" />
+                                <TextBlock Text="{Binding Path=Value, Converter={StaticResource IntToEnhancedInt}}" TextAlignment="Center" Margin="10" FontSize="12" />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                         <DataGridTemplateColumn.HeaderTemplate>

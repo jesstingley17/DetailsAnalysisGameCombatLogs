@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CombatAnalysis.BL.DTO;
 using CombatAnalysis.BL.Interfaces;
 using CombatAnalysis.BL.Services.General;
 using CombatAnalysis.DAL.Entities;

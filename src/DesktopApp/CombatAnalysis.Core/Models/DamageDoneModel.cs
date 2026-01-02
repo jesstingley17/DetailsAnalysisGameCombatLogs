@@ -16,9 +16,13 @@ public class DamageDoneModel : IDetailsEntity
 
     public string Target { get; set; }
 
+    public bool IsTargetBoss { get; set; }
+
     public int DamageType { get; set; }
 
     public bool IsPeriodicDamage { get; set; }
+
+    public bool IsSingleTarget { get; set; }
 
     public bool IsPet { get; set; }
 

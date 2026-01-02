@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CombatAnalysis.BL.DTO;
 using CombatAnalysis.BL.Services;
 using CombatAnalysis.BL.Tests.Factory;
 using CombatAnalysis.DAL.Entities;
@@ -33,7 +34,7 @@ public class PlayerDeathServiceTests
         Assert.NotNull(result);
         Assert.Equal(entityDto.Id, result.Id);
         Assert.Equal(entityDto.Username, result.Username);
-        Assert.Equal(entityDto.LastHitSpellOrItem, result.LastHitSpellOrItem);
+        Assert.Equal(entityDto.LastHitSpell, result.LastHitSpell);
         Assert.Equal(entityDto.LastHitValue, result.LastHitValue);
         Assert.Equal(entityDto.Time, result.Time);
         Assert.Equal(entityDto.CombatPlayerId, result.CombatPlayerId);

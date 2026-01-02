@@ -11,7 +11,7 @@ public class PlayerDeathModel
     public string Username { get; set; }
 
     [Required]
-    public string LastHitSpellOrItem { get; set; }
+    public string LastHitSpell { get; set; }
 
     [Range(0, int.MaxValue)]
     public int LastHitValue { get; set; }

@@ -82,6 +82,7 @@ internal class CombatDetailsManager(List<string> playersId, DateTimeOffset comba
     public (string, DamageDone) GetPlayerDamageDone(List<string> combatDataLine)
     {
         if (!_playersId.Any(playerId => playerId.Equals(combatDataLine[2]))
+            || _playersId.Any(playerId => playerId.Equals(combatDataLine[6]))
             || combatDataLine[6].Contains("0000000000000000"))
         {
             return (string.Empty, null);
@@ -202,7 +203,7 @@ internal class CombatDetailsManager(List<string> playersId, DateTimeOffset comba
         int.TryParse(combatDataLine[^10], out var value);
 
         var spell = combatDataLine[1].Equals(CombatLogKeyWords.SwingDamage) || combatDataLine[1].Equals(CombatLogKeyWords.SwingMissed)
-            ? CombatLogKeyWords.MeleeDamage : combatDataLine[11].Trim('"');
+            ? CombatLogKeyWords.Melee : combatDataLine[11].Trim('"');
 
         var isCrushing = string.Equals(combatDataLine[^1], CombatLogKeyWords.IsCrushing, StringComparison.OrdinalIgnoreCase);
 
@@ -311,17 +312,19 @@ internal class CombatDetailsManager(List<string> playersId, DateTimeOffset comba
         return (combatDataLine[6], userDeath);
     }
 
-    private DamageDone GetDamageDone(List<string> combatDataLine, bool isPet, string spellOrItem = "")
+    private DamageDone GetDamageDone(List<string> combatDataLine, bool isPet, string spell = "")
     {
+        var isAutoAttack = false;
         if (string.Equals(combatDataLine[1], CombatLogKeyWords.SwingDamageLanded, StringComparison.OrdinalIgnoreCase)
             || string.Equals(combatDataLine[1], CombatLogKeyWords.SwingDamage, StringComparison.OrdinalIgnoreCase)
             || string.Equals(combatDataLine[1], CombatLogKeyWords.SwingMissed, StringComparison.OrdinalIgnoreCase))
         {
-            spellOrItem += CombatLogKeyWords.MeleeDamage;
+            spell += CombatLogKeyWords.Melee;
+            isAutoAttack = true;
         }
         else
         {
-            spellOrItem += combatDataLine[11].Trim('"');
+            spell += combatDataLine[11].Trim('"');
         }
 
         var isPeriodicDamage = false;
@@ -341,7 +344,7 @@ internal class CombatDetailsManager(List<string> playersId, DateTimeOffset comba
             index = 10;
         }
 
-        var isCrit = string.Equals(combatDataLine[^3], CombatLogKeyWords.IsCrit, StringComparison.OrdinalIgnoreCase);
+        var isCrit = string.Equals(isAutoAttack ? combatDataLine[^3] : combatDataLine[^4], CombatLogKeyWords.IsCrit, StringComparison.OrdinalIgnoreCase);
 
         var isResist = index >= 0 && string.Equals(combatDataLine[index], CombatLogKeyWords.Resist, StringComparison.OrdinalIgnoreCase);
         var isParry = index >= 0 && string.Equals(combatDataLine[index], CombatLogKeyWords.Parry, StringComparison.OrdinalIgnoreCase);
@@ -356,21 +359,27 @@ internal class CombatDetailsManager(List<string> playersId, DateTimeOffset comba
         damageType = isImmune ? DamageType.Immune : damageType;
         damageType = isMiss ? DamageType.Miss : damageType;
 
+        var isSingleTarget = 
+            isAutoAttack 
+            || (isPeriodicDamage 
+            || (string.Equals(combatDataLine[^1], CombatLogKeyWords.IsSingleTarget + "\r", StringComparison.OrdinalIgnoreCase)));
+
         var damageDone = new DamageDone
         {
+            Spell = spell,
             Time = GetTimeFromStart(combatDataLine[0]),
             Creator = combatDataLine[3].Trim('"'),
             Target = combatDataLine[7].Trim('"'),
-            TargetIsBoss = combatDataLine[6].Contains(CombatLogKeyWords.Boss),
-            Spell = spellOrItem,
-            IsPeriodicDamage = isPeriodicDamage,
+            IsTargetBoss = combatDataLine[6].Contains(CombatLogKeyWords.Boss),
             DamageType = (int)damageType,
+            IsPeriodicDamage = isPeriodicDamage,
+            IsSingleTarget = isSingleTarget,
             IsPet = isPet,
         };
 
-        if (int.TryParse(combatDataLine[^10], out var amountOfValue))
+        if (int.TryParse(isAutoAttack ? combatDataLine[^10] : combatDataLine[^11], out var value))
         {
-            damageDone.Value = amountOfValue;
+            damageDone.Value = value;
         }
 
         return damageDone;
@@ -448,7 +457,7 @@ internal class CombatDetailsManager(List<string> playersId, DateTimeOffset comba
 
     private TimeSpan GetTimeFromStart(string time)
     {
-        if (DateTimeOffset.TryParse(time, CultureInfo.GetCultureInfo("en-EN"), DateTimeStyles.AssumeUniversal, out var startTime))
+        if (DateTimeOffset.TryParseExact(time, "MM/dd/yyyy HH:mm:ss.ffff", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out var startTime))
         {
             var timeFromStart = startTime - _combatStarted;
 

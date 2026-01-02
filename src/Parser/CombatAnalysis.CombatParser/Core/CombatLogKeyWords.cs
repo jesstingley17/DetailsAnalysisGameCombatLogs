@@ -60,7 +60,9 @@ internal static class CombatLogKeyWords
 
     public static string SwingDamageLanded { get; } = "SWING_DAMAGE_LANDED";
 
-    public static string MeleeDamage { get; } = "Melee";
+    public static string Melee { get; } = "Melee";
+
+    public static string IsSingleTarget { get; } = "ST";
 
     public static string IsCrit { get; } = "1";
 

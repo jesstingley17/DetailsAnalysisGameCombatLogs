@@ -22,11 +22,17 @@ public class DamageDoneModel
     [Required]
     public string Target { get; set; }
 
+    [Required]
+    public bool IsTargetBoss { get; set; }
+
     [Range(0, int.MaxValue)]
     public int DamageType { get; set; }
 
     [Required]
     public bool IsPeriodicDamage { get; set; }
+
+    [Required]
+    public bool IsSingleTarget { get; set; }
 
     [Required]
     public bool IsPet { get; set; }

@@ -1,4 +1,5 @@
-﻿using CombatAnalysis.DAL.Entities;
+﻿using CombatAnalysis.BL.DTO;
+using CombatAnalysis.DAL.Entities;
 
 namespace CombatAnalysis.BL.Tests.Factory;
 
@@ -10,7 +11,7 @@ internal class PlayerDeathTestDataFactory
         {
             Id = id,
             Username = username,
-            LastHitSpellOrItem = "Damage",
+            LastHitSpell = "Damage",
             LastHitValue = 3405,
             Time = TimeSpan.Parse("00:01:11"),
             CombatPlayerId = 1
@@ -25,7 +26,7 @@ internal class PlayerDeathTestDataFactory
         {
             Id = id,
             Username = username,
-            LastHitSpellOrItem = "Damage",
+            LastHitSpell = "Damage",
             LastHitValue = 3405,
             Time = TimeSpan.Parse("00:01:11"),
             CombatPlayerId = 1
@@ -41,7 +42,7 @@ internal class PlayerDeathTestDataFactory
             new () {
                 Id = 1,
                 Username = "Solinx",
-                LastHitSpellOrItem = "Damage",
+                LastHitSpell = "Damage",
                 LastHitValue = 3405,
                 Time = TimeSpan.Parse("00:01:11"),
                 CombatPlayerId = 1
@@ -49,7 +50,7 @@ internal class PlayerDeathTestDataFactory
             new () {
                 Id = 2,
                 Username = "Solinx",
-                LastHitSpellOrItem = "Damage 1",
+                LastHitSpell = "Damage 1",
                 LastHitValue = 3405,
                 Time = TimeSpan.Parse("00:01:23"),
                 CombatPlayerId = 1
@@ -57,7 +58,7 @@ internal class PlayerDeathTestDataFactory
             new () {
                 Id = 3,
                 Username = "Solinx",
-                LastHitSpellOrItem = "Damage 2",
+                LastHitSpell = "Damage 2",
                 LastHitValue = 3405,
                 Time = TimeSpan.Parse("00:01:51"),
                 CombatPlayerId = 1
@@ -74,7 +75,7 @@ internal class PlayerDeathTestDataFactory
             new () {
                 Id = 1,
                 Username = "Solinx",
-                LastHitSpellOrItem = "Damage",
+                LastHitSpell = "Damage",
                 LastHitValue = 3405,
                 Time = TimeSpan.Parse("00:01:11"),
                 CombatPlayerId = 1
@@ -82,7 +83,7 @@ internal class PlayerDeathTestDataFactory
             new () {
                 Id = 2,
                 Username = "Solinx",
-                LastHitSpellOrItem = "Damage 1",
+                LastHitSpell = "Damage 1",
                 LastHitValue = 3405,
                 Time = TimeSpan.Parse("00:01:23"),
                 CombatPlayerId = 1
@@ -90,7 +91,7 @@ internal class PlayerDeathTestDataFactory
             new () {
                 Id = 3,
                 Username = "Solinx",
-                LastHitSpellOrItem = "Damage 2",
+                LastHitSpell = "Damage 2",
                 LastHitValue = 3405,
                 Time = TimeSpan.Parse("00:01:51"),
                 CombatPlayerId = 1

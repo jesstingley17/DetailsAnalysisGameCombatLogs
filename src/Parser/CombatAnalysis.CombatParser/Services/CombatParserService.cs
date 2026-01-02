@@ -260,12 +260,8 @@ internal class CombatParserService(IFileManager fileManager, ILogger logger) : I
     private static DateTimeOffset GetTime(string combatStart)
     {
         var parse = combatStart.Split("  ")[0];
-        var combatDate = parse.Split(' ');
-        var dateWithoutTime = combatDate[0].Split('/');
-        var time = combatDate[1].Split('.')[0];
-        var clearDate = $"{dateWithoutTime[0]}/{dateWithoutTime[1]}/{DateTimeOffset.UtcNow.Year} {time}";
 
-        if (DateTimeOffset.TryParse(clearDate, CultureInfo.GetCultureInfo("en-EN"), DateTimeStyles.AssumeUniversal, out var date))
+        if (DateTimeOffset.TryParseExact(parse, "MM/dd/yyyy HH:mm:ss.ffff", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out var date))
         {
             return date.UtcDateTime;
         }
@@ -336,7 +332,7 @@ internal class CombatParserService(IFileManager fileManager, ILogger logger) : I
 
         foreach (var item in players)
         {
-            item.DamageDoneToBoss = combatDetails.DamageDone[item.PlayerId].Where(x => x.TargetIsBoss).Sum(x => x.Value);
+            item.DamageDoneToBoss = combatDetails.DamageDone[item.PlayerId].Where(x => x.IsTargetBoss).Sum(x => x.Value);
             item.DamageDone = combatDetails.DamageDone[item.PlayerId].Sum(x => x.Value);
             item.HealDone = combatDetails.HealDone[item.PlayerId].Sum(x => x.Value);
             item.DamageTaken = combatDetails.DamageTaken[item.PlayerId].Sum(x => x.Value);

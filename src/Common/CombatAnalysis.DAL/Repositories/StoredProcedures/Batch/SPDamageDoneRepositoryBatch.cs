@@ -26,8 +26,10 @@ internal class SPDamageDoneRepositoryBatch(CombatParserContext context) : SPGene
         table.Columns.Add(nameof(DamageDone.Time), firstElement.Time.GetType());
         table.Columns.Add(nameof(DamageDone.Creator), firstElement.Creator.GetType());
         table.Columns.Add(nameof(DamageDone.Target), firstElement.Target.GetType());
+        table.Columns.Add(nameof(DamageDone.IsTargetBoss), firstElement.IsTargetBoss.GetType());
         table.Columns.Add(nameof(DamageDone.DamageType), firstElement.DamageType.GetType());
         table.Columns.Add(nameof(DamageDone.IsPeriodicDamage), firstElement.IsPeriodicDamage.GetType());
+        table.Columns.Add(nameof(DamageDone.IsSingleTarget), firstElement.IsSingleTarget.GetType());
         table.Columns.Add(nameof(DamageDone.IsPet), firstElement.IsPet.GetType());
         table.Columns.Add(nameof(DamageDone.CombatPlayerId), firstElement.CombatPlayerId.GetType());
 
@@ -39,8 +41,10 @@ internal class SPDamageDoneRepositoryBatch(CombatParserContext context) : SPGene
                 item.Time,
                 item.Creator,
                 item.Target,
+                item.IsTargetBoss,
                 item.DamageType,
                 item.IsPeriodicDamage,
+                item.IsSingleTarget,
                 item.IsPet,
                 item.CombatPlayerId);
         }
