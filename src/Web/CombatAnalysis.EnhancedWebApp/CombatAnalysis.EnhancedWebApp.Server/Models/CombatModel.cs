@@ -4,9 +4,7 @@ public class CombatModel
 {
     public int Id { get; set; }
 
-    public string DungeonName { get; set; }
-
-    public string Name { get; set; }
+    public string DungeonName { get; set; } = string.Empty;
 
     public int ResourcesRecovery { get; set; }
 
@@ -30,4 +28,6 @@ public class CombatModel
     public bool IsReady { get; set; }
 
     public int CombatLogId { get; set; }
+
+    public BossModel Boss { get; set; } = new();
 }
