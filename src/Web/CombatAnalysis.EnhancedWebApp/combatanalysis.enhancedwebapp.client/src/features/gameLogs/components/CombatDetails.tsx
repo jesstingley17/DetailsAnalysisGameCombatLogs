@@ -105,7 +105,7 @@ const CombatDetails: React.FC = () => {
                         <div>{t("SelectPlayer")}</div>
                     </div>
                     <div className="btn-shadow username">
-                        <div>{combatPlayer?.username}</div>
+                        <div>{combatPlayer?.player.username}</div>
                     </div>
                 </div>
                 <div className="boss">

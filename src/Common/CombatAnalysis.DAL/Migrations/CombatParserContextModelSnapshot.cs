@@ -713,10 +713,6 @@ namespace CombatAnalysis.DAL.Migrations
                     b.Property<int>("ResourcesRecovery")
                         .HasColumnType("int");
 
-                    b.Property<string>("Username")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
                     b.ToTable("CombatPlayer");
@@ -1033,6 +1029,27 @@ namespace CombatAnalysis.DAL.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("HealDoneGeneral");
+                });
+
+            modelBuilder.Entity("CombatAnalysis.DAL.Entities.Player", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Faction")
+                        .HasColumnType("int");
+
+                    b.Property<string>("GameId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Player");
                 });
 
             modelBuilder.Entity("CombatAnalysis.DAL.Entities.PlayerDeath", b =>

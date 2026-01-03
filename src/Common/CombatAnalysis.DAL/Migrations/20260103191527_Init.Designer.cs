@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CombatAnalysis.DAL.Migrations
 {
     [DbContext(typeof(CombatParserContext))]
-    [Migration("20260102120950_Init")]
+    [Migration("20260103191527_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -716,10 +716,6 @@ namespace CombatAnalysis.DAL.Migrations
                     b.Property<int>("ResourcesRecovery")
                         .HasColumnType("int");
 
-                    b.Property<string>("Username")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
                     b.ToTable("CombatPlayer");
@@ -1036,6 +1032,27 @@ namespace CombatAnalysis.DAL.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("HealDoneGeneral");
+                });
+
+            modelBuilder.Entity("CombatAnalysis.DAL.Entities.Player", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Faction")
+                        .HasColumnType("int");
+
+                    b.Property<string>("GameId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Player");
                 });
 
             modelBuilder.Entity("CombatAnalysis.DAL.Entities.PlayerDeath", b =>

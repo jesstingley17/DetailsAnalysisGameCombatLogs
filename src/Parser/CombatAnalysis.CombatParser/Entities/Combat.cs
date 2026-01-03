@@ -6,13 +6,13 @@ public class Combat
 
     public List<string> Data { get; set; } = [];
 
-    public int ResourcesRecovery { get; set; }
-
     public int DamageDone { get; set; }
 
     public int HealDone { get; set; }
 
     public int DamageTaken { get; set; }
+
+    public int ResourcesRecovery { get; set; }
 
     public bool IsWin { get; set; }
 
@@ -20,7 +20,7 @@ public class Combat
 
     public DateTimeOffset FinishDate { get; set; }
 
-    public List<CombatPlayer> Players { get; set; } = [];
+    public List<CombatPlayer> CombatPlayers { get; set; } = [];
 
     public Dictionary<string, List<string>> PetsId { get; set; } = [];
 

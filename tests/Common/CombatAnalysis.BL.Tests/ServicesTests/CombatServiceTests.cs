@@ -37,7 +37,7 @@ public class CombatServiceTests
         Assert.Equal(entityDto.DamageDone, result.DamageDone);
         Assert.Equal(entityDto.HealDone, result.HealDone);
         Assert.Equal(entityDto.DamageTaken, result.DamageTaken);
-        Assert.Equal(entityDto.EnergyRecovery, result.EnergyRecovery);
+        Assert.Equal(entityDto.ResourcesRecovery, result.ResourcesRecovery);
         Assert.Equal(entityDto.IsWin, result.IsWin);
         Assert.Equal(entityDto.StartDate, result.StartDate);
         Assert.Equal(entityDto.FinishDate, result.FinishDate);

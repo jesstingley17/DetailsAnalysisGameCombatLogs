@@ -24,6 +24,14 @@ internal class DamageFilterRepository(CombatParserContext context) : IDamageFilt
                            (x, u) => new
                            {
                                u.Id,
+                               u.PlayerId
+                           })
+                       .Join(_context.Set<Player>(),
+                           x => x.PlayerId,
+                           u => u.Id,
+                           (x, u) => new
+                           {
+                               x.Id,
                                u.Username
                            })
                        .Join(_context.Set<DamageDone>(),

@@ -6,6 +6,8 @@ namespace CombatAnalysis.DAL.Data;
 
 public class CombatParserContext(DbContextOptions<CombatParserContext> options) : DbContext(options)
 {
+    public DbSet<Player>? Player { get; }
+
     public DbSet<Boss>? Boss { get; }
 
     public DbSet<CombatLog>? CombatLog { get; }

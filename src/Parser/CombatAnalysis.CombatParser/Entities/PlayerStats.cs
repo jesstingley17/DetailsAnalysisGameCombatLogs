@@ -2,8 +2,6 @@
 
 public class PlayerStats
 {
-    public int Faction { get; set; }
-
     public int Strength { get; set; }
 
     public int Agility { get; set; }
@@ -17,6 +15,8 @@ public class PlayerStats
     public int Dodge { get; set; }
 
     public int Parry { get; set; }
+
+    public int Block { get; set; }
 
     public int Crit { get; set; }
 

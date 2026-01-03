@@ -6,13 +6,13 @@ public class CombatDto
 
     public string DungeonName { get; set; } = string.Empty;
 
-    public int EnergyRecovery { get; set; }
-
     public int DamageDone { get; set; }
 
     public int HealDone { get; set; }
 
     public int DamageTaken { get; set; }
+
+    public int ResourcesRecovery { get; set; }
 
     public bool IsWin { get; set; }
 

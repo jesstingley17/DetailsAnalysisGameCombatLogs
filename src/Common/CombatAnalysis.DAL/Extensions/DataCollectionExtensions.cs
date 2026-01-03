@@ -42,6 +42,7 @@ public static class DataCollectionExtensions
         services.AddScoped<IGenericRepositoryBatch<ResourceRecovery>, SPResourceRecoveryRepositoryBatch>();
 
         services.AddScoped<IBossRepository, BossRepository>();
+        services.AddScoped<IPlayerRepository, PlayerRepository>();
         services.AddScoped<IPlayerInfoRepository<Combat>, SPPlayerInfoRepository<Combat>>();
         services.AddScoped<ICountRepository<DamageDone>, CountRepository<DamageDone>>();
         services.AddScoped<IGeneralFilterRepository<DamageDone>, GeneralFilterRepositroy<DamageDone>>();

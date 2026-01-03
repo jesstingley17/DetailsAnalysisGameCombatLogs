@@ -56,22 +56,22 @@ const DashboardExtractedDetails: React.FC<DashboardExtractedDetailsProps> = ({ n
                 <div>{name}</div>
             </div>
             <ul>
-                {combatPlayers?.slice(0, itemCount).map((player: CombatPlayerModel) => (
-                    <li key={player.id}>
+                {combatPlayers?.slice(0, itemCount).map((combatPlayer: CombatPlayerModel) => (
+                    <li key={combatPlayer.id}>
                         <div className="min-details__title">
-                            <div className="username">{player.username.split('-')[0]}</div>
+                            <div className="username">{combatPlayer.player.username.split('-')[0]}</div>
                             <div className="min-details__values">
-                                <div className="actual-value">{getDetailsValue(player)}</div>
-                                <div className="value-per-time">{calculationValuePerTime(player, dashboardDetailsType[detailsType])} {getValuePerTimeType()}</div>
+                                <div className="actual-value">{getDetailsValue(combatPlayer)}</div>
+                                <div className="value-per-time">{calculationValuePerTime(combatPlayer, dashboardDetailsType[detailsType])} {getValuePerTimeType()}</div>
                             </div>
                         </div>
-                        <div className="player-progress" onClick={() => goToCombatGeneralDetails(player.id)}>
+                        <div className="player-progress" onClick={() => goToCombatGeneralDetails(combatPlayer.id)}>
                             <div className="progress">
-                                <div className="progress-bar" role="progressbar" style={{ width: calculation(player, dashboardDetailsType[detailsType]) + '%' }}></div>
+                                <div className="progress-bar" role="progressbar" style={{ width: calculation(combatPlayer, dashboardDetailsType[detailsType]) + '%' }}></div>
                             </div>
                         </div>
                         <div className="procentage">
-                            <div className="player-contribution">{calculation(player, dashboardDetailsType[detailsType])}%</div>
+                            <div className="player-contribution">{calculation(combatPlayer, dashboardDetailsType[detailsType])}%</div>
                         </div>
                     </li>
                 ))}

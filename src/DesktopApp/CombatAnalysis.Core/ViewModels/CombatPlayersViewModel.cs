@@ -776,9 +776,9 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
     public override void Prepare(CombatModel parameter)
     {
         Combat = parameter;
-        _mainPlayersCombat = parameter.Players;
+        _mainPlayersCombat = parameter.CombatPlayers;
 
-        Players = [.. parameter.Players
+        Players = [.. parameter.CombatPlayers
             .Select(p => {
                 var damageDonePercentages = (double)p.DamageDone / (double)parameter.DamageDone;
                 p.DamageDonePercentages = double.Round(damageDonePercentages * 100, 2);

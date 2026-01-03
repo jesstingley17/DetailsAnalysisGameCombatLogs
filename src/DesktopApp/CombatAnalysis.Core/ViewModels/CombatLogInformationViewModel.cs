@@ -403,7 +403,7 @@ public class CombatLogInformationViewModel : ParentTemplate, IAuthObserver
         foreach (var item in loadedCombats)
         {
             var players = await _combatParserAPIService.LoadCombatPlayersAsync(item.Id);
-            item.Players = [.. players];
+            item.CombatPlayers = [.. players];
         }
 
         Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.AllowStep), 1);
@@ -467,6 +467,7 @@ public class CombatLogInformationViewModel : ParentTemplate, IAuthObserver
         Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.PetsId), new Dictionary<string, List<string>>());
         Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.AllowStep), 0);
 
+        CombatParser.Consts.API.CombatParserApi = API.CombatParserApi;
         await _parser.ParseAsync(combatLogPaths, _cancellationTokenSource.Token);
 
         var combatsList = _mapper.Map<List<CombatModel>>(_parser.Combats);

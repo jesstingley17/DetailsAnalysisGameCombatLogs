@@ -7,12 +7,6 @@ public class CombatPlayerModel
     [Range(0, int.MaxValue)]
     public int Id { get; set; }
 
-    [Required]
-    public string Username { get; set; }
-
-    [Required]
-    public string PlayerId { get; set; }
-
     [Range(0, int.MaxValue)]
     public double AverageItemLevel { get; set; }
 
@@ -30,6 +24,9 @@ public class CombatPlayerModel
 
     [Required]
     public PlayerStatsModel Stats { get; set; }
+
+    [Required]
+    public PlayerModel Player { get; set; }
 
     [Range(0, int.MaxValue)]
     public int CombatId { get; set; }

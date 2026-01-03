@@ -2,15 +2,9 @@
 
 public class CombatPlayer
 {
-    public string Username { get; set; }
-
-    public string PlayerId { get; set; }
-
     public double AverageItemLevel { get; set; }
 
     public int DamageDoneToBoss { get; set; }
-
-    public int ResourcesRecovery { get; set; }
 
     public int DamageDone { get; set; }
 
@@ -18,9 +12,13 @@ public class CombatPlayer
 
     public int DamageTaken { get; set; }
 
-    public PlayerStats Stats { get; set; }
+    public int ResourcesRecovery { get; set; }
 
-    public PlayerParseInfo PlayerParseInfo { get; set; }
+    public PlayerStats Stats { get; set; } = new();
+
+    public PlayerParseInfo PlayerParseInfo { get; set; } = new();
+
+    public Player Player { get; set; } = new();
 
     public int CombatId { get; set; }
 }

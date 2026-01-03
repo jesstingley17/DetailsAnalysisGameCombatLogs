@@ -4,10 +4,6 @@ public class CombatPlayerDto
 {
     public int Id { get; set; }
 
-    public string Username { get; set; }
-
-    public string PlayerId { get; set; }
-
     public double AverageItemLevel { get; set; }
 
     public int ResourcesRecovery { get; set; }
@@ -19,4 +15,6 @@ public class CombatPlayerDto
     public int DamageTaken { get; set; }
 
     public int CombatId { get; set; }
+
+    public string PlayerId { get; set; }
 }

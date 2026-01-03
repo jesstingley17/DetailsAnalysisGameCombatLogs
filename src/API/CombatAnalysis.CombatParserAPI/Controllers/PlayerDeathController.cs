@@ -10,10 +10,10 @@ namespace CombatAnalysis.CombatParserAPI.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-public class PlayerDeathController(IMutationService<PlayerDeathDto> mutationService, IPlayerInfoService<PlayerDeathDto> service,
+public class PlayerDeathController(IMutationServiceBatch<PlayerDeathDto> mutationService, IPlayerInfoService<PlayerDeathDto> service,
     IMapper mapper, ILogger<PlayerDeathController> logger) : ControllerBase
 {
-    private readonly IMutationService<PlayerDeathDto> _mutationService = mutationService;
+    private readonly IMutationServiceBatch<PlayerDeathDto> _mutationService = mutationService;
     private readonly IPlayerInfoService<PlayerDeathDto> _playerInfoService = service;
     private readonly IMapper _mapper = mapper;
     private readonly ILogger<PlayerDeathController> _logger = logger;

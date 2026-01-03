@@ -23,7 +23,7 @@ public class DamageFilterRepositoryTests : RepositoryTestsBase
             DamageDone = 3456,
             HealDone = 200,
             DamageTaken = 0,
-            EnergyRecovery = 0,
+            ResourcesRecovery = 0,
             IsWin = true,
             StartDate = DateTime.Now,
             FinishDate = DateTime.Now.AddSeconds(70),
@@ -33,7 +33,6 @@ public class DamageFilterRepositoryTests : RepositoryTestsBase
         context.Set<CombatPlayer>().Add(new CombatPlayer
         {
             Id = 1,
-            Username = "Solinx",
             PlayerId = "uid-22",
             AverageItemLevel = 345,
             ResourcesRecovery = 0,

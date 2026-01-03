@@ -218,7 +218,7 @@ public abstract class DetailsGenericTemplate<DetailsModel, GeneralDetailsModel> 
     {
         _parameter = parameter;
 
-        SelectedPlayer = parameter.Username;
+        SelectedPlayer = parameter.Player.Username;
         SelectedPlayerId = parameter.Id;
         TotalValue = parameter.DamageDone;
     }

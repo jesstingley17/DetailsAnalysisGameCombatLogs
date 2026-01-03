@@ -10,7 +10,6 @@ internal class CombatPlayerTestDataFactory
         var entity = new CombatPlayer
         {
             Id = id,
-            Username = username,
             PlayerId = "uid-234",
             AverageItemLevel = 345,
             ResourcesRecovery = 3452,
@@ -28,7 +27,6 @@ internal class CombatPlayerTestDataFactory
         var entityDto = new CombatPlayerDto
         {
             Id = id,
-            Username = username,
             PlayerId = "uid-234",
             AverageItemLevel = 345,
             ResourcesRecovery = 3452,
@@ -47,7 +45,6 @@ internal class CombatPlayerTestDataFactory
         {
             new () {
                 Id = 1,
-                Username = "Solinx",
                 PlayerId = "uid-234",
                 AverageItemLevel = 345,
                 ResourcesRecovery = 3452,
@@ -58,7 +55,6 @@ internal class CombatPlayerTestDataFactory
             },
             new () {
                 Id = 2,
-                Username = "Solinx",
                 PlayerId = "uid-234",
                 AverageItemLevel = 341,
                 ResourcesRecovery = 10452,
@@ -69,7 +65,6 @@ internal class CombatPlayerTestDataFactory
             },
             new () {
                 Id = 3,
-                Username = "Solinx",
                 PlayerId = "uid-234",
                 AverageItemLevel = 339,
                 ResourcesRecovery = 2452,
@@ -89,7 +84,6 @@ internal class CombatPlayerTestDataFactory
         {
             new () {
                 Id = 1,
-                Username = "Solinx",
                 PlayerId = "uid-234",
                 AverageItemLevel = 345,
                 ResourcesRecovery = 3452,
@@ -100,7 +94,6 @@ internal class CombatPlayerTestDataFactory
             },
             new () {
                 Id = 2,
-                Username = "Solinx",
                 PlayerId = "uid-234",
                 AverageItemLevel = 341,
                 ResourcesRecovery = 10452,
@@ -111,7 +104,6 @@ internal class CombatPlayerTestDataFactory
             },
             new () {
                 Id = 3,
-                Username = "Solinx",
                 PlayerId = "uid-234",
                 AverageItemLevel = 339,
                 ResourcesRecovery = 2452,

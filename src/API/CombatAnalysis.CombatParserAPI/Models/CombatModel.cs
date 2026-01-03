@@ -17,9 +17,6 @@ public class CombatModel
     public List<string> Data { get; set; } = [];
 
     [Range(0, int.MaxValue)]
-    public int ResourcesRecovery { get; set; }
-
-    [Range(0, int.MaxValue)]
     public long DamageDone { get; set; }
 
     [Range(0, int.MaxValue)]
@@ -27,6 +24,9 @@ public class CombatModel
 
     [Range(0, int.MaxValue)]
     public long DamageTaken { get; set; }
+
+    [Range(0, int.MaxValue)]
+    public int ResourcesRecovery { get; set; }
 
     [Required]
     public bool IsWin { get; set; }
@@ -38,7 +38,7 @@ public class CombatModel
     public DateTimeOffset FinishDate { get; set; }
 
     [Required]
-    public List<CombatPlayerModel> Players { get; set; } = [];
+    public List<CombatPlayerModel> CombatPlayers { get; set; } = [];
 
     [Required]
     public Dictionary<string, List<string>> PetsId { get; set; } = [];

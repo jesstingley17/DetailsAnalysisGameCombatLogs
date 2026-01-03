@@ -14,7 +14,7 @@ public class Combat : IEntity
 
     public int DamageTaken { get; set; }
 
-    public int EnergyRecovery { get; set; }
+    public int ResourcesRecovery { get; set; }
 
     public bool IsWin { get; set; }
 

@@ -41,7 +41,7 @@ namespace CombatAnalysis.DAL.Migrations
                     DamageDone = table.Column<int>(type: "int", nullable: false),
                     HealDone = table.Column<int>(type: "int", nullable: false),
                     DamageTaken = table.Column<int>(type: "int", nullable: false),
-                    EnergyRecovery = table.Column<int>(type: "int", nullable: false),
+                    ResourcesRecovery = table.Column<int>(type: "int", nullable: false),
                     IsWin = table.Column<bool>(type: "bit", nullable: false),
                     StartDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     FinishDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
@@ -100,14 +100,13 @@ namespace CombatAnalysis.DAL.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Username = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PlayerId = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     AverageItemLevel = table.Column<double>(type: "float", nullable: false),
                     ResourcesRecovery = table.Column<int>(type: "int", nullable: false),
                     DamageDone = table.Column<int>(type: "int", nullable: false),
                     HealDone = table.Column<int>(type: "int", nullable: false),
                     DamageTaken = table.Column<int>(type: "int", nullable: false),
-                    CombatId = table.Column<int>(type: "int", nullable: false)
+                    CombatId = table.Column<int>(type: "int", nullable: false),
+                    PlayerId = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -266,6 +265,20 @@ namespace CombatAnalysis.DAL.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_HealDoneGeneral", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Player",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    GameId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Username = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Faction = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Player", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -490,6 +503,9 @@ namespace CombatAnalysis.DAL.Migrations
 
             migrationBuilder.DropTable(
                 name: "HealDoneGeneral");
+
+            migrationBuilder.DropTable(
+                name: "Player");
 
             migrationBuilder.DropTable(
                 name: "PlayerDeath");

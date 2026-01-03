@@ -16,11 +16,18 @@ internal class CombatParserApiMapper : Profile
             .ForMember(dest => dest.BossId,
                opt => opt.MapFrom(src => src.Boss.Id));
 
+        CreateMap<CombatPlayerDto, CombatPlayerModel>()
+            .ForPath(dest => dest.Player.Id,
+                opt => opt.MapFrom(src => src.PlayerId));
+        CreateMap<CombatPlayerModel, CombatPlayerDto>()
+            .ForMember(dest => dest.PlayerId,
+               opt => opt.MapFrom(src => src.Player.Id));
+
+        CreateMap<PlayerModel, PlayerDto>().ReverseMap();
         CreateMap<BossModel, Boss>().ReverseMap();
         CreateMap<BossModel, BossDto>().ReverseMap();
         CreateMap<CombatLogDto, CombatLogModel>().ReverseMap();
         CreateMap<CombatAuraDto, CombatAuraModel>().ReverseMap();
-        CreateMap<CombatPlayerDto, CombatPlayerModel>().ReverseMap();
         CreateMap<CombatPlayerPositionDto, CombatPlayerPositionModel>().ReverseMap();
         CreateMap<DamageDoneDto, DamageDoneModel>().ReverseMap();
         CreateMap<DamageDoneGeneralDto, DamageDoneGeneralModel>().ReverseMap();
@@ -49,7 +56,9 @@ internal class CombatParserApiMapper : Profile
 
         CreateMap<PlayerDeathDto, PlayerDeath>().ReverseMap();
         CreateMap<PlayerStatsDto, PlayerStats>().ReverseMap();
+        CreateMap<PlayerModel, Player>().ReverseMap();
         CreateMap<CombatDto, Combat>().ReverseMap();
+        CreateMap<CombatModel, Combat>().ReverseMap();
         CreateMap<CombatAuraDto, CombatAura>().ReverseMap();
         CreateMap<CombatPlayerPositionDto, CombatPlayerPosition>().ReverseMap();
         CreateMap<DamageDoneDto, DamageDone>().ReverseMap();

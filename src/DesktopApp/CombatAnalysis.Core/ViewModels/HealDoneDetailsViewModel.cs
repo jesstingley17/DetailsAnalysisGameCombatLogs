@@ -20,11 +20,11 @@ public class HealDoneDetailsViewModel : DetailsGenericTemplate<HealDoneModel, He
     protected override void GetDetailsFromCache(CombatPlayerModel? parameter)
     {
         var healDoneCollection = _cacheService?.Get<Dictionary<string, List<HealDone>>>($"{AppCacheKeys.CombatDetails_HealDone}_{SelectedCombat?.Number}");
-        var healDoneCollectionMap = _mapper.Map<List<HealDoneModel>>(healDoneCollection?[parameter != null ? parameter.PlayerId : string.Empty]);
+        var healDoneCollectionMap = _mapper.Map<List<HealDoneModel>>(healDoneCollection?[parameter != null ? parameter.Player.GameId : string.Empty]);
         _allDetailsInformations = [.. healDoneCollectionMap];
 
         var healDoneGeneralCollection = _cacheService?.Get<Dictionary<string, List<HealDoneGeneral>>>($"{AppCacheKeys.CombatDetails_HealDoneGeneral}_{SelectedCombat?.Number}");
-        var healDoneGeneralCollectionMap = _mapper.Map<List<HealDoneGeneralModel>>(healDoneGeneralCollection?[parameter != null ? parameter.PlayerId : string.Empty]);
+        var healDoneGeneralCollectionMap = _mapper.Map<List<HealDoneGeneralModel>>(healDoneGeneralCollection?[parameter != null ? parameter.Player.GameId : string.Empty]);
         _allGeneralInformations = [.. healDoneGeneralCollectionMap];
     }
 }

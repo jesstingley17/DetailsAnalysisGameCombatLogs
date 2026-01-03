@@ -50,9 +50,9 @@ public class CombatController(IBossService bossService, IQueryService<CombatDto>
         foreach (var item in map)
         {
             var boss = await _bossService.GetById(item.Boss.Id);
-            var bossMapp = _mapper.Map<BossModel>(boss);
+            var bossMap = _mapper.Map<BossModel>(boss);
 
-            item.Boss = bossMapp;
+            item.Boss = bossMap;
         }
 
         return Ok(map);
@@ -162,13 +162,9 @@ public class CombatController(IBossService bossService, IQueryService<CombatDto>
 
     private async Task CreateCombatPlayersAsync(CombatModel combat)
     {
-        foreach (var player in combat.Players)
+        foreach (var player in combat.CombatPlayers)
         {
             player.CombatId = combat.Id;
-            if (string.IsNullOrEmpty(player.Username))
-            {
-                continue;
-            }
 
             var createdCombatPlayer = await UploadCombatPlayerAsync(player);
             player.Id = createdCombatPlayer.Id;

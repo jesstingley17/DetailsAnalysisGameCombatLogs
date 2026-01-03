@@ -4,11 +4,11 @@ namespace CombatAnalysis.Core.Interfaces;
 
 public interface IHttpClientHelper
 {
+    public string BaseAddress { get; set; }
+
     public string BaseAddressApi { get; set; }
 
     HttpClient Client { get; set; }
-
-    public string BaseAddress { get; set; }
 
     Task<HttpResponseMessage> PostAsync(string requestAddress, JsonContent content, CancellationToken cancellationToken);
 

@@ -33,7 +33,6 @@ public class CombatPlayerServiceTests
         // Assert
         Assert.NotNull(result);
         Assert.Equal(entityDto.Id, result.Id);
-        Assert.Equal(entityDto.Username, result.Username);
         Assert.Equal(entityDto.ResourcesRecovery, result.ResourcesRecovery);
         Assert.Equal(entityDto.DamageDone, result.DamageDone);
         Assert.Equal(entityDto.HealDone, result.HealDone);
@@ -86,24 +85,6 @@ public class CombatPlayerServiceTests
         // Assert and Verify correct method calls
         mockMapper.Verify(m => m.Map<CombatPlayer>(It.IsAny<CombatPlayerDto>()), Times.Once);
         mockRepository.Verify(r => r.UpdateAsync(It.IsAny<CombatPlayer>()), Times.Once);
-    }
-
-    [Fact]
-    public async Task UpdateAsync_ThrowException_ShouldNotUpdateEntityAsDifficultyIsNegative()
-    {
-        // Arrange
-        var entityDto = CombatPlayerTestDataFactory.CreateDto(username: "");
-
-        var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<CombatPlayer>>();
-
-        var service = new CombatPlayerService(mockRepository.Object, mockMapper.Object);
-
-        // Act and Assert
-        await Assert.ThrowsAsync<ArgumentException>(nameof(CombatPlayer.Username), () => service.UpdateAsync(entityDto));
-
-        // Verify correct method calls
-        mockRepository.Verify(r => r.UpdateAsync(It.IsAny<CombatPlayer>()), Times.Never);
     }
 
     [Fact]

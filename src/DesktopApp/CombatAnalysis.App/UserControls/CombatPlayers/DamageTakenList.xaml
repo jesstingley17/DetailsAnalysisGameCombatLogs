@@ -26,7 +26,7 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <StackPanel>
-                                <TextBlock Text="{Binding Path=Username}" VerticalAlignment="Center" TextAlignment="Center" Margin="10" FontSize="12" />
+                                <TextBlock Text="{Binding Path=Player.Username}" VerticalAlignment="Center" TextAlignment="Center" Margin="10" FontSize="12" />
                             </StackPanel>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>

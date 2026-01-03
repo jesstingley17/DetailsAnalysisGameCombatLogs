@@ -418,10 +418,7 @@ internal class CombatParserAPIService : ICombatParserAPIService
 
             var playerParseInfoCollection = await response.Content.ReadFromJsonAsync<IEnumerable<PlayerParseInfoModel>>();
             var playerInfo = playerParseInfoCollection?.FirstOrDefault();
-            if (playerInfo == null)
-            {
-                throw new ArgumentNullException(nameof(playerInfo));
-            }
+            ArgumentNullException.ThrowIfNull(playerInfo, nameof(playerInfo));
 
             return playerInfo;
         }
@@ -468,7 +465,7 @@ internal class CombatParserAPIService : ICombatParserAPIService
                 continue;
             }
 
-            var damageToBoss = item.Players.Sum(x => x.DamageDoneToBoss);
+            var damageToBoss = item.CombatPlayers.Sum(x => x.DamageDoneToBoss);
             var leftHealth = item.Boss.Health - damageToBoss;
             var precentage = (double)leftHealth / (double)item.Boss.Health;
 

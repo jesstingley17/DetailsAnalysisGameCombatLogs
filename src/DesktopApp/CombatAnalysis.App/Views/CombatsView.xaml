@@ -243,9 +243,9 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <StackPanel>
-                                <TextBlock Text="{Binding Path=EnergyRecovery, Converter={StaticResource IntToEnhancedInt}}" TextAlignment="Center" Margin="10" FontSize="12" Opacity="0.5" 
+                                <TextBlock Text="{Binding Path=ResourcesRecovery, Converter={StaticResource IntToEnhancedInt}}" TextAlignment="Center" Margin="10" FontSize="12" Opacity="0.5" 
                                            Visibility="{Binding IsWin, Converter={StaticResource BoolToVisibility}, ConverterParameter=true:true}"/>
-                                <TextBlock Text="{Binding Path=EnergyRecovery, Converter={StaticResource IntToEnhancedInt}}" TextAlignment="Center" Margin="10" FontSize="12" 
+                                <TextBlock Text="{Binding Path=ResourcesRecovery, Converter={StaticResource IntToEnhancedInt}}" TextAlignment="Center" Margin="10" FontSize="12" 
                                            Visibility="{Binding IsWin, Converter={StaticResource BoolToVisibility}, ConverterParameter=true:false}"/>
                             </StackPanel>
                         </DataTemplate>

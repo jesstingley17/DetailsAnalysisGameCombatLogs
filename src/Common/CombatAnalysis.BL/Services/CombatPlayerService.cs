@@ -44,7 +44,6 @@ internal class CombatPlayerService(IGenericRepository<CombatPlayer> repository, 
 
     private static void CheckParams(CombatPlayerDto item)
     {
-        ArgumentException.ThrowIfNullOrEmpty(item.Username, nameof(item.Username));
         ArgumentException.ThrowIfNullOrEmpty(item.PlayerId, nameof(item.PlayerId));
 
         ArgumentOutOfRangeException.ThrowIfNegative(item.AverageItemLevel, nameof(item.AverageItemLevel));

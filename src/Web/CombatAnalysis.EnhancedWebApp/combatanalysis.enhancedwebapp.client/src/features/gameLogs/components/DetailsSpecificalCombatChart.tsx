@@ -53,8 +53,8 @@ const DetailsSpecificalCombatChart: React.FC<DetailsSpecificalCombatChartProps> 
         const damageDone = new Array<CombatPlayerPropertyModel>(combatPlayers.length);
 
         for (let i = 0; i < combatPlayers.length; i++) {
-            const realmNameIndex = combatPlayers[i].username.indexOf('-');
-            const username = combatPlayers[i].username.substr(0, realmNameIndex);
+            const realmNameIndex = combatPlayers[i].player.username.indexOf('-');
+            const username = combatPlayers[i].player.username.substr(0, realmNameIndex);
 
             damageDone[i] = { name: "", value: 0 };
             damageDone[i].name = username
