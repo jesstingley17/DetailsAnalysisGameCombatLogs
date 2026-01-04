@@ -10,31 +10,56 @@ using CombatAnalysis.CombatParserAPI.Models;
 
 namespace CombatAnalysis.CombatParserAPI.Helpers;
 
-public class CombatDataHelper(IMapper mapper, ILogger<CombatDataHelper> logger, IPlayerParseInfoHelper playerParseInfoHelper, IServiceScopeFactory serviceScopeFactory) : ICombatDataHelper
+public class CombatDataHelper(IMapper mapper, ILogger<CombatDataHelper> logger, ISpecializationScoreHelper specializationScoreHelper, IServiceScopeFactory serviceScopeFactory) : ICombatDataHelper
 {
     private readonly IMapper _mapper = mapper;
     private readonly ILogger<CombatDataHelper> _logger = logger;
-    private readonly IPlayerParseInfoHelper _playerParseInfoHelper = playerParseInfoHelper;
+    private readonly ISpecializationScoreHelper _specializationScoreHelper = specializationScoreHelper;
     private readonly IServiceScopeFactory _serviceScopeFactory = serviceScopeFactory;
 
-    public async Task SaveCombatPlayerAsync(CombatModel combat)
+    public async Task<CombatDetails> CreateCombatPlayersDataAsync(CombatModel combat)
     {
-        var parsedCombat = _mapper.Map<Combat>(combat);
-
         var playersId = combat.CombatPlayers.Select(x => x.Player.GameId).ToList();
 
         var combatDetails = new CombatDetails(_logger, combat.PetsId);
         combatDetails.Calculate(playersId, combat.Data, combat.StartDate, combat.FinishDate);
         combatDetails.CalculateGeneralData(playersId, combat.Duration);
 
-        var uploadTasks = combat.CombatPlayers.Select(item => UploadAsync(parsedCombat, item, combatDetails, combat.Id)).ToList();
+        var uploadTasks = combat.CombatPlayers.Select(item => UploadAsync(item, combatDetails, combat.Id)).ToList();
         await Task.WhenAll(uploadTasks);
 
         var uploadCombatAuraTasks = combatDetails.Auras.Select(item => UploadCombatAuraData(item.Value, combat.Id)).ToList();
         await Task.WhenAll(uploadCombatAuraTasks);
+
+        return combatDetails;
     }
 
-    private async Task UploadAsync(Combat combat, CombatPlayerModel combatPlayer, CombatDetails combatDetails, int combatId)
+    public async Task CreateSpecializationScoreAsync(List<CombatPlayerModel> combatPlayers, CombatDetails combatDetails, int bossId)
+    {
+        await _specializationScoreHelper.CreateSpecializationScoreAsync(combatPlayers, combatDetails);
+
+        var bestSpecs = new List<BestSpecializationScoreDto>();
+        var specs = new List<SpecializationScoreDto>();
+        foreach (var item in combatPlayers)
+        {
+            var spec = await _specializationScoreHelper.GetSpecializationScoreAsync(item.Id);
+            specs.Add(spec ?? new());
+
+            var bestSpec = await _specializationScoreHelper.GetBestSpecializationScoreAsync(spec.SpecializationId, bossId);
+            bestSpecs.Add(bestSpec ?? new());
+        }
+
+        var index = 0;
+        foreach (var item in combatPlayers)
+        {
+            await _specializationScoreHelper.UpdateSpecializationScoreAsync(item.DamageDone, item.HealDone, bestSpecs[index], specs[index]);
+            await _specializationScoreHelper.UpdateBestSpecializationScoreAsync(item.DamageDone, item.HealDone, bestSpecs[index]);
+
+            index++;
+        }
+    }
+
+    private async Task UploadAsync(CombatPlayerModel combatPlayer, CombatDetails combatDetails, int combatId)
     {
         foreach (var item in combatDetails.PlayersDeath[combatPlayer.Player.GameId])
         {
@@ -62,11 +87,6 @@ public class CombatDataHelper(IMapper mapper, ILogger<CombatDataHelper> logger, 
         };
 
         await Task.WhenAll(uploadTasks);
-
-        //if (combat.IsWin)
-        //{
-        //    await _playerParseInfoHelper.UploadPlayerParseInfoAsync(combat, combatPlayer, combatDetails.DamageDoneGeneral[combatPlayer.PlayerId], combatDetails.HealDoneGeneral[combatPlayer.PlayerId]);
-        //}
     }
 
     private async Task UploadPlayerInfoBatch<TModel, TModelMap>(List<TModel> data, int combatPlayerId)

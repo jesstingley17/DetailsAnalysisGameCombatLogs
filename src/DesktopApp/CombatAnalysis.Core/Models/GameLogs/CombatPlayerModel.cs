@@ -20,6 +20,8 @@ public class CombatPlayerModel
 
     public PlayerParseInfoModel PlayerParseInfo { get; set; } = new();
 
+    public SpecializationScoreModel Score { get; set; } = new();
+
     public PlayerModel Player { get; set; } = new();
 
     public int CombatId { get; set; }

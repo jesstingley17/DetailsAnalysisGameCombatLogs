@@ -14,7 +14,7 @@ public class CombatPlayerDto
 
     public int DamageTaken { get; set; }
 
-    public int CombatId { get; set; }
-
     public string PlayerId { get; set; }
+
+    public int CombatId { get; set; }
 }

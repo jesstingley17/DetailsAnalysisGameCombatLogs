@@ -1,7 +1,11 @@
-﻿using CombatAnalysis.CombatParserAPI.Models;
+﻿using CombatAnalysis.CombatParser.Details;
+using CombatAnalysis.CombatParserAPI.Models;
+
 namespace CombatAnalysis.CombatParserAPI.Interfaces;
 
 public interface ICombatDataHelper
 {
-    Task SaveCombatPlayerAsync(CombatModel combat);
+    Task<CombatDetails> CreateCombatPlayersDataAsync(CombatModel combat);
+
+    Task CreateSpecializationScoreAsync(List<CombatPlayerModel> combatPlayers, CombatDetails combatDetails, int bossId);
 }

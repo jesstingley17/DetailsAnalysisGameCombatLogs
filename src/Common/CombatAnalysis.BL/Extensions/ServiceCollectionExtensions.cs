@@ -45,7 +45,9 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IPlayerInfoService<PlayerDeathDto>, PlayerInfoService<PlayerDeathDto, PlayerDeath>>();
 
-        services.AddScoped<ISpecScoreService, SpecializationScoreService>();
+        services.AddScoped<ISpecializationService, SpecializationService>();
+        services.AddScoped<ISpecializationScoreService, SpecializationScoreService>();
+        services.AddScoped<IBestSpecializationScoreService, BestSpecializationScoreService>();
 
         SetMutationServices(services);
         SetQueryServices(services);
@@ -53,9 +55,7 @@ public static class ServiceCollectionExtensions
 
     private static void SetMutationServices(IServiceCollection services)
     {
-        services.AddScoped<IMutationServiceBatch<PlayerParseInfoDto>, PlayerParseInfoService>();
         services.AddScoped<IMutationServiceBatch<PlayerDeathDto>, PlayerDeathService>();
-        services.AddScoped<IMutationServiceBatch<SpecializationScoreDto>, SpecializationScoreService>();
         services.AddScoped<IMutationServiceBatch<DamageDoneGeneralDto>, DamageDoneGeneralService>();
         services.AddScoped<IMutationServiceBatch<HealDoneGeneralDto>, HealDoneGeneralService>();
         services.AddScoped<IMutationServiceBatch<DamageTakenGeneralDto>, DamageTakenGeneralService>();
@@ -81,9 +81,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IQueryService<CombatPlayerPositionDto>, CombatPlayerPositionService>();
         services.AddScoped<IQueryService<CombatAuraDto>, CombatAuraService>();
         services.AddScoped<IQueryService<PlayerDeathDto>, PlayerDeathService>();
-        services.AddScoped<IQueryService<PlayerParseInfoDto>, PlayerParseInfoService>();
         services.AddScoped<IQueryService<PlayerStatsDto>, PlayerStatsService>();
-
-        services.AddScoped<IQueryService<SpecializationScoreDto>, SpecializationScoreService>();
     }
 }

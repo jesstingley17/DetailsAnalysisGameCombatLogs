@@ -10,10 +10,9 @@ internal class SpecializationScoreTestDataFactory
         var entity = new SpecializationScore
         {
             Id = id,
-            SpecId = 1,
-            BossId = 1,
-            Damage = damage,
-            Heal = 23412,
+            SpecializationId = 1,
+            DamageDone = damage,
+            HealDone = 23412,
             Updated = DateTimeOffset.UtcNow,
         };
 
@@ -25,10 +24,9 @@ internal class SpecializationScoreTestDataFactory
         var entityDto = new SpecializationScoreDto
         {
             Id = id,
-            SpecId = 1,
-            BossId = 1,
-            Damage = damage,
-            Heal = 23412,
+            SpecializationId = 1,
+            DamageDone = damage,
+            HealDone = 23412,
             Updated = DateTimeOffset.UtcNow,
         };
 
@@ -41,26 +39,23 @@ internal class SpecializationScoreTestDataFactory
         {
             new () {
                 Id = 1,
-                SpecId = 1,
-                BossId = 1,
-                Damage = 30345,
-                Heal = 23412,
+                SpecializationId = 1,
+                DamageDone = 30345,
+                HealDone = 23412,
                 Updated = DateTimeOffset.UtcNow,
             },
             new () {
                 Id = 2,
-                SpecId = 1,
-                BossId = 2,
-                Damage = 20345,
-                Heal = 33412,
+                SpecializationId = 1,
+                DamageDone = 20345,
+                HealDone = 33412,
                 Updated = DateTimeOffset.UtcNow,
             },
             new () {
                 Id = 3,
-                SpecId = 1,
-                BossId = 3,
-                Damage = 31345,
-                Heal = 23562,
+                SpecializationId = 1,
+                DamageDone = 31345,
+                HealDone = 23562,
                 Updated = DateTimeOffset.UtcNow,
             }
         };
@@ -74,26 +69,23 @@ internal class SpecializationScoreTestDataFactory
         {
             new () {
                 Id = 1,
-                SpecId = 1,
-                BossId = 1,
-                Damage = 30345,
-                Heal = 23412,
+                SpecializationId = 1,
+                DamageDone = 30345,
+                HealDone = 23412,
                 Updated = DateTimeOffset.UtcNow,
             },
             new () {
                 Id = 2,
-                SpecId = 1,
-                BossId = 2,
-                Damage = 20345,
-                Heal = 33412,
+                SpecializationId = 1,
+                DamageDone = 20345,
+                HealDone = 33412,
                 Updated = DateTimeOffset.UtcNow,
             },
             new () {
                 Id = 3,
-                SpecId = 1,
-                BossId = 3,
-                Damage = 31345,
-                Heal = 23562,
+                SpecializationId = 1,
+                DamageDone = 31345,
+                HealDone = 23562,
                 Updated = DateTimeOffset.UtcNow,
             }
         };

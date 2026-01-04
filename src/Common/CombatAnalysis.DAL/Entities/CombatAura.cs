@@ -1,4 +1,5 @@
 ﻿using CombatAnalysis.DAL.Interfaces.Entities;
+using System.ComponentModel.DataAnnotations;
 
 namespace CombatAnalysis.DAL.Entities;
 
@@ -6,11 +7,14 @@ public class CombatAura : IEntity
 {
     public int Id { get; set; }
 
-    public string Name { get; set; }
+    [MaxLength(126)]
+    public string Name { get; set; } = string.Empty;
 
-    public string Creator { get; set; }
+    [MaxLength(126)]
+    public string Creator { get; set; } = string.Empty;
 
-    public string Target { get; set; }
+    [MaxLength(126)]
+    public string Target { get; set; } = string.Empty;
 
     public int AuraCreatorType { get; set; }
 

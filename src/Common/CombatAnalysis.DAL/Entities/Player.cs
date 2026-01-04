@@ -1,12 +1,15 @@
-﻿namespace CombatAnalysis.DAL.Entities;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace CombatAnalysis.DAL.Entities;
 
 public class Player
 {
-    public string Id { get; set; }
+    public string Id { get; set; } = string.Empty;
 
-    public string GameId { get; set; }
+    public string GameId { get; set; } = string.Empty;
 
-    public string Username { get; set; }
+    [MaxLength(126)]
+    public string Username { get; set; } = string.Empty;
 
     public int Faction { get; set; }
 }

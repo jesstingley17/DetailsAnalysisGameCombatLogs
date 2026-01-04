@@ -1,4 +1,5 @@
 ﻿using CombatAnalysis.DAL.Interfaces.Entities;
+using System.ComponentModel.DataAnnotations;
 
 namespace CombatAnalysis.DAL.Entities;
 
@@ -6,6 +7,7 @@ public class Combat : IEntity
 {
     public int Id { get; set; }
 
+    [MaxLength(126)]
     public string DungeonName { get; set; } = string.Empty;
 
     public int DamageDone { get; set; }
@@ -22,6 +24,7 @@ public class Combat : IEntity
 
     public DateTimeOffset FinishDate { get; set; }
 
+    [MaxLength(126)]
     public string Duration
     {
         get { return (FinishDate - StartDate).ToString(@"hh\:mm\:ss"); }

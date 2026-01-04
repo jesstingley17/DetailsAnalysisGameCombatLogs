@@ -1,4 +1,5 @@
 ﻿using CombatAnalysis.DAL.Interfaces.Entities;
+using System.ComponentModel.DataAnnotations;
 
 namespace CombatAnalysis.DAL.Entities;
 
@@ -32,7 +33,8 @@ public class PlayerStats : IEntity
 
     public int Armor { get; set; }
 
-    public string Talents { get; set; }
+    [MaxLength(126)]
+    public string Talents { get; set; } = string.Empty;
 
     public int CombatPlayerId { get; set; }
 }

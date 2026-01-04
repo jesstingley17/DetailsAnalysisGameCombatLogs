@@ -2,6 +2,7 @@
 using CombatAnalysis.BL.DTO;
 using CombatAnalysis.BL.Interfaces;
 using CombatAnalysis.BL.Interfaces.General;
+using CombatAnalysis.CombatParser.Details;
 using CombatAnalysis.CombatParserAPI.Interfaces;
 using CombatAnalysis.CombatParserAPI.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -70,16 +71,27 @@ public class CombatController(IBossService bossService, IQueryService<CombatDto>
                 return ValidationProblem(ModelState);
             }
 
+            // A huge transaction for all action as ONE TRANSACTION was divided into a few small transactions.
+            // Transactions split by logic: combat/combatPlayer/combatPlayerData and combatPlayerSpecScore/bestSpecScore
+
+            // Transaction to create Combat and Combat Players data: combat players, damage, heal, damage taken, resources, etc
             await _combatTransactionService.BeginTransactionAsync();
 
             var createdCombat = await CreateCombatAsync(combat);
             combat.Id = createdCombat.Id;
 
-            await CreateCombatPlayersAsync(combat);
-
-            await UpdateCombatAsync(createdCombat);
+            var combatDetails = await CreateCombatPlayersAsync(combat);
 
             await _combatTransactionService.CommitTransactionAsync();
+
+            // Transaction to create Combat player specialization score: how combat player do mechanics, class rotation, assist other combat players, etc
+            await _combatTransactionService.BeginTransactionAsync();
+
+            await CreateCombatPlayersSpecializationScoreAsync(combat, combatDetails);
+
+            await _combatTransactionService.CommitTransactionAsync();
+
+            await UpdateCombatAsync(createdCombat);
 
             return Ok(createdCombat);
         }
@@ -142,15 +154,6 @@ public class CombatController(IBossService bossService, IQueryService<CombatDto>
         }
     }
 
-    private async Task<CombatPlayerDto> UploadCombatPlayerAsync(CombatPlayerModel model)
-    {
-        var map = _mapper.Map<CombatPlayerDto>(model);
-        var createdItem = await _mutationCombatPlayerService.CreateAsync(map);
-        ArgumentNullException.ThrowIfNull(createdItem, nameof(createdItem));
-
-        return createdItem;
-    }
-
     private async Task<CombatDto> CreateCombatAsync(CombatModel model)
     {
         var map = _mapper.Map<CombatDto>(model);
@@ -159,14 +162,20 @@ public class CombatController(IBossService bossService, IQueryService<CombatDto>
 
         return createdCombat;
     }
-
-    private async Task CreateCombatPlayersAsync(CombatModel combat)
+    
+    private async Task UpdateCombatAsync(CombatDto combat)
     {
-        foreach (var player in combat.CombatPlayers)
+        combat.IsReady = true;
+        await _mutationCombatService.UpdateAsync(combat);
+    }
+
+    private async Task<CombatDetails> CreateCombatPlayersAsync(CombatModel combat)
+    {
+        foreach (var player in combat.CombatPlayers) 
         {
             player.CombatId = combat.Id;
 
-            var createdCombatPlayer = await UploadCombatPlayerAsync(player);
+            var createdCombatPlayer = await CreateCombatPlayerAsync(player);
             player.Id = createdCombatPlayer.Id;
 
             player.Stats.CombatPlayerId = player.Id;
@@ -174,13 +183,26 @@ public class CombatController(IBossService bossService, IQueryService<CombatDto>
             await CreatePlayerStatsAsync(player);
         }
 
-        await _saveCombatDataHelper.SaveCombatPlayerAsync(combat);
+        var combatDetails = await _saveCombatDataHelper.CreateCombatPlayersDataAsync(combat);
+
+        await UpdateCombatPlayersAsync(combat.CombatPlayers);
+
+        return combatDetails;
     }
 
-    private async Task UpdateCombatAsync(CombatDto combat)
+    private async Task CreateCombatPlayersSpecializationScoreAsync(CombatModel combat, CombatDetails combatDetails)
     {
-        combat.IsReady = true;
-        await _mutationCombatService.UpdateAsync(combat);
+        await _saveCombatDataHelper.CreateSpecializationScoreAsync(combat.CombatPlayers, combatDetails, combat.Boss.Id);
+        await UpdateCombatPlayersAsync(combat.CombatPlayers);
+    }
+
+    private async Task<CombatPlayerDto> CreateCombatPlayerAsync(CombatPlayerModel model)
+    {
+        var map = _mapper.Map<CombatPlayerDto>(model);
+        var createdCombatPlayer = await _mutationCombatPlayerService.CreateAsync(map);
+        ArgumentNullException.ThrowIfNull(createdCombatPlayer, nameof(createdCombatPlayer));
+
+        return createdCombatPlayer;
     }
 
     private async Task CreatePlayerStatsAsync(CombatPlayerModel player)
@@ -189,5 +211,14 @@ public class CombatController(IBossService bossService, IQueryService<CombatDto>
         var createdStats = await _mutationPlayerStatsService.CreateAsync(map);
 
         ArgumentNullException.ThrowIfNull(createdStats, nameof(createdStats));
+    }
+
+    private async Task UpdateCombatPlayersAsync(List<CombatPlayerModel> combatPlayers)
+    {
+        foreach (var combatPlayer in combatPlayers)
+        {
+            var map = _mapper.Map<CombatPlayerDto>(combatPlayer);
+            await _mutationCombatPlayerService.UpdateAsync(map);
+        }
     }
 }

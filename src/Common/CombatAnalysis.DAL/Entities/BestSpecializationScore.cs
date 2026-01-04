@@ -2,15 +2,11 @@
 
 namespace CombatAnalysis.DAL.Entities;
 
-public class SpecializationScore : IEntity
+public class BestSpecializationScore
 {
     public int Id { get; set; }
 
-    public double DamageScore { get; set; }
-
     public int DamageDone { get; set; }
-
-    public double HealScore { get; set; }
 
     public int HealDone { get; set; }
 
@@ -18,5 +14,5 @@ public class SpecializationScore : IEntity
 
     public int SpecializationId { get; set; }
 
-    public int CombatPlayerId { get; set; }
+    public int BossId { get; set; }
 }

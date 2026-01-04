@@ -10,9 +10,7 @@ internal static class MigrationHelper
     [
             typeof(CombatLog),
             typeof(CombatPlayer),
-            typeof(PlayerParseInfo),
             typeof(PlayerStats),
-            typeof(SpecializationScore),
             typeof(Combat),
             typeof(PlayerDeath),
             typeof(DamageDoneGeneral),
@@ -25,6 +23,8 @@ internal static class MigrationHelper
             typeof(HealDone),
             typeof(DamageTaken),
             typeof(ResourceRecovery),
+            typeof(SpecializationScore),
+            typeof(BestSpecializationScore),
     ];
 
     private static readonly Type[] _insertValueTypes =
@@ -37,8 +37,6 @@ internal static class MigrationHelper
 
     private static readonly Type[] _tableTypes =
     [       
-            typeof(PlayerParseInfo),
-            typeof(SpecializationScore),
             typeof(PlayerDeath),
             typeof(DamageDoneGeneral),
             typeof(HealDoneGeneral),
@@ -50,6 +48,7 @@ internal static class MigrationHelper
             typeof(HealDone),
             typeof(DamageTaken),
             typeof(ResourceRecovery),
+            typeof(SpecializationScore),
     ];
 
     private static readonly Type[] _paginationTypes =
@@ -71,7 +70,6 @@ internal static class MigrationHelper
             typeof(ResourceRecovery),
             typeof(ResourceRecoveryGeneral),
             typeof(CombatPlayerPosition),
-            typeof(PlayerParseInfo),
             typeof(PlayerStats),
             typeof(PlayerDeath),
     ];
@@ -166,7 +164,6 @@ internal static class MigrationHelper
         CreateProceduresWithPaginations(migrationBuilder);
 
         GetDataByCombatPlayerId(migrationBuilder);
-        GetSpecializationScore(migrationBuilder);
     }
     
     public static void DropTableTypes(MigrationBuilder migrationBuilder)
@@ -208,7 +205,7 @@ internal static class MigrationHelper
     public static Boss[] GenerateBossCollection()
     {
         Boss[] collection =
-        {
+        [
             // Подземелье Могу'шан
             new() { GameId = 1395, Name = "Каменные стражи", Health = 130841100, Difficult = 3, Size = 10 },
             new() { GameId = 1395, Name = "Каменные стражи", Health = 235513980, Difficult = 5, Size = 10 },
@@ -272,7 +269,7 @@ internal static class MigrationHelper
             new() { GameId = 1560, Name = "Небесные сестры", Health = 628036200, Difficult = 5, Size = 10 },
             new() { GameId = 1579, Name = "Лэй Шэнь", Health = 329283435, Difficult = 3, Size = 10 },
             new() { GameId = 1579, Name = "Лэй Шэнь", Health = 580498347, Difficult = 5, Size = 10 }
-        };
+        ];
 
         for (int i = 0; i < collection.Length; i++)
         {
@@ -280,6 +277,49 @@ internal static class MigrationHelper
         }
 
         return collection;
+    }
+
+    public static Specialization[] GenerateSpecializationCollection()
+    {
+        Specialization[] collection = 
+        [
+            new() { SpecializationSpellsId = "48181,30108,1120" },
+            new() { SpecializationSpellsId = "131900,3674,53301" },
+            new() { SpecializationSpellsId = "55078,55090,47632" },
+            new() { SpecializationSpellsId = "50288,78674,8921" },
+            new() { SpecializationSpellsId = "129197,2944,15407" },
+            new() { SpecializationSpellsId = "12294,86346,7384" },
+            new() { SpecializationSpellsId = "6572,23922,20243" },
+            new() { SpecializationSpellsId = "121253,124335,100787" },
+            new() { SpecializationSpellsId = "47750,81751,47753" },
+            new() { SpecializationSpellsId = "61295,52752,51945" },
+        ];
+
+        for (int i = 0; i < collection.Length; i++)
+        {
+            collection[i].Id = i + 1;
+        }
+
+        return collection;
+    }
+    
+    public static BestSpecializationScore[] GenerateBestSpecializationScoreCollection()
+    {
+        var bosses = GenerateBossCollection();
+        var specs = GenerateSpecializationCollection();
+        var bestScores = new BestSpecializationScore[bosses.Length * specs.Length];
+        var index = 0;
+
+        foreach (var boss in bosses)
+        {
+            foreach (var spec in specs)
+            {
+                bestScores[index] = new() { Id = index + 1, BossId = boss.Id, SpecializationId = spec.Id };
+                index++;
+            }
+        }
+
+        return bestScores;
     }
 
     private static void CreateProceduresWithPaginations(MigrationBuilder migrationBuilder)
@@ -319,25 +359,6 @@ internal static class MigrationHelper
                 "END" +
                 "');");
         }
-    }
-
-    private static void GetSpecializationScore(MigrationBuilder migrationBuilder)
-    {
-        var classType = typeof(SpecializationScore);
-
-        var propertySpecId = classType.GetProperty(nameof(SpecializationScore.SpecId));
-        var propertyBossId = classType.GetProperty(nameof(SpecializationScore.BossId));
-        migrationBuilder.Sql($"" +
-            "EXEC('" +
-            $"CREATE OR ALTER PROCEDURE Get{classType.Name}BySpecId (@specId {Converter(propertySpecId.PropertyType)}, " +
-                                                                  $"@bossId {Converter(propertyBossId.PropertyType)})\n" +
-            "AS\n" +
-            "BEGIN\n" +
-            "\tSELECT * \n" +
-            $"\tFROM {classType.Name}\n" +
-            "\tWHERE SpecId = @specId AND BossId = @bossId\n" +
-            "END" +
-            "');");
     }
 
     private static Tuple<string, string> CreateParams(Type type, bool isStoredProcedure = true)

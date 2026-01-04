@@ -27,8 +27,6 @@ public static class DataCollectionExtensions
 
         services.AddScoped<IContextService, ContextService>();
 
-        services.AddScoped<IGenericRepositoryBatch<PlayerParseInfo>, SPPlayerParseInfoRepositoryBatch>();
-        services.AddScoped<IGenericRepositoryBatch<SpecializationScore>, SPSpecializationScoreRepositoryBatch>();
         services.AddScoped<IGenericRepositoryBatch<PlayerDeath>, SPPlayerDeathRepositoryBatch>();
         services.AddScoped<IGenericRepositoryBatch<DamageDoneGeneral>, SPDamageDoneGeneralRepositoryBatch>();
         services.AddScoped<IGenericRepositoryBatch<HealDoneGeneral>, SPHealDoneGeneralRepositoryBatch>();
@@ -64,7 +62,9 @@ public static class DataCollectionExtensions
 
         services.AddScoped<IDamageFilterRepository, DamageFilterRepository>();
 
-        services.AddScoped<ISpecScore, SPSpecScoreRepository>();
+        services.AddScoped<ISpecializationRepository, SpecializationRepository>();
+        services.AddScoped<ISpecializationScoreRepository, SPSpecializationScoreRepository>();
+        services.AddScoped<IBestSpecializationScoreRepository, BestSpecializationScoreRepository>();
 
         services.AddScoped(typeof(IGenericRepository<>), typeof(SPGenericRepository<>));
     }

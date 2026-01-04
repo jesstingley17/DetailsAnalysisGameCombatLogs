@@ -1,4 +1,5 @@
 ﻿using CombatAnalysis.DAL.Interfaces.Entities;
+using System.ComponentModel.DataAnnotations;
 
 namespace CombatAnalysis.DAL.Entities;
 
@@ -8,7 +9,8 @@ public class HealDoneGeneral : ICombatPlayerEntity
 
     public int GameSpellId { get; set; }
 
-    public string Spell { get; set; }
+    [MaxLength(126)]
+    public string Spell { get; set; } = string.Empty;
 
     public int Value { get; set; }
 

@@ -35,7 +35,7 @@ builder.Services.AddSingleton(mapper);
 builder.Services.AddTransient<IHttpClientHelper, HttpClientHelper>();
 
 builder.Services.AddScoped<ICombatDataHelper, CombatDataHelper>();
-builder.Services.AddScoped<IPlayerParseInfoHelper, PlayerParseInfoHelper>();
+builder.Services.AddScoped<ISpecializationScoreHelper, SpecializationScoreHelper>();
 
 builder.Services.Configure<KestrelServerOptions>(options =>
 {
@@ -54,7 +54,7 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 Log.Logger = new LoggerConfiguration()
-    .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Debug)
+    .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Warning)
     .WriteTo.File("logs/parserapi.log", rollingInterval: RollingInterval.Day, retainedFileCountLimit: 7, restrictedToMinimumLevel: LogEventLevel.Error)
     .CreateLogger();
 

@@ -20,10 +20,6 @@ public class CombatParserContext(DbContextOptions<CombatParserContext> options) 
 
     public DbSet<CombatPlayerPosition>? CombatPlayerPosition { get; }
 
-    public DbSet<PlayerParseInfo>? PlayerParseInfo { get; }
-
-    public DbSet<SpecializationScore>? SpecializationScore { get; }
-
     public DbSet<DamageDone>? DamageDone { get; }
 
     public DbSet<DamageDoneGeneral>? DamageDoneGeneral { get; }
@@ -44,6 +40,12 @@ public class CombatParserContext(DbContextOptions<CombatParserContext> options) 
 
     public DbSet<PlayerStats>? PlayerStats { get; }
 
+    public DbSet<Specialization>? Specialization { get; }
+
+    public DbSet<SpecializationScore>? SpecializationScore { get; }
+
+    public DbSet<BestSpecializationScore>? BestSpecializationScore { get; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Boss>()
@@ -51,5 +53,17 @@ public class CombatParserContext(DbContextOptions<CombatParserContext> options) 
             .ValueGeneratedOnAdd();
 
         modelBuilder.Entity<Boss>().HasData(MigrationHelper.GenerateBossCollection());
+
+        modelBuilder.Entity<Specialization>()
+            .Property(b => b.Id)
+            .ValueGeneratedOnAdd();
+
+        modelBuilder.Entity<Specialization>().HasData(MigrationHelper.GenerateSpecializationCollection());
+
+        modelBuilder.Entity<BestSpecializationScore>()
+            .Property(b => b.Id)
+            .ValueGeneratedOnAdd();
+
+        modelBuilder.Entity<BestSpecializationScore>().HasData(MigrationHelper.GenerateBestSpecializationScoreCollection());
     }
 }

@@ -1,17 +1,14 @@
 ﻿using AutoMapper;
 using CombatAnalysis.BL.DTO;
 using CombatAnalysis.BL.Interfaces;
-using CombatAnalysis.BL.Services.General;
 using CombatAnalysis.DAL.Entities;
 using CombatAnalysis.DAL.Interfaces;
-using CombatAnalysis.DAL.Interfaces.Generic;
 
 namespace CombatAnalysis.BL.Services;
 
-internal class SpecializationScoreService(ISpecScore specRepository, IGenericRepositoryBatch<SpecializationScore> repository, IMapper mapper) : QueryService<SpecializationScoreDto, SpecializationScore>(repository, mapper), IMutationServiceBatch<SpecializationScoreDto>, ISpecScoreService
+internal class SpecializationScoreService(ISpecializationScoreRepository repository, IMapper mapper) : ISpecializationScoreService
 {
-    private readonly IGenericRepositoryBatch<SpecializationScore> _repository = repository;
-    private readonly ISpecScore _specRepository = specRepository;
+    private readonly ISpecializationScoreRepository _repository = repository;
     private readonly IMapper _mapper = mapper;
 
     public async Task CreateBatchAsync(List<SpecializationScoreDto> items)
@@ -20,17 +17,6 @@ internal class SpecializationScoreService(ISpecScore specRepository, IGenericRep
 
         var map = _mapper.Map<IEnumerable<SpecializationScore>>(items);
         await _repository.CreateBatchAsync(map);
-    }
-
-    public async Task<SpecializationScoreDto> CreateAsync(SpecializationScoreDto item)
-    {
-        CheckParams(item);
-
-        var map = _mapper.Map<SpecializationScore>(item);
-        var createdItem = await _repository.CreateAsync(map);
-        var resultMap = _mapper.Map<SpecializationScoreDto>(createdItem);
-
-        return resultMap;
     }
 
     public async Task<int> UpdateAsync(SpecializationScoreDto item)
@@ -52,19 +38,20 @@ internal class SpecializationScoreService(ISpecScore specRepository, IGenericRep
         return entityDeleted;
     }
 
-    public async Task<IEnumerable<SpecializationScoreDto>> GetBySpecIdAsync(int specId, int bossId)
+    public async Task<SpecializationScoreDto?> GetByCombatPlayerIdAsync(int combatPlayerId)
     {
-        var result = await _specRepository.GetBySpecIdAsync(specId, bossId);
-        var resultMap = _mapper.Map<IEnumerable<SpecializationScoreDto>>(result);
+        var spec = await _repository.GetByCombatPlayerIdAsync(combatPlayerId);
+        var map = _mapper.Map<SpecializationScoreDto>(spec);
 
-        return resultMap;
+        return map;
     }
 
     private static void CheckParams(SpecializationScoreDto item)
     {
-        ArgumentOutOfRangeException.ThrowIfNegative(item.SpecId, nameof(item.SpecId));
-        ArgumentOutOfRangeException.ThrowIfNegative(item.BossId, nameof(item.BossId));
-        ArgumentOutOfRangeException.ThrowIfNegative(item.Damage, nameof(item.Damage));
-        ArgumentOutOfRangeException.ThrowIfNegative(item.Heal, nameof(item.Heal));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.SpecializationId, nameof(item.SpecializationId));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.DamageScore, nameof(item.DamageScore));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.DamageDone, nameof(item.DamageScore));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.HealScore, nameof(item.HealScore));
+        ArgumentOutOfRangeException.ThrowIfNegative(item.HealDone, nameof(item.HealScore));
     }
 }
