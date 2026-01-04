@@ -4,7 +4,7 @@ using CombatAnalysis.Core.Enums;
 using CombatAnalysis.Core.Helpers;
 using CombatAnalysis.Core.Interfaces;
 using CombatAnalysis.Core.Interfaces.Observers;
-using CombatAnalysis.Core.Models;
+using CombatAnalysis.Core.Models.GameLogs;
 using CombatAnalysis.Core.Security;
 using CombatAnalysis.Core.ViewModels.Chat;
 using Microsoft.Extensions.Caching.Memory;

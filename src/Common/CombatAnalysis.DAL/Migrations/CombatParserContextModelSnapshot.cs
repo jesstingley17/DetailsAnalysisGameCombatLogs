@@ -581,9 +581,6 @@ namespace CombatAnalysis.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("EnergyRecovery")
-                        .HasColumnType("int");
-
                     b.Property<DateTimeOffset>("FinishDate")
                         .HasColumnType("datetimeoffset");
 
@@ -595,6 +592,9 @@ namespace CombatAnalysis.DAL.Migrations
 
                     b.Property<bool>("IsWin")
                         .HasColumnType("bit");
+
+                    b.Property<int>("ResourcesRecovery")
+                        .HasColumnType("int");
 
                     b.Property<DateTimeOffset>("StartDate")
                         .HasColumnType("datetimeoffset");
@@ -764,6 +764,9 @@ namespace CombatAnalysis.DAL.Migrations
                     b.Property<int>("DamageType")
                         .HasColumnType("int");
 
+                    b.Property<int>("GameSpellId")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsPeriodicDamage")
                         .HasColumnType("bit");
 
@@ -818,6 +821,9 @@ namespace CombatAnalysis.DAL.Migrations
                     b.Property<double>("DamagePerSecond")
                         .HasColumnType("float");
 
+                    b.Property<int>("GameSpellId")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsPet")
                         .HasColumnType("bit");
 
@@ -867,6 +873,9 @@ namespace CombatAnalysis.DAL.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("DamageTakenType")
+                        .HasColumnType("int");
+
+                    b.Property<int>("GameSpellId")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsPeriodicDamage")
@@ -926,6 +935,9 @@ namespace CombatAnalysis.DAL.Migrations
                     b.Property<double>("DamageTakenPerSecond")
                         .HasColumnType("float");
 
+                    b.Property<int>("GameSpellId")
+                        .HasColumnType("int");
+
                     b.Property<int>("MaxValue")
                         .HasColumnType("int");
 
@@ -961,6 +973,9 @@ namespace CombatAnalysis.DAL.Migrations
                     b.Property<string>("Creator")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("GameSpellId")
+                        .HasColumnType("int");
 
                     b.Property<bool>("IsAbsorbed")
                         .HasColumnType("bit");
@@ -1008,6 +1023,9 @@ namespace CombatAnalysis.DAL.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("CritNumber")
+                        .HasColumnType("int");
+
+                    b.Property<int>("GameSpellId")
                         .HasColumnType("int");
 
                     b.Property<double>("HealPerSecond")
@@ -1187,6 +1205,9 @@ namespace CombatAnalysis.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("GameSpellId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Spell")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -1221,6 +1242,9 @@ namespace CombatAnalysis.DAL.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("CombatPlayerId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("GameSpellId")
                         .HasColumnType("int");
 
                     b.Property<int>("MaxValue")

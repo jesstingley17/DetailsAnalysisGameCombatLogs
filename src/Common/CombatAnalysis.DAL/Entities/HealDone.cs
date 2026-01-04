@@ -6,6 +6,8 @@ public class HealDone : ICombatPlayerEntity, IGeneralFilterEntity
 {
     public int Id { get; set; }
 
+    public int GameSpellId { get; set; }
+
     public string Spell { get; set; }
 
     public int Value { get; set; }

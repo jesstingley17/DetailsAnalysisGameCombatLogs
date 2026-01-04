@@ -2,7 +2,7 @@
 using CombatAnalysis.CombatParser.Entities;
 using CombatAnalysis.Core.Enums;
 using CombatAnalysis.Core.Interfaces;
-using CombatAnalysis.Core.Models;
+using CombatAnalysis.Core.Models.GameLogs;
 using CombatAnalysis.Core.ViewModels.ViewModelTemplates;
 using Microsoft.Extensions.Logging;
 

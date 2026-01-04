@@ -4,11 +4,13 @@ namespace CombatAnalysis.CombatParser.Entities;
 
 public class DamageDoneGeneral : ICombatPlayerEntity
 {
+    public int GameSpellId { get; set; }
+
+    public string Spell { get; set; }
+
     public int Value { get; set; }
 
     public double DamagePerSecond { get; set; }
-
-    public string Spell { get; set; }
 
     public int CritNumber { get; set; }
 

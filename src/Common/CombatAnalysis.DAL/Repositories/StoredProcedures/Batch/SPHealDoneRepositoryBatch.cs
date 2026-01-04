@@ -21,6 +21,7 @@ internal class SPHealDoneRepositoryBatch(CombatParserContext context) : SPGeneri
         var firstElement = items.First();
 
         var table = new DataTable();
+        table.Columns.Add(nameof(HealDone.GameSpellId), firstElement.GameSpellId.GetType());
         table.Columns.Add(nameof(HealDone.Spell), firstElement.Spell.GetType());
         table.Columns.Add(nameof(HealDone.Value), firstElement.Value.GetType());
         table.Columns.Add(nameof(HealDone.Time), firstElement.Time.GetType());
@@ -34,6 +35,7 @@ internal class SPHealDoneRepositoryBatch(CombatParserContext context) : SPGeneri
         foreach (var item in items)
         {
             table.Rows.Add(
+                item.GameSpellId,
                 item.Spell,
                 item.Value,
                 item.Time,

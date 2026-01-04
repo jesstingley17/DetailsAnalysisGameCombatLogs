@@ -21,6 +21,7 @@ internal class SPDamageDoneGeneralRepositoryBatch(CombatParserContext context) :
         var firstElement = items.First();
 
         var table = new DataTable();
+        table.Columns.Add(nameof(DamageDoneGeneral.GameSpellId), firstElement.GameSpellId.GetType());
         table.Columns.Add(nameof(DamageDoneGeneral.Spell), firstElement.Spell.GetType());
         table.Columns.Add(nameof(DamageDoneGeneral.Value), firstElement.Value.GetType());
         table.Columns.Add(nameof(DamageDoneGeneral.DamagePerSecond), firstElement.DamagePerSecond.GetType());
@@ -36,6 +37,7 @@ internal class SPDamageDoneGeneralRepositoryBatch(CombatParserContext context) :
         foreach (var item in items)
         {
             table.Rows.Add(
+                item.GameSpellId,
                 item.Spell,
                 item.Value,
                 item.DamagePerSecond,

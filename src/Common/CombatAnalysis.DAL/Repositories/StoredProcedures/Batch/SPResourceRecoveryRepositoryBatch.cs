@@ -21,6 +21,7 @@ internal class SPResourceRecoveryRepositoryBatch(CombatParserContext context) : 
         var firstElement = items.First();
 
         var table = new DataTable();
+        table.Columns.Add(nameof(ResourceRecovery.GameSpellId), firstElement.GameSpellId.GetType());
         table.Columns.Add(nameof(ResourceRecovery.Spell), firstElement.Spell.GetType());
         table.Columns.Add(nameof(ResourceRecovery.Value), firstElement.Value.GetType());
         table.Columns.Add(nameof(ResourceRecovery.Time), firstElement.Time.GetType());
@@ -31,6 +32,7 @@ internal class SPResourceRecoveryRepositoryBatch(CombatParserContext context) : 
         foreach (var item in items)
         {
             table.Rows.Add(
+                item.GameSpellId,
                 item.Spell,
                 item.Value,
                 item.Time,

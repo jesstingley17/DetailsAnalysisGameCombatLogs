@@ -1,5 +1,5 @@
 ﻿using CombatAnalysis.Core.Enums;
-using CombatAnalysis.Core.Models;
+using CombatAnalysis.Core.Models.GameLogs;
 
 namespace CombatAnalysis.Core.Interfaces;
 

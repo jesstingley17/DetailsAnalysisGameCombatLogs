@@ -21,6 +21,7 @@ internal class SPDamageTakenRepositoryBatch(CombatParserContext context) : SPGen
         var firstElement = items.First();
 
         var table = new DataTable();
+        table.Columns.Add(nameof(DamageTaken.GameSpellId), firstElement.GameSpellId.GetType());
         table.Columns.Add(nameof(DamageTaken.Spell), firstElement.Spell.GetType());
         table.Columns.Add(nameof(DamageTaken.Value), firstElement.Value.GetType());
         table.Columns.Add(nameof(DamageTaken.Time), firstElement.Time.GetType());
@@ -39,6 +40,7 @@ internal class SPDamageTakenRepositoryBatch(CombatParserContext context) : SPGen
         foreach (var item in items)
         {
             table.Rows.Add(
+                item.GameSpellId,
                 item.Spell,
                 item.Value,
                 item.Time,

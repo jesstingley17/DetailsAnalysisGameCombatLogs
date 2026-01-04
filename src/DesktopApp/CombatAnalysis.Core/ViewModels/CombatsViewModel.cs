@@ -1,7 +1,7 @@
 ﻿using CombatAnalysis.Core.Enums;
 using CombatAnalysis.Core.Interfaces;
 using CombatAnalysis.Core.Interfaces.Observers;
-using CombatAnalysis.Core.Models;
+using CombatAnalysis.Core.Models.GameLogs;
 using CombatAnalysis.Core.Services;
 using CombatAnalysis.Core.ViewModels.Base;
 using CombatAnalysis.Core.ViewModels.ViewModelTemplates;

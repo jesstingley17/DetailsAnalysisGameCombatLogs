@@ -1,7 +1,7 @@
 ﻿using CombatAnalysis.Core.Consts;
 using CombatAnalysis.Core.Enums;
 using CombatAnalysis.Core.Interfaces;
-using CombatAnalysis.Core.Models;
+using CombatAnalysis.Core.Models.GameLogs;
 using CombatAnalysis.Core.Models.User;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;

@@ -1,6 +1,6 @@
 ﻿using CombatAnalysis.Core.Interfaces;
 using CombatAnalysis.Core.Localizations;
-using CombatAnalysis.Core.Models;
+using CombatAnalysis.Core.Models.GameLogs;
 using CombatAnalysis.Core.ViewModels.Base;
 using CombatAnalysis.Core.ViewModels.ViewModelTemplates;
 using MvvmCross.Commands;

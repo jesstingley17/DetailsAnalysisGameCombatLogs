@@ -7,14 +7,17 @@ public class DamageDoneGeneralModel
     [Range(0, int.MaxValue)]
     public int Id { get; set; }
 
+    [Required]
+    public int GameSpellId { get; set; }
+
+    [Required]
+    public string Spell { get; set; }
+
     [Range(0, int.MaxValue)]
     public int Value { get; set; }
 
     [Range(0, int.MaxValue)]
     public double DamagePerSecond { get; set; }
-
-    [Required]
-    public string Spell { get; set; }
 
     [Range(0, int.MaxValue)]
     public int CritNumber { get; set; }

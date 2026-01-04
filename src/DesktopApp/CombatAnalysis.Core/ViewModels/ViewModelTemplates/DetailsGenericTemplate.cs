@@ -4,7 +4,7 @@ using CombatAnalysis.Core.Enums;
 using CombatAnalysis.Core.Extensions;
 using CombatAnalysis.Core.Interfaces;
 using CombatAnalysis.Core.Interfaces.Entities;
-using CombatAnalysis.Core.Models;
+using CombatAnalysis.Core.Models.GameLogs;
 using CombatAnalysis.Core.ViewModels.Base;
 using Microsoft.Extensions.Logging;
 using MvvmCross.Commands;

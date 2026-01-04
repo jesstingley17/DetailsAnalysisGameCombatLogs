@@ -36,7 +36,7 @@ public static class CombatDetailsExtension
     private static List<DamageDoneGeneral> GetDamageDoneGeneral(List<DamageDone> collection, string duration)
     {
         var damageDoneCollection = collection
-            .GroupBy(group => group.Spell)
+            .GroupBy(group => group.GameSpellId)
             .Select(select => select.ToList()).ToList();
 
         if (!TimeSpan.TryParse(duration, out var durationTime))
@@ -56,9 +56,10 @@ public static class CombatDetailsExtension
 
             var damageDoneGeneral = new DamageDoneGeneral
             {
+                GameSpellId = item[0].GameSpellId,
+                Spell = item[0].Spell,
                 Value = item.Sum(x => x.Value),
                 DamagePerSecond = damagePerSecondRound,
-                Spell = item[0].Spell,
                 CritNumber = critNumber,
                 MissNumber = missNumber,
                 CastNumber = item.Count,
@@ -79,7 +80,7 @@ public static class CombatDetailsExtension
     private static List<HealDoneGeneral> GetHealDoneGeneral(List<HealDone> collection, string duration)
     {
         var spells = collection
-            .GroupBy(group => group.Spell)
+            .GroupBy(group => group.GameSpellId)
             .Select(select => select.ToList());
 
         if (!TimeSpan.TryParse(duration, out var durationTime))
@@ -97,12 +98,13 @@ public static class CombatDetailsExtension
 
             var healDoneGeneral = new HealDoneGeneral
             {
+                GameSpellId = item[0].GameSpellId,
+                Spell = item[0].Spell,
                 Value = item.Sum(x => x.Value),
                 HealPerSecond = healPerSecondRound,
                 AverageValue = averageValue,
                 MinValue = item.Min(x => x.Value),
                 MaxValue = item.Max(x => x.Value),
-                Spell = item[0].Spell,
                 CastNumber = item.Count,
                 CritNumber = critNumber,
             };
@@ -118,7 +120,7 @@ public static class CombatDetailsExtension
     private static List<DamageTakenGeneral> GetDamageTakenGeneral(List<DamageTaken> collection, string duration)
     {
         var spells = collection
-            .GroupBy(group => group.Spell)
+            .GroupBy(group => group.GameSpellId)
             .Select(select => select.ToList());
 
         if (!TimeSpan.TryParse(duration, out var durationTime))
@@ -135,13 +137,14 @@ public static class CombatDetailsExtension
 
             var damageTakenGeneral = new DamageTakenGeneral
             {
+                GameSpellId = item[0].GameSpellId,
+                Spell = item[0].Spell,
                 Value = item.Sum(x => x.Value),
                 ActualValue = item.Sum(x => x.ActualValue),
                 DamageTakenPerSecond = damageTakenPerSecondRound,
                 AverageValue = averageValue,
                 MinValue = item.Min(x => x.Value),
                 MaxValue = item.Max(x => x.Value),
-                Spell = item[0].Spell,
                 CastNumber = item.Count,
             };
 
@@ -156,7 +159,7 @@ public static class CombatDetailsExtension
     private static List<ResourceRecoveryGeneral> GetResourceRecoveryGeneral(List<ResourceRecovery> collection, string duration)
     {
         var spells = collection
-            .GroupBy(group => group.Spell)
+            .GroupBy(group => group.GameSpellId)
             .Select(select => select.ToList());
 
         if (!TimeSpan.TryParse(duration, out var durationTime))
@@ -173,12 +176,13 @@ public static class CombatDetailsExtension
 
             var resourceRecoveryGeneral = new ResourceRecoveryGeneral
             {
+                GameSpellId = item[0].GameSpellId,
+                Spell = item[0].Spell,
                 Value = item.Sum(x => x.Value),
                 ResourcePerSecond = resourcePerSecondRound,
                 AverageValue = averageValue,
                 MinValue = item.Min(x => x.Value),
                 MaxValue = item.Max(x => x.Value),
-                Spell = item[0].Spell,
                 CastNumber = item.Count,
             };
 

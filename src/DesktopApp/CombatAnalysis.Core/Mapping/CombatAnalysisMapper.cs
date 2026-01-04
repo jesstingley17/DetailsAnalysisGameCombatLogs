@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using CombatAnalysis.CombatParser.Entities;
-using CombatAnalysis.Core.Models;
+using CombatAnalysis.Core.Models.GameLogs;
 
 namespace CombatAnalysis.Core.Mapping;
 
