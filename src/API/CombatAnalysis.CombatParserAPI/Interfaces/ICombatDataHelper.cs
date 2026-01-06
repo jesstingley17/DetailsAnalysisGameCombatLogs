@@ -5,7 +5,9 @@ namespace CombatAnalysis.CombatParserAPI.Interfaces;
 
 public interface ICombatDataHelper
 {
-    Task<CombatDetails> CreateCombatPlayersDataAsync(CombatModel combat);
+    CombatDetails CreateCombatDetails(CombatModel combat);
 
-    Task CreateSpecializationScoreAsync(List<CombatPlayerModel> combatPlayers, CombatDetails combatDetails, int bossId);
+    Task CreateCombatPlayersDataAsync(CombatDetails combatDetails, CombatModel combat);
+
+    Task UpdateSpecializationScoreAsync(List<CombatPlayerModel> combatPlayers, CombatDetails combatDetails, int bossId);
 }

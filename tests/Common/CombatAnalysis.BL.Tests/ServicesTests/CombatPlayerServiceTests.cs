@@ -3,7 +3,7 @@ using CombatAnalysis.BL.DTO;
 using CombatAnalysis.BL.Services;
 using CombatAnalysis.BL.Tests.Factory;
 using CombatAnalysis.DAL.Entities;
-using CombatAnalysis.DAL.Interfaces.Generic;
+using CombatAnalysis.DAL.Interfaces;
 using Moq;
 
 namespace CombatAnalysis.BL.Tests.ServicesTests;
@@ -18,7 +18,7 @@ public class CombatPlayerServiceTests
         var entity = CombatPlayerTestDataFactory.Create();
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<CombatPlayer>>();
+        var mockRepository = new Mock<ICombatPlayerRepository>();
 
         mockMapper.Setup(m => m.Map<CombatPlayer>(entityDto)).Returns(entity);
         mockMapper.Setup(m => m.Map<CombatPlayerDto>(entity)).Returns(entityDto);
@@ -52,7 +52,7 @@ public class CombatPlayerServiceTests
         var entityDto = CombatPlayerTestDataFactory.CreateDto(username: "");
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<CombatPlayer>>();
+        var mockRepository = new Mock<ICombatPlayerRepository>();
 
         var service = new CombatPlayerService(mockRepository.Object, mockMapper.Object);
 
@@ -64,90 +64,48 @@ public class CombatPlayerServiceTests
     }
 
     [Fact]
-    public async Task UpdateAsync_ShouldUpdateEntity()
+    public async Task GetByCombatIdAsync_Collection_ShouldReturnCollection()
     {
         // Arrange
-        var entityDto = CombatPlayerTestDataFactory.CreateDto();
-        var entity = CombatPlayerTestDataFactory.Create();
+        const int combatPlayerId = 1;
+
+        var entityCollection = CombatPlayerTestDataFactory.CreateCollection();
+        var entityDtoCollection = CombatPlayerTestDataFactory.CreateDtoCollection();
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<CombatPlayer>>();
+        var mockRepository = new Mock<ICombatPlayerRepository>();
 
-        mockMapper.Setup(m => m.Map<CombatPlayer>(entityDto)).Returns(entity);
-
-        mockRepository.Setup(m => m.UpdateAsync(entity));
-
-        var service = new CombatPlayerService(mockRepository.Object, mockMapper.Object);
-
-        // Act
-        await service.UpdateAsync(entityDto);
-
-        // Assert and Verify correct method calls
-        mockMapper.Verify(m => m.Map<CombatPlayer>(It.IsAny<CombatPlayerDto>()), Times.Once);
-        mockRepository.Verify(r => r.UpdateAsync(It.IsAny<CombatPlayer>()), Times.Once);
-    }
-
-    [Fact]
-    public async Task DeleteAsync_True_ShouldDeleteEntity()
-    {
-        // Arrange
-        const int id = 1;
-
-        var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<CombatPlayer>>();
-
-        mockRepository.Setup(r => r.DeleteAsync(id)).ReturnsAsync(true);
-
-        var service = new CombatPlayerService(mockRepository.Object, mockMapper.Object);
-
-        // Act
-        var entityDeleted = await service.DeleteAsync(id);
-
-        // Assert
-        Assert.True(entityDeleted);
-
-        // Verify correct method calls
-        mockRepository.Verify(r => r.DeleteAsync(It.IsAny<int>()), Times.Once);
-    }
-
-    [Fact]
-    public async Task DeleteAsync_False_ShouldNotDeleteEntity()
-    {
-        // Arrange
-        const int id = 2;
-
-        var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<CombatPlayer>>();
-
-        mockRepository.Setup(r => r.DeleteAsync(id)).ReturnsAsync(false);
-
-        var service = new CombatPlayerService(mockRepository.Object, mockMapper.Object);
-
-        // Act
-        var entityDeleted = await service.DeleteAsync(id);
-
-        // Assert
-        Assert.False(entityDeleted);
-
-        // Verify correct method calls
-        mockRepository.Verify(r => r.DeleteAsync(It.IsAny<int>()), Times.Once);
-    }
-
-    [Fact]
-    public async Task DeleteAsync_ThrowArgumentOutOfRangeException_ShouldNotDeleteEntity()
-    {
-        // Arrange
-        const int id = 0;
-
-        var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<CombatPlayer>>();
+        mockRepository.Setup(m => m.GetByCombatIdAsync(combatPlayerId)).ReturnsAsync(entityCollection);
+        mockMapper.Setup(m => m.Map<IEnumerable<CombatPlayerDto>>(entityCollection)).Returns(entityDtoCollection);
 
         var service = new CombatPlayerService(mockRepository.Object, mockMapper.Object);
 
         // Act and Assert
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.DeleteAsync(id));
+        var result = await service.GetByCombatIdAsync(combatPlayerId);
+
+        Assert.NotEmpty(result);
+        Assert.Equal(3, result.Count());
 
         // Verify correct method calls
-        mockRepository.Verify(r => r.DeleteAsync(It.IsAny<int>()), Times.Never);
+        mockRepository.Verify(r => r.GetByCombatIdAsync(It.IsAny<int>()), Times.Once);
+        mockMapper.Verify(r => r.Map<IEnumerable<CombatPlayerDto>>(It.IsAny<IEnumerable<CombatPlayer>>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetByCombatIdAsync_ThrowArgumentOutOfRangeException_ShouldNotReturnAnyEntity()
+    {
+        // Arrange
+        const int combatPlayerId = 0;
+
+        var mockMapper = new Mock<IMapper>();
+        var mockRepository = new Mock<ICombatPlayerRepository>();
+
+        var service = new CombatPlayerService(mockRepository.Object, mockMapper.Object);
+
+        // Act and Assert
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.GetByCombatIdAsync(combatPlayerId));
+
+        // Verify correct method calls
+        mockRepository.Verify(r => r.GetByCombatIdAsync(It.IsAny<int>()), Times.Never);
     }
 }

@@ -1,9 +1,9 @@
 ﻿using CombatAnalysis.DAL.Interfaces.Entities;
 using System.ComponentModel.DataAnnotations;
 
-namespace CombatAnalysis.DAL.Entities;
+namespace CombatAnalysis.DAL.Entities.CombatPlayerData;
 
-public class HealDoneGeneral : ICombatPlayerEntity
+public class DamageTakenGeneral : ICombatPlayerEntity
 {
     public int Id { get; set; }
 
@@ -14,9 +14,13 @@ public class HealDoneGeneral : ICombatPlayerEntity
 
     public int Value { get; set; }
 
-    public double HealPerSecond { get; set; }
+    public int ActualValue { get; set; }
+
+    public double DamageTakenPerSecond { get; set; }
 
     public int CritNumber { get; set; }
+
+    public int MissNumber { get; set; }
 
     public int CastNumber { get; set; }
 
@@ -25,6 +29,8 @@ public class HealDoneGeneral : ICombatPlayerEntity
     public int MaxValue { get; set; }
 
     public double AverageValue { get; set; }
+
+    public CombatPlayer CombatPlayer { get; set; }
 
     public int CombatPlayerId { get; set; }
 }

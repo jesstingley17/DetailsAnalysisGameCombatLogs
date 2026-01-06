@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CombatAnalysis.DAL.Entities;
 
-public class PlayerDeath : ICombatPlayerEntity
+public class CombatPlayerDeath : ICombatPlayerEntity
 {
     public int Id { get; set; }
 
@@ -16,6 +16,8 @@ public class PlayerDeath : ICombatPlayerEntity
     public int LastHitValue { get; set; }
 
     public TimeSpan Time { get; set; }
+
+    public CombatPlayer CombatPlayer { get; set; }
 
     public int CombatPlayerId { get; set; }
 }

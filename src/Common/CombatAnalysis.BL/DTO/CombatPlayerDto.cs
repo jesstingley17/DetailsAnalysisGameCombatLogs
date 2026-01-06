@@ -14,6 +14,12 @@ public class CombatPlayerDto
 
     public int DamageTaken { get; set; }
 
+    public CombatPlayerStatsDto Stats { get; set; } = new();
+
+    public SpecializationScoreDto Score { get; set; } = new();
+
+    public PlayerDto Player { get; set; } = new();
+
     public string PlayerId { get; set; }
 
     public int CombatId { get; set; }

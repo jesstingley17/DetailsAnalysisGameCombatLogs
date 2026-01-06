@@ -1,5 +1,4 @@
-﻿using CombatAnalysis.Core.Interfaces;
-using CombatAnalysis.Core.Localizations;
+﻿using CombatAnalysis.Core.Localizations;
 using CombatAnalysis.Core.Models.GameLogs;
 using CombatAnalysis.Core.ViewModels.Base;
 using CombatAnalysis.Core.ViewModels.ViewModelTemplates;
@@ -9,8 +8,6 @@ namespace CombatAnalysis.Core.ViewModels;
 
 public class CombatPlayersViewModel : ParentTemplate<CombatModel>
 {
-    private readonly ICombatParserAPIService _combatParserAPIService;
-
     private int _selectedTabIndex = 1;
     private int _bestDamageDone;
     private int _bestHealDone;
@@ -20,7 +17,7 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
     private List<CombatPlayerModel>? _players;
     private List<CombatPlayerModel>? _mainPlayersCombat;
     private CombatPlayerModel? _selectedPlayer;
-    private PlayerStatsModel? _selectedPlayerStats;
+    private CombatPlayerStatsModel? _selectedPlayerStats;
     private List<string>? _filterList;
     private int _combatInformationType;
     private int _selectedFilterIndex;
@@ -56,18 +53,10 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
     private double _totalHealPerSecond;
     private double _totalResourcesPerSecond;
 
-    // Player stats modal window
-    private bool _isModalOpen;
-    private int _playerMainStat = -1;
-
-    public CombatPlayersViewModel(ICombatParserAPIService combatParserAPIService)
+    public CombatPlayersViewModel()
     {
-        _combatParserAPIService = combatParserAPIService;
-
         Basic.Parent = this;
         Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.Step), 2);
-
-        CloseStatsCommand = new MvxCommand(CloseStats);
 
         OpenEditMinDamageDoneCommand = new MvxCommand(() => OpenEditMinDamageDone = true);
         ApplyMinDamageDoneCommand = new MvxCommand(ApplyMinDamageDone);
@@ -135,28 +124,6 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
     public IMvxCommand UseFilterByMinRPSCommand { get; set; }
 
     public IMvxCommand FilterClearCommand { get; set; }
-
-    #endregion
-
-    #region Player stats modal window properties
-
-    public bool IsModalOpen
-    {
-        get => _isModalOpen;
-        set => SetProperty(ref _isModalOpen, value);
-    }
-
-    public double ModalWidth { get; set; } = 600;
-
-    public double ModalHeight { get; set; } = 500;
-
-    public string ModalTitle { get; set; } = "Player Stats";
-
-    public int PlayerMainStat
-    {
-        get => _playerMainStat;
-        set => SetProperty(ref _playerMainStat, value);
-    }
 
     #endregion
 
@@ -237,12 +204,12 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
                     basicTemplateViewModel.PetsId = (Combat?.PetsId) ?? [];
                 }
 
-                AsyncDispatcher.ExecuteOnMainThreadAsync(OpenStatsAsync);
+                SelectedPlayerStats = value.Stats;
             }
         }
     }
 
-    public PlayerStatsModel? SelectedPlayerStats
+    public CombatPlayerStatsModel? SelectedPlayerStats
     {
         get => _selectedPlayerStats;
         set
@@ -604,26 +571,6 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
     }
 
     #endregion
-
-    public async Task OpenStatsAsync()
-    {
-        if (SelectedPlayer == null)
-        {
-            return;
-        }
-
-        SelectedPlayerStats = SelectedPlayer.Stats ?? await _combatParserAPIService.LoadCombatPlayerStatsAsync(SelectedPlayer.Id);
-
-        SelectMainStat();
-
-        IsModalOpen = true;
-    }
-
-    public void CloseStats()
-    {
-        SelectedPlayerStats = null;
-        IsModalOpen = false;
-    }
 
     public void ApplyMinDamageDone()
     {
@@ -1014,18 +961,5 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
         }
 
         Players = [.. temporaryPlayersCombat];
-    }
-
-    private void SelectMainStat()
-    {
-        if (SelectedPlayer == null || SelectedPlayerStats == null)
-        {
-            return;
-        }
-
-        PlayerMainStat = SelectedPlayerStats.Strength > SelectedPlayerStats.Intelligence && SelectedPlayerStats.Strength > SelectedPlayerStats.Agility
-            ? 0 :
-                SelectedPlayerStats.Intelligence > SelectedPlayerStats.Strength && SelectedPlayerStats.Intelligence > SelectedPlayerStats.Agility
-                ? 2 : 1;
     }
 }

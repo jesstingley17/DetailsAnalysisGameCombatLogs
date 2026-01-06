@@ -1,5 +1,7 @@
 ﻿using CombatAnalysis.DAL.Data;
 using CombatAnalysis.DAL.Entities;
+using CombatAnalysis.DAL.Entities.CombatPlayerData;
+using CombatAnalysis.DAL.Extensions;
 using CombatAnalysis.DAL.Interfaces.Generic;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -7,7 +9,7 @@ using System.Data;
 
 namespace CombatAnalysis.DAL.Repositories.StoredProcedures.Batch;
 
-internal class SPCombatAuraRepositoryBatch(CombatParserContext context) : SPGenericRepository<CombatAura>(context), IGenericRepositoryBatch<CombatAura>
+internal class SPCombatAuraRepositoryBatch(CombatParserContext context) : GenericRepository<CombatAura>(context), IGenericRepositoryBatch<CombatAura>
 {
     private readonly CombatParserContext _context = context;
 
@@ -18,18 +20,16 @@ internal class SPCombatAuraRepositoryBatch(CombatParserContext context) : SPGene
             return;
         }
 
-        var firstElement = items.First();
-
         var table = new DataTable();
-        table.Columns.Add(nameof(CombatAura.Name), firstElement.Name.GetType());
-        table.Columns.Add(nameof(CombatAura.Creator), firstElement.Creator.GetType());
-        table.Columns.Add(nameof(CombatAura.Target), firstElement.Target.GetType());
-        table.Columns.Add(nameof(CombatAura.AuraCreatorType), firstElement.AuraCreatorType.GetType());
-        table.Columns.Add(nameof(CombatAura.AuraType), firstElement.AuraType.GetType());
-        table.Columns.Add(nameof(CombatAura.StartTime), firstElement.StartTime.GetType());
-        table.Columns.Add(nameof(CombatAura.FinishTime), firstElement.FinishTime.GetType());
-        table.Columns.Add(nameof(CombatAura.Stacks), firstElement.Stacks.GetType());
-        table.Columns.Add(nameof(CombatAura.CombatId), firstElement.CombatId.GetType());
+        table.AddColumn<string>(nameof(CombatAura.Name));
+        table.AddColumn<string>(nameof(CombatAura.Creator));
+        table.AddColumn<string>(nameof(CombatAura.Target));
+        table.AddColumn<int>(nameof(CombatAura.AuraCreatorType));
+        table.AddColumn<int>(nameof(CombatAura.AuraType));
+        table.AddColumn<TimeSpan>(nameof(CombatAura.StartTime));
+        table.AddColumn<TimeSpan>(nameof(CombatAura.FinishTime));
+        table.AddColumn<int>(nameof(CombatAura.Stacks));
+        table.AddColumn<int>(nameof(CombatAura.CombatId));
 
         foreach (var item in items)
         {
@@ -45,13 +45,13 @@ internal class SPCombatAuraRepositoryBatch(CombatParserContext context) : SPGene
                 item.CombatId);
         }
 
-        var param = new SqlParameter("@Items", table)
+        var itemsParam = new SqlParameter("@Items", table)
         {
             SqlDbType = SqlDbType.Structured,
             TypeName = $"dbo.{nameof(CombatAura)}Type"
         };
 
-        var storedProcedureName = $"InsertInto{nameof(CombatAura)}Batch";
-        await _context.Database.ExecuteSqlInterpolatedAsync($"EXEC {storedProcedureName} {param}");
+        var sql = $"EXEC dbo.InsertInto{nameof(CombatAura)}Batch @Items";
+        await _context.Database.ExecuteSqlRawAsync(sql, itemsParam);
     }
 }

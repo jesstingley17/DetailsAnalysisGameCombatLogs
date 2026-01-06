@@ -17,4 +17,6 @@ public class Boss : IEntity
     public int Difficult { get; set; }
 
     public int Size { get; set; }
+
+    public ICollection<BestSpecializationScore> BestSpecializationScores { get; set; } = [];
 }

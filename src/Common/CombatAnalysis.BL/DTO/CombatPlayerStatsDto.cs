@@ -1,13 +1,10 @@
 ﻿using CombatAnalysis.DAL.Interfaces.Entities;
-using System.ComponentModel.DataAnnotations;
 
-namespace CombatAnalysis.DAL.Entities;
+namespace CombatAnalysis.BL.DTO;
 
-public class PlayerStats : IEntity
+public class CombatPlayerStatsDto : IEntity
 {
     public int Id { get; set; }
-
-    public int Faction { get; set; }
 
     public int Strength { get; set; }
 
@@ -33,8 +30,7 @@ public class PlayerStats : IEntity
 
     public int Armor { get; set; }
 
-    [MaxLength(126)]
-    public string Talents { get; set; } = string.Empty;
+    public string Talents { get; set; }
 
     public int CombatPlayerId { get; set; }
 }

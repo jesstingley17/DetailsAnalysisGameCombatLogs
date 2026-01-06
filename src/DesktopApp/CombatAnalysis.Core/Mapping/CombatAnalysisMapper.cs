@@ -12,8 +12,8 @@ internal class CombatAnalysisMapper : Profile
         CreateMap<BossModel, Boss>().ReverseMap();
         CreateMap<CombatModel, Combat>().ReverseMap();
         CreateMap<CombatPlayerModel, CombatPlayer>().ReverseMap();
-        CreateMap<PlayerStatsModel, PlayerStats>().ReverseMap();
-        CreateMap<PlayerParseInfoModel, PlayerParseInfo>().ReverseMap();
+        CreateMap<CombatPlayerStatsModel, PlayerStats>().ReverseMap();
+        CreateMap<SpecializationScoreModel, SpecializationScore>().ReverseMap();
         CreateMap<DamageDoneModel, DamageDone>().ReverseMap();
         CreateMap<DamageDoneGeneralModel, DamageDoneGeneral>().ReverseMap();
         CreateMap<HealDoneModel, HealDone>().ReverseMap();
@@ -22,6 +22,6 @@ internal class CombatAnalysisMapper : Profile
         CreateMap<DamageTakenGeneralModel, DamageTakenGeneral>().ReverseMap();
         CreateMap<ResourceRecoveryModel, ResourceRecovery>().ReverseMap();
         CreateMap<ResourceRecoveryGeneralModel, ResourceRecoveryGeneral>().ReverseMap();
-        CreateMap<PlayerDeathModel, PlayerDeath>().ReverseMap();
+        CreateMap<CombatPlayerDeathModel, PlayerDeath>().ReverseMap();
     }
 }

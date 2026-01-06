@@ -1,6 +1,6 @@
 ﻿namespace CombatAnalysis.Core.Models.GameLogs;
 
-public class PlayerDeathModel
+public class CombatPlayerDeathModel
 {
     public string Username { get; set; } = string.Empty;
 

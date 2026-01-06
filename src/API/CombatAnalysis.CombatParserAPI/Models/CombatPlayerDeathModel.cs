@@ -2,7 +2,7 @@
 
 namespace CombatAnalysis.CombatParserAPI.Models;
 
-public class PlayerDeathModel
+public class CombatPlayerDeathModel
 {
     [Range(0, int.MaxValue)]
     public int Id { get; set; }

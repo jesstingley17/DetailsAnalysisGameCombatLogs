@@ -6,6 +6,7 @@ using CombatAnalysis.BL.Services;
 using CombatAnalysis.BL.Services.Filters;
 using CombatAnalysis.BL.Services.General;
 using CombatAnalysis.DAL.Entities;
+using CombatAnalysis.DAL.Entities.CombatPlayerData;
 using CombatAnalysis.DAL.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -41,9 +42,11 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICountService<ResourceRecoveryDto>, CountService<ResourceRecoveryDto, ResourceRecovery>>();
         services.AddScoped<IGeneralFilterService<ResourceRecoveryDto>, GeneralFilterService<ResourceRecoveryDto, ResourceRecovery>>();
 
+        services.AddScoped<ICombatPlayerService, CombatPlayerService>();
+
         services.AddScoped<IDamageFilterService, DamageFilterService>();
 
-        services.AddScoped<IPlayerInfoService<PlayerDeathDto>, PlayerInfoService<PlayerDeathDto, PlayerDeath>>();
+        services.AddScoped<IPlayerInfoService<CombatPlayerDeathDto>, PlayerInfoService<CombatPlayerDeathDto, CombatPlayerDeath>>();
 
         services.AddScoped<ISpecializationService, SpecializationService>();
         services.AddScoped<ISpecializationScoreService, SpecializationScoreService>();
@@ -55,7 +58,7 @@ public static class ServiceCollectionExtensions
 
     private static void SetMutationServices(IServiceCollection services)
     {
-        services.AddScoped<IMutationServiceBatch<PlayerDeathDto>, PlayerDeathService>();
+        services.AddScoped<IMutationServiceBatch<CombatPlayerDeathDto>, PlayerDeathService>();
         services.AddScoped<IMutationServiceBatch<DamageDoneGeneralDto>, DamageDoneGeneralService>();
         services.AddScoped<IMutationServiceBatch<HealDoneGeneralDto>, HealDoneGeneralService>();
         services.AddScoped<IMutationServiceBatch<DamageTakenGeneralDto>, DamageTakenGeneralService>();
@@ -69,18 +72,16 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IMutationService<CombatLogDto>, CombatLogService>();
         services.AddScoped<IMutationService<CombatDto>, CombatService>();
-        services.AddScoped<IMutationService<CombatPlayerDto>, CombatPlayerService>();
-        services.AddScoped<IMutationService<PlayerStatsDto>, PlayerStatsService>();
+        services.AddScoped<IMutationService<CombatPlayerStatsDto>, PlayerStatsService>();
     }
 
     private static void SetQueryServices(IServiceCollection services)
     {
         services.AddScoped<IQueryService<CombatLogDto>, CombatLogService>();
         services.AddScoped<IQueryService<CombatDto>, CombatService>();
-        services.AddScoped<IQueryService<CombatPlayerDto>, CombatPlayerService>();
         services.AddScoped<IQueryService<CombatPlayerPositionDto>, CombatPlayerPositionService>();
         services.AddScoped<IQueryService<CombatAuraDto>, CombatAuraService>();
-        services.AddScoped<IQueryService<PlayerDeathDto>, PlayerDeathService>();
-        services.AddScoped<IQueryService<PlayerStatsDto>, PlayerStatsService>();
+        services.AddScoped<IQueryService<CombatPlayerDeathDto>, PlayerDeathService>();
+        services.AddScoped<IQueryService<CombatPlayerStatsDto>, PlayerStatsService>();
     }
 }

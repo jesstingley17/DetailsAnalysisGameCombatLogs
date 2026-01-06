@@ -5,9 +5,9 @@ namespace CombatAnalysis.BL.Tests.Factory;
 
 internal class PlayerDeathTestDataFactory
 {
-    public static PlayerDeath Create(int id = 1, string username = "Solinx")
+    public static CombatPlayerDeath Create(int id = 1, string username = "Solinx")
     {
-        var entity = new PlayerDeath
+        var entity = new CombatPlayerDeath
         {
             Id = id,
             Username = username,
@@ -20,9 +20,9 @@ internal class PlayerDeathTestDataFactory
         return entity;
     }
 
-    public static PlayerDeathDto CreateDto(int id = 1, string username = "Solinx")
+    public static CombatPlayerDeathDto CreateDto(int id = 1, string username = "Solinx")
     {
-        var entityDto = new PlayerDeathDto
+        var entityDto = new CombatPlayerDeathDto
         {
             Id = id,
             Username = username,
@@ -35,9 +35,9 @@ internal class PlayerDeathTestDataFactory
         return entityDto;
     }
 
-    public static List<PlayerDeath> CreateCollection()
+    public static List<CombatPlayerDeath> CreateCollection()
     {
-        var collection = new List<PlayerDeath>
+        var collection = new List<CombatPlayerDeath>
         {
             new () {
                 Id = 1,
@@ -68,9 +68,9 @@ internal class PlayerDeathTestDataFactory
         return collection;
     }
 
-    public static List<PlayerDeathDto> CreateDtoCollection()
+    public static List<CombatPlayerDeathDto> CreateDtoCollection()
     {
-        var collection = new List<PlayerDeathDto>
+        var collection = new List<CombatPlayerDeathDto>
         {
             new () {
                 Id = 1,

@@ -2,7 +2,7 @@
 using CombatAnalysis.BL.DTO;
 using CombatAnalysis.BL.Services.Filters;
 using CombatAnalysis.BL.Tests.Factory;
-using CombatAnalysis.DAL.Entities;
+using CombatAnalysis.DAL.Entities.CombatPlayerData;
 using CombatAnalysis.DAL.Interfaces.Filters;
 using Moq;
 

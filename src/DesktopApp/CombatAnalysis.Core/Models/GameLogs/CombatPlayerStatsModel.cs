@@ -1,10 +1,8 @@
 ﻿namespace CombatAnalysis.Core.Models.GameLogs;
 
-public class PlayerStatsModel
+public class CombatPlayerStatsModel
 {
     public int Id { get; set; }
-
-    public int Faction { get; set; }
 
     public int Strength { get; set; }
 

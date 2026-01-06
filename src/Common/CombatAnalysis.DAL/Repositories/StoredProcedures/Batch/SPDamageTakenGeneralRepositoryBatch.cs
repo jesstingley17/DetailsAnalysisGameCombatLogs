@@ -1,5 +1,6 @@
 ﻿using CombatAnalysis.DAL.Data;
-using CombatAnalysis.DAL.Entities;
+using CombatAnalysis.DAL.Entities.CombatPlayerData;
+using CombatAnalysis.DAL.Extensions;
 using CombatAnalysis.DAL.Interfaces.Generic;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -7,7 +8,7 @@ using System.Data;
 
 namespace CombatAnalysis.DAL.Repositories.StoredProcedures.Batch;
 
-internal class SPDamageTakenGeneralRepositoryBatch(CombatParserContext context) : SPGenericRepository<DamageTakenGeneral>(context), IGenericRepositoryBatch<DamageTakenGeneral>
+internal class SPDamageTakenGeneralRepositoryBatch(CombatParserContext context) : GenericRepository<DamageTakenGeneral>(context), IGenericRepositoryBatch<DamageTakenGeneral>
 {
     private readonly CombatParserContext _context = context;
 
@@ -18,21 +19,19 @@ internal class SPDamageTakenGeneralRepositoryBatch(CombatParserContext context) 
             return;
         }
 
-        var firstElement = items.First();
-
         var table = new DataTable();
-        table.Columns.Add(nameof(DamageTakenGeneral.GameSpellId), firstElement.GameSpellId.GetType());
-        table.Columns.Add(nameof(DamageTakenGeneral.Spell), firstElement.Spell.GetType());
-        table.Columns.Add(nameof(DamageTakenGeneral.Value), firstElement.Value.GetType());
-        table.Columns.Add(nameof(DamageTakenGeneral.ActualValue), firstElement.ActualValue.GetType());
-        table.Columns.Add(nameof(DamageTakenGeneral.DamageTakenPerSecond), firstElement.DamageTakenPerSecond.GetType());
-        table.Columns.Add(nameof(DamageTakenGeneral.CritNumber), firstElement.CritNumber.GetType());
-        table.Columns.Add(nameof(DamageTakenGeneral.MissNumber), firstElement.MissNumber.GetType());
-        table.Columns.Add(nameof(DamageTakenGeneral.CastNumber), firstElement.CastNumber.GetType());
-        table.Columns.Add(nameof(DamageTakenGeneral.MinValue), firstElement.MinValue.GetType());
-        table.Columns.Add(nameof(DamageTakenGeneral.MaxValue), firstElement.MaxValue.GetType());
-        table.Columns.Add(nameof(DamageTakenGeneral.AverageValue), firstElement.AverageValue.GetType());
-        table.Columns.Add(nameof(DamageTakenGeneral.CombatPlayerId), firstElement.CombatPlayerId.GetType());
+        table.AddColumn<int>(nameof(DamageTakenGeneral.GameSpellId));
+        table.AddColumn<string>(nameof(DamageTakenGeneral.Spell));
+        table.AddColumn<int>(nameof(DamageTakenGeneral.Value));
+        table.AddColumn<int>(nameof(DamageTakenGeneral.ActualValue));
+        table.AddColumn<double>(nameof(DamageTakenGeneral.DamageTakenPerSecond));
+        table.AddColumn<int>(nameof(DamageTakenGeneral.CritNumber));
+        table.AddColumn<int>(nameof(DamageTakenGeneral.MissNumber));
+        table.AddColumn<int>(nameof(DamageTakenGeneral.CastNumber));
+        table.AddColumn<int>(nameof(DamageTakenGeneral.MinValue));
+        table.AddColumn<int>(nameof(DamageTakenGeneral.MaxValue));
+        table.AddColumn<double>(nameof(DamageTakenGeneral.AverageValue));
+        table.AddColumn<int>(nameof(DamageTakenGeneral.CombatPlayerId));
 
         foreach (var item in items)
         {
@@ -51,13 +50,13 @@ internal class SPDamageTakenGeneralRepositoryBatch(CombatParserContext context) 
                 item.CombatPlayerId);
         }
 
-        var param = new SqlParameter("@Items", table)
+        var itemsParam = new SqlParameter("@Items", table)
         {
             SqlDbType = SqlDbType.Structured,
             TypeName = $"dbo.{nameof(DamageTakenGeneral)}Type"
         };
 
-        var storedProcedureName = $"InsertInto{nameof(DamageTakenGeneral)}Batch";
-        await _context.Database.ExecuteSqlInterpolatedAsync($"EXEC {storedProcedureName} {param}");
+        var sql = $"EXEC dbo.InsertInto{nameof(DamageTakenGeneral)}Batch @Items";
+        await _context.Database.ExecuteSqlRawAsync(sql, itemsParam);
     }
 }

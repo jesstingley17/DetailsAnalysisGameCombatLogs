@@ -1,4 +1,4 @@
-﻿using CombatAnalysis.DAL.Helpers;
+﻿using CombatAnalysis.DAL.Extensions;
 using Microsoft.EntityFrameworkCore.Migrations;
 using System;
 
@@ -15,23 +15,6 @@ namespace CombatAnalysis.DAL.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "BestSpecializationScore",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    DamageDone = table.Column<int>(type: "int", nullable: false),
-                    HealDone = table.Column<int>(type: "int", nullable: false),
-                    Updated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
-                    SpecializationId = table.Column<int>(type: "int", nullable: false),
-                    BossId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_BestSpecializationScore", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Boss",
                 columns: table => new
                 {
@@ -46,6 +29,52 @@ namespace CombatAnalysis.DAL.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Boss", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CombatLog",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(126)", maxLength: 126, nullable: false),
+                    Date = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    LogType = table.Column<int>(type: "int", nullable: false),
+                    NumberReadyCombats = table.Column<int>(type: "int", nullable: false),
+                    CombatsInQueue = table.Column<int>(type: "int", nullable: false),
+                    IsReady = table.Column<bool>(type: "bit", nullable: false),
+                    AppUserId = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CombatLog", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Player",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    GameId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Username = table.Column<string>(type: "nvarchar(126)", maxLength: 126, nullable: false),
+                    Faction = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Player", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Specialization",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SpecializationSpellsId = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Specialization", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -69,6 +98,41 @@ namespace CombatAnalysis.DAL.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Combat", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Combat_CombatLog_CombatLogId",
+                        column: x => x.CombatLogId,
+                        principalTable: "CombatLog",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "BestSpecializationScore",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    DamageDone = table.Column<int>(type: "int", nullable: false),
+                    HealDone = table.Column<int>(type: "int", nullable: false),
+                    Updated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    SpecializationId = table.Column<int>(type: "int", nullable: false),
+                    BossId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BestSpecializationScore", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_BestSpecializationScore_Boss_BossId",
+                        column: x => x.BossId,
+                        principalTable: "Boss",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_BestSpecializationScore_Specialization_SpecializationId",
+                        column: x => x.SpecializationId,
+                        principalTable: "Specialization",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -90,25 +154,12 @@ namespace CombatAnalysis.DAL.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_CombatAura", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "CombatLog",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(126)", maxLength: 126, nullable: false),
-                    Date = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    LogType = table.Column<int>(type: "int", nullable: false),
-                    NumberReadyCombats = table.Column<int>(type: "int", nullable: false),
-                    CombatsInQueue = table.Column<int>(type: "int", nullable: false),
-                    IsReady = table.Column<bool>(type: "bit", nullable: false),
-                    AppUserId = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CombatLog", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CombatAura_Combat_CombatId",
+                        column: x => x.CombatId,
+                        principalTable: "Combat",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -122,12 +173,69 @@ namespace CombatAnalysis.DAL.Migrations
                     DamageDone = table.Column<int>(type: "int", nullable: false),
                     HealDone = table.Column<int>(type: "int", nullable: false),
                     DamageTaken = table.Column<int>(type: "int", nullable: false),
-                    CombatId = table.Column<int>(type: "int", nullable: false),
-                    PlayerId = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    PlayerId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CombatId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_CombatPlayer", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CombatPlayer_Combat_CombatId",
+                        column: x => x.CombatId,
+                        principalTable: "Combat",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CombatPlayer_Player_PlayerId",
+                        column: x => x.PlayerId,
+                        principalTable: "Player",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CombatTarget",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Username = table.Column<string>(type: "nvarchar(126)", maxLength: 126, nullable: false),
+                    Target = table.Column<string>(type: "nvarchar(126)", maxLength: 126, nullable: false),
+                    Sum = table.Column<int>(type: "int", nullable: false),
+                    CombatId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CombatTarget", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CombatTarget_Combat_CombatId",
+                        column: x => x.CombatId,
+                        principalTable: "Combat",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CombatPlayerDeath",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Username = table.Column<string>(type: "nvarchar(126)", maxLength: 126, nullable: false),
+                    LastHitSpell = table.Column<string>(type: "nvarchar(126)", maxLength: 126, nullable: false),
+                    LastHitValue = table.Column<int>(type: "int", nullable: false),
+                    Time = table.Column<TimeSpan>(type: "time", nullable: false),
+                    CombatPlayerId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CombatPlayerDeath", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CombatPlayerDeath_CombatPlayer_CombatPlayerId",
+                        column: x => x.CombatPlayerId,
+                        principalTable: "CombatPlayer",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -145,6 +253,50 @@ namespace CombatAnalysis.DAL.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_CombatPlayerPosition", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CombatPlayerPosition_CombatPlayer_CombatPlayerId",
+                        column: x => x.CombatPlayerId,
+                        principalTable: "CombatPlayer",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CombatPlayerPosition_Combat_CombatId",
+                        column: x => x.CombatId,
+                        principalTable: "Combat",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CombatPlayerStats",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Strength = table.Column<int>(type: "int", nullable: false),
+                    Agility = table.Column<int>(type: "int", nullable: false),
+                    Intelligence = table.Column<int>(type: "int", nullable: false),
+                    Stamina = table.Column<int>(type: "int", nullable: false),
+                    Spirit = table.Column<int>(type: "int", nullable: false),
+                    Dodge = table.Column<int>(type: "int", nullable: false),
+                    Parry = table.Column<int>(type: "int", nullable: false),
+                    Crit = table.Column<int>(type: "int", nullable: false),
+                    Haste = table.Column<int>(type: "int", nullable: false),
+                    Hit = table.Column<int>(type: "int", nullable: false),
+                    Expertise = table.Column<int>(type: "int", nullable: false),
+                    Armor = table.Column<int>(type: "int", nullable: false),
+                    Talents = table.Column<string>(type: "nvarchar(126)", maxLength: 126, nullable: false),
+                    CombatPlayerId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CombatPlayerStats", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CombatPlayerStats_CombatPlayer_CombatPlayerId",
+                        column: x => x.CombatPlayerId,
+                        principalTable: "CombatPlayer",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -169,6 +321,12 @@ namespace CombatAnalysis.DAL.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_DamageDone", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DamageDone_CombatPlayer_CombatPlayerId",
+                        column: x => x.CombatPlayerId,
+                        principalTable: "CombatPlayer",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -193,6 +351,12 @@ namespace CombatAnalysis.DAL.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_DamageDoneGeneral", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DamageDoneGeneral_CombatPlayer_CombatPlayerId",
+                        column: x => x.CombatPlayerId,
+                        principalTable: "CombatPlayer",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -220,6 +384,12 @@ namespace CombatAnalysis.DAL.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_DamageTaken", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DamageTaken_CombatPlayer_CombatPlayerId",
+                        column: x => x.CombatPlayerId,
+                        principalTable: "CombatPlayer",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -244,6 +414,12 @@ namespace CombatAnalysis.DAL.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_DamageTakenGeneral", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DamageTakenGeneral_CombatPlayer_CombatPlayerId",
+                        column: x => x.CombatPlayerId,
+                        principalTable: "CombatPlayer",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -266,6 +442,12 @@ namespace CombatAnalysis.DAL.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_HealDone", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_HealDone_CombatPlayer_CombatPlayerId",
+                        column: x => x.CombatPlayerId,
+                        principalTable: "CombatPlayer",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -288,64 +470,12 @@ namespace CombatAnalysis.DAL.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_HealDoneGeneral", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Player",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    GameId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Username = table.Column<string>(type: "nvarchar(126)", maxLength: 126, nullable: false),
-                    Faction = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Player", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "PlayerDeath",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Username = table.Column<string>(type: "nvarchar(126)", maxLength: 126, nullable: false),
-                    LastHitSpell = table.Column<string>(type: "nvarchar(126)", maxLength: 126, nullable: false),
-                    LastHitValue = table.Column<int>(type: "int", nullable: false),
-                    Time = table.Column<TimeSpan>(type: "time", nullable: false),
-                    CombatPlayerId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PlayerDeath", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "PlayerStats",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Faction = table.Column<int>(type: "int", nullable: false),
-                    Strength = table.Column<int>(type: "int", nullable: false),
-                    Agility = table.Column<int>(type: "int", nullable: false),
-                    Intelligence = table.Column<int>(type: "int", nullable: false),
-                    Stamina = table.Column<int>(type: "int", nullable: false),
-                    Spirit = table.Column<int>(type: "int", nullable: false),
-                    Dodge = table.Column<int>(type: "int", nullable: false),
-                    Parry = table.Column<int>(type: "int", nullable: false),
-                    Crit = table.Column<int>(type: "int", nullable: false),
-                    Haste = table.Column<int>(type: "int", nullable: false),
-                    Hit = table.Column<int>(type: "int", nullable: false),
-                    Expertise = table.Column<int>(type: "int", nullable: false),
-                    Armor = table.Column<int>(type: "int", nullable: false),
-                    Talents = table.Column<string>(type: "nvarchar(126)", maxLength: 126, nullable: false),
-                    CombatPlayerId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PlayerStats", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_HealDoneGeneral_CombatPlayer_CombatPlayerId",
+                        column: x => x.CombatPlayerId,
+                        principalTable: "CombatPlayer",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -365,6 +495,12 @@ namespace CombatAnalysis.DAL.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ResourceRecovery", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ResourceRecovery_CombatPlayer_CombatPlayerId",
+                        column: x => x.CombatPlayerId,
+                        principalTable: "CombatPlayer",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -386,19 +522,12 @@ namespace CombatAnalysis.DAL.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ResourceRecoveryGeneral", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Specialization",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    SpecializationSpellsId = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Specialization", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ResourceRecoveryGeneral_CombatPlayer_CombatPlayerId",
+                        column: x => x.CombatPlayerId,
+                        principalTable: "CombatPlayer",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -418,6 +547,98 @@ namespace CombatAnalysis.DAL.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_SpecializationScore", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SpecializationScore_CombatPlayer_CombatPlayerId",
+                        column: x => x.CombatPlayerId,
+                        principalTable: "CombatPlayer",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_SpecializationScore_Specialization_SpecializationId",
+                        column: x => x.SpecializationId,
+                        principalTable: "Specialization",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.InsertData(
+                table: "Boss",
+                columns: new[] { "Id", "Difficult", "GameId", "Health", "Name", "Size" },
+                values: new object[,]
+                {
+                    { 1, 3, 1395, 130841100L, "Каменные стражи", 10 },
+                    { 2, 5, 1395, 235513980L, "Каменные стражи", 10 },
+                    { 3, 3, 1390, 152647950L, "Фэн Проклятый", 10 },
+                    { 4, 5, 1390, 209345760L, "Фэн Проклятый", 10 },
+                    { 5, 3, 1434, 117756990L, "Душелов Гара'джал", 10 },
+                    { 6, 5, 1434, 179252307L, "Душелов Гара'джал", 10 },
+                    { 7, 3, 1436, 174454800L, "Призрачные короли", 10 },
+                    { 8, 5, 1436, 261682200L, "Призрачные короли", 10 },
+                    { 9, 3, 1500, 294392475L, "Элегон", 10 },
+                    { 10, 5, 1500, 339750723L, "Элегон", 10 },
+                    { 11, 3, 1407, 314018640L, "Воля императора", 10 },
+                    { 12, 5, 1407, 471027960L, "Воля императора", 10 },
+                    { 13, 3, 1409, 213968815L, "Вечные защитники", 10 },
+                    { 14, 5, 1409, 344082093L, "Вечные защитники", 10 },
+                    { 15, 3, 1505, 174454800L, "Цулон", 10 },
+                    { 16, 5, 1505, 279127680L, "Цулон", 10 },
+                    { 17, 3, 1506, 138168195L, "Лэй Ши", 10 },
+                    { 18, 5, 1506, 301457900L, "Лэй Ши", 10 },
+                    { 19, 3, 1431, 184704020L, "Ша Страха", 10 },
+                    { 20, 5, 1431, 544037304L, "Ша Страха", 10 },
+                    { 21, 3, 1507, 174454800L, "Императорский визирь Зор'лок", 10 },
+                    { 22, 5, 1507, 218068500L, "Императорский визирь Зор'лок", 10 },
+                    { 23, 3, 1504, 150467265L, "Повелитель клинков Та'як", 10 },
+                    { 24, 5, 1504, 196261650L, "Повелитель клинков Та'як", 10 },
+                    { 25, 3, 1463, 218068500L, "Гаралон", 10 },
+                    { 26, 5, 1463, 290759446L, "Гаралон", 10 },
+                    { 27, 3, 1498, 270404940L, "Повелитель ветров Мел'джарак", 10 },
+                    { 28, 5, 1498, 588784950L, "Повелитель ветров Мел'джарак", 10 },
+                    { 29, 3, 1499, 218068500L, "Ваятель янтаря Ун'сок", 10 },
+                    { 30, 5, 1499, 340186860L, "Ваятель янтаря Ун'сок", 10 },
+                    { 31, 3, 1501, 196261650L, "Великая императрица Шек'зир", 10 },
+                    { 32, 5, 1501, 307476585L, "Великая императрица Шек'зир", 10 },
+                    { 33, 3, 1577, 207601212L, "Джин'рок Разрушитель", 10 },
+                    { 34, 5, 1577, 317507736L, "Джин'рок Разрушитель", 10 },
+                    { 35, 3, 1575, 357632340L, "Хорридон", 10 },
+                    { 36, 5, 1575, 654205500L, "Хорридон", 10 },
+                    { 37, 3, 1570, 299538888L, "Совет старейшин", 10 },
+                    { 38, 5, 1570, 470330152L, "Совет старейшин", 10 },
+                    { 39, 3, 1565, 179999841L, "Тортос", 10 },
+                    { 40, 5, 1565, 319999818L, "Тортос", 10 },
+                    { 41, 3, 1578, 263317712L, "Мегера", 10 },
+                    { 42, 5, 1578, 342297774L, "Мегера", 10 },
+                    { 43, 3, 1573, 244236720L, "Цзи-Кунь", 10 },
+                    { 44, 5, 1573, 366355080L, "Цзи-Кунь", 10 },
+                    { 45, 3, 1572, 261682200L, "Дуруму Позабытый", 10 },
+                    { 46, 5, 1572, 392523300L, "Дуруму Позабытый", 10 },
+                    { 47, 3, 1574, 218068500L, "Изначалий", 10 },
+                    { 48, 5, 1574, 258193104L, "Изначалий", 10 },
+                    { 49, 3, 1576, 80999797L, "Темный Анимус", 10 },
+                    { 50, 5, 1576, 288000023L, "Темный Анимус", 10 },
+                    { 51, 3, 1559, 119937675L, "Кон Железный", 10 },
+                    { 52, 5, 1559, 155700909L, "Кон Железный", 10 },
+                    { 53, 3, 1560, 219812670L, "Небесные сестры", 10 },
+                    { 54, 5, 1560, 628036200L, "Небесные сестры", 10 },
+                    { 55, 3, 1579, 329283435L, "Лэй Шэнь", 10 },
+                    { 56, 5, 1579, 580498347L, "Лэй Шэнь", 10 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Specialization",
+                columns: new[] { "Id", "SpecializationSpellsId" },
+                values: new object[,]
+                {
+                    { 1, "48181,30108,1120" },
+                    { 2, "131900,3674,53301" },
+                    { 3, "55078,55090,47632" },
+                    { 4, "50288,78674,8921" },
+                    { 5, "129197,2944,15407" },
+                    { 6, "12294,86346,7384" },
+                    { 7, "6572,23922,20243" },
+                    { 8, "121253,124335,100787" },
+                    { 9, "47750,81751,47753" },
+                    { 10, "61295,52752,51945" }
                 });
 
             migrationBuilder.InsertData(
@@ -987,88 +1208,114 @@ namespace CombatAnalysis.DAL.Migrations
                     { 560, 56, 0, 0, 10, null }
                 });
 
-            migrationBuilder.InsertData(
-                table: "Boss",
-                columns: new[] { "Id", "Difficult", "GameId", "Health", "Name", "Size" },
-                values: new object[,]
-                {
-                    { 1, 3, 1395, 130841100L, "Каменные стражи", 10 },
-                    { 2, 5, 1395, 235513980L, "Каменные стражи", 10 },
-                    { 3, 3, 1390, 152647950L, "Фэн Проклятый", 10 },
-                    { 4, 5, 1390, 209345760L, "Фэн Проклятый", 10 },
-                    { 5, 3, 1434, 117756990L, "Душелов Гара'джал", 10 },
-                    { 6, 5, 1434, 179252307L, "Душелов Гара'джал", 10 },
-                    { 7, 3, 1436, 174454800L, "Призрачные короли", 10 },
-                    { 8, 5, 1436, 261682200L, "Призрачные короли", 10 },
-                    { 9, 3, 1500, 294392475L, "Элегон", 10 },
-                    { 10, 5, 1500, 339750723L, "Элегон", 10 },
-                    { 11, 3, 1407, 314018640L, "Воля императора", 10 },
-                    { 12, 5, 1407, 471027960L, "Воля императора", 10 },
-                    { 13, 3, 1409, 213968815L, "Вечные защитники", 10 },
-                    { 14, 5, 1409, 344082093L, "Вечные защитники", 10 },
-                    { 15, 3, 1505, 174454800L, "Цулон", 10 },
-                    { 16, 5, 1505, 279127680L, "Цулон", 10 },
-                    { 17, 3, 1506, 138168195L, "Лэй Ши", 10 },
-                    { 18, 5, 1506, 301457900L, "Лэй Ши", 10 },
-                    { 19, 3, 1431, 184704020L, "Ша Страха", 10 },
-                    { 20, 5, 1431, 544037304L, "Ша Страха", 10 },
-                    { 21, 3, 1507, 174454800L, "Императорский визирь Зор'лок", 10 },
-                    { 22, 5, 1507, 218068500L, "Императорский визирь Зор'лок", 10 },
-                    { 23, 3, 1504, 150467265L, "Повелитель клинков Та'як", 10 },
-                    { 24, 5, 1504, 196261650L, "Повелитель клинков Та'як", 10 },
-                    { 25, 3, 1463, 218068500L, "Гаралон", 10 },
-                    { 26, 5, 1463, 290759446L, "Гаралон", 10 },
-                    { 27, 3, 1498, 270404940L, "Повелитель ветров Мел'джарак", 10 },
-                    { 28, 5, 1498, 588784950L, "Повелитель ветров Мел'джарак", 10 },
-                    { 29, 3, 1499, 218068500L, "Ваятель янтаря Ун'сок", 10 },
-                    { 30, 5, 1499, 340186860L, "Ваятель янтаря Ун'сок", 10 },
-                    { 31, 3, 1501, 196261650L, "Великая императрица Шек'зир", 10 },
-                    { 32, 5, 1501, 307476585L, "Великая императрица Шек'зир", 10 },
-                    { 33, 3, 1577, 207601212L, "Джин'рок Разрушитель", 10 },
-                    { 34, 5, 1577, 317507736L, "Джин'рок Разрушитель", 10 },
-                    { 35, 3, 1575, 357632340L, "Хорридон", 10 },
-                    { 36, 5, 1575, 654205500L, "Хорридон", 10 },
-                    { 37, 3, 1570, 299538888L, "Совет старейшин", 10 },
-                    { 38, 5, 1570, 470330152L, "Совет старейшин", 10 },
-                    { 39, 3, 1565, 179999841L, "Тортос", 10 },
-                    { 40, 5, 1565, 319999818L, "Тортос", 10 },
-                    { 41, 3, 1578, 263317712L, "Мегера", 10 },
-                    { 42, 5, 1578, 342297774L, "Мегера", 10 },
-                    { 43, 3, 1573, 244236720L, "Цзи-Кунь", 10 },
-                    { 44, 5, 1573, 366355080L, "Цзи-Кунь", 10 },
-                    { 45, 3, 1572, 261682200L, "Дуруму Позабытый", 10 },
-                    { 46, 5, 1572, 392523300L, "Дуруму Позабытый", 10 },
-                    { 47, 3, 1574, 218068500L, "Изначалий", 10 },
-                    { 48, 5, 1574, 258193104L, "Изначалий", 10 },
-                    { 49, 3, 1576, 80999797L, "Темный Анимус", 10 },
-                    { 50, 5, 1576, 288000023L, "Темный Анимус", 10 },
-                    { 51, 3, 1559, 119937675L, "Кон Железный", 10 },
-                    { 52, 5, 1559, 155700909L, "Кон Железный", 10 },
-                    { 53, 3, 1560, 219812670L, "Небесные сестры", 10 },
-                    { 54, 5, 1560, 628036200L, "Небесные сестры", 10 },
-                    { 55, 3, 1579, 329283435L, "Лэй Шэнь", 10 },
-                    { 56, 5, 1579, 580498347L, "Лэй Шэнь", 10 }
-                });
+            migrationBuilder.CreateIndex(
+                name: "IX_BestSpecializationScore_BossId",
+                table: "BestSpecializationScore",
+                column: "BossId");
 
-            migrationBuilder.InsertData(
-                table: "Specialization",
-                columns: new[] { "Id", "SpecializationSpellsId" },
-                values: new object[,]
-                {
-                    { 1, "48181,30108,1120" },
-                    { 2, "131900,3674,53301" },
-                    { 3, "55078,55090,47632" },
-                    { 4, "50288,78674,8921" },
-                    { 5, "129197,2944,15407" },
-                    { 6, "12294,86346,7384" },
-                    { 7, "6572,23922,20243" },
-                    { 8, "121253,124335,100787" },
-                    { 9, "47750,81751,47753" },
-                    { 10, "61295,52752,51945" }
-                });
+            migrationBuilder.CreateIndex(
+                name: "IX_BestSpecializationScore_SpecializationId",
+                table: "BestSpecializationScore",
+                column: "SpecializationId");
 
-            MigrationHelper.CreateTableTypes(migrationBuilder);
-            MigrationHelper.CreateProcedures(migrationBuilder);
+            migrationBuilder.CreateIndex(
+                name: "IX_Combat_CombatLogId",
+                table: "Combat",
+                column: "CombatLogId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CombatAura_CombatId",
+                table: "CombatAura",
+                column: "CombatId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CombatPlayer_CombatId",
+                table: "CombatPlayer",
+                column: "CombatId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CombatPlayer_PlayerId",
+                table: "CombatPlayer",
+                column: "PlayerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CombatPlayerDeath_CombatPlayerId",
+                table: "CombatPlayerDeath",
+                column: "CombatPlayerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CombatPlayerPosition_CombatId",
+                table: "CombatPlayerPosition",
+                column: "CombatId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CombatPlayerPosition_CombatPlayerId",
+                table: "CombatPlayerPosition",
+                column: "CombatPlayerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CombatPlayerStats_CombatPlayerId",
+                table: "CombatPlayerStats",
+                column: "CombatPlayerId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CombatTarget_CombatId",
+                table: "CombatTarget",
+                column: "CombatId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DamageDone_CombatPlayerId",
+                table: "DamageDone",
+                column: "CombatPlayerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DamageDoneGeneral_CombatPlayerId",
+                table: "DamageDoneGeneral",
+                column: "CombatPlayerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DamageTaken_CombatPlayerId",
+                table: "DamageTaken",
+                column: "CombatPlayerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DamageTakenGeneral_CombatPlayerId",
+                table: "DamageTakenGeneral",
+                column: "CombatPlayerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_HealDone_CombatPlayerId",
+                table: "HealDone",
+                column: "CombatPlayerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_HealDoneGeneral_CombatPlayerId",
+                table: "HealDoneGeneral",
+                column: "CombatPlayerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ResourceRecovery_CombatPlayerId",
+                table: "ResourceRecovery",
+                column: "CombatPlayerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ResourceRecoveryGeneral_CombatPlayerId",
+                table: "ResourceRecoveryGeneral",
+                column: "CombatPlayerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SpecializationScore_CombatPlayerId",
+                table: "SpecializationScore",
+                column: "CombatPlayerId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SpecializationScore_SpecializationId",
+                table: "SpecializationScore",
+                column: "SpecializationId");
+
+            migrationBuilder.CreateTableTypes();
         }
 
         /// <inheritdoc />
@@ -1078,22 +1325,19 @@ namespace CombatAnalysis.DAL.Migrations
                 name: "BestSpecializationScore");
 
             migrationBuilder.DropTable(
-                name: "Boss");
-
-            migrationBuilder.DropTable(
-                name: "Combat");
-
-            migrationBuilder.DropTable(
                 name: "CombatAura");
 
             migrationBuilder.DropTable(
-                name: "CombatLog");
-
-            migrationBuilder.DropTable(
-                name: "CombatPlayer");
+                name: "CombatPlayerDeath");
 
             migrationBuilder.DropTable(
                 name: "CombatPlayerPosition");
+
+            migrationBuilder.DropTable(
+                name: "CombatPlayerStats");
+
+            migrationBuilder.DropTable(
+                name: "CombatTarget");
 
             migrationBuilder.DropTable(
                 name: "DamageDone");
@@ -1114,28 +1358,33 @@ namespace CombatAnalysis.DAL.Migrations
                 name: "HealDoneGeneral");
 
             migrationBuilder.DropTable(
-                name: "Player");
-
-            migrationBuilder.DropTable(
-                name: "PlayerDeath");
-
-            migrationBuilder.DropTable(
-                name: "PlayerStats");
-
-            migrationBuilder.DropTable(
                 name: "ResourceRecovery");
 
             migrationBuilder.DropTable(
                 name: "ResourceRecoveryGeneral");
 
             migrationBuilder.DropTable(
+                name: "SpecializationScore");
+
+            migrationBuilder.DropTable(
+                name: "Boss");
+
+            migrationBuilder.DropTable(
+                name: "CombatPlayer");
+
+            migrationBuilder.DropTable(
                 name: "Specialization");
 
             migrationBuilder.DropTable(
-                name: "SpecializationScore");
+                name: "Combat");
 
-            MigrationHelper.DropTableTypes(migrationBuilder);
-            MigrationHelper.DropProcedures(migrationBuilder);
+            migrationBuilder.DropTable(
+                name: "Player");
+
+            migrationBuilder.DropTable(
+                name: "CombatLog");
+
+            migrationBuilder.DropTableTypes();
         }
     }
 }

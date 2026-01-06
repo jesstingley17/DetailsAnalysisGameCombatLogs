@@ -1,6 +1,4 @@
-﻿using CombatAnalysis.DAL.Interfaces.Entities;
-
-namespace CombatAnalysis.DAL.Entities;
+﻿namespace CombatAnalysis.DAL.Entities;
 
 public class BestSpecializationScore
 {
@@ -12,7 +10,11 @@ public class BestSpecializationScore
 
     public DateTimeOffset? Updated { get; set; }
 
+    public Specialization Specialization { get; set; }
+
     public int SpecializationId { get; set; }
+
+    public Boss Boss { get; set; }
 
     public int BossId { get; set; }
 }

@@ -1,5 +1,6 @@
 ﻿using CombatAnalysis.DAL.Data;
-using CombatAnalysis.DAL.Entities;
+using CombatAnalysis.DAL.Entities.CombatPlayerData;
+using CombatAnalysis.DAL.Extensions;
 using CombatAnalysis.DAL.Interfaces.Generic;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -7,7 +8,7 @@ using System.Data;
 
 namespace CombatAnalysis.DAL.Repositories.StoredProcedures.Batch;
 
-internal class SPHealDoneRepositoryBatch(CombatParserContext context) : SPGenericRepository<HealDone>(context), IGenericRepositoryBatch<HealDone>
+internal class SPHealDoneRepositoryBatch(CombatParserContext context) : GenericRepository<HealDone>(context), IGenericRepositoryBatch<HealDone>
 {
     private readonly CombatParserContext _context = context;
 
@@ -18,19 +19,17 @@ internal class SPHealDoneRepositoryBatch(CombatParserContext context) : SPGeneri
             return;
         }
 
-        var firstElement = items.First();
-
         var table = new DataTable();
-        table.Columns.Add(nameof(HealDone.GameSpellId), firstElement.GameSpellId.GetType());
-        table.Columns.Add(nameof(HealDone.Spell), firstElement.Spell.GetType());
-        table.Columns.Add(nameof(HealDone.Value), firstElement.Value.GetType());
-        table.Columns.Add(nameof(HealDone.Time), firstElement.Time.GetType());
-        table.Columns.Add(nameof(HealDone.Creator), firstElement.Creator.GetType());
-        table.Columns.Add(nameof(HealDone.Target), firstElement.Target.GetType());
-        table.Columns.Add(nameof(HealDone.Overheal), firstElement.Overheal.GetType());
-        table.Columns.Add(nameof(HealDone.IsCrit), firstElement.IsCrit.GetType());
-        table.Columns.Add(nameof(HealDone.IsAbsorbed), firstElement.IsAbsorbed.GetType());
-        table.Columns.Add(nameof(HealDone.CombatPlayerId), firstElement.CombatPlayerId.GetType());
+        table.AddColumn<int>(nameof(HealDone.GameSpellId));
+        table.AddColumn<string>(nameof(HealDone.Spell));
+        table.AddColumn<int>(nameof(HealDone.Value));
+        table.AddColumn<TimeSpan>(nameof(HealDone.Time));
+        table.AddColumn<string>(nameof(HealDone.Creator));
+        table.AddColumn<string>(nameof(HealDone.Target));
+        table.AddColumn<int>(nameof(HealDone.Overheal));
+        table.AddColumn<bool>(nameof(HealDone.IsCrit));
+        table.AddColumn<bool>(nameof(HealDone.IsAbsorbed));
+        table.AddColumn<int>(nameof(HealDone.CombatPlayerId));
 
         foreach (var item in items)
         {
@@ -47,13 +46,13 @@ internal class SPHealDoneRepositoryBatch(CombatParserContext context) : SPGeneri
                 item.CombatPlayerId);
         }
 
-        var param = new SqlParameter("@Items", table)
+        var itemsParam = new SqlParameter("@Items", table)
         {
             SqlDbType = SqlDbType.Structured,
             TypeName = $"dbo.{nameof(HealDone)}Type"
         };
 
-        var storedProcedureName = $"InsertInto{nameof(HealDone)}Batch";
-        await _context.Database.ExecuteSqlInterpolatedAsync($"EXEC {storedProcedureName} {param}");
+        var sql = $"EXEC dbo.InsertInto{nameof(HealDone)}Batch @Items";
+        await _context.Database.ExecuteSqlRawAsync(sql, itemsParam);
     }
 }

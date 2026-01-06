@@ -90,12 +90,12 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding Path=Difficulty,Converter={StaticResource DifficultyToStringConverter}, ConverterParameter=3/5}" Foreground="White" 
+                                <TextBlock Text="{Binding Path=Boss.Difficult,Converter={StaticResource DifficultyToStringConverter}, ConverterParameter=3/5}" Foreground="White" 
                                            TextAlignment="Center" VerticalAlignment="Center" Margin="5" FontSize="12" />
                                 <TextBlock Text="{loc:Loc Normal}" TextAlignment="Center" VerticalAlignment="Center" FontSize="12" 
-                                           Visibility="{Binding Path=Difficulty,Converter={StaticResource DifficultyToVisibilityConverter}, ConverterParameter=true:3/4}"/>
+                                           Visibility="{Binding Path=Boss.Difficult,Converter={StaticResource DifficultyToVisibilityConverter}, ConverterParameter=true:3/4}"/>
                                 <TextBlock Text="{loc:Loc Heroic}" TextAlignment="Center" VerticalAlignment="Center" FontSize="12"
-                                           Visibility="{Binding Path=Difficulty,Converter={StaticResource DifficultyToVisibilityConverter}, ConverterParameter=true:5/6}"/>
+                                           Visibility="{Binding Path=Boss.Difficult,Converter={StaticResource DifficultyToVisibilityConverter}, ConverterParameter=true:5/6}"/>
                                 <Icon:PackIconMaterial Kind="Check" Foreground="Green" Style="{StaticResource menuButtonIcon}"
                                                        ToolTip="{loc:Loc Win}"
                                                        Visibility="{Binding IsWin, Converter={StaticResource BoolToVisibility}, ConverterParameter=true:false}"/>

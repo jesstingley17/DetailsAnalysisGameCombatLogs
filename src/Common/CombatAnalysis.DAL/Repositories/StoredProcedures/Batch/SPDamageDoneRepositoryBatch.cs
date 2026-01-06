@@ -1,5 +1,6 @@
 ﻿using CombatAnalysis.DAL.Data;
-using CombatAnalysis.DAL.Entities;
+using CombatAnalysis.DAL.Entities.CombatPlayerData;
+using CombatAnalysis.DAL.Extensions;
 using CombatAnalysis.DAL.Interfaces.Generic;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -7,7 +8,7 @@ using System.Data;
 
 namespace CombatAnalysis.DAL.Repositories.StoredProcedures.Batch;
 
-internal class SPDamageDoneRepositoryBatch(CombatParserContext context) : SPGenericRepository<DamageDone>(context), IGenericRepositoryBatch<DamageDone>
+internal class SPDamageDoneRepositoryBatch(CombatParserContext context) : GenericRepository<DamageDone>(context), IGenericRepositoryBatch<DamageDone>
 {
     private readonly CombatParserContext _context = context;
 
@@ -18,21 +19,19 @@ internal class SPDamageDoneRepositoryBatch(CombatParserContext context) : SPGene
             return;
         }
 
-        var firstElement = items.First();
-
         var table = new DataTable();
-        table.Columns.Add(nameof(DamageDone.GameSpellId), firstElement.GameSpellId.GetType());
-        table.Columns.Add(nameof(DamageDone.Spell), firstElement.Spell.GetType());
-        table.Columns.Add(nameof(DamageDone.Value), firstElement.Value.GetType());
-        table.Columns.Add(nameof(DamageDone.Time), firstElement.Time.GetType());
-        table.Columns.Add(nameof(DamageDone.Creator), firstElement.Creator.GetType());
-        table.Columns.Add(nameof(DamageDone.Target), firstElement.Target.GetType());
-        table.Columns.Add(nameof(DamageDone.IsTargetBoss), firstElement.IsTargetBoss.GetType());
-        table.Columns.Add(nameof(DamageDone.DamageType), firstElement.DamageType.GetType());
-        table.Columns.Add(nameof(DamageDone.IsPeriodicDamage), firstElement.IsPeriodicDamage.GetType());
-        table.Columns.Add(nameof(DamageDone.IsSingleTarget), firstElement.IsSingleTarget.GetType());
-        table.Columns.Add(nameof(DamageDone.IsPet), firstElement.IsPet.GetType());
-        table.Columns.Add(nameof(DamageDone.CombatPlayerId), firstElement.CombatPlayerId.GetType());
+        table.AddColumn<int>(nameof(DamageDone.GameSpellId));
+        table.AddColumn<string>(nameof(DamageDone.Spell));
+        table.AddColumn<int>(nameof(DamageDone.Value));
+        table.AddColumn<TimeSpan>(nameof(DamageDone.Time));
+        table.AddColumn<string>(nameof(DamageDone.Creator));
+        table.AddColumn<string>(nameof(DamageDone.Target));
+        table.AddColumn<bool>(nameof(DamageDone.IsTargetBoss));
+        table.AddColumn<int>(nameof(DamageDone.DamageType));
+        table.AddColumn<bool>(nameof(DamageDone.IsPeriodicDamage));
+        table.AddColumn<bool>(nameof(DamageDone.IsSingleTarget));
+        table.AddColumn<bool>(nameof(DamageDone.IsPet));
+        table.AddColumn<int>(nameof(DamageDone.CombatPlayerId));
 
         foreach (var item in items)
         {
@@ -51,13 +50,13 @@ internal class SPDamageDoneRepositoryBatch(CombatParserContext context) : SPGene
                 item.CombatPlayerId);
         }
 
-        var param = new SqlParameter("@Items", table)
+        var itemsParam = new SqlParameter("@Items", table)
         {
             SqlDbType = SqlDbType.Structured,
             TypeName = $"dbo.{nameof(DamageDone)}Type"
         };
 
-        var storedProcedureName = $"InsertInto{nameof(DamageDone)}Batch";
-        await _context.Database.ExecuteSqlInterpolatedAsync($"EXEC {storedProcedureName} {param}");
+        var sql = $"EXEC dbo.InsertInto{nameof(DamageDone)}Batch @Items";
+        await _context.Database.ExecuteSqlRawAsync(sql, itemsParam);
     }
 }

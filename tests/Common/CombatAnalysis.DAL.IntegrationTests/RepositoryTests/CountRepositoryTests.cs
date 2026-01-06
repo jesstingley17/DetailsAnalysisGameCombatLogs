@@ -1,4 +1,4 @@
-﻿using CombatAnalysis.DAL.Entities;
+﻿using CombatAnalysis.DAL.Entities.CombatPlayerData;
 using CombatAnalysis.DAL.Repositories;
 using CombatAnalysis.UserDAL.IntegrationTests.Factory;
 

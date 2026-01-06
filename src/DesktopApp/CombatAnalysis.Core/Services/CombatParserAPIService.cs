@@ -208,12 +208,6 @@ internal class CombatParserAPIService : ICombatParserAPIService
             var combatPlayers = await response.Content.ReadFromJsonAsync<IEnumerable<CombatPlayerModel>>();
             ArgumentNullException.ThrowIfNull(combatPlayers, nameof(combatPlayers));
 
-            foreach (var item in combatPlayers)
-            {
-                var playerParseInfo = await GetPlayerParseInfoAsync(item.Id);
-                item.PlayerParseInfo = playerParseInfo;
-            }
-
             return combatPlayers;
         }
         catch (ArgumentNullException ex)
@@ -233,38 +227,6 @@ internal class CombatParserAPIService : ICombatParserAPIService
             _logger.LogError(ex, "An unexpected error occurred: {Message}", ex.Message);
 
             return [];
-        }
-    }
-
-    public async Task<PlayerStatsModel?> LoadCombatPlayerStatsAsync(int combatPlayerId)
-    {
-        try
-        {
-            var response = await _httpClient.GetAsync($"PlayerStats/getByCombatPlayerId/{combatPlayerId}", CancellationToken.None);
-            response.EnsureSuccessStatusCode();
-
-            var playerStats = await response.Content.ReadFromJsonAsync<PlayerStatsModel>();
-            ArgumentNullException.ThrowIfNull(playerStats, nameof(playerStats));
-
-            return playerStats;
-        }
-        catch (ArgumentNullException ex)
-        {
-            _logger.LogError(ex, ex.Message);
-
-            return null;
-        }
-        catch (HttpRequestException ex)
-        {
-            _logger.LogError(ex, "HTTP request error: {Message}", ex.Message);
-
-            return null;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "An unexpected error occurred: {Message}", ex.Message);
-
-            return null;
         }
     }
 
@@ -406,39 +368,6 @@ internal class CombatParserAPIService : ICombatParserAPIService
         catch (Exception ex)
         {
             _logger.LogError(ex, "An unexpected error occurred: {Message}", ex.Message);
-        }
-    }
-
-    private async Task<PlayerParseInfoModel> GetPlayerParseInfoAsync(int combatPlayerId)
-    {
-        try
-        {
-            var response = await _httpClient.GetAsync($"PlayerParseInfo/getByCombatPlayerId/{combatPlayerId}", CancellationToken.None);
-            response.EnsureSuccessStatusCode();
-
-            var playerParseInfoCollection = await response.Content.ReadFromJsonAsync<IEnumerable<PlayerParseInfoModel>>();
-            var playerInfo = playerParseInfoCollection?.FirstOrDefault();
-            ArgumentNullException.ThrowIfNull(playerInfo, nameof(playerInfo));
-
-            return playerInfo;
-        }
-        catch (ArgumentNullException ex)
-        {
-            _logger.LogError(ex, ex.Message);
-
-            return new PlayerParseInfoModel();
-        }
-        catch (HttpRequestException ex)
-        {
-            _logger.LogError(ex, "HTTP request error: {Message}", ex.Message);
-
-            return new PlayerParseInfoModel();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "An unexpected error occurred: {Message}", ex.Message);
-
-            return new PlayerParseInfoModel();
         }
     }
 

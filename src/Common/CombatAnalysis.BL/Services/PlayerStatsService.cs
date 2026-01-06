@@ -7,27 +7,27 @@ using CombatAnalysis.DAL.Interfaces.Generic;
 
 namespace CombatAnalysis.BL.Services;
 
-internal class PlayerStatsService(IGenericRepository<PlayerStats> repository, IMapper mapper) : QueryService<PlayerStatsDto, PlayerStats>(repository, mapper), IMutationService<PlayerStatsDto>
+internal class PlayerStatsService(IGenericRepository<CombatPlayerStats> repository, IMapper mapper) : QueryService<CombatPlayerStatsDto, CombatPlayerStats>(repository, mapper), IMutationService<CombatPlayerStatsDto>
 {
-    private readonly IGenericRepository<PlayerStats> _repository = repository;
+    private readonly IGenericRepository<CombatPlayerStats> _repository = repository;
     private readonly IMapper _mapper = mapper;
 
-    public async Task<PlayerStatsDto> CreateAsync(PlayerStatsDto item)
+    public async Task<CombatPlayerStatsDto> CreateAsync(CombatPlayerStatsDto item)
     {
         CheckParams(item);
 
-        var map = _mapper.Map<PlayerStats>(item);
+        var map = _mapper.Map<CombatPlayerStats>(item);
         var createdItem = await _repository.CreateAsync(map);
-        var resultMap = _mapper.Map<PlayerStatsDto>(createdItem);
+        var resultMap = _mapper.Map<CombatPlayerStatsDto>(createdItem);
 
         return resultMap;
     }
 
-    public async Task<int> UpdateAsync(PlayerStatsDto item)
+    public async Task<int> UpdateAsync(CombatPlayerStatsDto item)
     {
         CheckParams(item);
 
-        var map = _mapper.Map<PlayerStats>(item);
+        var map = _mapper.Map<CombatPlayerStats>(item);
         var rowsAffected = await _repository.UpdateAsync(map);
 
         return rowsAffected;
@@ -42,9 +42,8 @@ internal class PlayerStatsService(IGenericRepository<PlayerStats> repository, IM
         return entityDeleted;
     }
 
-    private static void CheckParams(PlayerStatsDto item)
+    private static void CheckParams(CombatPlayerStatsDto item)
     {
-        ArgumentOutOfRangeException.ThrowIfNegative(item.Faction, nameof(item.Faction));
         ArgumentOutOfRangeException.ThrowIfNegative(item.Strength, nameof(item.Strength));
         ArgumentOutOfRangeException.ThrowIfNegative(item.Agility, nameof(item.Agility));
         ArgumentOutOfRangeException.ThrowIfNegative(item.Intelligence, nameof(item.Intelligence));

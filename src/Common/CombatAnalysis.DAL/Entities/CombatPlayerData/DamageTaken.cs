@@ -1,9 +1,9 @@
 ﻿using CombatAnalysis.DAL.Interfaces.Entities;
 using System.ComponentModel.DataAnnotations;
 
-namespace CombatAnalysis.DAL.Entities;
+namespace CombatAnalysis.DAL.Entities.CombatPlayerData;
 
-public class ResourceRecovery : ICombatPlayerEntity, IGeneralFilterEntity
+public class DamageTaken : ICombatPlayerEntity, IGeneralFilterEntity
 {
     public int Id { get; set; }
 
@@ -21,6 +21,24 @@ public class ResourceRecovery : ICombatPlayerEntity, IGeneralFilterEntity
 
     [MaxLength(126)]
     public string Target { get; set; } = string.Empty;
+
+    public int DamageTakenType { get; set; }
+
+    public int ActualValue { get; set; }
+
+    public bool IsPeriodicDamage { get; set; }
+
+    public int Resisted { get; set; }
+
+    public int Absorbed { get; set; }
+
+    public int Blocked { get; set; }
+
+    public int RealDamage { get; set; }
+
+    public int Mitigated { get; set; }
+
+    public CombatPlayer CombatPlayer { get; set; }
 
     public int CombatPlayerId { get; set; }
 }

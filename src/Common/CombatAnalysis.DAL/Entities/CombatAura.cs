@@ -26,5 +26,7 @@ public class CombatAura : IEntity
 
     public int Stacks { get; set; }
 
+    public Combat Combat { get; set; }
+
     public int CombatId { get; set; }
 }

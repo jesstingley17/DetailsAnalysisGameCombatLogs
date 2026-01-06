@@ -1,5 +1,6 @@
 ﻿using CombatAnalysis.DAL.Data;
-using CombatAnalysis.DAL.Entities;
+using CombatAnalysis.DAL.Entities.CombatPlayerData;
+using CombatAnalysis.DAL.Extensions;
 using CombatAnalysis.DAL.Interfaces.Generic;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -7,7 +8,7 @@ using System.Data;
 
 namespace CombatAnalysis.DAL.Repositories.StoredProcedures;
 
-internal class SPDamageTakenRepositoryBatch(CombatParserContext context) : SPGenericRepository<DamageTaken>(context), IGenericRepositoryBatch<DamageTaken>
+internal class SPDamageTakenRepositoryBatch(CombatParserContext context) : GenericRepository<DamageTaken>(context), IGenericRepositoryBatch<DamageTaken>
 {
     private readonly CombatParserContext _context = context;
 
@@ -18,24 +19,22 @@ internal class SPDamageTakenRepositoryBatch(CombatParserContext context) : SPGen
             return;
         }
 
-        var firstElement = items.First();
-
         var table = new DataTable();
-        table.Columns.Add(nameof(DamageTaken.GameSpellId), firstElement.GameSpellId.GetType());
-        table.Columns.Add(nameof(DamageTaken.Spell), firstElement.Spell.GetType());
-        table.Columns.Add(nameof(DamageTaken.Value), firstElement.Value.GetType());
-        table.Columns.Add(nameof(DamageTaken.Time), firstElement.Time.GetType());
-        table.Columns.Add(nameof(DamageTaken.Creator), firstElement.Creator.GetType());
-        table.Columns.Add(nameof(DamageTaken.Target), firstElement.Target.GetType());
-        table.Columns.Add(nameof(DamageTaken.DamageTakenType), firstElement.DamageTakenType.GetType());
-        table.Columns.Add(nameof(DamageTaken.ActualValue), firstElement.ActualValue.GetType());
-        table.Columns.Add(nameof(DamageTaken.IsPeriodicDamage), firstElement.IsPeriodicDamage.GetType());
-        table.Columns.Add(nameof(DamageTaken.Resisted), firstElement.Resisted.GetType());
-        table.Columns.Add(nameof(DamageTaken.Absorbed), firstElement.Absorbed.GetType());
-        table.Columns.Add(nameof(DamageTaken.Blocked), firstElement.Blocked.GetType());
-        table.Columns.Add(nameof(DamageTaken.RealDamage), firstElement.RealDamage.GetType());
-        table.Columns.Add(nameof(DamageTaken.Mitigated), firstElement.Mitigated.GetType());
-        table.Columns.Add(nameof(DamageTaken.CombatPlayerId), firstElement.CombatPlayerId.GetType());
+        table.AddColumn<int>(nameof(DamageTaken.GameSpellId));
+        table.AddColumn<string>(nameof(DamageTaken.Spell));
+        table.AddColumn<int>(nameof(DamageTaken.Value));
+        table.AddColumn<TimeSpan>(nameof(DamageTaken.Time));
+        table.AddColumn<string>(nameof(DamageTaken.Creator));
+        table.AddColumn<string>(nameof(DamageTaken.Target));
+        table.AddColumn<int>(nameof(DamageTaken.DamageTakenType));
+        table.AddColumn<int>(nameof(DamageTaken.ActualValue));
+        table.AddColumn<bool>(nameof(DamageTaken.IsPeriodicDamage));
+        table.AddColumn<int>(nameof(DamageTaken.Resisted));
+        table.AddColumn<int>(nameof(DamageTaken.Absorbed));
+        table.AddColumn<int>(nameof(DamageTaken.Blocked));
+        table.AddColumn<int>(nameof(DamageTaken.RealDamage));
+        table.AddColumn<int>(nameof(DamageTaken.Mitigated));
+        table.AddColumn<int>(nameof(DamageTaken.CombatPlayerId));
 
         foreach (var item in items)
         {
@@ -57,13 +56,13 @@ internal class SPDamageTakenRepositoryBatch(CombatParserContext context) : SPGen
                 item.CombatPlayerId);
         }
 
-        var param = new SqlParameter("@Items", table)
+        var itemsParam = new SqlParameter("@Items", table)
         {
             SqlDbType = SqlDbType.Structured,
             TypeName = $"dbo.{nameof(DamageTaken)}Type"
         };
 
-        var storedProcedureName = $"InsertInto{nameof(DamageTaken)}Batch";
-        await _context.Database.ExecuteSqlInterpolatedAsync($"EXEC {storedProcedureName} {param}");
+        var sql = $"EXEC dbo.InsertInto{nameof(DamageTaken)}Batch @Items";
+        await _context.Database.ExecuteSqlRawAsync(sql, itemsParam);
     }
 }

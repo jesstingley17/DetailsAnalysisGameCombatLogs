@@ -13,18 +13,17 @@ namespace CombatAnalysis.CombatParserAPI.Controllers;
 [Route("api/v1/[controller]")]
 [ApiController]
 public class CombatController(IBossService bossService, IQueryService<CombatDto> queryCombatService, IMutationService<CombatDto> mutationCombatService,
-    IMutationService<CombatPlayerDto> mutationCombatPlayerService, IMutationService<PlayerStatsDto> mutationPlayerStatsService, IMapper mapper,
-    ILogger<CombatController> logger, ICombatDataHelper saveCombatDataHelper,
-    ICombatTransactionService combatTransactionService) : ControllerBase
+    ICombatPlayerService combatPlayerService, IMapper mapper, ILogger<CombatController> logger,
+    ISpecializationScoreHelper scoreHelper , ICombatDataHelper combatDataHelper, ICombatTransactionService combatTransactionService) : ControllerBase
 {
     private readonly IBossService _bossService = bossService;
     private readonly IQueryService<CombatDto> _queryCombatService = queryCombatService;
     private readonly IMutationService<CombatDto> _mutationCombatService = mutationCombatService;
-    private readonly IMutationService<CombatPlayerDto> _mutationCombatPlayerService = mutationCombatPlayerService;
-    private readonly IMutationService<PlayerStatsDto> _mutationPlayerStatsService = mutationPlayerStatsService;
+    private readonly ICombatPlayerService _combatPlayerService = combatPlayerService;
+    private readonly ISpecializationScoreHelper _scoreHelper = scoreHelper;
     private readonly IMapper _mapper = mapper;
     private readonly ILogger<CombatController> _logger = logger;
-    private readonly ICombatDataHelper _saveCombatDataHelper = saveCombatDataHelper;
+    private readonly ICombatDataHelper _combatDataHelper = combatDataHelper;
     private readonly ICombatTransactionService _combatTransactionService = combatTransactionService;
 
     [HttpGet]
@@ -74,7 +73,7 @@ public class CombatController(IBossService bossService, IQueryService<CombatDto>
             // A huge transaction for all action as ONE TRANSACTION was divided into a few small transactions.
             // Transactions split by logic: combat/combatPlayer/combatPlayerData and combatPlayerSpecScore/bestSpecScore
 
-            // Transaction to create Combat and Combat Players data: combat players, damage, heal, damage taken, resources, etc
+            // Transaction to create Combat and Combat Players
             await _combatTransactionService.BeginTransactionAsync();
 
             var createdCombat = await CreateCombatAsync(combat);
@@ -84,14 +83,19 @@ public class CombatController(IBossService bossService, IQueryService<CombatDto>
 
             await _combatTransactionService.CommitTransactionAsync();
 
-            // Transaction to create Combat player specialization score: how combat player do mechanics, class rotation, assist other combat players, etc
+            // Transaction to create Combat player data and specialization score:
+            // 1) damage, heal, damage taken, resources, etc
+            // 2) how combat player do mechanics, class rotation, assist other combat players, etc
             await _combatTransactionService.BeginTransactionAsync();
 
-            await CreateCombatPlayersSpecializationScoreAsync(combat, combatDetails);
+            await _combatDataHelper.CreateCombatPlayersDataAsync(combatDetails, combat);
+            await _combatDataHelper.UpdateSpecializationScoreAsync(combat.CombatPlayers, combatDetails, combat.Boss.Id);
 
             await _combatTransactionService.CommitTransactionAsync();
 
-            await UpdateCombatAsync(createdCombat);
+            combat.IsReady = true;
+
+            await _mutationCombatService.UpdateAsync(createdCombat);
 
             return Ok(createdCombat);
         }
@@ -162,63 +166,31 @@ public class CombatController(IBossService bossService, IQueryService<CombatDto>
 
         return createdCombat;
     }
-    
-    private async Task UpdateCombatAsync(CombatDto combat)
-    {
-        combat.IsReady = true;
-        await _mutationCombatService.UpdateAsync(combat);
-    }
 
     private async Task<CombatDetails> CreateCombatPlayersAsync(CombatModel combat)
     {
-        foreach (var player in combat.CombatPlayers) 
+        var combatDetails = _combatDataHelper.CreateCombatDetails(combat);
+        foreach (var combatPlayer in combat.CombatPlayers) 
         {
-            player.CombatId = combat.Id;
+            combatPlayer.CombatId = combat.Id;
 
-            var createdCombatPlayer = await CreateCombatPlayerAsync(player);
-            player.Id = createdCombatPlayer.Id;
+            await _scoreHelper.CreateSpecializationScoreAsync(combatPlayer, combatDetails);
 
-            player.Stats.CombatPlayerId = player.Id;
+            var createdCombatPlayer = await CreateCombatPlayerAsync(combatPlayer);
+            combatPlayer.Id = createdCombatPlayer.Id;
 
-            await CreatePlayerStatsAsync(player);
+            combatPlayer.Stats.CombatPlayerId = combatPlayer.Id;
         }
 
-        var combatDetails = await _saveCombatDataHelper.CreateCombatPlayersDataAsync(combat);
-
-        await UpdateCombatPlayersAsync(combat.CombatPlayers);
-
         return combatDetails;
-    }
-
-    private async Task CreateCombatPlayersSpecializationScoreAsync(CombatModel combat, CombatDetails combatDetails)
-    {
-        await _saveCombatDataHelper.CreateSpecializationScoreAsync(combat.CombatPlayers, combatDetails, combat.Boss.Id);
-        await UpdateCombatPlayersAsync(combat.CombatPlayers);
     }
 
     private async Task<CombatPlayerDto> CreateCombatPlayerAsync(CombatPlayerModel model)
     {
         var map = _mapper.Map<CombatPlayerDto>(model);
-        var createdCombatPlayer = await _mutationCombatPlayerService.CreateAsync(map);
+        var createdCombatPlayer = await _combatPlayerService.CreateAsync(map);
         ArgumentNullException.ThrowIfNull(createdCombatPlayer, nameof(createdCombatPlayer));
 
         return createdCombatPlayer;
-    }
-
-    private async Task CreatePlayerStatsAsync(CombatPlayerModel player)
-    {
-        var map = _mapper.Map<PlayerStatsDto>(player.Stats);
-        var createdStats = await _mutationPlayerStatsService.CreateAsync(map);
-
-        ArgumentNullException.ThrowIfNull(createdStats, nameof(createdStats));
-    }
-
-    private async Task UpdateCombatPlayersAsync(List<CombatPlayerModel> combatPlayers)
-    {
-        foreach (var combatPlayer in combatPlayers)
-        {
-            var map = _mapper.Map<CombatPlayerDto>(combatPlayer);
-            await _mutationCombatPlayerService.UpdateAsync(map);
-        }
     }
 }

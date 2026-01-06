@@ -12,4 +12,6 @@ public class Player
     public string Username { get; set; } = string.Empty;
 
     public int Faction { get; set; }
+
+    public ICollection<CombatPlayer> CombatPlayers { get; set; } = [];
 }

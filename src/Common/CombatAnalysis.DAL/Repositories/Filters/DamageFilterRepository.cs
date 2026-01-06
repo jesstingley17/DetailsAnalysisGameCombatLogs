@@ -1,5 +1,6 @@
 ﻿using CombatAnalysis.DAL.Data;
 using CombatAnalysis.DAL.Entities;
+using CombatAnalysis.DAL.Entities.CombatPlayerData;
 using CombatAnalysis.DAL.Interfaces.Filters;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,15 +25,7 @@ internal class DamageFilterRepository(CombatParserContext context) : IDamageFilt
                            (x, u) => new
                            {
                                u.Id,
-                               u.PlayerId
-                           })
-                       .Join(_context.Set<Player>(),
-                           x => x.PlayerId,
-                           u => u.Id,
-                           (x, u) => new
-                           {
-                               x.Id,
-                               u.Username
+                               u.Player.Username
                            })
                        .Join(_context.Set<DamageDone>(),
                            x => x.Id,

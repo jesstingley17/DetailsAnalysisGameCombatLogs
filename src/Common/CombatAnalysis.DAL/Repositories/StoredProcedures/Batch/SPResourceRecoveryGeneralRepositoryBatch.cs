@@ -1,5 +1,6 @@
 ﻿using CombatAnalysis.DAL.Data;
-using CombatAnalysis.DAL.Entities;
+using CombatAnalysis.DAL.Entities.CombatPlayerData;
+using CombatAnalysis.DAL.Extensions;
 using CombatAnalysis.DAL.Interfaces.Generic;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -7,7 +8,7 @@ using System.Data;
 
 namespace CombatAnalysis.DAL.Repositories.StoredProcedures.Batch;
 
-internal class SPResourceRecoveryGeneralRepositoryBatch(CombatParserContext context) : SPGenericRepository<ResourceRecoveryGeneral>(context), IGenericRepositoryBatch<ResourceRecoveryGeneral>
+internal class SPResourceRecoveryGeneralRepositoryBatch(CombatParserContext context) : GenericRepository<ResourceRecoveryGeneral>(context), IGenericRepositoryBatch<ResourceRecoveryGeneral>
 {
     private readonly CombatParserContext _context = context;
 
@@ -18,18 +19,16 @@ internal class SPResourceRecoveryGeneralRepositoryBatch(CombatParserContext cont
             return;
         }
 
-        var firstElement = items.First();
-
         var table = new DataTable();
-        table.Columns.Add(nameof(ResourceRecoveryGeneral.GameSpellId), firstElement.GameSpellId.GetType());
-        table.Columns.Add(nameof(ResourceRecoveryGeneral.Spell), firstElement.Spell.GetType());
-        table.Columns.Add(nameof(ResourceRecoveryGeneral.Value), firstElement.Value.GetType());
-        table.Columns.Add(nameof(ResourceRecoveryGeneral.ResourcePerSecond), firstElement.ResourcePerSecond.GetType());
-        table.Columns.Add(nameof(ResourceRecoveryGeneral.CastNumber), firstElement.CastNumber.GetType());
-        table.Columns.Add(nameof(ResourceRecoveryGeneral.MinValue), firstElement.MinValue.GetType());
-        table.Columns.Add(nameof(ResourceRecoveryGeneral.MaxValue), firstElement.MaxValue.GetType());
-        table.Columns.Add(nameof(ResourceRecoveryGeneral.AverageValue), firstElement.AverageValue.GetType());
-        table.Columns.Add(nameof(ResourceRecoveryGeneral.CombatPlayerId), firstElement.CombatPlayerId.GetType());
+        table.AddColumn<int>(nameof(ResourceRecoveryGeneral.GameSpellId));
+        table.AddColumn<string>(nameof(ResourceRecoveryGeneral.Spell));
+        table.AddColumn<int>(nameof(ResourceRecoveryGeneral.Value));
+        table.AddColumn<double>(nameof(ResourceRecoveryGeneral.ResourcePerSecond));
+        table.AddColumn<int>(nameof(ResourceRecoveryGeneral.CastNumber));
+        table.AddColumn<int>(nameof(ResourceRecoveryGeneral.MinValue));
+        table.AddColumn<int>(nameof(ResourceRecoveryGeneral.MaxValue));
+        table.AddColumn<double>(nameof(ResourceRecoveryGeneral.AverageValue));
+        table.AddColumn<int>(nameof(ResourceRecoveryGeneral.CombatPlayerId));
 
         foreach (var item in items)
         {
@@ -45,13 +44,13 @@ internal class SPResourceRecoveryGeneralRepositoryBatch(CombatParserContext cont
                 item.CombatPlayerId);
         }
 
-        var param = new SqlParameter("@Items", table)
+        var itemsParam = new SqlParameter("@Items", table)
         {
             SqlDbType = SqlDbType.Structured,
             TypeName = $"dbo.{nameof(ResourceRecoveryGeneral)}Type"
         };
 
-        var storedProcedureName = $"InsertInto{nameof(ResourceRecoveryGeneral)}Batch";
-        await _context.Database.ExecuteSqlInterpolatedAsync($"EXEC {storedProcedureName} {param}");
+        var sql = $"EXEC dbo.InsertInto{nameof(ResourceRecoveryGeneral)}Batch @Items";
+        await _context.Database.ExecuteSqlRawAsync(sql, itemsParam);
     }
 }

@@ -1,15 +1,14 @@
 ﻿using AutoMapper;
 using CombatAnalysis.BL.DTO;
-using CombatAnalysis.BL.Interfaces.General;
-using CombatAnalysis.BL.Services.General;
+using CombatAnalysis.BL.Interfaces;
 using CombatAnalysis.DAL.Entities;
-using CombatAnalysis.DAL.Interfaces.Generic;
+using CombatAnalysis.DAL.Interfaces;
 
 namespace CombatAnalysis.BL.Services;
 
-internal class CombatPlayerService(IGenericRepository<CombatPlayer> repository, IMapper mapper) : QueryService<CombatPlayerDto, CombatPlayer>(repository, mapper), IMutationService<CombatPlayerDto>
+internal class CombatPlayerService(ICombatPlayerRepository repository, IMapper mapper) : ICombatPlayerService
 {
-    private readonly IGenericRepository<CombatPlayer> _repository = repository;
+    private readonly ICombatPlayerRepository _repository = repository;
     private readonly IMapper _mapper = mapper;
 
     public async Task<CombatPlayerDto> CreateAsync(CombatPlayerDto item)
@@ -23,23 +22,22 @@ internal class CombatPlayerService(IGenericRepository<CombatPlayer> repository, 
         return resultMap;
     }
 
-    public async Task<int> UpdateAsync(CombatPlayerDto item)
+    public async Task<int> UpdateAsync(int id, CombatPlayerDto item)
     {
         CheckParams(item);
 
         var map = _mapper.Map<CombatPlayer>(item);
-        var rowsAffected = await _repository.UpdateAsync(map);
+        var rowsAffected = await _repository.UpdateAsync(id, map);
 
         return rowsAffected;
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<IEnumerable<CombatPlayerDto>> GetByCombatIdAsync(int combatId)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(id, 1);
+        var combatPlayers = await _repository.GetByCombatIdAsync(combatId);
+        var map = _mapper.Map<IEnumerable<CombatPlayerDto>>(combatPlayers);
 
-        var entityDeleted = await _repository.DeleteAsync(id);
-
-        return entityDeleted;
+        return map;
     }
 
     private static void CheckParams(CombatPlayerDto item)

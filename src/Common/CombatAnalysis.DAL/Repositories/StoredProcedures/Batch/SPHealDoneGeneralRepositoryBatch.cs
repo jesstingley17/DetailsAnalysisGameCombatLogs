@@ -1,5 +1,6 @@
 ﻿using CombatAnalysis.DAL.Data;
-using CombatAnalysis.DAL.Entities;
+using CombatAnalysis.DAL.Entities.CombatPlayerData;
+using CombatAnalysis.DAL.Extensions;
 using CombatAnalysis.DAL.Interfaces.Generic;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -7,7 +8,7 @@ using System.Data;
 
 namespace CombatAnalysis.DAL.Repositories.StoredProcedures.Batch;
 
-internal class SPHealDoneGeneralRepositoryBatch(CombatParserContext context) : SPGenericRepository<HealDoneGeneral>(context), IGenericRepositoryBatch<HealDoneGeneral>
+internal class SPHealDoneGeneralRepositoryBatch(CombatParserContext context) : GenericRepository<HealDoneGeneral>(context), IGenericRepositoryBatch<HealDoneGeneral>
 {
     private readonly CombatParserContext _context = context;
 
@@ -18,19 +19,17 @@ internal class SPHealDoneGeneralRepositoryBatch(CombatParserContext context) : S
             return;
         }
 
-        var firstElement = items.First();
-
         var table = new DataTable();
-        table.Columns.Add(nameof(HealDoneGeneral.GameSpellId), firstElement.GameSpellId.GetType());
-        table.Columns.Add(nameof(HealDoneGeneral.Spell), firstElement.Spell.GetType());
-        table.Columns.Add(nameof(HealDoneGeneral.Value), firstElement.Value.GetType());
-        table.Columns.Add(nameof(HealDoneGeneral.HealPerSecond), firstElement.HealPerSecond.GetType());
-        table.Columns.Add(nameof(HealDoneGeneral.CritNumber), firstElement.CritNumber.GetType());
-        table.Columns.Add(nameof(HealDoneGeneral.CastNumber), firstElement.CastNumber.GetType());
-        table.Columns.Add(nameof(HealDoneGeneral.MinValue), firstElement.MinValue.GetType());
-        table.Columns.Add(nameof(HealDoneGeneral.MaxValue), firstElement.MaxValue.GetType());
-        table.Columns.Add(nameof(HealDoneGeneral.AverageValue), firstElement.AverageValue.GetType());
-        table.Columns.Add(nameof(HealDoneGeneral.CombatPlayerId), firstElement.CombatPlayerId.GetType());
+        table.AddColumn<int>(nameof(HealDoneGeneral.GameSpellId));
+        table.AddColumn<string>(nameof(HealDoneGeneral.Spell));
+        table.AddColumn<int>(nameof(HealDoneGeneral.Value));
+        table.AddColumn<double>(nameof(HealDoneGeneral.HealPerSecond));
+        table.AddColumn<int>(nameof(HealDoneGeneral.CritNumber));
+        table.AddColumn<int>(nameof(HealDoneGeneral.CastNumber));
+        table.AddColumn<int>(nameof(HealDoneGeneral.MinValue));
+        table.AddColumn<int>(nameof(HealDoneGeneral.MaxValue));
+        table.AddColumn<double>(nameof(HealDoneGeneral.AverageValue));
+        table.AddColumn<int>(nameof(HealDoneGeneral.CombatPlayerId));
 
         foreach (var item in items)
         {
@@ -47,13 +46,13 @@ internal class SPHealDoneGeneralRepositoryBatch(CombatParserContext context) : S
                 item.CombatPlayerId);
         }
 
-        var param = new SqlParameter("@Items", table)
+        var itemsParam = new SqlParameter("@Items", table)
         {
             SqlDbType = SqlDbType.Structured,
             TypeName = $"dbo.{nameof(HealDoneGeneral)}Type"
         };
 
-        var storedProcedureName = $"InsertInto{nameof(HealDoneGeneral)}Batch";
-        await _context.Database.ExecuteSqlInterpolatedAsync($"EXEC {storedProcedureName} {param}");
+        var sql = $"EXEC dbo.InsertInto{nameof(HealDoneGeneral)}Batch @Items";
+        await _context.Database.ExecuteSqlRawAsync(sql, itemsParam);
     }
 }

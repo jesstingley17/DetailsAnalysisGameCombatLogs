@@ -1,6 +1,6 @@
 ﻿using CombatAnalysis.BL.DTO;
 using CombatAnalysis.BL.Services.General;
-using CombatAnalysis.DAL.Entities;
+using CombatAnalysis.DAL.Entities.CombatPlayerData;
 using CombatAnalysis.DAL.Interfaces.Generic;
 using Moq;
 

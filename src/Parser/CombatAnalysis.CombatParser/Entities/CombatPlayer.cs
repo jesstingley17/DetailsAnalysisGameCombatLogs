@@ -16,8 +16,6 @@ public class CombatPlayer
 
     public PlayerStats Stats { get; set; } = new();
 
-    public PlayerParseInfo PlayerParseInfo { get; set; } = new();
-
     public Player Player { get; set; } = new();
 
     public int CombatId { get; set; }

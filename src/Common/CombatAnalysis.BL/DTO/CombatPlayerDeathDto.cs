@@ -2,7 +2,7 @@
 
 namespace CombatAnalysis.BL.DTO;
 
-public class PlayerDeathDto : ICombatPlayerEntity
+public class CombatPlayerDeathDto : ICombatPlayerEntity
 {
     public int Id { get; set; }
 

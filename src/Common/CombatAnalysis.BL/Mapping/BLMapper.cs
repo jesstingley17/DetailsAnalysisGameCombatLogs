@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using CombatAnalysis.BL.DTO;
 using CombatAnalysis.DAL.Entities;
+using CombatAnalysis.DAL.Entities.CombatPlayerData;
 
 namespace CombatAnalysis.BL.Mapping;
 
@@ -26,8 +27,8 @@ public class BLMapper : Profile
         CreateMap<DamageTakenGeneralDto, DamageTakenGeneral>().ReverseMap();
         CreateMap<ResourceRecoveryDto, ResourceRecovery>().ReverseMap();
         CreateMap<ResourceRecoveryGeneralDto, ResourceRecoveryGeneral>().ReverseMap();
-        CreateMap<PlayerDeathDto, PlayerDeath>().ReverseMap();
-        CreateMap<PlayerStatsDto, PlayerStats>().ReverseMap();
+        CreateMap<CombatPlayerDeathDto, CombatPlayerDeath>().ReverseMap();
+        CreateMap<CombatPlayerStatsDto, CombatPlayerStats>().ReverseMap();
         CreateMap<CombatTargetDto, CombatTarget>().ReverseMap();
     }
 }

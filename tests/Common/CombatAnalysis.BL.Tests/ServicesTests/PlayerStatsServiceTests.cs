@@ -18,10 +18,10 @@ public class PlayerStatsServiceTests
         var entity = PlayerStatsTestDataFactory.Create();
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<PlayerStats>>();
+        var mockRepository = new Mock<IGenericRepository<CombatPlayerStats>>();
 
-        mockMapper.Setup(m => m.Map<PlayerStats>(entityDto)).Returns(entity);
-        mockMapper.Setup(m => m.Map<PlayerStatsDto>(entity)).Returns(entityDto);
+        mockMapper.Setup(m => m.Map<CombatPlayerStats>(entityDto)).Returns(entity);
+        mockMapper.Setup(m => m.Map<CombatPlayerStatsDto>(entity)).Returns(entityDto);
 
         mockRepository.Setup(m => m.CreateAsync(entity)).ReturnsAsync(entity);
 
@@ -33,7 +33,6 @@ public class PlayerStatsServiceTests
         // Assert
         Assert.NotNull(result);
         Assert.Equal(entityDto.Id, result.Id);
-        Assert.Equal(entityDto.Faction, result.Faction);
         Assert.Equal(entityDto.Strength, result.Strength);
         Assert.Equal(entityDto.Agility, result.Agility);
         Assert.Equal(entityDto.Intelligence, result.Intelligence);
@@ -50,9 +49,9 @@ public class PlayerStatsServiceTests
         Assert.Equal(entityDto.CombatPlayerId, result.CombatPlayerId);
 
         // Verify correct method calls
-        mockMapper.Verify(m => m.Map<PlayerStats>(It.IsAny<PlayerStatsDto>()), Times.Once);
-        mockRepository.Verify(r => r.CreateAsync(It.IsAny<PlayerStats>()), Times.Once);
-        mockMapper.Verify(m => m.Map<PlayerStatsDto>(It.IsAny<PlayerStats>()), Times.Once);
+        mockMapper.Verify(m => m.Map<CombatPlayerStats>(It.IsAny<CombatPlayerStatsDto>()), Times.Once);
+        mockRepository.Verify(r => r.CreateAsync(It.IsAny<CombatPlayerStats>()), Times.Once);
+        mockMapper.Verify(m => m.Map<CombatPlayerStatsDto>(It.IsAny<CombatPlayerStats>()), Times.Once);
     }
 
     [Fact]
@@ -62,7 +61,7 @@ public class PlayerStatsServiceTests
         var entityDto = PlayerStatsTestDataFactory.CreateDto(talents: "");
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<PlayerStats>>();
+        var mockRepository = new Mock<IGenericRepository<CombatPlayerStats>>();
 
         var service = new PlayerStatsService(mockRepository.Object, mockMapper.Object);
 
@@ -70,7 +69,7 @@ public class PlayerStatsServiceTests
         await Assert.ThrowsAsync<ArgumentException>(() => service.CreateAsync(entityDto));
 
         // Verify correct method calls
-        mockRepository.Verify(r => r.CreateAsync(It.IsAny<PlayerStats>()), Times.Never);
+        mockRepository.Verify(r => r.CreateAsync(It.IsAny<CombatPlayerStats>()), Times.Never);
     }
 
     [Fact]
@@ -81,9 +80,9 @@ public class PlayerStatsServiceTests
         var entity = PlayerStatsTestDataFactory.Create();
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<PlayerStats>>();
+        var mockRepository = new Mock<IGenericRepository<CombatPlayerStats>>();
 
-        mockMapper.Setup(m => m.Map<PlayerStats>(entityDto)).Returns(entity);
+        mockMapper.Setup(m => m.Map<CombatPlayerStats>(entityDto)).Returns(entity);
 
         mockRepository.Setup(m => m.UpdateAsync(entity));
 
@@ -93,8 +92,8 @@ public class PlayerStatsServiceTests
         await service.UpdateAsync(entityDto);
 
         // Assert and Verify correct method calls
-        mockMapper.Verify(m => m.Map<PlayerStats>(It.IsAny<PlayerStatsDto>()), Times.Once);
-        mockRepository.Verify(r => r.UpdateAsync(It.IsAny<PlayerStats>()), Times.Once);
+        mockMapper.Verify(m => m.Map<CombatPlayerStats>(It.IsAny<CombatPlayerStatsDto>()), Times.Once);
+        mockRepository.Verify(r => r.UpdateAsync(It.IsAny<CombatPlayerStats>()), Times.Once);
     }
 
     [Fact]
@@ -104,15 +103,15 @@ public class PlayerStatsServiceTests
         var entityDto = PlayerStatsTestDataFactory.CreateDto(talents: "");
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<PlayerStats>>();
+        var mockRepository = new Mock<IGenericRepository<CombatPlayerStats>>();
 
         var service = new PlayerStatsService(mockRepository.Object, mockMapper.Object);
 
         // Act and Assert
-        await Assert.ThrowsAsync<ArgumentException>(nameof(PlayerStats.Talents), () => service.UpdateAsync(entityDto));
+        await Assert.ThrowsAsync<ArgumentException>(nameof(CombatPlayerStats.Talents), () => service.UpdateAsync(entityDto));
 
         // Verify correct method calls
-        mockRepository.Verify(r => r.UpdateAsync(It.IsAny<PlayerStats>()), Times.Never);
+        mockRepository.Verify(r => r.UpdateAsync(It.IsAny<CombatPlayerStats>()), Times.Never);
     }
 
     [Fact]
@@ -122,7 +121,7 @@ public class PlayerStatsServiceTests
         const int id = 1;
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<PlayerStats>>();
+        var mockRepository = new Mock<IGenericRepository<CombatPlayerStats>>();
 
         mockRepository.Setup(r => r.DeleteAsync(id)).ReturnsAsync(true);
 
@@ -145,7 +144,7 @@ public class PlayerStatsServiceTests
         const int id = 2;
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<PlayerStats>>();
+        var mockRepository = new Mock<IGenericRepository<CombatPlayerStats>>();
 
         mockRepository.Setup(r => r.DeleteAsync(id)).ReturnsAsync(false);
 
@@ -168,7 +167,7 @@ public class PlayerStatsServiceTests
         const int id = 0;
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<PlayerStats>>();
+        var mockRepository = new Mock<IGenericRepository<CombatPlayerStats>>();
 
         var service = new PlayerStatsService(mockRepository.Object, mockMapper.Object);
 

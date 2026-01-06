@@ -23,10 +23,13 @@ public class CombatPlayerModel
     public int DamageTaken { get; set; }
 
     [Required]
-    public PlayerStatsModel Stats { get; set; }
+    public CombatPlayerStatsModel Stats { get; set; } = new();
 
     [Required]
-    public PlayerModel Player { get; set; }
+    public SpecializationScoreModel Score { get; set; } = new();
+
+    [Required]
+    public PlayerModel Player { get; set; } = new();
 
     [Range(0, int.MaxValue)]
     public int CombatId { get; set; }

@@ -9,18 +9,18 @@ namespace CombatAnalysis.CombatParserAPI.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-public class PlayerStatsController(IQueryService<PlayerStatsDto> queryService, IMutationService<PlayerStatsDto> mutationService,
+public class PlayerStatsController(IQueryService<CombatPlayerStatsDto> queryService, IMutationService<CombatPlayerStatsDto> mutationService,
     IMapper mapper, ILogger<PlayerStatsController> logger) : ControllerBase
 {
-    private readonly IQueryService<PlayerStatsDto> _queryService = queryService;
-    private readonly IMutationService<PlayerStatsDto> _mutationService = mutationService;
+    private readonly IQueryService<CombatPlayerStatsDto> _queryService = queryService;
+    private readonly IMutationService<CombatPlayerStatsDto> _mutationService = mutationService;
     private readonly IMapper _mapper = mapper;
     private readonly ILogger<PlayerStatsController> _logger = logger;
 
     [HttpGet("getByCombatPlayerId/{combatPlayerId:int:min(1)}")]
     public async Task<IActionResult> GetByCombatPlayerId(int combatPlayerId)
     {
-        var playerStats = await _queryService.GetByParamAsync(nameof(PlayerStatsModel.CombatPlayerId), combatPlayerId);
+        var playerStats = await _queryService.GetByParamAsync(nameof(CombatPlayerStatsModel.CombatPlayerId), combatPlayerId);
         var firstPlayerStats = playerStats.SingleOrDefault();
 
         return Ok(firstPlayerStats);
@@ -35,7 +35,7 @@ public class PlayerStatsController(IQueryService<PlayerStatsDto> queryService, I
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] PlayerStatsModel playerStats)
+    public async Task<IActionResult> Create([FromBody] CombatPlayerStatsModel playerStats)
     {
         try
         {
@@ -46,7 +46,7 @@ public class PlayerStatsController(IQueryService<PlayerStatsDto> queryService, I
                 return ValidationProblem(ModelState);
             }
 
-            var map = _mapper.Map<PlayerStatsDto>(playerStats);
+            var map = _mapper.Map<CombatPlayerStatsDto>(playerStats);
             var createdItem = await _mutationService.CreateAsync(map);
 
             return Ok(createdItem);

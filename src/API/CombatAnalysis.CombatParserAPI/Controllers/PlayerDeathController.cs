@@ -10,11 +10,11 @@ namespace CombatAnalysis.CombatParserAPI.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-public class PlayerDeathController(IMutationServiceBatch<PlayerDeathDto> mutationService, IPlayerInfoService<PlayerDeathDto> service,
+public class PlayerDeathController(IMutationServiceBatch<CombatPlayerDeathDto> mutationService, IPlayerInfoService<CombatPlayerDeathDto> service,
     IMapper mapper, ILogger<PlayerDeathController> logger) : ControllerBase
 {
-    private readonly IMutationServiceBatch<PlayerDeathDto> _mutationService = mutationService;
-    private readonly IPlayerInfoService<PlayerDeathDto> _playerInfoService = service;
+    private readonly IMutationServiceBatch<CombatPlayerDeathDto> _mutationService = mutationService;
+    private readonly IPlayerInfoService<CombatPlayerDeathDto> _playerInfoService = service;
     private readonly IMapper _mapper = mapper;
     private readonly ILogger<PlayerDeathController> _logger = logger;
 
@@ -27,7 +27,7 @@ public class PlayerDeathController(IMutationServiceBatch<PlayerDeathDto> mutatio
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] PlayerDeathModel playerDeath)
+    public async Task<IActionResult> Create([FromBody] CombatPlayerDeathModel playerDeath)
     {
         try
         {
@@ -38,7 +38,7 @@ public class PlayerDeathController(IMutationServiceBatch<PlayerDeathDto> mutatio
                 return ValidationProblem(ModelState);
             }
 
-            var map = _mapper.Map<PlayerDeathDto>(playerDeath);
+            var map = _mapper.Map<CombatPlayerDeathDto>(playerDeath);
             var createdItem = await _mutationService.CreateAsync(map);
 
             return Ok(createdItem);

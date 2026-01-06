@@ -21,4 +21,6 @@ public class CombatLog : IEntity
     public bool IsReady { get; set; }
 
     public string AppUserId { get; set; } = string.Empty;
+
+    public ICollection<Combat> Combats { get; set; } = [];
 }

@@ -12,30 +12,24 @@ internal class SpecializationScoreHelper(ISpecializationScoreService service, IB
     private readonly IBestSpecializationScoreService _bestScoreService = bestScoreService;
     private readonly ISpecializationService _specService = specService;
 
-    public async Task CreateSpecializationScoreAsync(List<CombatPlayerModel> combatPlayers, CombatDetails combatDetails)
+    public async Task CreateSpecializationScoreAsync(CombatPlayerModel combatPlayer, CombatDetails combatDetails)
     {
-        var specScores = new List<SpecializationScoreDto>();
-        foreach (var combatPlayer in combatPlayers)
+        var spellIds = combatPlayer.DamageDone > combatPlayer.HealDone
+            ? combatDetails.DamageDoneGeneral[combatPlayer.Player.GameId].Select(d => d.GameSpellId).ToArray()
+            : combatDetails.HealDoneGeneral[combatPlayer.Player.GameId].Select(d => d.GameSpellId).ToArray();
+        var spellsIdsStr = string.Join(',', spellIds);
+
+        var spec = await _specService.GetBySpellsAsync(spellsIdsStr);
+
+        var score = new SpecializationScoreModel
         {
-            var spellIds = combatPlayer.DamageDone > combatPlayer.HealDone 
-                ? combatDetails.DamageDoneGeneral[combatPlayer.Player.GameId].Select(d => d.GameSpellId).ToArray()
-                : combatDetails.HealDoneGeneral[combatPlayer.Player.GameId].Select(d => d.GameSpellId).ToArray();
-            var spellsIdsStr = string.Join(',', spellIds);
+            DamageDone = combatPlayer.DamageDone,
+            HealDone = combatPlayer.HealDone,
+            SpecializationId = spec?.Id ?? 0,
+            CombatPlayerId = combatPlayer.Id,
+        };
 
-            var spec = await _specService.GetBySpellsAsync(spellsIdsStr);
-
-            specScores.Add(
-                new SpecializationScoreDto
-                {
-                    DamageDone = combatPlayer.DamageDone,
-                    HealDone = combatPlayer.HealDone,
-                    SpecializationId = spec?.Id ?? 0,
-                    CombatPlayerId = combatPlayer.Id,
-                }
-            );
-        }
-
-        await _service.CreateBatchAsync(specScores);
+        combatPlayer.Score = score;
     }
 
     public async Task<SpecializationScoreDto?> GetSpecializationScoreAsync(int combatPlayerId)

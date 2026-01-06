@@ -1,6 +1,6 @@
-﻿using CombatAnalysis.DAL.Entities;
-using CombatAnalysis.DAL.Repositories.Filters;
+﻿using CombatAnalysis.DAL.Repositories.Filters;
 using CombatAnalysis.DAL.IntegrationTests.RepositoryTests;
+using CombatAnalysis.DAL.Entities.CombatPlayerData;
 
 namespace CombatAnalysis.DAL.IntegrationTests.FiltersTests;
 

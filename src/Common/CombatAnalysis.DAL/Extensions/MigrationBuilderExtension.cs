@@ -1,205 +1,58 @@
 ﻿using CombatAnalysis.DAL.Entities;
+using CombatAnalysis.DAL.Entities.CombatPlayerData;
 using Microsoft.EntityFrameworkCore.Migrations;
 using System.Text;
 
-namespace CombatAnalysis.DAL.Helpers;
+namespace CombatAnalysis.DAL.Extensions;
 
-internal static class MigrationHelper
+internal static class MigrationBuilderExtension
 {
-    private static readonly Type[] _defaultTypes =
-    [
-            typeof(CombatLog),
-            typeof(CombatPlayer),
-            typeof(PlayerStats),
-            typeof(Combat),
-            typeof(PlayerDeath),
-            typeof(DamageDoneGeneral),
-            typeof(HealDoneGeneral),
-            typeof(DamageTakenGeneral),
-            typeof(ResourceRecoveryGeneral),
-            typeof(CombatAura),
-            typeof(CombatPlayerPosition),
-            typeof(DamageDone),
-            typeof(HealDone),
-            typeof(DamageTaken),
-            typeof(ResourceRecovery),
-            typeof(SpecializationScore),
-            typeof(BestSpecializationScore),
-    ];
-
-    private static readonly Type[] _insertValueTypes =
-    [
-            typeof(CombatLog),
-            typeof(Combat),
-            typeof(CombatPlayer),
-            typeof(PlayerStats),
-    ];
-
     private static readonly Type[] _tableTypes =
     [       
-            typeof(PlayerDeath),
+            typeof(DamageDone),
             typeof(DamageDoneGeneral),
+            typeof(HealDone),
             typeof(HealDoneGeneral),
+            typeof(DamageTaken),
             typeof(DamageTakenGeneral),
+            typeof(ResourceRecovery),
             typeof(ResourceRecoveryGeneral),
             typeof(CombatAura),
             typeof(CombatPlayerPosition),
-            typeof(DamageDone),
-            typeof(HealDone),
-            typeof(DamageTaken),
-            typeof(ResourceRecovery),
+            typeof(CombatPlayerDeath),
             typeof(SpecializationScore),
     ];
 
-    private static readonly Type[] _paginationTypes =
-    [
-            typeof(DamageDone),
-            typeof(HealDone),
-            typeof(DamageTaken),
-            typeof(ResourceRecovery),
-    ];
-
-    private static readonly Type[] _typesByCombatPlayer =
-    [
-            typeof(DamageDone),
-            typeof(DamageDoneGeneral),
-            typeof(HealDone),
-            typeof(HealDoneGeneral),
-            typeof(DamageTaken),
-            typeof(DamageTakenGeneral),
-            typeof(ResourceRecovery),
-            typeof(ResourceRecoveryGeneral),
-            typeof(CombatPlayerPosition),
-            typeof(PlayerStats),
-            typeof(PlayerDeath),
-    ];
-
-    public static void CreateTableTypes(MigrationBuilder migrationBuilder)
+    public static void CreateTableTypes(this MigrationBuilder migrationBuilder)
     {
         foreach (var item in _tableTypes)
         {
             var typeParams = CreateParams(item, false);
             migrationBuilder.Sql($"CREATE TYPE dbo.{item.Name}Type AS TABLE({typeParams.Item1});");
 
-            migrationBuilder.Sql($"" +
-                "EXEC('" +
-                $"CREATE OR ALTER PROCEDURE InsertInto{item.Name}Batch (@Items dbo.{item.Name}Type READONLY)\n" +
-                "AS\n" +
-                "BEGIN\n" +
-                "\tSET NOCOUNT ON;\n" +
-                $"\tINSERT INTO {item.Name}({typeParams.Item2})\n" +
-                "\tSELECT * FROM @Items;\n" +
-                "END" +
-                "');");
+            migrationBuilder.Sql($"""
+            EXEC('
+                CREATE OR ALTER PROCEDURE dbo.InsertInto{item.Name}Batch
+                    @Items dbo.{item.Name}Type READONLY
+                AS
+                BEGIN
+                    SET NOCOUNT ON;
+
+                    INSERT INTO {item.Name} ({typeParams.Item2})
+                    SELECT {typeParams.Item2} FROM @Items;
+                END
+            ');
+            """);
         }
     }
 
-    public static void CreateProcedures(MigrationBuilder migrationBuilder)
-    {
-        foreach (var item in _defaultTypes)
-        {
-            migrationBuilder.Sql($"" +
-                "EXEC('" +
-                $"CREATE OR ALTER PROCEDURE GetAll{item.Name}\n" +
-                "AS\n" +
-                "BEGIN\n" +
-                "\tSELECT * \n" +
-                $"\tFROM {item.Name}\n" +
-                "END" +
-                "');");
-
-            var property = item.GetProperty("Id");
-            migrationBuilder.Sql($"" +
-                "EXEC('" +
-                $"CREATE OR ALTER PROCEDURE Get{item.Name}ById (@id {Converter(property.PropertyType)})\n" +
-                "AS\n" +
-                "BEGIN\n" +
-                "\tSELECT * \n" +
-                $"\tFROM {item.Name}\n" +
-                "\tWHERE Id = @id\n" +
-                "END" +
-                "');");
-
-            var updateParams = UpdateParamsAndValues(item);
-            migrationBuilder.Sql($"" +
-                "EXEC('" +
-                $"CREATE OR ALTER PROCEDURE Update{item.Name} ({updateParams.Item1})\n" +
-                "AS\n" +
-                "BEGIN\n" +
-                $"\tUPDATE {item.Name}\n" +
-                $"\tSET {updateParams.Item2}\n" +
-                "\tWHERE Id = @Id\n" +
-                "END" +
-                "');");
-
-            migrationBuilder.Sql($"" +
-                "EXEC('" +
-                $"CREATE OR ALTER PROCEDURE Delete{item.Name}ById (@id {Converter(property.PropertyType)})\n" +
-                "AS\n" +
-                "BEGIN\n" +
-                $"\tDELETE FROM {item.Name}\n" +
-                "\tWHERE Id = @id\n" +
-                "END" +
-                "');");
-        }
-
-        foreach (var item in _insertValueTypes)
-        {
-            var insertIntoParams = CreateParams(item);
-            var insertIntoOutputParams = CreateOutputParams(item);
-            migrationBuilder.Sql($"" +
-                "EXEC('" +
-                $"CREATE OR ALTER PROCEDURE InsertInto{item.Name} ({insertIntoParams.Item1})\n" +
-                "AS\n" +
-                "BEGIN\n" +
-                $"\tDECLARE @OutputTbl TABLE ({insertIntoOutputParams})\n" +
-                $"\tINSERT INTO {item.Name}\n" +
-                $"\tOUTPUT INSERTED.* INTO @OutputTbl\n" +
-                $"\tVALUES ({insertIntoParams.Item2})\n" +
-                "\tSELECT * FROM @OutputTbl\n" +
-                "END" +
-                "');");
-        }
-
-        CreateProceduresWithPaginations(migrationBuilder);
-
-        GetDataByCombatPlayerId(migrationBuilder);
-    }
-    
-    public static void DropTableTypes(MigrationBuilder migrationBuilder)
+    public static void DropTableTypes(this MigrationBuilder migrationBuilder)
     {
         foreach (var item in _tableTypes)
         {
             migrationBuilder.Sql($"DROP TYPE IF EXISTS dbo.{item.Name}Type");
+            migrationBuilder.Sql($"DROP PROCEDURE IF EXISTS dbo.InsertInto{item.Name}Batch");
         }
-    }
-
-    public static void DropProcedures(MigrationBuilder migrationBuilder)
-    {
-        foreach (var item in _defaultTypes)
-        {
-            migrationBuilder.Sql($"DROP PROCEDURE IF EXISTS GetAll{item.Name}");
-            migrationBuilder.Sql($"DROP PROCEDURE IF EXISTS Get{item.Name}ById");
-            migrationBuilder.Sql($"DROP PROCEDURE IF EXISTS Update{item.Name}");
-            migrationBuilder.Sql($"DROP PROCEDURE IF EXISTS Delete{item.Name}ById");
-        }
-
-        foreach (var item in _insertValueTypes)
-        {
-            migrationBuilder.Sql($"DROP PROCEDURE IF EXISTS InsertInto{item.Name}");
-        }
-
-        foreach (var item in _paginationTypes)
-        {
-            migrationBuilder.Sql($"DROP PROCEDURE IF EXISTS Get{item.Name}ByCombatPlayerIdPagination");
-        }
-
-        foreach (var item in _typesByCombatPlayer)
-        {
-            migrationBuilder.Sql($"DROP PROCEDURE IF EXISTS Get{item.Name}ByCombatPlayerId");
-        }
-
-        migrationBuilder.Sql($"DROP PROCEDURE IF EXISTS Get{nameof(SpecializationScore)}BySpecId");
     }
 
     public static Boss[] GenerateBossCollection()
@@ -322,59 +175,27 @@ internal static class MigrationHelper
         return bestScores;
     }
 
-    private static void CreateProceduresWithPaginations(MigrationBuilder migrationBuilder)
-    {
-        foreach (var item in _paginationTypes)
-        {
-            var property = item.GetProperty("CombatPlayerId");
-            migrationBuilder.Sql($"" +
-                "EXEC('" +
-                $"CREATE OR ALTER PROCEDURE Get{item.Name}ByCombatPlayerIdPagination (@combatPlayerId {Converter(property.PropertyType)}, @page INT, @pageSize INT)\n" +
-                "AS\n" +
-                "BEGIN\n" +
-                "\tSELECT * \n" +
-                $"\tFROM {item.Name}\n" +
-                "\tWHERE CombatPlayerId = @combatPlayerId\n" +
-                $"\tORDER BY Id\n" +
-                "\tOFFSET (@page - 1) * @pageSize ROWS\n" +
-                "\tFETCH NEXT @pageSize ROWS ONLY\n" +
-                "END" +
-                "');");
-        }
-    }
-
-    private static void GetDataByCombatPlayerId(MigrationBuilder migrationBuilder)
-    {
-        foreach (var item in _typesByCombatPlayer)
-        {
-            var property = item.GetProperty("CombatPlayerId");
-            migrationBuilder.Sql($"" +
-                 "EXEC('" +
-                $"CREATE OR ALTER PROCEDURE Get{item.Name}ByCombatPlayerId (@combatPlayerId {Converter(property.PropertyType)})\n" +
-                "AS\n" +
-                "BEGIN\n" +
-                "\tSELECT * \n" +
-                $"\tFROM {item.Name}\n" +
-                "\tWHERE CombatPlayerId = @combatPlayerId\n" +
-                "END" +
-                "');");
-        }
-    }
-
     private static Tuple<string, string> CreateParams(Type type, bool isStoredProcedure = true)
     {
+        Type[] navigatorTypes =
+        [
+            typeof(CombatPlayer),
+            typeof(Combat),
+            typeof(Specialization),
+        ];
+
         var properties = type.GetProperties();
         var paramNames = new StringBuilder();
         var paramNamesWithPropertyTypes = new StringBuilder();
         if (type.GetProperty("Id")?.PropertyType != typeof(int))
         {
-            paramNamesWithPropertyTypes.Append(isStoredProcedure ? $"@{properties[0].Name} {Converter(properties[0].PropertyType)}," : $"{properties[0].Name} {Converter(properties[0].PropertyType)},");
+            paramNamesWithPropertyTypes.Append(isStoredProcedure ? $"@{properties[0].Name} {Converter(properties[0].PropertyType)}," : $"{properties[0].Name} {Converter(properties[0].PropertyType)} NOT NULL,");
             paramNames.Append(isStoredProcedure ? $"@{properties[0].Name}," : $"{properties[0].Name},");
         }
 
         for (int i = 1; i < properties.Length; i++)
         {
-            if (properties[i].CanWrite)
+            if (properties[i].CanWrite && !navigatorTypes.Contains(properties[i].PropertyType))
             {
                 paramNamesWithPropertyTypes.Append(isStoredProcedure ? $"@{properties[i].Name} {Converter(properties[i].PropertyType)}," : $"{properties[i].Name} {Converter(properties[i].PropertyType)},");
                 paramNames.Append(isStoredProcedure ? $"@{properties[i].Name}," : $"{properties[i].Name},");
@@ -385,50 +206,6 @@ internal static class MigrationHelper
         paramNames.Remove(paramNames.Length - 1, 1);
 
         return new Tuple<string, string>(paramNamesWithPropertyTypes.ToString(), paramNames.ToString());
-    }
-
-    private static string CreateOutputParams(Type type)
-    {
-        var properties = type.GetProperties();
-        var procedureParamNamesWithPropertyTypes = new StringBuilder();
-        for (int i = 0; i < properties.Length; i++)
-        {
-            if (properties[i].CanWrite)
-            {
-                procedureParamNamesWithPropertyTypes.Append($"{properties[i].Name} {Converter(properties[i].PropertyType)},");
-            }
-        }
-
-        procedureParamNamesWithPropertyTypes.Remove(procedureParamNamesWithPropertyTypes.Length - 1, 1);
-
-        return procedureParamNamesWithPropertyTypes.ToString();
-    }
-
-    private static Tuple<string, string> UpdateParamsAndValues(Type type)
-    {
-        var properties = type.GetProperties();
-        var procedureParamNames = new StringBuilder();
-        var procedureParamNamesWithPropertyTypes = new StringBuilder();
-        for (int i = 0; i < properties.Length; i++)
-        {
-            if (properties[i].CanWrite)
-            {
-                procedureParamNamesWithPropertyTypes.Append($"@{properties[i].Name} {Converter(properties[i].PropertyType)},");
-            }
-        }
-
-        for (int i = 1; i < properties.Length; i++)
-        {
-            if (properties[i].CanWrite)
-            {
-                procedureParamNames.Append($"{properties[i].Name} = @{properties[i].Name},");
-            }
-        }
-
-        procedureParamNamesWithPropertyTypes.Remove(procedureParamNamesWithPropertyTypes.Length - 1, 1);
-        procedureParamNames.Remove(procedureParamNames.Length - 1, 1);
-
-        return new Tuple<string, string>(procedureParamNamesWithPropertyTypes.ToString(), procedureParamNames.ToString());
     }
 
     private static string Converter(Type type)

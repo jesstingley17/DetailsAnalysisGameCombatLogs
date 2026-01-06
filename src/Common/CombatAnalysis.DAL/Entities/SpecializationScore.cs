@@ -16,7 +16,11 @@ public class SpecializationScore : IEntity
 
     public DateTimeOffset? Updated { get; set; }
 
+    public Specialization Specialization { get; set; }
+
     public int SpecializationId { get; set; }
+
+    public CombatPlayer CombatPlayer { get; set; }
 
     public int CombatPlayerId { get; set; }
 }

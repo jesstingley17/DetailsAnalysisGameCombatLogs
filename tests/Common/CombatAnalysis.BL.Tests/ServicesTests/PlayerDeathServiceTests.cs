@@ -18,10 +18,10 @@ public class PlayerDeathServiceTests
         var entity = PlayerDeathTestDataFactory.Create();
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepositoryBatch<PlayerDeath>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<CombatPlayerDeath>>();
 
-        mockMapper.Setup(m => m.Map<PlayerDeath>(entityDto)).Returns(entity);
-        mockMapper.Setup(m => m.Map<PlayerDeathDto>(entity)).Returns(entityDto);
+        mockMapper.Setup(m => m.Map<CombatPlayerDeath>(entityDto)).Returns(entity);
+        mockMapper.Setup(m => m.Map<CombatPlayerDeathDto>(entity)).Returns(entityDto);
 
         mockRepository.Setup(m => m.CreateAsync(entity)).ReturnsAsync(entity);
 
@@ -40,9 +40,9 @@ public class PlayerDeathServiceTests
         Assert.Equal(entityDto.CombatPlayerId, result.CombatPlayerId);
 
         // Verify correct method calls
-        mockMapper.Verify(m => m.Map<PlayerDeath>(It.IsAny<PlayerDeathDto>()), Times.Once);
-        mockRepository.Verify(r => r.CreateAsync(It.IsAny<PlayerDeath>()), Times.Once);
-        mockMapper.Verify(m => m.Map<PlayerDeathDto>(It.IsAny<PlayerDeath>()), Times.Once);
+        mockMapper.Verify(m => m.Map<CombatPlayerDeath>(It.IsAny<CombatPlayerDeathDto>()), Times.Once);
+        mockRepository.Verify(r => r.CreateAsync(It.IsAny<CombatPlayerDeath>()), Times.Once);
+        mockMapper.Verify(m => m.Map<CombatPlayerDeathDto>(It.IsAny<CombatPlayerDeath>()), Times.Once);
     }
 
     [Fact]
@@ -52,7 +52,7 @@ public class PlayerDeathServiceTests
         var entityDto = PlayerDeathTestDataFactory.CreateDto(username: "");
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepositoryBatch<PlayerDeath>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<CombatPlayerDeath>>();
 
         var service = new PlayerDeathService(mockRepository.Object, mockMapper.Object);
 
@@ -60,7 +60,7 @@ public class PlayerDeathServiceTests
         await Assert.ThrowsAsync<ArgumentException>(() => service.CreateAsync(entityDto));
 
         // Verify correct method calls
-        mockRepository.Verify(r => r.CreateAsync(It.IsAny<PlayerDeath>()), Times.Never);
+        mockRepository.Verify(r => r.CreateAsync(It.IsAny<CombatPlayerDeath>()), Times.Never);
     }
 
     [Fact]
@@ -71,9 +71,9 @@ public class PlayerDeathServiceTests
         var entity = PlayerDeathTestDataFactory.Create();
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepositoryBatch<PlayerDeath>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<CombatPlayerDeath>>();
 
-        mockMapper.Setup(m => m.Map<PlayerDeath>(entityDto)).Returns(entity);
+        mockMapper.Setup(m => m.Map<CombatPlayerDeath>(entityDto)).Returns(entity);
 
         mockRepository.Setup(m => m.UpdateAsync(entity));
 
@@ -83,8 +83,8 @@ public class PlayerDeathServiceTests
         await service.UpdateAsync(entityDto);
 
         // Assert and Verify correct method calls
-        mockMapper.Verify(m => m.Map<PlayerDeath>(It.IsAny<PlayerDeathDto>()), Times.Once);
-        mockRepository.Verify(r => r.UpdateAsync(It.IsAny<PlayerDeath>()), Times.Once);
+        mockMapper.Verify(m => m.Map<CombatPlayerDeath>(It.IsAny<CombatPlayerDeathDto>()), Times.Once);
+        mockRepository.Verify(r => r.UpdateAsync(It.IsAny<CombatPlayerDeath>()), Times.Once);
     }
 
     [Fact]
@@ -94,15 +94,15 @@ public class PlayerDeathServiceTests
         var entityDto = PlayerDeathTestDataFactory.CreateDto(username: "");
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepositoryBatch<PlayerDeath>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<CombatPlayerDeath>>();
 
         var service = new PlayerDeathService(mockRepository.Object, mockMapper.Object);
 
         // Act and Assert
-        await Assert.ThrowsAsync<ArgumentException>(nameof(PlayerDeath.Username), () => service.UpdateAsync(entityDto));
+        await Assert.ThrowsAsync<ArgumentException>(nameof(CombatPlayerDeath.Username), () => service.UpdateAsync(entityDto));
 
         // Verify correct method calls
-        mockRepository.Verify(r => r.UpdateAsync(It.IsAny<PlayerDeath>()), Times.Never);
+        mockRepository.Verify(r => r.UpdateAsync(It.IsAny<CombatPlayerDeath>()), Times.Never);
     }
 
     [Fact]
@@ -112,7 +112,7 @@ public class PlayerDeathServiceTests
         const int id = 1;
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepositoryBatch<PlayerDeath>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<CombatPlayerDeath>>();
 
         mockRepository.Setup(r => r.DeleteAsync(id)).ReturnsAsync(true);
 
@@ -135,7 +135,7 @@ public class PlayerDeathServiceTests
         const int id = 2;
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepositoryBatch<PlayerDeath>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<CombatPlayerDeath>>();
 
         mockRepository.Setup(r => r.DeleteAsync(id)).ReturnsAsync(false);
 
@@ -158,7 +158,7 @@ public class PlayerDeathServiceTests
         const int id = 0;
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepositoryBatch<PlayerDeath>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<CombatPlayerDeath>>();
 
         var service = new PlayerDeathService(mockRepository.Object, mockMapper.Object);
 

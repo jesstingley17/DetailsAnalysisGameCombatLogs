@@ -1,7 +1,7 @@
 ﻿using CombatAnalysis.DAL.Interfaces.Entities;
 using System.ComponentModel.DataAnnotations;
 
-namespace CombatAnalysis.DAL.Entities;
+namespace CombatAnalysis.DAL.Entities.CombatPlayerData;
 
 public class HealDone : ICombatPlayerEntity, IGeneralFilterEntity
 {
@@ -25,6 +25,8 @@ public class HealDone : ICombatPlayerEntity, IGeneralFilterEntity
     public bool IsCrit { get; set; }
 
     public bool IsAbsorbed { get; set; }
+
+    public CombatPlayer CombatPlayer { get; set; }
 
     public int CombatPlayerId { get; set; }
 }

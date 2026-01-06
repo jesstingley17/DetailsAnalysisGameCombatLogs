@@ -1,5 +1,6 @@
 ﻿using CombatAnalysis.DAL.Data;
 using CombatAnalysis.DAL.Entities;
+using CombatAnalysis.DAL.Extensions;
 using CombatAnalysis.DAL.Interfaces.Generic;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -7,25 +8,23 @@ using System.Data;
 
 namespace CombatAnalysis.DAL.Repositories.StoredProcedures.Batch;
 
-internal class SPPlayerDeathRepositoryBatch(CombatParserContext context) : SPGenericRepository<PlayerDeath>(context), IGenericRepositoryBatch<PlayerDeath>
+internal class SPPlayerDeathRepositoryBatch(CombatParserContext context) : GenericRepository<CombatPlayerDeath>(context), IGenericRepositoryBatch<CombatPlayerDeath>
 {
     private readonly CombatParserContext _context = context;
 
-    public async Task CreateBatchAsync(IEnumerable<PlayerDeath> items)
+    public async Task CreateBatchAsync(IEnumerable<CombatPlayerDeath> items)
     {
         if (!items.Any())
         {
             return;
         }
 
-        var firstElement = items.First();
-
         var table = new DataTable();
-        table.Columns.Add(nameof(PlayerDeath.Username), firstElement.Username.GetType());
-        table.Columns.Add(nameof(PlayerDeath.LastHitSpell), firstElement.LastHitSpell.GetType());
-        table.Columns.Add(nameof(PlayerDeath.LastHitValue), firstElement.LastHitValue.GetType());
-        table.Columns.Add(nameof(PlayerDeath.Time), firstElement.Time.GetType());
-        table.Columns.Add(nameof(PlayerDeath.CombatPlayerId), firstElement.CombatPlayerId.GetType());
+        table.AddColumn<string>(nameof(CombatPlayerDeath.Username));
+        table.AddColumn<string>(nameof(CombatPlayerDeath.LastHitSpell));
+        table.AddColumn<int>(nameof(CombatPlayerDeath.LastHitValue));
+        table.AddColumn<TimeSpan>(nameof(CombatPlayerDeath.Time));
+        table.AddColumn<int>(nameof(CombatPlayerDeath.CombatPlayerId));
 
         foreach (var item in items)
         {
@@ -37,13 +36,13 @@ internal class SPPlayerDeathRepositoryBatch(CombatParserContext context) : SPGen
                 item.CombatPlayerId);
         }
 
-        var param = new SqlParameter("@Items", table)
+        var itemsParam = new SqlParameter("@Items", table)
         {
             SqlDbType = SqlDbType.Structured,
-            TypeName = $"dbo.{nameof(PlayerDeath)}Type"
+            TypeName = $"dbo.{nameof(CombatPlayerDeath)}Type"
         };
 
-        var storedProcedureName = $"InsertInto{nameof(PlayerDeath)}Batch";
-        await _context.Database.ExecuteSqlInterpolatedAsync($"EXEC {storedProcedureName} {param}");
+        var sql = $"EXEC dbo.InsertInto{nameof(CombatPlayerDeath)}Batch @Items";
+        await _context.Database.ExecuteSqlRawAsync(sql, itemsParam);
     }
 }

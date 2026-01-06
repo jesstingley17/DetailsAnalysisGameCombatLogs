@@ -5,12 +5,11 @@ namespace CombatAnalysis.BL.Tests.Factory;
 
 internal class PlayerStatsTestDataFactory
 {
-    public static PlayerStats Create(int id = 1, string talents = "0,0,0,0,0,0")
+    public static CombatPlayerStats Create(int id = 1, string talents = "0,0,0,0,0,0")
     {
-        var entity = new PlayerStats
+        var entity = new CombatPlayerStats
         {
             Id = id,
-            Faction = 0,
             Strength = 111,
             Agility = 111,
             Intelligence = 111,
@@ -30,12 +29,11 @@ internal class PlayerStatsTestDataFactory
         return entity;
     }
 
-    public static PlayerStatsDto CreateDto(int id = 1, string talents = "0,0,0,0,0,0")
+    public static CombatPlayerStatsDto CreateDto(int id = 1, string talents = "0,0,0,0,0,0")
     {
-        var entityDto = new PlayerStatsDto
+        var entityDto = new CombatPlayerStatsDto
         {
             Id = id,
-            Faction = 0,
             Strength = 111,
             Agility = 111,
             Intelligence = 111,
@@ -55,13 +53,12 @@ internal class PlayerStatsTestDataFactory
         return entityDto;
     }
 
-    public static List<PlayerStats> CreateCollection()
+    public static List<CombatPlayerStats> CreateCollection()
     {
-        var collection = new List<PlayerStats>
+        var collection = new List<CombatPlayerStats>
         {
             new () {
                 Id = 1,
-                Faction = 0,
                 Strength = 111,
                 Agility = 111,
                 Intelligence = 111,
@@ -79,7 +76,6 @@ internal class PlayerStatsTestDataFactory
             },
             new () {
                 Id = 2,
-                Faction = 0,
                 Strength = 111,
                 Agility = 111,
                 Intelligence = 111,
@@ -97,7 +93,6 @@ internal class PlayerStatsTestDataFactory
             },
             new () {
                 Id = 3,
-                Faction = 0,
                 Strength = 111,
                 Agility = 111,
                 Intelligence = 111,
@@ -118,13 +113,12 @@ internal class PlayerStatsTestDataFactory
         return collection;
     }
 
-    public static List<PlayerStatsDto> CreateDtoCollection()
+    public static List<CombatPlayerStatsDto> CreateDtoCollection()
     {
-        var collection = new List<PlayerStatsDto>
+        var collection = new List<CombatPlayerStatsDto>
         {
             new () {
                 Id = 1,
-                Faction = 0,
                 Strength = 111,
                 Agility = 111,
                 Intelligence = 111,
@@ -142,7 +136,6 @@ internal class PlayerStatsTestDataFactory
             },
             new () {
                 Id = 2,
-                Faction = 0,
                 Strength = 111,
                 Agility = 111,
                 Intelligence = 111,
@@ -160,7 +153,6 @@ internal class PlayerStatsTestDataFactory
             },
             new () {
                 Id = 3,
-                Faction = 0,
                 Strength = 111,
                 Agility = 111,
                 Intelligence = 111,

@@ -7,7 +7,7 @@ using System.Data;
 
 namespace CombatAnalysis.DAL.Repositories.StoredProcedures.Batch;
 
-internal class SPCombatPlayerPositionRepositoryBatch(CombatParserContext context) : SPGenericRepository<CombatPlayerPosition>(context), IGenericRepositoryBatch<CombatPlayerPosition>
+internal class SPCombatPlayerPositionRepositoryBatch(CombatParserContext context) : GenericRepository<CombatPlayerPosition>(context), IGenericRepositoryBatch<CombatPlayerPosition>
 {
     private readonly CombatParserContext _context = context;
 
@@ -43,7 +43,7 @@ internal class SPCombatPlayerPositionRepositoryBatch(CombatParserContext context
             TypeName = $"dbo.{nameof(CombatPlayerPosition)}Type"
         };
 
-        var storedProcedureName = $"InsertInto{nameof(CombatPlayerPosition)}Batch";
-        await _context.Database.ExecuteSqlInterpolatedAsync($"EXEC {storedProcedureName} {param}");
+        var sql = $"EXEC InsertInto{nameof(CombatPlayerPosition)}Batch @Items";
+        await _context.Database.ExecuteSqlRawAsync(sql, param);
     }
 }

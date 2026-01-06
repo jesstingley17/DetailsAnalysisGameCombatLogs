@@ -1,5 +1,6 @@
 ﻿using CombatAnalysis.DAL.Interfaces.Entities;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CombatAnalysis.DAL.Entities;
 
@@ -24,6 +25,7 @@ public class Combat : IEntity
 
     public DateTimeOffset FinishDate { get; set; }
 
+    [NotMapped]
     [MaxLength(126)]
     public string Duration
     {
@@ -34,5 +36,15 @@ public class Combat : IEntity
 
     public int BossId { get; set; }
 
+    public CombatLog CombatLog { get; set; }
+
     public int CombatLogId { get; set; }
+
+    public ICollection<CombatPlayer> CombatPlayers { get; set; } = [];
+
+    public ICollection<CombatPlayerPosition> CombatPlayerPositions { get; set; } = [];
+
+    public ICollection<CombatAura> CombatAuras { get; set; } = [];
+
+    public ICollection<CombatTarget> CombatTargets { get; set; } = [];
 }

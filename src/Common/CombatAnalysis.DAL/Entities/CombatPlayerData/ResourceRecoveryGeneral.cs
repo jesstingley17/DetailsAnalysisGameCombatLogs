@@ -1,7 +1,7 @@
 ﻿using CombatAnalysis.DAL.Interfaces.Entities;
 using System.ComponentModel.DataAnnotations;
 
-namespace CombatAnalysis.DAL.Entities;
+namespace CombatAnalysis.DAL.Entities.CombatPlayerData;
 
 public class ResourceRecoveryGeneral : ICombatPlayerEntity
 {
@@ -23,6 +23,8 @@ public class ResourceRecoveryGeneral : ICombatPlayerEntity
     public int MaxValue { get; set; }
 
     public double AverageValue { get; set; }
+
+    public CombatPlayer CombatPlayer { get; set; }
 
     public int CombatPlayerId { get; set; }
 }

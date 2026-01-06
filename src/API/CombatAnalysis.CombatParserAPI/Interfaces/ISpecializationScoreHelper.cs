@@ -6,7 +6,7 @@ namespace CombatAnalysis.CombatParserAPI.Interfaces;
 
 public interface ISpecializationScoreHelper
 {
-    Task CreateSpecializationScoreAsync(List<CombatPlayerModel> combatPlayers, CombatDetails combatDetails);
+    Task CreateSpecializationScoreAsync(CombatPlayerModel combatPlayer, CombatDetails combatDetails);
 
     Task<SpecializationScoreDto?> GetSpecializationScoreAsync(int combatPlayerId);
 

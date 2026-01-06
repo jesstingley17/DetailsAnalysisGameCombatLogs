@@ -1,5 +1,6 @@
 ﻿using CombatAnalysis.DAL.Data;
-using CombatAnalysis.DAL.Entities;
+using CombatAnalysis.DAL.Entities.CombatPlayerData;
+using CombatAnalysis.DAL.Extensions;
 using CombatAnalysis.DAL.Interfaces.Generic;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -7,7 +8,7 @@ using System.Data;
 
 namespace CombatAnalysis.DAL.Repositories.StoredProcedures.Batch;
 
-internal class SPResourceRecoveryRepositoryBatch(CombatParserContext context) : SPGenericRepository<ResourceRecovery>(context), IGenericRepositoryBatch<ResourceRecovery>
+internal class SPResourceRecoveryRepositoryBatch(CombatParserContext context) : GenericRepository<ResourceRecovery>(context), IGenericRepositoryBatch<ResourceRecovery>
 {
     private readonly CombatParserContext _context = context;
 
@@ -18,16 +19,14 @@ internal class SPResourceRecoveryRepositoryBatch(CombatParserContext context) : 
             return;
         }
 
-        var firstElement = items.First();
-
         var table = new DataTable();
-        table.Columns.Add(nameof(ResourceRecovery.GameSpellId), firstElement.GameSpellId.GetType());
-        table.Columns.Add(nameof(ResourceRecovery.Spell), firstElement.Spell.GetType());
-        table.Columns.Add(nameof(ResourceRecovery.Value), firstElement.Value.GetType());
-        table.Columns.Add(nameof(ResourceRecovery.Time), firstElement.Time.GetType());
-        table.Columns.Add(nameof(ResourceRecovery.Creator), firstElement.Creator.GetType());
-        table.Columns.Add(nameof(ResourceRecovery.Target), firstElement.Target.GetType());
-        table.Columns.Add(nameof(ResourceRecovery.CombatPlayerId), firstElement.CombatPlayerId.GetType());
+        table.AddColumn<int>(nameof(ResourceRecovery.GameSpellId));
+        table.AddColumn<string>(nameof(ResourceRecovery.Spell));
+        table.AddColumn<int>(nameof(ResourceRecovery.Value));
+        table.AddColumn<TimeSpan>(nameof(ResourceRecovery.Time));
+        table.AddColumn<string>(nameof(ResourceRecovery.Creator));
+        table.AddColumn<string>(nameof(ResourceRecovery.Target));
+        table.AddColumn<int>(nameof(ResourceRecovery.CombatPlayerId));
 
         foreach (var item in items)
         {
@@ -41,13 +40,13 @@ internal class SPResourceRecoveryRepositoryBatch(CombatParserContext context) : 
                 item.CombatPlayerId);
         }
 
-        var param = new SqlParameter("@Items", table)
+        var itemsParam = new SqlParameter("@Items", table)
         {
             SqlDbType = SqlDbType.Structured,
             TypeName = $"dbo.{nameof(ResourceRecovery)}Type"
         };
 
-        var storedProcedureName = $"InsertInto{nameof(ResourceRecovery)}Batch";
-        await _context.Database.ExecuteSqlInterpolatedAsync($"EXEC {storedProcedureName} {param}");
+        var sql = $"EXEC dbo.InsertInto{nameof(ResourceRecovery)}Batch @Items";
+        await _context.Database.ExecuteSqlRawAsync(sql, itemsParam);
     }
 }

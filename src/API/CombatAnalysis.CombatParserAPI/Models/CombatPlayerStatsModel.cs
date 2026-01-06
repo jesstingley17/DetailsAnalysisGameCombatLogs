@@ -2,13 +2,10 @@
 
 namespace CombatAnalysis.CombatParserAPI.Models;
 
-public class PlayerStatsModel
+public class CombatPlayerStatsModel
 {
     [Range(0, int.MaxValue)]
     public int Id { get; set; }
-
-    [Range(0, int.MaxValue)]
-    public int Faction { get; set; }
 
     [Range(0, int.MaxValue)]
     public int Strength { get; set; }
