@@ -77,7 +77,7 @@ internal class CombatParserAPIService : ICombatParserAPIService
     {
         try
         {
-            var response = await _httpClient.DeletAsync($"CombatLogByUser/{id}", CancellationToken.None);
+            var response = await _httpClient.DeletAsync($"CombatLog/{id}", CancellationToken.None);
             response.EnsureSuccessStatusCode();
         }
         catch (HttpRequestException ex)
@@ -98,10 +98,7 @@ internal class CombatParserAPIService : ICombatParserAPIService
             response.EnsureSuccessStatusCode();
 
             var combatLogs = await response.Content.ReadFromJsonAsync<IEnumerable<CombatLogModel>>();
-            if (combatLogs == null)
-            {
-                throw new ArgumentNullException(nameof(combatLogs));
-            }
+            ArgumentNullException.ThrowIfNull(combatLogs, nameof(combatLogs));
 
             return combatLogs;
         }
@@ -109,60 +106,19 @@ internal class CombatParserAPIService : ICombatParserAPIService
         {
             _logger.LogError(ex, ex.Message);
 
-            return new List<CombatLogModel>();
+            return [];
         }
         catch (HttpRequestException ex)
         {
             _logger.LogError(ex, "HTTP request error: {Message}", ex.Message);
 
-            return new List<CombatLogModel>();
+            return [];
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "An unexpected error occurred: {Message}", ex.Message);
 
-            return new List<CombatLogModel>();
-        }
-    }
-
-    public async Task<IEnumerable<CombatLogModel>> LoadCombatLogsAsync(List<int> combatLogsId)
-    {
-        try
-        {
-            var combatLogs = new List<CombatLogModel>();
-            foreach (var item in combatLogsId)
-            {
-                var response = await _httpClient.GetAsync($"CombatLog/{item}", CancellationToken.None);
-                response.EnsureSuccessStatusCode();
-
-                var combatLog = await response.Content.ReadFromJsonAsync<CombatLogModel>();
-                if (combatLog == null)
-                {
-                    throw new ArgumentNullException(nameof(combatLog));
-                }
-
-                combatLogs.Add(combatLog);
-            }
-
-            return combatLogs;
-        }
-        catch (ArgumentNullException ex)
-        {
-            _logger.LogError(ex, ex.Message);
-
-            return new List<CombatLogModel>();
-        }
-        catch (HttpRequestException ex)
-        {
-            _logger.LogError(ex, "HTTP request error: {Message}", ex.Message);
-
-            return new List<CombatLogModel>();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "An unexpected error occurred: {Message}", ex.Message);
-
-            return new List<CombatLogModel>();
+            return [];
         }
     }
 

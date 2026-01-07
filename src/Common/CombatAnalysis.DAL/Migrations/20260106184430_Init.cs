@@ -1316,6 +1316,7 @@ namespace CombatAnalysis.DAL.Migrations
                 column: "SpecializationId");
 
             migrationBuilder.CreateTableTypes();
+            migrationBuilder.CreateEnhancedTableTypes();
         }
 
         /// <inheritdoc />
@@ -1385,6 +1386,7 @@ namespace CombatAnalysis.DAL.Migrations
                 name: "CombatLog");
 
             migrationBuilder.DropTableTypes();
+            migrationBuilder.DropEnhancedTableTypes();
         }
     }
 }

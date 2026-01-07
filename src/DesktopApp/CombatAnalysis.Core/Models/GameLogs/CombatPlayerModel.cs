@@ -16,11 +16,13 @@ public class CombatPlayerModel
 
     public int ResourcesRecovery { get; set; }
 
-    public CombatPlayerStatsModel Stats { get; set; } = new();
+    public CombatPlayerStatsModel? Stats { get; set; }
 
-    public SpecializationScoreModel Score { get; set; } = new();
+    public SpecializationScoreModel? Score { get; set; }
 
-    public PlayerModel Player { get; set; } = new();
+    public PlayerModel Player { get; set; }
+
+    public string PlayerId { get; set; }
 
     public int CombatId { get; set; }
 

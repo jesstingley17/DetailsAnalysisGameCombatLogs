@@ -11,14 +11,6 @@ internal class SpecializationScoreService(ISpecializationScoreRepository reposit
     private readonly ISpecializationScoreRepository _repository = repository;
     private readonly IMapper _mapper = mapper;
 
-    public async Task CreateBatchAsync(List<SpecializationScoreDto> items)
-    {
-        ArgumentNullException.ThrowIfNull(items, nameof(items));
-
-        var map = _mapper.Map<IEnumerable<SpecializationScore>>(items);
-        await _repository.CreateBatchAsync(map);
-    }
-
     public async Task<int> UpdateAsync(SpecializationScoreDto item)
     {
         CheckParams(item);

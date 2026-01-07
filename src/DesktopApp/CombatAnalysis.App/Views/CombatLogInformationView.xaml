@@ -183,7 +183,7 @@
                                            Visibility="{Binding CombatLogLoadingStatus, Converter={StaticResource IntToVisibility}, ConverterParameter='true:3:='}"/>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                     <TextBlock HorizontalAlignment="Center" Text="{loc:Loc PersonalLogs}" Margin="0" FontSize="16" Foreground="White" />
-                                    <Icon:PackIconMaterial Kind="Reload" Foreground="White" Cursor="Hand"  Margin="15 5" Background="Transparent" ToolTip="{loc:Loc Repeat}">
+                                    <Icon:PackIconMaterial Kind="Reload" Foreground="White" Cursor="Hand" Margin="15 5" Background="Transparent" ToolTip="{loc:Loc Repeat}">
                                         <Icon:PackIconMaterial.InputBindings>
                                             <MouseBinding Command="{Binding ReloadCombatsCommand}" Gesture="LeftClick"/>
                                         </Icon:PackIconMaterial.InputBindings>
@@ -194,7 +194,7 @@
                                             Visibility="{Binding CombatLogsForTargetUser.Count, Converter={StaticResource IntToVisibility}, ConverterParameter='true:0:>'}"
                                             IsEnabled="{Binding CombatListSelectedIndex, Converter={StaticResource IntToXAMLBool}, ConverterParameter='-1:>'}"
                                             Margin="10,10" Style="{StaticResource showButton}" HorizontalAlignment="Center"/>
-                                    <Icon:PackIconMaterial Kind="Delete" Foreground="Orange" Style="{StaticResource menuButtonIcon}" IsEnabled="False"
+                                    <Icon:PackIconMaterial Kind="Delete" Foreground="Orange" Cursor="Hand" Style="{StaticResource menuButtonIcon}"
                                                            Visibility="{Binding CombatLogsForTargetUser.Count, Converter={StaticResource IntToVisibility}, ConverterParameter='true:0:>'}"
                                                            HorizontalAlignment="Center" ToolTip="{loc:Loc RemovePrivateLog}">
                                         <Icon:PackIconMaterial.InputBindings>

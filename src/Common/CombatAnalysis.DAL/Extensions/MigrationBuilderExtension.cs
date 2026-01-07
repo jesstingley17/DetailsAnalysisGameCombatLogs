@@ -20,7 +20,6 @@ internal static class MigrationBuilderExtension
             typeof(CombatAura),
             typeof(CombatPlayerPosition),
             typeof(CombatPlayerDeath),
-            typeof(SpecializationScore),
     ];
 
     public static void CreateTableTypes(this MigrationBuilder migrationBuilder)
@@ -53,6 +52,127 @@ internal static class MigrationBuilderExtension
             migrationBuilder.Sql($"DROP TYPE IF EXISTS dbo.{item.Name}Type");
             migrationBuilder.Sql($"DROP PROCEDURE IF EXISTS dbo.InsertInto{item.Name}Batch");
         }
+    }
+
+    public static void CreateEnhancedTableTypes(this MigrationBuilder migrationBuilder)
+    {
+        migrationBuilder.Sql($"""
+            CREATE TYPE dbo.CombatPlayerType AS TABLE
+            (
+                RowId INT NOT NULL,
+
+                -- CombatPlayer
+                AverageItemLevel FLOAT NOT NULL,
+                ResourcesRecovery INT NOT NULL,
+                DamageDone INT NOT NULL,
+                HealDone INT NOT NULL,
+                DamageTaken INT NOT NULL,
+                PlayerId NVARCHAR(MAX) NOT NULL,
+                CombatId INT NOT NULL,
+
+                -- Stats
+                Strength INT NOT NULL,
+                Agility INT NOT NULL,
+                Intelligence INT NOT NULL,
+                Stamina INT NOT NULL,
+                Spirit INT NOT NULL,
+                Dodge INT NOT NULL,
+                Parry INT NOT NULL,
+                Crit INT NOT NULL,
+                Haste INT NOT NULL,
+                Hit INT NOT NULL,
+                Expertise INT NOT NULL,
+                Armor INT NOT NULL,
+                Talents NVARCHAR(126) NOT NULL,
+
+                -- Score
+                DamageScore FLOAT NULL,
+                HealScore FLOAT NULL,
+                Updated DATETIMEOFFSET NULL,
+                SpecializationId INT NULL
+            );
+            """);
+
+        migrationBuilder.Sql($"""
+            EXEC('
+                CREATE OR ALTER PROCEDURE dbo.InsertIntoCombatPlayerBatch
+                    @Items dbo.CombatPlayerType READONLY
+                AS
+                BEGIN
+                    SET NOCOUNT ON;
+
+                    DECLARE @Inserted TABLE
+                    (
+                        RowId INT NOT NULL,
+                        CombatPlayerId INT NOT NULL
+                    );
+
+                    MERGE CombatPlayer AS target
+                    USING @Items AS src
+                    ON 1 = 0
+                    WHEN NOT MATCHED THEN
+                        INSERT
+                        (
+                            AverageItemLevel,
+                            ResourcesRecovery,
+                            DamageDone,
+                            HealDone,
+                            DamageTaken,
+                            PlayerId,
+                            CombatId
+                        )
+                        VALUES
+                        (
+                            src.AverageItemLevel,
+                            src.ResourcesRecovery,
+                            src.DamageDone,
+                            src.HealDone,
+                            src.DamageTaken,
+                            src.PlayerId,
+                            src.CombatId
+                        )
+                    OUTPUT
+                        src.RowId,
+                        inserted.Id
+                    INTO @Inserted (RowId, CombatPlayerId);
+
+                    -- CombatPlayerStats
+                    INSERT INTO CombatPlayerStats
+                    (
+                        CombatPlayerId, Strength, Agility, Intelligence, Stamina,
+                        Spirit, Dodge, Parry, Crit, Haste, Hit, Expertise, Armor, Talents
+                    )
+                    SELECT
+                        i.CombatPlayerId,
+                        src.Strength, src.Agility, src.Intelligence, src.Stamina,
+                        src.Spirit, src.Dodge, src.Parry, src.Crit, src.Haste,
+                        src.Hit, src.Expertise, src.Armor, src.Talents
+                    FROM @Items src
+                    JOIN @Inserted i ON i.RowId = src.RowId;
+
+                    -- SpecializationScore
+                    INSERT INTO SpecializationScore
+                    (
+                        CombatPlayerId, DamageScore, HealScore,
+                        DamageDone, HealDone, SpecializationId, Updated
+                    )
+                    SELECT
+                        i.CombatPlayerId,
+                        src.DamageScore, src.HealScore,
+                        src.DamageDone, src.HealDone,
+                        src.SpecializationId, src.Updated
+                    FROM @Items src
+                    JOIN @Inserted i ON i.RowId = src.RowId
+                    WHERE src.DamageScore IS NOT NULL;
+                END
+            ');
+            """);
+    }
+
+    public static void DropEnhancedTableTypes(this MigrationBuilder migrationBuilder)
+    {
+        migrationBuilder.Sql($"DROP TYPE IF EXISTS dbo.CombatPlayerType");
+        migrationBuilder.Sql($"DROP PROCEDURE IF EXISTS dbo.InsertCombatPlayerBatch");
     }
 
     public static Boss[] GenerateBossCollection()
@@ -180,8 +300,21 @@ internal static class MigrationBuilderExtension
         Type[] navigatorTypes =
         [
             typeof(CombatPlayer),
+            typeof(Player),
             typeof(Combat),
+            typeof(CombatPlayerStats),
+            typeof(SpecializationScore),
             typeof(Specialization),
+            typeof(IEnumerable<DamageDone>),
+            typeof(IEnumerable<DamageDoneGeneral>),
+            typeof(IEnumerable<HealDone>),
+            typeof(IEnumerable<HealDoneGeneral>),
+            typeof(IEnumerable<DamageTaken>),
+            typeof(IEnumerable<DamageTakenGeneral>),
+            typeof(IEnumerable<CombatPlayerDeath>),
+            typeof(IEnumerable<ResourceRecovery>),
+            typeof(IEnumerable<ResourceRecoveryGeneral>),
+            typeof(IEnumerable<CombatPlayerPosition>),
         ];
 
         var properties = type.GetProperties();

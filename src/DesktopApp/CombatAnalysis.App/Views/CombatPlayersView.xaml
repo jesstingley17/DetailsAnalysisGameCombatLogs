@@ -57,14 +57,14 @@
         
         <!--#endregion-->
 
-        <StackPanel Grid.Column="2" Grid.ColumnSpan="2" Grid.Row="0"
-                    HorizontalAlignment="Center" VerticalAlignment="Center"
+        <StackPanel Grid.Column="2" Grid.ColumnSpan="2" Grid.Row="1"
+                    HorizontalAlignment="Center" VerticalAlignment="Top"
                     Orientation="Horizontal" ToolTip="{loc:Loc CombatName}">
             <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{loc:Loc Title}" Foreground="White"
                        Margin="50 0" Style="{StaticResource titleText}"/>
             <StackPanel Orientation="Horizontal">
                 <Icon:PackIconMaterial Kind="Skull" Width="13" HorizontalAlignment="Center" Margin="10 0" VerticalAlignment="Center" Foreground="Red"/>
-                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding Combat.Name}" FontSize="16" FontWeight="Bold" Foreground="White"/>
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding Combat.Boss.Name}" FontSize="16" FontWeight="Bold" Foreground="White"/>
                 <Icon:PackIconMaterial Kind="Check" Foreground="Green" Style="{StaticResource menuButtonIcon}"
                                        ToolTip="{loc:Loc Win}"
                                        Visibility="{Binding Combat.IsWin, Converter={StaticResource BoolToVisibility}, ConverterParameter=true:false}"/>

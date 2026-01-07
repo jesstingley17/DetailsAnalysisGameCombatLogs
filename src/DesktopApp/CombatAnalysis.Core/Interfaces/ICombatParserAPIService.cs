@@ -11,8 +11,6 @@ public interface ICombatParserAPIService
 
     Task<IEnumerable<CombatLogModel>> LoadCombatLogsAsync();
 
-    Task<IEnumerable<CombatLogModel>> LoadCombatLogsAsync(List<int> combatLogsId);
-
     Task<IEnumerable<CombatModel>> LoadCombatsAsync(int combatLogId);
 
     Task<IEnumerable<CombatPlayerModel>> LoadCombatPlayersAsync(int combatId);

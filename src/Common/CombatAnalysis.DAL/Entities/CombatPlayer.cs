@@ -19,7 +19,7 @@ public class CombatPlayer : IEntity
 
     public CombatPlayerStats Stats { get; set; }
 
-    public SpecializationScore Score { get; set; }
+    public SpecializationScore? Score { get; set; }
 
     public Player Player { get; set; }
 

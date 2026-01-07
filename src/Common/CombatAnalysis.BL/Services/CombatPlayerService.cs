@@ -11,6 +11,14 @@ internal class CombatPlayerService(ICombatPlayerRepository repository, IMapper m
     private readonly ICombatPlayerRepository _repository = repository;
     private readonly IMapper _mapper = mapper;
 
+    public async Task CreateBatchAsync(IEnumerable<CombatPlayerDto> items)
+    {
+        ArgumentNullException.ThrowIfNull(items, nameof(items));
+
+        var map = _mapper.Map<IEnumerable<CombatPlayer>>(items);
+        await _repository.CreateBatchAsync(map);
+    }
+
     public async Task<CombatPlayerDto> CreateAsync(CombatPlayerDto item)
     {
         CheckParams(item);

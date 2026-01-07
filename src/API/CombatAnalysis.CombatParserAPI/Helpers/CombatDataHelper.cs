@@ -28,41 +28,51 @@ public class CombatDataHelper(IMapper mapper, ILogger<CombatDataHelper> logger, 
         return combatDetails;
     }
 
-    public async Task CreateCombatPlayersDataAsync(CombatDetails combatDetails, CombatModel combat)
+    public async Task CreateCombatPlayersDataAsync(CombatDetails combatDetails, List<CombatPlayerDto> combatPlayers, int combatId)
     {
-        var playersId = combat.CombatPlayers.Select(x => x.Player.GameId).ToList();
+        var playersId = combatPlayers.Select(x => x.Player.GameId).ToList();
 
-        var uploadTasks = combat.CombatPlayers.Select(item => UploadAsync(item, combatDetails, combat.Id)).ToList();
+        var uploadTasks = combatPlayers.Select(item => UploadAsync(item, combatDetails, combatId)).ToList();
         await Task.WhenAll(uploadTasks);
 
-        var uploadCombatAuraTasks = combatDetails.Auras.Select(item => UploadCombatAuraData(item.Value, combat.Id)).ToList();
+        var uploadCombatAuraTasks = combatDetails.Auras.Select(item => UploadCombatAuraData(item.Value, combatId)).ToList();
         await Task.WhenAll(uploadCombatAuraTasks);
     }
 
-    public async Task UpdateSpecializationScoreAsync(List<CombatPlayerModel> combatPlayers, CombatDetails combatDetails, int bossId)
+    public async Task UpdateSpecializationScoreAsync(List<CombatPlayerDto> combatPlayers, CombatDetails combatDetails, int bossId)
     {
-        var bestSpecScores = new List<BestSpecializationScoreDto>();
-        var specScores = new List<SpecializationScoreDto>();
+        var bestSpecScores = new List<BestSpecializationScoreDto?>();
+        var specScores = new List<SpecializationScoreDto?>();
         foreach (var item in combatPlayers)
         {
             var specScore = await _specializationScoreHelper.GetSpecializationScoreAsync(item.Id);
-            specScores.Add(specScore ?? new());
+            specScores.Add(specScore);
 
-            var bestSpecScore = await _specializationScoreHelper.GetBestSpecializationScoreAsync(specScore.SpecializationId, bossId);
-            bestSpecScores.Add(bestSpecScore ?? new());
+            if (specScore != null)
+            {
+                var bestSpecScore = await _specializationScoreHelper.GetBestSpecializationScoreAsync(specScore.SpecializationId, bossId);
+                bestSpecScores.Add(bestSpecScore);
+            }
+            else
+            {
+                bestSpecScores.Add(null);
+            }
         }
 
         var index = 0;
         foreach (var item in combatPlayers)
         {
-            await _specializationScoreHelper.UpdateSpecializationScoreAsync(item.DamageDone, item.HealDone, bestSpecScores[index], specScores[index]);
-            await _specializationScoreHelper.UpdateBestSpecializationScoreAsync(item.DamageDone, item.HealDone, bestSpecScores[index]);
+            if (specScores[index] != null && bestSpecScores[index] != null)
+            {
+                await _specializationScoreHelper.UpdateSpecializationScoreAsync(item.DamageDone, item.HealDone, bestSpecScores[index]!, specScores[index]!);
+                await _specializationScoreHelper.UpdateBestSpecializationScoreAsync(item.DamageDone, item.HealDone, bestSpecScores[index]!);
+            }
 
             index++;
         }
     }
 
-    private async Task UploadAsync(CombatPlayerModel combatPlayer, CombatDetails combatDetails, int combatId)
+    private async Task UploadAsync(CombatPlayerDto combatPlayer, CombatDetails combatDetails, int combatId)
     {
         foreach (var item in combatDetails.PlayersDeath[combatPlayer.Player.GameId])
         {
@@ -73,8 +83,6 @@ public class CombatDataHelper(IMapper mapper, ILogger<CombatDataHelper> logger, 
                 item.LastHitSpell = lastDamageTaken.Spell;
             }
         }
-
-        //await UploadPlayerInfoBatch<DamageDone, DamageDoneDto>(combatDetails.DamageDone[combatPlayer.Player.GameId], combatPlayer.Id);
 
         var uploadTasks = new List<Task>
         {

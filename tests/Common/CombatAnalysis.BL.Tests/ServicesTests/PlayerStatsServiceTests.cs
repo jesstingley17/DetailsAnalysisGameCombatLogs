@@ -18,14 +18,14 @@ public class PlayerStatsServiceTests
         var entity = PlayerStatsTestDataFactory.Create();
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<CombatPlayerStats>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<CombatPlayerStats>>();
 
         mockMapper.Setup(m => m.Map<CombatPlayerStats>(entityDto)).Returns(entity);
         mockMapper.Setup(m => m.Map<CombatPlayerStatsDto>(entity)).Returns(entityDto);
 
         mockRepository.Setup(m => m.CreateAsync(entity)).ReturnsAsync(entity);
 
-        var service = new PlayerStatsService(mockRepository.Object, mockMapper.Object);
+        var service = new CombatPlayerStatsService(mockRepository.Object, mockMapper.Object);
 
         // Act
         var result = await service.CreateAsync(entityDto);
@@ -61,9 +61,9 @@ public class PlayerStatsServiceTests
         var entityDto = PlayerStatsTestDataFactory.CreateDto(talents: "");
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<CombatPlayerStats>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<CombatPlayerStats>>();
 
-        var service = new PlayerStatsService(mockRepository.Object, mockMapper.Object);
+        var service = new CombatPlayerStatsService(mockRepository.Object, mockMapper.Object);
 
         // Act and Assert
         await Assert.ThrowsAsync<ArgumentException>(() => service.CreateAsync(entityDto));
@@ -80,13 +80,13 @@ public class PlayerStatsServiceTests
         var entity = PlayerStatsTestDataFactory.Create();
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<CombatPlayerStats>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<CombatPlayerStats>>();
 
         mockMapper.Setup(m => m.Map<CombatPlayerStats>(entityDto)).Returns(entity);
 
         mockRepository.Setup(m => m.UpdateAsync(entity));
 
-        var service = new PlayerStatsService(mockRepository.Object, mockMapper.Object);
+        var service = new CombatPlayerStatsService(mockRepository.Object, mockMapper.Object);
 
         // Act
         await service.UpdateAsync(entityDto);
@@ -103,9 +103,9 @@ public class PlayerStatsServiceTests
         var entityDto = PlayerStatsTestDataFactory.CreateDto(talents: "");
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<CombatPlayerStats>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<CombatPlayerStats>>();
 
-        var service = new PlayerStatsService(mockRepository.Object, mockMapper.Object);
+        var service = new CombatPlayerStatsService(mockRepository.Object, mockMapper.Object);
 
         // Act and Assert
         await Assert.ThrowsAsync<ArgumentException>(nameof(CombatPlayerStats.Talents), () => service.UpdateAsync(entityDto));
@@ -121,11 +121,11 @@ public class PlayerStatsServiceTests
         const int id = 1;
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<CombatPlayerStats>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<CombatPlayerStats>>();
 
         mockRepository.Setup(r => r.DeleteAsync(id)).ReturnsAsync(true);
 
-        var service = new PlayerStatsService(mockRepository.Object, mockMapper.Object);
+        var service = new CombatPlayerStatsService(mockRepository.Object, mockMapper.Object);
 
         // Act
         var entityDeleted = await service.DeleteAsync(id);
@@ -144,11 +144,11 @@ public class PlayerStatsServiceTests
         const int id = 2;
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<CombatPlayerStats>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<CombatPlayerStats>>();
 
         mockRepository.Setup(r => r.DeleteAsync(id)).ReturnsAsync(false);
 
-        var service = new PlayerStatsService(mockRepository.Object, mockMapper.Object);
+        var service = new CombatPlayerStatsService(mockRepository.Object, mockMapper.Object);
 
         // Act
         var entityDeleted = await service.DeleteAsync(id);
@@ -167,9 +167,9 @@ public class PlayerStatsServiceTests
         const int id = 0;
 
         var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<IGenericRepository<CombatPlayerStats>>();
+        var mockRepository = new Mock<IGenericRepositoryBatch<CombatPlayerStats>>();
 
-        var service = new PlayerStatsService(mockRepository.Object, mockMapper.Object);
+        var service = new CombatPlayerStatsService(mockRepository.Object, mockMapper.Object);
 
         // Act and Assert
         await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.DeleteAsync(id));

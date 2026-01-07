@@ -1,4 +1,5 @@
-﻿using CombatAnalysis.Core.Localizations;
+﻿using CombatAnalysis.Core.Interfaces;
+using CombatAnalysis.Core.Localizations;
 using CombatAnalysis.Core.Models.GameLogs;
 using CombatAnalysis.Core.ViewModels.Base;
 using CombatAnalysis.Core.ViewModels.ViewModelTemplates;
@@ -8,6 +9,8 @@ namespace CombatAnalysis.Core.ViewModels;
 
 public class CombatPlayersViewModel : ParentTemplate<CombatModel>
 {
+    private readonly ICombatParserAPIService _combatparserAPIService;
+
     private int _selectedTabIndex = 1;
     private int _bestDamageDone;
     private int _bestHealDone;
@@ -53,8 +56,10 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
     private double _totalHealPerSecond;
     private double _totalResourcesPerSecond;
 
-    public CombatPlayersViewModel()
+    public CombatPlayersViewModel(ICombatParserAPIService combatparserAPIService)
     {
+        _combatparserAPIService = combatparserAPIService;
+
         Basic.Parent = this;
         Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.Step), 2);
 
@@ -135,7 +140,10 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
         set
         {
             SetProperty(ref _selectedTabIndex, value);
-            OrderBy(value);
+            if (value > 0)
+            {
+                OrderBy(value);
+            }
         }
     }
 
@@ -713,6 +721,26 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
         OpenEditMinRPS = false;
     }
 
+    public override void Prepare(CombatModel parameter)
+    {
+        Combat = parameter;
+    }
+
+    public override async Task Initialize()
+    {
+        if (Combat == null)
+        {
+            return;
+        }
+
+        var combatPlayers = await _combatparserAPIService.LoadCombatPlayersAsync(Combat.Id);
+        _mainPlayersCombat = [.. combatPlayers];
+
+        InitCombatPlayersData(_mainPlayersCombat);
+
+        await base.Initialize();
+    }
+
     public override void ViewAppeared()
     {
         GetTotalValueFiltersName();
@@ -720,23 +748,25 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
         base.ViewAppeared();
     }
 
-    public override void Prepare(CombatModel parameter)
+    private void InitCombatPlayersData(List<CombatPlayerModel> combatPlayers)
     {
-        Combat = parameter;
-        _mainPlayersCombat = parameter.CombatPlayers;
+        if (Combat == null || combatPlayers.Count == 0)
+        {
+            return;
+        }
 
-        Players = [.. parameter.CombatPlayers
+        Players = [.. combatPlayers
             .Select(p => {
-                var damageDonePercentages = (double)p.DamageDone / (double)parameter.DamageDone;
+                var damageDonePercentages = (double)p.DamageDone / (double)Combat.DamageDone;
                 p.DamageDonePercentages = double.Round(damageDonePercentages * 100, 2);
 
-                var healDonePercentages = (double)p.HealDone / (double)parameter.HealDone;
+                var healDonePercentages = (double)p.HealDone / (double)Combat.HealDone;
                 p.HealDonePercentages = double.Round(healDonePercentages * 100, 2);
 
-                var damageTakenPercentages = (double)p.DamageTaken / (double)parameter.DamageTaken;
+                var damageTakenPercentages = (double)p.DamageTaken / (double)Combat.DamageTaken;
                 p.DamageTakenPercentages = double.Round(damageTakenPercentages * 100, 2);
 
-                var resourcesRecoveryPercentages = (double)p.ResourcesRecovery / (double)parameter.ResourcesRecovery;
+                var resourcesRecoveryPercentages = (double)p.ResourcesRecovery / (double)Combat.ResourcesRecovery;
                 p.ResourcesRecoveryPercentages = double.Round(resourcesRecoveryPercentages * 100, 2);
 
                 return p;
@@ -747,8 +777,6 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
         BestHealDone = Players.Max(p => p.HealDone);
         BestDamageTaken = Players.Max(p => p.DamageTaken);
         BestResourcesRecovery = Players.Max(p => p.ResourcesRecovery);
-
-        SelectedPlayer = Players[0];
 
         var damageDone = Players.Average(x => x.DamageDone);
         var healDone = Players.Average(x => x.HealDone);

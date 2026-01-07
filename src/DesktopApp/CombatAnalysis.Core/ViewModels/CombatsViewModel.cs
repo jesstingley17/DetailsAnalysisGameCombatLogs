@@ -65,7 +65,6 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
 
         RepeatSaveCommand = new MvxAsyncCommand(SaveCombatsAsync);
         CancelCommand = new MvxCommand(UploadingCancel);
-        RefreshCommand = new MvxAsyncCommand(RefreshAsync);
         ShowDetailsCommand = new MvxAsyncCommand(ShowDetailsAsync);
         SortCommand = new MvxCommand<int>(CombatsSort);
 
@@ -87,8 +86,6 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
     public IMvxAsyncCommand RepeatSaveCommand { get; set; }
 
     public IMvxCommand CancelCommand { get; set; }
-
-    public IMvxAsyncCommand RefreshCommand { get; set; }
 
     public IMvxCommand LastCombatInfromationStep { get; set; }
 
@@ -559,29 +556,6 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
     public void Update(LoadingStatus status)
     {
         ResponseStatus = status;
-    }
-
-    public async Task RefreshAsync()
-    {
-        var combatLog = ((BasicTemplateViewModel)Basic).CombatLog;
-        if (combatLog == null || combatLog.Id == 0)
-        {
-            return;
-        }
-
-        var loadedCombats = await _combatParserAPIService.LoadCombatsAsync(combatLog.Id);
-        if (loadedCombats == null || !loadedCombats.Any())
-        {
-            return;
-        }
-
-        foreach (var item in loadedCombats)
-        {
-            var players = await _combatParserAPIService.LoadCombatPlayersAsync(item.Id);
-            item.CombatPlayers = [.. players];
-        }
-
-        UniqueCombats = new ObservableCollection<CombatModel>(loadedCombats);
     }
 
     public void CombatsSort(int sortNumber)

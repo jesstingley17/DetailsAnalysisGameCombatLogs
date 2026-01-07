@@ -7,7 +7,7 @@ using CombatAnalysis.DAL.Interfaces.Generic;
 
 namespace CombatAnalysis.BL.Services;
 
-internal class PlayerStatsService(IGenericRepository<CombatPlayerStats> repository, IMapper mapper) : QueryService<CombatPlayerStatsDto, CombatPlayerStats>(repository, mapper), IMutationService<CombatPlayerStatsDto>
+internal class CombatPlayerStatsService(IGenericRepository<CombatPlayerStats> repository, IMapper mapper) : QueryService<CombatPlayerStatsDto, CombatPlayerStats>(repository, mapper), IMutationService<CombatPlayerStatsDto>
 {
     private readonly IGenericRepository<CombatPlayerStats> _repository = repository;
     private readonly IMapper _mapper = mapper;

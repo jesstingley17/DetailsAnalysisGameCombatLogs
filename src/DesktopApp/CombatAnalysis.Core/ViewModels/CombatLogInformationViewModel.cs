@@ -400,12 +400,6 @@ public class CombatLogInformationViewModel : ParentTemplate, IAuthObserver
             return;
         }
 
-        foreach (var item in loadedCombats)
-        {
-            var players = await _combatParserAPIService.LoadCombatPlayersAsync(item.Id);
-            item.CombatPlayers = [.. players];
-        }
-
         Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.AllowStep), 1);
 
         var dataForGeneralAnalysis = Tuple.Create(loadedCombats.ToList(), LogType);

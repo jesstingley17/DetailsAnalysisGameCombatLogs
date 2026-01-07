@@ -70,9 +70,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IMutationServiceBatch<DamageTakenDto>, DamageTakenService>();
         services.AddScoped<IMutationServiceBatch<ResourceRecoveryDto>, ResourceRecoveryService>();
 
+        services.AddScoped<IMutationService<CombatPlayerStatsDto>, CombatPlayerStatsService>();
         services.AddScoped<IMutationService<CombatLogDto>, CombatLogService>();
         services.AddScoped<IMutationService<CombatDto>, CombatService>();
-        services.AddScoped<IMutationService<CombatPlayerStatsDto>, PlayerStatsService>();
     }
 
     private static void SetQueryServices(IServiceCollection services)
@@ -82,6 +82,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IQueryService<CombatPlayerPositionDto>, CombatPlayerPositionService>();
         services.AddScoped<IQueryService<CombatAuraDto>, CombatAuraService>();
         services.AddScoped<IQueryService<CombatPlayerDeathDto>, PlayerDeathService>();
-        services.AddScoped<IQueryService<CombatPlayerStatsDto>, PlayerStatsService>();
+        services.AddScoped<IQueryService<CombatPlayerStatsDto>, CombatPlayerStatsService>();
     }
 }
