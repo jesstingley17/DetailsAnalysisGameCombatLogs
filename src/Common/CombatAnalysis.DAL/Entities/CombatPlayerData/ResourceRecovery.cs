@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CombatAnalysis.DAL.Entities.CombatPlayerData;
 
-public class ResourceRecovery : ICombatPlayerEntity, IGeneralFilterEntity
+public class ResourceRecovery : ICombatPlayerEntity, IGeneralFilterEntity, ITimeEntity
 {
     public int Id { get; set; }
 

@@ -60,31 +60,31 @@ internal class CombatParserService(IFileManager fileManager, ILogger logger, IHt
         _zones.Clear();
     }
 
-    private async Task ProcessCombatLogLinesAsync(string[] lines, Dictionary<string, List<string>> petsId, bool bossCombatStarted, StringBuilder newCombatFromLogs)
+    private async Task ProcessCombatLogLinesAsync(string[] lines, Dictionary<string, List<string>> petsId, bool combatStarted, StringBuilder newCombatFromLogs)
     {
         foreach (var line in lines)
         {
-            bossCombatStarted = await ProcessLineAsync(line, newCombatFromLogs, bossCombatStarted, petsId);
+            combatStarted = await ProcessLine(line, newCombatFromLogs, combatStarted, petsId);
         }
     }
 
-    private async Task<bool> ProcessLineAsync(string line, StringBuilder newCombatFromLogs, bool bossCombatStarted, Dictionary<string, List<string>> petsId)
+    private async Task<bool> ProcessLine(string line, StringBuilder newCombatFromLogs, bool combatStarted, Dictionary<string, List<string>> petsId)
     {
         if (line.Contains(CombatLogKeyWords.SpellSummon))
         {
             ParsePlayerCreatures(line, petsId);
         }
-
+        
         if (line.Contains($"{CombatLogKeyWords.SwingDamage},") && line.Contains(CombatLogKeyWords.Pet))
         {
             ParsePlayerPets(line, petsId);
         }
-
+        
         if (line.Contains(CombatLogKeyWords.ZoneChange))
         {
             ZoneName(line);
         }
-
+       
         if (line.Contains(CombatLogKeyWords.EncounterStart))
         {
             newCombatFromLogs.AppendLine(line);
@@ -92,14 +92,14 @@ internal class CombatParserService(IFileManager fileManager, ILogger logger, IHt
             return true;
         }
 
-        if (!bossCombatStarted)
+        if (!combatStarted)
         {
             return false;
         }
 
         if (line.Contains(CombatLogKeyWords.EncounterEnd))
         {
-            bossCombatStarted = false;
+            combatStarted = false;
 
             newCombatFromLogs.AppendLine(line);
 
@@ -116,17 +116,17 @@ internal class CombatParserService(IFileManager fileManager, ILogger logger, IHt
             newCombatFromLogs.AppendLine(line);
         }
 
-        return bossCombatStarted;
+        return combatStarted;
     }
 
     private static void ParsePlayerCreatures(string data, Dictionary<string, List<string>> creaturesId)
     {
-        var combatLogParts = data.Split("  ")[1].Split(',');
-        var playerId = combatLogParts[1].Contains(CombatLogKeyWords.Player) 
-            ? combatLogParts[1]
+        var splitStr = data.Split("  ")[1].Split(',');
+        var playerId = splitStr[1].Contains(CombatLogKeyWords.Player) 
+            ? splitStr[1]
             : string.Empty;
-        var friendlyCreatureId = combatLogParts[1].Contains(CombatLogKeyWords.Creature)
-            ? combatLogParts[1]
+        var friendlyCreatureId = splitStr[1].Contains(CombatLogKeyWords.Creature)
+            ? splitStr[1]
             : string.Empty;
 
         if (string.IsNullOrEmpty(playerId) && string.IsNullOrEmpty(friendlyCreatureId))
@@ -134,7 +134,7 @@ internal class CombatParserService(IFileManager fileManager, ILogger logger, IHt
             return;
         }
 
-        var creatureId = combatLogParts[5];
+        var creatureId = splitStr[5];
         var friendCreaturePlayerId = creaturesId.FirstOrDefault(x => x.Value.Contains(friendlyCreatureId)).Key;
         if (!string.IsNullOrEmpty(friendCreaturePlayerId))
         {
@@ -214,7 +214,7 @@ internal class CombatParserService(IFileManager fileManager, ILogger logger, IHt
             return;
         }
 
-        var players = await GetCombatPlayersAsync(combat);
+        var players = await GetCombatPlayers(combat);
         combat.CombatPlayers = players;
 
         CalculatingCommonCombatDetails(combat);
@@ -300,19 +300,17 @@ internal class CombatParserService(IFileManager fileManager, ILogger logger, IHt
         Combats.Add(combat);
     }
 
-    private async Task<List<CombatPlayer>> GetCombatPlayersAsync(Combat combat)
+    private async Task<List<CombatPlayer>> GetCombatPlayers(Combat combat)
     {
         var combatInformations = combat.Data
             .Where(info => info.Contains(CombatLogKeyWords.CombatantInfo))
             .ToList();
 
         var combatPlayers = new List<CombatPlayer>();
-
         foreach (var item in combatInformations)
         {
             var combatInfoList = item.Split(',');
             var combatInfoEquipments = item.Split(['[', ']']);
-
 
             var averageItemLevel = GetAverageItemLevel(combatInfoEquipments[1]);
 
@@ -330,6 +328,7 @@ internal class CombatParserService(IFileManager fileManager, ILogger logger, IHt
             };
 
             var player = await combatPlayerData.Player.LoadAsync(_httpHelper, _logger);
+
             if (player == null)
             {
                 var username = GetUsernameByPlayerGameId(combat.Data, combatInfoList[1]);
@@ -363,11 +362,11 @@ internal class CombatParserService(IFileManager fileManager, ILogger logger, IHt
 
         foreach (var item in combatPlayers)
         {
-            item.DamageDoneToBoss = combatDetails.DamageDone[item.Player.GameId].Where(x => x.IsTargetBoss).Sum(x => x.Value);
-            item.DamageDone = combatDetails.DamageDone[item.Player.GameId].Sum(x => x.Value);
-            item.HealDone = combatDetails.HealDone[item.Player.GameId].Sum(x => x.Value);
-            item.DamageTaken = combatDetails.DamageTaken[item.Player.GameId].Sum(x => x.Value);
-            item.ResourcesRecovery = combatDetails.ResourcesRecovery[item.Player.GameId].Sum(x => x.Value);
+            item.DamageDoneToBoss = combatDetails.DamageDone[item.Player.GameId].Where(x => x.Value.IsTargetBoss).Sum(x => x.Value.Value);
+            item.DamageDone = combatDetails.DamageDone[item.Player.GameId].Sum(x => x.Value.Value);
+            item.HealDone = combatDetails.HealDone[item.Player.GameId].Sum(x => x.Value.Value);
+            item.DamageTaken = combatDetails.DamageTaken[item.Player.GameId].Sum(x => x.Value.Value);
+            item.ResourcesRecovery = combatDetails.ResourcesRecovery[item.Player.GameId].Sum(x => x.Value.Value);
         }
 
         return combatPlayers;

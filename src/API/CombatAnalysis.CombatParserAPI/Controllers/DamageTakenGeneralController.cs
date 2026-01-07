@@ -9,8 +9,7 @@ namespace CombatAnalysis.CombatParserAPI.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-public class DamageTakenGeneralController(IMutationServiceBatch<DamageTakenGeneralDto> mutationService,
-    IPlayerInfoService<DamageTakenGeneralDto> playerInfoService, IMapper mapper,
+public class DamageTakenGeneralController(IMutationServiceBatch<DamageTakenGeneralDto> mutationService, IPlayerInfoService<DamageTakenGeneralDto> playerInfoService, IMapper mapper,
     ILogger<DamageTakenGeneralController> logger) : ControllerBase
 {
     private readonly IMutationServiceBatch<DamageTakenGeneralDto> _mutationService = mutationService;

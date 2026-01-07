@@ -35,7 +35,7 @@ public class CombatDataHelper(IMapper mapper, ILogger<CombatDataHelper> logger, 
         var uploadTasks = combatPlayers.Select(item => UploadAsync(item, combatDetails, combatId)).ToList();
         await Task.WhenAll(uploadTasks);
 
-        var uploadCombatAuraTasks = combatDetails.Auras.Select(item => UploadCombatAuraData(item.Value, combatId)).ToList();
+        var uploadCombatAuraTasks = combatDetails.Auras.Select(item => UploadCombatAuraData([.. item.Value.Select(x => x.Value)], combatId)).ToList();
         await Task.WhenAll(uploadCombatAuraTasks);
     }
 
@@ -76,27 +76,26 @@ public class CombatDataHelper(IMapper mapper, ILogger<CombatDataHelper> logger, 
     {
         foreach (var item in combatDetails.PlayersDeath[combatPlayer.Player.GameId])
         {
-            var lastDamageTaken = combatDetails.DamageTaken[combatPlayer.Player.GameId].LastOrDefault(x => x.Target == item.Username);
-            if (lastDamageTaken != null)
+            if (combatDetails.DamageTaken[combatPlayer.Player.GameId].TryGetValue(item.Value.Username, out var lastDamageTaken))
             {
-                item.LastHitValue = lastDamageTaken.Value;
-                item.LastHitSpell = lastDamageTaken.Spell;
+                item.Value.LastHitValue = lastDamageTaken.Value;
+                item.Value.LastHitSpell = lastDamageTaken.Spell;
             }
         }
 
         var uploadTasks = new List<Task>
         {
-            UploadCombatPlayerPositionData(combatDetails.Positions[combatPlayer.Player.GameId], combatPlayer.Id, combatId),
+            UploadCombatPlayerPositionData([.. combatDetails.Positions[combatPlayer.Player.GameId].Select(x => x.Value)], combatPlayer.Id, combatId),
 
-            UploadPlayerInfoBatch<DamageDone, DamageDoneDto>(combatDetails.DamageDone[combatPlayer.Player.GameId], combatPlayer.Id),
-            UploadPlayerInfoBatch<HealDone, HealDoneDto>(combatDetails.HealDone[combatPlayer.Player.GameId], combatPlayer.Id),
-            UploadPlayerInfoBatch<DamageTaken, DamageTakenDto>(combatDetails.DamageTaken[combatPlayer.Player.GameId], combatPlayer.Id),
-            UploadPlayerInfoBatch<ResourceRecovery, ResourceRecoveryDto>(combatDetails.ResourcesRecovery[combatPlayer.Player.GameId], combatPlayer.Id),
+            UploadPlayerInfoBatch<DamageDone, DamageDoneDto>([.. combatDetails.DamageDone[combatPlayer.Player.GameId].Select(x => x.Value)], combatPlayer.Id),
+            UploadPlayerInfoBatch<HealDone, HealDoneDto>([.. combatDetails.HealDone[combatPlayer.Player.GameId].Select(x => x.Value)], combatPlayer.Id),
+            UploadPlayerInfoBatch<DamageTaken, DamageTakenDto>([.. combatDetails.DamageTaken[combatPlayer.Player.GameId].Select(x => x.Value)], combatPlayer.Id),
+            UploadPlayerInfoBatch<ResourceRecovery, ResourceRecoveryDto>([.. combatDetails.ResourcesRecovery[combatPlayer.Player.GameId].Select(x => x.Value)], combatPlayer.Id),
             UploadPlayerInfoBatch<DamageDoneGeneral, DamageDoneGeneralDto>(combatDetails.DamageDoneGeneral[combatPlayer.Player.GameId], combatPlayer.Id),
             UploadPlayerInfoBatch<HealDoneGeneral, HealDoneGeneralDto>(combatDetails.HealDoneGeneral[combatPlayer.Player.GameId], combatPlayer.Id),
             UploadPlayerInfoBatch<DamageTakenGeneral, DamageTakenGeneralDto>(combatDetails.DamageTakenGeneral[combatPlayer.Player.GameId], combatPlayer.Id),
             UploadPlayerInfoBatch<ResourceRecoveryGeneral, ResourceRecoveryGeneralDto>(combatDetails.ResourcesRecoveryGeneral[combatPlayer.Player.GameId], combatPlayer.Id),
-            UploadPlayerInfoBatch<PlayerDeath, CombatPlayerDeathDto>(combatDetails.PlayersDeath[combatPlayer.Player.GameId], combatPlayer.Id),
+            UploadPlayerInfoBatch<PlayerDeath, CombatPlayerDeathDto>([.. combatDetails.PlayersDeath[combatPlayer.Player.GameId].Select(x => x.Value)], combatPlayer.Id),
         };
 
         await Task.WhenAll(uploadTasks);

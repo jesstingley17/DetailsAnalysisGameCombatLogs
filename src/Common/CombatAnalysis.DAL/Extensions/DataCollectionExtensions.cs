@@ -46,19 +46,24 @@ public static class DataCollectionExtensions
         services.AddScoped<IGeneralFilterRepository<DamageDone>, GeneralFilterRepositroy<DamageDone>>();
         services.AddScoped<IPlayerInfoRepository<DamageDoneGeneral>, PlayerInfoRepository<DamageDoneGeneral>>();
         services.AddScoped<IPlayerInfoRepository<DamageDone>, PlayerInfoRepository<DamageDone>>();
+        services.AddScoped<IPlayerInfoPaginationRepository<DamageDone>, PlayerInfoPaginationRepository<DamageDone>>();
         services.AddScoped<ICountRepository<HealDone>, CountRepository<HealDone>>();
         services.AddScoped<IGeneralFilterRepository<HealDone>, GeneralFilterRepositroy<HealDone>>();
         services.AddScoped<IPlayerInfoRepository<HealDoneGeneral>, PlayerInfoRepository<HealDoneGeneral>>();
         services.AddScoped<IPlayerInfoRepository<HealDone>, PlayerInfoRepository<HealDone>>();
+        services.AddScoped<IPlayerInfoPaginationRepository<HealDone>, PlayerInfoPaginationRepository<HealDone>>();
         services.AddScoped<ICountRepository<DamageTaken>, CountRepository<DamageTaken>>();
         services.AddScoped<IGeneralFilterRepository<DamageTaken>, GeneralFilterRepositroy<DamageTaken>>();
         services.AddScoped<IPlayerInfoRepository<DamageTakenGeneral>, PlayerInfoRepository<DamageTakenGeneral>>();
         services.AddScoped<IPlayerInfoRepository<DamageTaken>, PlayerInfoRepository<DamageTaken>>();
+        services.AddScoped<IPlayerInfoPaginationRepository<DamageTaken>, PlayerInfoPaginationRepository<DamageTaken>>();
         services.AddScoped<ICountRepository<ResourceRecovery>, CountRepository<ResourceRecovery>>();
         services.AddScoped<IGeneralFilterRepository<ResourceRecovery>, GeneralFilterRepositroy<ResourceRecovery>>();
         services.AddScoped<IPlayerInfoRepository<ResourceRecoveryGeneral>, PlayerInfoRepository<ResourceRecoveryGeneral>>();
         services.AddScoped<IPlayerInfoRepository<ResourceRecovery>, PlayerInfoRepository<ResourceRecovery>>();
+        services.AddScoped<IPlayerInfoPaginationRepository<ResourceRecovery>, PlayerInfoPaginationRepository<ResourceRecovery>>();
         services.AddScoped<IPlayerInfoRepository<CombatPlayerDeath>, PlayerInfoRepository<CombatPlayerDeath>>();
+        services.AddScoped<IPlayerInfoPaginationRepository<CombatPlayerDeath>, PlayerInfoPaginationRepository<CombatPlayerDeath>>();
 
         services.AddScoped<ICombatPlayerRepository, CombatPlayerRepository>();
 

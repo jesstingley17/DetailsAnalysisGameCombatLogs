@@ -12,7 +12,7 @@ internal class CountService<TModel, TModelMap>(ICountRepository<TModelMap> count
 
     public async Task<int> CountByCombatPlayerIdAsync(int combatPlayerId)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(combatPlayerId, 1);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(combatPlayerId);
 
         var count = await _countRepository.CountByCombatPlayerIdAsync(combatPlayerId);
 

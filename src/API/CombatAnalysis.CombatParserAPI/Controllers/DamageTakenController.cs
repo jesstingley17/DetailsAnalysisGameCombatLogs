@@ -11,12 +11,12 @@ namespace CombatAnalysis.CombatParserAPI.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-public class DamageTakenController(IMutationServiceBatch<DamageTakenDto> mutationService, IPlayerInfoService<DamageTakenDto> playerInfoService,
+public class DamageTakenController(IMutationServiceBatch<DamageTakenDto> mutationService, IPlayerInfoPaginationService<DamageTakenDto> playerInfoService,
     ICountService<DamageTakenDto> countService, IGeneralFilterService<DamageTakenDto> filterService,
     IMapper mapper, ILogger<DamageTakenController> logger) : ControllerBase
 {
     private readonly IMutationServiceBatch<DamageTakenDto> _mutationService = mutationService;
-    private readonly IPlayerInfoService<DamageTakenDto> _playerInfoService = playerInfoService;
+    private readonly IPlayerInfoPaginationService<DamageTakenDto> _playerInfoService = playerInfoService;
     private readonly ICountService<DamageTakenDto> _countService = countService;
     private readonly IGeneralFilterService<DamageTakenDto> _filterService = filterService;
     private readonly IMapper _mapper = mapper;

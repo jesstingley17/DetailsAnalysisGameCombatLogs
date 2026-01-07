@@ -1,6 +1,7 @@
 ﻿using CombatAnalysis.CombatParser.Core;
 using CombatAnalysis.CombatParser.Entities;
 using CombatAnalysis.CombatParser.Enums;
+using System.Collections.Concurrent;
 using System.Globalization;
 
 namespace CombatAnalysis.CombatParser.Details;
@@ -11,12 +12,12 @@ internal class CombatDetailsManager(List<string> playersId, DateTimeOffset comba
     private readonly DateTimeOffset _combatStarted = combatStarted;
     private readonly DateTimeOffset _combatFinished = combatFinished;
 
-    public (string, CombatAura?) GetAuras(List<string> combatDataLine, Dictionary<string, List<CombatAura>> auras, List<string> petsId)
+    public (string, CombatAura?) GetAuras(List<string> combatDataLine, ConcurrentDictionary<string, ConcurrentDictionary<string, CombatAura>> auras, List<string> petsId)
     {
         if (combatDataLine[1].Equals(CombatLogKeyWords.AuraRemoved)
-            && auras.TryGetValue(combatDataLine[2], out var playerBuffs))
+            && auras.TryGetValue(combatDataLine[2], out var playerGameId))
         {
-            RemoveAura(combatDataLine, playerBuffs);
+            RemoveAura(combatDataLine, playerGameId);
 
             return (string.Empty, null);
         }
@@ -28,7 +29,7 @@ internal class CombatDetailsManager(List<string> playersId, DateTimeOffset comba
 
         var buff = new CombatAura
         {
-            Name = combatDataLine[11],
+            Name = combatDataLine[11].Trim('"'),
             Creator = combatDataLine[3].Trim('"'),
             Target = combatDataLine[7].Trim('"'),
             StartTime = startTime,
@@ -397,12 +398,11 @@ internal class CombatDetailsManager(List<string> playersId, DateTimeOffset comba
         return damageDone;
     }
 
-    private void RemoveAura(List<string> combatDataLine, List<CombatAura> auras)
+    private void RemoveAura(List<string> combatDataLine, ConcurrentDictionary<string, CombatAura> auras)
     {
-        var playerBuffFound = auras.FirstOrDefault(x => x.Name.Equals(combatDataLine[11]));
-        if (playerBuffFound != null)
+        if (auras.TryGetValue(combatDataLine[11], out var auraName))
         {
-            playerBuffFound.FinishTime = GetTimeFromStart(combatDataLine[0]);
+            auraName.FinishTime = GetTimeFromStart(combatDataLine[0]);
         }
     }
 
