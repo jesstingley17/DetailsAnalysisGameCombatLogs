@@ -43,11 +43,11 @@ builder.Services.AddSingleton(mapper);
 builder.Services.AddTransient<IUserAuthorizationService, UserAuthorizationService>();
 builder.Services.AddTransient<IEmailService, EmailService>();
 
-var redisOptions = new Redis();
-builder.Configuration.Bind("Redis", redisOptions);
-builder.Services.AddSingleton<IConnectionMultiplexer>(
-    ConnectionMultiplexer.Connect(redisOptions.Server)
-);
+//var redisOptions = new Redis();
+//builder.Configuration.Bind("Redis", redisOptions);
+//builder.Services.AddSingleton<IConnectionMultiplexer>(
+//    ConnectionMultiplexer.Connect(redisOptions.Server)
+//);
 
 builder.Services.AddRazorPages()
     .AddRazorRuntimeCompilation();
