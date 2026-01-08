@@ -147,7 +147,7 @@ const GeneralAnalysisItem: React.FC<GeneralAnalysisItemProps> = ({ uniqueCombats
             </ul>
             <div className="card-body details">
                 {uniqueCombats[selectedCombatIndex].isReady
-                    ? <div className="btn-shadow" onClick={() => navigate(`/details-specifical-combat?id=${uniqueCombats[selectedCombatIndex].id}&combatLogId=${combatLogId}&name=${uniqueCombats[selectedCombatIndex].boss.name}&number=${selectedCombatIndex + 1}&isWin=${selectedCombat.isWin}`)}>
+                    ? <div className="btn-shadow" onClick={() => navigate(`/selected-combat?id=${uniqueCombats[selectedCombatIndex].id}&combatLogId=${combatLogId}&name=${uniqueCombats[selectedCombatIndex].boss.name}&number=${selectedCombatIndex + 1}&isWin=${selectedCombat.isWin}`)}>
                         <FontAwesomeIcon
                             icon={faDatabase}
                         />

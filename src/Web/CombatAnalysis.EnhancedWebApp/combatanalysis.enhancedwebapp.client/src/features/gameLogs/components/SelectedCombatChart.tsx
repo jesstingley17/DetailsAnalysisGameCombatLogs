@@ -9,8 +9,8 @@ interface DetailsSpecificalCombatChartProps {
     combatPlayers: CombatPlayerModel[];
 }
 
-const DetailsSpecificalCombatChart: React.FC<DetailsSpecificalCombatChartProps> = ({ combatPlayers }) => {
-    const { t } = useTranslation("combatDetails/detailsSpecificalCombat");
+const SelectedCombatChart: React.FC<DetailsSpecificalCombatChartProps> = ({ combatPlayers }) => {
+    const { t } = useTranslation("combatDetails/selectedCombat");
 
     const [damageDonePieChart, setDamageDonePieChart] = useState<ChartPayloadModel | null>(null);
     const [healDonePieChart, setHealDonePieChart] = useState<ChartPayloadModel | null>(null);
@@ -91,4 +91,4 @@ const DetailsSpecificalCombatChart: React.FC<DetailsSpecificalCombatChartProps> 
     );
 }
 
-export default DetailsSpecificalCombatChart;
+export default SelectedCombatChart;

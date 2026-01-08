@@ -24,46 +24,50 @@ const DetailsItem: React.FC<DetailsItemProps> = ({ player, details, getValueShor
     return (
         <ul className="details__item">
             <li className="list-group-item">
+                <div>{t("Damage")}</div>
                 <FontAwesomeIcon
                     icon={faKhanda}
                     className="list-group-item__player-statistic-item"
-                    title={t("Damage") || ""}
                 />
                 <div>{getValueShortName(player.damageDone)}</div>
                 {player.damageDone > 0 &&
-                    <div className="btn-shadow"
-                        onClick={() => navigateToDetails(0)}
-                        title={t("OpenDamageAnalyzing") || ""}>
-                        <FontAwesomeIcon
-                            icon={faBookOpenReader}
-                        />
-                        <div>{t("Damage")}</div>
+                    <div>
+                        <div className="player-score">{player.score.damageScore.toFixed(2)}%</div>
+                        <div className="btn-shadow"
+                            onClick={() => navigateToDetails(0)}
+                            title={t("OpenDamageAnalyzing") || ""}>
+                            <FontAwesomeIcon
+                                icon={faBookOpenReader}
+                            />
+                        </div>
                     </div>
                 }
             </li>
             <li className="list-group-item">
+                <div>{t("Healing")}</div>
                 <FontAwesomeIcon
                     icon={faPlusCircle}
                     className="list-group-item__player-statistic-item"
-                    title={t("Healing") || ""}
                 />
                 <div>{getValueShortName(player.healDone)}</div>
                 {player.healDone > 0 &&
-                    <div className="btn-shadow"
-                        onClick={() => navigateToDetails(1)}
-                        title={t("OpenHealingAnalyzing") || ""}>
-                        <FontAwesomeIcon
-                            icon={faBookOpenReader}
-                        />
-                        <div>{t("Healing")}</div>
+                    <div>
+                        <div className="player-score">{player.score.healScore.toFixed(2)}%</div>
+                        <div className="btn-shadow"
+                            onClick={() => navigateToDetails(1)}
+                            title={t("OpenHealingAnalyzing") || ""}>
+                            <FontAwesomeIcon
+                                icon={faBookOpenReader}
+                            />
+                        </div>
                     </div>
                 }
             </li>
             <li className="list-group-item">
+                <div>{t("DamageTaken")}</div>
                 <FontAwesomeIcon
                     icon={faShieldHalved}
                     className="list-group-item__player-statistic-item"
-                    title={t("DamageTaken") || ""}
                 />
                 <div>{getValueShortName(player.damageTaken)}</div>
                 {player.damageTaken > 0 &&
@@ -73,15 +77,14 @@ const DetailsItem: React.FC<DetailsItemProps> = ({ player, details, getValueShor
                         <FontAwesomeIcon
                             icon={faBookOpenReader}
                         />
-                        <div>{t("DamageTaken")}</div>
                     </div>
                 }
             </li>
             <li className="list-group-item">
+                <div>{t("ResourcesRecovery")}</div>
                 <FontAwesomeIcon
                     icon={faBolt}
                     className="list-group-item__player-statistic-item"
-                    title={t("ResourcesRecovery") || ""}
                 />
                 <div>{getValueShortName(player.resourcesRecovery)}</div>
                 {player.resourcesRecovery > 0 &&
@@ -91,15 +94,14 @@ const DetailsItem: React.FC<DetailsItemProps> = ({ player, details, getValueShor
                         <FontAwesomeIcon
                             icon={faBookOpenReader}
                         />
-                        <div>{t("Resources")}</div>
                     </div>
                 }
             </li>
             <li className="list-group-item">
+                <div>{t("AverageItemLevel")}</div>
                 <FontAwesomeIcon
                     icon={faUser}
                     className="list-group-item__player-statistic-item"
-                    title={t("AverageItemLevel") || ""}
                 />
                 <div>{player.averageItemLevel}</div>
             </li>

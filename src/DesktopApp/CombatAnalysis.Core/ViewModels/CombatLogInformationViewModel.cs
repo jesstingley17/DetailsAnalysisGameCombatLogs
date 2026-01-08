@@ -520,16 +520,16 @@ public class CombatLogInformationViewModel : ParentTemplate, IAuthObserver
         {
             var combat = combatDetails[i];
 
-            _cacheService.Add($"{AppCacheKeys.CombatDetails_Positions}_{i}", combat.Positions);
+            _cacheService.Add($"{AppCacheKeys.CombatDetails_Positions}_{i}", combat.Positions.AsReadOnly());
 
-            _cacheService.Add($"{AppCacheKeys.CombatDetails_DamageDone}_{i}", combat.DamageDone);
-            _cacheService.Add($"{AppCacheKeys.CombatDetails_DamageDoneGeneral}_{i}", combat.DamageDoneGeneral);
-            _cacheService.Add($"{AppCacheKeys.CombatDetails_HealDone}_{i}", combat.HealDone);
-            _cacheService.Add($"{AppCacheKeys.CombatDetails_HealDoneGeneral}_{i}", combat.HealDoneGeneral);
-            _cacheService.Add($"{AppCacheKeys.CombatDetails_DamageTaken}_{i}", combat.DamageTaken);
-            _cacheService.Add($"{AppCacheKeys.CombatDetails_DamageTakenGeneral}_{i}", combat.DamageTakenGeneral);
-            _cacheService.Add($"{AppCacheKeys.CombatDetails_ResourcesRecovery}_{i}", combat.ResourcesRecovery);
-            _cacheService.Add($"{AppCacheKeys.CombatDetails_ResourcesRecoveryGeneral}_{i}", combat.ResourcesRecoveryGeneral);
+            _cacheService.Add($"{AppCacheKeys.CombatDetails_DamageDone}_{i}", combat.DamageDone.AsReadOnly());
+            _cacheService.Add($"{AppCacheKeys.CombatDetails_DamageDoneGeneral}_{i}", combat.DamageDoneGeneral.AsReadOnly());
+            _cacheService.Add($"{AppCacheKeys.CombatDetails_HealDone}_{i}", combat.HealDone.AsReadOnly());
+            _cacheService.Add($"{AppCacheKeys.CombatDetails_HealDoneGeneral}_{i}", combat.HealDoneGeneral.AsReadOnly());
+            _cacheService.Add($"{AppCacheKeys.CombatDetails_DamageTaken}_{i}", combat.DamageTaken.AsReadOnly());
+            _cacheService.Add($"{AppCacheKeys.CombatDetails_DamageTakenGeneral}_{i}", combat.DamageTakenGeneral.AsReadOnly());
+            _cacheService.Add($"{AppCacheKeys.CombatDetails_ResourcesRecovery}_{i}", combat.ResourcesRecovery.AsReadOnly());
+            _cacheService.Add($"{AppCacheKeys.CombatDetails_ResourcesRecoveryGeneral}_{i}", combat.ResourcesRecoveryGeneral.AsReadOnly());
         }
     }
 

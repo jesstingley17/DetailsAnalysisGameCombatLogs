@@ -6,6 +6,7 @@ using CombatAnalysis.Core.Models.GameLogs;
 using CombatAnalysis.Core.ViewModels.ViewModelTemplates;
 using Microsoft.Extensions.Logging;
 using MvvmCross.Commands;
+using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 
 namespace CombatAnalysis.Core.ViewModels;
@@ -40,11 +41,11 @@ public class DamageDoneDetailsViewModel : DetailsGenericTemplate<DamageDoneModel
 
     protected override void GetDetailsFromCache(CombatPlayerModel? parameter)
     {
-        var damageDoneCollection = _cacheService?.Get<Dictionary<string, List<DamageDone>>>($"{AppCacheKeys.CombatDetails_DamageDone}_{SelectedCombat?.Number}");
-        var damageDoneCollectionMap = _mapper.Map<List<DamageDoneModel>>(damageDoneCollection?[parameter != null ? parameter.Player.GameId : string.Empty]);
-        _allDetailsInformations = [.. damageDoneCollectionMap];
+        var damageDoneCollection = _cacheService?.Get<ReadOnlyDictionary<string, ConcurrentDictionary<string, DamageDone>>>($"{AppCacheKeys.CombatDetails_DamageDone}_{SelectedCombat?.Number}");
+        var damageDoneCollectionMap = _mapper.Map<ConcurrentDictionary<string, DamageDoneModel>>(damageDoneCollection?[parameter != null ? parameter.Player.GameId : string.Empty]);
+        _allDetailsInformations = [.. damageDoneCollectionMap.Values.OrderBy(x => x.Time)];
 
-        var damageDoneGeneralCollection = _cacheService?.Get<Dictionary<string, List<DamageDoneGeneral>>>($"{AppCacheKeys.CombatDetails_DamageDoneGeneral}_{SelectedCombat?.Number}");
+        var damageDoneGeneralCollection = _cacheService?.Get<ReadOnlyDictionary<string, List<DamageDoneGeneral>>>($"{AppCacheKeys.CombatDetails_DamageDoneGeneral}_{SelectedCombat?.Number}");
         var damageDoneGeneralCollectionMap = _mapper.Map<List<DamageDoneGeneralModel>>(damageDoneGeneralCollection?[parameter != null ? parameter.Player.GameId : string.Empty]);
         _allGeneralInformations = [.. damageDoneGeneralCollectionMap];
     }

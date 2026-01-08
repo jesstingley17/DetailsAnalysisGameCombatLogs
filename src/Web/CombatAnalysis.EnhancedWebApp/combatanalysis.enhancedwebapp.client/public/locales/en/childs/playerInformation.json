@@ -12,5 +12,21 @@
   "OpenHealingAnalyzing": "Open healing analyzing",
   "OpenResourcesRecoveryAnalyzing": "Open resources recovery analyzing",
   "OpenBuffsAnalyzing": "Open buffs analyzing",
-  "AverageItemLevel": "Average player item level"
+  "AverageItemLevel": "Average item level",
+  "MainStats": "Main stats",
+  "OtherStats": "Other stats",
+  "More": "More",
+  "Strength": "Strength",
+  "Agility": "Agility",
+  "Intelligence": "Intelligence",
+  "Stamina": "Stamina",
+  "Spirit": "Spirit",
+  "Crit": "Crit",
+  "Haste": "Haste",
+  "Hit": "Hit",
+  "Expertise": "Expertise",
+  "Armor": "Armor",
+  "Dodge": "Dodge",
+  "Parry": "Parry",
+  "Talents": "Talents"
 }

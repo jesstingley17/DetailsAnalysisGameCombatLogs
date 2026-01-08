@@ -47,16 +47,6 @@
             </ContentControl.Resources>
         </ContentControl>
 
-        <!--#region Combat data -->
-        
-        <Grid Visibility="Hidden">
-            <ProgressBar Name="maxDamageDone" Value="{Binding Combat.DamageDone}" Maximum="{Binding Combat.DamageDone}" />
-            <ProgressBar Name="maxHealDone" Value="{Binding Combat.HealDone}" Maximum="{Binding Combat.HealDone}" />
-            <ProgressBar Name="maxEnergyRecovery" Value="{Binding Combat.EnergyRecovery}" Maximum="{Binding Combat.EnergyRecovery}" />
-        </Grid>
-        
-        <!--#endregion-->
-
         <StackPanel Grid.Column="2" Grid.ColumnSpan="2" Grid.Row="1"
                     HorizontalAlignment="Center" VerticalAlignment="Top"
                     Orientation="Horizontal" ToolTip="{loc:Loc CombatName}">
@@ -73,11 +63,7 @@
                                        Visibility="{Binding Combat.IsWin, Converter={StaticResource BoolToVisibility}, ConverterParameter=true:true}"/>
             </StackPanel>
         </StackPanel>
-
-        <StackPanel Grid.Column="2" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20 10">
-            <TextBlock Text="{Binding SelectedPlayer.Player.Username}" Foreground="White" FontSize="16" FontWeight="Bold"/>
-        </StackPanel>
-
+        
         <StackPanel Grid.Column="2" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="20 0">
             <TextBlock Text="{loc:Loc Filters}" FontSize="16" Margin="0 5" Foreground="White" />
             <StackPanel Orientation="Horizontal">

@@ -20,7 +20,6 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
     private List<CombatPlayerModel>? _players;
     private List<CombatPlayerModel>? _mainPlayersCombat;
     private CombatPlayerModel? _selectedPlayer;
-    private CombatPlayerStatsModel? _selectedPlayerStats;
     private List<string>? _filterList;
     private int _combatInformationType;
     private int _selectedFilterIndex;
@@ -211,18 +210,7 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
                     basicTemplateViewModel.Data = value;
                     basicTemplateViewModel.PetsId = (Combat?.PetsId) ?? [];
                 }
-
-                SelectedPlayerStats = value.Stats;
             }
-        }
-    }
-
-    public CombatPlayerStatsModel? SelectedPlayerStats
-    {
-        get => _selectedPlayerStats;
-        set
-        {
-            SetProperty(ref _selectedPlayerStats, value);
         }
     }
 
@@ -724,11 +712,17 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
     public override void Prepare(CombatModel parameter)
     {
         Combat = parameter;
+        if (Combat != null && Combat.CombatPlayers.Count != 0)
+        {
+            _mainPlayersCombat = [.. Combat.CombatPlayers];
+
+            InitCombatPlayersData(_mainPlayersCombat);
+        } 
     }
 
     public override async Task Initialize()
     {
-        if (Combat == null)
+        if (Combat == null || Combat.CombatPlayers.Count != 0)
         {
             return;
         }

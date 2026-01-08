@@ -5,19 +5,20 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useLazyGetCombatPlayersByCombatIdQuery, useLazyGetPlayersDeathByPlayerIdQuery } from '../api/GameLogs.api';
 import type { CombatPlayerModel } from '../types/CombatPlayerModel';
-import type { PlayerDeathModel } from '../types/PlayerDeathModel';
+import type { CombatPlayerDeathModel } from '../types/CombatPlayerDeathModel';
 import type { CombatDetailsModel } from '../types/dashboard/CombatDetailsModel';
-import DetailsSpecificalCombatChart from './DetailsSpecificalCombatChart';
+import SelectedCombatChart from './SelectedCombatChart';
 import PersonalTabs from './PersonalTabs';
 import Dashboard from './dashboard/Dashboard';
 import Details from './details/Details';
+import PlayerInfo from './details/PlayerInfo';
 
-import './DetailsSpecificalCombat.scss';
+import './SelectedCombat.scss';
 
-const DetailsSpecificalCombat: React.FC = () => {
+const SelectedCombat: React.FC = () => {
     const fixedNumberUntil = 2;
 
-    const { t } = useTranslation("combatDetails/detailsSpecificalCombat");
+    const { t } = useTranslation("combatDetails/selectedCombat");
 
     const navigate = useNavigate();
 
@@ -30,7 +31,7 @@ const DetailsSpecificalCombat: React.FC = () => {
         isWin: false
     });
     const [combatPlayers, setCombatPlayers] = useState<CombatPlayerModel[]>([]);
-    const [playersDeath, setPlayersDeath] = useState<PlayerDeathModel[] | null>(null);
+    const [playersDeath, setPlayersDeath] = useState<CombatPlayerDeathModel[] | null>(null);
     const [selectedPlayers, setSelectedPlayers] = useState<CombatPlayerModel[]>([]);
     const [showCommonStatistics, setShowCommonStatistics] = useState(false);
     const [showSearch, setShowSearch] = useState(false);
@@ -80,7 +81,7 @@ const DetailsSpecificalCombat: React.FC = () => {
     }, [details.id]);
 
     const handlerSearch = (e: ChangeEvent<HTMLInputElement> | undefined) => {
-        const foundPlayers = combatPlayers.filter((item) => item.username.toLowerCase().startsWith(e?.target.value.toLowerCase() || ""));
+        const foundPlayers = combatPlayers.filter((item) => item.player.username.toLowerCase().startsWith(e?.target.value.toLowerCase() || ""));
         setSelectedPlayers(foundPlayers);
     }
 
@@ -100,7 +101,7 @@ const DetailsSpecificalCombat: React.FC = () => {
         const deathsPromises = players.map(player => getPlayersDeathByCombatIdAsync(player.id));
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const deathsResults: any[] = await Promise.all(deathsPromises);
-        const deaths: PlayerDeathModel[] = deathsResults.filter(result => result.data && result.data.length > 0).map(result => result.data[0]);
+        const deaths: CombatPlayerDeathModel[] = deathsResults.filter(result => result.data && result.data.length > 0).map(result => result.data[0]);
 
         setPlayersDeath(deaths);
     }
@@ -128,8 +129,8 @@ const DetailsSpecificalCombat: React.FC = () => {
     }
 
     return (
-        <div className="details-specifical-combat__container">
-            <div className="details-specifical-combat__navigate">
+        <div className="selected-combat__container">
+            <div className="selected-combat__navigate">
                 <div className="btn-shadow select-combat" onClick={() => navigate(`/general-analysis?id=${details.combatLogId}`)}>
                     <FontAwesomeIcon
                         icon={faDeleteLeft}
@@ -174,7 +175,7 @@ const DetailsSpecificalCombat: React.FC = () => {
                 </div>
             }
             {showCommonStatistics &&
-                <DetailsSpecificalCombatChart
+                <SelectedCombatChart
                     combatPlayers={selectedPlayers}
                 />
             }
@@ -200,6 +201,13 @@ const DetailsSpecificalCombat: React.FC = () => {
                             getValueShortName={getValueShortName}
                             t={t}
                         />
+                    },
+                    {
+                        id: 2,
+                        header: t("PlayerInfo"),
+                        content: <PlayerInfo
+                            combatPlayers={selectedPlayers}
+                        />
                     }
                 ]}
             />
@@ -207,4 +215,4 @@ const DetailsSpecificalCombat: React.FC = () => {
     );
 }
 
-export default DetailsSpecificalCombat;
+export default SelectedCombat;

@@ -92,11 +92,11 @@ public class CombatController(IBossService bossService, IQueryService<CombatDto>
             await _combatDataHelper.CreateCombatPlayersDataAsync(combatDetails, [.. createdCombatPlayers], combat.Id);
             await _combatDataHelper.UpdateSpecializationScoreAsync([.. createdCombatPlayers], combatDetails, combat.Boss.Id);
 
-            await _combatTransactionService.CommitTransactionAsync();
-
-            combat.IsReady = true;
+            createdCombat.IsReady = true;
 
             await _mutationCombatService.UpdateAsync(createdCombat);
+
+            await _combatTransactionService.CommitTransactionAsync();
 
             return Ok(createdCombat);
         }

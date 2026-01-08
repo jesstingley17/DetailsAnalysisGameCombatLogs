@@ -155,7 +155,7 @@ internal class CombatPlayerRepository(CombatParserContext context) : ICombatPlay
                     Id = cp.Score.Id,
                     DamageScore = cp.Score.DamageScore,
                     DamageDone = cp.Score.DamageDone,
-                    HealScore = cp.Score.HealDone,
+                    HealScore = cp.Score.HealScore,
                     HealDone = cp.Score.HealDone,
                     Updated = cp.Score.Updated,
                     SpecializationId = cp.Score.SpecializationId,

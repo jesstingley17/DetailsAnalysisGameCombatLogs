@@ -14,9 +14,11 @@ public class CombatPlayerModel
 
     public int DamageTaken { get; set; }
 
-    public PlayerModel Player { get; set; } = new();
+    public CombatPlayerStatsModel Stats { get; set; }
 
-    public PlayerModel Score { get; set; } = new();
+    public SpecializationScoreModel? Score { get; set; }
+
+    public PlayerModel Player { get; set; }
 
     public int CombatId { get; set; }
 }

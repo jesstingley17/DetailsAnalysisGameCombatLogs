@@ -1,4 +1,4 @@
-﻿.details-specifical-combat {
+﻿.selected-combat {
     &__container {
         .card {
             width: 100%;
@@ -22,7 +22,7 @@
                 color: white;
 
                 .btn-shadow {
-                    width: 40px;
+                    width: 35px;
                     overflow: hidden;
                     text-align: center;
                     font-size: 13px;
@@ -35,16 +35,6 @@
                     }
                 }
 
-                @keyframes show-more {
-                    from {
-                        width: 40px;
-                    }
-
-                    to {
-                        width: 175px;
-                    }
-                }
-
                 div {
                     display: flex;
                     align-items: center;
@@ -54,7 +44,6 @@
                 svg {
                     height: 20px;
                 }
-
 
                 &__details {
                     width: 25px;
@@ -120,6 +109,41 @@
             &__item {
                 display: flex;
                 margin: 10px 0;
+                flex-wrap: wrap;
+
+                .player-score {
+                    margin: 0 10px;
+                    padding: 5px 10px;
+                    border-radius: 25px;
+                    box-shadow: 2px 2px green;
+                }
+            }
+        }
+
+        .player-info {
+            &__stats {
+                margin: 10px 0;
+                cursor: default;
+
+                .title {
+                    color: #6DC5D1;
+                    font-weight: bold;
+                    margin: 10px 0;
+                }
+
+                .category {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    width: 100%;
+                }
+
+                .content {
+                    display: flex;
+                    justify-content: center;
+                    gap: 10px;
+                }
             }
         }
 

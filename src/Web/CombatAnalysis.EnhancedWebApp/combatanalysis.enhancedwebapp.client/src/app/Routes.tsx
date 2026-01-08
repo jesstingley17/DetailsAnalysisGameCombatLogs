@@ -5,7 +5,7 @@ import UserEnvironmentCommunities from '../features/community/components/userEnv
 import Feed from '../features/feed/components/Feed';
 import CombatAuras from '../features/gameLogs/components/actions/CombatAuras';
 import CombatDetails from '../features/gameLogs/components/CombatDetails';
-import DetailsSpecificalCombat from '../features/gameLogs/components/DetailsSpecificalCombat';
+import SelectedCombat from '../features/gameLogs/components/SelectedCombat';
 import GameCombatLogs from '../features/gameLogs/components/GameCombatLogs';
 import GeneralAnalysis from '../features/gameLogs/components/GeneralAnalysis';
 import AuthorizationCallback from '../features/user/components/identity/AuthorizationCallback';
@@ -89,8 +89,8 @@ const AppRoutes: Route[] = [
         element: <CombatAuras />
     },
     {
-        path: '/details-specifical-combat',
-        element: <DetailsSpecificalCombat />
+        path: '/selected-combat',
+        element: <SelectedCombat />
     },
     {
         path: '/combat-details',

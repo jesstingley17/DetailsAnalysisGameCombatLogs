@@ -3,7 +3,7 @@ import type { CombatAuraModel } from '../types/CombatAuraModel';
 import type { CombatLogModel } from '../types/CombatLogModel';
 import type { CombatModel } from '../types/CombatModel';
 import type { CombatPlayerModel } from '../types/CombatPlayerModel';
-import type { PlayerDeathModel } from '../types/PlayerDeathModel';
+import type { CombatPlayerDeathModel } from '../types/CombatPlayerDeathModel';
 
 const apiURL = '/api/v1';
 
@@ -38,7 +38,7 @@ export const GameLogsApi = createApi({
                     ]
                     : [{ type: 'CombatLog', id: 'LIST' }]
         }),
-        getPlayersDeathByPlayerId: builder.query<PlayerDeathModel[], number>({
+        getPlayersDeathByPlayerId: builder.query<CombatPlayerDeathModel[], number>({
             query: combatPlayerId => `/PlayerDeath/getByCombatPlayerId/${combatPlayerId}`,
             providesTags: result =>
                 result

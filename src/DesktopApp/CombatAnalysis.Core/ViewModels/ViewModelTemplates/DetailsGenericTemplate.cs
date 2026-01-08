@@ -225,8 +225,6 @@ public abstract class DetailsGenericTemplate<DetailsModel, GeneralDetailsModel> 
 
     public override async Task Initialize()
     {
-        await base.Initialize();
-
         if (_parameter == null)
         {
             return;
@@ -249,6 +247,8 @@ public abstract class DetailsGenericTemplate<DetailsModel, GeneralDetailsModel> 
         GetSources();
 
         LoadingStatus = LoadingStatus.Successful;
+
+        await base.Initialize();
     }
 
     public override void ViewDestroy(bool viewFinishing = true)

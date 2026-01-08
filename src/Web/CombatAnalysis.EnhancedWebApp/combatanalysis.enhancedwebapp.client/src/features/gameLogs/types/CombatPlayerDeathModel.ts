@@ -1,4 +1,4 @@
-export type PlayerDeathModel = {
+export type CombatPlayerDeathModel = {
     id: number;
     username: string;
     lastHitSpellOrItem: string;

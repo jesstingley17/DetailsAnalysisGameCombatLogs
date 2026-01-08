@@ -5,6 +5,8 @@ using CombatAnalysis.Core.Interfaces;
 using CombatAnalysis.Core.Models.GameLogs;
 using CombatAnalysis.Core.ViewModels.ViewModelTemplates;
 using Microsoft.Extensions.Logging;
+using System.Collections.Concurrent;
+using System.Collections.ObjectModel;
 
 namespace CombatAnalysis.Core.ViewModels;
 
@@ -19,11 +21,11 @@ public class ResourceRecoveryDetailsViewModel : DetailsGenericTemplate<ResourceR
 
     protected override void GetDetailsFromCache(CombatPlayerModel? parameter)
     {
-        var resourcesRecoveryCollection = _cacheService?.Get<Dictionary<string, List<ResourceRecovery>>>($"{AppCacheKeys.CombatDetails_ResourcesRecovery}_{SelectedCombat?.Number}");
-        var resourcesRecoveryCollectionMap = _mapper.Map<List<ResourceRecoveryModel>>(resourcesRecoveryCollection?[parameter != null ? parameter.Player.GameId : string.Empty]);
-        _allDetailsInformations = [.. resourcesRecoveryCollectionMap];
+        var resourcesRecoveryCollection = _cacheService?.Get<ReadOnlyDictionary<string, ConcurrentDictionary<string, ResourceRecovery>>>($"{AppCacheKeys.CombatDetails_ResourcesRecovery}_{SelectedCombat?.Number}");
+        var resourcesRecoveryCollectionMap = _mapper.Map<ConcurrentDictionary<string, ResourceRecoveryModel>>(resourcesRecoveryCollection?[parameter != null ? parameter.Player.GameId : string.Empty]);
+        _allDetailsInformations = [.. resourcesRecoveryCollectionMap.Values.OrderBy(x => x.Time)];
 
-        var resourcesRecoveryGeneralCollection = _cacheService?.Get<Dictionary<string, List<ResourceRecoveryGeneral>>>($"{AppCacheKeys.CombatDetails_ResourcesRecoveryGeneral}_{SelectedCombat?.Number}");
+        var resourcesRecoveryGeneralCollection = _cacheService?.Get<ReadOnlyDictionary<string, List<ResourceRecoveryGeneral>>>($"{AppCacheKeys.CombatDetails_ResourcesRecoveryGeneral}_{SelectedCombat?.Number}");
         var resourcesRecoveryGeneralCollectionMap = _mapper.Map<List<ResourceRecoveryGeneralModel>>(resourcesRecoveryGeneralCollection?[parameter != null ? parameter.Player.GameId : string.Empty]);
         _allGeneralInformations = [.. resourcesRecoveryGeneralCollectionMap];
     }

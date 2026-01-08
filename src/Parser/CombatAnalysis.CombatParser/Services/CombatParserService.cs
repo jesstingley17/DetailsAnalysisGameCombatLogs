@@ -68,7 +68,7 @@ internal class CombatParserService(IFileManager fileManager, ILogger logger, IHt
         }
     }
 
-    private async Task<bool> ProcessLine(string line, StringBuilder newCombatFromLogs, bool combatStarted, Dictionary<string, List<string>> petsId)
+    private async Task<bool> ProcessLine(string line, StringBuilder combatData, bool combatStarted, Dictionary<string, List<string>> petsId)
     {
         if (line.Contains(CombatLogKeyWords.SpellSummon))
         {
@@ -87,7 +87,12 @@ internal class CombatParserService(IFileManager fileManager, ILogger logger, IHt
        
         if (line.Contains(CombatLogKeyWords.EncounterStart))
         {
-            newCombatFromLogs.AppendLine(line);
+            // If during combat player can be disconnected, lagged or some bugs, end of combat (encounter_end) can be not writed in log file.
+            // If not find end of combat, parsing will continue and get information from next combat as current combat information.
+            // Better clean all stored information, if end of combat not be find.
+            combatData.Clear();
+
+            combatData.AppendLine(line);
 
             return true;
         }
@@ -101,19 +106,19 @@ internal class CombatParserService(IFileManager fileManager, ILogger logger, IHt
         {
             combatStarted = false;
 
-            newCombatFromLogs.AppendLine(line);
+            combatData.AppendLine(line);
 
-            var newCombatFromLogsString = newCombatFromLogs.ToString();
+            var newCombatFromLogsString = combatData.ToString();
             var combatInformationList = newCombatFromLogsString.Split('\n', StringSplitOptions.RemoveEmptyEntries).ToList();
 
             await GetCombatInformationAsync(combatInformationList, petsId);
 
-            newCombatFromLogs.Clear();
+            combatData.Clear();
             petsId = [];
         }
         else
         {
-            newCombatFromLogs.AppendLine(line);
+            combatData.AppendLine(line);
         }
 
         return combatStarted;

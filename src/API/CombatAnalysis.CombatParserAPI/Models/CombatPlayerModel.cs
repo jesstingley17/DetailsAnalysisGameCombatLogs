@@ -22,7 +22,7 @@ public class CombatPlayerModel
     [Range(0, int.MaxValue)]
     public int DamageTaken { get; set; }
 
-    public CombatPlayerStatsModel? Stats { get; set; }
+    public CombatPlayerStatsModel Stats { get; set; }
 
     public SpecializationScoreModel? Score { get; set; }
 
