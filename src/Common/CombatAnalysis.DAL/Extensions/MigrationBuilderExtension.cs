@@ -254,18 +254,21 @@ internal static class MigrationBuilderExtension
 
     public static Specialization[] GenerateSpecializationCollection()
     {
-        Specialization[] collection = 
+        Specialization[] collection =
         [
-            new() { SpecializationSpellsId = "48181,30108,1120" },
-            new() { SpecializationSpellsId = "131900,3674,53301" },
-            new() { SpecializationSpellsId = "55078,55090,47632" },
-            new() { SpecializationSpellsId = "50288,78674,8921" },
-            new() { SpecializationSpellsId = "129197,2944,15407" },
-            new() { SpecializationSpellsId = "12294,86346,7384" },
-            new() { SpecializationSpellsId = "6572,23922,20243" },
-            new() { SpecializationSpellsId = "121253,124335,100787" },
-            new() { SpecializationSpellsId = "47750,81751,47753" },
-            new() { SpecializationSpellsId = "61295,52752,51945" },
+            new() { Name = "Affliction", SpecializationSpellsId = "48181,30108,1120" },
+            new() { Name = "Survival", SpecializationSpellsId = "131900,3674,53301" },
+            new() { Name = "Unholy", SpecializationSpellsId = "55078,55090,47632" },
+            new() { Name = "Balance", SpecializationSpellsId = "50288,78674,8921" },
+            new() { Name = "Shadow", SpecializationSpellsId = "129197,2944,15407" },
+            new() { Name = "Arms", SpecializationSpellsId = "12294,86346,7384" },
+            new() { Name = "Protection", SpecializationSpellsId = "6572,23922,20243" },
+            new() { Name = "Brewmaster", SpecializationSpellsId = "121253,124335,100787" },
+            new() { Name = "Discipline", SpecializationSpellsId = "47750,81751,47753" },
+            new() { Name = "Restoration", SpecializationSpellsId = "61295,52752,51945" },
+            new() { Name = "Combat", SpecializationSpellsId = "57841,84617,1752" },
+            new() { Name = "Subtlety", SpecializationSpellsId = "53,2098,8676" },
+            new() { Name = "Destruction", SpecializationSpellsId = "29722,116858,348" },
         ];
 
         for (int i = 0; i < collection.Length; i++)

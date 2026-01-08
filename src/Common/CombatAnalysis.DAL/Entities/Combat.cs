@@ -11,6 +11,8 @@ public class Combat : IEntity
     [MaxLength(126)]
     public string DungeonName { get; set; } = string.Empty;
 
+    public double BossHealthPercentage { get; set; }
+
     public int DamageDone { get; set; }
 
     public int HealDone { get; set; }

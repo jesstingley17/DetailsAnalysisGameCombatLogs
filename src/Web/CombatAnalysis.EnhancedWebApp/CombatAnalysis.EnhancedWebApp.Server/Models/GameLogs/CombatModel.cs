@@ -6,6 +6,8 @@ public class CombatModel
 
     public string DungeonName { get; set; } = string.Empty;
 
+    public double BossHealthPercentage { get; set; }
+
     public long DamageDone { get; set; }
 
     public long HealDone { get; set; }

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CombatAnalysis.DAL.Migrations
 {
     [DbContext(typeof(CombatParserContext))]
-    [Migration("20260106184430_Init")]
+    [Migration("20260108210215_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -140,26 +140,26 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 11,
-                            BossId = 2,
+                            BossId = 1,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 1
+                            SpecializationId = 11
                         },
                         new
                         {
                             Id = 12,
-                            BossId = 2,
+                            BossId = 1,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 2
+                            SpecializationId = 12
                         },
                         new
                         {
                             Id = 13,
-                            BossId = 2,
+                            BossId = 1,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 3
+                            SpecializationId = 13
                         },
                         new
                         {
@@ -167,7 +167,7 @@ namespace CombatAnalysis.DAL.Migrations
                             BossId = 2,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 4
+                            SpecializationId = 1
                         },
                         new
                         {
@@ -175,7 +175,7 @@ namespace CombatAnalysis.DAL.Migrations
                             BossId = 2,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 5
+                            SpecializationId = 2
                         },
                         new
                         {
@@ -183,7 +183,7 @@ namespace CombatAnalysis.DAL.Migrations
                             BossId = 2,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 6
+                            SpecializationId = 3
                         },
                         new
                         {
@@ -191,7 +191,7 @@ namespace CombatAnalysis.DAL.Migrations
                             BossId = 2,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 7
+                            SpecializationId = 4
                         },
                         new
                         {
@@ -199,7 +199,7 @@ namespace CombatAnalysis.DAL.Migrations
                             BossId = 2,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 8
+                            SpecializationId = 5
                         },
                         new
                         {
@@ -207,7 +207,7 @@ namespace CombatAnalysis.DAL.Migrations
                             BossId = 2,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 9
+                            SpecializationId = 6
                         },
                         new
                         {
@@ -215,55 +215,55 @@ namespace CombatAnalysis.DAL.Migrations
                             BossId = 2,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 10
+                            SpecializationId = 7
                         },
                         new
                         {
                             Id = 21,
-                            BossId = 3,
+                            BossId = 2,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 1
+                            SpecializationId = 8
                         },
                         new
                         {
                             Id = 22,
-                            BossId = 3,
+                            BossId = 2,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 2
+                            SpecializationId = 9
                         },
                         new
                         {
                             Id = 23,
-                            BossId = 3,
+                            BossId = 2,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 3
+                            SpecializationId = 10
                         },
                         new
                         {
                             Id = 24,
-                            BossId = 3,
+                            BossId = 2,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 4
+                            SpecializationId = 11
                         },
                         new
                         {
                             Id = 25,
-                            BossId = 3,
+                            BossId = 2,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 5
+                            SpecializationId = 12
                         },
                         new
                         {
                             Id = 26,
-                            BossId = 3,
+                            BossId = 2,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 6
+                            SpecializationId = 13
                         },
                         new
                         {
@@ -271,7 +271,7 @@ namespace CombatAnalysis.DAL.Migrations
                             BossId = 3,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 7
+                            SpecializationId = 1
                         },
                         new
                         {
@@ -279,7 +279,7 @@ namespace CombatAnalysis.DAL.Migrations
                             BossId = 3,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 8
+                            SpecializationId = 2
                         },
                         new
                         {
@@ -287,7 +287,7 @@ namespace CombatAnalysis.DAL.Migrations
                             BossId = 3,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 9
+                            SpecializationId = 3
                         },
                         new
                         {
@@ -295,79 +295,79 @@ namespace CombatAnalysis.DAL.Migrations
                             BossId = 3,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 10
-                        },
-                        new
-                        {
-                            Id = 31,
-                            BossId = 4,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 1
-                        },
-                        new
-                        {
-                            Id = 32,
-                            BossId = 4,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 2
-                        },
-                        new
-                        {
-                            Id = 33,
-                            BossId = 4,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 3
-                        },
-                        new
-                        {
-                            Id = 34,
-                            BossId = 4,
-                            DamageDone = 0,
-                            HealDone = 0,
                             SpecializationId = 4
                         },
                         new
                         {
-                            Id = 35,
-                            BossId = 4,
+                            Id = 31,
+                            BossId = 3,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 5
                         },
                         new
                         {
-                            Id = 36,
-                            BossId = 4,
+                            Id = 32,
+                            BossId = 3,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 6
                         },
                         new
                         {
-                            Id = 37,
-                            BossId = 4,
+                            Id = 33,
+                            BossId = 3,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 7
                         },
                         new
                         {
-                            Id = 38,
-                            BossId = 4,
+                            Id = 34,
+                            BossId = 3,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 8
                         },
                         new
                         {
-                            Id = 39,
-                            BossId = 4,
+                            Id = 35,
+                            BossId = 3,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 9
+                        },
+                        new
+                        {
+                            Id = 36,
+                            BossId = 3,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 10
+                        },
+                        new
+                        {
+                            Id = 37,
+                            BossId = 3,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 11
+                        },
+                        new
+                        {
+                            Id = 38,
+                            BossId = 3,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 12
+                        },
+                        new
+                        {
+                            Id = 39,
+                            BossId = 3,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 13
                         },
                         new
                         {
@@ -375,83 +375,179 @@ namespace CombatAnalysis.DAL.Migrations
                             BossId = 4,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 10
+                            SpecializationId = 1
                         },
                         new
                         {
                             Id = 41,
-                            BossId = 5,
+                            BossId = 4,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 1
+                            SpecializationId = 2
                         },
                         new
                         {
                             Id = 42,
-                            BossId = 5,
+                            BossId = 4,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 2
+                            SpecializationId = 3
                         },
                         new
                         {
                             Id = 43,
-                            BossId = 5,
+                            BossId = 4,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 3
+                            SpecializationId = 4
                         },
                         new
                         {
                             Id = 44,
-                            BossId = 5,
+                            BossId = 4,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 4
+                            SpecializationId = 5
                         },
                         new
                         {
                             Id = 45,
-                            BossId = 5,
+                            BossId = 4,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 5
+                            SpecializationId = 6
                         },
                         new
                         {
                             Id = 46,
-                            BossId = 5,
+                            BossId = 4,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 6
+                            SpecializationId = 7
                         },
                         new
                         {
                             Id = 47,
-                            BossId = 5,
+                            BossId = 4,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 7
+                            SpecializationId = 8
                         },
                         new
                         {
                             Id = 48,
-                            BossId = 5,
+                            BossId = 4,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 8
+                            SpecializationId = 9
                         },
                         new
                         {
                             Id = 49,
-                            BossId = 5,
+                            BossId = 4,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 9
+                            SpecializationId = 10
                         },
                         new
                         {
                             Id = 50,
+                            BossId = 4,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 11
+                        },
+                        new
+                        {
+                            Id = 51,
+                            BossId = 4,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 12
+                        },
+                        new
+                        {
+                            Id = 52,
+                            BossId = 4,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 13
+                        },
+                        new
+                        {
+                            Id = 53,
+                            BossId = 5,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 1
+                        },
+                        new
+                        {
+                            Id = 54,
+                            BossId = 5,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 2
+                        },
+                        new
+                        {
+                            Id = 55,
+                            BossId = 5,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 3
+                        },
+                        new
+                        {
+                            Id = 56,
+                            BossId = 5,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 4
+                        },
+                        new
+                        {
+                            Id = 57,
+                            BossId = 5,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 5
+                        },
+                        new
+                        {
+                            Id = 58,
+                            BossId = 5,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 6
+                        },
+                        new
+                        {
+                            Id = 59,
+                            BossId = 5,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 7
+                        },
+                        new
+                        {
+                            Id = 60,
+                            BossId = 5,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 8
+                        },
+                        new
+                        {
+                            Id = 61,
+                            BossId = 5,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 9
+                        },
+                        new
+                        {
+                            Id = 62,
                             BossId = 5,
                             DamageDone = 0,
                             HealDone = 0,
@@ -459,159 +555,207 @@ namespace CombatAnalysis.DAL.Migrations
                         },
                         new
                         {
-                            Id = 51,
-                            BossId = 6,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 1
-                        },
-                        new
-                        {
-                            Id = 52,
-                            BossId = 6,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 2
-                        },
-                        new
-                        {
-                            Id = 53,
-                            BossId = 6,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 3
-                        },
-                        new
-                        {
-                            Id = 54,
-                            BossId = 6,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 4
-                        },
-                        new
-                        {
-                            Id = 55,
-                            BossId = 6,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 5
-                        },
-                        new
-                        {
-                            Id = 56,
-                            BossId = 6,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 6
-                        },
-                        new
-                        {
-                            Id = 57,
-                            BossId = 6,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 7
-                        },
-                        new
-                        {
-                            Id = 58,
-                            BossId = 6,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 8
-                        },
-                        new
-                        {
-                            Id = 59,
-                            BossId = 6,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 9
-                        },
-                        new
-                        {
-                            Id = 60,
-                            BossId = 6,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 10
-                        },
-                        new
-                        {
-                            Id = 61,
-                            BossId = 7,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 1
-                        },
-                        new
-                        {
-                            Id = 62,
-                            BossId = 7,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 2
-                        },
-                        new
-                        {
                             Id = 63,
-                            BossId = 7,
+                            BossId = 5,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 3
+                            SpecializationId = 11
                         },
                         new
                         {
                             Id = 64,
-                            BossId = 7,
+                            BossId = 5,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 4
+                            SpecializationId = 12
                         },
                         new
                         {
                             Id = 65,
-                            BossId = 7,
+                            BossId = 5,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 5
+                            SpecializationId = 13
                         },
                         new
                         {
                             Id = 66,
-                            BossId = 7,
+                            BossId = 6,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 6
+                            SpecializationId = 1
                         },
                         new
                         {
                             Id = 67,
-                            BossId = 7,
+                            BossId = 6,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 7
+                            SpecializationId = 2
                         },
                         new
                         {
                             Id = 68,
-                            BossId = 7,
+                            BossId = 6,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 8
+                            SpecializationId = 3
                         },
                         new
                         {
                             Id = 69,
-                            BossId = 7,
+                            BossId = 6,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 9
+                            SpecializationId = 4
                         },
                         new
                         {
                             Id = 70,
+                            BossId = 6,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 5
+                        },
+                        new
+                        {
+                            Id = 71,
+                            BossId = 6,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 6
+                        },
+                        new
+                        {
+                            Id = 72,
+                            BossId = 6,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 7
+                        },
+                        new
+                        {
+                            Id = 73,
+                            BossId = 6,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 8
+                        },
+                        new
+                        {
+                            Id = 74,
+                            BossId = 6,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 9
+                        },
+                        new
+                        {
+                            Id = 75,
+                            BossId = 6,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 10
+                        },
+                        new
+                        {
+                            Id = 76,
+                            BossId = 6,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 11
+                        },
+                        new
+                        {
+                            Id = 77,
+                            BossId = 6,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 12
+                        },
+                        new
+                        {
+                            Id = 78,
+                            BossId = 6,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 13
+                        },
+                        new
+                        {
+                            Id = 79,
+                            BossId = 7,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 1
+                        },
+                        new
+                        {
+                            Id = 80,
+                            BossId = 7,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 2
+                        },
+                        new
+                        {
+                            Id = 81,
+                            BossId = 7,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 3
+                        },
+                        new
+                        {
+                            Id = 82,
+                            BossId = 7,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 4
+                        },
+                        new
+                        {
+                            Id = 83,
+                            BossId = 7,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 5
+                        },
+                        new
+                        {
+                            Id = 84,
+                            BossId = 7,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 6
+                        },
+                        new
+                        {
+                            Id = 85,
+                            BossId = 7,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 7
+                        },
+                        new
+                        {
+                            Id = 86,
+                            BossId = 7,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 8
+                        },
+                        new
+                        {
+                            Id = 87,
+                            BossId = 7,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 9
+                        },
+                        new
+                        {
+                            Id = 88,
                             BossId = 7,
                             DamageDone = 0,
                             HealDone = 0,
@@ -619,159 +763,207 @@ namespace CombatAnalysis.DAL.Migrations
                         },
                         new
                         {
-                            Id = 71,
-                            BossId = 8,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 1
-                        },
-                        new
-                        {
-                            Id = 72,
-                            BossId = 8,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 2
-                        },
-                        new
-                        {
-                            Id = 73,
-                            BossId = 8,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 3
-                        },
-                        new
-                        {
-                            Id = 74,
-                            BossId = 8,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 4
-                        },
-                        new
-                        {
-                            Id = 75,
-                            BossId = 8,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 5
-                        },
-                        new
-                        {
-                            Id = 76,
-                            BossId = 8,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 6
-                        },
-                        new
-                        {
-                            Id = 77,
-                            BossId = 8,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 7
-                        },
-                        new
-                        {
-                            Id = 78,
-                            BossId = 8,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 8
-                        },
-                        new
-                        {
-                            Id = 79,
-                            BossId = 8,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 9
-                        },
-                        new
-                        {
-                            Id = 80,
-                            BossId = 8,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 10
-                        },
-                        new
-                        {
-                            Id = 81,
-                            BossId = 9,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 1
-                        },
-                        new
-                        {
-                            Id = 82,
-                            BossId = 9,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 2
-                        },
-                        new
-                        {
-                            Id = 83,
-                            BossId = 9,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 3
-                        },
-                        new
-                        {
-                            Id = 84,
-                            BossId = 9,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 4
-                        },
-                        new
-                        {
-                            Id = 85,
-                            BossId = 9,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 5
-                        },
-                        new
-                        {
-                            Id = 86,
-                            BossId = 9,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 6
-                        },
-                        new
-                        {
-                            Id = 87,
-                            BossId = 9,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 7
-                        },
-                        new
-                        {
-                            Id = 88,
-                            BossId = 9,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 8
-                        },
-                        new
-                        {
                             Id = 89,
-                            BossId = 9,
+                            BossId = 7,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 9
+                            SpecializationId = 11
                         },
                         new
                         {
                             Id = 90,
+                            BossId = 7,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 12
+                        },
+                        new
+                        {
+                            Id = 91,
+                            BossId = 7,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 13
+                        },
+                        new
+                        {
+                            Id = 92,
+                            BossId = 8,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 1
+                        },
+                        new
+                        {
+                            Id = 93,
+                            BossId = 8,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 2
+                        },
+                        new
+                        {
+                            Id = 94,
+                            BossId = 8,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 3
+                        },
+                        new
+                        {
+                            Id = 95,
+                            BossId = 8,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 4
+                        },
+                        new
+                        {
+                            Id = 96,
+                            BossId = 8,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 5
+                        },
+                        new
+                        {
+                            Id = 97,
+                            BossId = 8,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 6
+                        },
+                        new
+                        {
+                            Id = 98,
+                            BossId = 8,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 7
+                        },
+                        new
+                        {
+                            Id = 99,
+                            BossId = 8,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 8
+                        },
+                        new
+                        {
+                            Id = 100,
+                            BossId = 8,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 9
+                        },
+                        new
+                        {
+                            Id = 101,
+                            BossId = 8,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 10
+                        },
+                        new
+                        {
+                            Id = 102,
+                            BossId = 8,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 11
+                        },
+                        new
+                        {
+                            Id = 103,
+                            BossId = 8,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 12
+                        },
+                        new
+                        {
+                            Id = 104,
+                            BossId = 8,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 13
+                        },
+                        new
+                        {
+                            Id = 105,
+                            BossId = 9,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 1
+                        },
+                        new
+                        {
+                            Id = 106,
+                            BossId = 9,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 2
+                        },
+                        new
+                        {
+                            Id = 107,
+                            BossId = 9,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 3
+                        },
+                        new
+                        {
+                            Id = 108,
+                            BossId = 9,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 4
+                        },
+                        new
+                        {
+                            Id = 109,
+                            BossId = 9,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 5
+                        },
+                        new
+                        {
+                            Id = 110,
+                            BossId = 9,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 6
+                        },
+                        new
+                        {
+                            Id = 111,
+                            BossId = 9,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 7
+                        },
+                        new
+                        {
+                            Id = 112,
+                            BossId = 9,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 8
+                        },
+                        new
+                        {
+                            Id = 113,
+                            BossId = 9,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 9
+                        },
+                        new
+                        {
+                            Id = 114,
                             BossId = 9,
                             DamageDone = 0,
                             HealDone = 0,
@@ -779,328 +971,136 @@ namespace CombatAnalysis.DAL.Migrations
                         },
                         new
                         {
-                            Id = 91,
-                            BossId = 10,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 1
-                        },
-                        new
-                        {
-                            Id = 92,
-                            BossId = 10,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 2
-                        },
-                        new
-                        {
-                            Id = 93,
-                            BossId = 10,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 3
-                        },
-                        new
-                        {
-                            Id = 94,
-                            BossId = 10,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 4
-                        },
-                        new
-                        {
-                            Id = 95,
-                            BossId = 10,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 5
-                        },
-                        new
-                        {
-                            Id = 96,
-                            BossId = 10,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 6
-                        },
-                        new
-                        {
-                            Id = 97,
-                            BossId = 10,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 7
-                        },
-                        new
-                        {
-                            Id = 98,
-                            BossId = 10,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 8
-                        },
-                        new
-                        {
-                            Id = 99,
-                            BossId = 10,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 9
-                        },
-                        new
-                        {
-                            Id = 100,
-                            BossId = 10,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 10
-                        },
-                        new
-                        {
-                            Id = 101,
-                            BossId = 11,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 1
-                        },
-                        new
-                        {
-                            Id = 102,
-                            BossId = 11,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 2
-                        },
-                        new
-                        {
-                            Id = 103,
-                            BossId = 11,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 3
-                        },
-                        new
-                        {
-                            Id = 104,
-                            BossId = 11,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 4
-                        },
-                        new
-                        {
-                            Id = 105,
-                            BossId = 11,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 5
-                        },
-                        new
-                        {
-                            Id = 106,
-                            BossId = 11,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 6
-                        },
-                        new
-                        {
-                            Id = 107,
-                            BossId = 11,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 7
-                        },
-                        new
-                        {
-                            Id = 108,
-                            BossId = 11,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 8
-                        },
-                        new
-                        {
-                            Id = 109,
-                            BossId = 11,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 9
-                        },
-                        new
-                        {
-                            Id = 110,
-                            BossId = 11,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 10
-                        },
-                        new
-                        {
-                            Id = 111,
-                            BossId = 12,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 1
-                        },
-                        new
-                        {
-                            Id = 112,
-                            BossId = 12,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 2
-                        },
-                        new
-                        {
-                            Id = 113,
-                            BossId = 12,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 3
-                        },
-                        new
-                        {
-                            Id = 114,
-                            BossId = 12,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 4
-                        },
-                        new
-                        {
                             Id = 115,
-                            BossId = 12,
+                            BossId = 9,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 5
+                            SpecializationId = 11
                         },
                         new
                         {
                             Id = 116,
-                            BossId = 12,
+                            BossId = 9,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 6
+                            SpecializationId = 12
                         },
                         new
                         {
                             Id = 117,
-                            BossId = 12,
+                            BossId = 9,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 7
+                            SpecializationId = 13
                         },
                         new
                         {
                             Id = 118,
-                            BossId = 12,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 8
-                        },
-                        new
-                        {
-                            Id = 119,
-                            BossId = 12,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 9
-                        },
-                        new
-                        {
-                            Id = 120,
-                            BossId = 12,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 10
-                        },
-                        new
-                        {
-                            Id = 121,
-                            BossId = 13,
+                            BossId = 10,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 1
                         },
                         new
                         {
-                            Id = 122,
-                            BossId = 13,
+                            Id = 119,
+                            BossId = 10,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 2
                         },
                         new
                         {
-                            Id = 123,
-                            BossId = 13,
+                            Id = 120,
+                            BossId = 10,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 3
                         },
                         new
                         {
-                            Id = 124,
-                            BossId = 13,
+                            Id = 121,
+                            BossId = 10,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 4
                         },
                         new
                         {
-                            Id = 125,
-                            BossId = 13,
+                            Id = 122,
+                            BossId = 10,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 5
                         },
                         new
                         {
-                            Id = 126,
-                            BossId = 13,
+                            Id = 123,
+                            BossId = 10,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 6
                         },
                         new
                         {
-                            Id = 127,
-                            BossId = 13,
+                            Id = 124,
+                            BossId = 10,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 7
                         },
                         new
                         {
-                            Id = 128,
-                            BossId = 13,
+                            Id = 125,
+                            BossId = 10,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 8
                         },
                         new
                         {
-                            Id = 129,
-                            BossId = 13,
+                            Id = 126,
+                            BossId = 10,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 9
                         },
                         new
                         {
-                            Id = 130,
-                            BossId = 13,
+                            Id = 127,
+                            BossId = 10,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 10
                         },
                         new
                         {
+                            Id = 128,
+                            BossId = 10,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 11
+                        },
+                        new
+                        {
+                            Id = 129,
+                            BossId = 10,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 12
+                        },
+                        new
+                        {
+                            Id = 130,
+                            BossId = 10,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 13
+                        },
+                        new
+                        {
                             Id = 131,
-                            BossId = 14,
+                            BossId = 11,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 1
@@ -1108,7 +1108,7 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 132,
-                            BossId = 14,
+                            BossId = 11,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 2
@@ -1116,7 +1116,7 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 133,
-                            BossId = 14,
+                            BossId = 11,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 3
@@ -1124,7 +1124,7 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 134,
-                            BossId = 14,
+                            BossId = 11,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 4
@@ -1132,7 +1132,7 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 135,
-                            BossId = 14,
+                            BossId = 11,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 5
@@ -1140,7 +1140,7 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 136,
-                            BossId = 14,
+                            BossId = 11,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 6
@@ -1148,7 +1148,7 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 137,
-                            BossId = 14,
+                            BossId = 11,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 7
@@ -1156,7 +1156,7 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 138,
-                            BossId = 14,
+                            BossId = 11,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 8
@@ -1164,7 +1164,7 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 139,
-                            BossId = 14,
+                            BossId = 11,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 9
@@ -1172,7 +1172,7 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 140,
-                            BossId = 14,
+                            BossId = 11,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 10
@@ -1180,78 +1180,414 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 141,
-                            BossId = 15,
+                            BossId = 11,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 1
+                            SpecializationId = 11
                         },
                         new
                         {
                             Id = 142,
-                            BossId = 15,
+                            BossId = 11,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 2
+                            SpecializationId = 12
                         },
                         new
                         {
                             Id = 143,
-                            BossId = 15,
+                            BossId = 11,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 3
+                            SpecializationId = 13
                         },
                         new
                         {
                             Id = 144,
-                            BossId = 15,
+                            BossId = 12,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 4
+                            SpecializationId = 1
                         },
                         new
                         {
                             Id = 145,
-                            BossId = 15,
+                            BossId = 12,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 5
+                            SpecializationId = 2
                         },
                         new
                         {
                             Id = 146,
-                            BossId = 15,
+                            BossId = 12,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 6
+                            SpecializationId = 3
                         },
                         new
                         {
                             Id = 147,
-                            BossId = 15,
+                            BossId = 12,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 7
+                            SpecializationId = 4
                         },
                         new
                         {
                             Id = 148,
-                            BossId = 15,
+                            BossId = 12,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 8
+                            SpecializationId = 5
                         },
                         new
                         {
                             Id = 149,
-                            BossId = 15,
+                            BossId = 12,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 9
+                            SpecializationId = 6
                         },
                         new
                         {
                             Id = 150,
+                            BossId = 12,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 7
+                        },
+                        new
+                        {
+                            Id = 151,
+                            BossId = 12,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 8
+                        },
+                        new
+                        {
+                            Id = 152,
+                            BossId = 12,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 9
+                        },
+                        new
+                        {
+                            Id = 153,
+                            BossId = 12,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 10
+                        },
+                        new
+                        {
+                            Id = 154,
+                            BossId = 12,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 11
+                        },
+                        new
+                        {
+                            Id = 155,
+                            BossId = 12,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 12
+                        },
+                        new
+                        {
+                            Id = 156,
+                            BossId = 12,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 13
+                        },
+                        new
+                        {
+                            Id = 157,
+                            BossId = 13,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 1
+                        },
+                        new
+                        {
+                            Id = 158,
+                            BossId = 13,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 2
+                        },
+                        new
+                        {
+                            Id = 159,
+                            BossId = 13,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 3
+                        },
+                        new
+                        {
+                            Id = 160,
+                            BossId = 13,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 4
+                        },
+                        new
+                        {
+                            Id = 161,
+                            BossId = 13,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 5
+                        },
+                        new
+                        {
+                            Id = 162,
+                            BossId = 13,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 6
+                        },
+                        new
+                        {
+                            Id = 163,
+                            BossId = 13,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 7
+                        },
+                        new
+                        {
+                            Id = 164,
+                            BossId = 13,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 8
+                        },
+                        new
+                        {
+                            Id = 165,
+                            BossId = 13,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 9
+                        },
+                        new
+                        {
+                            Id = 166,
+                            BossId = 13,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 10
+                        },
+                        new
+                        {
+                            Id = 167,
+                            BossId = 13,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 11
+                        },
+                        new
+                        {
+                            Id = 168,
+                            BossId = 13,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 12
+                        },
+                        new
+                        {
+                            Id = 169,
+                            BossId = 13,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 13
+                        },
+                        new
+                        {
+                            Id = 170,
+                            BossId = 14,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 1
+                        },
+                        new
+                        {
+                            Id = 171,
+                            BossId = 14,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 2
+                        },
+                        new
+                        {
+                            Id = 172,
+                            BossId = 14,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 3
+                        },
+                        new
+                        {
+                            Id = 173,
+                            BossId = 14,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 4
+                        },
+                        new
+                        {
+                            Id = 174,
+                            BossId = 14,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 5
+                        },
+                        new
+                        {
+                            Id = 175,
+                            BossId = 14,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 6
+                        },
+                        new
+                        {
+                            Id = 176,
+                            BossId = 14,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 7
+                        },
+                        new
+                        {
+                            Id = 177,
+                            BossId = 14,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 8
+                        },
+                        new
+                        {
+                            Id = 178,
+                            BossId = 14,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 9
+                        },
+                        new
+                        {
+                            Id = 179,
+                            BossId = 14,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 10
+                        },
+                        new
+                        {
+                            Id = 180,
+                            BossId = 14,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 11
+                        },
+                        new
+                        {
+                            Id = 181,
+                            BossId = 14,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 12
+                        },
+                        new
+                        {
+                            Id = 182,
+                            BossId = 14,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 13
+                        },
+                        new
+                        {
+                            Id = 183,
+                            BossId = 15,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 1
+                        },
+                        new
+                        {
+                            Id = 184,
+                            BossId = 15,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 2
+                        },
+                        new
+                        {
+                            Id = 185,
+                            BossId = 15,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 3
+                        },
+                        new
+                        {
+                            Id = 186,
+                            BossId = 15,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 4
+                        },
+                        new
+                        {
+                            Id = 187,
+                            BossId = 15,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 5
+                        },
+                        new
+                        {
+                            Id = 188,
+                            BossId = 15,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 6
+                        },
+                        new
+                        {
+                            Id = 189,
+                            BossId = 15,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 7
+                        },
+                        new
+                        {
+                            Id = 190,
+                            BossId = 15,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 8
+                        },
+                        new
+                        {
+                            Id = 191,
+                            BossId = 15,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 9
+                        },
+                        new
+                        {
+                            Id = 192,
                             BossId = 15,
                             DamageDone = 0,
                             HealDone = 0,
@@ -1259,399 +1595,519 @@ namespace CombatAnalysis.DAL.Migrations
                         },
                         new
                         {
-                            Id = 151,
-                            BossId = 16,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 1
-                        },
-                        new
-                        {
-                            Id = 152,
-                            BossId = 16,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 2
-                        },
-                        new
-                        {
-                            Id = 153,
-                            BossId = 16,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 3
-                        },
-                        new
-                        {
-                            Id = 154,
-                            BossId = 16,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 4
-                        },
-                        new
-                        {
-                            Id = 155,
-                            BossId = 16,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 5
-                        },
-                        new
-                        {
-                            Id = 156,
-                            BossId = 16,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 6
-                        },
-                        new
-                        {
-                            Id = 157,
-                            BossId = 16,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 7
-                        },
-                        new
-                        {
-                            Id = 158,
-                            BossId = 16,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 8
-                        },
-                        new
-                        {
-                            Id = 159,
-                            BossId = 16,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 9
-                        },
-                        new
-                        {
-                            Id = 160,
-                            BossId = 16,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 10
-                        },
-                        new
-                        {
-                            Id = 161,
-                            BossId = 17,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 1
-                        },
-                        new
-                        {
-                            Id = 162,
-                            BossId = 17,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 2
-                        },
-                        new
-                        {
-                            Id = 163,
-                            BossId = 17,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 3
-                        },
-                        new
-                        {
-                            Id = 164,
-                            BossId = 17,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 4
-                        },
-                        new
-                        {
-                            Id = 165,
-                            BossId = 17,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 5
-                        },
-                        new
-                        {
-                            Id = 166,
-                            BossId = 17,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 6
-                        },
-                        new
-                        {
-                            Id = 167,
-                            BossId = 17,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 7
-                        },
-                        new
-                        {
-                            Id = 168,
-                            BossId = 17,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 8
-                        },
-                        new
-                        {
-                            Id = 169,
-                            BossId = 17,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 9
-                        },
-                        new
-                        {
-                            Id = 170,
-                            BossId = 17,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 10
-                        },
-                        new
-                        {
-                            Id = 171,
-                            BossId = 18,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 1
-                        },
-                        new
-                        {
-                            Id = 172,
-                            BossId = 18,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 2
-                        },
-                        new
-                        {
-                            Id = 173,
-                            BossId = 18,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 3
-                        },
-                        new
-                        {
-                            Id = 174,
-                            BossId = 18,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 4
-                        },
-                        new
-                        {
-                            Id = 175,
-                            BossId = 18,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 5
-                        },
-                        new
-                        {
-                            Id = 176,
-                            BossId = 18,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 6
-                        },
-                        new
-                        {
-                            Id = 177,
-                            BossId = 18,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 7
-                        },
-                        new
-                        {
-                            Id = 178,
-                            BossId = 18,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 8
-                        },
-                        new
-                        {
-                            Id = 179,
-                            BossId = 18,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 9
-                        },
-                        new
-                        {
-                            Id = 180,
-                            BossId = 18,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 10
-                        },
-                        new
-                        {
-                            Id = 181,
-                            BossId = 19,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 1
-                        },
-                        new
-                        {
-                            Id = 182,
-                            BossId = 19,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 2
-                        },
-                        new
-                        {
-                            Id = 183,
-                            BossId = 19,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 3
-                        },
-                        new
-                        {
-                            Id = 184,
-                            BossId = 19,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 4
-                        },
-                        new
-                        {
-                            Id = 185,
-                            BossId = 19,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 5
-                        },
-                        new
-                        {
-                            Id = 186,
-                            BossId = 19,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 6
-                        },
-                        new
-                        {
-                            Id = 187,
-                            BossId = 19,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 7
-                        },
-                        new
-                        {
-                            Id = 188,
-                            BossId = 19,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 8
-                        },
-                        new
-                        {
-                            Id = 189,
-                            BossId = 19,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 9
-                        },
-                        new
-                        {
-                            Id = 190,
-                            BossId = 19,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 10
-                        },
-                        new
-                        {
-                            Id = 191,
-                            BossId = 20,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 1
-                        },
-                        new
-                        {
-                            Id = 192,
-                            BossId = 20,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 2
-                        },
-                        new
-                        {
                             Id = 193,
-                            BossId = 20,
+                            BossId = 15,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 3
+                            SpecializationId = 11
                         },
                         new
                         {
                             Id = 194,
-                            BossId = 20,
+                            BossId = 15,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 4
+                            SpecializationId = 12
                         },
                         new
                         {
                             Id = 195,
-                            BossId = 20,
+                            BossId = 15,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 5
+                            SpecializationId = 13
                         },
                         new
                         {
                             Id = 196,
-                            BossId = 20,
+                            BossId = 16,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 6
+                            SpecializationId = 1
                         },
                         new
                         {
                             Id = 197,
-                            BossId = 20,
+                            BossId = 16,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 7
+                            SpecializationId = 2
                         },
                         new
                         {
                             Id = 198,
-                            BossId = 20,
+                            BossId = 16,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 8
+                            SpecializationId = 3
                         },
                         new
                         {
                             Id = 199,
-                            BossId = 20,
+                            BossId = 16,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 9
+                            SpecializationId = 4
                         },
                         new
                         {
                             Id = 200,
+                            BossId = 16,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 5
+                        },
+                        new
+                        {
+                            Id = 201,
+                            BossId = 16,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 6
+                        },
+                        new
+                        {
+                            Id = 202,
+                            BossId = 16,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 7
+                        },
+                        new
+                        {
+                            Id = 203,
+                            BossId = 16,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 8
+                        },
+                        new
+                        {
+                            Id = 204,
+                            BossId = 16,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 9
+                        },
+                        new
+                        {
+                            Id = 205,
+                            BossId = 16,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 10
+                        },
+                        new
+                        {
+                            Id = 206,
+                            BossId = 16,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 11
+                        },
+                        new
+                        {
+                            Id = 207,
+                            BossId = 16,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 12
+                        },
+                        new
+                        {
+                            Id = 208,
+                            BossId = 16,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 13
+                        },
+                        new
+                        {
+                            Id = 209,
+                            BossId = 17,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 1
+                        },
+                        new
+                        {
+                            Id = 210,
+                            BossId = 17,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 2
+                        },
+                        new
+                        {
+                            Id = 211,
+                            BossId = 17,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 3
+                        },
+                        new
+                        {
+                            Id = 212,
+                            BossId = 17,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 4
+                        },
+                        new
+                        {
+                            Id = 213,
+                            BossId = 17,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 5
+                        },
+                        new
+                        {
+                            Id = 214,
+                            BossId = 17,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 6
+                        },
+                        new
+                        {
+                            Id = 215,
+                            BossId = 17,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 7
+                        },
+                        new
+                        {
+                            Id = 216,
+                            BossId = 17,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 8
+                        },
+                        new
+                        {
+                            Id = 217,
+                            BossId = 17,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 9
+                        },
+                        new
+                        {
+                            Id = 218,
+                            BossId = 17,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 10
+                        },
+                        new
+                        {
+                            Id = 219,
+                            BossId = 17,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 11
+                        },
+                        new
+                        {
+                            Id = 220,
+                            BossId = 17,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 12
+                        },
+                        new
+                        {
+                            Id = 221,
+                            BossId = 17,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 13
+                        },
+                        new
+                        {
+                            Id = 222,
+                            BossId = 18,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 1
+                        },
+                        new
+                        {
+                            Id = 223,
+                            BossId = 18,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 2
+                        },
+                        new
+                        {
+                            Id = 224,
+                            BossId = 18,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 3
+                        },
+                        new
+                        {
+                            Id = 225,
+                            BossId = 18,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 4
+                        },
+                        new
+                        {
+                            Id = 226,
+                            BossId = 18,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 5
+                        },
+                        new
+                        {
+                            Id = 227,
+                            BossId = 18,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 6
+                        },
+                        new
+                        {
+                            Id = 228,
+                            BossId = 18,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 7
+                        },
+                        new
+                        {
+                            Id = 229,
+                            BossId = 18,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 8
+                        },
+                        new
+                        {
+                            Id = 230,
+                            BossId = 18,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 9
+                        },
+                        new
+                        {
+                            Id = 231,
+                            BossId = 18,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 10
+                        },
+                        new
+                        {
+                            Id = 232,
+                            BossId = 18,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 11
+                        },
+                        new
+                        {
+                            Id = 233,
+                            BossId = 18,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 12
+                        },
+                        new
+                        {
+                            Id = 234,
+                            BossId = 18,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 13
+                        },
+                        new
+                        {
+                            Id = 235,
+                            BossId = 19,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 1
+                        },
+                        new
+                        {
+                            Id = 236,
+                            BossId = 19,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 2
+                        },
+                        new
+                        {
+                            Id = 237,
+                            BossId = 19,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 3
+                        },
+                        new
+                        {
+                            Id = 238,
+                            BossId = 19,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 4
+                        },
+                        new
+                        {
+                            Id = 239,
+                            BossId = 19,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 5
+                        },
+                        new
+                        {
+                            Id = 240,
+                            BossId = 19,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 6
+                        },
+                        new
+                        {
+                            Id = 241,
+                            BossId = 19,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 7
+                        },
+                        new
+                        {
+                            Id = 242,
+                            BossId = 19,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 8
+                        },
+                        new
+                        {
+                            Id = 243,
+                            BossId = 19,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 9
+                        },
+                        new
+                        {
+                            Id = 244,
+                            BossId = 19,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 10
+                        },
+                        new
+                        {
+                            Id = 245,
+                            BossId = 19,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 11
+                        },
+                        new
+                        {
+                            Id = 246,
+                            BossId = 19,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 12
+                        },
+                        new
+                        {
+                            Id = 247,
+                            BossId = 19,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 13
+                        },
+                        new
+                        {
+                            Id = 248,
+                            BossId = 20,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 1
+                        },
+                        new
+                        {
+                            Id = 249,
+                            BossId = 20,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 2
+                        },
+                        new
+                        {
+                            Id = 250,
+                            BossId = 20,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 3
+                        },
+                        new
+                        {
+                            Id = 251,
+                            BossId = 20,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 4
+                        },
+                        new
+                        {
+                            Id = 252,
+                            BossId = 20,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 5
+                        },
+                        new
+                        {
+                            Id = 253,
+                            BossId = 20,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 6
+                        },
+                        new
+                        {
+                            Id = 254,
+                            BossId = 20,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 7
+                        },
+                        new
+                        {
+                            Id = 255,
+                            BossId = 20,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 8
+                        },
+                        new
+                        {
+                            Id = 256,
+                            BossId = 20,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 9
+                        },
+                        new
+                        {
+                            Id = 257,
                             BossId = 20,
                             DamageDone = 0,
                             HealDone = 0,
@@ -1659,488 +2115,32 @@ namespace CombatAnalysis.DAL.Migrations
                         },
                         new
                         {
-                            Id = 201,
-                            BossId = 21,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 1
-                        },
-                        new
-                        {
-                            Id = 202,
-                            BossId = 21,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 2
-                        },
-                        new
-                        {
-                            Id = 203,
-                            BossId = 21,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 3
-                        },
-                        new
-                        {
-                            Id = 204,
-                            BossId = 21,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 4
-                        },
-                        new
-                        {
-                            Id = 205,
-                            BossId = 21,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 5
-                        },
-                        new
-                        {
-                            Id = 206,
-                            BossId = 21,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 6
-                        },
-                        new
-                        {
-                            Id = 207,
-                            BossId = 21,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 7
-                        },
-                        new
-                        {
-                            Id = 208,
-                            BossId = 21,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 8
-                        },
-                        new
-                        {
-                            Id = 209,
-                            BossId = 21,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 9
-                        },
-                        new
-                        {
-                            Id = 210,
-                            BossId = 21,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 10
-                        },
-                        new
-                        {
-                            Id = 211,
-                            BossId = 22,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 1
-                        },
-                        new
-                        {
-                            Id = 212,
-                            BossId = 22,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 2
-                        },
-                        new
-                        {
-                            Id = 213,
-                            BossId = 22,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 3
-                        },
-                        new
-                        {
-                            Id = 214,
-                            BossId = 22,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 4
-                        },
-                        new
-                        {
-                            Id = 215,
-                            BossId = 22,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 5
-                        },
-                        new
-                        {
-                            Id = 216,
-                            BossId = 22,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 6
-                        },
-                        new
-                        {
-                            Id = 217,
-                            BossId = 22,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 7
-                        },
-                        new
-                        {
-                            Id = 218,
-                            BossId = 22,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 8
-                        },
-                        new
-                        {
-                            Id = 219,
-                            BossId = 22,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 9
-                        },
-                        new
-                        {
-                            Id = 220,
-                            BossId = 22,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 10
-                        },
-                        new
-                        {
-                            Id = 221,
-                            BossId = 23,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 1
-                        },
-                        new
-                        {
-                            Id = 222,
-                            BossId = 23,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 2
-                        },
-                        new
-                        {
-                            Id = 223,
-                            BossId = 23,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 3
-                        },
-                        new
-                        {
-                            Id = 224,
-                            BossId = 23,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 4
-                        },
-                        new
-                        {
-                            Id = 225,
-                            BossId = 23,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 5
-                        },
-                        new
-                        {
-                            Id = 226,
-                            BossId = 23,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 6
-                        },
-                        new
-                        {
-                            Id = 227,
-                            BossId = 23,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 7
-                        },
-                        new
-                        {
-                            Id = 228,
-                            BossId = 23,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 8
-                        },
-                        new
-                        {
-                            Id = 229,
-                            BossId = 23,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 9
-                        },
-                        new
-                        {
-                            Id = 230,
-                            BossId = 23,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 10
-                        },
-                        new
-                        {
-                            Id = 231,
-                            BossId = 24,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 1
-                        },
-                        new
-                        {
-                            Id = 232,
-                            BossId = 24,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 2
-                        },
-                        new
-                        {
-                            Id = 233,
-                            BossId = 24,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 3
-                        },
-                        new
-                        {
-                            Id = 234,
-                            BossId = 24,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 4
-                        },
-                        new
-                        {
-                            Id = 235,
-                            BossId = 24,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 5
-                        },
-                        new
-                        {
-                            Id = 236,
-                            BossId = 24,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 6
-                        },
-                        new
-                        {
-                            Id = 237,
-                            BossId = 24,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 7
-                        },
-                        new
-                        {
-                            Id = 238,
-                            BossId = 24,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 8
-                        },
-                        new
-                        {
-                            Id = 239,
-                            BossId = 24,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 9
-                        },
-                        new
-                        {
-                            Id = 240,
-                            BossId = 24,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 10
-                        },
-                        new
-                        {
-                            Id = 241,
-                            BossId = 25,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 1
-                        },
-                        new
-                        {
-                            Id = 242,
-                            BossId = 25,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 2
-                        },
-                        new
-                        {
-                            Id = 243,
-                            BossId = 25,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 3
-                        },
-                        new
-                        {
-                            Id = 244,
-                            BossId = 25,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 4
-                        },
-                        new
-                        {
-                            Id = 245,
-                            BossId = 25,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 5
-                        },
-                        new
-                        {
-                            Id = 246,
-                            BossId = 25,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 6
-                        },
-                        new
-                        {
-                            Id = 247,
-                            BossId = 25,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 7
-                        },
-                        new
-                        {
-                            Id = 248,
-                            BossId = 25,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 8
-                        },
-                        new
-                        {
-                            Id = 249,
-                            BossId = 25,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 9
-                        },
-                        new
-                        {
-                            Id = 250,
-                            BossId = 25,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 10
-                        },
-                        new
-                        {
-                            Id = 251,
-                            BossId = 26,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 1
-                        },
-                        new
-                        {
-                            Id = 252,
-                            BossId = 26,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 2
-                        },
-                        new
-                        {
-                            Id = 253,
-                            BossId = 26,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 3
-                        },
-                        new
-                        {
-                            Id = 254,
-                            BossId = 26,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 4
-                        },
-                        new
-                        {
-                            Id = 255,
-                            BossId = 26,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 5
-                        },
-                        new
-                        {
-                            Id = 256,
-                            BossId = 26,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 6
-                        },
-                        new
-                        {
-                            Id = 257,
-                            BossId = 26,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 7
-                        },
-                        new
-                        {
                             Id = 258,
-                            BossId = 26,
+                            BossId = 20,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 8
+                            SpecializationId = 11
                         },
                         new
                         {
                             Id = 259,
-                            BossId = 26,
+                            BossId = 20,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 9
+                            SpecializationId = 12
                         },
                         new
                         {
                             Id = 260,
-                            BossId = 26,
+                            BossId = 20,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 10
+                            SpecializationId = 13
                         },
                         new
                         {
                             Id = 261,
-                            BossId = 27,
+                            BossId = 21,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 1
@@ -2148,7 +2148,7 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 262,
-                            BossId = 27,
+                            BossId = 21,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 2
@@ -2156,7 +2156,7 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 263,
-                            BossId = 27,
+                            BossId = 21,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 3
@@ -2164,7 +2164,7 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 264,
-                            BossId = 27,
+                            BossId = 21,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 4
@@ -2172,7 +2172,7 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 265,
-                            BossId = 27,
+                            BossId = 21,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 5
@@ -2180,7 +2180,7 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 266,
-                            BossId = 27,
+                            BossId = 21,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 6
@@ -2188,7 +2188,7 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 267,
-                            BossId = 27,
+                            BossId = 21,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 7
@@ -2196,7 +2196,7 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 268,
-                            BossId = 27,
+                            BossId = 21,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 8
@@ -2204,7 +2204,7 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 269,
-                            BossId = 27,
+                            BossId = 21,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 9
@@ -2212,7 +2212,7 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 270,
-                            BossId = 27,
+                            BossId = 21,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 10
@@ -2220,78 +2220,726 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 271,
-                            BossId = 28,
+                            BossId = 21,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 1
+                            SpecializationId = 11
                         },
                         new
                         {
                             Id = 272,
-                            BossId = 28,
+                            BossId = 21,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 2
+                            SpecializationId = 12
                         },
                         new
                         {
                             Id = 273,
-                            BossId = 28,
+                            BossId = 21,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 3
+                            SpecializationId = 13
                         },
                         new
                         {
                             Id = 274,
-                            BossId = 28,
+                            BossId = 22,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 4
+                            SpecializationId = 1
                         },
                         new
                         {
                             Id = 275,
-                            BossId = 28,
+                            BossId = 22,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 5
+                            SpecializationId = 2
                         },
                         new
                         {
                             Id = 276,
-                            BossId = 28,
+                            BossId = 22,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 6
+                            SpecializationId = 3
                         },
                         new
                         {
                             Id = 277,
-                            BossId = 28,
+                            BossId = 22,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 7
+                            SpecializationId = 4
                         },
                         new
                         {
                             Id = 278,
-                            BossId = 28,
+                            BossId = 22,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 8
+                            SpecializationId = 5
                         },
                         new
                         {
                             Id = 279,
-                            BossId = 28,
+                            BossId = 22,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 9
+                            SpecializationId = 6
                         },
                         new
                         {
                             Id = 280,
+                            BossId = 22,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 7
+                        },
+                        new
+                        {
+                            Id = 281,
+                            BossId = 22,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 8
+                        },
+                        new
+                        {
+                            Id = 282,
+                            BossId = 22,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 9
+                        },
+                        new
+                        {
+                            Id = 283,
+                            BossId = 22,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 10
+                        },
+                        new
+                        {
+                            Id = 284,
+                            BossId = 22,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 11
+                        },
+                        new
+                        {
+                            Id = 285,
+                            BossId = 22,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 12
+                        },
+                        new
+                        {
+                            Id = 286,
+                            BossId = 22,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 13
+                        },
+                        new
+                        {
+                            Id = 287,
+                            BossId = 23,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 1
+                        },
+                        new
+                        {
+                            Id = 288,
+                            BossId = 23,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 2
+                        },
+                        new
+                        {
+                            Id = 289,
+                            BossId = 23,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 3
+                        },
+                        new
+                        {
+                            Id = 290,
+                            BossId = 23,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 4
+                        },
+                        new
+                        {
+                            Id = 291,
+                            BossId = 23,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 5
+                        },
+                        new
+                        {
+                            Id = 292,
+                            BossId = 23,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 6
+                        },
+                        new
+                        {
+                            Id = 293,
+                            BossId = 23,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 7
+                        },
+                        new
+                        {
+                            Id = 294,
+                            BossId = 23,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 8
+                        },
+                        new
+                        {
+                            Id = 295,
+                            BossId = 23,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 9
+                        },
+                        new
+                        {
+                            Id = 296,
+                            BossId = 23,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 10
+                        },
+                        new
+                        {
+                            Id = 297,
+                            BossId = 23,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 11
+                        },
+                        new
+                        {
+                            Id = 298,
+                            BossId = 23,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 12
+                        },
+                        new
+                        {
+                            Id = 299,
+                            BossId = 23,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 13
+                        },
+                        new
+                        {
+                            Id = 300,
+                            BossId = 24,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 1
+                        },
+                        new
+                        {
+                            Id = 301,
+                            BossId = 24,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 2
+                        },
+                        new
+                        {
+                            Id = 302,
+                            BossId = 24,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 3
+                        },
+                        new
+                        {
+                            Id = 303,
+                            BossId = 24,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 4
+                        },
+                        new
+                        {
+                            Id = 304,
+                            BossId = 24,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 5
+                        },
+                        new
+                        {
+                            Id = 305,
+                            BossId = 24,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 6
+                        },
+                        new
+                        {
+                            Id = 306,
+                            BossId = 24,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 7
+                        },
+                        new
+                        {
+                            Id = 307,
+                            BossId = 24,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 8
+                        },
+                        new
+                        {
+                            Id = 308,
+                            BossId = 24,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 9
+                        },
+                        new
+                        {
+                            Id = 309,
+                            BossId = 24,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 10
+                        },
+                        new
+                        {
+                            Id = 310,
+                            BossId = 24,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 11
+                        },
+                        new
+                        {
+                            Id = 311,
+                            BossId = 24,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 12
+                        },
+                        new
+                        {
+                            Id = 312,
+                            BossId = 24,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 13
+                        },
+                        new
+                        {
+                            Id = 313,
+                            BossId = 25,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 1
+                        },
+                        new
+                        {
+                            Id = 314,
+                            BossId = 25,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 2
+                        },
+                        new
+                        {
+                            Id = 315,
+                            BossId = 25,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 3
+                        },
+                        new
+                        {
+                            Id = 316,
+                            BossId = 25,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 4
+                        },
+                        new
+                        {
+                            Id = 317,
+                            BossId = 25,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 5
+                        },
+                        new
+                        {
+                            Id = 318,
+                            BossId = 25,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 6
+                        },
+                        new
+                        {
+                            Id = 319,
+                            BossId = 25,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 7
+                        },
+                        new
+                        {
+                            Id = 320,
+                            BossId = 25,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 8
+                        },
+                        new
+                        {
+                            Id = 321,
+                            BossId = 25,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 9
+                        },
+                        new
+                        {
+                            Id = 322,
+                            BossId = 25,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 10
+                        },
+                        new
+                        {
+                            Id = 323,
+                            BossId = 25,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 11
+                        },
+                        new
+                        {
+                            Id = 324,
+                            BossId = 25,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 12
+                        },
+                        new
+                        {
+                            Id = 325,
+                            BossId = 25,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 13
+                        },
+                        new
+                        {
+                            Id = 326,
+                            BossId = 26,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 1
+                        },
+                        new
+                        {
+                            Id = 327,
+                            BossId = 26,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 2
+                        },
+                        new
+                        {
+                            Id = 328,
+                            BossId = 26,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 3
+                        },
+                        new
+                        {
+                            Id = 329,
+                            BossId = 26,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 4
+                        },
+                        new
+                        {
+                            Id = 330,
+                            BossId = 26,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 5
+                        },
+                        new
+                        {
+                            Id = 331,
+                            BossId = 26,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 6
+                        },
+                        new
+                        {
+                            Id = 332,
+                            BossId = 26,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 7
+                        },
+                        new
+                        {
+                            Id = 333,
+                            BossId = 26,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 8
+                        },
+                        new
+                        {
+                            Id = 334,
+                            BossId = 26,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 9
+                        },
+                        new
+                        {
+                            Id = 335,
+                            BossId = 26,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 10
+                        },
+                        new
+                        {
+                            Id = 336,
+                            BossId = 26,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 11
+                        },
+                        new
+                        {
+                            Id = 337,
+                            BossId = 26,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 12
+                        },
+                        new
+                        {
+                            Id = 338,
+                            BossId = 26,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 13
+                        },
+                        new
+                        {
+                            Id = 339,
+                            BossId = 27,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 1
+                        },
+                        new
+                        {
+                            Id = 340,
+                            BossId = 27,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 2
+                        },
+                        new
+                        {
+                            Id = 341,
+                            BossId = 27,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 3
+                        },
+                        new
+                        {
+                            Id = 342,
+                            BossId = 27,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 4
+                        },
+                        new
+                        {
+                            Id = 343,
+                            BossId = 27,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 5
+                        },
+                        new
+                        {
+                            Id = 344,
+                            BossId = 27,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 6
+                        },
+                        new
+                        {
+                            Id = 345,
+                            BossId = 27,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 7
+                        },
+                        new
+                        {
+                            Id = 346,
+                            BossId = 27,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 8
+                        },
+                        new
+                        {
+                            Id = 347,
+                            BossId = 27,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 9
+                        },
+                        new
+                        {
+                            Id = 348,
+                            BossId = 27,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 10
+                        },
+                        new
+                        {
+                            Id = 349,
+                            BossId = 27,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 11
+                        },
+                        new
+                        {
+                            Id = 350,
+                            BossId = 27,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 12
+                        },
+                        new
+                        {
+                            Id = 351,
+                            BossId = 27,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 13
+                        },
+                        new
+                        {
+                            Id = 352,
+                            BossId = 28,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 1
+                        },
+                        new
+                        {
+                            Id = 353,
+                            BossId = 28,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 2
+                        },
+                        new
+                        {
+                            Id = 354,
+                            BossId = 28,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 3
+                        },
+                        new
+                        {
+                            Id = 355,
+                            BossId = 28,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 4
+                        },
+                        new
+                        {
+                            Id = 356,
+                            BossId = 28,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 5
+                        },
+                        new
+                        {
+                            Id = 357,
+                            BossId = 28,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 6
+                        },
+                        new
+                        {
+                            Id = 358,
+                            BossId = 28,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 7
+                        },
+                        new
+                        {
+                            Id = 359,
+                            BossId = 28,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 8
+                        },
+                        new
+                        {
+                            Id = 360,
+                            BossId = 28,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 9
+                        },
+                        new
+                        {
+                            Id = 361,
                             BossId = 28,
                             DamageDone = 0,
                             HealDone = 0,
@@ -2299,888 +2947,240 @@ namespace CombatAnalysis.DAL.Migrations
                         },
                         new
                         {
-                            Id = 281,
-                            BossId = 29,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 1
-                        },
-                        new
-                        {
-                            Id = 282,
-                            BossId = 29,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 2
-                        },
-                        new
-                        {
-                            Id = 283,
-                            BossId = 29,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 3
-                        },
-                        new
-                        {
-                            Id = 284,
-                            BossId = 29,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 4
-                        },
-                        new
-                        {
-                            Id = 285,
-                            BossId = 29,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 5
-                        },
-                        new
-                        {
-                            Id = 286,
-                            BossId = 29,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 6
-                        },
-                        new
-                        {
-                            Id = 287,
-                            BossId = 29,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 7
-                        },
-                        new
-                        {
-                            Id = 288,
-                            BossId = 29,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 8
-                        },
-                        new
-                        {
-                            Id = 289,
-                            BossId = 29,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 9
-                        },
-                        new
-                        {
-                            Id = 290,
-                            BossId = 29,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 10
-                        },
-                        new
-                        {
-                            Id = 291,
-                            BossId = 30,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 1
-                        },
-                        new
-                        {
-                            Id = 292,
-                            BossId = 30,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 2
-                        },
-                        new
-                        {
-                            Id = 293,
-                            BossId = 30,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 3
-                        },
-                        new
-                        {
-                            Id = 294,
-                            BossId = 30,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 4
-                        },
-                        new
-                        {
-                            Id = 295,
-                            BossId = 30,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 5
-                        },
-                        new
-                        {
-                            Id = 296,
-                            BossId = 30,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 6
-                        },
-                        new
-                        {
-                            Id = 297,
-                            BossId = 30,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 7
-                        },
-                        new
-                        {
-                            Id = 298,
-                            BossId = 30,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 8
-                        },
-                        new
-                        {
-                            Id = 299,
-                            BossId = 30,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 9
-                        },
-                        new
-                        {
-                            Id = 300,
-                            BossId = 30,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 10
-                        },
-                        new
-                        {
-                            Id = 301,
-                            BossId = 31,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 1
-                        },
-                        new
-                        {
-                            Id = 302,
-                            BossId = 31,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 2
-                        },
-                        new
-                        {
-                            Id = 303,
-                            BossId = 31,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 3
-                        },
-                        new
-                        {
-                            Id = 304,
-                            BossId = 31,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 4
-                        },
-                        new
-                        {
-                            Id = 305,
-                            BossId = 31,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 5
-                        },
-                        new
-                        {
-                            Id = 306,
-                            BossId = 31,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 6
-                        },
-                        new
-                        {
-                            Id = 307,
-                            BossId = 31,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 7
-                        },
-                        new
-                        {
-                            Id = 308,
-                            BossId = 31,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 8
-                        },
-                        new
-                        {
-                            Id = 309,
-                            BossId = 31,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 9
-                        },
-                        new
-                        {
-                            Id = 310,
-                            BossId = 31,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 10
-                        },
-                        new
-                        {
-                            Id = 311,
-                            BossId = 32,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 1
-                        },
-                        new
-                        {
-                            Id = 312,
-                            BossId = 32,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 2
-                        },
-                        new
-                        {
-                            Id = 313,
-                            BossId = 32,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 3
-                        },
-                        new
-                        {
-                            Id = 314,
-                            BossId = 32,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 4
-                        },
-                        new
-                        {
-                            Id = 315,
-                            BossId = 32,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 5
-                        },
-                        new
-                        {
-                            Id = 316,
-                            BossId = 32,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 6
-                        },
-                        new
-                        {
-                            Id = 317,
-                            BossId = 32,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 7
-                        },
-                        new
-                        {
-                            Id = 318,
-                            BossId = 32,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 8
-                        },
-                        new
-                        {
-                            Id = 319,
-                            BossId = 32,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 9
-                        },
-                        new
-                        {
-                            Id = 320,
-                            BossId = 32,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 10
-                        },
-                        new
-                        {
-                            Id = 321,
-                            BossId = 33,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 1
-                        },
-                        new
-                        {
-                            Id = 322,
-                            BossId = 33,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 2
-                        },
-                        new
-                        {
-                            Id = 323,
-                            BossId = 33,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 3
-                        },
-                        new
-                        {
-                            Id = 324,
-                            BossId = 33,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 4
-                        },
-                        new
-                        {
-                            Id = 325,
-                            BossId = 33,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 5
-                        },
-                        new
-                        {
-                            Id = 326,
-                            BossId = 33,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 6
-                        },
-                        new
-                        {
-                            Id = 327,
-                            BossId = 33,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 7
-                        },
-                        new
-                        {
-                            Id = 328,
-                            BossId = 33,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 8
-                        },
-                        new
-                        {
-                            Id = 329,
-                            BossId = 33,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 9
-                        },
-                        new
-                        {
-                            Id = 330,
-                            BossId = 33,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 10
-                        },
-                        new
-                        {
-                            Id = 331,
-                            BossId = 34,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 1
-                        },
-                        new
-                        {
-                            Id = 332,
-                            BossId = 34,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 2
-                        },
-                        new
-                        {
-                            Id = 333,
-                            BossId = 34,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 3
-                        },
-                        new
-                        {
-                            Id = 334,
-                            BossId = 34,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 4
-                        },
-                        new
-                        {
-                            Id = 335,
-                            BossId = 34,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 5
-                        },
-                        new
-                        {
-                            Id = 336,
-                            BossId = 34,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 6
-                        },
-                        new
-                        {
-                            Id = 337,
-                            BossId = 34,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 7
-                        },
-                        new
-                        {
-                            Id = 338,
-                            BossId = 34,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 8
-                        },
-                        new
-                        {
-                            Id = 339,
-                            BossId = 34,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 9
-                        },
-                        new
-                        {
-                            Id = 340,
-                            BossId = 34,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 10
-                        },
-                        new
-                        {
-                            Id = 341,
-                            BossId = 35,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 1
-                        },
-                        new
-                        {
-                            Id = 342,
-                            BossId = 35,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 2
-                        },
-                        new
-                        {
-                            Id = 343,
-                            BossId = 35,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 3
-                        },
-                        new
-                        {
-                            Id = 344,
-                            BossId = 35,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 4
-                        },
-                        new
-                        {
-                            Id = 345,
-                            BossId = 35,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 5
-                        },
-                        new
-                        {
-                            Id = 346,
-                            BossId = 35,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 6
-                        },
-                        new
-                        {
-                            Id = 347,
-                            BossId = 35,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 7
-                        },
-                        new
-                        {
-                            Id = 348,
-                            BossId = 35,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 8
-                        },
-                        new
-                        {
-                            Id = 349,
-                            BossId = 35,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 9
-                        },
-                        new
-                        {
-                            Id = 350,
-                            BossId = 35,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 10
-                        },
-                        new
-                        {
-                            Id = 351,
-                            BossId = 36,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 1
-                        },
-                        new
-                        {
-                            Id = 352,
-                            BossId = 36,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 2
-                        },
-                        new
-                        {
-                            Id = 353,
-                            BossId = 36,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 3
-                        },
-                        new
-                        {
-                            Id = 354,
-                            BossId = 36,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 4
-                        },
-                        new
-                        {
-                            Id = 355,
-                            BossId = 36,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 5
-                        },
-                        new
-                        {
-                            Id = 356,
-                            BossId = 36,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 6
-                        },
-                        new
-                        {
-                            Id = 357,
-                            BossId = 36,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 7
-                        },
-                        new
-                        {
-                            Id = 358,
-                            BossId = 36,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 8
-                        },
-                        new
-                        {
-                            Id = 359,
-                            BossId = 36,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 9
-                        },
-                        new
-                        {
-                            Id = 360,
-                            BossId = 36,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 10
-                        },
-                        new
-                        {
-                            Id = 361,
-                            BossId = 37,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 1
-                        },
-                        new
-                        {
                             Id = 362,
-                            BossId = 37,
+                            BossId = 28,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 2
+                            SpecializationId = 11
                         },
                         new
                         {
                             Id = 363,
-                            BossId = 37,
+                            BossId = 28,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 3
+                            SpecializationId = 12
                         },
                         new
                         {
                             Id = 364,
-                            BossId = 37,
+                            BossId = 28,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 4
+                            SpecializationId = 13
                         },
                         new
                         {
                             Id = 365,
-                            BossId = 37,
+                            BossId = 29,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 5
+                            SpecializationId = 1
                         },
                         new
                         {
                             Id = 366,
-                            BossId = 37,
+                            BossId = 29,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 6
+                            SpecializationId = 2
                         },
                         new
                         {
                             Id = 367,
-                            BossId = 37,
+                            BossId = 29,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 7
+                            SpecializationId = 3
                         },
                         new
                         {
                             Id = 368,
-                            BossId = 37,
+                            BossId = 29,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 8
+                            SpecializationId = 4
                         },
                         new
                         {
                             Id = 369,
-                            BossId = 37,
+                            BossId = 29,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 9
+                            SpecializationId = 5
                         },
                         new
                         {
                             Id = 370,
-                            BossId = 37,
+                            BossId = 29,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 10
+                            SpecializationId = 6
                         },
                         new
                         {
                             Id = 371,
-                            BossId = 38,
+                            BossId = 29,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 1
+                            SpecializationId = 7
                         },
                         new
                         {
                             Id = 372,
-                            BossId = 38,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 2
-                        },
-                        new
-                        {
-                            Id = 373,
-                            BossId = 38,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 3
-                        },
-                        new
-                        {
-                            Id = 374,
-                            BossId = 38,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 4
-                        },
-                        new
-                        {
-                            Id = 375,
-                            BossId = 38,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 5
-                        },
-                        new
-                        {
-                            Id = 376,
-                            BossId = 38,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 6
-                        },
-                        new
-                        {
-                            Id = 377,
-                            BossId = 38,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 7
-                        },
-                        new
-                        {
-                            Id = 378,
-                            BossId = 38,
+                            BossId = 29,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 8
                         },
                         new
                         {
-                            Id = 379,
-                            BossId = 38,
+                            Id = 373,
+                            BossId = 29,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 9
                         },
                         new
                         {
-                            Id = 380,
-                            BossId = 38,
+                            Id = 374,
+                            BossId = 29,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 10
                         },
                         new
                         {
-                            Id = 381,
-                            BossId = 39,
+                            Id = 375,
+                            BossId = 29,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 11
+                        },
+                        new
+                        {
+                            Id = 376,
+                            BossId = 29,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 12
+                        },
+                        new
+                        {
+                            Id = 377,
+                            BossId = 29,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 13
+                        },
+                        new
+                        {
+                            Id = 378,
+                            BossId = 30,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 1
                         },
                         new
                         {
-                            Id = 382,
-                            BossId = 39,
+                            Id = 379,
+                            BossId = 30,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 2
                         },
                         new
                         {
-                            Id = 383,
-                            BossId = 39,
+                            Id = 380,
+                            BossId = 30,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 3
                         },
                         new
                         {
-                            Id = 384,
-                            BossId = 39,
+                            Id = 381,
+                            BossId = 30,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 4
                         },
                         new
                         {
-                            Id = 385,
-                            BossId = 39,
+                            Id = 382,
+                            BossId = 30,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 5
                         },
                         new
                         {
-                            Id = 386,
-                            BossId = 39,
+                            Id = 383,
+                            BossId = 30,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 6
                         },
                         new
                         {
-                            Id = 387,
-                            BossId = 39,
+                            Id = 384,
+                            BossId = 30,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 7
                         },
                         new
                         {
-                            Id = 388,
-                            BossId = 39,
+                            Id = 385,
+                            BossId = 30,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 8
                         },
                         new
                         {
-                            Id = 389,
-                            BossId = 39,
+                            Id = 386,
+                            BossId = 30,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 9
                         },
                         new
                         {
-                            Id = 390,
-                            BossId = 39,
+                            Id = 387,
+                            BossId = 30,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 10
                         },
                         new
                         {
+                            Id = 388,
+                            BossId = 30,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 11
+                        },
+                        new
+                        {
+                            Id = 389,
+                            BossId = 30,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 12
+                        },
+                        new
+                        {
+                            Id = 390,
+                            BossId = 30,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 13
+                        },
+                        new
+                        {
                             Id = 391,
-                            BossId = 40,
+                            BossId = 31,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 1
@@ -3188,7 +3188,7 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 392,
-                            BossId = 40,
+                            BossId = 31,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 2
@@ -3196,7 +3196,7 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 393,
-                            BossId = 40,
+                            BossId = 31,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 3
@@ -3204,7 +3204,7 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 394,
-                            BossId = 40,
+                            BossId = 31,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 4
@@ -3212,7 +3212,7 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 395,
-                            BossId = 40,
+                            BossId = 31,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 5
@@ -3220,7 +3220,7 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 396,
-                            BossId = 40,
+                            BossId = 31,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 6
@@ -3228,7 +3228,7 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 397,
-                            BossId = 40,
+                            BossId = 31,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 7
@@ -3236,7 +3236,7 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 398,
-                            BossId = 40,
+                            BossId = 31,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 8
@@ -3244,7 +3244,7 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 399,
-                            BossId = 40,
+                            BossId = 31,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 9
@@ -3252,7 +3252,7 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 400,
-                            BossId = 40,
+                            BossId = 31,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 10
@@ -3260,967 +3260,967 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 401,
-                            BossId = 41,
+                            BossId = 31,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 1
+                            SpecializationId = 11
                         },
                         new
                         {
                             Id = 402,
-                            BossId = 41,
+                            BossId = 31,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 2
+                            SpecializationId = 12
                         },
                         new
                         {
                             Id = 403,
-                            BossId = 41,
+                            BossId = 31,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 3
+                            SpecializationId = 13
                         },
                         new
                         {
                             Id = 404,
-                            BossId = 41,
+                            BossId = 32,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 4
+                            SpecializationId = 1
                         },
                         new
                         {
                             Id = 405,
-                            BossId = 41,
+                            BossId = 32,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 5
+                            SpecializationId = 2
                         },
                         new
                         {
                             Id = 406,
-                            BossId = 41,
+                            BossId = 32,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 6
+                            SpecializationId = 3
                         },
                         new
                         {
                             Id = 407,
-                            BossId = 41,
+                            BossId = 32,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 7
+                            SpecializationId = 4
                         },
                         new
                         {
                             Id = 408,
-                            BossId = 41,
+                            BossId = 32,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 8
+                            SpecializationId = 5
                         },
                         new
                         {
                             Id = 409,
-                            BossId = 41,
+                            BossId = 32,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 9
+                            SpecializationId = 6
                         },
                         new
                         {
                             Id = 410,
-                            BossId = 41,
+                            BossId = 32,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 10
+                            SpecializationId = 7
                         },
                         new
                         {
                             Id = 411,
-                            BossId = 42,
+                            BossId = 32,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 1
+                            SpecializationId = 8
                         },
                         new
                         {
                             Id = 412,
-                            BossId = 42,
+                            BossId = 32,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 2
+                            SpecializationId = 9
                         },
                         new
                         {
                             Id = 413,
-                            BossId = 42,
+                            BossId = 32,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 3
+                            SpecializationId = 10
                         },
                         new
                         {
                             Id = 414,
-                            BossId = 42,
+                            BossId = 32,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 4
+                            SpecializationId = 11
                         },
                         new
                         {
                             Id = 415,
-                            BossId = 42,
+                            BossId = 32,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 5
+                            SpecializationId = 12
                         },
                         new
                         {
                             Id = 416,
-                            BossId = 42,
+                            BossId = 32,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 6
+                            SpecializationId = 13
                         },
                         new
                         {
                             Id = 417,
-                            BossId = 42,
+                            BossId = 33,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 7
+                            SpecializationId = 1
                         },
                         new
                         {
                             Id = 418,
-                            BossId = 42,
+                            BossId = 33,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 8
+                            SpecializationId = 2
                         },
                         new
                         {
                             Id = 419,
-                            BossId = 42,
+                            BossId = 33,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 9
+                            SpecializationId = 3
                         },
                         new
                         {
                             Id = 420,
-                            BossId = 42,
+                            BossId = 33,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 10
+                            SpecializationId = 4
                         },
                         new
                         {
                             Id = 421,
-                            BossId = 43,
+                            BossId = 33,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 1
+                            SpecializationId = 5
                         },
                         new
                         {
                             Id = 422,
-                            BossId = 43,
+                            BossId = 33,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 2
+                            SpecializationId = 6
                         },
                         new
                         {
                             Id = 423,
-                            BossId = 43,
+                            BossId = 33,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 3
+                            SpecializationId = 7
                         },
                         new
                         {
                             Id = 424,
-                            BossId = 43,
+                            BossId = 33,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 4
+                            SpecializationId = 8
                         },
                         new
                         {
                             Id = 425,
-                            BossId = 43,
+                            BossId = 33,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 5
+                            SpecializationId = 9
                         },
                         new
                         {
                             Id = 426,
-                            BossId = 43,
+                            BossId = 33,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 6
+                            SpecializationId = 10
                         },
                         new
                         {
                             Id = 427,
-                            BossId = 43,
+                            BossId = 33,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 7
+                            SpecializationId = 11
                         },
                         new
                         {
                             Id = 428,
-                            BossId = 43,
+                            BossId = 33,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 8
+                            SpecializationId = 12
                         },
                         new
                         {
                             Id = 429,
-                            BossId = 43,
+                            BossId = 33,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 9
+                            SpecializationId = 13
                         },
                         new
                         {
                             Id = 430,
-                            BossId = 43,
+                            BossId = 34,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 10
+                            SpecializationId = 1
                         },
                         new
                         {
                             Id = 431,
-                            BossId = 44,
+                            BossId = 34,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 1
+                            SpecializationId = 2
                         },
                         new
                         {
                             Id = 432,
-                            BossId = 44,
+                            BossId = 34,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 2
+                            SpecializationId = 3
                         },
                         new
                         {
                             Id = 433,
-                            BossId = 44,
+                            BossId = 34,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 3
+                            SpecializationId = 4
                         },
                         new
                         {
                             Id = 434,
-                            BossId = 44,
+                            BossId = 34,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 4
+                            SpecializationId = 5
                         },
                         new
                         {
                             Id = 435,
-                            BossId = 44,
+                            BossId = 34,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 5
+                            SpecializationId = 6
                         },
                         new
                         {
                             Id = 436,
-                            BossId = 44,
+                            BossId = 34,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 6
+                            SpecializationId = 7
                         },
                         new
                         {
                             Id = 437,
-                            BossId = 44,
+                            BossId = 34,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 7
+                            SpecializationId = 8
                         },
                         new
                         {
                             Id = 438,
-                            BossId = 44,
+                            BossId = 34,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 8
+                            SpecializationId = 9
                         },
                         new
                         {
                             Id = 439,
-                            BossId = 44,
+                            BossId = 34,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 9
+                            SpecializationId = 10
                         },
                         new
                         {
                             Id = 440,
-                            BossId = 44,
+                            BossId = 34,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 10
+                            SpecializationId = 11
                         },
                         new
                         {
                             Id = 441,
-                            BossId = 45,
+                            BossId = 34,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 1
+                            SpecializationId = 12
                         },
                         new
                         {
                             Id = 442,
-                            BossId = 45,
+                            BossId = 34,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 2
+                            SpecializationId = 13
                         },
                         new
                         {
                             Id = 443,
-                            BossId = 45,
+                            BossId = 35,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 3
+                            SpecializationId = 1
                         },
                         new
                         {
                             Id = 444,
-                            BossId = 45,
+                            BossId = 35,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 4
+                            SpecializationId = 2
                         },
                         new
                         {
                             Id = 445,
-                            BossId = 45,
+                            BossId = 35,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 5
+                            SpecializationId = 3
                         },
                         new
                         {
                             Id = 446,
-                            BossId = 45,
+                            BossId = 35,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 6
+                            SpecializationId = 4
                         },
                         new
                         {
                             Id = 447,
-                            BossId = 45,
+                            BossId = 35,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 7
+                            SpecializationId = 5
                         },
                         new
                         {
                             Id = 448,
-                            BossId = 45,
+                            BossId = 35,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 8
+                            SpecializationId = 6
                         },
                         new
                         {
                             Id = 449,
-                            BossId = 45,
+                            BossId = 35,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 9
+                            SpecializationId = 7
                         },
                         new
                         {
                             Id = 450,
-                            BossId = 45,
+                            BossId = 35,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 10
+                            SpecializationId = 8
                         },
                         new
                         {
                             Id = 451,
-                            BossId = 46,
+                            BossId = 35,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 1
+                            SpecializationId = 9
                         },
                         new
                         {
                             Id = 452,
-                            BossId = 46,
+                            BossId = 35,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 2
+                            SpecializationId = 10
                         },
                         new
                         {
                             Id = 453,
-                            BossId = 46,
+                            BossId = 35,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 3
+                            SpecializationId = 11
                         },
                         new
                         {
                             Id = 454,
-                            BossId = 46,
+                            BossId = 35,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 4
+                            SpecializationId = 12
                         },
                         new
                         {
                             Id = 455,
-                            BossId = 46,
+                            BossId = 35,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 5
+                            SpecializationId = 13
                         },
                         new
                         {
                             Id = 456,
-                            BossId = 46,
+                            BossId = 36,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 6
+                            SpecializationId = 1
                         },
                         new
                         {
                             Id = 457,
-                            BossId = 46,
+                            BossId = 36,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 7
+                            SpecializationId = 2
                         },
                         new
                         {
                             Id = 458,
-                            BossId = 46,
+                            BossId = 36,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 8
+                            SpecializationId = 3
                         },
                         new
                         {
                             Id = 459,
-                            BossId = 46,
+                            BossId = 36,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 9
+                            SpecializationId = 4
                         },
                         new
                         {
                             Id = 460,
-                            BossId = 46,
+                            BossId = 36,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 10
+                            SpecializationId = 5
                         },
                         new
                         {
                             Id = 461,
-                            BossId = 47,
+                            BossId = 36,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 1
+                            SpecializationId = 6
                         },
                         new
                         {
                             Id = 462,
-                            BossId = 47,
+                            BossId = 36,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 2
+                            SpecializationId = 7
                         },
                         new
                         {
                             Id = 463,
-                            BossId = 47,
+                            BossId = 36,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 3
+                            SpecializationId = 8
                         },
                         new
                         {
                             Id = 464,
-                            BossId = 47,
+                            BossId = 36,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 4
+                            SpecializationId = 9
                         },
                         new
                         {
                             Id = 465,
-                            BossId = 47,
+                            BossId = 36,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 5
+                            SpecializationId = 10
                         },
                         new
                         {
                             Id = 466,
-                            BossId = 47,
+                            BossId = 36,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 6
+                            SpecializationId = 11
                         },
                         new
                         {
                             Id = 467,
-                            BossId = 47,
+                            BossId = 36,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 7
+                            SpecializationId = 12
                         },
                         new
                         {
                             Id = 468,
-                            BossId = 47,
+                            BossId = 36,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 8
+                            SpecializationId = 13
                         },
                         new
                         {
                             Id = 469,
-                            BossId = 47,
+                            BossId = 37,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 9
+                            SpecializationId = 1
                         },
                         new
                         {
                             Id = 470,
-                            BossId = 47,
+                            BossId = 37,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 10
+                            SpecializationId = 2
                         },
                         new
                         {
                             Id = 471,
-                            BossId = 48,
+                            BossId = 37,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 1
+                            SpecializationId = 3
                         },
                         new
                         {
                             Id = 472,
-                            BossId = 48,
+                            BossId = 37,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 2
+                            SpecializationId = 4
                         },
                         new
                         {
                             Id = 473,
-                            BossId = 48,
+                            BossId = 37,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 3
+                            SpecializationId = 5
                         },
                         new
                         {
                             Id = 474,
-                            BossId = 48,
+                            BossId = 37,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 4
+                            SpecializationId = 6
                         },
                         new
                         {
                             Id = 475,
-                            BossId = 48,
+                            BossId = 37,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 5
+                            SpecializationId = 7
                         },
                         new
                         {
                             Id = 476,
-                            BossId = 48,
+                            BossId = 37,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 6
+                            SpecializationId = 8
                         },
                         new
                         {
                             Id = 477,
-                            BossId = 48,
+                            BossId = 37,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 7
+                            SpecializationId = 9
                         },
                         new
                         {
                             Id = 478,
-                            BossId = 48,
+                            BossId = 37,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 8
+                            SpecializationId = 10
                         },
                         new
                         {
                             Id = 479,
-                            BossId = 48,
+                            BossId = 37,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 9
+                            SpecializationId = 11
                         },
                         new
                         {
                             Id = 480,
-                            BossId = 48,
+                            BossId = 37,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 10
+                            SpecializationId = 12
                         },
                         new
                         {
                             Id = 481,
-                            BossId = 49,
+                            BossId = 37,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 1
+                            SpecializationId = 13
                         },
                         new
                         {
                             Id = 482,
-                            BossId = 49,
+                            BossId = 38,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 2
+                            SpecializationId = 1
                         },
                         new
                         {
                             Id = 483,
-                            BossId = 49,
+                            BossId = 38,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 3
+                            SpecializationId = 2
                         },
                         new
                         {
                             Id = 484,
-                            BossId = 49,
+                            BossId = 38,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 4
+                            SpecializationId = 3
                         },
                         new
                         {
                             Id = 485,
-                            BossId = 49,
+                            BossId = 38,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 5
+                            SpecializationId = 4
                         },
                         new
                         {
                             Id = 486,
-                            BossId = 49,
+                            BossId = 38,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 6
+                            SpecializationId = 5
                         },
                         new
                         {
                             Id = 487,
-                            BossId = 49,
+                            BossId = 38,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 7
+                            SpecializationId = 6
                         },
                         new
                         {
                             Id = 488,
-                            BossId = 49,
+                            BossId = 38,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 8
+                            SpecializationId = 7
                         },
                         new
                         {
                             Id = 489,
-                            BossId = 49,
+                            BossId = 38,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 9
+                            SpecializationId = 8
                         },
                         new
                         {
                             Id = 490,
-                            BossId = 49,
+                            BossId = 38,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 10
+                            SpecializationId = 9
                         },
                         new
                         {
                             Id = 491,
-                            BossId = 50,
+                            BossId = 38,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 1
+                            SpecializationId = 10
                         },
                         new
                         {
                             Id = 492,
-                            BossId = 50,
+                            BossId = 38,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 2
+                            SpecializationId = 11
                         },
                         new
                         {
                             Id = 493,
-                            BossId = 50,
+                            BossId = 38,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 3
+                            SpecializationId = 12
                         },
                         new
                         {
                             Id = 494,
-                            BossId = 50,
+                            BossId = 38,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 4
+                            SpecializationId = 13
                         },
                         new
                         {
                             Id = 495,
-                            BossId = 50,
+                            BossId = 39,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 5
+                            SpecializationId = 1
                         },
                         new
                         {
                             Id = 496,
-                            BossId = 50,
+                            BossId = 39,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 6
+                            SpecializationId = 2
                         },
                         new
                         {
                             Id = 497,
-                            BossId = 50,
+                            BossId = 39,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 7
+                            SpecializationId = 3
                         },
                         new
                         {
                             Id = 498,
-                            BossId = 50,
+                            BossId = 39,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 8
+                            SpecializationId = 4
                         },
                         new
                         {
                             Id = 499,
-                            BossId = 50,
+                            BossId = 39,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 9
+                            SpecializationId = 5
                         },
                         new
                         {
                             Id = 500,
-                            BossId = 50,
+                            BossId = 39,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 10
+                            SpecializationId = 6
                         },
                         new
                         {
                             Id = 501,
-                            BossId = 51,
+                            BossId = 39,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 1
+                            SpecializationId = 7
                         },
                         new
                         {
                             Id = 502,
-                            BossId = 51,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 2
-                        },
-                        new
-                        {
-                            Id = 503,
-                            BossId = 51,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 3
-                        },
-                        new
-                        {
-                            Id = 504,
-                            BossId = 51,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 4
-                        },
-                        new
-                        {
-                            Id = 505,
-                            BossId = 51,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 5
-                        },
-                        new
-                        {
-                            Id = 506,
-                            BossId = 51,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 6
-                        },
-                        new
-                        {
-                            Id = 507,
-                            BossId = 51,
-                            DamageDone = 0,
-                            HealDone = 0,
-                            SpecializationId = 7
-                        },
-                        new
-                        {
-                            Id = 508,
-                            BossId = 51,
+                            BossId = 39,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 8
                         },
                         new
                         {
-                            Id = 509,
-                            BossId = 51,
+                            Id = 503,
+                            BossId = 39,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 9
                         },
                         new
                         {
-                            Id = 510,
-                            BossId = 51,
+                            Id = 504,
+                            BossId = 39,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 10
                         },
                         new
                         {
-                            Id = 511,
-                            BossId = 52,
+                            Id = 505,
+                            BossId = 39,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 11
+                        },
+                        new
+                        {
+                            Id = 506,
+                            BossId = 39,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 12
+                        },
+                        new
+                        {
+                            Id = 507,
+                            BossId = 39,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 13
+                        },
+                        new
+                        {
+                            Id = 508,
+                            BossId = 40,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 1
                         },
                         new
                         {
-                            Id = 512,
-                            BossId = 52,
+                            Id = 509,
+                            BossId = 40,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 2
                         },
                         new
                         {
-                            Id = 513,
-                            BossId = 52,
+                            Id = 510,
+                            BossId = 40,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 3
                         },
                         new
                         {
-                            Id = 514,
-                            BossId = 52,
+                            Id = 511,
+                            BossId = 40,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 4
                         },
                         new
                         {
-                            Id = 515,
-                            BossId = 52,
+                            Id = 512,
+                            BossId = 40,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 5
                         },
                         new
                         {
-                            Id = 516,
-                            BossId = 52,
+                            Id = 513,
+                            BossId = 40,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 6
                         },
                         new
                         {
-                            Id = 517,
-                            BossId = 52,
+                            Id = 514,
+                            BossId = 40,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 7
                         },
                         new
                         {
-                            Id = 518,
-                            BossId = 52,
+                            Id = 515,
+                            BossId = 40,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 8
                         },
                         new
                         {
-                            Id = 519,
-                            BossId = 52,
+                            Id = 516,
+                            BossId = 40,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 9
                         },
                         new
                         {
-                            Id = 520,
-                            BossId = 52,
+                            Id = 517,
+                            BossId = 40,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 10
                         },
                         new
                         {
+                            Id = 518,
+                            BossId = 40,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 11
+                        },
+                        new
+                        {
+                            Id = 519,
+                            BossId = 40,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 12
+                        },
+                        new
+                        {
+                            Id = 520,
+                            BossId = 40,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 13
+                        },
+                        new
+                        {
                             Id = 521,
-                            BossId = 53,
+                            BossId = 41,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 1
@@ -4228,7 +4228,7 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 522,
-                            BossId = 53,
+                            BossId = 41,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 2
@@ -4236,7 +4236,7 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 523,
-                            BossId = 53,
+                            BossId = 41,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 3
@@ -4244,7 +4244,7 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 524,
-                            BossId = 53,
+                            BossId = 41,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 4
@@ -4252,7 +4252,7 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 525,
-                            BossId = 53,
+                            BossId = 41,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 5
@@ -4260,7 +4260,7 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 526,
-                            BossId = 53,
+                            BossId = 41,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 6
@@ -4268,7 +4268,7 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 527,
-                            BossId = 53,
+                            BossId = 41,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 7
@@ -4276,7 +4276,7 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 528,
-                            BossId = 53,
+                            BossId = 41,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 8
@@ -4284,7 +4284,7 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 529,
-                            BossId = 53,
+                            BossId = 41,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 9
@@ -4292,7 +4292,7 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 530,
-                            BossId = 53,
+                            BossId = 41,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 10
@@ -4300,78 +4300,1350 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 531,
-                            BossId = 54,
+                            BossId = 41,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 1
+                            SpecializationId = 11
                         },
                         new
                         {
                             Id = 532,
-                            BossId = 54,
+                            BossId = 41,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 2
+                            SpecializationId = 12
                         },
                         new
                         {
                             Id = 533,
-                            BossId = 54,
+                            BossId = 41,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 3
+                            SpecializationId = 13
                         },
                         new
                         {
                             Id = 534,
-                            BossId = 54,
+                            BossId = 42,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 4
+                            SpecializationId = 1
                         },
                         new
                         {
                             Id = 535,
-                            BossId = 54,
+                            BossId = 42,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 5
+                            SpecializationId = 2
                         },
                         new
                         {
                             Id = 536,
-                            BossId = 54,
+                            BossId = 42,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 6
+                            SpecializationId = 3
                         },
                         new
                         {
                             Id = 537,
-                            BossId = 54,
+                            BossId = 42,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 7
+                            SpecializationId = 4
                         },
                         new
                         {
                             Id = 538,
-                            BossId = 54,
+                            BossId = 42,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 8
+                            SpecializationId = 5
                         },
                         new
                         {
                             Id = 539,
-                            BossId = 54,
+                            BossId = 42,
                             DamageDone = 0,
                             HealDone = 0,
-                            SpecializationId = 9
+                            SpecializationId = 6
                         },
                         new
                         {
                             Id = 540,
+                            BossId = 42,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 7
+                        },
+                        new
+                        {
+                            Id = 541,
+                            BossId = 42,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 8
+                        },
+                        new
+                        {
+                            Id = 542,
+                            BossId = 42,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 9
+                        },
+                        new
+                        {
+                            Id = 543,
+                            BossId = 42,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 10
+                        },
+                        new
+                        {
+                            Id = 544,
+                            BossId = 42,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 11
+                        },
+                        new
+                        {
+                            Id = 545,
+                            BossId = 42,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 12
+                        },
+                        new
+                        {
+                            Id = 546,
+                            BossId = 42,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 13
+                        },
+                        new
+                        {
+                            Id = 547,
+                            BossId = 43,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 1
+                        },
+                        new
+                        {
+                            Id = 548,
+                            BossId = 43,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 2
+                        },
+                        new
+                        {
+                            Id = 549,
+                            BossId = 43,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 3
+                        },
+                        new
+                        {
+                            Id = 550,
+                            BossId = 43,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 4
+                        },
+                        new
+                        {
+                            Id = 551,
+                            BossId = 43,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 5
+                        },
+                        new
+                        {
+                            Id = 552,
+                            BossId = 43,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 6
+                        },
+                        new
+                        {
+                            Id = 553,
+                            BossId = 43,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 7
+                        },
+                        new
+                        {
+                            Id = 554,
+                            BossId = 43,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 8
+                        },
+                        new
+                        {
+                            Id = 555,
+                            BossId = 43,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 9
+                        },
+                        new
+                        {
+                            Id = 556,
+                            BossId = 43,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 10
+                        },
+                        new
+                        {
+                            Id = 557,
+                            BossId = 43,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 11
+                        },
+                        new
+                        {
+                            Id = 558,
+                            BossId = 43,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 12
+                        },
+                        new
+                        {
+                            Id = 559,
+                            BossId = 43,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 13
+                        },
+                        new
+                        {
+                            Id = 560,
+                            BossId = 44,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 1
+                        },
+                        new
+                        {
+                            Id = 561,
+                            BossId = 44,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 2
+                        },
+                        new
+                        {
+                            Id = 562,
+                            BossId = 44,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 3
+                        },
+                        new
+                        {
+                            Id = 563,
+                            BossId = 44,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 4
+                        },
+                        new
+                        {
+                            Id = 564,
+                            BossId = 44,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 5
+                        },
+                        new
+                        {
+                            Id = 565,
+                            BossId = 44,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 6
+                        },
+                        new
+                        {
+                            Id = 566,
+                            BossId = 44,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 7
+                        },
+                        new
+                        {
+                            Id = 567,
+                            BossId = 44,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 8
+                        },
+                        new
+                        {
+                            Id = 568,
+                            BossId = 44,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 9
+                        },
+                        new
+                        {
+                            Id = 569,
+                            BossId = 44,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 10
+                        },
+                        new
+                        {
+                            Id = 570,
+                            BossId = 44,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 11
+                        },
+                        new
+                        {
+                            Id = 571,
+                            BossId = 44,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 12
+                        },
+                        new
+                        {
+                            Id = 572,
+                            BossId = 44,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 13
+                        },
+                        new
+                        {
+                            Id = 573,
+                            BossId = 45,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 1
+                        },
+                        new
+                        {
+                            Id = 574,
+                            BossId = 45,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 2
+                        },
+                        new
+                        {
+                            Id = 575,
+                            BossId = 45,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 3
+                        },
+                        new
+                        {
+                            Id = 576,
+                            BossId = 45,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 4
+                        },
+                        new
+                        {
+                            Id = 577,
+                            BossId = 45,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 5
+                        },
+                        new
+                        {
+                            Id = 578,
+                            BossId = 45,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 6
+                        },
+                        new
+                        {
+                            Id = 579,
+                            BossId = 45,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 7
+                        },
+                        new
+                        {
+                            Id = 580,
+                            BossId = 45,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 8
+                        },
+                        new
+                        {
+                            Id = 581,
+                            BossId = 45,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 9
+                        },
+                        new
+                        {
+                            Id = 582,
+                            BossId = 45,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 10
+                        },
+                        new
+                        {
+                            Id = 583,
+                            BossId = 45,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 11
+                        },
+                        new
+                        {
+                            Id = 584,
+                            BossId = 45,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 12
+                        },
+                        new
+                        {
+                            Id = 585,
+                            BossId = 45,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 13
+                        },
+                        new
+                        {
+                            Id = 586,
+                            BossId = 46,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 1
+                        },
+                        new
+                        {
+                            Id = 587,
+                            BossId = 46,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 2
+                        },
+                        new
+                        {
+                            Id = 588,
+                            BossId = 46,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 3
+                        },
+                        new
+                        {
+                            Id = 589,
+                            BossId = 46,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 4
+                        },
+                        new
+                        {
+                            Id = 590,
+                            BossId = 46,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 5
+                        },
+                        new
+                        {
+                            Id = 591,
+                            BossId = 46,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 6
+                        },
+                        new
+                        {
+                            Id = 592,
+                            BossId = 46,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 7
+                        },
+                        new
+                        {
+                            Id = 593,
+                            BossId = 46,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 8
+                        },
+                        new
+                        {
+                            Id = 594,
+                            BossId = 46,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 9
+                        },
+                        new
+                        {
+                            Id = 595,
+                            BossId = 46,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 10
+                        },
+                        new
+                        {
+                            Id = 596,
+                            BossId = 46,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 11
+                        },
+                        new
+                        {
+                            Id = 597,
+                            BossId = 46,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 12
+                        },
+                        new
+                        {
+                            Id = 598,
+                            BossId = 46,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 13
+                        },
+                        new
+                        {
+                            Id = 599,
+                            BossId = 47,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 1
+                        },
+                        new
+                        {
+                            Id = 600,
+                            BossId = 47,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 2
+                        },
+                        new
+                        {
+                            Id = 601,
+                            BossId = 47,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 3
+                        },
+                        new
+                        {
+                            Id = 602,
+                            BossId = 47,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 4
+                        },
+                        new
+                        {
+                            Id = 603,
+                            BossId = 47,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 5
+                        },
+                        new
+                        {
+                            Id = 604,
+                            BossId = 47,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 6
+                        },
+                        new
+                        {
+                            Id = 605,
+                            BossId = 47,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 7
+                        },
+                        new
+                        {
+                            Id = 606,
+                            BossId = 47,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 8
+                        },
+                        new
+                        {
+                            Id = 607,
+                            BossId = 47,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 9
+                        },
+                        new
+                        {
+                            Id = 608,
+                            BossId = 47,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 10
+                        },
+                        new
+                        {
+                            Id = 609,
+                            BossId = 47,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 11
+                        },
+                        new
+                        {
+                            Id = 610,
+                            BossId = 47,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 12
+                        },
+                        new
+                        {
+                            Id = 611,
+                            BossId = 47,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 13
+                        },
+                        new
+                        {
+                            Id = 612,
+                            BossId = 48,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 1
+                        },
+                        new
+                        {
+                            Id = 613,
+                            BossId = 48,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 2
+                        },
+                        new
+                        {
+                            Id = 614,
+                            BossId = 48,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 3
+                        },
+                        new
+                        {
+                            Id = 615,
+                            BossId = 48,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 4
+                        },
+                        new
+                        {
+                            Id = 616,
+                            BossId = 48,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 5
+                        },
+                        new
+                        {
+                            Id = 617,
+                            BossId = 48,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 6
+                        },
+                        new
+                        {
+                            Id = 618,
+                            BossId = 48,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 7
+                        },
+                        new
+                        {
+                            Id = 619,
+                            BossId = 48,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 8
+                        },
+                        new
+                        {
+                            Id = 620,
+                            BossId = 48,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 9
+                        },
+                        new
+                        {
+                            Id = 621,
+                            BossId = 48,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 10
+                        },
+                        new
+                        {
+                            Id = 622,
+                            BossId = 48,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 11
+                        },
+                        new
+                        {
+                            Id = 623,
+                            BossId = 48,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 12
+                        },
+                        new
+                        {
+                            Id = 624,
+                            BossId = 48,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 13
+                        },
+                        new
+                        {
+                            Id = 625,
+                            BossId = 49,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 1
+                        },
+                        new
+                        {
+                            Id = 626,
+                            BossId = 49,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 2
+                        },
+                        new
+                        {
+                            Id = 627,
+                            BossId = 49,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 3
+                        },
+                        new
+                        {
+                            Id = 628,
+                            BossId = 49,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 4
+                        },
+                        new
+                        {
+                            Id = 629,
+                            BossId = 49,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 5
+                        },
+                        new
+                        {
+                            Id = 630,
+                            BossId = 49,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 6
+                        },
+                        new
+                        {
+                            Id = 631,
+                            BossId = 49,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 7
+                        },
+                        new
+                        {
+                            Id = 632,
+                            BossId = 49,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 8
+                        },
+                        new
+                        {
+                            Id = 633,
+                            BossId = 49,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 9
+                        },
+                        new
+                        {
+                            Id = 634,
+                            BossId = 49,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 10
+                        },
+                        new
+                        {
+                            Id = 635,
+                            BossId = 49,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 11
+                        },
+                        new
+                        {
+                            Id = 636,
+                            BossId = 49,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 12
+                        },
+                        new
+                        {
+                            Id = 637,
+                            BossId = 49,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 13
+                        },
+                        new
+                        {
+                            Id = 638,
+                            BossId = 50,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 1
+                        },
+                        new
+                        {
+                            Id = 639,
+                            BossId = 50,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 2
+                        },
+                        new
+                        {
+                            Id = 640,
+                            BossId = 50,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 3
+                        },
+                        new
+                        {
+                            Id = 641,
+                            BossId = 50,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 4
+                        },
+                        new
+                        {
+                            Id = 642,
+                            BossId = 50,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 5
+                        },
+                        new
+                        {
+                            Id = 643,
+                            BossId = 50,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 6
+                        },
+                        new
+                        {
+                            Id = 644,
+                            BossId = 50,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 7
+                        },
+                        new
+                        {
+                            Id = 645,
+                            BossId = 50,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 8
+                        },
+                        new
+                        {
+                            Id = 646,
+                            BossId = 50,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 9
+                        },
+                        new
+                        {
+                            Id = 647,
+                            BossId = 50,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 10
+                        },
+                        new
+                        {
+                            Id = 648,
+                            BossId = 50,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 11
+                        },
+                        new
+                        {
+                            Id = 649,
+                            BossId = 50,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 12
+                        },
+                        new
+                        {
+                            Id = 650,
+                            BossId = 50,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 13
+                        },
+                        new
+                        {
+                            Id = 651,
+                            BossId = 51,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 1
+                        },
+                        new
+                        {
+                            Id = 652,
+                            BossId = 51,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 2
+                        },
+                        new
+                        {
+                            Id = 653,
+                            BossId = 51,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 3
+                        },
+                        new
+                        {
+                            Id = 654,
+                            BossId = 51,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 4
+                        },
+                        new
+                        {
+                            Id = 655,
+                            BossId = 51,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 5
+                        },
+                        new
+                        {
+                            Id = 656,
+                            BossId = 51,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 6
+                        },
+                        new
+                        {
+                            Id = 657,
+                            BossId = 51,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 7
+                        },
+                        new
+                        {
+                            Id = 658,
+                            BossId = 51,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 8
+                        },
+                        new
+                        {
+                            Id = 659,
+                            BossId = 51,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 9
+                        },
+                        new
+                        {
+                            Id = 660,
+                            BossId = 51,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 10
+                        },
+                        new
+                        {
+                            Id = 661,
+                            BossId = 51,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 11
+                        },
+                        new
+                        {
+                            Id = 662,
+                            BossId = 51,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 12
+                        },
+                        new
+                        {
+                            Id = 663,
+                            BossId = 51,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 13
+                        },
+                        new
+                        {
+                            Id = 664,
+                            BossId = 52,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 1
+                        },
+                        new
+                        {
+                            Id = 665,
+                            BossId = 52,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 2
+                        },
+                        new
+                        {
+                            Id = 666,
+                            BossId = 52,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 3
+                        },
+                        new
+                        {
+                            Id = 667,
+                            BossId = 52,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 4
+                        },
+                        new
+                        {
+                            Id = 668,
+                            BossId = 52,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 5
+                        },
+                        new
+                        {
+                            Id = 669,
+                            BossId = 52,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 6
+                        },
+                        new
+                        {
+                            Id = 670,
+                            BossId = 52,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 7
+                        },
+                        new
+                        {
+                            Id = 671,
+                            BossId = 52,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 8
+                        },
+                        new
+                        {
+                            Id = 672,
+                            BossId = 52,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 9
+                        },
+                        new
+                        {
+                            Id = 673,
+                            BossId = 52,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 10
+                        },
+                        new
+                        {
+                            Id = 674,
+                            BossId = 52,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 11
+                        },
+                        new
+                        {
+                            Id = 675,
+                            BossId = 52,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 12
+                        },
+                        new
+                        {
+                            Id = 676,
+                            BossId = 52,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 13
+                        },
+                        new
+                        {
+                            Id = 677,
+                            BossId = 53,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 1
+                        },
+                        new
+                        {
+                            Id = 678,
+                            BossId = 53,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 2
+                        },
+                        new
+                        {
+                            Id = 679,
+                            BossId = 53,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 3
+                        },
+                        new
+                        {
+                            Id = 680,
+                            BossId = 53,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 4
+                        },
+                        new
+                        {
+                            Id = 681,
+                            BossId = 53,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 5
+                        },
+                        new
+                        {
+                            Id = 682,
+                            BossId = 53,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 6
+                        },
+                        new
+                        {
+                            Id = 683,
+                            BossId = 53,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 7
+                        },
+                        new
+                        {
+                            Id = 684,
+                            BossId = 53,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 8
+                        },
+                        new
+                        {
+                            Id = 685,
+                            BossId = 53,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 9
+                        },
+                        new
+                        {
+                            Id = 686,
+                            BossId = 53,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 10
+                        },
+                        new
+                        {
+                            Id = 687,
+                            BossId = 53,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 11
+                        },
+                        new
+                        {
+                            Id = 688,
+                            BossId = 53,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 12
+                        },
+                        new
+                        {
+                            Id = 689,
+                            BossId = 53,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 13
+                        },
+                        new
+                        {
+                            Id = 690,
+                            BossId = 54,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 1
+                        },
+                        new
+                        {
+                            Id = 691,
+                            BossId = 54,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 2
+                        },
+                        new
+                        {
+                            Id = 692,
+                            BossId = 54,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 3
+                        },
+                        new
+                        {
+                            Id = 693,
+                            BossId = 54,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 4
+                        },
+                        new
+                        {
+                            Id = 694,
+                            BossId = 54,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 5
+                        },
+                        new
+                        {
+                            Id = 695,
+                            BossId = 54,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 6
+                        },
+                        new
+                        {
+                            Id = 696,
+                            BossId = 54,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 7
+                        },
+                        new
+                        {
+                            Id = 697,
+                            BossId = 54,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 8
+                        },
+                        new
+                        {
+                            Id = 698,
+                            BossId = 54,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 9
+                        },
+                        new
+                        {
+                            Id = 699,
                             BossId = 54,
                             DamageDone = 0,
                             HealDone = 0,
@@ -4379,7 +5651,31 @@ namespace CombatAnalysis.DAL.Migrations
                         },
                         new
                         {
-                            Id = 541,
+                            Id = 700,
+                            BossId = 54,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 11
+                        },
+                        new
+                        {
+                            Id = 701,
+                            BossId = 54,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 12
+                        },
+                        new
+                        {
+                            Id = 702,
+                            BossId = 54,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 13
+                        },
+                        new
+                        {
+                            Id = 703,
                             BossId = 55,
                             DamageDone = 0,
                             HealDone = 0,
@@ -4387,7 +5683,7 @@ namespace CombatAnalysis.DAL.Migrations
                         },
                         new
                         {
-                            Id = 542,
+                            Id = 704,
                             BossId = 55,
                             DamageDone = 0,
                             HealDone = 0,
@@ -4395,7 +5691,7 @@ namespace CombatAnalysis.DAL.Migrations
                         },
                         new
                         {
-                            Id = 543,
+                            Id = 705,
                             BossId = 55,
                             DamageDone = 0,
                             HealDone = 0,
@@ -4403,7 +5699,7 @@ namespace CombatAnalysis.DAL.Migrations
                         },
                         new
                         {
-                            Id = 544,
+                            Id = 706,
                             BossId = 55,
                             DamageDone = 0,
                             HealDone = 0,
@@ -4411,7 +5707,7 @@ namespace CombatAnalysis.DAL.Migrations
                         },
                         new
                         {
-                            Id = 545,
+                            Id = 707,
                             BossId = 55,
                             DamageDone = 0,
                             HealDone = 0,
@@ -4419,7 +5715,7 @@ namespace CombatAnalysis.DAL.Migrations
                         },
                         new
                         {
-                            Id = 546,
+                            Id = 708,
                             BossId = 55,
                             DamageDone = 0,
                             HealDone = 0,
@@ -4427,7 +5723,7 @@ namespace CombatAnalysis.DAL.Migrations
                         },
                         new
                         {
-                            Id = 547,
+                            Id = 709,
                             BossId = 55,
                             DamageDone = 0,
                             HealDone = 0,
@@ -4435,7 +5731,7 @@ namespace CombatAnalysis.DAL.Migrations
                         },
                         new
                         {
-                            Id = 548,
+                            Id = 710,
                             BossId = 55,
                             DamageDone = 0,
                             HealDone = 0,
@@ -4443,7 +5739,7 @@ namespace CombatAnalysis.DAL.Migrations
                         },
                         new
                         {
-                            Id = 549,
+                            Id = 711,
                             BossId = 55,
                             DamageDone = 0,
                             HealDone = 0,
@@ -4451,7 +5747,7 @@ namespace CombatAnalysis.DAL.Migrations
                         },
                         new
                         {
-                            Id = 550,
+                            Id = 712,
                             BossId = 55,
                             DamageDone = 0,
                             HealDone = 0,
@@ -4459,7 +5755,31 @@ namespace CombatAnalysis.DAL.Migrations
                         },
                         new
                         {
-                            Id = 551,
+                            Id = 713,
+                            BossId = 55,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 11
+                        },
+                        new
+                        {
+                            Id = 714,
+                            BossId = 55,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 12
+                        },
+                        new
+                        {
+                            Id = 715,
+                            BossId = 55,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 13
+                        },
+                        new
+                        {
+                            Id = 716,
                             BossId = 56,
                             DamageDone = 0,
                             HealDone = 0,
@@ -4467,7 +5787,7 @@ namespace CombatAnalysis.DAL.Migrations
                         },
                         new
                         {
-                            Id = 552,
+                            Id = 717,
                             BossId = 56,
                             DamageDone = 0,
                             HealDone = 0,
@@ -4475,7 +5795,7 @@ namespace CombatAnalysis.DAL.Migrations
                         },
                         new
                         {
-                            Id = 553,
+                            Id = 718,
                             BossId = 56,
                             DamageDone = 0,
                             HealDone = 0,
@@ -4483,7 +5803,7 @@ namespace CombatAnalysis.DAL.Migrations
                         },
                         new
                         {
-                            Id = 554,
+                            Id = 719,
                             BossId = 56,
                             DamageDone = 0,
                             HealDone = 0,
@@ -4491,7 +5811,7 @@ namespace CombatAnalysis.DAL.Migrations
                         },
                         new
                         {
-                            Id = 555,
+                            Id = 720,
                             BossId = 56,
                             DamageDone = 0,
                             HealDone = 0,
@@ -4499,7 +5819,7 @@ namespace CombatAnalysis.DAL.Migrations
                         },
                         new
                         {
-                            Id = 556,
+                            Id = 721,
                             BossId = 56,
                             DamageDone = 0,
                             HealDone = 0,
@@ -4507,7 +5827,7 @@ namespace CombatAnalysis.DAL.Migrations
                         },
                         new
                         {
-                            Id = 557,
+                            Id = 722,
                             BossId = 56,
                             DamageDone = 0,
                             HealDone = 0,
@@ -4515,7 +5835,7 @@ namespace CombatAnalysis.DAL.Migrations
                         },
                         new
                         {
-                            Id = 558,
+                            Id = 723,
                             BossId = 56,
                             DamageDone = 0,
                             HealDone = 0,
@@ -4523,7 +5843,7 @@ namespace CombatAnalysis.DAL.Migrations
                         },
                         new
                         {
-                            Id = 559,
+                            Id = 724,
                             BossId = 56,
                             DamageDone = 0,
                             HealDone = 0,
@@ -4531,11 +5851,35 @@ namespace CombatAnalysis.DAL.Migrations
                         },
                         new
                         {
-                            Id = 560,
+                            Id = 725,
                             BossId = 56,
                             DamageDone = 0,
                             HealDone = 0,
                             SpecializationId = 10
+                        },
+                        new
+                        {
+                            Id = 726,
+                            BossId = 56,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 11
+                        },
+                        new
+                        {
+                            Id = 727,
+                            BossId = 56,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 12
+                        },
+                        new
+                        {
+                            Id = 728,
+                            BossId = 56,
+                            DamageDone = 0,
+                            HealDone = 0,
+                            SpecializationId = 13
                         });
                 });
 
@@ -5082,6 +6426,9 @@ namespace CombatAnalysis.DAL.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<double>("BossHealthPercentage")
+                        .HasColumnType("float");
 
                     b.Property<int>("BossId")
                         .HasColumnType("int");
@@ -5847,6 +7194,10 @@ namespace CombatAnalysis.DAL.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("SpecializationSpellsId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -5859,52 +7210,80 @@ namespace CombatAnalysis.DAL.Migrations
                         new
                         {
                             Id = 1,
+                            Name = "Affliction",
                             SpecializationSpellsId = "48181,30108,1120"
                         },
                         new
                         {
                             Id = 2,
+                            Name = "Survival",
                             SpecializationSpellsId = "131900,3674,53301"
                         },
                         new
                         {
                             Id = 3,
+                            Name = "Unholy",
                             SpecializationSpellsId = "55078,55090,47632"
                         },
                         new
                         {
                             Id = 4,
+                            Name = "Balance",
                             SpecializationSpellsId = "50288,78674,8921"
                         },
                         new
                         {
                             Id = 5,
+                            Name = "Shadow",
                             SpecializationSpellsId = "129197,2944,15407"
                         },
                         new
                         {
                             Id = 6,
+                            Name = "Arms",
                             SpecializationSpellsId = "12294,86346,7384"
                         },
                         new
                         {
                             Id = 7,
+                            Name = "Protection",
                             SpecializationSpellsId = "6572,23922,20243"
                         },
                         new
                         {
                             Id = 8,
+                            Name = "Brewmaster",
                             SpecializationSpellsId = "121253,124335,100787"
                         },
                         new
                         {
                             Id = 9,
+                            Name = "Discipline",
                             SpecializationSpellsId = "47750,81751,47753"
                         },
                         new
                         {
                             Id = 10,
+                            Name = "Restoration",
                             SpecializationSpellsId = "61295,52752,51945"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Name = "Combat",
+                            SpecializationSpellsId = "57841,84617,1752"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Name = "Subtlety",
+                            SpecializationSpellsId = "53,2098,8676"
+                        },
+                        new
+                        {
+                            Id = 13,
+                            Name = "Destruction",
+                            SpecializationSpellsId = "29722,116858,348"
                         });
                 });
 
@@ -6209,8 +7588,7 @@ namespace CombatAnalysis.DAL.Migrations
 
                     b.Navigation("ResourceRecoveryGenerals");
 
-                    b.Navigation("Score")
-                        .IsRequired();
+                    b.Navigation("Score");
 
                     b.Navigation("Stats")
                         .IsRequired();

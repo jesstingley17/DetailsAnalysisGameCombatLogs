@@ -452,10 +452,10 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
         CombatsNumber = _allCombats.Count;
 
         var uniqueCombats = _allCombats
-            .GroupBy(c => c.Boss.GameId)
+            .GroupBy(c => c.Boss.Id)
             .Select(c =>
             {
-                var combat = c.Last();
+                var combat = c.Any(x => x.IsWin) ? c.First(x => x.IsWin) : c.Last();
                 combat.Items = [];
 
                 var allBossCombats = _allCombats.Where(x => x.Boss.GameId == combat.Boss.GameId).ToArray();
@@ -470,8 +470,7 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
 
                 return combat;
             })
-            .GroupBy(c => c.FinishDate)
-            .Select(c => c.Last())
+            .OrderBy(c => c.FinishDate)
             .ToList();
         UniqueCombats = new ObservableCollection<CombatModel>(uniqueCombats);
 

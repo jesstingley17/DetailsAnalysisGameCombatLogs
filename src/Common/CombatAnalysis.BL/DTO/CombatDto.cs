@@ -6,6 +6,8 @@ public class CombatDto
 
     public string DungeonName { get; set; } = string.Empty;
 
+    public double BossHealthPercentage { get; set; }
+
     public int DamageDone { get; set; }
 
     public int HealDone { get; set; }
@@ -20,10 +22,7 @@ public class CombatDto
 
     public DateTimeOffset FinishDate { get; set; }
 
-    public string Duration
-    {
-        get { return (FinishDate - StartDate).ToString(@"hh\:mm\:ss"); }
-    }
+    public string Duration { get; set; } = string.Empty;
 
     public bool IsReady { get; set; }
 
