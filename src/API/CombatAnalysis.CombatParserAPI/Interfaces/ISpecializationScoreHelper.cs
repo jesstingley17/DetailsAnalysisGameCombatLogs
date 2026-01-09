@@ -5,13 +5,13 @@ namespace CombatAnalysis.CombatParserAPI.Interfaces;
 
 public interface ISpecializationScoreHelper
 {
-    Task CreateSpecializationScoreAsync(CombatPlayerDto combatPlayer, CombatDetails combatDetails);
+    Task CreateSpecializationScoreAsync(CombatPlayerDto combatPlayer, CombatDetails combatDetails, CancellationToken cancellationToken);
 
-    Task<SpecializationScoreDto?> GetSpecializationScoreAsync(int combatPlayerId);
+    Task<SpecializationScoreDto?> GetSpecializationScoreAsync(int combatPlayerId, CancellationToken cancellationToken);
 
-    Task<BestSpecializationScoreDto?> GetBestSpecializationScoreAsync(int specId, int bossId);
+    Task<BestSpecializationScoreDto?> GetBestSpecializationScoreAsync(int specId, int bossId, CancellationToken cancellationToken);
 
-    Task UpdateSpecializationScoreAsync(int damageDone, int healDone, BestSpecializationScoreDto bestScore, SpecializationScoreDto specScore);
+    Task UpdateSpecializationScoreAsync(int damageDone, int healDone, BestSpecializationScoreDto bestScore, SpecializationScoreDto specScore, CancellationToken cancellationToken);
 
-    Task UpdateBestSpecializationScoreAsync(int damageDone, int healDone, BestSpecializationScoreDto bestScore);
+    Task UpdateBestSpecializationScoreAsync(int damageDone, int healDone, BestSpecializationScoreDto bestScore, CancellationToken cancellationToken);
 }

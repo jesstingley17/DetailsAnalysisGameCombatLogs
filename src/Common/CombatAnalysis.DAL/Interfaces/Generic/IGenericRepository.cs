@@ -5,15 +5,13 @@ namespace CombatAnalysis.DAL.Interfaces.Generic;
 public interface IGenericRepository<TModel>
     where TModel : class, IEntity
 {
-    Task<TModel?> CreateAsync(TModel item);
+    Task<int> UpdateAsync(TModel item, CancellationToken cancelationToken);
 
-    Task<int> UpdateAsync(TModel item);
+    Task<bool> DeleteAsync(int id, CancellationToken cancelationToken);
 
-    Task<bool> DeleteAsync(int id);
+    Task<TModel?> GetByIdAsync(int id, CancellationToken cancelationToken);
 
-    Task<TModel?> GetByIdAsync(int id);
+    Task<IEnumerable<TModel>> GetByParamAsync(string paramName, object value, CancellationToken cancelationToken);
 
-    Task<IEnumerable<TModel>> GetByParamAsync(string paramName, object value);
-
-    Task<IEnumerable<TModel>> GetAllAsync();
+    Task<IEnumerable<TModel>> GetAllAsync(CancellationToken cancelationToken);
 }

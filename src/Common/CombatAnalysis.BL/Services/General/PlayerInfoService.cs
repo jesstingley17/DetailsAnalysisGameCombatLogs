@@ -12,11 +12,11 @@ internal class PlayerInfoService<TModel, TModelMap>(IPlayerInfoRepository<TModel
     private readonly IPlayerInfoRepository<TModelMap> _playerInfoRepository = playerInfoRepository;
     private readonly IMapper _mapper = mapper;
 
-    public async Task<IEnumerable<TModel>> GetByCombatPlayerIdAsync(int combatPlayerId)
+    public async Task<IEnumerable<TModel>> GetByCombatPlayerIdAsync(int combatPlayerId, CancellationToken cancellationToken)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(combatPlayerId);
 
-        var result = await _playerInfoRepository.GetByCombatPlayerIdAsync(combatPlayerId);
+        var result = await _playerInfoRepository.GetByCombatPlayerIdAsync(combatPlayerId, cancellationToken);
         var resultMap = _mapper.Map<IEnumerable<TModel>>(result);
 
         return resultMap;

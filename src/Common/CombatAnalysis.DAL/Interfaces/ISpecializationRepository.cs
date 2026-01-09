@@ -4,5 +4,5 @@ namespace CombatAnalysis.DAL.Interfaces;
 
 public interface ISpecializationRepository
 {
-    Task<Specialization?> GetBySpellsAsync(string spells);
+    Task<Specialization?> GetBySpellsAsync(string spells, CancellationToken cancellationToken);
 }

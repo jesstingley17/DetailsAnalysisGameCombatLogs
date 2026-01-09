@@ -63,19 +63,18 @@ public static class ServiceCollectionExtensions
 
     private static void SetMutationServices(IServiceCollection services)
     {
-        services.AddScoped<IMutationServiceBatch<CombatPlayerDeathDto>, PlayerDeathService>();
-        services.AddScoped<IMutationServiceBatch<DamageDoneGeneralDto>, DamageDoneGeneralService>();
-        services.AddScoped<IMutationServiceBatch<HealDoneGeneralDto>, HealDoneGeneralService>();
-        services.AddScoped<IMutationServiceBatch<DamageTakenGeneralDto>, DamageTakenGeneralService>();
-        services.AddScoped<IMutationServiceBatch<ResourceRecoveryGeneralDto>, ResourceRecoveryGeneralService>();
-        services.AddScoped<IMutationServiceBatch<CombatAuraDto>, CombatAuraService>();
-        services.AddScoped<IMutationServiceBatch<CombatPlayerPositionDto>, CombatPlayerPositionService>();
-        services.AddScoped<IMutationServiceBatch<DamageDoneDto>, DamageDoneService>();
-        services.AddScoped<IMutationServiceBatch<HealDoneDto>, HealDoneService>();
-        services.AddScoped<IMutationServiceBatch<DamageTakenDto>, DamageTakenService>();
-        services.AddScoped<IMutationServiceBatch<ResourceRecoveryDto>, ResourceRecoveryService>();
+        services.AddScoped<ICreateBatchService<CombatPlayerDeathDto>, PlayerDeathService>();
+        services.AddScoped<ICreateBatchService<DamageDoneGeneralDto>, DamageDoneGeneralService>();
+        services.AddScoped<ICreateBatchService<HealDoneGeneralDto>, HealDoneGeneralService>();
+        services.AddScoped<ICreateBatchService<DamageTakenGeneralDto>, DamageTakenGeneralService>();
+        services.AddScoped<ICreateBatchService<ResourceRecoveryGeneralDto>, ResourceRecoveryGeneralService>();
+        services.AddScoped<ICreateBatchService<CombatAuraDto>, CombatAuraService>();
+        services.AddScoped<ICreateBatchService<CombatPlayerPositionDto>, CombatPlayerPositionService>();
+        services.AddScoped<ICreateBatchService<DamageDoneDto>, DamageDoneService>();
+        services.AddScoped<ICreateBatchService<HealDoneDto>, HealDoneService>();
+        services.AddScoped<ICreateBatchService<DamageTakenDto>, DamageTakenService>();
+        services.AddScoped<ICreateBatchService<ResourceRecoveryDto>, ResourceRecoveryService>();
 
-        services.AddScoped<IMutationService<CombatPlayerStatsDto>, CombatPlayerStatsService>();
         services.AddScoped<IMutationService<CombatLogDto>, CombatLogService>();
         services.AddScoped<IMutationService<CombatDto>, CombatService>();
     }
@@ -87,6 +86,5 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IQueryService<CombatPlayerPositionDto>, CombatPlayerPositionService>();
         services.AddScoped<IQueryService<CombatAuraDto>, CombatAuraService>();
         services.AddScoped<IQueryService<CombatPlayerDeathDto>, PlayerDeathService>();
-        services.AddScoped<IQueryService<CombatPlayerStatsDto>, CombatPlayerStatsService>();
     }
 }

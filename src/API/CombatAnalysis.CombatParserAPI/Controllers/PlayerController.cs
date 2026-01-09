@@ -16,15 +16,15 @@ public class PlayerController(IPlayerService service, IMapper mapper, ILogger<Pl
     private readonly ILogger<PlayerController> _logger = logger;
 
     [HttpGet("getByGamePlayerId/{gamePlayerId}")]
-    public async Task<IActionResult> GetByGamePlayerId(string gamePlayerId)
+    public async Task<IActionResult> GetByGamePlayerId(string gamePlayerId, CancellationToken cancellationToken)
     {
-        var player = await _service.GetByGameIdAsync(gamePlayerId);
+        var player = await _service.GetByGameIdAsync(gamePlayerId, cancellationToken);
 
         return Ok(player);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] PlayerModel player)
+    public async Task<IActionResult> Create([FromBody] PlayerModel player, CancellationToken cancellationToken)
     {
         try
         {
@@ -36,7 +36,7 @@ public class PlayerController(IPlayerService service, IMapper mapper, ILogger<Pl
             }
 
             var map = _mapper.Map<PlayerDto>(player);
-            var createdItem = await _service.CreateAsync(map);
+            var createdItem = await _service.CreateAsync(map, cancellationToken);
 
             return Ok(createdItem);
         }

@@ -4,7 +4,7 @@ namespace CombatAnalysis.DAL.Interfaces;
 
 public interface IBestSpecializationScoreRepository
 {
-    Task<int> UpdateAsync(int id, BestSpecializationScore item);
+    Task<int> UpdateAsync(int id, BestSpecializationScore item, CancellationToken cancellationToken);
 
-    Task<BestSpecializationScore?> GetAsync(int specializationId, int bossId);
+    Task<BestSpecializationScore?> GetAsync(int specializationId, int bossId, CancellationToken cancellationToken);
 }

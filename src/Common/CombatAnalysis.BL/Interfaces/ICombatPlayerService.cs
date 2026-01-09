@@ -4,11 +4,7 @@ namespace CombatAnalysis.BL.Interfaces;
 
 public interface ICombatPlayerService
 {
-    Task CreateBatchAsync(IEnumerable<CombatPlayerDto> items);
+    Task CreateBatchAsync(IEnumerable<CombatPlayerDto> items, CancellationToken cancellationToken);
 
-    Task<CombatPlayerDto> CreateAsync(CombatPlayerDto item);
-
-    Task<int> UpdateAsync(int id, CombatPlayerDto item);
-
-    Task<IEnumerable<CombatPlayerDto>> GetByCombatIdAsync(int combatId);
+    Task<IEnumerable<CombatPlayerDto>> GetByCombatIdAsync(int combatId, CancellationToken cancellationToken);
 }

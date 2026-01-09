@@ -7,37 +7,37 @@ using CombatAnalysis.DAL.Interfaces.Generic;
 
 namespace CombatAnalysis.BL.Services;
 
-internal class CombatService(IGenericRepository<Combat> repository, IMapper mapper) : QueryService<CombatDto, Combat>(repository, mapper), IMutationService<CombatDto>
+internal class CombatService(ICreateEntityRepository<Combat> repository, IMapper mapper) : QueryService<CombatDto, Combat>(repository, mapper), IMutationService<CombatDto>
 {
-    private readonly IGenericRepository<Combat> _repository = repository;
+    private readonly ICreateEntityRepository<Combat> _repository = repository;
     private readonly IMapper _mapper = mapper;
 
-    public async Task<CombatDto> CreateAsync(CombatDto item)
+    public async Task<CombatDto> CreateAsync(CombatDto item, CancellationToken cancelationToken)
     {
         CheckParams(item);
 
         var map = _mapper.Map<Combat>(item);
-        var createdItem = await _repository.CreateAsync(map);
+        var createdItem = await _repository.CreateAsync(map, cancelationToken);
         var resultMap = _mapper.Map<CombatDto>(createdItem);
 
         return resultMap;
     }
 
-    public async Task<int> UpdateAsync(CombatDto item)
+    public async Task<int> UpdateAsync(CombatDto item, CancellationToken cancelationToken)
     {
         CheckParams(item);
 
         var map = _mapper.Map<Combat>(item);
-        var affectedRows = await _repository.UpdateAsync(map);
+        var affectedRows = await _repository.UpdateAsync(map, cancelationToken);
 
         return affectedRows;
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<bool> DeleteAsync(int id, CancellationToken cancelationToken)
     {
         ArgumentOutOfRangeException.ThrowIfLessThan(id, 1);
 
-        var entityDeleted = await _repository.DeleteAsync(id);
+        var entityDeleted = await _repository.DeleteAsync(id, cancelationToken);
 
         return entityDeleted;
     }

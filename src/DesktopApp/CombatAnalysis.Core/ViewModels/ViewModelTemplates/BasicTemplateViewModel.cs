@@ -35,7 +35,6 @@ public class BasicTemplateViewModel : MvxViewModel, IImprovedMvxViewModel, IVMDa
     private bool _loginIsRan;
     private LogType _logType;
     private bool _logPanelStatusIsVisibly;
-    private int _uploadedCombatsCount;
 
     private static LoadingStatus _responseStatus;
     private static int _allowStep;
@@ -95,7 +94,7 @@ public class BasicTemplateViewModel : MvxViewModel, IImprovedMvxViewModel, IVMDa
         get => _combats ?? [];
     }
 
-    public CancellationTokenSource CancellationTokenSource { get; set; } = new();
+    public CancellationTokenSource CancellationTokenSource { get; set; }
 
     #region Commands
 

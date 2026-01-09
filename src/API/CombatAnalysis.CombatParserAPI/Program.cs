@@ -54,7 +54,7 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 Log.Logger = new LoggerConfiguration()
-    .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Warning)
+    .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Debug)
     .WriteTo.File("logs/parserapi.log", rollingInterval: RollingInterval.Day, retainedFileCountLimit: 7, restrictedToMinimumLevel: LogEventLevel.Error)
     .CreateLogger();
 

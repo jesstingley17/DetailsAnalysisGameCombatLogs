@@ -3,9 +3,9 @@
 public interface IQueryService<TModel>
     where TModel : class
 {
-    Task<IEnumerable<TModel>> GetAllAsync();
+    Task<IEnumerable<TModel>> GetAllAsync(CancellationToken cancellationToken);
 
-    Task<IEnumerable<TModel>> GetByParamAsync(string paramName, object value);
+    Task<IEnumerable<TModel>> GetByParamAsync(string paramName, object value, CancellationToken cancellationToken);
 
-    Task<TModel> GetByIdAsync(int id);
+    Task<TModel> GetByIdAsync(int id, CancellationToken cancellationToken);
 }

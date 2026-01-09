@@ -727,7 +727,8 @@ public class CombatPlayersViewModel : ParentTemplate<CombatModel>
             return;
         }
 
-        var combatPlayers = await _combatparserAPIService.LoadCombatPlayersAsync(Combat.Id);
+        var token = ((BasicTemplateViewModel)Basic).RequestCancelationToken();
+        var combatPlayers = await _combatparserAPIService.LoadCombatPlayersAsync(Combat.Id, token);
         _mainPlayersCombat = [.. combatPlayers];
 
         InitCombatPlayersData(_mainPlayersCombat);

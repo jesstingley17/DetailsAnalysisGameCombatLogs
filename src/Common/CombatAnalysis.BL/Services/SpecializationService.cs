@@ -10,9 +10,9 @@ internal class SpecializationService(ISpecializationRepository repository, IMapp
     private readonly ISpecializationRepository _repository = repository;
     private readonly IMapper _mapper = mapper;
 
-    public async Task<SpecializationDto?> GetBySpellsAsync(string spells)
+    public async Task<SpecializationDto?> GetBySpellsAsync(string spells, CancellationToken cancellationToken)
     {
-        var result = await _repository.GetBySpellsAsync(spells);
+        var result = await _repository.GetBySpellsAsync(spells, cancellationToken);
         var resultMap = _mapper.Map<SpecializationDto>(result);
 
         return resultMap;

@@ -10,17 +10,17 @@ internal class BossService(IBossRepository repository, IMapper mapper) : IBossSe
     private readonly IBossRepository _repository = repository;
     private readonly IMapper _mapper = mapper;
 
-    public async Task<BossDto?> GetById(int bossId)
+    public async Task<BossDto?> GetById(int bossId, CancellationToken cancellationToken)
     {
-        var boss = await _repository.GetById(bossId);
+        var boss = await _repository.GetById(bossId, cancellationToken);
         var result = _mapper.Map<BossDto>(boss);
 
         return result;
     }
 
-    public async Task<BossDto?> GetAsync(int gameBossId, int difficult, int groupSize)
+    public async Task<BossDto?> GetAsync(int gameBossId, int difficult, int groupSize, CancellationToken cancellationToken)
     {
-        var boss = await _repository.GetAsync(gameBossId, difficult, groupSize);
+        var boss = await _repository.GetAsync(gameBossId, difficult, groupSize, cancellationToken);
         var result = _mapper.Map<BossDto>(boss);
 
         return result;

@@ -9,33 +9,19 @@ internal class SpecializationScoreRepository(CombatParserContext context) : ISpe
 {
     private readonly CombatParserContext _context = context;
 
-    public async Task<int> UpdateAsync(SpecializationScore item)
+    public async Task<int> UpdateAsync(SpecializationScore item, CancellationToken cancellationToken)
     {
-        var existing = await _context.Set<SpecializationScore>().FindAsync(item.Id) ?? throw new KeyNotFoundException();
+        var existing = await _context.Set<SpecializationScore>().FindAsync(item.Id, cancellationToken) ?? throw new KeyNotFoundException();
         _context.Entry(existing).CurrentValues.SetValues(item);
 
-        return await _context.SaveChangesAsync();
+        return await _context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<bool> DeleteAsync(int id)
-    {
-        var entity = await _context.Set<SpecializationScore>().FindAsync(id);
-        if (entity == null)
-        {
-            return false;
-        }
-
-        _context.Set<SpecializationScore>().Remove(entity);
-        await _context.SaveChangesAsync();
-
-        return true;
-    }
-
-    public async Task<SpecializationScore?> GetByCombatPlayerIdAsync(int combatPlayerId)
+    public async Task<SpecializationScore?> GetByCombatPlayerIdAsync(int combatPlayerId, CancellationToken cancellationToken)
     {
         var data = await _context.Set<SpecializationScore>()
                     .AsNoTracking()
-                    .FirstOrDefaultAsync(x => x.CombatPlayerId == combatPlayerId);
+                    .FirstOrDefaultAsync(x => x.CombatPlayerId == combatPlayerId, cancellationToken);
 
         return data;
     }

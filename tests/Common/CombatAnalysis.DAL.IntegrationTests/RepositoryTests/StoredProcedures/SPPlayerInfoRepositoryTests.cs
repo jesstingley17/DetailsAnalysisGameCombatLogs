@@ -25,7 +25,7 @@ public class SPPlayerInfoRepositoryTests(SqlServerFixture fixture)
         var repo = new PlayerInfoPaginationRepository<DamageDone>(context);
 
         // Act
-        var result = await repo.GetByCombatPlayerIdAsync(combatPlayerId);
+        var result = await repo.GetByCombatPlayerIdAsync(combatPlayerId, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -50,7 +50,7 @@ public class SPPlayerInfoRepositoryTests(SqlServerFixture fixture)
         var repo = new PlayerInfoPaginationRepository<DamageDone>(context);
 
         // Act
-        var result = await repo.GetByCombatPlayerIdAsync(combatPlayerId, page, pageSize);
+        var result = await repo.GetByCombatPlayerIdAsync(combatPlayerId, page, pageSize, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -73,7 +73,7 @@ public class SPPlayerInfoRepositoryTests(SqlServerFixture fixture)
         var repo = new PlayerInfoPaginationRepository<DamageDone>(context);
 
         // Act
-        var result = await repo.GetByCombatPlayerIdAsync(combatPlayerId);
+        var result = await repo.GetByCombatPlayerIdAsync(combatPlayerId, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -97,7 +97,7 @@ public class SPPlayerInfoRepositoryTests(SqlServerFixture fixture)
         var repo = new PlayerInfoPaginationRepository<DamageDone>(context);
 
         // Act
-        var result = await repo.GetByCombatPlayerIdAsync(combatPlayerId, page, pageSize);
+        var result = await repo.GetByCombatPlayerIdAsync(combatPlayerId, page, pageSize, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

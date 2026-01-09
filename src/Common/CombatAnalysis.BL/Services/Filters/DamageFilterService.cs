@@ -10,11 +10,11 @@ internal class DamageFilterService(IDamageFilterRepository repository, IMapper m
     private readonly IMapper _mapper = mapper;
     private readonly IDamageFilterRepository _repository = repository;
 
-    public async Task<IEnumerable<List<CombatTargetDto>>> GetDamageByEachTargetAsync(int combatId)
+    public async Task<IEnumerable<List<CombatTargetDto>>> GetDamageByEachTargetAsync(int combatId, CancellationToken cancellationToken)
     {
         ArgumentOutOfRangeException.ThrowIfLessThan(combatId, 1);
 
-        var damageByEachTarget = await _repository.GetDamageByEachTargetAsync(combatId);
+        var damageByEachTarget = await _repository.GetDamageByEachTargetAsync(combatId, cancellationToken);
         var damageByEachTargetMap = _mapper.Map<IEnumerable<List<CombatTargetDto>>>(damageByEachTarget);
 
         return damageByEachTargetMap;

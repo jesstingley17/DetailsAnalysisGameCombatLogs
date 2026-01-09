@@ -339,7 +339,8 @@ public class CombatLogInformationViewModel : ParentTemplate, IAuthObserver
     {
         await base.Initialize();
 
-        await LoadCombatLogsAsync();
+        var token = ((BasicTemplateViewModel)Basic).RequestCancelationToken();
+        await LoadCombatLogsAsync(token);
     }
 
     #endregion
@@ -394,7 +395,8 @@ public class CombatLogInformationViewModel : ParentTemplate, IAuthObserver
 
         UploadingLogs = true;
 
-        var loadedCombats = await _combatParserAPIService.LoadCombatsAsync(combatLog.Id);
+        var token = ((BasicTemplateViewModel)Basic).RequestCancelationToken();
+        var loadedCombats = await _combatParserAPIService.LoadCombatsAsync(combatLog.Id, token);
         if (loadedCombats == null)
         {
             return;
@@ -411,17 +413,23 @@ public class CombatLogInformationViewModel : ParentTemplate, IAuthObserver
 
     private async Task DeleteAsync()
     {
+        if (CombatListSelectedIndex < 0)
+        {
+            return;
+        }
+
         DungeonName = string.Empty;
         CombatName = string.Empty;
         RemovingInProgress = true;
 
+        var token = ((BasicTemplateViewModel)Basic).RequestCancelationToken();
         var selectedCombatLogByUser = _combatLogs.FirstOrDefault(x => x.Id == CombatLogsForTargetUser[CombatListSelectedIndex].Id);
         if (selectedCombatLogByUser != null)
         {
-            await _combatParserAPIService.DeleteCombatLogByUserAsync(selectedCombatLogByUser.Id);
+            await _combatParserAPIService.DeleteCombatLogByUserAsync(selectedCombatLogByUser.Id, token);
         }
 
-        await LoadCombatLogsAsync();
+        await LoadCombatLogsAsync(token);
 
         RemovingInProgress = false;
     }
@@ -555,13 +563,13 @@ public class CombatLogInformationViewModel : ParentTemplate, IAuthObserver
         await _mvvmNavigation.Navigate<CombatsViewModel, Tuple<List<CombatModel>, LogType>>(dataForGeneralAnalysis);
     }
 
-    private async Task LoadCombatLogsAsync()
+    private async Task LoadCombatLogsAsync(CancellationToken cancellationToken)
     {
         NoCombatsUploaded = false;
 
         CombatLogLoadingStatus = LoadingStatus.Pending;
 
-        var combatLogsData = await _combatParserAPIService.LoadCombatLogsAsync();
+        var combatLogsData = await _combatParserAPIService.LoadCombatLogsAsync(cancellationToken);
         if (combatLogsData == null)
         {
             CombatLogLoadingStatus = LoadingStatus.Failed;

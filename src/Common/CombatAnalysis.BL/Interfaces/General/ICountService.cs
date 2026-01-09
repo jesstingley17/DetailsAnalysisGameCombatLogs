@@ -3,5 +3,5 @@
 public interface ICountService<TModel>
     where TModel : class
 {
-    Task<int> CountByCombatPlayerIdAsync(int combatPlayerId);
+    Task<int> CountByCombatPlayerIdAsync(int combatPlayerId, CancellationToken cancellationToken);
 }

@@ -10,12 +10,12 @@ internal class PlayerInfoRepository<TModel>(CombatParserContext context) : IPlay
 {
     private readonly CombatParserContext _context = context;
 
-    public async Task<IEnumerable<TModel>> GetByCombatPlayerIdAsync(int combatPlayerId)
+    public async Task<IEnumerable<TModel>> GetByCombatPlayerIdAsync(int combatPlayerId, CancellationToken cancellationToken)
     {
         var data = await _context.Set<TModel>()
                             .AsNoTracking()
                             .Where(x => x.CombatPlayerId == combatPlayerId)
-                            .ToListAsync();
+                            .ToListAsync(cancellationToken);
 
         return data.Count != 0 ? data : [];
     }

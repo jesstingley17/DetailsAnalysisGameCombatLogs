@@ -11,28 +11,19 @@ internal class SpecializationScoreService(ISpecializationScoreRepository reposit
     private readonly ISpecializationScoreRepository _repository = repository;
     private readonly IMapper _mapper = mapper;
 
-    public async Task<int> UpdateAsync(SpecializationScoreDto item)
+    public async Task<int> UpdateAsync(SpecializationScoreDto item, CancellationToken cancellationToken)
     {
         CheckParams(item);
 
         var map = _mapper.Map<SpecializationScore>(item);
-        var rowsAffected = await _repository.UpdateAsync(map);
+        var rowsAffected = await _repository.UpdateAsync(map, cancellationToken);
 
         return rowsAffected;
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<SpecializationScoreDto?> GetByCombatPlayerIdAsync(int combatPlayerId, CancellationToken cancellationToken)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(id, 1);
-
-        var entityDeleted = await _repository.DeleteAsync(id);
-
-        return entityDeleted;
-    }
-
-    public async Task<SpecializationScoreDto?> GetByCombatPlayerIdAsync(int combatPlayerId)
-    {
-        var spec = await _repository.GetByCombatPlayerIdAsync(combatPlayerId);
+        var spec = await _repository.GetByCombatPlayerIdAsync(combatPlayerId, cancellationToken);
         var map = _mapper.Map<SpecializationScoreDto>(spec);
 
         return map;

@@ -9,7 +9,7 @@ internal class SpecializationRepository(CombatParserContext context) : ISpeciali
 {
     private readonly CombatParserContext _context = context;
 
-    public async Task<Specialization?> GetBySpellsAsync(string spells)
+    public async Task<Specialization?> GetBySpellsAsync(string spells, CancellationToken cancellationToken)
     {
         var inputIds = spells
             .Split(',', StringSplitOptions.RemoveEmptyEntries)
@@ -22,7 +22,8 @@ internal class SpecializationRepository(CombatParserContext context) : ISpeciali
                 inputIds.Any(id =>
                     ("," + s.SpecializationSpellsId + ",")
                         .Contains("," + id + ",")
-                ));
+                ),
+                cancellationToken);
 
         return data;
     }

@@ -11,32 +11,32 @@ internal class PlayerService(IPlayerRepository repository, IMapper mapper) : IPl
     private readonly IPlayerRepository _repository = repository;
     private readonly IMapper _mapper = mapper;
 
-    public async Task<PlayerDto> GetByIdAsync(string id)
+    public async Task<PlayerDto> GetByIdAsync(string id, CancellationToken cancellationToken)
     {
         ArgumentException.ThrowIfNullOrEmpty(id, nameof(id));
 
-        var result = await _repository.GetByIdAsync(id);
+        var result = await _repository.GetByIdAsync(id, cancellationToken);
         var resultMap = _mapper.Map<PlayerDto>(result);
 
         return resultMap;
     }
 
-    public async Task<PlayerDto> GetByGameIdAsync(string gameId)
+    public async Task<PlayerDto> GetByGameIdAsync(string gameId, CancellationToken cancellationToken)
     {
         ArgumentException.ThrowIfNullOrEmpty(gameId, nameof(gameId));
 
-        var result = await _repository.GetByGameIdAsync(gameId);
+        var result = await _repository.GetByGameIdAsync(gameId, cancellationToken);
         var resultMap = _mapper.Map<PlayerDto>(result);
 
         return resultMap;
     }
 
-    public async Task<PlayerDto> CreateAsync(PlayerDto item)
+    public async Task<PlayerDto> CreateAsync(PlayerDto item, CancellationToken cancellationToken)
     {
         CheckParams(item);
 
         var map = _mapper.Map<Player>(item);
-        var createdItem = await _repository.CreateAsync(map);
+        var createdItem = await _repository.CreateAsync(map, cancellationToken);
         var resultMap = _mapper.Map<PlayerDto>(createdItem);
 
         return resultMap;

@@ -25,12 +25,13 @@ internal class CombatParserAPIService : ICombatParserAPIService
         _httpClient.BaseAddress = API.CombatParserApi;
     }
 
-    public async Task SaveAsync(List<CombatModel> combats, CombatLogModel combatLog, Action<string, string> uplodedCallback, CancellationToken cancellationToken)
+    public async Task SaveAsync(List<CombatModel> combats, CombatLogModel combatLog, Action<string, string> uplodedCallback, Func<CancellationToken> requestCancelationToken)
     {
         var readyCombatsNumber = 0;
 
         try
         {
+            var cancellationToken = requestCancelationToken();
             var combatTasks = combats.Select(async item =>
             {
                 item.CombatLogId = combatLog.Id;
@@ -51,12 +52,14 @@ internal class CombatParserAPIService : ICombatParserAPIService
         {
             _logger.LogError(ex, "HTTP request error: {Message}", ex.Message);
 
+            var cancellationToken = requestCancelationToken();
             await UpdateCombatLogAsync(combatLog, readyCombatsNumber, combats.Count - readyCombatsNumber, cancellationToken);
 
             throw;
         }
         catch (OperationCanceledException ex)
         {
+            var cancellationToken = requestCancelationToken();
             _logger.LogWarning(ex, "Request was canceled by client: {Message}", ex.Message);
 
             await UpdateCombatLogAsync(combatLog, readyCombatsNumber, combats.Count - readyCombatsNumber, cancellationToken);
@@ -65,6 +68,7 @@ internal class CombatParserAPIService : ICombatParserAPIService
         }
         catch (Exception ex)
         {
+            var cancellationToken = requestCancelationToken();
             _logger.LogError(ex, "An unexpected error occurred: {Message}", ex.Message);
 
             await UpdateCombatLogAsync(combatLog, readyCombatsNumber, combats.Count - readyCombatsNumber, cancellationToken);
@@ -73,11 +77,11 @@ internal class CombatParserAPIService : ICombatParserAPIService
         }
     }
 
-    public async Task DeleteCombatLogByUserAsync(int id)
+    public async Task DeleteCombatLogByUserAsync(int id, CancellationToken cancellationToken)
     {
         try
         {
-            var response = await _httpClient.DeletAsync($"CombatLog/{id}", CancellationToken.None);
+            var response = await _httpClient.DeletAsync($"CombatLog/{id}", cancellationToken);
             response.EnsureSuccessStatusCode();
         }
         catch (HttpRequestException ex)
@@ -90,11 +94,11 @@ internal class CombatParserAPIService : ICombatParserAPIService
         }
     }
 
-    public async Task<IEnumerable<CombatLogModel>> LoadCombatLogsAsync()
+    public async Task<IEnumerable<CombatLogModel>> LoadCombatLogsAsync(CancellationToken cancellationToken)
     {
         try
         {
-            var response = await _httpClient.GetAsync("CombatLog", CancellationToken.None);
+            var response = await _httpClient.GetAsync("CombatLog", cancellationToken);
             response.EnsureSuccessStatusCode();
 
             var combatLogs = await response.Content.ReadFromJsonAsync<IEnumerable<CombatLogModel>>();
@@ -122,11 +126,11 @@ internal class CombatParserAPIService : ICombatParserAPIService
         }
     }
 
-    public async Task<IEnumerable<CombatModel>> LoadCombatsAsync(int combatLogId)
+    public async Task<IEnumerable<CombatModel>> LoadCombatsAsync(int combatLogId, CancellationToken cancellationToken)
     {
         try
         {
-            var response = await _httpClient.GetAsync($"Combat/getByCombatLogId/{combatLogId}", CancellationToken.None);
+            var response = await _httpClient.GetAsync($"Combat/getByCombatLogId/{combatLogId}", cancellationToken);
             response.EnsureSuccessStatusCode();
 
             var combats = await response.Content.ReadFromJsonAsync<IEnumerable<CombatModel>>();
@@ -154,11 +158,11 @@ internal class CombatParserAPIService : ICombatParserAPIService
         }
     }
 
-    public async Task<IEnumerable<CombatPlayerModel>> LoadCombatPlayersAsync(int combatId)
+    public async Task<IEnumerable<CombatPlayerModel>> LoadCombatPlayersAsync(int combatId, CancellationToken cancellationToke)
     {
         try
         {
-            var response = await _httpClient.GetAsync($"CombatPlayer/getByCombatId/{combatId}", CancellationToken.None);
+            var response = await _httpClient.GetAsync($"CombatPlayer/getByCombatId/{combatId}", cancellationToke);
             response.EnsureSuccessStatusCode();
 
             var combatPlayers = await response.Content.ReadFromJsonAsync<IEnumerable<CombatPlayerModel>>();
@@ -240,7 +244,7 @@ internal class CombatParserAPIService : ICombatParserAPIService
             var response = await _httpClient.PostAsync("CombatLog", JsonContent.Create(combatLog), cancellationToken);
             response.EnsureSuccessStatusCode();
 
-            var createdCombatLog = await response.Content.ReadFromJsonAsync<CombatLogModel>(cancellationToken: cancellationToken);
+            var createdCombatLog = await response.Content.ReadFromJsonAsync<CombatLogModel>(cancellationToken);
             ArgumentNullException.ThrowIfNull(createdCombatLog, nameof(createdCombatLog));
 
             return createdCombatLog;

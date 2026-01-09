@@ -33,6 +33,7 @@
         <Grid.Resources>
             <converters:TheNativeBoolToVisibilityConverter x:Key="BoolToVisibility" />
             <converters:TheNativeIntToVisibilityConverter x:Key="IntToVisibility" />
+            <converters:TheNativeIntToXAMLBoolConverter x:Key="IntToXAMLBool" />
             <combatLogsConverters:TheNativeDifficultyToVisibilityConverter x:Key="DifficultyToVisibilityConverter" />
             <combatLogsConverters:TheNativeDifficultyToStringConverter x:Key="DifficultyToStringConverter" />
             <combatLogsConverters:IntToEnhancedIntConverter x:Key="IntToEnhancedInt" />
@@ -270,8 +271,9 @@
                         <DataTemplate>
                             <StackPanel>
                                 <Button Command="{Binding DataContext.ShowDetailsCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                        Content="{loc:Loc Open}" FontSize="12" Width="75"
-                                        Style="{StaticResource showButton}" HorizontalAlignment="Center"/>
+                                        Content="{loc:Loc Open}" FontSize="12" Width="75" 
+                                        IsEnabled="{Binding DataContext.ResponseStatus, RelativeSource={RelativeSource AncestorType=DataGrid}, Converter={StaticResource IntToXAMLBool}, ConverterParameter='1:!='}"
+                                        Style="{StaticResource showButton}" HorizontalAlignment="Center" />
                             </StackPanel>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>

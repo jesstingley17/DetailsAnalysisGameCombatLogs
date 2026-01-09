@@ -8,11 +8,11 @@ using System.Data;
 
 namespace CombatAnalysis.DAL.Repositories.StoredProcedures.Batch;
 
-internal class SPHealDoneGeneralRepositoryBatch(CombatParserContext context) : GenericRepository<HealDoneGeneral>(context), IGenericRepositoryBatch<HealDoneGeneral>
+internal class SPHealDoneGeneralRepositoryBatch(CombatParserContext context) : GenericRepository<HealDoneGeneral>(context), ICreateBatchRepository<HealDoneGeneral>
 {
     private readonly CombatParserContext _context = context;
 
-    public async Task CreateBatchAsync(IEnumerable<HealDoneGeneral> items)
+    public async Task CreateBatchAsync(IEnumerable<HealDoneGeneral> items, CancellationToken cancellationToken)
     {
         if (!items.Any())
         {
@@ -53,6 +53,6 @@ internal class SPHealDoneGeneralRepositoryBatch(CombatParserContext context) : G
         };
 
         var sql = $"EXEC dbo.InsertInto{nameof(HealDoneGeneral)}Batch @Items";
-        await _context.Database.ExecuteSqlRawAsync(sql, itemsParam);
+        await _context.Database.ExecuteSqlRawAsync(sql, [itemsParam], cancellationToken);
     }
 }

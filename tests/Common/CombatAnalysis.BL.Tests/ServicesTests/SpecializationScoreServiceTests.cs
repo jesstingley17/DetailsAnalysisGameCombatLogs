@@ -22,16 +22,16 @@ public class SpecializationScoreServiceTests
 
         mockMapper.Setup(m => m.Map<SpecializationScore>(entityDto)).Returns(entity);
 
-        mockRepository.Setup(m => m.UpdateAsync(entity));
+        mockRepository.Setup(m => m.UpdateAsync(entity, CancellationToken.None));
 
         var service = new SpecializationScoreService(mockRepository.Object, mockMapper.Object);
 
         // Act
-        await service.UpdateAsync(entityDto);
+        await service.UpdateAsync(entityDto, CancellationToken.None);
 
         // Assert and Verify correct method calls
         mockMapper.Verify(m => m.Map<SpecializationScore>(It.IsAny<SpecializationScoreDto>()), Times.Once);
-        mockRepository.Verify(r => r.UpdateAsync(It.IsAny<SpecializationScore>()), Times.Once);
+        mockRepository.Verify(r => r.UpdateAsync(It.IsAny<SpecializationScore>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -46,73 +46,9 @@ public class SpecializationScoreServiceTests
         var service = new SpecializationScoreService(mockRepository.Object, mockMapper.Object);
 
         // Act and Assert
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(nameof(SpecializationScore.DamageScore), () => service.UpdateAsync(entityDto));
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(nameof(SpecializationScore.DamageScore), () => service.UpdateAsync(entityDto, CancellationToken.None));
 
         // Verify correct method calls
-        mockRepository.Verify(r => r.UpdateAsync(It.IsAny<SpecializationScore>()), Times.Never);
-    }
-
-    [Fact]
-    public async Task DeleteAsync_True_ShouldDeleteEntity()
-    {
-        // Arrange
-        const int id = 1;
-
-        var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<ISpecializationScoreRepository>();
-
-        mockRepository.Setup(r => r.DeleteAsync(id)).ReturnsAsync(true);
-
-        var service = new SpecializationScoreService(mockRepository.Object, mockMapper.Object);
-
-        // Act
-        var entityDeleted = await service.DeleteAsync(id);
-
-        // Assert
-        Assert.True(entityDeleted);
-
-        // Verify correct method calls
-        mockRepository.Verify(r => r.DeleteAsync(It.IsAny<int>()), Times.Once);
-    }
-
-    [Fact]
-    public async Task DeleteAsync_False_ShouldNotDeleteEntity()
-    {
-        // Arrange
-        const int id = 2;
-
-        var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<ISpecializationScoreRepository>();
-
-        mockRepository.Setup(r => r.DeleteAsync(id)).ReturnsAsync(false);
-
-        var service = new SpecializationScoreService(mockRepository.Object, mockMapper.Object);
-
-        // Act
-        var entityDeleted = await service.DeleteAsync(id);
-
-        // Assert
-        Assert.False(entityDeleted);
-
-        // Verify correct method calls
-        mockRepository.Verify(r => r.DeleteAsync(It.IsAny<int>()), Times.Once);
-    }
-
-    [Fact]
-    public async Task DeleteAsync_ThrowArgumentOutOfRangeException_ShouldNotDeleteEntity()
-    {
-        // Arrange
-        const int id = 0;
-
-        var mockMapper = new Mock<IMapper>();
-        var mockRepository = new Mock<ISpecializationScoreRepository>();
-
-        var service = new SpecializationScoreService(mockRepository.Object, mockMapper.Object);
-
-        // Act and Assert
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.DeleteAsync(id));
-
-        // Verify correct method calls
-        mockRepository.Verify(r => r.DeleteAsync(It.IsAny<int>()), Times.Never);
+        mockRepository.Verify(r => r.UpdateAsync(It.IsAny<SpecializationScore>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }

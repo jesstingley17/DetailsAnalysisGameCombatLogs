@@ -11,14 +11,14 @@ internal class SpecializationScoreHelper(ISpecializationScoreService service, IB
     private readonly IBestSpecializationScoreService _bestScoreService = bestScoreService;
     private readonly ISpecializationService _specService = specService;
 
-    public async Task CreateSpecializationScoreAsync(CombatPlayerDto combatPlayer, CombatDetails combatDetails)
+    public async Task CreateSpecializationScoreAsync(CombatPlayerDto combatPlayer, CombatDetails combatDetails, CancellationToken cancellationToken)
     {
         var spellIds = combatPlayer.DamageDone > combatPlayer.HealDone
             ? combatDetails.DamageDoneGeneral[combatPlayer.Player.GameId].Select(d => d.GameSpellId).ToArray()
-            : combatDetails.HealDoneGeneral[combatPlayer.Player.GameId].Select(d => d.GameSpellId).ToArray();
+            : [.. combatDetails.HealDoneGeneral[combatPlayer.Player.GameId].Select(d => d.GameSpellId)];
         var spellsIdsStr = string.Join(',', spellIds);
 
-        var spec = await _specService.GetBySpellsAsync(spellsIdsStr);
+        var spec = await _specService.GetBySpellsAsync(spellsIdsStr, cancellationToken);
         if (spec == null)
         {
             return;
@@ -35,21 +35,21 @@ internal class SpecializationScoreHelper(ISpecializationScoreService service, IB
         combatPlayer.Score = score;
     }
 
-    public async Task<SpecializationScoreDto?> GetSpecializationScoreAsync(int combatPlayerId)
+    public async Task<SpecializationScoreDto?> GetSpecializationScoreAsync(int combatPlayerId, CancellationToken cancellationToken)
     {
-        var specScores = await _service.GetByCombatPlayerIdAsync(combatPlayerId);
+        var specScores = await _service.GetByCombatPlayerIdAsync(combatPlayerId, cancellationToken);
 
         return specScores;
     }
 
-    public async Task<BestSpecializationScoreDto?> GetBestSpecializationScoreAsync(int specId, int bossId)
+    public async Task<BestSpecializationScoreDto?> GetBestSpecializationScoreAsync(int specId, int bossId, CancellationToken cancellationToken)
     {
-        var bestScore = await _bestScoreService.GetAsync(specId, bossId);
+        var bestScore = await _bestScoreService.GetAsync(specId, bossId, cancellationToken);
 
         return bestScore;
     }
 
-    public async Task UpdateSpecializationScoreAsync(int damageDone, int healDone, BestSpecializationScoreDto bestScore, SpecializationScoreDto specScore)
+    public async Task UpdateSpecializationScoreAsync(int damageDone, int healDone, BestSpecializationScoreDto bestScore, SpecializationScoreDto specScore, CancellationToken cancellationToken)
     {
         if (bestScore.DamageDone < damageDone)
         {
@@ -70,10 +70,10 @@ internal class SpecializationScoreHelper(ISpecializationScoreService service, IB
         }
 
         specScore.Updated = DateTimeOffset.UtcNow;
-        await _service.UpdateAsync(specScore);
+        await _service.UpdateAsync(specScore, cancellationToken);
     }
 
-    public async Task UpdateBestSpecializationScoreAsync(int damageDone, int healDone, BestSpecializationScoreDto bestScore)
+    public async Task UpdateBestSpecializationScoreAsync(int damageDone, int healDone, BestSpecializationScoreDto bestScore, CancellationToken cancellationToken)
     {
         var bestSpecScoreMustBeUpdated = false;
         var updatedBestScore = new BestSpecializationScoreDto
@@ -98,7 +98,7 @@ internal class SpecializationScoreHelper(ISpecializationScoreService service, IB
         if (bestSpecScoreMustBeUpdated)
         {
             updatedBestScore.Updated = DateTimeOffset.UtcNow;
-            await _bestScoreService.UpdateAsync(updatedBestScore);
+            await _bestScoreService.UpdateAsync(updatedBestScore, cancellationToken);
         }
     }
 }

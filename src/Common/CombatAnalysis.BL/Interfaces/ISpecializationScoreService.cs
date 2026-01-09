@@ -4,9 +4,7 @@ namespace CombatAnalysis.BL.Interfaces;
 
 public interface ISpecializationScoreService
 {
-    Task<int> UpdateAsync(SpecializationScoreDto item);
+    Task<int> UpdateAsync(SpecializationScoreDto item, CancellationToken cancellationToken);
 
-    Task<bool> DeleteAsync(int id);
-
-    Task<SpecializationScoreDto?> GetByCombatPlayerIdAsync(int combatPlayerId);
+    Task<SpecializationScoreDto?> GetByCombatPlayerIdAsync(int combatPlayerId, CancellationToken cancellationToken);
 }

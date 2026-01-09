@@ -60,7 +60,7 @@ public class DamageFilterRepositoryTests : RepositoryTestsBase
         var repo = new DamageFilterRepository(context);
 
         // Act
-        var result = await repo.GetDamageByEachTargetAsync(combatId);
+        var result = await repo.GetDamageByEachTargetAsync(combatId, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

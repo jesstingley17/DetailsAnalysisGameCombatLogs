@@ -27,29 +27,29 @@ public class CombatController(IBossService bossService, IQueryService<CombatDto>
     private readonly ICombatTransactionService _combatTransactionService = combatTransactionService;
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
-        var combats = await _queryCombatService.GetAllAsync();
+        var combats = await _queryCombatService.GetAllAsync(cancellationToken);
 
         return Ok(combats);
     }
 
     [HttpGet("{id:int:min(1)}")]
-    public async Task<IActionResult> GetById(int id)
+    public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
     {
-        var combat = await _queryCombatService.GetByIdAsync(id);
+        var combat = await _queryCombatService.GetByIdAsync(id, cancellationToken);
 
         return Ok(combat);
     }
 
     [HttpGet("getByCombatLogId/{combatLogId:int:min(1)}")]
-    public async Task<IActionResult> GetByCombatLogId(int combatLogId)
+    public async Task<IActionResult> GetByCombatLogId(int combatLogId, CancellationToken cancellationToken)
     {
-        var combats = await _queryCombatService.GetByParamAsync(nameof(CombatModel.CombatLogId), combatLogId);
+        var combats = await _queryCombatService.GetByParamAsync(nameof(CombatModel.CombatLogId), combatLogId, cancellationToken);
         var map = _mapper.Map<IEnumerable<CombatModel>>(combats);
         foreach (var item in map)
         {
-            var boss = await _bossService.GetById(item.Boss.Id);
+            var boss = await _bossService.GetById(item.Boss.Id, cancellationToken);
             var bossMap = _mapper.Map<BossModel>(boss);
 
             item.Boss = bossMap;
@@ -59,7 +59,7 @@ public class CombatController(IBossService bossService, IQueryService<CombatDto>
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CombatModel combat)
+    public async Task<IActionResult> Create([FromBody] CombatModel combat, CancellationToken cancellationToken)
     {
         try
         {
@@ -75,11 +75,12 @@ public class CombatController(IBossService bossService, IQueryService<CombatDto>
 
             // Transaction to create Combat and Combat Players
             await _combatTransactionService.BeginTransactionAsync();
+            cancellationToken.ThrowIfCancellationRequested();
 
-            var createdCombat = await CreateCombatAsync(combat);
+            var createdCombat = await CreateCombatAsync(combat, cancellationToken);
             combat.Id = createdCombat.Id;
 
-            var combatDetails = await CreateCombatPlayersAsync(combat);
+            var combatDetails = await CreateCombatPlayersAsync(combat, cancellationToken);
 
             await _combatTransactionService.CommitTransactionAsync();
 
@@ -87,88 +88,48 @@ public class CombatController(IBossService bossService, IQueryService<CombatDto>
             // 1) damage, heal, damage taken, resources, etc
             // 2) how combat player do mechanics, class rotation, assist other combat players, etc
             await _combatTransactionService.BeginTransactionAsync();
+            cancellationToken.ThrowIfCancellationRequested();
 
-            var createdCombatPlayers = await _combatPlayerService.GetByCombatIdAsync(combat.Id);
-            await _combatDataHelper.CreateCombatPlayersDataAsync(combatDetails, [.. createdCombatPlayers], combat.Id);
-            await _combatDataHelper.UpdateSpecializationScoreAsync([.. createdCombatPlayers], combatDetails, combat.Boss.Id);
+            var createdCombatPlayers = await _combatPlayerService.GetByCombatIdAsync(combat.Id, cancellationToken);
+            await _combatDataHelper.CreateCombatPlayersDataAsync(combatDetails, [.. createdCombatPlayers], combat.Id, cancellationToken);
+            await _combatDataHelper.UpdateSpecializationScoreAsync([.. createdCombatPlayers], combatDetails, combat.Boss.Id, cancellationToken);
 
             createdCombat.IsReady = true;
 
-            await _mutationCombatService.UpdateAsync(createdCombat);
+            await _mutationCombatService.UpdateAsync(createdCombat, cancellationToken);
 
             await _combatTransactionService.CommitTransactionAsync();
 
             return Ok(createdCombat);
         }
+        catch (OperationCanceledException ex)
+        {
+            await _combatTransactionService.RollbackTransactionAsync();
+
+            _logger.LogInformation(ex, "Operation was canceled by Client.");
+
+            return StatusCode(499);
+        }
         catch (DbUpdateException ex)
         {
+            await _combatTransactionService.RollbackTransactionAsync();
+
             _logger.LogError(ex, "Failed to create combat.");
 
             return StatusCode(500, "Internal server error.");
         }
     }
 
-    [HttpPut("{id:int:min(1)}")]
-    public async Task<IActionResult> Update(int id, [FromBody] CombatModel combat)
-    {
-        try
-        {
-            if (!ModelState.IsValid)
-            {
-                _logger.LogWarning("Invalid Combat update request received: {@Combat}", combat);
-
-                return ValidationProblem(ModelState);
-            }
-
-            if (id != combat.Id)
-            {
-                return BadRequest("Route ID and body ID do not match.");
-            }
-
-            var map = _mapper.Map<CombatDto>(combat);
-            await _mutationCombatService.UpdateAsync(map);
-
-            return NoContent();
-        }
-        catch (DbUpdateConcurrencyException ex)
-        {
-            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
-
-            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
-        }
-    }
-
-    [HttpDelete("{id:int:min(1)}")]
-    public async Task<IActionResult> Delete(int id)
-    {
-        try
-        {
-            var entityDeleted = await _mutationCombatService.DeleteAsync(id);
-            if (!entityDeleted)
-            {
-                return NotFound();
-            }
-
-            return NoContent();
-        }
-        catch (DbUpdateConcurrencyException ex)
-        {
-            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
-
-            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
-        }
-    }
-
-    private async Task<CombatDto> CreateCombatAsync(CombatModel model)
+    private async Task<CombatDto> CreateCombatAsync(CombatModel model, CancellationToken cancellationToken)
     {
         var map = _mapper.Map<CombatDto>(model);
-        var createdCombat = await _mutationCombatService.CreateAsync(map);
+        var createdCombat = await _mutationCombatService.CreateAsync(map, cancellationToken);
         ArgumentNullException.ThrowIfNull(createdCombat, nameof(createdCombat));
 
         return createdCombat;
     }
 
-    private async Task<CombatDetails> CreateCombatPlayersAsync(CombatModel combat)
+    private async Task<CombatDetails> CreateCombatPlayersAsync(CombatModel combat, CancellationToken cancellationToken)
     {
         var combatDetails = _combatDataHelper.CreateCombatDetails(combat);
 
@@ -182,10 +143,10 @@ public class CombatController(IBossService bossService, IQueryService<CombatDto>
         var map = _mapper.Map<IEnumerable<CombatPlayerDto>>(combat.CombatPlayers);
         foreach (var combatPlayer in map)
         {
-            await _scoreHelper.CreateSpecializationScoreAsync(combatPlayer, combatDetails);
+            await _scoreHelper.CreateSpecializationScoreAsync(combatPlayer, combatDetails, cancellationToken);
         }
         
-        await _combatPlayerService.CreateBatchAsync(map);
+        await _combatPlayerService.CreateBatchAsync(map, cancellationToken);
 
         return combatDetails;
     }

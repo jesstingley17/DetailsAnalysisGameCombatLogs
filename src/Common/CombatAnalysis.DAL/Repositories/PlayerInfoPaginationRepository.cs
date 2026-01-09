@@ -10,7 +10,7 @@ internal class PlayerInfoPaginationRepository<TModel>(CombatParserContext contex
 {
     private readonly CombatParserContext _context = context;
 
-    public async Task<IEnumerable<TModel>> GetByCombatPlayerIdAsync(int combatPlayerId, int page, int pageSize)
+    public async Task<IEnumerable<TModel>> GetByCombatPlayerIdAsync(int combatPlayerId, int page, int pageSize, CancellationToken cancellationToken)
     {
         var data = await _context.Set<TModel>()
                             .AsNoTracking()
@@ -18,7 +18,7 @@ internal class PlayerInfoPaginationRepository<TModel>(CombatParserContext contex
                             .OrderBy(p => p.Time)
                             .Skip((page - 1) * pageSize)
                             .Take(pageSize)
-                            .ToListAsync();
+                            .ToListAsync(cancellationToken);
 
         return data.Count != 0 ? data : [];
     }

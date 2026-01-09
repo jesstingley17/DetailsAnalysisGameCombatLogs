@@ -8,11 +8,11 @@ using System.Data;
 
 namespace CombatAnalysis.DAL.Repositories.StoredProcedures.Batch;
 
-internal class SPResourceRecoveryRepositoryBatch(CombatParserContext context) : GenericRepository<ResourceRecovery>(context), IGenericRepositoryBatch<ResourceRecovery>
+internal class SPResourceRecoveryRepositoryBatch(CombatParserContext context) : GenericRepository<ResourceRecovery>(context), ICreateBatchRepository<ResourceRecovery>
 {
     private readonly CombatParserContext _context = context;
 
-    public async Task CreateBatchAsync(IEnumerable<ResourceRecovery> items)
+    public async Task CreateBatchAsync(IEnumerable<ResourceRecovery> items, CancellationToken cancellationToken)
     {
         if (!items.Any())
         {
@@ -47,6 +47,6 @@ internal class SPResourceRecoveryRepositoryBatch(CombatParserContext context) : 
         };
 
         var sql = $"EXEC dbo.InsertInto{nameof(ResourceRecovery)}Batch @Items";
-        await _context.Database.ExecuteSqlRawAsync(sql, itemsParam);
+        await _context.Database.ExecuteSqlRawAsync(sql, [itemsParam], cancellationToken);
     }
 }

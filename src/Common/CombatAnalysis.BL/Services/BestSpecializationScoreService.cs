@@ -11,19 +11,19 @@ internal class BestSpecializationScoreService(IBestSpecializationScoreRepository
     private readonly IBestSpecializationScoreRepository _repository = repository;
     private readonly IMapper _mapper = mapper;
 
-    public async Task<int> UpdateAsync(BestSpecializationScoreDto item)
+    public async Task<int> UpdateAsync(BestSpecializationScoreDto item, CancellationToken cancellationToken)
     {
         CheckParams(item);
 
         var map = _mapper.Map<BestSpecializationScore>(item);
-        var rowsAffected = await _repository.UpdateAsync(map.Id, map);
+        var rowsAffected = await _repository.UpdateAsync(map.Id, map, cancellationToken);
 
         return rowsAffected;
     }
 
-    public async Task<BestSpecializationScoreDto?> GetAsync(int specializationId, int bossId)
+    public async Task<BestSpecializationScoreDto?> GetAsync(int specializationId, int bossId, CancellationToken cancellationToken)
     {
-        var bestSpecScore = await _repository.GetAsync(specializationId, bossId);
+        var bestSpecScore = await _repository.GetAsync(specializationId, bossId, cancellationToken);
         var map = _mapper.Map<BestSpecializationScoreDto>(bestSpecScore);
 
         return map;

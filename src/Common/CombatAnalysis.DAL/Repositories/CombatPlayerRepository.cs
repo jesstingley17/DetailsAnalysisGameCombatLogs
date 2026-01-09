@@ -12,7 +12,7 @@ internal class CombatPlayerRepository(CombatParserContext context) : ICombatPlay
 {
     private readonly CombatParserContext _context = context;
 
-    public async Task CreateBatchAsync(IEnumerable<CombatPlayer> items)
+    public async Task CreateBatchAsync(IEnumerable<CombatPlayer> items, CancellationToken cancellationToken)
     {
         if (!items.Any())
         {
@@ -87,28 +87,10 @@ internal class CombatPlayerRepository(CombatParserContext context) : ICombatPlay
         };
 
         var sql = $"EXEC dbo.InsertInto{nameof(CombatPlayer)}Batch @Items";
-        await _context.Database.ExecuteSqlRawAsync(sql, itemsParam);
+        await _context.Database.ExecuteSqlRawAsync(sql, [itemsParam], cancellationToken);
     }
 
-    public async Task<CombatPlayer> CreateAsync(CombatPlayer item)
-    {
-        _context.Set<Player>().Attach(item.Player);
-
-        var entityEntry = await _context.Set<CombatPlayer>().AddAsync(item);
-        await _context.SaveChangesAsync();
-
-        return entityEntry.Entity;
-    }
-
-    public async Task<int> UpdateAsync(int id, CombatPlayer item)
-    {
-        var existing = await _context.Set<CombatPlayer>().FindAsync(id) ?? throw new KeyNotFoundException();
-        _context.Entry(existing).CurrentValues.SetValues(item);
-
-        return await _context.SaveChangesAsync();
-    }
-
-    public async Task<IEnumerable<CombatPlayer>> GetByCombatIdAsync(int combatId)
+    public async Task<IEnumerable<CombatPlayer>> GetByCombatIdAsync(int combatId, CancellationToken cancellationToken)
     {
         var result = await _context.Set<CombatPlayer>()
             .AsNoTracking()
@@ -131,7 +113,7 @@ internal class CombatPlayerRepository(CombatParserContext context) : ICombatPlay
                     Faction = cp.Player.Faction,
                 },
 
-                Stats = cp.Stats == null ? null : new CombatPlayerStats
+                Stats = new CombatPlayerStats
                 {
                     Id = cp.Stats.Id,
                     Strength = cp.Stats.Strength,
@@ -162,7 +144,7 @@ internal class CombatPlayerRepository(CombatParserContext context) : ICombatPlay
                     CombatPlayerId = cp.Score.CombatPlayerId,
                 },
             })
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         return result.Count != 0 ? result : [];
     }

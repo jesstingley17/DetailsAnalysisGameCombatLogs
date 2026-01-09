@@ -533,8 +533,6 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
     {
         try
         {
-            var token = ((BasicTemplateViewModel)Basic).RequestCancelationToken();
-
             CurrentCombatNumber = 0;
 
             Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.ResponseStatus), LoadingStatus.Pending);
@@ -542,13 +540,15 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
             var combats = _allCombats?.ToList();
             var combatLog = ((BasicTemplateViewModel)Basic).CombatLog;
 
-            await _combatParserAPIService.SaveAsync(combats, combatLog, CombatUploaded, token);
+            await _combatParserAPIService.SaveAsync(combats, combatLog, CombatUploaded, ((BasicTemplateViewModel)Basic).RequestCancelationToken);
 
             Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.ResponseStatus), LoadingStatus.Successful);
+            Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.IsCombatLogsMustSave), false);
         }
         catch (Exception)
         {
             Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.ResponseStatus), LoadingStatus.Failed);
+            Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.IsCombatLogsMustSave), false);
         }
     }
 

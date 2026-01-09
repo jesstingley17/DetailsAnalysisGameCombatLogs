@@ -1,81 +1,29 @@
-﻿using AutoMapper;
-using CombatAnalysis.BL.DTO;
+﻿using CombatAnalysis.BL.DTO;
 using CombatAnalysis.BL.Interfaces.General;
 using CombatAnalysis.CombatParserAPI.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace CombatAnalysis.CombatParserAPI.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-public class CombatPlayerPositionController(IQueryService<CombatPlayerPositionDto> queryCombatPlayerPosition, IMutationService<CombatPlayerPositionDto> mutationCombatPlayerService,
-    IMapper mapper, ILogger<CombatPlayerPositionController> logger) : ControllerBase
+public class CombatPlayerPositionController(IQueryService<CombatPlayerPositionDto> queryCombatPlayerPosition) : ControllerBase
 {
     private readonly IQueryService<CombatPlayerPositionDto> _queryCombatPlayerPosition = queryCombatPlayerPosition;
-    private readonly IMutationService<CombatPlayerPositionDto> _mutationCombatPlayerService = mutationCombatPlayerService;
-    private readonly IMapper _mapper = mapper;
-    private readonly ILogger<CombatPlayerPositionController> _logger = logger;
 
     [HttpGet("getByCombatId/{combatId:int:min(1)}")]
-    public async Task<IActionResult> GetByCombatId(int combatId)
+    public async Task<IActionResult> GetByCombatId(int combatId, CancellationToken cancellationToken)
     {
-        var combatPlayerPositions = await _queryCombatPlayerPosition.GetByParamAsync(nameof(CombatPlayerPositionModel.CombatId), combatId);
+        var combatPlayerPositions = await _queryCombatPlayerPosition.GetByParamAsync(nameof(CombatPlayerPositionModel.CombatId), combatId, cancellationToken);
 
         return Ok(combatPlayerPositions);
     }
 
     [HttpGet("{id:int:min(1)}")]
-    public async Task<IActionResult> GetById(int id)
+    public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
     {
-        var combatPlayerPosition = await _queryCombatPlayerPosition.GetByIdAsync(id);
+        var combatPlayerPosition = await _queryCombatPlayerPosition.GetByIdAsync(id, cancellationToken);
 
         return Ok(combatPlayerPosition);
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CombatPlayerPositionModel combatPlayerPosition)
-    {
-        try
-        {
-            if (!ModelState.IsValid)
-            {
-                _logger.LogWarning("Invalid CombatPlayerPosition create received: {@CombatPlayerPosition}", combatPlayerPosition);
-
-                return ValidationProblem(ModelState);
-            }
-
-            var map = _mapper.Map<CombatPlayerPositionDto>(combatPlayerPosition);
-            var createdItem = await _mutationCombatPlayerService.CreateAsync(map);
-
-            return Ok(createdItem);
-        }
-        catch (DbUpdateException ex)
-        {
-            _logger.LogError(ex, "Failed to create combat player position.");
-
-            return StatusCode(500, "Internal server error.");
-        }
-    }
-
-    [HttpDelete("{id:int:min(1)}")]
-    public async Task<IActionResult> Delete(int id)
-    {
-        try
-        {
-            var entityDeleted = await _mutationCombatPlayerService.DeleteAsync(id);
-            if (!entityDeleted)
-            {
-                return NotFound();
-            }
-
-            return NoContent();
-        }
-        catch (DbUpdateConcurrencyException ex)
-        {
-            _logger.LogWarning(ex, "The resource was modified by another user. Please refresh and try again.");
-
-            return Conflict(new { message = "The resource was modified by another user. Please refresh and try again." });
-        }
     }
 }

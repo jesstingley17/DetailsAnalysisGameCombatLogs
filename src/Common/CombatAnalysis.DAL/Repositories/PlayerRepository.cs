@@ -9,26 +9,26 @@ internal class PlayerRepository(CombatParserContext context) : IPlayerRepository
 {
     private readonly CombatParserContext _context = context;
 
-    public async Task<Player?> GetByIdAsync(string id)
+    public async Task<Player?> GetByIdAsync(string id, CancellationToken cancellationToken)
     {
         var player = await _context.Set<Player>()
-             .FindAsync(id);
+             .FindAsync(id, cancellationToken);
 
         return player;
     }
 
-    public async Task<Player?> GetByGameIdAsync(string gameId)
+    public async Task<Player?> GetByGameIdAsync(string gameId, CancellationToken cancellationToken)
     {
         var player = await _context.Set<Player>()
-             .SingleOrDefaultAsync(b => b.GameId == gameId);
+             .SingleOrDefaultAsync(b => b.GameId == gameId, cancellationToken);
 
         return player;
     }
 
-    public async Task<Player> CreateAsync(Player player)
+    public async Task<Player> CreateAsync(Player player, CancellationToken cancellationToken)
     {
-        var entityEntry = await _context.Set<Player>().AddAsync(player);
-        await _context.SaveChangesAsync();
+        var entityEntry = await _context.Set<Player>().AddAsync(player, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
 
         return entityEntry.Entity;
     }

@@ -5,15 +5,14 @@ namespace CombatAnalysis.CombatParserAPI.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-public class SpecializationScoreController(ISpecializationScoreService service, ILogger<SpecializationScoreController> logger) : ControllerBase
+public class SpecializationScoreController(ISpecializationScoreService service) : ControllerBase
 {
     private readonly ISpecializationScoreService _service = service;
-    private readonly ILogger<SpecializationScoreController> _logger = logger;
 
     [HttpGet("getByCombatPlayerId/{combatPlayerId:int:min(1)}")]
-    public async Task<IActionResult> GetByCombatPlayerId(int combatPlayerId)
+    public async Task<IActionResult> GetByCombatPlayerId(int combatPlayerId, CancellationToken cancellationToken)
     {
-        var score = await _service.GetByCombatPlayerIdAsync(combatPlayerId);
+        var score = await _service.GetByCombatPlayerIdAsync(combatPlayerId, cancellationToken);
 
         return Ok(score);
     }

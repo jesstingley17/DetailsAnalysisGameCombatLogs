@@ -3,9 +3,9 @@
 public interface IMutationService<TModel>
     where TModel : class
 {
-    Task<TModel> CreateAsync(TModel item);
+    Task<TModel> CreateAsync(TModel item, CancellationToken cancelationToken);
 
-    Task<int> UpdateAsync(TModel item);
+    Task<int> UpdateAsync(TModel item, CancellationToken cancelationToken);
 
-    Task<bool> DeleteAsync(int id);
+    Task<bool> DeleteAsync(int id, CancellationToken cancelationToken);
 }

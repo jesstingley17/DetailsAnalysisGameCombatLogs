@@ -10,9 +10,9 @@ public class BossController(IBossService service) : ControllerBase
     private readonly IBossService _service = service;
 
     [HttpGet]
-    public async Task<IActionResult> Get(int gameBossId, int difficult, int groupSize)
+    public async Task<IActionResult> Get(int gameBossId, int difficult, int groupSize, CancellationToken cancellationToken)
     {
-        var boss = await _service.GetAsync(gameBossId, difficult, groupSize);
+        var boss = await _service.GetAsync(gameBossId, difficult, groupSize, cancellationToken);
 
         return Ok(boss);
     }

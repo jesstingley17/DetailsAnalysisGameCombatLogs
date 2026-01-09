@@ -3,5 +3,5 @@
 public interface IPlayerInfoService<TModel>
     where TModel : class
 {
-    Task<IEnumerable<TModel>> GetByCombatPlayerIdAsync(int combatPlayerId);
+    Task<IEnumerable<TModel>> GetByCombatPlayerIdAsync(int combatPlayerId, CancellationToken cancellationToken);
 }

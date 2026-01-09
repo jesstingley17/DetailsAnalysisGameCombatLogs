@@ -12,13 +12,13 @@ internal class PlayerInfoPaginationService<TModel, TModelMap>(IPlayerInfoPaginat
     private readonly IPlayerInfoPaginationRepository<TModelMap> _playerInfoPaginationRepository = playerInfoPaginationRepository;
     private readonly IMapper _mapper = mapper;
 
-    public async Task<IEnumerable<TModel>> GetByCombatPlayerIdAsync(int combatPlayerId, int page = 1, int pageSize = 10)
+    public async Task<IEnumerable<TModel>> GetByCombatPlayerIdAsync(int combatPlayerId, int page, int pageSize, CancellationToken cancellationToken)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(combatPlayerId, nameof(combatPlayerId));
         ArgumentOutOfRangeException.ThrowIfNegative(page, nameof(page));
         ArgumentOutOfRangeException.ThrowIfNegative(pageSize, nameof(pageSize));
 
-        var result = await _playerInfoPaginationRepository.GetByCombatPlayerIdAsync(combatPlayerId, page, pageSize);
+        var result = await _playerInfoPaginationRepository.GetByCombatPlayerIdAsync(combatPlayerId, page, pageSize, cancellationToken);
         var resultMap = _mapper.Map<IEnumerable<TModel>>(result);
 
         return resultMap;

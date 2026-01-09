@@ -8,11 +8,11 @@ using System.Data;
 
 namespace CombatAnalysis.DAL.Repositories.StoredProcedures.Batch;
 
-internal class SPCombatAuraRepositoryBatch(CombatParserContext context) : GenericRepository<CombatAura>(context), IGenericRepositoryBatch<CombatAura>
+internal class SPCombatAuraRepositoryBatch(CombatParserContext context) : GenericRepository<CombatAura>(context), ICreateBatchRepository<CombatAura>
 {
     private readonly CombatParserContext _context = context;
 
-    public async Task CreateBatchAsync(IEnumerable<CombatAura> items)
+    public async Task CreateBatchAsync(IEnumerable<CombatAura> items, CancellationToken cancellationToken)
     {
         if (!items.Any())
         {
@@ -51,6 +51,6 @@ internal class SPCombatAuraRepositoryBatch(CombatParserContext context) : Generi
         };
 
         var sql = $"EXEC dbo.InsertInto{nameof(CombatAura)}Batch @Items";
-        await _context.Database.ExecuteSqlRawAsync(sql, itemsParam);
+        await _context.Database.ExecuteSqlRawAsync(sql, [itemsParam], cancellationToken);
     }
 }

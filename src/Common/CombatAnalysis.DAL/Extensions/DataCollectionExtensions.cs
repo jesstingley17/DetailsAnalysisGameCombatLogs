@@ -28,17 +28,17 @@ public static class DataCollectionExtensions
 
         services.AddScoped<IContextService, ContextService>();
 
-        services.AddScoped<IGenericRepositoryBatch<CombatPlayerDeath>, SPPlayerDeathRepositoryBatch>();
-        services.AddScoped<IGenericRepositoryBatch<DamageDoneGeneral>, SPDamageDoneGeneralRepositoryBatch>();
-        services.AddScoped<IGenericRepositoryBatch<HealDoneGeneral>, SPHealDoneGeneralRepositoryBatch>();
-        services.AddScoped<IGenericRepositoryBatch<DamageTakenGeneral>, SPDamageTakenGeneralRepositoryBatch>();
-        services.AddScoped<IGenericRepositoryBatch<ResourceRecoveryGeneral>, SPResourceRecoveryGeneralRepositoryBatch>();
-        services.AddScoped<IGenericRepositoryBatch<CombatAura>, SPCombatAuraRepositoryBatch>();
-        services.AddScoped<IGenericRepositoryBatch<CombatPlayerPosition>, SPCombatPlayerPositionRepositoryBatch>();
-        services.AddScoped<IGenericRepositoryBatch<DamageDone>, SPDamageDoneRepositoryBatch>();
-        services.AddScoped<IGenericRepositoryBatch<HealDone>, SPHealDoneRepositoryBatch>();
-        services.AddScoped<IGenericRepositoryBatch<DamageTaken>, SPDamageTakenRepositoryBatch>();
-        services.AddScoped<IGenericRepositoryBatch<ResourceRecovery>, SPResourceRecoveryRepositoryBatch>();
+        services.AddScoped<ICreateBatchRepository<CombatPlayerDeath>, SPPlayerDeathRepositoryBatch>();
+        services.AddScoped<ICreateBatchRepository<DamageDoneGeneral>, SPDamageDoneGeneralRepositoryBatch>();
+        services.AddScoped<ICreateBatchRepository<HealDoneGeneral>, SPHealDoneGeneralRepositoryBatch>();
+        services.AddScoped<ICreateBatchRepository<DamageTakenGeneral>, SPDamageTakenGeneralRepositoryBatch>();
+        services.AddScoped<ICreateBatchRepository<ResourceRecoveryGeneral>, SPResourceRecoveryGeneralRepositoryBatch>();
+        services.AddScoped<ICreateBatchRepository<CombatAura>, SPCombatAuraRepositoryBatch>();
+        services.AddScoped<ICreateBatchRepository<CombatPlayerPosition>, SPCombatPlayerPositionRepositoryBatch>();
+        services.AddScoped<ICreateBatchRepository<DamageDone>, SPDamageDoneRepositoryBatch>();
+        services.AddScoped<ICreateBatchRepository<HealDone>, SPHealDoneRepositoryBatch>();
+        services.AddScoped<ICreateBatchRepository<DamageTaken>, SPDamageTakenRepositoryBatch>();
+        services.AddScoped<ICreateBatchRepository<ResourceRecovery>, SPResourceRecoveryRepositoryBatch>();
 
         services.AddScoped<IBossRepository, BossRepository>();
         services.AddScoped<IPlayerRepository, PlayerRepository>();
@@ -73,6 +73,6 @@ public static class DataCollectionExtensions
         services.AddScoped<ISpecializationScoreRepository, SpecializationScoreRepository>();
         services.AddScoped<IBestSpecializationScoreRepository, BestSpecializationScoreRepository>();
 
-        services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+        services.AddScoped(typeof(ICreateEntityRepository<>), typeof(GenericRepository<>));
     }
 }

@@ -32,7 +32,7 @@ public class GenericFilterRepositoryTests : RepositoryTestsBase
         var repo = new GeneralFilterRepositroy<DamageDone>(context);
 
         // Act
-        var result = await repo.GetTargetNamesByCombatPlayerIdAsync(combatPlayerId);
+        var result = await repo.GetTargetNamesByCombatPlayerIdAsync(combatPlayerId, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -80,7 +80,7 @@ public class GenericFilterRepositoryTests : RepositoryTestsBase
         var repo = new GeneralFilterRepositroy<DamageDone>(context);
 
         // Act
-        var result = await repo.CountTargetByCombatPlayerIdAsync(combatPlayerId, target);
+        var result = await repo.CountTargetByCombatPlayerIdAsync(combatPlayerId, target, CancellationToken.None);
 
         // Assert
         Assert.Equal(2, result);
@@ -113,7 +113,7 @@ public class GenericFilterRepositoryTests : RepositoryTestsBase
         var repo = new GeneralFilterRepositroy<DamageDone>(context);
 
         // Act
-        var result = await repo.GetByTargetAsync(combatPlayerId, target, 1, 10);
+        var result = await repo.GetByTargetAsync(combatPlayerId, target, 1, 10, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -161,7 +161,7 @@ public class GenericFilterRepositoryTests : RepositoryTestsBase
         var repo = new GeneralFilterRepositroy<DamageDone>(context);
 
         // Act
-        var result = await repo.GetTargetValueByCombatPlayerIdAsync(combatPlayerId, target);
+        var result = await repo.GetTargetValueByCombatPlayerIdAsync(combatPlayerId, target, CancellationToken.None);
 
         // Assert
         Assert.Equal(value, result);
@@ -193,7 +193,7 @@ public class GenericFilterRepositoryTests : RepositoryTestsBase
         var repo = new GeneralFilterRepositroy<DamageDone>(context);
 
         // Act
-        var result = await repo.GetCreatorNamesByCombatPlayerIdAsync(combatPlayerId);
+        var result = await repo.GetCreatorNamesByCombatPlayerIdAsync(combatPlayerId, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -227,7 +227,7 @@ public class GenericFilterRepositoryTests : RepositoryTestsBase
         var repo = new GeneralFilterRepositroy<DamageDone>(context);
 
         // Act
-        var result = await repo.CountCreatorByCombatPlayerIdAsync(combatPlayerId, creator);
+        var result = await repo.CountCreatorByCombatPlayerIdAsync(combatPlayerId, creator, CancellationToken.None);
 
         // Assert
         Assert.Equal(1, result);
@@ -260,7 +260,7 @@ public class GenericFilterRepositoryTests : RepositoryTestsBase
         var repo = new GeneralFilterRepositroy<DamageDone>(context);
 
         // Act
-        var result = await repo.GetByCreatorAsync(combatPlayerId, creator, 1, 10);
+        var result = await repo.GetByCreatorAsync(combatPlayerId, creator, 1, 10, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -294,7 +294,7 @@ public class GenericFilterRepositoryTests : RepositoryTestsBase
         var repo = new GeneralFilterRepositroy<DamageDone>(context);
 
         // Act
-        var result = await repo.GetSpellNamesByCombatPlayerIdAsync(combatPlayerId);
+        var result = await repo.GetSpellNamesByCombatPlayerIdAsync(combatPlayerId, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -341,7 +341,7 @@ public class GenericFilterRepositoryTests : RepositoryTestsBase
         var repo = new GeneralFilterRepositroy<DamageDone>(context);
 
         // Act
-        var result = await repo.CountSpellByCombatPlayerIdAsync(combatPlayerId, spell);
+        var result = await repo.CountSpellByCombatPlayerIdAsync(combatPlayerId, spell, CancellationToken.None);
 
         // Assert
         Assert.Equal(2, result);
@@ -374,7 +374,7 @@ public class GenericFilterRepositoryTests : RepositoryTestsBase
         var repo = new GeneralFilterRepositroy<DamageDone>(context);
 
         // Act
-        var result = await repo.GetBySpellAsync(combatPlayerId, spell, 1, 10);
+        var result = await repo.GetBySpellAsync(combatPlayerId, spell, 1, 10, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

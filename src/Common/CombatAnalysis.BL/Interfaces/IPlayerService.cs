@@ -4,9 +4,9 @@ namespace CombatAnalysis.BL.Interfaces;
 
 public interface IPlayerService
 {
-    Task<PlayerDto> GetByIdAsync(string id);
+    Task<PlayerDto> GetByIdAsync(string id, CancellationToken cancellationToken);
 
-    Task<PlayerDto> GetByGameIdAsync(string gameId);
+    Task<PlayerDto> GetByGameIdAsync(string gameId, CancellationToken cancellationToken);
 
-    Task<PlayerDto> CreateAsync(PlayerDto item);
+    Task<PlayerDto> CreateAsync(PlayerDto item, CancellationToken cancellationToken);
 }

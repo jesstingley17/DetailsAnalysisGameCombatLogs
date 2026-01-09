@@ -24,7 +24,7 @@ public class SPGenericRepositoryTests(SqlServerFixture fixture)
         var repo = new GenericRepository<DamageDone>(context);
 
         // Act
-        var createdDamageDone = await repo.CreateAsync(damageDone);
+        var createdDamageDone = await repo.CreateAsync(damageDone, CancellationToken.None);
 
         // Assert
         var existDamageDone = await context.Set<DamageDone>().FirstOrDefaultAsync(d => d.Spell == spell);
@@ -49,7 +49,7 @@ public class SPGenericRepositoryTests(SqlServerFixture fixture)
         var repo = new GenericRepository<DamageDone>(context);
 
         // Act
-        await repo.CreateAsync(damageDone);
+        await repo.CreateAsync(damageDone, CancellationToken.None);
 
         // Assert
         var createdEntity = await context.Set<DamageDone>().FirstOrDefaultAsync(d => d.Value == value);

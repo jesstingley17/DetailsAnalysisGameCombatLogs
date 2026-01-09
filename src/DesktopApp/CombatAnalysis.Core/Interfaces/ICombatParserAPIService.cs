@@ -5,15 +5,15 @@ namespace CombatAnalysis.Core.Interfaces;
 
 public interface ICombatParserAPIService
 {
-    Task SaveAsync(List<CombatModel> combats, CombatLogModel combatLog, Action<string, string> combatUploaded, CancellationToken cancellationToken);
+    Task SaveAsync(List<CombatModel> combats, CombatLogModel combatLog, Action<string, string> combatUploaded, Func<CancellationToken> requestCancelationToken);
 
-    Task DeleteCombatLogByUserAsync(int id);
+    Task DeleteCombatLogByUserAsync(int id, CancellationToken cancellationToken);
 
-    Task<IEnumerable<CombatLogModel>> LoadCombatLogsAsync();
+    Task<IEnumerable<CombatLogModel>> LoadCombatLogsAsync(CancellationToken cancellationToken);
 
-    Task<IEnumerable<CombatModel>> LoadCombatsAsync(int combatLogId);
+    Task<IEnumerable<CombatModel>> LoadCombatsAsync(int combatLogId, CancellationToken cancellationToken);
 
-    Task<IEnumerable<CombatPlayerModel>> LoadCombatPlayersAsync(int combatId);
+    Task<IEnumerable<CombatPlayerModel>> LoadCombatPlayersAsync(int combatId, CancellationToken cancellationToke);
 
     Task<int> LoadCountAsync(string address, CancellationToken cancellationToken);
 

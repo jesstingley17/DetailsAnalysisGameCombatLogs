@@ -1,5 +1,6 @@
 ﻿using CombatAnalysis.DAL.Data;
 using CombatAnalysis.DAL.Entities;
+using CombatAnalysis.DAL.Extensions;
 using CombatAnalysis.DAL.Interfaces.Generic;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -7,25 +8,23 @@ using System.Data;
 
 namespace CombatAnalysis.DAL.Repositories.StoredProcedures.Batch;
 
-internal class SPCombatPlayerPositionRepositoryBatch(CombatParserContext context) : GenericRepository<CombatPlayerPosition>(context), IGenericRepositoryBatch<CombatPlayerPosition>
+internal class SPCombatPlayerPositionRepositoryBatch(CombatParserContext context) : GenericRepository<CombatPlayerPosition>(context), ICreateBatchRepository<CombatPlayerPosition>
 {
     private readonly CombatParserContext _context = context;
 
-    public async Task CreateBatchAsync(IEnumerable<CombatPlayerPosition> items)
+    public async Task CreateBatchAsync(IEnumerable<CombatPlayerPosition> items, CancellationToken cancellationToken)
     {
         if (!items.Any())
         {
             return;
         }
 
-        var firstElement = items.First();
-
         var table = new DataTable();
-        table.Columns.Add(nameof(CombatPlayerPosition.PositionX), firstElement.PositionX.GetType());
-        table.Columns.Add(nameof(CombatPlayerPosition.PositionY), firstElement.PositionY.GetType());
-        table.Columns.Add(nameof(CombatPlayerPosition.Time), firstElement.Time.GetType());
-        table.Columns.Add(nameof(CombatPlayerPosition.CombatPlayerId), firstElement.CombatPlayerId.GetType());
-        table.Columns.Add(nameof(CombatPlayerPosition.CombatId), firstElement.CombatId.GetType());
+        table.AddColumn<double>(nameof(CombatPlayerPosition.PositionX));
+        table.AddColumn<double>(nameof(CombatPlayerPosition.PositionY));
+        table.AddColumn<TimeSpan>(nameof(CombatPlayerPosition.Time));
+        table.AddColumn<int>(nameof(CombatPlayerPosition.CombatPlayerId));
+        table.AddColumn<int>(nameof(CombatPlayerPosition.CombatId));
 
         foreach (var item in items)
         {
@@ -37,13 +36,13 @@ internal class SPCombatPlayerPositionRepositoryBatch(CombatParserContext context
                 item.CombatId);
         }
 
-        var param = new SqlParameter("@Items", table)
+        var itemsParam = new SqlParameter("@Items", table)
         {
             SqlDbType = SqlDbType.Structured,
             TypeName = $"dbo.{nameof(CombatPlayerPosition)}Type"
         };
 
         var sql = $"EXEC InsertInto{nameof(CombatPlayerPosition)}Batch @Items";
-        await _context.Database.ExecuteSqlRawAsync(sql, param);
+        await _context.Database.ExecuteSqlRawAsync(sql, [itemsParam], cancellationToken);
     }
 }
