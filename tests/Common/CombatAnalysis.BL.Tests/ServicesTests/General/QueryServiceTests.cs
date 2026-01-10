@@ -22,12 +22,12 @@ public class QueryServiceTests
 
         mockMapper.Setup(m => m.Map<IEnumerable<CombatDto>>(combats)).Returns(combatsDto);
 
-        mockRepository.Setup(m => m.GetAllAsync()).ReturnsAsync(combats);
+        mockRepository.Setup(m => m.GetAllAsync(CancellationToken.None)).ReturnsAsync(combats);
 
         var service = new QueryService<CombatDto, Combat>(mockRepository.Object, mockMapper.Object);
 
         // Act
-        var result = await service.GetAllAsync();
+        var result = await service.GetAllAsync(CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -35,7 +35,7 @@ public class QueryServiceTests
         Assert.Equal(3, result.Count());
 
         // Verify correct method calls
-        mockRepository.Verify(r => r.GetAllAsync(), Times.Once);
+        mockRepository.Verify(r => r.GetAllAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -50,19 +50,19 @@ public class QueryServiceTests
 
         mockMapper.Setup(m => m.Map<IEnumerable<CombatDto>>(combats)).Returns(combatsDto);
 
-        mockRepository.Setup(m => m.GetAllAsync()).ReturnsAsync(combats);
+        mockRepository.Setup(m => m.GetAllAsync(CancellationToken.None)).ReturnsAsync(combats);
 
         var service = new QueryService<CombatDto, Combat>(mockRepository.Object, mockMapper.Object);
 
         // Act
-        var result = await service.GetAllAsync();
+        var result = await service.GetAllAsync(CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         Assert.Empty(result);
 
         // Verify correct method calls
-        mockRepository.Verify(r => r.GetAllAsync(), Times.Once);
+        mockRepository.Verify(r => r.GetAllAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -79,19 +79,19 @@ public class QueryServiceTests
 
         mockMapper.Setup(m => m.Map<CombatDto>(combat)).Returns(combatDto);
 
-        mockRepository.Setup(m => m.GetByIdAsync(combatId)).ReturnsAsync(combat);
+        mockRepository.Setup(m => m.GetByIdAsync(combatId, CancellationToken.None)).ReturnsAsync(combat);
 
         var service = new QueryService<CombatDto, Combat>(mockRepository.Object, mockMapper.Object);
 
         // Act
-        var result = await service.GetByIdAsync(combatId);
+        var result = await service.GetByIdAsync(combatId, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         Assert.Equal(combatId, result.Id);
 
         // Verify correct method calls
-        mockRepository.Verify(r => r.GetByIdAsync(It.IsAny<int>()), Times.Once);
+        mockRepository.Verify(r => r.GetByIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -111,13 +111,13 @@ public class QueryServiceTests
         var service = new QueryService<CombatDto, Combat>(mockRepository.Object, mockMapper.Object);
 
         // Act
-        var result = await service.GetByIdAsync(combatId);
+        var result = await service.GetByIdAsync(combatId, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
 
         // Verify correct method calls
-        mockRepository.Verify(r => r.GetByIdAsync(It.IsAny<int>()), Times.Once);
+        mockRepository.Verify(r => r.GetByIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -132,10 +132,10 @@ public class QueryServiceTests
         var service = new QueryService<CombatDto, Combat>(mockRepository.Object, mockMapper.Object);
 
         // Act and Assert
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.GetByIdAsync(combatId));
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.GetByIdAsync(combatId, CancellationToken.None));
 
         // Verify correct method calls
-        mockRepository.Verify(r => r.GetByIdAsync(It.IsAny<int>()), Times.Never);
+        mockRepository.Verify(r => r.GetByIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -152,12 +152,12 @@ public class QueryServiceTests
 
         mockMapper.Setup(m => m.Map<IEnumerable<CombatDto>>(combats)).Returns(combatsDto);
 
-        mockRepository.Setup(m => m.GetByParamAsync(nameof(Combat.CombatLogId), combatLogId)).ReturnsAsync(combats);
+        mockRepository.Setup(m => m.GetByParamAsync(nameof(Combat.CombatLogId), combatLogId, CancellationToken.None)).ReturnsAsync(combats);
 
         var service = new QueryService<CombatDto, Combat>(mockRepository.Object, mockMapper.Object);
 
         // Act
-        var result = await service.GetByParamAsync(nameof(Combat.CombatLogId), combatLogId);
+        var result = await service.GetByParamAsync(nameof(Combat.CombatLogId), combatLogId, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -165,7 +165,7 @@ public class QueryServiceTests
         Assert.Equal(3, result.Count());
 
         // Verify correct method calls
-        mockRepository.Verify(r => r.GetByParamAsync(It.IsAny<string>(), It.IsAny<object>()), Times.Once);
+        mockRepository.Verify(r => r.GetByParamAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -183,13 +183,13 @@ public class QueryServiceTests
         var service = new QueryService<CombatDto, Combat>(mockRepository.Object, mockMapper.Object);
 
         // Act
-        var result = await service.GetByParamAsync(nameof(Combat.CombatLogId), combatLogId);
+        var result = await service.GetByParamAsync(nameof(Combat.CombatLogId), combatLogId, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         Assert.Empty(result);
 
         // Verify correct method calls
-        mockRepository.Verify(r => r.GetByParamAsync(It.IsAny<string>(), It.IsAny<object>()), Times.Once);
+        mockRepository.Verify(r => r.GetByParamAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 }

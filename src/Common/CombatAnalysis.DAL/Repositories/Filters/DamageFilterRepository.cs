@@ -1,5 +1,6 @@
 ﻿using CombatAnalysis.DAL.Data;
 using CombatAnalysis.DAL.Entities;
+using CombatAnalysis.DAL.Entities.CombatPlayerData;
 using CombatAnalysis.DAL.Interfaces.Filters;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,10 +10,10 @@ internal class DamageFilterRepository(CombatParserContext context) : IDamageFilt
 {
     private readonly CombatParserContext _context = context;
 
-    public async Task<IEnumerable<List<CombatTarget>>> GetDamageByEachTargetAsync(int combatId)
+    public async Task<IEnumerable<List<CombatTarget>>> GetDamageByEachTargetAsync(int combatId, CancellationToken cancellationToken)
     {
         var damageByEachTarget = new List<List<CombatTarget>>();
-        var targets = await GetTargetsAsync(combatId);
+        var targets = await GetTargetsAsync(combatId, cancellationToken);
 
         foreach (var item in targets)
         {
@@ -24,7 +25,7 @@ internal class DamageFilterRepository(CombatParserContext context) : IDamageFilt
                            (x, u) => new
                            {
                                u.Id,
-                               u.Username
+                               u.Player.Username
                            })
                        .Join(_context.Set<DamageDone>(),
                            x => x.Id,
@@ -39,7 +40,7 @@ internal class DamageFilterRepository(CombatParserContext context) : IDamageFilt
                        .GroupBy(x => x.Username)
                        .Select(x => new CombatTarget { Username = x.Key, Target = item, Sum = x.Sum(y => y.Value) })
                        .OrderByDescending(x => x.Sum)
-                       .ToListAsync();
+                       .ToListAsync(cancellationToken);
 
             damageByEachTarget.Add(sum);
         }
@@ -47,7 +48,7 @@ internal class DamageFilterRepository(CombatParserContext context) : IDamageFilt
         return damageByEachTarget;
     }
 
-    private async Task<List<string>> GetTargetsAsync(int combatId)
+    private async Task<List<string>> GetTargetsAsync(int combatId, CancellationToken cancellationToken)
     {
         var targets = await _context.Set<Combat>()
                 .Where(x => x.Id == combatId)
@@ -67,7 +68,7 @@ internal class DamageFilterRepository(CombatParserContext context) : IDamageFilt
                     })
                 .Distinct()
                 .Select(x => x.Target)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
         return targets;
     }

@@ -8,6 +8,9 @@ public class DamageTakenModel
     public int Id { get; set; }
 
     [Required]
+    public int GameSpellId { get; set; }
+
+    [Required]
     public string Spell { get; set; }
 
     [Range(0, int.MaxValue)]

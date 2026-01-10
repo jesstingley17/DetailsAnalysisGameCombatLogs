@@ -45,7 +45,7 @@ public class IntToXAMLBoolConverter : MvxValueConverter<int, string>
         return (int)parameter;
     }
 
-    private string Compare(string sign, int value, int targetNumber)
+    private static string Compare(string sign, int value, int targetNumber)
     {
         var result = string.Empty;
 

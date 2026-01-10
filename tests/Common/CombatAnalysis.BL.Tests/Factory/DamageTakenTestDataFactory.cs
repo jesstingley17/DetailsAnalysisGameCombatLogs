@@ -1,5 +1,5 @@
 ﻿using CombatAnalysis.BL.DTO;
-using CombatAnalysis.DAL.Entities;
+using CombatAnalysis.DAL.Entities.CombatPlayerData;
 
 namespace CombatAnalysis.BL.Tests.Factory;
 

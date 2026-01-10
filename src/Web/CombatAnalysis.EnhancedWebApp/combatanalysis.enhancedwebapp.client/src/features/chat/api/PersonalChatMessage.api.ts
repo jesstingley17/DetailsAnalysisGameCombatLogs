@@ -1,4 +1,4 @@
-import type { PersonalChatMessagePatch } from '../types/patches/PersonalChatMessagePatch';
+import type { ChatMessagePatch } from '../types/patches/ChatMessagePatch';
 import type { PersonalChatMessageModel } from '../types/PersonalChatMessageModel';
 import { ChatApi } from './Chat.api';
 
@@ -10,9 +10,8 @@ export const PersonalChatMessageApi = ChatApi.injectEndpoints({
                 url: '/PersonalChatMessage',
                 method: 'POST'
             }),
-            invalidatesTags: result => result ? [{ type: 'PersonalChatMessage', id: result.id }] : [],
         }),
-        partialUpdatePersonalChatMessage: builder.mutation<void, { id: number, message: PersonalChatMessagePatch }>({
+        partialUpdatePersonalChatMessage: builder.mutation<void, { id: number, message: ChatMessagePatch }>({
             query: ({ id, message }) => ({
                 body: message,
                 url: `/PersonalChatMessage/${id}`,
@@ -33,9 +32,6 @@ export const PersonalChatMessageApi = ChatApi.injectEndpoints({
             }),
             invalidatesTags: (_result, _error, id) => [{ type: 'PersonalChatMessage', id }],
         }),
-        getPersonalChatMessageCountByChatId: builder.query<number, number>({
-            query: chatId => `/PersonalChatMessage/count/${chatId}`,
-        }),
     })
 })
 
@@ -44,5 +40,4 @@ export const {
     usePartialUpdatePersonalChatMessageMutation,
     useRemovePersonalChatMessageMutation,
     useRemovePersonalChatMessageByChatIdMutation,
-    useGetPersonalChatMessageCountByChatIdQuery,
 } = PersonalChatMessageApi;

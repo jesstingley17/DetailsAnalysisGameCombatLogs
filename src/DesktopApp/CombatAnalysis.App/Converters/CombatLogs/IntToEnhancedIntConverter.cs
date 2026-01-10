@@ -13,7 +13,7 @@ public class IntToEnhancedIntConverter : IValueConverter
         string result;
         if (moreThanMillion < 1)
         {
-            double moreThanThousand = (int)value / 1000;
+            double moreThanThousand = Convert.ToDouble(value) / 1000;
             enchance = Math.Round(moreThanThousand, 3);
             result = $"{enchance}K";
         }

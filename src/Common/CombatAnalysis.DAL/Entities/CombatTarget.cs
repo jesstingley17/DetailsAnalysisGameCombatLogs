@@ -1,12 +1,20 @@
-﻿namespace CombatAnalysis.DAL.Entities;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace CombatAnalysis.DAL.Entities;
 
 public class CombatTarget
 {
     public int Id { get; set; }
 
-    public string Username { get; set; }
+    [MaxLength(126)]
+    public string Username { get; set; } = string.Empty;
 
-    public string Target { get; set; }
+    [MaxLength(126)]
+    public string Target { get; set; } = string.Empty;
 
     public int Sum { get; set; }
+
+    public Combat Combat { get; set; }
+
+    public int CombatId { get; set; }
 }

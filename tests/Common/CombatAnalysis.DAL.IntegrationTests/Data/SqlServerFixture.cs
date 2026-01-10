@@ -1,5 +1,6 @@
 ﻿using CombatAnalysis.DAL.Data;
 using CombatAnalysis.DAL.Entities;
+using CombatAnalysis.DAL.Entities.CombatPlayerData;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Testcontainers.MsSql;
@@ -61,8 +62,8 @@ public class SqlServerFixture : IAsyncLifetime
     public static async Task SeedSpecializationScoreTestDataAsync(CombatParserContext context)
     {
         await context.Set<SpecializationScore>().AddRangeAsync(
-            new SpecializationScore { SpecId = 1, BossId = 1, Difficult = 1, Damage = 1233321, Heal = 1231, Updated = null },
-            new SpecializationScore { SpecId = 1, BossId = 2, Difficult = 1, Damage = 432112, Heal = 2234142, Updated = null }
+            new SpecializationScore { SpecializationId = 1, DamageDone = 1233321, HealDone = 1231, Updated = null },
+            new SpecializationScore { SpecializationId = 1, DamageDone = 432112, HealDone = 2234142, Updated = null }
         );
 
         await context.SaveChangesAsync();

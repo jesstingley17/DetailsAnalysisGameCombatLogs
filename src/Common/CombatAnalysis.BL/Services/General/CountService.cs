@@ -10,11 +10,11 @@ internal class CountService<TModel, TModelMap>(ICountRepository<TModelMap> count
 {
     private readonly ICountRepository<TModelMap> _countRepository = countRepository;
 
-    public async Task<int> CountByCombatPlayerIdAsync(int combatPlayerId)
+    public async Task<int> CountByCombatPlayerIdAsync(int combatPlayerId, CancellationToken cancellationToken)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(combatPlayerId, 1);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(combatPlayerId);
 
-        var count = await _countRepository.CountByCombatPlayerIdAsync(combatPlayerId);
+        var count = await _countRepository.CountByCombatPlayerIdAsync(combatPlayerId, cancellationToken);
 
         return count;
     }

@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using CombatAnalysis.BL.DTO;
-using CombatAnalysis.BL.Interfaces.General;
+using CombatAnalysis.BL.Interfaces;
 using CombatAnalysis.CombatParser.Details;
 using CombatAnalysis.CombatParser.Entities;
 using CombatAnalysis.CombatParser.Extensions;
@@ -10,119 +10,142 @@ using CombatAnalysis.CombatParserAPI.Models;
 
 namespace CombatAnalysis.CombatParserAPI.Helpers;
 
-public class CombatDataHelper(IMapper mapper, ILogger<CombatDataHelper> logger, IPlayerParseInfoHelper playerParseInfoHelper, IServiceScopeFactory serviceScopeFactory) : ICombatDataHelper
+public class CombatDataHelper(IMapper mapper, ILogger<CombatDataHelper> logger, ISpecializationScoreHelper specializationScoreHelper, IServiceScopeFactory serviceScopeFactory) : ICombatDataHelper
 {
     private readonly IMapper _mapper = mapper;
     private readonly ILogger<CombatDataHelper> _logger = logger;
-    private readonly IPlayerParseInfoHelper _playerParseInfoHelper = playerParseInfoHelper;
+    private readonly ISpecializationScoreHelper _specializationScoreHelper = specializationScoreHelper;
     private readonly IServiceScopeFactory _serviceScopeFactory = serviceScopeFactory;
 
-    public async Task SaveCombatPlayerAsync(CombatModel combat)
+    public CombatDetails CreateCombatDetails(CombatModel combat)
     {
-        var parsedCombat = _mapper.Map<Combat>(combat);
-
-        var playersId = combat.Players.Select(x => x.PlayerId).ToList();
+        var playersId = combat.CombatPlayers.Select(x => x.Player.GameId).ToList();
 
         var combatDetails = new CombatDetails(_logger, combat.PetsId);
         combatDetails.Calculate(playersId, combat.Data, combat.StartDate, combat.FinishDate);
         combatDetails.CalculateGeneralData(playersId, combat.Duration);
 
-        var uploadTasks = combat.Players.Select(item => UploadAsync(parsedCombat, item, combatDetails, combat.Id)).ToList();
+        return combatDetails;
+    }
+
+    public async Task CreateCombatPlayersDataAsync(CombatDetails combatDetails, List<CombatPlayerDto> combatPlayers, int combatId, CancellationToken cancellationToken)
+    {
+        var playersId = combatPlayers.Select(x => x.Player.GameId).ToList();
+
+        var uploadTasks = combatPlayers.Select(item => UploadAsync(item, combatDetails, combatId, cancellationToken)).ToList();
         await Task.WhenAll(uploadTasks);
 
-        var uploadCombatAuraTasks = combatDetails.Auras.Select(item => UploadCombatAuraData(item.Value, combat.Id)).ToList();
+        var uploadCombatAuraTasks = combatDetails.Auras.Select(item => UploadCombatAuraData([.. item.Value.Select(x => x.Value)], combatId, cancellationToken)).ToList();
         await Task.WhenAll(uploadCombatAuraTasks);
     }
 
-    private async Task UploadAsync(Combat combat, CombatPlayerModel combatPlayer, CombatDetails combatDetails, int combatId)
+    public async Task UpdateSpecializationScoreAsync(List<CombatPlayerDto> combatPlayers, CombatDetails combatDetails, int bossId, CancellationToken cancellationToken)
     {
-        foreach (var item in combatDetails.PlayersDeath[combatPlayer.PlayerId])
+        var bestSpecScores = new List<BestSpecializationScoreDto?>();
+        var specScores = new List<SpecializationScoreDto?>();
+        foreach (var item in combatPlayers)
         {
-            var lastDamageTaken = combatDetails.DamageTaken[combatPlayer.PlayerId].LastOrDefault(x => x.Target == item.Username);
-            if (lastDamageTaken != null)
+            var specScore = await _specializationScoreHelper.GetSpecializationScoreAsync(item.Id, cancellationToken);
+            specScores.Add(specScore);
+
+            if (specScore != null)
             {
-                item.LastHitValue = lastDamageTaken.Value;
-                item.LastHitSpellOrItem = lastDamageTaken.Spell;
+                var bestSpecScore = await _specializationScoreHelper.GetBestSpecializationScoreAsync(specScore.SpecializationId, bossId, cancellationToken);
+                bestSpecScores.Add(bestSpecScore);
+            }
+            else
+            {
+                bestSpecScores.Add(null);
+            }
+        }
+
+        var index = 0;
+        foreach (var item in combatPlayers)
+        {
+            if (specScores[index] != null && bestSpecScores[index] != null)
+            {
+                await _specializationScoreHelper.UpdateSpecializationScoreAsync(item.DamageDone, item.HealDone, bestSpecScores[index]!, specScores[index]!, cancellationToken);
+                await _specializationScoreHelper.UpdateBestSpecializationScoreAsync(item.DamageDone, item.HealDone, bestSpecScores[index]!, cancellationToken);
+            }
+
+            index++;
+        }
+    }
+
+    private async Task UploadAsync(CombatPlayerDto combatPlayer, CombatDetails combatDetails, int combatId, CancellationToken cancellationToken)
+    {
+        foreach (var item in combatDetails.PlayersDeath[combatPlayer.Player.GameId])
+        {
+            if (combatDetails.DamageTaken[combatPlayer.Player.GameId].TryGetValue(item.Value.Username, out var lastDamageTaken))
+            {
+                item.Value.LastHitValue = lastDamageTaken.Value;
+                item.Value.LastHitSpell = lastDamageTaken.Spell;
             }
         }
 
         var uploadTasks = new List<Task>
         {
-            UploadCombatPlayerPositionData(combatDetails.Positions[combatPlayer.PlayerId], combatPlayer.Id, combatId),
+            UploadCombatPlayerPositionData([.. combatDetails.Positions[combatPlayer.Player.GameId].Select(x => x.Value)], combatPlayer.Id, combatId, cancellationToken),
 
-            UploadPlayerInfoData<DamageDone, DamageDoneDto>(combatDetails.DamageDone[combatPlayer.PlayerId], combatPlayer.Id),
-            UploadPlayerInfoData<DamageDoneGeneral, DamageDoneGeneralDto>(combatDetails.DamageDoneGeneral[combatPlayer.PlayerId], combatPlayer.Id),
-            UploadPlayerInfoData<HealDone, HealDoneDto>(combatDetails.HealDone[combatPlayer.PlayerId], combatPlayer.Id),
-            UploadPlayerInfoData<HealDoneGeneral, HealDoneGeneralDto>(combatDetails.HealDoneGeneral[combatPlayer.PlayerId], combatPlayer.Id),
-            UploadPlayerInfoData<DamageTaken, DamageTakenDto>(combatDetails.DamageTaken[combatPlayer.PlayerId], combatPlayer.Id),
-            UploadPlayerInfoData<DamageTakenGeneral, DamageTakenGeneralDto>(combatDetails.DamageTakenGeneral[combatPlayer.PlayerId], combatPlayer.Id),
-            UploadPlayerInfoData<ResourceRecovery, ResourceRecoveryDto>(combatDetails.ResourcesRecovery[combatPlayer.PlayerId], combatPlayer.Id),
-            UploadPlayerInfoData<ResourceRecoveryGeneral, ResourceRecoveryGeneralDto>(combatDetails.ResourcesRecoveryGeneral[combatPlayer.PlayerId], combatPlayer.Id),
-            UploadPlayerInfoData<PlayerDeath, PlayerDeathDto>(combatDetails.PlayersDeath[combatPlayer.PlayerId], combatPlayer.Id),
+            UploadPlayerInfoBatch<DamageDone, DamageDoneDto>([.. combatDetails.DamageDone[combatPlayer.Player.GameId].Select(x => x.Value)], combatPlayer.Id, cancellationToken),
+            UploadPlayerInfoBatch<HealDone, HealDoneDto>([.. combatDetails.HealDone[combatPlayer.Player.GameId].Select(x => x.Value)], combatPlayer.Id, cancellationToken),
+            UploadPlayerInfoBatch<DamageTaken, DamageTakenDto>([.. combatDetails.DamageTaken[combatPlayer.Player.GameId].Select(x => x.Value)], combatPlayer.Id, cancellationToken),
+            UploadPlayerInfoBatch<ResourceRecovery, ResourceRecoveryDto>([.. combatDetails.ResourcesRecovery[combatPlayer.Player.GameId].Select(x => x.Value)], combatPlayer.Id, cancellationToken),
+            UploadPlayerInfoBatch<DamageDoneGeneral, DamageDoneGeneralDto>(combatDetails.DamageDoneGeneral[combatPlayer.Player.GameId], combatPlayer.Id, cancellationToken),
+            UploadPlayerInfoBatch<HealDoneGeneral, HealDoneGeneralDto>(combatDetails.HealDoneGeneral[combatPlayer.Player.GameId], combatPlayer.Id, cancellationToken),
+            UploadPlayerInfoBatch<DamageTakenGeneral, DamageTakenGeneralDto>(combatDetails.DamageTakenGeneral[combatPlayer.Player.GameId], combatPlayer.Id, cancellationToken),
+            UploadPlayerInfoBatch<ResourceRecoveryGeneral, ResourceRecoveryGeneralDto>(combatDetails.ResourcesRecoveryGeneral[combatPlayer.Player.GameId], combatPlayer.Id, cancellationToken),
+            UploadPlayerInfoBatch<PlayerDeath, CombatPlayerDeathDto>([.. combatDetails.PlayersDeath[combatPlayer.Player.GameId].Select(x => x.Value)], combatPlayer.Id, cancellationToken),
         };
 
         await Task.WhenAll(uploadTasks);
-
-        if (combat.IsWin)
-        {
-            await _playerParseInfoHelper.UploadPlayerParseInfoAsync(combat, combatPlayer, combatDetails.DamageDoneGeneral[combatPlayer.PlayerId], combatDetails.HealDoneGeneral[combatPlayer.PlayerId]);
-        }
     }
 
-    private async Task UploadPlayerInfoData<TModel, TModelMap>(List<TModel> dataforUpload, int combatPlayerId)
-        where TModel :class,  ICombatPlayerEntity
+    private async Task UploadPlayerInfoBatch<TModel, TModelMap>(List<TModel> data, int combatPlayerId, CancellationToken cancellationToken)
+        where TModel : class, ICombatPlayerEntity
         where TModelMap : class, BL.Interfaces.Entity.ICombatPlayerEntity
     {
         using var scope = _serviceScopeFactory.CreateScope();
-        var scopedService = scope.ServiceProvider.GetRequiredService<IMutationService<TModelMap>>();
+        var scopedService = scope.ServiceProvider.GetRequiredService<ICreateBatchService<TModelMap>>();
 
-        foreach (var item in dataforUpload)
+        data = [.. data.Select(x => 
         {
-            var map = _mapper.Map<TModelMap>(item);
-            map.CombatPlayerId = combatPlayerId;
+            x.CombatPlayerId = combatPlayerId;
+            return x; 
+        })];
+        var map = _mapper.Map<List<TModelMap>>(data);
 
-            var createdItem = await scopedService.CreateAsync(map);
-            if (createdItem == null)
-            {
-                throw new ArgumentException("Did not created");
-            }
-        }
+        await scopedService.CreateBatchAsync(map, cancellationToken);
     }
 
-    private async Task UploadCombatPlayerPositionData(List<CombatPlayerPosition> combatPlayerPositions, int combatPlayerId, int combatId)
+    private async Task UploadCombatPlayerPositionData(List<CombatPlayerPosition> combatPlayerPositions, int combatPlayerId, int combatId, CancellationToken cancellationToke)
     {
         using var scope = _serviceScopeFactory.CreateScope();
-        var scopedService = scope.ServiceProvider.GetRequiredService<IMutationService<CombatPlayerPositionDto>>();
+        var scopedService = scope.ServiceProvider.GetRequiredService<ICreateBatchService<CombatPlayerPositionDto>>();
 
-        foreach (var item in combatPlayerPositions)
+        combatPlayerPositions = [.. combatPlayerPositions.Select(x =>
         {
-            var combatPlayerPositionMap = _mapper.Map<CombatPlayerPositionDto>(item);
-            combatPlayerPositionMap.CombatId = combatId;
-            combatPlayerPositionMap.CombatPlayerId = combatPlayerId;
+            x.CombatId = combatId;
+            x.CombatPlayerId = combatPlayerId;
+            return x;
+        })];
+        var combatPlayerPositionsMap = _mapper.Map<List<CombatPlayerPositionDto>>(combatPlayerPositions);
 
-            var createdItem = await scopedService.CreateAsync(combatPlayerPositionMap);
-            if (createdItem == null)
-            {
-                throw new ArgumentException("Did not created");
-            }
-        }
+        await scopedService.CreateBatchAsync(combatPlayerPositionsMap, cancellationToke);
     }
 
-    private async Task UploadCombatAuraData(List<CombatAura> combatAuras, int combatId)
+    private async Task UploadCombatAuraData(List<CombatAura> combatAuras, int combatId, CancellationToken cancellationToke)
     {
         using var scope = _serviceScopeFactory.CreateScope();
-        var scopedService = scope.ServiceProvider.GetRequiredService<IMutationService<CombatAuraDto>>();
+        var scopedService = scope.ServiceProvider.GetRequiredService<ICreateBatchService<CombatAuraDto>>();
 
-        foreach (var item in combatAuras)
+        combatAuras = [.. combatAuras.Select(x =>
         {
-            var combatAuraMap = _mapper.Map<CombatAuraDto>(item);
-            combatAuraMap.CombatId = combatId;
+            x.CombatId = combatId;
+            return x;
+        })];
+        var combatAurasMap = _mapper.Map<List<CombatAuraDto>>(combatAuras);
 
-            var createdItem = await scopedService.CreateAsync(combatAuraMap);
-            if (createdItem == null)
-            {
-                throw new ArgumentException("Did not created");
-            }
-        }
+        await scopedService.CreateBatchAsync(combatAurasMap, cancellationToke);
     }
 }

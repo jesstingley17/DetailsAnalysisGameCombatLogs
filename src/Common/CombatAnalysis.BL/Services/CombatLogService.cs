@@ -7,37 +7,37 @@ using CombatAnalysis.DAL.Interfaces.Generic;
 
 namespace CombatAnalysis.BL.Services;
 
-internal class CombatLogService(IGenericRepository<CombatLog> userRepository, IMapper mapper) : QueryService<CombatLogDto, CombatLog>(userRepository, mapper), IMutationService<CombatLogDto>
+internal class CombatLogService(ICreateEntityRepository<CombatLog> userRepository, IMapper mapper) : QueryService<CombatLogDto, CombatLog>(userRepository, mapper), IMutationService<CombatLogDto>
 {
-    private readonly IGenericRepository<CombatLog> _repository = userRepository;
+    private readonly ICreateEntityRepository<CombatLog> _repository = userRepository;
     private readonly IMapper _mapper = mapper;
 
-    public async Task<CombatLogDto> CreateAsync(CombatLogDto item)
+    public async Task<CombatLogDto> CreateAsync(CombatLogDto item, CancellationToken cancellationToken)
     {
         CheckParams(item);
 
         var map = _mapper.Map<CombatLog>(item);
-        var createdItem = await _repository.CreateAsync(map);
+        var createdItem = await _repository.CreateAsync(map, cancellationToken);
         var resultMap = _mapper.Map<CombatLogDto>(createdItem);
 
         return resultMap;
     }
 
-    public async Task<int> UpdateAsync(CombatLogDto item)
+    public async Task<int> UpdateAsync(CombatLogDto item, CancellationToken cancellationToken)
     {
         CheckParams(item);
 
         var map = _mapper.Map<CombatLog>(item);
-        var rowsAffected = await _repository.UpdateAsync(map);
+        var rowsAffected = await _repository.UpdateAsync(map, cancellationToken);
 
         return rowsAffected;
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken)
     {
         ArgumentOutOfRangeException.ThrowIfLessThan(id, 1);
 
-        var entityDeleted = await _repository.DeleteAsync(id);
+        var entityDeleted = await _repository.DeleteAsync(id, cancellationToken);
 
         return entityDeleted;
     }

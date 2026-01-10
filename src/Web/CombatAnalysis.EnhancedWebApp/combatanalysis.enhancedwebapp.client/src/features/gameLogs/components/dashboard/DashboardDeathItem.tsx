@@ -2,12 +2,12 @@
 import { useTranslation } from 'react-i18next';
 import { useLazyGetDamageTakenByCombatPlayerIdQuery } from '../../api/DamageTaken.api';
 import type { CombatPlayerModel } from '../../types/CombatPlayerModel';
-import type { PlayerDeathModel } from '../../types/PlayerDeathModel';
+import type { CombatPlayerDeathModel } from '../../types/CombatPlayerDeathModel';
 
 const minCount = 3;
 
 export interface DashboardDeathItemProps {
-    playersDeath: PlayerDeathModel[];
+    playersDeath: CombatPlayerDeathModel[];
     combatPlayers: CombatPlayerModel[];
 }
 

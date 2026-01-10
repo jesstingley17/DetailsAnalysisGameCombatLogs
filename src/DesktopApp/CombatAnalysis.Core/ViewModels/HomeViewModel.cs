@@ -70,7 +70,7 @@ public class HomeViewModel : ParentTemplate<bool>, IAuthObserver
 
     public async Task OpenCombatAnalysisAsync()
     {
-        await _mvvmNavigation.Navigate<CombatLogInformationViewModel>();
+        await _mvvmNavigation.Navigate<CombatLogsViewModel>();
     }
 
     public void AuthUpdate(bool isAuth)

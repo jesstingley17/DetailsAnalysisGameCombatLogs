@@ -13,7 +13,7 @@ interface TopPlayersProps {
     detailsType: number;
 }
 
-const TopPlayers: React.FC<TopPlayersProps> = ({ calculation, calculationValuePerTime, goToCombatGeneralDetails, getDetailsValue, topPlayers, detailsType }) => {
+const TopPlayers: React.FC<TopPlayersProps> = ({ calculation, calculationValuePerTime, goToCombatGeneralDetails, getDetailsValue, topPlayers: topCombatPlayers, detailsType }) => {
     const { t } = useTranslation("helpers/combatDetailsHelper");
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -41,9 +41,9 @@ const TopPlayers: React.FC<TopPlayersProps> = ({ calculation, calculationValuePe
 
     return (
         <ul className="top-players">
-            {topPlayers.map((player, index) => (
+            {topCombatPlayers.map((combatPlayer, index) => (
                 <li key={index} className="player">
-                    <div className="value-per-time">{calculationValuePerTime(player, dashboardDetailsType[detailsType])} {getValuePerTimeType()}</div>
+                    <div className="value-per-time">{calculationValuePerTime(combatPlayer, dashboardDetailsType[detailsType])} {getValuePerTimeType()}</div>
                     <div className="stars">
                         {index <= 0 &&
                             <FontAwesomeIcon
@@ -64,10 +64,10 @@ const TopPlayers: React.FC<TopPlayersProps> = ({ calculation, calculationValuePe
                             />
                         }
                     </div>
-                    <div className="username" onClick={() => goToCombatGeneralDetails(player.id)}>{player.username.split('-')[0]}</div>
+                    <div className="username" onClick={() => goToCombatGeneralDetails(combatPlayer.id)}>{combatPlayer.player.username.split('-')[0]}</div>
                     <div className="top-players__values">
-                        <div className="actual-value">{getDetailsValue(player)}</div>
-                        <div className="player-contribution">{calculation(player, dashboardDetailsType[detailsType])}%</div>
+                        <div className="actual-value">{getDetailsValue(combatPlayer)}</div>
+                        <div className="player-contribution">{calculation(combatPlayer, dashboardDetailsType[detailsType])}%</div>
                     </div>
                 </li>
             ))}

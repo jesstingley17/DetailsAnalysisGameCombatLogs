@@ -10,5 +10,6 @@ public record GroupChatMessageModel(
     int MarkedType,
     bool IsEdited,
     int GroupChatId,
-    string GroupChatUserId
+    string GroupChatUserId,
+    string AppUserId
     );

@@ -1,7 +1,7 @@
 ﻿using CombatAnalysis.Core.Enums;
 using CombatAnalysis.Core.Interfaces;
 using CombatAnalysis.Core.Interfaces.Observers;
-using CombatAnalysis.Core.Models;
+using CombatAnalysis.Core.Models.GameLogs;
 using CombatAnalysis.Core.Services;
 using CombatAnalysis.Core.ViewModels.Base;
 using CombatAnalysis.Core.ViewModels.ViewModelTemplates;
@@ -13,42 +13,22 @@ using System.Collections.ObjectModel;
 
 namespace CombatAnalysis.Core.ViewModels;
 
-public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>>, IResponseStatusObserver
+public class CombatsViewModel : ParentTemplate<List<CombatModel>>, IResponseStatusObserver
 {
     private readonly IMvxNavigationService _mvvmNavigation;
     private readonly CombatParserAPIService _combatParserAPIService;
-    private readonly int _maxCombatInformationStepIndex = 4;
 
-    private ObservableCollection<CombatModel>? _combats;
-    private ObservableCollection<CombatModel>? _fullCombats;
+    private ObservableCollection<CombatModel>? _uniqueCombats;
+    private ObservableCollection<CombatModel>? _allCombats;
     private CombatModel? _selectedCombat;
+    private int _combatsNumber;
     private int _selectedCombatIndex = -1;
+    private int _selectedUniqueCombatNumber = -1;
     private string? _dungeonName;
     private string? _dungeonNames;
     private string? _name;
     private LoadingStatus _status;
-    private int _maxCombats;
     private int _currentCombatNumber;
-    private double _averageDamagePerSecond;
-    private double _averageHealPerSecond;
-    private double _averageResourcesPerSecond;
-    private double _averageDamageTakenPerSecond;
-    private double _maxDamagePerSecond;
-    private double _maxHealPerSecond;
-    private double _maxResourcesPerSecond;
-    private double _maxDamageTakenPerSecond;
-    private double _averageDamage;
-    private double _averageHeal;
-    private double _averageResources;
-    private double _averageDamageTaken;
-    private double _maxDamage;
-    private double _maxHeal;
-    private double _maxResources;
-    private double _maxDamageTaken;
-    private double _indexOfDeath;
-    private int _combatInformationStep;
-    private bool _showAverageInformation;
-    private bool _onlyWin;
 
     private int _sortedByName = -1;
     private int _sortedByDamageDone = -1;
@@ -63,14 +43,10 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
 
         _combatParserAPIService = new CombatParserAPIService(httpClient, logger, memoryCache);
 
-        RepeatSaveCommand = new MvxAsyncCommand(RepeatSaveCombatDataDetailsAsync);
+        RepeatSaveCommand = new MvxAsyncCommand(SaveCombatsAsync);
         CancelCommand = new MvxCommand(UploadingCancel);
-        RefreshCommand = new MvxAsyncCommand(RefreshAsync);
         ShowDetailsCommand = new MvxAsyncCommand(ShowDetailsAsync);
-        SortCommand = new MvxCommand<int>(CombatsSort);
-
-        LastCombatInfromationStep = new MvxCommand(LastStep);
-        NextCombatInfromationStep = new MvxCommand(NextStep);
+        CombatSortCommand = new MvxCommand<int>(CombatsSort);
 
         Basic.Parent = this;
         Basic.SavedViewModel = this;
@@ -80,35 +56,37 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
         responseStatusObservable?.AddObserver(this);
 
         ResponseStatus = ((BasicTemplateViewModel)Basic).ResponseStatus;
-        CurrentCombatNumber = ((BasicTemplateViewModel)Basic).UploadedCombatsCount;
     }
 
     #region Commands
 
-    public IMvxAsyncCommand RepeatSaveCommand { get; set; }
+    public IMvxAsyncCommand RepeatSaveCommand { get; }
 
-    public IMvxCommand CancelCommand { get; set; }
+    public IMvxCommand CancelCommand { get; }
 
-    public IMvxAsyncCommand RefreshCommand { get; set; }
+    public IMvxAsyncCommand ShowDetailsCommand { get; }
 
-    public IMvxCommand LastCombatInfromationStep { get; set; }
-
-    public IMvxCommand NextCombatInfromationStep { get; set; }
-
-    public IMvxAsyncCommand ShowDetailsCommand { get; set; }
-
-    public IMvxCommand SortCommand { get; set; }
+    public IMvxCommand CombatSortCommand { get; }
 
     #endregion
 
     #region View model properties
 
-    public ObservableCollection<CombatModel>? Combats
+    public ObservableCollection<CombatModel>? UniqueCombats
     {
-        get { return _combats; }
+        get { return _uniqueCombats; }
         set
         {
-            SetProperty(ref _combats, value);
+            SetProperty(ref _uniqueCombats, value);
+        }
+    }
+
+    public int CombatsNumber
+    {
+        get { return _combatsNumber; }
+        set
+        {
+            SetProperty(ref _combatsNumber, value);
         }
     }
 
@@ -117,6 +95,11 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
         get { return _selectedCombat; }
         set
         {
+            if (value != null)
+            {
+                value.Number = SelectedCombatIndex;
+            }
+
             SetProperty(ref _selectedCombat, value);
         }
     }
@@ -127,6 +110,20 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
         set
         {
             SetProperty(ref _selectedCombatIndex, value);
+        }
+    }
+
+    public int SelectedUniqueCombatNumber
+    {
+        get { return _selectedUniqueCombatNumber; }
+        set
+        {
+            SetProperty(ref _selectedUniqueCombatNumber, value);
+            if (value > 0 && SelectedCombat != null && _allCombats != null)
+            {
+                SelectedCombat = _allCombats.Where(c => c.Boss.GameId == SelectedCombat.Boss.GameId).ToArray()[value - 1];
+                Task.Run(async () => await ShowDetailsCommand.ExecuteAsync());
+            }
         }
     }
 
@@ -166,203 +163,12 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
         }
     }
 
-    public int MaxCombats
-    {
-        get { return _maxCombats; }
-        set
-        {
-            SetProperty(ref _maxCombats, value);
-        }
-    }
-
-    public bool OnlyWin
-    {
-        get { return _onlyWin; }
-        set
-        {
-            SetProperty(ref _onlyWin, value);
-
-            Filter();
-        }
-    }
-
     public int CurrentCombatNumber
     {
         get { return _currentCombatNumber; }
         set
         {
             SetProperty(ref _currentCombatNumber, value);
-        }
-    }
-
-    public double AverageDamagePerSecond
-    {
-        get { return _averageDamagePerSecond; }
-        set
-        {
-            SetProperty(ref _averageDamagePerSecond, value);
-        }
-    }
-
-    public double AverageHealPerSecond
-    {
-        get { return _averageHealPerSecond; }
-        set
-        {
-            SetProperty(ref _averageHealPerSecond, value);
-        }
-    }
-
-    public double AverageResourcesPerSecond
-    {
-        get { return _averageResourcesPerSecond; }
-        set
-        {
-            SetProperty(ref _averageResourcesPerSecond, value);
-        }
-    }
-
-    public double AverageDamageTakenPerSecond
-    {
-        get { return _averageDamageTakenPerSecond; }
-        set
-        {
-            SetProperty(ref _averageDamageTakenPerSecond, value);
-        }
-    }
-
-    public double MaxDamagePerSecond
-    {
-        get { return _maxDamagePerSecond; }
-        set
-        {
-            SetProperty(ref _maxDamagePerSecond, value);
-        }
-    }
-
-    public double MaxHealPerSecond
-    {
-        get { return _maxHealPerSecond; }
-        set
-        {
-            SetProperty(ref _maxHealPerSecond, value);
-        }
-    }
-
-    public double MaxResourcesPerSecond
-    {
-        get { return _maxResourcesPerSecond; }
-        set
-        {
-            SetProperty(ref _maxResourcesPerSecond, value);
-        }
-    }
-
-    public double MaxDamageTakenPerSecond
-    {
-        get { return _maxDamageTakenPerSecond; }
-        set
-        {
-            SetProperty(ref _maxDamageTakenPerSecond, value);
-        }
-    }
-
-    public double AverageDamage
-    {
-        get { return _averageDamage; }
-        set
-        {
-            SetProperty(ref _averageDamage, value);
-        }
-    }
-
-    public double AverageHeal
-    {
-        get { return _averageHeal; }
-        set
-        {
-            SetProperty(ref _averageHeal, value);
-        }
-    }
-
-    public double AverageResources
-    {
-        get { return _averageResources; }
-        set
-        {
-            SetProperty(ref _averageResources, value);
-        }
-    }
-
-    public double AverageDamageTaken
-    {
-        get { return _averageDamageTaken; }
-        set
-        {
-            SetProperty(ref _averageDamageTaken, value);
-        }
-    }
-
-    public double MaxDamage
-    {
-        get { return _maxDamage; }
-        set
-        {
-            SetProperty(ref _maxDamage, value); ;
-        }
-    }
-
-    public double MaxHeal
-    {
-        get { return _maxHeal; }
-        set
-        {
-            SetProperty(ref _maxHeal, value);
-        }
-    }
-
-    public double MaxResources
-    {
-        get { return _maxResources; }
-        set
-        {
-            SetProperty(ref _maxResources, value);
-        }
-    }
-
-    public double IndexOfDeath
-    {
-        get { return _indexOfDeath; }
-        set
-        {
-            SetProperty(ref _indexOfDeath, value);
-        }
-    }
-
-    public double MaxDamageTaken
-    {
-        get { return _maxDamageTaken; }
-        set
-        {
-            SetProperty(ref _maxDamageTaken, value);
-        }
-    }
-
-    public int CombatInformationStep
-    {
-        get { return _combatInformationStep; }
-        set
-        {
-            SetProperty(ref _combatInformationStep, value);
-        }
-    }
-
-    public bool ShowAverageInformation
-    {
-        get { return _showAverageInformation; }
-        set
-        {
-            SetProperty(ref _showAverageInformation, value);
         }
     }
 
@@ -426,47 +232,51 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
 
     #endregion
 
-    public override void Prepare(Tuple<List<CombatModel>, LogType> parameter)
+    public override async Task Initialize()
     {
-        if (parameter == null)
+        var isCombatLogsMustSave = ((BasicTemplateViewModel)Basic).IsCombatLogsMustSave;
+        if (isCombatLogsMustSave)
+        {
+            await SaveCombatsAsync();
+        }
+
+        await base.Initialize();
+    }
+
+    public override void Prepare(List<CombatModel> parameter)
+    {
+        if (parameter == null || parameter.Count == 0)
         {
             return;
         }
 
-        _fullCombats = new ObservableCollection<CombatModel>(parameter.Item1);
-        Combats = new ObservableCollection<CombatModel>(_fullCombats);
-        MaxCombats = Combats.Count;
+        _allCombats = new ObservableCollection<CombatModel>(parameter);
+        CombatsNumber = _allCombats.Count;
 
-        GetUniqueDungeonNames(parameter.Item1);
+        var uniqueCombats = _allCombats
+            .GroupBy(c => c.Boss.Id)
+            .Select(c =>
+            {
+                var combat = c.Any(x => x.IsWin) ? c.First(x => x.IsWin) : c.Last();
+                combat.Items = [];
 
-        GetAverageInformationPerSecond(parameter.Item1);
-        GetMaxInformationPerSecond(parameter.Item1);
-        GetAverageInformation(parameter.Item1);
-        GetMaxInformation(parameter.Item1);
-    }
+                var allBossCombats = _allCombats.Where(x => x.Boss.GameId == combat.Boss.GameId).ToArray();
+                combat.UniqueCombatCount = c.Count();
 
-    public void NextStep()
-    {
-        if (CombatInformationStep + 1 > _maxCombatInformationStepIndex)
-        {
-            CombatInformationStep = 0;
-        }
-        else
-        {
-            CombatInformationStep++;
-        }
-    }
+                int[] combatNumbers = [.. Enumerable.Range(0, combat.UniqueCombatCount - 1)];
+                foreach (var item in combatNumbers)
+                {
+                    var percentage = allBossCombats[item].BossHealthPercentage;
+                    combat.Items.Add(item + 1, percentage);
+                }
 
-    public void LastStep()
-    {
-        if (CombatInformationStep - 1 < 0)
-        {
-            CombatInformationStep = _maxCombatInformationStepIndex;
-        }
-        else
-        {
-            CombatInformationStep--;
-        }
+                return combat;
+            })
+            .OrderBy(c => c.FinishDate)
+            .ToList();
+        UniqueCombats = new ObservableCollection<CombatModel>(uniqueCombats);
+
+        GetUniqueDungeonNames(parameter);
     }
 
     public override void ViewDestroy(bool viewFinishing = true)
@@ -474,13 +284,13 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
         var responseStatusObservable = Basic as IResponseStatusObservable;
         responseStatusObservable?.RemoveObserver(this);
 
-        Combats?.Clear();
-        MaxCombats = 0;
+        UniqueCombats?.Clear();
+        _allCombats?.Clear();
 
         base.ViewDestroy(viewFinishing);
     }
 
-    public async Task ShowDetailsAsync()
+    private async Task ShowDetailsAsync()
     {
         if (SelectedCombat == null)
         {
@@ -492,32 +302,27 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
         await _mvvmNavigation.Navigate<CombatPlayersViewModel, CombatModel>(SelectedCombat);
     }
 
-    public async Task RepeatSaveCombatDataDetailsAsync()
+    private async Task SaveCombatsAsync()
     {
-        var token = ((BasicTemplateViewModel)Basic).RequestCancelationToken();
+        try
+        {
+            CurrentCombatNumber = 0;
 
-        CurrentCombatNumber = 0;
+            Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.ResponseStatus), LoadingStatus.Pending);
 
-        Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.ResponseStatus), LoadingStatus.Pending);
-        Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.UploadedCombatsCount), 0);
+            var combats = _allCombats?.ToList();
+            var combatLog = ((BasicTemplateViewModel)Basic).CombatLog;
 
-        var combatsForUploadAgain = Combats?.Where(combat => !combat.IsReady).ToList();
-        var combotLogToRepeat = ((BasicTemplateViewModel)Basic).CombatLog;
-        if (combatsForUploadAgain == null || combotLogToRepeat == null || combotLogToRepeat.Id == 0)
+            await _combatParserAPIService.SaveAsync(combats, combatLog, CombatUploaded, ((BasicTemplateViewModel)Basic).RequestCancelationToken);
+
+            Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.ResponseStatus), LoadingStatus.Successful);
+            Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.IsCombatLogsMustSave), false);
+        }
+        catch (Exception)
         {
             Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.ResponseStatus), LoadingStatus.Failed);
-            return;
+            Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.IsCombatLogsMustSave), false);
         }
-
-        var combatsUploaded = await _combatParserAPIService.SaveAsync(combatsForUploadAgain, combotLogToRepeat, CombatUploaded, token);
-        if (!combatsUploaded)
-        {
-            Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.ResponseStatus), LoadingStatus.Failed);
-
-            return;
-        }
-
-        Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.ResponseStatus), LoadingStatus.Successful);
     }
 
     public void Update(LoadingStatus status)
@@ -525,44 +330,20 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
         ResponseStatus = status;
     }
 
-    public async Task RefreshAsync()
+    private void CombatsSort(int sortNumber)
     {
-        var combatLog = ((BasicTemplateViewModel)Basic).CombatLog;
-        if (combatLog == null || combatLog.Id == 0)
+        if (UniqueCombats == null)
         {
             return;
         }
 
-        _combatParserAPIService.SetUpPort();
-        var loadedCombats = await _combatParserAPIService.LoadCombatsAsync(combatLog.Id);
-        if (loadedCombats == null || !loadedCombats.Any())
-        {
-            return;
-        }
-
-        foreach (var item in loadedCombats)
-        {
-            var players = await _combatParserAPIService.LoadCombatPlayersAsync(item.Id);
-            item.Players = players.ToList();
-        }
-
-        Combats = new ObservableCollection<CombatModel>(loadedCombats);
-    }
-
-    public void CombatsSort(int sortNumber)
-    {
-        if (Combats == null)
-        {
-            return;
-        }
-
-        var sortedCollection = Combats.ToList();
+        var sortedCollection = UniqueCombats.ToList();
         switch (sortNumber)
         {
             case 0:
                 sortedCollection = SortedByName == 0
-                    ? [.. Combats.OrderByDescending(x => x.Name)]
-                    : Combats.OrderBy(x => x.Name).ToList();
+                    ? [.. UniqueCombats.OrderByDescending(x => x.Boss.Name)]
+                    : [.. UniqueCombats.OrderBy(x => x.Boss.Name)];
                 SortedByName = SortedByName == 0 ? 1 : 0;
 
                 SortedByDamageDone = -1;
@@ -573,8 +354,8 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
                 break;
             case 1:
                 sortedCollection = SortedByDamageDone == 0
-                    ? [.. Combats.OrderByDescending(x => x.DamageDone)]
-                    : Combats.OrderBy(x => x.DamageDone).ToList();
+                    ? [.. UniqueCombats.OrderByDescending(x => x.DamageDone)]
+                    : [.. UniqueCombats.OrderBy(x => x.DamageDone)];
                 SortedByDamageDone = SortedByDamageDone == 0 ? 1 : 0;
 
                 SortedByName = -1;
@@ -585,8 +366,8 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
                 break;
             case 2:
                 sortedCollection = SortedByHealDone == 0
-                    ? [.. Combats.OrderByDescending(x => x.HealDone)]
-                    : Combats.OrderBy(x => x.HealDone).ToList();
+                    ? [.. UniqueCombats.OrderByDescending(x => x.HealDone)]
+                    : [.. UniqueCombats.OrderBy(x => x.HealDone)];
                 SortedByHealDone = SortedByHealDone == 0 ? 1 : 0;
 
                 SortedByName = -1;
@@ -597,8 +378,8 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
                 break;
             case 3:
                 sortedCollection = SortedByDamageTaken == 0
-                    ? [.. Combats.OrderByDescending(x => x.DamageTaken)]
-                    : Combats.OrderBy(x => x.DamageTaken).ToList();
+                    ? [.. UniqueCombats.OrderByDescending(x => x.DamageTaken)]
+                    : [.. UniqueCombats.OrderBy(x => x.DamageTaken)];
                 SortedByDamageTaken = SortedByDamageTaken == 0 ? 1 : 0;
 
                 SortedByName = SortedByName == -1 ? 0 : 1;
@@ -609,8 +390,8 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
                 break;
             case 4:
                 sortedCollection = SortedByResources == 0
-                    ? [.. Combats.OrderByDescending(x => x.EnergyRecovery)]
-                    : Combats.OrderBy(x => x.EnergyRecovery).ToList();
+                    ? [.. UniqueCombats.OrderByDescending(x => x.ResourcesRecovery)]
+                    : [.. UniqueCombats.OrderBy(x => x.ResourcesRecovery)];
                 SortedByResources = SortedByResources == 0 ? 1 : 0;
 
                 SortedByName = -1;
@@ -621,7 +402,7 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
                 break;
         }
 
-        Combats = new ObservableCollection<CombatModel>(sortedCollection);
+        UniqueCombats = new ObservableCollection<CombatModel>(sortedCollection);
     }
 
     public void UploadingCancel()
@@ -635,157 +416,11 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
         DungeonNames = string.Join(" / ", uniqueDungenNames);
     }
 
-    private void CombatUploaded(int number, string dungeonName, string name)
+    private void CombatUploaded(string dungeonName, string name)
     {
-        CurrentCombatNumber = number;
         DungeonName = dungeonName;
         Name = name;
-    }
 
-    private void GetAverageInformationPerSecond(List<CombatModel> combats)
-    {
-        var averageDPS = new List<double>();
-        var averageHPS = new List<double>();
-        var averageRPS = new List<double>();
-        var averageDTPS = new List<double>();
-
-        foreach (var combat in combats)
-        {
-            GetCombatAverageInformation(combat);
-
-            var averageCombatPlayerDPS = combat.Players.Any() ? combat.Players.Average(x => x.DamageDonePerSecond) : 0;
-            averageDPS.Add(averageCombatPlayerDPS);
-
-            var averageCombatPlayerHPS = combat.Players.Any() ? combat.Players.Average(x => x.HealDonePerSecond) : 0;
-            averageHPS.Add(averageCombatPlayerHPS);
-
-            var averageCombatPlayerRPS = combat.Players.Any() ? combat.Players.Average(x => x.ResourcesRecoveryPerSecond) : 0;
-            averageRPS.Add(averageCombatPlayerRPS);
-
-            var averageCombatPlayerDTPS = combat.Players.Any() ? combat.Players.Average(x => x.DamageTakenPerSecond) : 0;
-            averageDTPS.Add(averageCombatPlayerDTPS);
-        }
-
-        AverageDamagePerSecond = averageDPS.Average();
-        AverageHealPerSecond = averageHPS.Average();
-        AverageResourcesPerSecond = averageRPS.Average();
-        AverageDamageTakenPerSecond = averageDTPS.Average();
-    }
-
-    private void GetMaxInformationPerSecond(List<CombatModel> combats)
-
-    {
-        var maxDPS = new List<double>();
-        var maxHPS = new List<double>();
-        var maxRPS = new List<double>();
-        var maxDTPS = new List<double>();
-
-        foreach (var combat in combats)
-        {
-            var maxCombatPlayerDPS = combat.Players.Any() ? combat.Players.Max(x => x.DamageDonePerSecond) : 0;
-            maxDPS.Add(maxCombatPlayerDPS);
-
-            var maxCombatPlayerHPS = combat.Players.Any() ? combat.Players.Max(x => x.HealDonePerSecond) : 0;
-            maxHPS.Add(maxCombatPlayerHPS);
-
-            var maxCombatPlayerRPS = combat.Players.Any() ? combat.Players.Max(x => x.ResourcesRecoveryPerSecond) : 0;
-            maxRPS.Add(maxCombatPlayerRPS);
-
-            var maxCombatPlayerDTPS = combat.Players.Any() ? combat.Players.Max(x => x.DamageTakenPerSecond) : 0;
-            maxDTPS.Add(maxCombatPlayerDTPS);
-        }
-
-        MaxDamagePerSecond = maxDPS.Max();
-        MaxHealPerSecond = maxHPS.Max();
-        MaxResourcesPerSecond = maxRPS.Max();
-        MaxDamageTakenPerSecond = maxDTPS.Max();
-    }
-
-    private void GetAverageInformation(List<CombatModel> combats)
-    {
-        var averageDamage = new List<double>();
-        var averageHeal = new List<double>();
-        var averageResources = new List<double>();
-        var averageDamageTaken = new List<double>();
-
-        foreach (var combat in combats)
-        {
-            var averageCombatPlayerDamage = combat.Players.Any() ? combat.Players.Average(x => x.DamageDone) : 0;
-            averageDamage.Add(averageCombatPlayerDamage);
-
-            var averageCombatPlayerHeal = combat.Players.Any() ? combat.Players.Average(x => x.HealDone) : 0;
-            averageHeal.Add(averageCombatPlayerHeal);
-
-            var averageCombatPlayerResources = combat.Players.Any() ? combat.Players.Average(x => x.ResourcesRecovery) : 0;
-            averageResources.Add(averageCombatPlayerResources);
-
-            var averageCombatPlayerDamageTaken = combat.Players.Any() ? combat.Players.Average(x => x.DamageTaken) : 0;
-            averageDamageTaken.Add(averageCombatPlayerDamageTaken);
-        }
-
-        AverageDamage = averageDamage.Average();
-        AverageHeal = averageHeal.Average();
-        AverageResources = averageResources.Average();
-        AverageDamageTaken = averageDamageTaken.Average();
-    }
-
-    private void GetMaxInformation(List<CombatModel> combats)
-    {
-        var maxDamage = new List<double>();
-        var maxHeal = new List<double>();
-        var maxResources = new List<double>();
-        var maxDamageTaken = new List<double>();
-
-        foreach (var combat in combats)
-        {
-            GetCombatAverageInformation(combat);
-
-            var maxCombatPlayerDamage = combat.Players.Any() ? combat.Players.Max(x => x.DamageDone) : 0;
-            maxDamage.Add(maxCombatPlayerDamage);
-
-            var maxCombatPlayerHeal = combat.Players.Any() ? combat.Players.Max(x => x.HealDone) : 0;
-            maxHeal.Add(maxCombatPlayerHeal);
-
-            var maxCombatPlayerResources = combat.Players.Any() ? combat.Players.Max(x => x.ResourcesRecovery) : 0;
-            maxResources.Add(maxCombatPlayerResources);
-
-            var maxCombatPlayerDamageTaken = combat.Players.Any() ? combat.Players.Max(x => x.DamageTaken) : 0;
-            maxDamageTaken.Add(maxCombatPlayerDamageTaken);
-        }
-
-        MaxDamage = maxDamage.Max();
-        MaxHeal = maxHeal.Max();
-        MaxResources = maxResources.Max();
-        MaxDamageTaken = maxDamageTaken.Max();
-    }
-
-    private static void GetCombatAverageInformation(CombatModel combat)
-    {
-        TimeSpan duration;
-        if (!TimeSpan.TryParse(combat.Duration, out duration))
-        {
-            duration = TimeSpan.Zero;
-
-            return;
-        }
-
-        foreach (var player in combat.Players)
-        {
-            player.DamageDonePerSecond = player.DamageDone / duration.TotalSeconds;
-            player.HealDonePerSecond = player.HealDone / duration.TotalSeconds;
-            player.ResourcesRecoveryPerSecond = player.ResourcesRecovery / duration.TotalSeconds;
-            player.DamageTakenPerSecond = player.DamageTaken / duration.TotalSeconds;
-        }
-    }
-
-    private void Filter()
-    {
-        if (_fullCombats == null)
-        {
-            return;
-        }
-
-        var filterOnlyWinCombats = _fullCombats.Where(c => c.IsWin);
-        Combats = new ObservableCollection<CombatModel>(OnlyWin ? filterOnlyWinCombats : _fullCombats);
+        CurrentCombatNumber++;
     }
 }

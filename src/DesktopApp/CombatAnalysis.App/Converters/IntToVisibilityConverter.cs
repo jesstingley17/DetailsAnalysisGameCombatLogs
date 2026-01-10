@@ -53,7 +53,7 @@ public class IntToVisibilityConverter : MvxValueConverter<int, Visibility>
         return value == Visibility.Visible ? 1 : 0;
     }
 
-    private Visibility Compare(string sign, int value, int compareValue, bool isCollapsed)
+    private static Visibility Compare(string sign, int value, int compareValue, bool isCollapsed)
     {
         var result = Visibility.Hidden;
 

@@ -8,14 +8,9 @@ using System.Xaml;
 
 namespace CombatAnalysis.App.Localizations;
 
-public class LocExtension : MarkupExtension
+public class LocExtension(string stringName) : MarkupExtension
 {
-    public LocExtension(string stringName)
-    {
-        ResourceName = stringName;
-    }
-
-    public string ResourceName { get; }
+    public string ResourceName { get; } = stringName;
 
     private static ResourceManager? GetResourceManager(object control)
     {

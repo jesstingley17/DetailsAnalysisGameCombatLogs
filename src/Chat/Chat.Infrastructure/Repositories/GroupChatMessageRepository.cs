@@ -1,4 +1,5 @@
-﻿using Chat.Domain.Entities;
+﻿using Chat.Domain.DTOs;
+using Chat.Domain.Entities;
 using Chat.Domain.Enums;
 using Chat.Domain.Repositories;
 using Chat.Domain.ValueObjects;
@@ -9,15 +10,28 @@ namespace Chat.Infrastructure.Repositories;
 
 internal class GroupChatMessageRepository(ChatContext context) : GenericRepository<GroupChatMessage, GroupChatMessageId>(context), IGroupChatMessageRepository
 {
-    public async Task<IEnumerable<GroupChatMessage>> GetByChatIdAsync(int chatId, int page, int pageSize)
+    public async Task<IEnumerable<GroupChatMessageDto>> GetByChatIdAsync(int chatId, int page, int pageSize)
     {
-        var messages = await _context.GroupChatMessage
-                            .AsNoTracking()
-                            .Where(m => m.GroupChatId == chatId)
-                            .OrderBy(m => m.Time)
-                            .Skip((page - 1) * pageSize)
-                            .Take(pageSize)
-                            .ToListAsync();
+        var messages = await (
+            from m in _context.Set<GroupChatMessage>()
+            join gu in _context.Set<GroupChatUser>() on m.GroupChatUserId equals gu.Id
+            select new GroupChatMessageDto(
+                m.Id,
+                m.Username,
+                m.Message,
+                m.Time,
+                m.Status,
+                m.Type,
+                m.MarkedType,
+                m.IsEdited,
+                m.GroupChatId,
+                m.GroupChatUserId,
+                gu.AppUserId
+            )
+        )
+        .Skip(page * pageSize)
+        .Take(pageSize)
+        .ToListAsync();
 
         return messages;
     }

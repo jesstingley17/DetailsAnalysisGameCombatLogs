@@ -18,23 +18,23 @@ public class CombatLogController(IQueryService<CombatLogDto> queryCombatLogServi
     private readonly ILogger<CombatLogController> _logger = logger;
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
-        var combatLogs = await _queryCombatLogService.GetAllAsync();
+        var combatLogs = await _queryCombatLogService.GetAllAsync(cancellationToken);
 
         return Ok(combatLogs);
     }
 
     [HttpGet("{id:int:min(1)}")]
-    public async Task<IActionResult> GetById(int id)
+    public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
     {
-        var combatLog = await _queryCombatLogService.GetByIdAsync(id);
+        var combatLog = await _queryCombatLogService.GetByIdAsync(id, cancellationToken);
 
         return Ok(combatLog);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CombatLogModel combatLog)
+    public async Task<IActionResult> Create([FromBody] CombatLogModel combatLog, CancellationToken cancellationToken)
     {
         try
         {
@@ -46,7 +46,7 @@ public class CombatLogController(IQueryService<CombatLogDto> queryCombatLogServi
             }
 
             var map = _mapper.Map<CombatLogDto>(combatLog);
-            var createdItem = await _mutationCombatLogService.CreateAsync(map);
+            var createdItem = await _mutationCombatLogService.CreateAsync(map, cancellationToken);
 
             return Ok(createdItem);
         }
@@ -59,7 +59,7 @@ public class CombatLogController(IQueryService<CombatLogDto> queryCombatLogServi
     }
 
     [HttpPut("{id:int:min(1)}")]
-    public async Task<IActionResult> Update(int id, [FromBody] CombatLogModel combatLog)
+    public async Task<IActionResult> Update(int id, [FromBody] CombatLogModel combatLog, CancellationToken cancellationToken)
     {
         try
         {
@@ -76,7 +76,7 @@ public class CombatLogController(IQueryService<CombatLogDto> queryCombatLogServi
             }
 
             var map = _mapper.Map<CombatLogDto>(combatLog);
-            await _mutationCombatLogService.UpdateAsync(map);
+            await _mutationCombatLogService.UpdateAsync(map, cancellationToken);
 
             return NoContent();
         }
@@ -89,11 +89,11 @@ public class CombatLogController(IQueryService<CombatLogDto> queryCombatLogServi
     }
 
     [HttpDelete("{id:int:min(1)}")]
-    public async Task<IActionResult> Delete(int id)
+    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
         try
         {
-            var entityDeleted = await _mutationCombatLogService.DeleteAsync(id);
+            var entityDeleted = await _mutationCombatLogService.DeleteAsync(id, cancellationToken);
             if (!entityDeleted)
             {
                 return NotFound();

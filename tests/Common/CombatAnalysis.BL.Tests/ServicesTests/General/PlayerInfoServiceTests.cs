@@ -2,7 +2,7 @@
 using CombatAnalysis.BL.DTO;
 using CombatAnalysis.BL.Services.General;
 using CombatAnalysis.BL.Tests.Factory;
-using CombatAnalysis.DAL.Entities;
+using CombatAnalysis.DAL.Entities.CombatPlayerData;
 using CombatAnalysis.DAL.Interfaces;
 using Moq;
 
@@ -20,16 +20,17 @@ public class PlayerInfoServiceTests
         var damagesDto = DamageDoneTestDataFactory.CreateDtoCollection();
 
         var mockMapper = new Mock<IMapper>();
+        var mockPaginationRepository = new Mock<IPlayerInfoPaginationRepository<DamageDone>>();
         var mockRepository = new Mock<IPlayerInfoRepository<DamageDone>>();
 
         mockMapper.Setup(m => m.Map<IEnumerable<DamageDoneDto>>(damages)).Returns(damagesDto);
 
-        mockRepository.Setup(m => m.GetByCombatPlayerIdAsync(combatPlayerId)).ReturnsAsync(damages);
+        mockRepository.Setup(m => m.GetByCombatPlayerIdAsync(combatPlayerId, CancellationToken.None)).ReturnsAsync(damages);
 
-        var service = new PlayerInfoService<DamageDoneDto, DamageDone>(mockRepository.Object, mockMapper.Object);
+        var service = new PlayerInfoPaginationService<DamageDoneDto, DamageDone>(mockPaginationRepository.Object, mockRepository.Object, mockMapper.Object);
 
         // Act
-        var result = await service.GetByCombatPlayerIdAsync(combatPlayerId);
+        var result = await service.GetByCombatPlayerIdAsync(combatPlayerId, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -37,7 +38,7 @@ public class PlayerInfoServiceTests
         Assert.Equal(3, result.Count());
 
         // Verify correct method calls
-        mockRepository.Verify(r => r.GetByCombatPlayerIdAsync(It.IsAny<int>()), Times.Once);
+        mockRepository.Verify(r => r.GetByCombatPlayerIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -50,19 +51,20 @@ public class PlayerInfoServiceTests
         var damagesDto = DamageDoneTestDataFactory.CreateDtoCollection();
 
         var mockMapper = new Mock<IMapper>();
+        var mockPaginationRepository = new Mock<IPlayerInfoPaginationRepository<DamageDone>>();
         var mockRepository = new Mock<IPlayerInfoRepository<DamageDone>>();
 
         mockMapper.Setup(m => m.Map<IEnumerable<DamageDoneDto>>(damages)).Returns(damagesDto);
 
-        mockRepository.Setup(m => m.GetByCombatPlayerIdAsync(combatPlayerId)).ReturnsAsync(damages);
+        mockPaginationRepository.Setup(m => m.GetByCombatPlayerIdAsync(combatPlayerId, CancellationToken.None)).ReturnsAsync(damages);
 
-        var service = new PlayerInfoService<DamageDoneDto, DamageDone>(mockRepository.Object, mockMapper.Object);
+        var service = new PlayerInfoPaginationService<DamageDoneDto, DamageDone>(mockPaginationRepository.Object, mockRepository.Object, mockMapper.Object);
 
         // Act and Assert
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.GetByCombatPlayerIdAsync(combatPlayerId));
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.GetByCombatPlayerIdAsync(combatPlayerId, CancellationToken.None));
 
         // Verify correct method calls
-        mockRepository.Verify(r => r.GetByCombatPlayerIdAsync(It.IsAny<int>()), Times.Never);
+        mockPaginationRepository.Verify(r => r.GetByCombatPlayerIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -77,16 +79,17 @@ public class PlayerInfoServiceTests
         var damagesDto = DamageDoneTestDataFactory.CreateDtoCollection();
 
         var mockMapper = new Mock<IMapper>();
+        var mockPaginationRepository = new Mock<IPlayerInfoPaginationRepository<DamageDone>>();
         var mockRepository = new Mock<IPlayerInfoRepository<DamageDone>>();
 
         mockMapper.Setup(m => m.Map<IEnumerable<DamageDoneDto>>(damages)).Returns(damagesDto);
 
-        mockRepository.Setup(m => m.GetByCombatPlayerIdAsync(combatPlayerId, page, pageSize)).ReturnsAsync(damages);
+        mockPaginationRepository.Setup(m => m.GetByCombatPlayerIdAsync(combatPlayerId, page, pageSize, CancellationToken.None)).ReturnsAsync(damages);
 
-        var service = new PlayerInfoService<DamageDoneDto, DamageDone>(mockRepository.Object, mockMapper.Object);
+        var service = new PlayerInfoPaginationService<DamageDoneDto, DamageDone>(mockPaginationRepository.Object, mockRepository.Object, mockMapper.Object);
 
         // Act
-        var result = await service.GetByCombatPlayerIdAsync(combatPlayerId, page, pageSize);
+        var result = await service.GetByCombatPlayerIdAsync(combatPlayerId, page, pageSize, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -94,7 +97,7 @@ public class PlayerInfoServiceTests
         Assert.Equal(3, result.Count());
 
         // Verify correct method calls
-        mockRepository.Verify(r => r.GetByCombatPlayerIdAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>()), Times.Once);
+        mockPaginationRepository.Verify(r => r.GetByCombatPlayerIdAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -109,18 +112,19 @@ public class PlayerInfoServiceTests
         var damagesDto = DamageDoneTestDataFactory.CreateDtoCollection();
 
         var mockMapper = new Mock<IMapper>();
+        var mockPaginationRepository = new Mock<IPlayerInfoPaginationRepository<DamageDone>>();
         var mockRepository = new Mock<IPlayerInfoRepository<DamageDone>>();
 
         mockMapper.Setup(m => m.Map<IEnumerable<DamageDoneDto>>(damages)).Returns(damagesDto);
 
-        mockRepository.Setup(m => m.GetByCombatPlayerIdAsync(combatPlayerId, page, pageSize)).ReturnsAsync(damages);
+        mockPaginationRepository.Setup(m => m.GetByCombatPlayerIdAsync(combatPlayerId, page, pageSize, CancellationToken.None)).ReturnsAsync(damages);
 
-        var service = new PlayerInfoService<DamageDoneDto, DamageDone>(mockRepository.Object, mockMapper.Object);
+        var service = new PlayerInfoPaginationService<DamageDoneDto, DamageDone>(mockPaginationRepository.Object, mockRepository.Object, mockMapper.Object);
 
         // Act and Assert
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.GetByCombatPlayerIdAsync(combatPlayerId, page, pageSize));
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.GetByCombatPlayerIdAsync(combatPlayerId, page, pageSize, CancellationToken.None));
 
         // Verify correct method calls
-        mockRepository.Verify(r => r.GetByCombatPlayerIdAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+        mockPaginationRepository.Verify(r => r.GetByCombatPlayerIdAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }

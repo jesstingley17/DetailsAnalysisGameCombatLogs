@@ -1,0 +1,117 @@
+﻿<UserControl x:Class="CombatAnalysis.App.UserControls.CombatPlayers.PlayerInfo"
+             xmlns:Icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:CombatAnalysis.App.UserControls.CombatPlayers">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0.5*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="0.5*"/>
+            <RowDefinition Height="0.5*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <ComboBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
+                  Style="{DynamicResource ComboBoxStyle1}" Width="250" ItemsSource="{Binding Players}" SelectedItem="{Binding SelectedPlayer}">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Path=Player.Username}"/>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+
+        <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3">
+            <TextBlock Text="Players" FontSize="16" TextAlignment="Center" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Grid.Column="0" HorizontalAlignment="Center">
+            <StackPanel Orientation="Horizontal" Margin="0 10">
+                <TextBlock Text="Strength: " FontSize="14" />
+                <TextBlock Text="{Binding SelectedPlayer.Stats.Strength}" FontSize="14" Opacity="0.5"/>
+                <Icon:PackIconMaterial Kind="Star" Cursor="Hand" Foreground="Green" Margin="10 0">
+                    <Icon:PackIconMaterial.Style>
+                        <Style TargetType="Icon:PackIconMaterial">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding PlayerMainStat}" Value="0">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Icon:PackIconMaterial.Style>
+                </Icon:PackIconMaterial>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0 10">
+                <TextBlock Text="Agility: " FontSize="14"/>
+                <TextBlock Text="{Binding SelectedPlayer.Stats.Agility}" FontSize="14" Opacity="0.5"/>
+                <Icon:PackIconMaterial Kind="Star" Cursor="Hand" Foreground="Green" Margin="10 0">
+                    <Icon:PackIconMaterial.Style>
+                        <Style TargetType="Icon:PackIconMaterial">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding PlayerMainStat}" Value="1">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Icon:PackIconMaterial.Style>
+                </Icon:PackIconMaterial>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0 10">
+                <TextBlock Text="Intelligence: " FontSize="14"/>
+                <TextBlock Text="{Binding SelectedPlayer.Stats.Intelligence}" FontSize="14" Opacity="0.5"/>
+                <Icon:PackIconMaterial Kind="Star" Cursor="Hand" Foreground="Green" Margin="10 0">
+                    <Icon:PackIconMaterial.Style>
+                        <Style TargetType="Icon:PackIconMaterial">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding PlayerMainStat}" Value="2">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Icon:PackIconMaterial.Style>
+                </Icon:PackIconMaterial>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0 10">
+                <TextBlock Text="Stamina: " FontSize="14"/>
+                <TextBlock Text="{Binding SelectedPlayer.Stats.Stamina}" FontSize="14" Opacity="0.5"/>
+            </StackPanel>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0 10">
+                <TextBlock Text="Crit: " FontSize="14"/>
+                <TextBlock Text="{Binding SelectedPlayer.Stats.Crit}" FontSize="14" Opacity="0.5"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0 10">
+                <TextBlock Text="Haste: " FontSize="14"/>
+                <TextBlock Text="{Binding SelectedPlayer.Stats.Haste}" FontSize="14" Opacity="0.5"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0 10">
+                <TextBlock Text="Hit: " FontSize="14"/>
+                <TextBlock Text="{Binding SelectedPlayer.Stats.Hit}" FontSize="14" Opacity="0.5"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0 10">
+                <TextBlock Text="Armor: " FontSize="14"/>
+                <TextBlock Text="{Binding SelectedPlayer.Stats.Armor}" FontSize="14" Opacity="0.5"/>
+            </StackPanel>
+        </StackPanel>
+
+        <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3">
+            <TextBlock Text="Talents" FontSize="16" TextAlignment="Center" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3">
+            <TextBlock Text="{Binding SelectedPlayer.Stats.Talents}" FontSize="14" TextAlignment="Center" />
+        </StackPanel>
+    </Grid>
+</UserControl>

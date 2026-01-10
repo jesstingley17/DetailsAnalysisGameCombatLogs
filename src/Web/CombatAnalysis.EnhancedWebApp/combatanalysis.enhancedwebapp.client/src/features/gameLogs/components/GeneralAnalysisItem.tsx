@@ -69,7 +69,7 @@ const GeneralAnalysisItem: React.FC<GeneralAnalysisItemProps> = ({ uniqueCombats
                     <div className={`status combat-title__${selectedCombat.isWin ? 'win' : 'lose'}`}>
                         <div className="combat-number">{selectedCombatIndex + 1}</div>
                         <div className="card-body">
-                            <h5 className="card-title">{selectedCombat.name}</h5>
+                            <h5 className="card-title">{selectedCombat.boss.name}</h5>
                             <p className="card-text">{selectedCombat.dungeonName}</p>
                         </div>
                     </div>
@@ -132,9 +132,9 @@ const GeneralAnalysisItem: React.FC<GeneralAnalysisItemProps> = ({ uniqueCombats
                     <FontAwesomeIcon
                         icon={faBolt}
                         className="list-group-item__player-statistic-item"
-                        title={t("EnergyRecovery") || ""}
+                        title={t("ResourcesRecovery") || ""}
                     />
-                    <div>{getValueShortName(uniqueCombats[selectedCombatIndex].energyRecovery)}</div>
+                    <div>{getValueShortName(uniqueCombats[selectedCombatIndex].resourcesRecovery)}</div>
                 </li>
                 <li className="list-group-item">
                     <FontAwesomeIcon
@@ -147,7 +147,7 @@ const GeneralAnalysisItem: React.FC<GeneralAnalysisItemProps> = ({ uniqueCombats
             </ul>
             <div className="card-body details">
                 {uniqueCombats[selectedCombatIndex].isReady
-                    ? <div className="btn-shadow" onClick={() => navigate(`/details-specifical-combat?id=${uniqueCombats[selectedCombatIndex].id}&combatLogId=${combatLogId}&name=${uniqueCombats[selectedCombatIndex].name}&number=${selectedCombatIndex + 1}&isWin=${selectedCombat.isWin}`)}>
+                    ? <div className="btn-shadow" onClick={() => navigate(`/selected-combat?id=${uniqueCombats[selectedCombatIndex].id}&combatLogId=${combatLogId}&name=${uniqueCombats[selectedCombatIndex].boss.name}&number=${selectedCombatIndex + 1}&isWin=${selectedCombat.isWin}`)}>
                         <FontAwesomeIcon
                             icon={faDatabase}
                         />

@@ -5,5 +5,5 @@ namespace CombatAnalysis.DAL.Interfaces.Generic;
 public interface ICountRepository<TModel>
     where TModel : class, IEntity
 {
-    Task<int> CountByCombatPlayerIdAsync(int combatPlayerId);
+    Task<int> CountByCombatPlayerIdAsync(int combatPlayerId, CancellationToken cancellationToken);
 }

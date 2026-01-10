@@ -9,15 +9,14 @@ using System.Text;
 
 namespace CombatAnalysis.CombatParser.Services;
 
-internal class CombatParserService(IFileManager fileManager, ILogger logger) : ICombatParserService
+internal class CombatParserService(IFileManager fileManager, ILogger logger, IHttpClientHelper httpHelper) : ICombatParserService
 {
     private readonly IList<PlaceInformation> _zones = [];
     private readonly IFileManager _fileManager = fileManager;
     private readonly ILogger _logger = logger;
+    private readonly IHttpClientHelper _httpHelper = httpHelper;
 
     private readonly TimeSpan _minCombatDuration = TimeSpan.Parse("00:00:20");
-
-    private int _combatNumber = 0;
 
     public List<Combat> Combats { get; set; } = [];
 
@@ -46,7 +45,7 @@ internal class CombatParserService(IFileManager fileManager, ILogger logger) : I
             foreach (var path in combatLogPaths)
             {
                 var lines = await fileManager.ReadAllLinesAsync(path, cancellationToken);
-                ProcessCombatLogLines(lines, petsId, ref bossCombatStarted, newCombatFromLogs);
+                await ProcessCombatLogLinesAsync(lines, petsId, bossCombatStarted, newCombatFromLogs);
             }
         }
         catch (OperationCanceledException ex)
@@ -59,75 +58,80 @@ internal class CombatParserService(IFileManager fileManager, ILogger logger) : I
     {
         Combats.Clear();
         _zones.Clear();
-        _combatNumber = 0;
     }
 
-    private void ProcessCombatLogLines(string[] lines, Dictionary<string, List<string>> petsId, ref bool bossCombatStarted, StringBuilder newCombatFromLogs)
+    private async Task ProcessCombatLogLinesAsync(string[] lines, Dictionary<string, List<string>> petsId, bool combatStarted, StringBuilder newCombatFromLogs)
     {
         foreach (var line in lines)
         {
-            ProcessLine(line, newCombatFromLogs, ref bossCombatStarted, petsId);
+            combatStarted = await ProcessLine(line, newCombatFromLogs, combatStarted, petsId);
         }
     }
 
-    private void ProcessLine(string line, StringBuilder newCombatFromLogs, ref bool bossCombatStarted, Dictionary<string, List<string>> petsId)
+    private async Task<bool> ProcessLine(string line, StringBuilder combatData, bool combatStarted, Dictionary<string, List<string>> petsId)
     {
         if (line.Contains(CombatLogKeyWords.SpellSummon))
         {
             ParsePlayerCreatures(line, petsId);
         }
-
+        
         if (line.Contains($"{CombatLogKeyWords.SwingDamage},") && line.Contains(CombatLogKeyWords.Pet))
         {
             ParsePlayerPets(line, petsId);
         }
-
+        
         if (line.Contains(CombatLogKeyWords.ZoneChange))
         {
             ZoneName(line);
         }
-
+       
         if (line.Contains(CombatLogKeyWords.EncounterStart))
         {
-            bossCombatStarted = true;
-            newCombatFromLogs.AppendLine(line);
+            // If during combat player can be disconnected, lagged or some bugs, end of combat (encounter_end) can be not writed in log file.
+            // If not find end of combat, parsing will continue and get information from next combat as current combat information.
+            // Better clean all stored information, if end of combat not be find.
+            combatData.Clear();
 
-            return;
+            combatData.AppendLine(line);
+
+            return true;
         }
 
-        if (!bossCombatStarted)
+        if (!combatStarted)
         {
-            return;
+            return false;
         }
 
         if (line.Contains(CombatLogKeyWords.EncounterEnd))
         {
-            bossCombatStarted = false;
+            combatStarted = false;
 
-            newCombatFromLogs.AppendLine(line);
+            combatData.AppendLine(line);
 
-            var newCombatFromLogsString = newCombatFromLogs.ToString();
+            var newCombatFromLogsString = combatData.ToString();
             var combatInformationList = newCombatFromLogsString.Split('\n', StringSplitOptions.RemoveEmptyEntries).ToList();
 
-            GetCombatInformation(combatInformationList, petsId);
+            await GetCombatInformationAsync(combatInformationList, petsId);
 
-            newCombatFromLogs.Clear();
+            combatData.Clear();
             petsId = [];
         }
         else
         {
-            newCombatFromLogs.AppendLine(line);
+            combatData.AppendLine(line);
         }
+
+        return combatStarted;
     }
 
     private static void ParsePlayerCreatures(string data, Dictionary<string, List<string>> creaturesId)
     {
-        var combatLogParts = data.Split("  ")[1].Split(',');
-        var playerId = combatLogParts[1].Contains(CombatLogKeyWords.Player) 
-            ? combatLogParts[1]
+        var splitStr = data.Split("  ")[1].Split(',');
+        var playerId = splitStr[1].Contains(CombatLogKeyWords.Player) 
+            ? splitStr[1]
             : string.Empty;
-        var friendlyCreatureId = combatLogParts[1].Contains(CombatLogKeyWords.Creature)
-            ? combatLogParts[1]
+        var friendlyCreatureId = splitStr[1].Contains(CombatLogKeyWords.Creature)
+            ? splitStr[1]
             : string.Empty;
 
         if (string.IsNullOrEmpty(playerId) && string.IsNullOrEmpty(friendlyCreatureId))
@@ -135,7 +139,7 @@ internal class CombatParserService(IFileManager fileManager, ILogger logger) : I
             return;
         }
 
-        var creatureId = combatLogParts[5];
+        var creatureId = splitStr[5];
         var friendCreaturePlayerId = creaturesId.FirstOrDefault(x => x.Value.Contains(friendlyCreatureId)).Key;
         if (!string.IsNullOrEmpty(friendCreaturePlayerId))
         {
@@ -175,7 +179,7 @@ internal class CombatParserService(IFileManager fileManager, ILogger logger) : I
         var petId = combatLogParts[1];
         if (!petsId.TryGetValue(playerId, out var petList))
         {
-            petList = new List<string>();
+            petList = [];
             petsId[playerId] = petList;
         }
 
@@ -185,17 +189,23 @@ internal class CombatParserService(IFileManager fileManager, ILogger logger) : I
         }
     }
 
-    private void GetCombatInformation(List<string> builtCombat, Dictionary<string, List<string>> petsId)
+    private async Task GetCombatInformationAsync(List<string> builtCombat, Dictionary<string, List<string>> petsId)
     {
         if (!builtCombat[^1].Contains(CombatLogKeyWords.EncounterEnd))
         {
             return;
         }
 
+        var boss = new Boss
+        {
+            GameId = GetGameBossId(builtCombat[0]),
+            Difficult = GetDifficulty(builtCombat[0]),
+            Size = GetGroupSize(builtCombat[0])
+        };
+
         var combat = new Combat
         {
-            Name = GetCombatName(builtCombat[0]),
-            Difficulty = GetDifficulty(builtCombat[0]),
+            Boss = boss,
             Data = builtCombat,
             IsWin = GetCombatResult(builtCombat[^1]),
             StartDate = GetTime(builtCombat[0]),
@@ -209,34 +219,39 @@ internal class CombatParserService(IFileManager fileManager, ILogger logger) : I
             return;
         }
 
-        var players = GetCombatPlayers(combat);
-        combat.Players = players;
+        var players = await GetCombatPlayers(combat);
+        combat.CombatPlayers = players;
 
         CalculatingCommonCombatDetails(combat);
 
         AddNewCombat(combat);
     }
 
-    private static string GetCombatName(string combatStart)
+    private static int GetGameBossId(string encounterStart)
     {
-        var data = combatStart.Split("  ")[1];
-        var name = data.Split(',')[2];
-        var clearName = name.Trim('"');
+        var data = encounterStart.Split("  ")[1];
+        var gameBossId = data.Split(',')[1];
+        var convertToInt = Convert.ToInt32(gameBossId);
 
-        return clearName;
+        return convertToInt;
     }
 
-    private static int GetDifficulty(string combatStart)
+    private static int GetDifficulty(string encounterStart)
     {
-        var data = combatStart.Split("  ")[1];
+        var data = encounterStart.Split("  ")[1];
         var difficulty = data.Split(',')[3];
+        var convertToInt = Convert.ToInt32(difficulty);
 
-        if (int.TryParse(difficulty, out var diff))
-        {
-            return diff;
-        }
+        return convertToInt;
+    }
 
-        return 0;
+    private static int GetGroupSize(string encounterStart)
+    {
+        var data = encounterStart.Split("  ")[1];
+        var groupSize = data.Split(',')[4];
+        var convertToInt = Convert.ToInt32(groupSize);
+
+        return convertToInt;
     }
 
     private static bool GetCombatResult(string combatFinish)
@@ -251,13 +266,15 @@ internal class CombatParserService(IFileManager fileManager, ILogger logger) : I
 
     private static DateTimeOffset GetTime(string combatStart)
     {
-        var parse = combatStart.Split("  ")[0];
-        var combatDate = parse.Split(' ');
-        var dateWithoutTime = combatDate[0].Split('/');
-        var time = combatDate[1].Split('.')[0];
-        var clearDate = $"{dateWithoutTime[0]}/{dateWithoutTime[1]}/{DateTimeOffset.UtcNow.Year} {time}";
+        string[] formats =
+        {
+            "M/d/yyyy HH:mm:ss.ffff",
+            "MM/dd/yyyy HH:mm:ss.ffff"
+        };
 
-        if (DateTimeOffset.TryParse(clearDate, CultureInfo.GetCultureInfo("en-EN"), DateTimeStyles.AssumeUniversal, out var date))
+        var parse = combatStart.Split("  ")[0];
+
+        if (DateTimeOffset.TryParseExact(parse, formats, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out var date))
         {
             return date.UtcDateTime;
         }
@@ -267,12 +284,12 @@ internal class CombatParserService(IFileManager fileManager, ILogger logger) : I
 
     private static void CalculatingCommonCombatDetails(Combat combat)
     {
-        var players = combat.Players;
+        var players = combat.CombatPlayers;
 
         combat.DamageDone = players.Sum(player => player.DamageDone);
         combat.HealDone = players.Sum(player => player.HealDone);
         combat.DamageTaken = players.Sum(player => player.DamageTaken);
-        combat.EnergyRecovery = players.Sum(player => player.ResourcesRecovery);
+        combat.ResourcesRecovery = players.Sum(player => player.ResourcesRecovery);
     }
 
     private void AddNewCombat(Combat combat)
@@ -285,39 +302,62 @@ internal class CombatParserService(IFileManager fileManager, ILogger logger) : I
             }
         }
 
-        combat.LocallyNumber = _combatNumber;
         Combats.Add(combat);
-
-        _combatNumber++;
     }
 
-    private List<CombatPlayer> GetCombatPlayers(Combat combat)
+    private async Task<List<CombatPlayer>> GetCombatPlayers(Combat combat)
     {
         var combatInformations = combat.Data
             .Where(info => info.Contains(CombatLogKeyWords.CombatantInfo))
             .ToList();
 
-        var players = new List<CombatPlayer>();
-
+        var combatPlayers = new List<CombatPlayer>();
         foreach (var item in combatInformations)
         {
-            var combatInfoToArray = item.Split(new char[2] { ' ', ',' });
-            var combatEquipmentsInfoToArray = item.Split(new char[2] { '[', ']' });
+            var combatInfoList = item.Split(',');
+            var combatInfoEquipments = item.Split(['[', ']']);
 
-            var username = GetCombatPlayerUsernameById(combat.Data, combatInfoToArray[4]);
-            var averageItemLevel = GetAverageItemLevel(combatEquipmentsInfoToArray[1]);
+            var averageItemLevel = GetAverageItemLevel(combatInfoEquipments[1]);
+
+            var statsInformation = combatInfoList.Skip(3).Take(30).ToArray();
+            var stats = GetStats(statsInformation);
 
             var combatPlayerData = new CombatPlayer
             {
-                Username = username,
-                PlayerId = combatInfoToArray[4],
                 AverageItemLevel = double.Round(averageItemLevel, 2),
+                Stats = stats,
+                Player = new Player
+                {
+                    GameId = combatInfoList[1],
+                },
             };
 
-            players.Add(combatPlayerData);
+            var player = await combatPlayerData.Player.LoadAsync(_httpHelper, _logger);
+
+            if (player == null)
+            {
+                var username = GetUsernameByPlayerGameId(combat.Data, combatInfoList[1]);
+                var faction = int.Parse(combatInfoList[2]);
+
+                combatPlayerData.Player.Id = Guid.NewGuid().ToString();
+                combatPlayerData.Player.Username = username;
+                combatPlayerData.Player.Faction = faction;
+
+                var newPlayer = await combatPlayerData.Player.CreateAsync(_httpHelper, _logger);
+                if (newPlayer != null)
+                {
+                    combatPlayerData.Player = newPlayer;
+                }
+            }
+            else
+            {
+                combatPlayerData.Player = player;
+            }
+
+            combatPlayers.Add(combatPlayerData);
         }
 
-        var playersId = players.Select(x => x.PlayerId).ToList();
+        var playersId = combatPlayers.Select(x => x.Player.GameId).ToList();
 
         var combatDetails = new CombatDetails(_logger, combat.PetsId);
         combatDetails.Calculate(playersId, combat.Data, combat.StartDate, combat.FinishDate);
@@ -325,16 +365,16 @@ internal class CombatParserService(IFileManager fileManager, ILogger logger) : I
 
         CombatDetails.Add(combatDetails);
 
-        foreach (var item in players)
+        foreach (var item in combatPlayers)
         {
-            item.DamageDone = combatDetails.DamageDone[item.PlayerId].Sum(x => x.Value);
-            item.HealDone = combatDetails.HealDone[item.PlayerId].Sum(x => x.Value);
-            item.DamageTaken = combatDetails.DamageTaken[item.PlayerId].Sum(x => x.Value);
-            item.ResourcesRecovery = combatDetails.ResourcesRecovery[item.PlayerId].Sum(x => x.Value);
-
+            item.DamageDoneToBoss = combatDetails.DamageDone[item.Player.GameId].Where(x => x.Value.IsTargetBoss).Sum(x => x.Value.Value);
+            item.DamageDone = combatDetails.DamageDone[item.Player.GameId].Sum(x => x.Value.Value);
+            item.HealDone = combatDetails.HealDone[item.Player.GameId].Sum(x => x.Value.Value);
+            item.DamageTaken = combatDetails.DamageTaken[item.Player.GameId].Sum(x => x.Value.Value);
+            item.ResourcesRecovery = combatDetails.ResourcesRecovery[item.Player.GameId].Sum(x => x.Value.Value);
         }
 
-        return players;
+        return combatPlayers;
     }
 
     private void ZoneName(string combatLog)
@@ -354,22 +394,22 @@ internal class CombatParserService(IFileManager fileManager, ILogger logger) : I
         _zones.Add(zone);
     }
 
-    private static string GetCombatPlayerUsernameById(List<string> combatInformation, string playerId)
+    private static string GetUsernameByPlayerGameId(List<string> logData, string gamePlayerId)
     {
-        var parsedUsername = string.Empty;
-        for (var i = 1; i < combatInformation.Count; i++)
+        var username = string.Empty;
+        for (var i = 1; i < logData.Count; i++)
         {
-            var data = combatInformation[i].Split(',');
-            if (!combatInformation[i].Contains(CombatLogKeyWords.CombatantInfo)
-                && playerId == data[1])
+            var data = logData[i].Split(',');
+            if (!logData[i].Contains(CombatLogKeyWords.CombatantInfo)
+                && gamePlayerId == data[1])
             {
-                var username = data[2];
-                parsedUsername = username.Trim('"');
+                var dirtyUsername = data[2];
+                username = dirtyUsername.Trim('"');
                 break;
             }
         }
 
-        return parsedUsername;
+        return username;
     }
 
     private static double GetAverageItemLevel(string equipmentsInformation)
@@ -388,5 +428,31 @@ internal class CombatParserService(IFileManager fileManager, ILogger logger) : I
 
         var averageILvl = ilvl.Average();
         return averageILvl;
+    }
+
+    private static PlayerStats GetStats(string[] combatInfo)
+    {
+        var stats = new PlayerStats
+        {
+            Strength = int.Parse(combatInfo[0]),
+            Agility = int.Parse(combatInfo[1]),
+            Stamina = int.Parse(combatInfo[2]),
+            Intelligence = int.Parse(combatInfo[3]),
+            Spirit = int.Parse(combatInfo[4]),
+            Dodge = int.Parse(combatInfo[5]),
+            Parry = int.Parse(combatInfo[6]),
+            Block = int.Parse(combatInfo[7]),
+            Crit = int.Parse(combatInfo[8]),
+            Haste = int.Parse(combatInfo[11]),
+            Hit = int.Parse(combatInfo[14]),
+            Expertise = int.Parse(combatInfo[15]),
+            Armor = int.Parse(combatInfo[16]),
+        };
+
+        var segment = new ArraySegment<string>(combatInfo, 23, 6);
+        var talents = string.Join(',', segment);
+        stats.Talents = talents;
+
+        return stats;
     }
 }

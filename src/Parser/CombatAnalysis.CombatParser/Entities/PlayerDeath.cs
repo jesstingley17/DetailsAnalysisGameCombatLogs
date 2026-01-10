@@ -4,9 +4,9 @@ namespace CombatAnalysis.CombatParser.Entities;
 
 public class PlayerDeath : ICombatPlayerEntity
 {
-    public string Username { get; set; }
+    public string Username { get; set; } = string.Empty;
 
-    public string LastHitSpellOrItem { get; set; } = string.Empty;
+    public string LastHitSpell { get; set; } = string.Empty;
 
     public int LastHitValue { get; set; }
 

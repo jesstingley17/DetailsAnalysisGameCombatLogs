@@ -1,0 +1,20 @@
+{
+  "Damage": "Урон",
+  "Healing": "Исцеление",
+  "DamageTaken": "Полученный урон",
+  "ResourcesRecovery": "Восстановлено ресурсов",
+  "Players": "Игроки",
+  "SelectCombat": "Выбрать бой",
+  "ShowCommonStatistics": "Показать общую статистику",
+  "HideCommonStatistics": "Скрыть общую статистику",
+  "SearchPlayer": "Поиск игрока",
+  "Clean": "Очистить",
+  "TypeUsername": "Имя игрока",
+  "Search": "Поиск",
+  "Dashboard": "Обзор",
+  "Details": "Подробнее",
+  "PlayerInfo": "Информация об игроке",
+  "ZeroDeaths": "0 смертей",
+  "Username": "Никнейм",
+  "Filter": "Фильтр"
+}

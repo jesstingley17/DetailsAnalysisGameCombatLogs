@@ -1,24 +1,23 @@
 ﻿import logger from '@/utils/Logger';
 import { faCloudArrowUp, faGear, faPen, faPhone } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import type { RootState } from '@/app/Store';
 import { useEffect, useRef, useState, type SetStateAction } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { AppUserModel } from '../../../user/types/AppUserModel';
 import { usePartialUpdateGroupChatMutation } from '../../api/GroupChat.api';
 import type { GroupChatModel } from '../../types/GroupChatModel';
+import { useSelector } from 'react-redux';
 
 interface GroupChatTitleProps {
-    myself: AppUserModel;
     chat: GroupChatModel;
     settingsIsShow: boolean;
     setSettingsIsShow: (value: SetStateAction<boolean>) => void;
-    haveMoreMessages: boolean;
-    setHaveMoreMessage: (value: SetStateAction<boolean>) => void;
-    loadMoreMessagesAsync: () => Promise<void>;
     t: (key: string) => string;
 }
 
-const GroupChatTitle: React.FC<GroupChatTitleProps> = ({ myself, chat, settingsIsShow, setSettingsIsShow, haveMoreMessages, setHaveMoreMessage, loadMoreMessagesAsync, t }) => {
+const GroupChatTitle: React.FC<GroupChatTitleProps> = ({ chat, settingsIsShow, setSettingsIsShow, t }) => {
+    const myself = useSelector((state: RootState) => state.user.value);
+
     const navigate = useNavigate();
 
     const [editNameOn, setEditNameOn] = useState(false);
@@ -57,12 +56,6 @@ const GroupChatTitle: React.FC<GroupChatTitleProps> = ({ myself, chat, settingsI
 
     const call = () => {
         navigate(`/chats/voice/${chat.id}/${chat.name}`);
-    }
-
-    const handleLoadMoreMessagesAsync = async () => {
-        setHaveMoreMessage(false);
-
-        await loadMoreMessagesAsync();
     }
 
     return (
@@ -105,9 +98,6 @@ const GroupChatTitle: React.FC<GroupChatTitleProps> = ({ myself, chat, settingsI
                     />
                 </div>
             </div>
-            {haveMoreMessages &&
-                <div className="load-more" onClick={handleLoadMoreMessagesAsync}>Load more...</div>
-            }
         </>
     );
 }

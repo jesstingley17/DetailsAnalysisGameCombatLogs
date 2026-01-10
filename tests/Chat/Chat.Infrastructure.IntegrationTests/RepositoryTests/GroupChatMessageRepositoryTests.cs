@@ -20,6 +20,7 @@ public class GroupChatMessageRepositoryTests : RepositoryTestsBase
         using var context = CreateInMemoryContext();
         await context.Set<GroupChat>().AddRangeAsync(GroupChatTestData.CreateCollection());
         await context.Set<GroupChatMessage>().AddRangeAsync(GroupChatMessageTestData.CreateCollection());
+        await context.Set<GroupChatUser>().AddRangeAsync(GroupChatUserTestData.CreateCollection());
         await context.SaveChangesAsync();
 
         var repo = new GroupChatMessageRepository(context);

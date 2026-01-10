@@ -11,4 +11,5 @@ export type GroupChatMessageModel = {
     isEdited: boolean;
     groupChatId: number;
     groupChatUserId: string;
+    appUserId: string;
 }

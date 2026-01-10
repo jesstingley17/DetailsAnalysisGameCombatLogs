@@ -9,7 +9,6 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using Serilog.Events;
-using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -60,11 +59,11 @@ builder.Services.AddAuthorizationBuilder()
         policyBuilder.RequireClaim("scope", authenticationClientOptions.Scopes.Split(','));
     });
 
-var redisOptions = new Redis();
-builder.Configuration.Bind("Redis", redisOptions);
-builder.Services.AddSingleton<IConnectionMultiplexer>(
-    ConnectionMultiplexer.Connect(redisOptions.Server)
-);
+//var redisOptions = new Redis();
+//builder.Configuration.Bind("Redis", redisOptions);
+//builder.Services.AddSingleton<IConnectionMultiplexer>(
+//    ConnectionMultiplexer.Connect(redisOptions.Server)
+//);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

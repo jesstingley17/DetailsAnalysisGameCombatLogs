@@ -6,6 +6,8 @@ public class DamageDoneDto : Interfaces.Entity.ICombatPlayerEntity, IGeneralFilt
 {
     public int Id { get; set; }
 
+    public int GameSpellId { get; set; }
+
     public string Spell { get; set; }
 
     public int Value { get; set; }
@@ -16,9 +18,13 @@ public class DamageDoneDto : Interfaces.Entity.ICombatPlayerEntity, IGeneralFilt
 
     public string Target { get; set; }
 
+    public bool IsTargetBoss { get; set; }
+
     public int DamageType { get; set; }
 
     public bool IsPeriodicDamage { get; set; }
+
+    public bool IsSingleTarget { get; set; }
 
     public bool IsPet { get; set; }
 

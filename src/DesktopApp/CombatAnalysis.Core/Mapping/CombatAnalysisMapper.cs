@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using CombatAnalysis.CombatParser.Entities;
-using CombatAnalysis.Core.Models;
+using CombatAnalysis.Core.Models.GameLogs;
 
 namespace CombatAnalysis.Core.Mapping;
 
@@ -8,9 +8,12 @@ internal class CombatAnalysisMapper : Profile
 {
     public CombatAnalysisMapper()
     {
+        CreateMap<PlayerModel, Player>().ReverseMap();
+        CreateMap<BossModel, Boss>().ReverseMap();
         CreateMap<CombatModel, Combat>().ReverseMap();
         CreateMap<CombatPlayerModel, CombatPlayer>().ReverseMap();
-        CreateMap<PlayerStatsModel, PlayerStats>().ReverseMap();
+        CreateMap<CombatPlayerStatsModel, PlayerStats>().ReverseMap();
+        CreateMap<SpecializationScoreModel, SpecializationScore>().ReverseMap();
         CreateMap<DamageDoneModel, DamageDone>().ReverseMap();
         CreateMap<DamageDoneGeneralModel, DamageDoneGeneral>().ReverseMap();
         CreateMap<HealDoneModel, HealDone>().ReverseMap();
@@ -19,6 +22,6 @@ internal class CombatAnalysisMapper : Profile
         CreateMap<DamageTakenGeneralModel, DamageTakenGeneral>().ReverseMap();
         CreateMap<ResourceRecoveryModel, ResourceRecovery>().ReverseMap();
         CreateMap<ResourceRecoveryGeneralModel, ResourceRecoveryGeneral>().ReverseMap();
-        CreateMap<PlayerDeathModel, PlayerDeath>().ReverseMap();
+        CreateMap<CombatPlayerDeathModel, PlayerDeath>().ReverseMap();
     }
 }

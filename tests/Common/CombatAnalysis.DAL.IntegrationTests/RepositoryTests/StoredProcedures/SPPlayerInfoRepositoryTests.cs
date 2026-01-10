@@ -1,6 +1,6 @@
-﻿using CombatAnalysis.DAL.Entities;
+﻿using CombatAnalysis.DAL.Entities.CombatPlayerData;
 using CombatAnalysis.DAL.IntegrationTests.Data;
-using CombatAnalysis.DAL.Repositories.StoredProcedures;
+using CombatAnalysis.DAL.Repositories;
 
 namespace CombatAnalysis.DAL.IntegrationTests.RepositoryTests.StoredProcedures;
 
@@ -22,10 +22,10 @@ public class SPPlayerInfoRepositoryTests(SqlServerFixture fixture)
         await SqlServerFixture.SeedDamageDoneTestDataAsync(context);
 
         const int combatPlayerId = 5;
-        var repo = new SPPlayerInfoRepository<DamageDone>(context);
+        var repo = new PlayerInfoPaginationRepository<DamageDone>(context);
 
         // Act
-        var result = await repo.GetByCombatPlayerIdAsync(combatPlayerId);
+        var result = await repo.GetByCombatPlayerIdAsync(combatPlayerId, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -47,10 +47,10 @@ public class SPPlayerInfoRepositoryTests(SqlServerFixture fixture)
         const int combatPlayerId = 5;
         const int page = 1;
         const int pageSize = 10;
-        var repo = new SPPlayerInfoRepository<DamageDone>(context);
+        var repo = new PlayerInfoPaginationRepository<DamageDone>(context);
 
         // Act
-        var result = await repo.GetByCombatPlayerIdAsync(combatPlayerId, page, pageSize);
+        var result = await repo.GetByCombatPlayerIdAsync(combatPlayerId, page, pageSize, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -70,10 +70,10 @@ public class SPPlayerInfoRepositoryTests(SqlServerFixture fixture)
         await SqlServerFixture.SeedDamageDoneTestDataAsync(context);
 
         const int combatPlayerId = 1;
-        var repo = new SPPlayerInfoRepository<DamageDone>(context);
+        var repo = new PlayerInfoPaginationRepository<DamageDone>(context);
 
         // Act
-        var result = await repo.GetByCombatPlayerIdAsync(combatPlayerId);
+        var result = await repo.GetByCombatPlayerIdAsync(combatPlayerId, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -94,10 +94,10 @@ public class SPPlayerInfoRepositoryTests(SqlServerFixture fixture)
         const int combatPlayerId = 1;
         const int page = 1;
         const int pageSize = 10;
-        var repo = new SPPlayerInfoRepository<DamageDone>(context);
+        var repo = new PlayerInfoPaginationRepository<DamageDone>(context);
 
         // Act
-        var result = await repo.GetByCombatPlayerIdAsync(combatPlayerId, page, pageSize);
+        var result = await repo.GetByCombatPlayerIdAsync(combatPlayerId, page, pageSize, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

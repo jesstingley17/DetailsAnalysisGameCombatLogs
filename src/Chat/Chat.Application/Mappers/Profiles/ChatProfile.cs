@@ -52,6 +52,7 @@ public class ChatProfile : Profile
                      dto.Announcements
                  )).ReverseMap();
 
+        CreateMap<Domain.DTOs.GroupChatMessageDto, GroupChatMessageDto>().ReverseMap();
         CreateMap<GroupChatMessageDto, GroupChatMessage>()
                  .ConstructUsing(dto => new GroupChatMessage(
                      dto.Username,

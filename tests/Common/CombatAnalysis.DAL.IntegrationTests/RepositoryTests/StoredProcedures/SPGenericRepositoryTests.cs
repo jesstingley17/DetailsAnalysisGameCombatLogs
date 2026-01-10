@@ -1,6 +1,6 @@
-﻿using CombatAnalysis.DAL.Entities;
+﻿using CombatAnalysis.DAL.Entities.CombatPlayerData;
 using CombatAnalysis.DAL.IntegrationTests.Data;
-using CombatAnalysis.DAL.Repositories.StoredProcedures;
+using CombatAnalysis.DAL.Repositories;
 using CombatAnalysis.UserDAL.IntegrationTests.Factory;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,10 +21,10 @@ public class SPGenericRepositoryTests(SqlServerFixture fixture)
         const string spell = "Test spell";
 
         var damageDone = DamageDoneTestDataFactory.Create(spell: spell);
-        var repo = new SPGenericRepository<DamageDone>(context);
+        var repo = new GenericRepository<DamageDone>(context);
 
         // Act
-        var createdDamageDone = await repo.CreateAsync(damageDone);
+        var createdDamageDone = await repo.CreateAsync(damageDone, CancellationToken.None);
 
         // Assert
         var existDamageDone = await context.Set<DamageDone>().FirstOrDefaultAsync(d => d.Spell == spell);
@@ -46,10 +46,10 @@ public class SPGenericRepositoryTests(SqlServerFixture fixture)
         const int value = 50;
 
         var damageDone = DamageDoneTestDataFactory.Create(spell: spell, value: value);
-        var repo = new SPGenericRepository<DamageDone>(context);
+        var repo = new GenericRepository<DamageDone>(context);
 
         // Act
-        await repo.CreateAsync(damageDone);
+        await repo.CreateAsync(damageDone, CancellationToken.None);
 
         // Assert
         var createdEntity = await context.Set<DamageDone>().FirstOrDefaultAsync(d => d.Value == value);

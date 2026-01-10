@@ -23,4 +23,6 @@ public class GroupChatMessageDto
     public int GroupChatId { get; set; }
 
     public string GroupChatUserId { get; set; } = string.Empty;
+
+    public string AppUserId { get; set; } = string.Empty;
 }

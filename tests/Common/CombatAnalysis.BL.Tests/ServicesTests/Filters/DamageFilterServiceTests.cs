@@ -24,12 +24,12 @@ public class DamageFilterServiceTests
 
         mockMapper.Setup(m => m.Map<IEnumerable<List<CombatTargetDto>>>(combatTargets)).Returns(combatTargetsDto);
 
-        mockRepository.Setup(m => m.GetDamageByEachTargetAsync(combatId)).ReturnsAsync(combatTargets);
+        mockRepository.Setup(m => m.GetDamageByEachTargetAsync(combatId, CancellationToken.None)).ReturnsAsync(combatTargets);
 
         var service = new DamageFilterService(mockRepository.Object, mockMapper.Object);
 
         // Act
-        var result = await service.GetDamageByEachTargetAsync(combatId);
+        var result = await service.GetDamageByEachTargetAsync(combatId, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -39,7 +39,7 @@ public class DamageFilterServiceTests
         Assert.Equal(3, result.First().Count);
 
         // Verify correct method calls
-        mockRepository.Verify(r => r.GetDamageByEachTargetAsync(It.IsAny<int>()), Times.Once);
+        mockRepository.Verify(r => r.GetDamageByEachTargetAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -56,14 +56,14 @@ public class DamageFilterServiceTests
 
         mockMapper.Setup(m => m.Map<IEnumerable<List<CombatTargetDto>>>(combatTargets)).Returns(combatTargetsDto);
 
-        mockRepository.Setup(m => m.GetDamageByEachTargetAsync(combatId)).ReturnsAsync(combatTargets);
+        mockRepository.Setup(m => m.GetDamageByEachTargetAsync(combatId, CancellationToken.None)).ReturnsAsync(combatTargets);
 
         var service = new DamageFilterService(mockRepository.Object, mockMapper.Object);
 
         // Act and Assert
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.GetDamageByEachTargetAsync(combatId));
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.GetDamageByEachTargetAsync(combatId, CancellationToken.None));
 
         // Verify correct method calls
-        mockRepository.Verify(r => r.GetDamageByEachTargetAsync(It.IsAny<int>()), Times.Never);
+        mockRepository.Verify(r => r.GetDamageByEachTargetAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }

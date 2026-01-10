@@ -13,11 +13,11 @@ internal class HttpClientHelper : IHttpClientHelper
         };
     }
 
+    public string BaseAddress { get; set; } = string.Empty;
+
     public string BaseAddressApi { get; set; } = "api/v1/";
 
     public HttpClient Client { get; set; }
-
-    public string BaseAddress { get; set; } = string.Empty;
 
     public async Task<HttpResponseMessage> PostAsync(string requestUri, JsonContent content, CancellationToken cancellationToken)
     {

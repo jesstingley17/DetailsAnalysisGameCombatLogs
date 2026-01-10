@@ -10,7 +10,7 @@ import type { CombatModel } from "../../types//CombatModel";
 import type { CombatPlayerModel } from '../../types/CombatPlayerModel';
 import type { CombatTargetModel } from '../../types/CombatTargetModel';
 import type { CombatDetailsModel } from '../../types/dashboard/CombatDetailsModel';
-import type { PlayerDeathModel } from '../../types/PlayerDeathModel';
+import type { CombatPlayerDeathModel } from '../../types/CombatPlayerDeathModel';
 import DashboardDeathItem from './DashboardDeathItem';
 import DashboardGeneralItem from './DashboardGeneralItem';
 import DashboardTargetItem from './DashboardTargetItem';
@@ -20,7 +20,7 @@ import './Dashboard.scss';
 interface DashboardProps {
     details: CombatDetailsModel;
     combatPlayers: CombatPlayerModel[];
-    playersDeath: PlayerDeathModel[];
+    playersDeath: CombatPlayerDeathModel[];
     getValueShortName(value: number): string;
 }
 

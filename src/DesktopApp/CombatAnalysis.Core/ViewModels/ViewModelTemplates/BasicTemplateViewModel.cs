@@ -4,7 +4,7 @@ using CombatAnalysis.Core.Enums;
 using CombatAnalysis.Core.Helpers;
 using CombatAnalysis.Core.Interfaces;
 using CombatAnalysis.Core.Interfaces.Observers;
-using CombatAnalysis.Core.Models;
+using CombatAnalysis.Core.Models.GameLogs;
 using CombatAnalysis.Core.Security;
 using CombatAnalysis.Core.ViewModels.Chat;
 using Microsoft.Extensions.Caching.Memory;
@@ -26,7 +26,6 @@ public class BasicTemplateViewModel : MvxViewModel, IImprovedMvxViewModel, IVMDa
     private string? _username;
     private int _step = -1;
     private bool _isRegistrationNotActivated = true;
-    private int _uploadingCombatsCount = 1;
 
     private List<CombatModel>? _combats;
     private CombatModel? _selectedCombat;
@@ -36,7 +35,6 @@ public class BasicTemplateViewModel : MvxViewModel, IImprovedMvxViewModel, IVMDa
     private bool _loginIsRan;
     private LogType _logType;
     private bool _logPanelStatusIsVisibly;
-    private int _uploadedCombatsCount;
 
     private static LoadingStatus _responseStatus;
     private static int _allowStep;
@@ -82,6 +80,8 @@ public class BasicTemplateViewModel : MvxViewModel, IImprovedMvxViewModel, IVMDa
 
     public IMvxViewModel SavedViewModel { get; set; }
 
+    public bool IsCombatLogsMustSave { get; set; }
+
     public List<CombatModel> Combats
     {
         set
@@ -89,13 +89,12 @@ public class BasicTemplateViewModel : MvxViewModel, IImprovedMvxViewModel, IVMDa
             if (value != null)
             {
                 _combats = value;
-                UploadingCombatsCount = value.Count;
             }
         }
-        get => _combats ?? new List<CombatModel>();
+        get => _combats ?? [];
     }
 
-    public CancellationTokenSource CancellationTokenSource { get; set; } = new();
+    public CancellationTokenSource CancellationTokenSource { get; set; }
 
     #region Commands
 
@@ -266,24 +265,6 @@ public class BasicTemplateViewModel : MvxViewModel, IImprovedMvxViewModel, IVMDa
         }
     }
 
-    public int UploadingCombatsCount
-    {
-        get { return _uploadingCombatsCount; }
-        set
-        {
-            SetProperty(ref _uploadingCombatsCount, value);
-        }
-    }
-
-    public int UploadedCombatsCount
-    {
-        get { return _uploadedCombatsCount; }
-        set
-        {
-            SetProperty(ref _uploadedCombatsCount, value);
-        }
-    }
-
     #endregion
 
     public CancellationToken RequestCancelationToken()
@@ -334,7 +315,7 @@ public class BasicTemplateViewModel : MvxViewModel, IImprovedMvxViewModel, IVMDa
         IsAuth = false;
         Username = string.Empty;
 
-        _securityStorage.RemoveTokens();
+        _securityStorage.RemoveAccessToken();
 
         Step = -1;
         await _mvvmNavigation.Close(Parent);
@@ -350,13 +331,12 @@ public class BasicTemplateViewModel : MvxViewModel, IImprovedMvxViewModel, IVMDa
     public async Task UploadCombatLogsAsync()
     {
         Step = 0;
-        await _mvvmNavigation.Navigate<CombatLogInformationViewModel>();
+        await _mvvmNavigation.Navigate<CombatLogsViewModel>();
     }
 
     public async Task GeneralAnalysisAsync()
     {
-        var dataForGeneralAnalysis = Tuple.Create(Combats, LogType);
-        await _mvvmNavigation.Navigate<CombatsViewModel, Tuple<List<CombatModel>, LogType>>(dataForGeneralAnalysis);
+        await _mvvmNavigation.Navigate<CombatsViewModel, List<CombatModel>>(Combats);
     }
 
     public async Task DetailsSpecificalCombatAsync()

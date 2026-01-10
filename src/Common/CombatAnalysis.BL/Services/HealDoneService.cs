@@ -1,55 +1,21 @@
 ﻿using AutoMapper;
 using CombatAnalysis.BL.DTO;
-using CombatAnalysis.BL.Interfaces.General;
-using CombatAnalysis.DAL.Entities;
+using CombatAnalysis.BL.Interfaces;
+using CombatAnalysis.DAL.Entities.CombatPlayerData;
 using CombatAnalysis.DAL.Interfaces.Generic;
 
 namespace CombatAnalysis.BL.Services;
 
-internal class HealDoneService(IGenericRepository<HealDone> repository, IMapper mapper) : IMutationService<HealDoneDto>
+internal class HealDoneService(ICreateBatchRepository<HealDone> repository, IMapper mapper) : ICreateBatchService<HealDoneDto>
 {
-    private readonly IGenericRepository<HealDone> _repository = repository;
+    private readonly ICreateBatchRepository<HealDone> _repository = repository;
     private readonly IMapper _mapper = mapper;
 
-    public async Task<HealDoneDto> CreateAsync(HealDoneDto item)
+    public async Task CreateBatchAsync(List<HealDoneDto> items, CancellationToken cancellationToken)
     {
-        CheckParams(item);
+        ArgumentNullException.ThrowIfNull(items, nameof(items));
 
-        var map = _mapper.Map<HealDone>(item);
-        var createdItem = await _repository.CreateAsync(map);
-        var resultMap = _mapper.Map<HealDoneDto>(createdItem);
-
-        return resultMap;
-    }
-
-    public async Task<int> UpdateAsync(HealDoneDto item)
-    {
-        CheckParams(item);
-
-        var map = _mapper.Map<HealDone>(item);
-        var rowsAffected = await _repository.UpdateAsync(map);
-
-        return rowsAffected;
-    }
-
-    public async Task<bool> DeleteAsync(int id)
-    {
-        ArgumentOutOfRangeException.ThrowIfLessThan(id, 1);
-
-        var entityDeleted = await _repository.DeleteAsync(id);
-
-        return entityDeleted;
-    }
-
-    private static void CheckParams(HealDoneDto item)
-    {
-        ArgumentException.ThrowIfNullOrEmpty(item.Spell, nameof(item.Spell));
-        ArgumentException.ThrowIfNullOrEmpty(item.Creator, nameof(item.Creator));
-        ArgumentException.ThrowIfNullOrEmpty(item.Target, nameof(item.Target));
-
-        ArgumentOutOfRangeException.ThrowIfNegative(item.Value, nameof(item.Value));
-        ArgumentOutOfRangeException.ThrowIfNegative(item.Overheal, nameof(item.Overheal));
-
-        ArgumentOutOfRangeException.ThrowIfLessThan(item.CombatPlayerId, 1, nameof(item.CombatPlayerId));
+        var map = _mapper.Map<IEnumerable<HealDone>>(items);
+        await _repository.CreateBatchAsync(map, cancellationToken);
     }
 }

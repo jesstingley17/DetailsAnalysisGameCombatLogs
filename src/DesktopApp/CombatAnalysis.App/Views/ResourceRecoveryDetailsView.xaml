@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:converters="clr-namespace:CombatAnalysis.App.Converters"
+    xmlns:convertersCombat="clr-namespace:CombatAnalysis.App.Converters.CombatLogs"
     xmlns:loc="clr-namespace:CombatAnalysis.App.Localizations"
     xmlns:resx="clr-namespace:CombatAnalysis.App.Localizations.Resources.ResourceRecoveryDetails"
     xmlns:local="clr-namespace:CombatAnalysis.App.Views.ViewTemplates"
@@ -29,6 +30,7 @@
         <Grid.Resources>
             <converters:TheNativeBoolToVisibilityConverter x:Key="BoolToVisibility" />
             <converters:TheNativeIntToVisibilityConverter x:Key="IntToVisibility" />
+            <convertersCombat:IntToEnhancedIntConverter x:Key="IntToEnhancedInt" />
         </Grid.Resources>
 
         <ContentControl Grid.ColumnSpan="3" Grid.RowSpan="4" Content="{Binding Basic}">
@@ -47,7 +49,7 @@
 
         <StackPanel Grid.Column="3" Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center"
                     HorizontalAlignment="Center" Panel.ZIndex="1">
-            <StackPanel Orientation="Horizontal">
+            <StackPanel Orientation="Horizontal" Visibility="{Binding LoadingStatus, Converter={StaticResource IntToVisibility}, ConverterParameter='true:2:='}">
                 <TextBlock Text="{loc:Loc TypeOf}" FontSize="15" TextAlignment="Center" Padding="10" FontWeight="SemiBold"
                            VerticalAlignment="Center" Margin="0" Width="100" Foreground="White"/>
                 <ComboBox Style="{DynamicResource ComboBoxStyle1}" VerticalAlignment="Center" Name="detailsType"
@@ -56,6 +58,15 @@
                     <ComboBoxItem Content="{loc:Loc MoreDetails}" />
                 </ComboBox>
             </StackPanel>
+
+            <TextBlock Text="{loc:Loc Loading}" HorizontalAlignment="Center" Margin="0 10" Foreground="White" FontSize="15"
+                           Visibility="{Binding LoadingStatus, Converter={StaticResource IntToVisibility}, ConverterParameter='true:1:='}">
+                <TextBlock.Triggers>
+                    <EventTrigger RoutedEvent="Loaded">
+                        <BeginStoryboard Storyboard="{StaticResource FadeLoadingStoryboard}" />
+                    </EventTrigger>
+                </TextBlock.Triggers>
+            </TextBlock>
 
             <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{loc:Loc Title}"
                        Width="350" TextAlignment="Center" Style="{StaticResource titleText}" Foreground="White" Margin="25 0"/>
@@ -90,7 +101,7 @@
                 <DataGridTemplateColumn SortMemberPath="Value" IsReadOnly="True" MinWidth="175">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding Path=Value}" TextAlignment="Center" Margin="10" FontSize="12" />
+                            <TextBlock Text="{Binding Path=Value, Converter={StaticResource IntToEnhancedInt}}" TextAlignment="Center" Margin="10" FontSize="12" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                     <DataGridTemplateColumn.HeaderTemplate>
@@ -104,7 +115,7 @@
                 <DataGridTemplateColumn SortMemberPath="AverageValue" IsReadOnly="True" MinWidth="175">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding Path=AverageValue, StringFormat=00.00}" TextAlignment="Center" Margin="10" FontSize="12" />
+                            <TextBlock Text="{Binding Path=AverageValue, StringFormat=00.00, Converter={StaticResource IntToEnhancedInt}}" TextAlignment="Center" Margin="10" FontSize="12" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                     <DataGridTemplateColumn.HeaderTemplate>
@@ -143,7 +154,7 @@
                 <DataGridTemplateColumn SortMemberPath="MaxValue" IsReadOnly="True" MinWidth="150">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding Path=MaxValue}" TextAlignment="Center" Margin="10" FontSize="12" />
+                            <TextBlock Text="{Binding Path=MaxValue, Converter={StaticResource IntToEnhancedInt}}" TextAlignment="Center" Margin="10" FontSize="12" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                     <DataGridTemplateColumn.HeaderTemplate>
@@ -156,7 +167,7 @@
                 <DataGridTemplateColumn SortMemberPath="MinValue" IsReadOnly="True" MinWidth="150">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding Path=MinValue}" TextAlignment="Center" Margin="10" FontSize="12" />
+                            <TextBlock Text="{Binding Path=MinValue, Converter={StaticResource IntToEnhancedInt}}" TextAlignment="Center" Margin="10" FontSize="12" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                     <DataGridTemplateColumn.HeaderTemplate>
@@ -209,7 +220,7 @@
                     <DataGridTemplateColumn SortMemberPath="Value" IsReadOnly="True" MinWidth="200">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding Path=Value}" Margin="10" FontSize="12" TextAlignment="Center" />
+                                <TextBlock Text="{Binding Path=Value, Converter={StaticResource IntToEnhancedInt}}" Margin="10" FontSize="12" TextAlignment="Center" />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                         <DataGridTemplateColumn.HeaderTemplate>

@@ -4,7 +4,7 @@ using CombatAnalysis.Core.Enums;
 using CombatAnalysis.Core.Extensions;
 using CombatAnalysis.Core.Interfaces;
 using CombatAnalysis.Core.Interfaces.Entities;
-using CombatAnalysis.Core.Models;
+using CombatAnalysis.Core.Models.GameLogs;
 using CombatAnalysis.Core.ViewModels.Base;
 using Microsoft.Extensions.Logging;
 using MvvmCross.Commands;
@@ -46,6 +46,7 @@ public abstract class DetailsGenericTemplate<DetailsModel, GeneralDetailsModel> 
     private ObservableCollection<string>? _sources;
     private int _detailsTypeSelectedIndex;
     private CancellationTokenSource _cancelToken;
+    private LoadingStatus _loadingStatus;
 
     public DetailsGenericTemplate(IHttpClientHelper httpClient, ILogger logger, IMapper mapper, 
         ICombatParserAPIService combatParserAPIService)
@@ -202,21 +203,28 @@ public abstract class DetailsGenericTemplate<DetailsModel, GeneralDetailsModel> 
         }
     }
 
+    public LoadingStatus LoadingStatus
+    {
+        get { return _loadingStatus; }
+        set
+        {
+            SetProperty(ref _loadingStatus, value);
+        }
+    }
+
     #endregion
 
     public override void Prepare(CombatPlayerModel parameter)
     {
         _parameter = parameter;
 
-        SelectedPlayer = parameter.Username;
+        SelectedPlayer = parameter.Player.Username;
         SelectedPlayerId = parameter.Id;
         TotalValue = parameter.DamageDone;
     }
 
     public override async Task Initialize()
     {
-        await base.Initialize();
-
         if (_parameter == null)
         {
             return;
@@ -230,11 +238,17 @@ public abstract class DetailsGenericTemplate<DetailsModel, GeneralDetailsModel> 
 
         _cancelToken = new CancellationTokenSource();
 
+        LoadingStatus = LoadingStatus.Pending;
+
         await LoadGeneralDetailsAsync();
         await LoadDetailsAsync(Page, _pageSize);
         await LoadCountAsync();
 
         GetSources();
+
+        LoadingStatus = LoadingStatus.Successful;
+
+        await base.Initialize();
     }
 
     public override void ViewDestroy(bool viewFinishing = true)

@@ -3,9 +3,7 @@
 namespace CombatAnalysis.DAL.Interfaces;
 
 public interface IPlayerInfoRepository<TModel>
-    where TModel : class, IEntity
+    where TModel : class, IEntity, ICombatPlayerEntity
 {
-    Task<IEnumerable<TModel>> GetByCombatPlayerIdAsync(int combatPlayerId);
-
-    Task<IEnumerable<TModel>> GetByCombatPlayerIdAsync(int combatPlayerId, int page, int pageSize);
+    Task<IEnumerable<TModel>> GetByCombatPlayerIdAsync(int combatPlayerId, CancellationToken cancellationToken);
 }

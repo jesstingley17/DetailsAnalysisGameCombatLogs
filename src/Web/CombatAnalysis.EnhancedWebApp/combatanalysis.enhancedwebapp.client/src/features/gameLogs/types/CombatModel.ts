@@ -1,8 +1,10 @@
+import type { BossModel } from "./BossModel";
+
 export type CombatModel = {
     id: number;
     dungeonName: string;
-    name: string;
-    energyRecovery: number;
+    bossHealthPercentage: number;
+    resourcesRecovery: number;
     damageDone: number;
     healDone: number;
     damageTaken: number;
@@ -12,4 +14,5 @@ export type CombatModel = {
     duration: string;
     isReady: boolean;
     combatLogId: number;
+    boss: BossModel;
 }

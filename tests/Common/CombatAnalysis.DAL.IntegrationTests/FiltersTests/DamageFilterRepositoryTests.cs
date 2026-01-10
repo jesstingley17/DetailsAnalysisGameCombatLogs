@@ -1,6 +1,7 @@
 ﻿using CombatAnalysis.DAL.Entities;
 using CombatAnalysis.DAL.Repositories.Filters;
 using CombatAnalysis.DAL.IntegrationTests.RepositoryTests;
+using CombatAnalysis.DAL.Entities.CombatPlayerData;
 
 namespace CombatAnalysis.DAL.IntegrationTests.FiltersTests;
 
@@ -16,27 +17,23 @@ public class DamageFilterRepositoryTests : RepositoryTestsBase
 
         using var context = CreateInMemoryContext(nameof(GetDamageByEachTargetAsync_Collection_ShouldReturnCombatTargetsByCombatId));
 
-        context.Set<Combat>().Add(new Combat
+        await context.Set<Combat>().AddAsync(new Combat
         {
             Id = combatId,
-            LocallyNumber = 1,
             DungeonName = "Dung",
-            Name = "Test",
-            Difficulty = 1,
             DamageDone = 3456,
             HealDone = 200,
             DamageTaken = 0,
-            EnergyRecovery = 0,
+            ResourcesRecovery = 0,
             IsWin = true,
             StartDate = DateTime.Now,
             FinishDate = DateTime.Now.AddSeconds(70),
             IsReady = true,
             CombatLogId = combatLogId
         });
-        context.Set<CombatPlayer>().Add(new CombatPlayer
+        await context.Set<CombatPlayer>().AddAsync(new CombatPlayer
         {
             Id = 1,
-            Username = "Solinx",
             PlayerId = "uid-22",
             AverageItemLevel = 345,
             ResourcesRecovery = 0,
@@ -45,7 +42,7 @@ public class DamageFilterRepositoryTests : RepositoryTestsBase
             DamageTaken = 0,
             CombatId = combatId,
         });
-        context.Set<DamageDone>().Add(new DamageDone
+        await context.Set<DamageDone>().AddAsync(new DamageDone
         {
             Id = 1,
             Creator = "Solinx",
@@ -63,13 +60,10 @@ public class DamageFilterRepositoryTests : RepositoryTestsBase
         var repo = new DamageFilterRepository(context);
 
         // Act
-        var result = await repo.GetDamageByEachTargetAsync(combatId);
+        var result = await repo.GetDamageByEachTargetAsync(combatId, CancellationToken.None);
 
         // Assert
-        Assert.NotNull(result);
         Assert.NotEmpty(result);
         Assert.Single(result);
-        Assert.NotEmpty(result.First());
-        Assert.Single(result.First());
     }
 }

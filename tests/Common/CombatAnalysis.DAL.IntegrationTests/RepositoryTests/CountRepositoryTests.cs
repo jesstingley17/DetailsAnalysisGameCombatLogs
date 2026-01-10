@@ -1,4 +1,4 @@
-﻿using CombatAnalysis.DAL.Entities;
+﻿using CombatAnalysis.DAL.Entities.CombatPlayerData;
 using CombatAnalysis.DAL.Repositories;
 using CombatAnalysis.UserDAL.IntegrationTests.Factory;
 
@@ -20,7 +20,7 @@ public class CountRepositoryTests : RepositoryTestsBase
         var repo = new CountRepository<DamageDone>(context);
 
         // Act
-        var result = await repo.CountByCombatPlayerIdAsync(combatPlayerId);
+        var result = await repo.CountByCombatPlayerIdAsync(combatPlayerId, CancellationToken.None);
 
         // Assert
         Assert.Equal(3, result);
@@ -40,7 +40,7 @@ public class CountRepositoryTests : RepositoryTestsBase
         var repo = new CountRepository<DamageDone>(context);
 
         // Act
-        var result = await repo.CountByCombatPlayerIdAsync(combatPlayerId);
+        var result = await repo.CountByCombatPlayerIdAsync(combatPlayerId, CancellationToken.None);
 
         // Assert
         Assert.Equal(0, result);

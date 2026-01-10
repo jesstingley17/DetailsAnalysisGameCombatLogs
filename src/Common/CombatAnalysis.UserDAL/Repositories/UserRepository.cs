@@ -2,14 +2,13 @@
 using CombatAnalysis.UserDAL.Entities;
 using CombatAnalysis.UserDAL.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using StackExchange.Redis;
-using System.Text.Json;
 
 namespace CombatAnalysis.UserDAL.Repositories;
 
-internal class UserRepository(IConnectionMultiplexer redis, UserContext context) : IUserRepository
+//internal class UserRepository(IConnectionMultiplexer redis, UserContext context) : IUserRepository
+internal class UserRepository(UserContext context) : IUserRepository
 {
-    private readonly IDatabase _cache = redis.GetDatabase();
+    //private readonly IDatabase _cache = redis.GetDatabase();
     private readonly UserContext _context = context;
 
     public async Task<AppUser> CreateAsync(AppUser item)
@@ -73,13 +72,13 @@ internal class UserRepository(IConnectionMultiplexer redis, UserContext context)
 
     public async Task<IEnumerable<AppUser>> FindByUsernameStartAtAsync(string prefix)
     {
-        var entities = await SearchUsersByPrefixAsync(prefix);
-        if (entities.Count != 0)
-        {
-            return entities;
-        }
+        //var entities = await SearchUsersByPrefixAsync(prefix);
+        //if (entities.Count != 0)
+        //{
+        //    return entities;
+        //}
 
-        entities = await _context.Set<AppUser>()
+        var entities = await _context.Set<AppUser>()
             .Where(u => u.Username.ToLower().StartsWith(prefix.ToLower()))
             .ToListAsync();
 
@@ -88,7 +87,7 @@ internal class UserRepository(IConnectionMultiplexer redis, UserContext context)
             foreach (var entity in entities)
             {
                 _context.Entry(entity).State = EntityState.Detached;
-                await AddUserToCacheAsync(entity);
+                //await AddUserToCacheAsync(entity);
             }
 
             return entities;
@@ -97,35 +96,35 @@ internal class UserRepository(IConnectionMultiplexer redis, UserContext context)
         return [];
     }
 
-    private async Task<List<AppUser>> SearchUsersByPrefixAsync(string prefix)
-    {
-        string min = $"[{prefix.ToLower()}";
-        string max = $"[{prefix.ToLower()}\uffff";
+    //private async Task<List<AppUser>> SearchUsersByPrefixAsync(string prefix)
+    //{
+    //    string min = $"[{prefix.ToLower()}";
+    //    string max = $"[{prefix.ToLower()}\uffff";
 
-        var result = await _cache.ExecuteAsync("ZRANGE", "usernames", min, max, "BYLEX");
+    //    var result = await _cache.ExecuteAsync("ZRANGE", "usernames", min, max, "BYLEX");
 
-        var raw = result.IsNull ? Array.Empty<RedisResult>() : (RedisResult[])result!;
-        var usernames = raw.Select(r => (string)r!).ToList();
+    //    var raw = result.IsNull ? Array.Empty<RedisResult>() : (RedisResult[])result!;
+    //    var usernames = raw.Select(r => (string)r!).ToList();
 
-        var users = new List<AppUser>();
-        foreach (var username in usernames)
-        {
-            var json = await _cache.StringGetAsync($"user:{username}");
-            if (!json.IsNullOrEmpty)
-            {
-                users.Add(JsonSerializer.Deserialize<AppUser>(json!)!);
-            }
-        }
+    //    var users = new List<AppUser>();
+    //    foreach (var username in usernames)
+    //    {
+    //        var json = await _cache.StringGetAsync($"user:{username}");
+    //        if (!json.IsNullOrEmpty)
+    //        {
+    //            users.Add(JsonSerializer.Deserialize<AppUser>(json!)!);
+    //        }
+    //    }
 
-        return users;
-    }
+    //    return users;
+    //}
 
-    private async Task AddUserToCacheAsync(AppUser user)
-    {
-        string userKey = $"user:{user.Username.ToLower()}";
+    //private async Task AddUserToCacheAsync(AppUser user)
+    //{
+    //    string userKey = $"user:{user.Username.ToLower()}";
 
-        await _cache.StringSetAsync(userKey, JsonSerializer.Serialize(user));
+    //    await _cache.StringSetAsync(userKey, JsonSerializer.Serialize(user));
 
-        await _cache.SortedSetAddAsync("usernames", user.Username.ToLower(), 0);
-    }
+    //    await _cache.SortedSetAddAsync("usernames", user.Username.ToLower(), 0);
+    //}
 }

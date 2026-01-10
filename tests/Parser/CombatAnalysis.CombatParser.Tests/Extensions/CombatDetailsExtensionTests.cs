@@ -13,6 +13,7 @@ public class CombatDetailsExtensionTests
         // Arrange
         var mockFileManager = new Mock<IFileManager>();
         var mockLogger = new Mock<ILogger>();
+        var mockHttp = new Mock<IHttpClientHelper>();
 
         var fakeLines1 = new[]
         {
@@ -26,7 +27,7 @@ public class CombatDetailsExtensionTests
             .Setup(fm => fm.ReadAllLinesAsync("file1.txt", It.IsAny<CancellationToken>()))
             .ReturnsAsync(fakeLines1);
 
-        var service = new CombatParserService(mockFileManager.Object, mockLogger.Object);
+        var service = new CombatParserService(mockFileManager.Object, mockLogger.Object, mockHttp.Object);
 
         var paths = new List<string> { "file1.txt" };
         var cancellationToken = CancellationToken.None;
@@ -49,6 +50,7 @@ public class CombatDetailsExtensionTests
         // Arrange
         var mockFileManager = new Mock<IFileManager>();
         var mockLogger = new Mock<ILogger>();
+        var mockHttp = new Mock<IHttpClientHelper>();
 
         var fakeLines1 = new[]
         {
@@ -61,7 +63,7 @@ public class CombatDetailsExtensionTests
             .Setup(fm => fm.ReadAllLinesAsync("file1.txt", It.IsAny<CancellationToken>()))
             .ReturnsAsync(fakeLines1);
 
-        var service = new CombatParserService(mockFileManager.Object, mockLogger.Object);
+        var service = new CombatParserService(mockFileManager.Object, mockLogger.Object, mockHttp.Object);
 
         var paths = new List<string> { "file1.txt" };
         var cancellationToken = CancellationToken.None;

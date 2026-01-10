@@ -1,6 +1,6 @@
 ﻿using CombatAnalysis.BL.DTO;
 using CombatAnalysis.BL.Services.General;
-using CombatAnalysis.DAL.Entities;
+using CombatAnalysis.DAL.Entities.CombatPlayerData;
 using CombatAnalysis.DAL.Interfaces.Generic;
 using Moq;
 
@@ -17,18 +17,18 @@ public class CountServiceTests
 
         var mockRepository = new Mock<ICountRepository<DamageDone>>();
 
-        mockRepository.Setup(m => m.CountByCombatPlayerIdAsync(combatPlayerId)).ReturnsAsync(count);
+        mockRepository.Setup(m => m.CountByCombatPlayerIdAsync(combatPlayerId, CancellationToken.None)).ReturnsAsync(count);
 
         var service = new CountService<DamageDoneDto, DamageDone>(mockRepository.Object);
 
         // Act
-        var result = await service.CountByCombatPlayerIdAsync(combatPlayerId);
+        var result = await service.CountByCombatPlayerIdAsync(combatPlayerId, CancellationToken.None);
 
         // Assert
         Assert.Equal(count, result);
 
         // Verify correct method calls
-        mockRepository.Verify(r => r.CountByCombatPlayerIdAsync(It.IsAny<int>()), Times.Once);
+        mockRepository.Verify(r => r.CountByCombatPlayerIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -40,14 +40,14 @@ public class CountServiceTests
 
         var mockRepository = new Mock<ICountRepository<DamageDone>>();
 
-        mockRepository.Setup(m => m.CountByCombatPlayerIdAsync(combatPlayerId)).ReturnsAsync(count);
+        mockRepository.Setup(m => m.CountByCombatPlayerIdAsync(combatPlayerId, CancellationToken.None)).ReturnsAsync(count);
 
         var service = new CountService<DamageDoneDto, DamageDone>(mockRepository.Object);
 
         // Act and Assert
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.CountByCombatPlayerIdAsync(combatPlayerId));
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.CountByCombatPlayerIdAsync(combatPlayerId, CancellationToken.None));
 
         // Verify correct method calls
-        mockRepository.Verify(r => r.CountByCombatPlayerIdAsync(It.IsAny<int>()), Times.Never);
+        mockRepository.Verify(r => r.CountByCombatPlayerIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }

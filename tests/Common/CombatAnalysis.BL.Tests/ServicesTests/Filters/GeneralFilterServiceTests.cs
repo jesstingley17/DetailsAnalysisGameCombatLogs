@@ -2,7 +2,7 @@
 using CombatAnalysis.BL.DTO;
 using CombatAnalysis.BL.Services.Filters;
 using CombatAnalysis.BL.Tests.Factory;
-using CombatAnalysis.DAL.Entities;
+using CombatAnalysis.DAL.Entities.CombatPlayerData;
 using CombatAnalysis.DAL.Interfaces.Filters;
 using Moq;
 
@@ -21,12 +21,12 @@ public class GeneralFilterServiceTests
         var mockMapper = new Mock<IMapper>();
         var mockRepository = new Mock<IGeneralFilterRepository<DamageDone>>();
 
-        mockRepository.Setup(m => m.GetTargetNamesByCombatPlayerIdAsync(combatPlayerId)).ReturnsAsync(targets);
+        mockRepository.Setup(m => m.GetTargetNamesByCombatPlayerIdAsync(combatPlayerId, CancellationToken.None)).ReturnsAsync(targets);
 
         var service = new GeneralFilterService<DamageDoneDto, DamageDone>(mockRepository.Object, mockMapper.Object);
 
         // Act
-        var result = await service.GetTargetNamesByCombatPlayerIdAsync(combatPlayerId);
+        var result = await service.GetTargetNamesByCombatPlayerIdAsync(combatPlayerId, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -34,7 +34,7 @@ public class GeneralFilterServiceTests
         Assert.Equal(2, result.Count());
 
         // Verify correct method calls
-        mockRepository.Verify(r => r.GetTargetNamesByCombatPlayerIdAsync(It.IsAny<int>()), Times.Once);
+        mockRepository.Verify(r => r.GetTargetNamesByCombatPlayerIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -48,15 +48,15 @@ public class GeneralFilterServiceTests
         var mockMapper = new Mock<IMapper>();
         var mockRepository = new Mock<IGeneralFilterRepository<DamageDone>>();
 
-        mockRepository.Setup(m => m.GetTargetNamesByCombatPlayerIdAsync(combatPlayerId)).ReturnsAsync(targets);
+        mockRepository.Setup(m => m.GetTargetNamesByCombatPlayerIdAsync(combatPlayerId, CancellationToken.None)).ReturnsAsync(targets);
 
         var service = new GeneralFilterService<DamageDoneDto, DamageDone>(mockRepository.Object, mockMapper.Object);
 
         // Act and Assert
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.GetTargetNamesByCombatPlayerIdAsync(combatPlayerId));
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.GetTargetNamesByCombatPlayerIdAsync(combatPlayerId, CancellationToken.None));
 
         // Verify correct method calls
-        mockRepository.Verify(r => r.GetTargetNamesByCombatPlayerIdAsync(It.IsAny<int>()), Times.Never);
+        mockRepository.Verify(r => r.GetTargetNamesByCombatPlayerIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -70,18 +70,18 @@ public class GeneralFilterServiceTests
         var mockMapper = new Mock<IMapper>();
         var mockRepository = new Mock<IGeneralFilterRepository<DamageDone>>();
 
-        mockRepository.Setup(m => m.CountTargetByCombatPlayerIdAsync(combatPlayerId, target)).ReturnsAsync(count);
+        mockRepository.Setup(m => m.CountTargetByCombatPlayerIdAsync(combatPlayerId, target, CancellationToken.None)).ReturnsAsync(count);
 
         var service = new GeneralFilterService<DamageDoneDto, DamageDone>(mockRepository.Object, mockMapper.Object);
 
         // Act
-        var result = await service.CountTargetsByCombatPlayerIdAsync(combatPlayerId, target);
+        var result = await service.CountTargetsByCombatPlayerIdAsync(combatPlayerId, target, CancellationToken.None);
 
         // Assert
         Assert.Equal(count, result);
 
         // Verify correct method calls
-        mockRepository.Verify(r => r.CountTargetByCombatPlayerIdAsync(It.IsAny<int>(), It.IsAny<string>()), Times.Once);
+        mockRepository.Verify(r => r.CountTargetByCombatPlayerIdAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -95,15 +95,15 @@ public class GeneralFilterServiceTests
         var mockMapper = new Mock<IMapper>();
         var mockRepository = new Mock<IGeneralFilterRepository<DamageDone>>();
 
-        mockRepository.Setup(m => m.CountTargetByCombatPlayerIdAsync(combatPlayerId, target)).ReturnsAsync(count);
+        mockRepository.Setup(m => m.CountTargetByCombatPlayerIdAsync(combatPlayerId, target, CancellationToken.None)).ReturnsAsync(count);
 
         var service = new GeneralFilterService<DamageDoneDto, DamageDone>(mockRepository.Object, mockMapper.Object);
 
         // Act and Assert
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.CountTargetsByCombatPlayerIdAsync(combatPlayerId, target));
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.CountTargetsByCombatPlayerIdAsync(combatPlayerId, target, CancellationToken.None));
 
         // Verify correct method calls
-        mockRepository.Verify(r => r.CountTargetByCombatPlayerIdAsync(It.IsAny<int>(), It.IsAny<string>()), Times.Never);
+        mockRepository.Verify(r => r.CountTargetByCombatPlayerIdAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -123,12 +123,12 @@ public class GeneralFilterServiceTests
 
         mockMapper.Setup(m => m.Map<IEnumerable<DamageDoneDto>>(damages)).Returns(damagesDto);
 
-        mockRepository.Setup(m => m.GetByTargetAsync(combatPlayerId, target, page, pageSize)).ReturnsAsync(damages);
+        mockRepository.Setup(m => m.GetByTargetAsync(combatPlayerId, target, page, pageSize, CancellationToken.None)).ReturnsAsync(damages);
 
         var service = new GeneralFilterService<DamageDoneDto, DamageDone>(mockRepository.Object, mockMapper.Object);
 
         // Act
-        var result = await service.GetByTargetAsync(combatPlayerId, target, page, pageSize);
+        var result = await service.GetByTargetAsync(combatPlayerId, target, page, pageSize, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -136,7 +136,7 @@ public class GeneralFilterServiceTests
         Assert.Equal(3, result.Count());
 
         // Verify correct method calls
-        mockRepository.Verify(r => r.GetByTargetAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Once);
+        mockRepository.Verify(r => r.GetByTargetAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -156,15 +156,15 @@ public class GeneralFilterServiceTests
 
         mockMapper.Setup(m => m.Map<IEnumerable<DamageDoneDto>>(damages)).Returns(damagesDto);
 
-        mockRepository.Setup(m => m.GetByTargetAsync(combatPlayerId, target, page, pageSize)).ReturnsAsync(damages);
+        mockRepository.Setup(m => m.GetByTargetAsync(combatPlayerId, target, page, pageSize, CancellationToken.None)).ReturnsAsync(damages);
 
         var service = new GeneralFilterService<DamageDoneDto, DamageDone>(mockRepository.Object, mockMapper.Object);
 
         // Act and Assert
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.GetByTargetAsync(combatPlayerId, target, page, pageSize));
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.GetByTargetAsync(combatPlayerId, target, page, pageSize, CancellationToken.None));
 
         // Verify correct method calls
-        mockRepository.Verify(r => r.GetByTargetAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+        mockRepository.Verify(r => r.GetByTargetAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -178,18 +178,18 @@ public class GeneralFilterServiceTests
         var mockMapper = new Mock<IMapper>();
         var mockRepository = new Mock<IGeneralFilterRepository<DamageDone>>();
 
-        mockRepository.Setup(m => m.GetTargetValueByCombatPlayerIdAsync(combatPlayerId, target)).ReturnsAsync(value);
+        mockRepository.Setup(m => m.GetTargetValueByCombatPlayerIdAsync(combatPlayerId, target, CancellationToken.None)).ReturnsAsync(value);
 
         var service = new GeneralFilterService<DamageDoneDto, DamageDone>(mockRepository.Object, mockMapper.Object);
 
         // Act
-        var result = await service.GetTargetValueByCombatPlayerIdAsync(combatPlayerId, target);
+        var result = await service.GetTargetValueByCombatPlayerIdAsync(combatPlayerId, target, CancellationToken.None);
 
         // Assert
         Assert.Equal(value, result);
 
         // Verify correct method calls
-        mockRepository.Verify(r => r.GetTargetValueByCombatPlayerIdAsync(It.IsAny<int>(), It.IsAny<string>()), Times.Once);
+        mockRepository.Verify(r => r.GetTargetValueByCombatPlayerIdAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -203,15 +203,15 @@ public class GeneralFilterServiceTests
         var mockMapper = new Mock<IMapper>();
         var mockRepository = new Mock<IGeneralFilterRepository<DamageDone>>();
 
-        mockRepository.Setup(m => m.GetTargetValueByCombatPlayerIdAsync(combatPlayerId, target)).ReturnsAsync(value);
+        mockRepository.Setup(m => m.GetTargetValueByCombatPlayerIdAsync(combatPlayerId, target, CancellationToken.None)).ReturnsAsync(value);
 
         var service = new GeneralFilterService<DamageDoneDto, DamageDone>(mockRepository.Object, mockMapper.Object);
 
         // Act and Assert
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.GetTargetValueByCombatPlayerIdAsync(combatPlayerId, target));
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.GetTargetValueByCombatPlayerIdAsync(combatPlayerId, target, CancellationToken.None));
 
         // Verify correct method calls
-        mockRepository.Verify(r => r.GetTargetValueByCombatPlayerIdAsync(It.IsAny<int>(), It.IsAny<string>()), Times.Never);
+        mockRepository.Verify(r => r.GetTargetValueByCombatPlayerIdAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -225,12 +225,12 @@ public class GeneralFilterServiceTests
         var mockMapper = new Mock<IMapper>();
         var mockRepository = new Mock<IGeneralFilterRepository<DamageDone>>();
 
-        mockRepository.Setup(m => m.GetCreatorNamesByCombatPlayerIdAsync(combatPlayerId)).ReturnsAsync(creators);
+        mockRepository.Setup(m => m.GetCreatorNamesByCombatPlayerIdAsync(combatPlayerId, CancellationToken.None)).ReturnsAsync(creators);
 
         var service = new GeneralFilterService<DamageDoneDto, DamageDone>(mockRepository.Object, mockMapper.Object);
 
         // Act
-        var result = await service.GetCreatorNamesByCombatPlayerIdAsync(combatPlayerId);
+        var result = await service.GetCreatorNamesByCombatPlayerIdAsync(combatPlayerId, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -238,7 +238,7 @@ public class GeneralFilterServiceTests
         Assert.Equal(2, result.Count());
 
         // Verify correct method calls
-        mockRepository.Verify(r => r.GetCreatorNamesByCombatPlayerIdAsync(It.IsAny<int>()), Times.Once);
+        mockRepository.Verify(r => r.GetCreatorNamesByCombatPlayerIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -252,15 +252,15 @@ public class GeneralFilterServiceTests
         var mockMapper = new Mock<IMapper>();
         var mockRepository = new Mock<IGeneralFilterRepository<DamageDone>>();
 
-        mockRepository.Setup(m => m.GetCreatorNamesByCombatPlayerIdAsync(combatPlayerId)).ReturnsAsync(creators);
+        mockRepository.Setup(m => m.GetCreatorNamesByCombatPlayerIdAsync(combatPlayerId, CancellationToken.None)).ReturnsAsync(creators);
 
         var service = new GeneralFilterService<DamageDoneDto, DamageDone>(mockRepository.Object, mockMapper.Object);
 
         // Act and Assert
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.GetCreatorNamesByCombatPlayerIdAsync(combatPlayerId));
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.GetCreatorNamesByCombatPlayerIdAsync(combatPlayerId, CancellationToken.None));
 
         // Verify correct method calls
-        mockRepository.Verify(r => r.GetCreatorNamesByCombatPlayerIdAsync(It.IsAny<int>()), Times.Never);
+        mockRepository.Verify(r => r.GetCreatorNamesByCombatPlayerIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -274,18 +274,18 @@ public class GeneralFilterServiceTests
         var mockMapper = new Mock<IMapper>();
         var mockRepository = new Mock<IGeneralFilterRepository<DamageDone>>();
 
-        mockRepository.Setup(m => m.CountCreatorByCombatPlayerIdAsync(combatPlayerId, creator)).ReturnsAsync(count);
+        mockRepository.Setup(m => m.CountCreatorByCombatPlayerIdAsync(combatPlayerId, creator, CancellationToken.None)).ReturnsAsync(count);
 
         var service = new GeneralFilterService<DamageDoneDto, DamageDone>(mockRepository.Object, mockMapper.Object);
 
         // Act
-        var result = await service.CountCreatorByCombatPlayerIdAsync(combatPlayerId, creator);
+        var result = await service.CountCreatorByCombatPlayerIdAsync(combatPlayerId, creator, CancellationToken.None);
 
         // Assert
         Assert.Equal(count, result);
 
         // Verify correct method calls
-        mockRepository.Verify(r => r.CountCreatorByCombatPlayerIdAsync(It.IsAny<int>(), It.IsAny<string>()), Times.Once);
+        mockRepository.Verify(r => r.CountCreatorByCombatPlayerIdAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -299,15 +299,15 @@ public class GeneralFilterServiceTests
         var mockMapper = new Mock<IMapper>();
         var mockRepository = new Mock<IGeneralFilterRepository<DamageDone>>();
 
-        mockRepository.Setup(m => m.CountCreatorByCombatPlayerIdAsync(combatPlayerId, creator)).ReturnsAsync(count);
+        mockRepository.Setup(m => m.CountCreatorByCombatPlayerIdAsync(combatPlayerId, creator, CancellationToken.None)).ReturnsAsync(count);
 
         var service = new GeneralFilterService<DamageDoneDto, DamageDone>(mockRepository.Object, mockMapper.Object);
 
         // Act and Assert
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.CountCreatorByCombatPlayerIdAsync(combatPlayerId, creator));
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.CountCreatorByCombatPlayerIdAsync(combatPlayerId, creator, CancellationToken.None));
 
         // Verify correct method calls
-        mockRepository.Verify(r => r.CountCreatorByCombatPlayerIdAsync(It.IsAny<int>(), It.IsAny<string>()), Times.Never);
+        mockRepository.Verify(r => r.CountCreatorByCombatPlayerIdAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -327,12 +327,12 @@ public class GeneralFilterServiceTests
 
         mockMapper.Setup(m => m.Map<IEnumerable<DamageDoneDto>>(damages)).Returns(damagesDto);
 
-        mockRepository.Setup(m => m.GetByCreatorAsync(combatPlayerId, creator, page, pageSize)).ReturnsAsync(damages);
+        mockRepository.Setup(m => m.GetByCreatorAsync(combatPlayerId, creator, page, pageSize, CancellationToken.None)).ReturnsAsync(damages);
 
         var service = new GeneralFilterService<DamageDoneDto, DamageDone>(mockRepository.Object, mockMapper.Object);
 
         // Act
-        var result = await service.GetByCreatorAsync(combatPlayerId, creator, page, pageSize);
+        var result = await service.GetByCreatorAsync(combatPlayerId, creator, page, pageSize, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -340,7 +340,7 @@ public class GeneralFilterServiceTests
         Assert.Equal(3, result.Count());
 
         // Verify correct method calls
-        mockRepository.Verify(r => r.GetByCreatorAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Once);
+        mockRepository.Verify(r => r.GetByCreatorAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -360,15 +360,15 @@ public class GeneralFilterServiceTests
 
         mockMapper.Setup(m => m.Map<IEnumerable<DamageDoneDto>>(damages)).Returns(damagesDto);
 
-        mockRepository.Setup(m => m.GetByCreatorAsync(combatPlayerId, creator, page, pageSize)).ReturnsAsync(damages);
+        mockRepository.Setup(m => m.GetByCreatorAsync(combatPlayerId, creator, page, pageSize, CancellationToken.None)).ReturnsAsync(damages);
 
         var service = new GeneralFilterService<DamageDoneDto, DamageDone>(mockRepository.Object, mockMapper.Object);
 
         // Act and Assert
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.GetByCreatorAsync(combatPlayerId, creator, page, pageSize));
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.GetByCreatorAsync(combatPlayerId, creator, page, pageSize, CancellationToken.None));
 
         // Verify correct method calls
-        mockRepository.Verify(r => r.GetByCreatorAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+        mockRepository.Verify(r => r.GetByCreatorAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -382,12 +382,12 @@ public class GeneralFilterServiceTests
         var mockMapper = new Mock<IMapper>();
         var mockRepository = new Mock<IGeneralFilterRepository<DamageDone>>();
 
-        mockRepository.Setup(m => m.GetSpellNamesByCombatPlayerIdAsync(combatPlayerId)).ReturnsAsync(spells);
+        mockRepository.Setup(m => m.GetSpellNamesByCombatPlayerIdAsync(combatPlayerId, CancellationToken.None)).ReturnsAsync(spells);
 
         var service = new GeneralFilterService<DamageDoneDto, DamageDone>(mockRepository.Object, mockMapper.Object);
 
         // Act
-        var result = await service.GetSpellNamesByCombatPlayerIdAsync(combatPlayerId);
+        var result = await service.GetSpellNamesByCombatPlayerIdAsync(combatPlayerId, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -395,7 +395,7 @@ public class GeneralFilterServiceTests
         Assert.Equal(2, result.Count());
 
         // Verify correct method calls
-        mockRepository.Verify(r => r.GetSpellNamesByCombatPlayerIdAsync(It.IsAny<int>()), Times.Once);
+        mockRepository.Verify(r => r.GetSpellNamesByCombatPlayerIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -409,15 +409,15 @@ public class GeneralFilterServiceTests
         var mockMapper = new Mock<IMapper>();
         var mockRepository = new Mock<IGeneralFilterRepository<DamageDone>>();
 
-        mockRepository.Setup(m => m.GetSpellNamesByCombatPlayerIdAsync(combatPlayerId)).ReturnsAsync(spells);
+        mockRepository.Setup(m => m.GetSpellNamesByCombatPlayerIdAsync(combatPlayerId, CancellationToken.None)).ReturnsAsync(spells);
 
         var service = new GeneralFilterService<DamageDoneDto, DamageDone>(mockRepository.Object, mockMapper.Object);
 
         // Act and Assert
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.GetSpellNamesByCombatPlayerIdAsync(combatPlayerId));
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.GetSpellNamesByCombatPlayerIdAsync(combatPlayerId, CancellationToken.None));
 
         // Verify correct method calls
-        mockRepository.Verify(r => r.GetSpellNamesByCombatPlayerIdAsync(It.IsAny<int>()), Times.Never);
+        mockRepository.Verify(r => r.GetSpellNamesByCombatPlayerIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -431,18 +431,18 @@ public class GeneralFilterServiceTests
         var mockMapper = new Mock<IMapper>();
         var mockRepository = new Mock<IGeneralFilterRepository<DamageDone>>();
 
-        mockRepository.Setup(m => m.CountSpellByCombatPlayerIdAsync(combatPlayerId, spell)).ReturnsAsync(count);
+        mockRepository.Setup(m => m.CountSpellByCombatPlayerIdAsync(combatPlayerId, spell, CancellationToken.None)).ReturnsAsync(count);
 
         var service = new GeneralFilterService<DamageDoneDto, DamageDone>(mockRepository.Object, mockMapper.Object);
 
         // Act
-        var result = await service.CountSpellByCombatPlayerIdAsync(combatPlayerId, spell);
+        var result = await service.CountSpellByCombatPlayerIdAsync(combatPlayerId, spell, CancellationToken.None);
 
         // Assert
         Assert.Equal(count, result);
 
         // Verify correct method calls
-        mockRepository.Verify(r => r.CountSpellByCombatPlayerIdAsync(It.IsAny<int>(), It.IsAny<string>()), Times.Once);
+        mockRepository.Verify(r => r.CountSpellByCombatPlayerIdAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -456,15 +456,15 @@ public class GeneralFilterServiceTests
         var mockMapper = new Mock<IMapper>();
         var mockRepository = new Mock<IGeneralFilterRepository<DamageDone>>();
 
-        mockRepository.Setup(m => m.CountSpellByCombatPlayerIdAsync(combatPlayerId, spell)).ReturnsAsync(count);
+        mockRepository.Setup(m => m.CountSpellByCombatPlayerIdAsync(combatPlayerId, spell, CancellationToken.None)).ReturnsAsync(count);
 
         var service = new GeneralFilterService<DamageDoneDto, DamageDone>(mockRepository.Object, mockMapper.Object);
 
         // Act and Assert
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.CountSpellByCombatPlayerIdAsync(combatPlayerId, spell));
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.CountSpellByCombatPlayerIdAsync(combatPlayerId, spell, CancellationToken.None));
 
         // Verify correct method calls
-        mockRepository.Verify(r => r.CountSpellByCombatPlayerIdAsync(It.IsAny<int>(), It.IsAny<string>()), Times.Never);
+        mockRepository.Verify(r => r.CountSpellByCombatPlayerIdAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -484,12 +484,12 @@ public class GeneralFilterServiceTests
 
         mockMapper.Setup(m => m.Map<IEnumerable<DamageDoneDto>>(damages)).Returns(damagesDto);
 
-        mockRepository.Setup(m => m.GetBySpellAsync(combatPlayerId, spell, page, pageSize)).ReturnsAsync(damages);
+        mockRepository.Setup(m => m.GetBySpellAsync(combatPlayerId, spell, page, pageSize, CancellationToken.None)).ReturnsAsync(damages);
 
         var service = new GeneralFilterService<DamageDoneDto, DamageDone>(mockRepository.Object, mockMapper.Object);
 
         // Act
-        var result = await service.GetBySpellAsync(combatPlayerId, spell, page, pageSize);
+        var result = await service.GetBySpellAsync(combatPlayerId, spell, page, pageSize, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -497,7 +497,7 @@ public class GeneralFilterServiceTests
         Assert.Equal(3, result.Count());
 
         // Verify correct method calls
-        mockRepository.Verify(r => r.GetBySpellAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Once);
+        mockRepository.Verify(r => r.GetBySpellAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -517,14 +517,14 @@ public class GeneralFilterServiceTests
 
         mockMapper.Setup(m => m.Map<IEnumerable<DamageDoneDto>>(damages)).Returns(damagesDto);
 
-        mockRepository.Setup(m => m.GetBySpellAsync(combatPlayerId, spell, page, pageSize)).ReturnsAsync(damages);
+        mockRepository.Setup(m => m.GetBySpellAsync(combatPlayerId, spell, page, pageSize, CancellationToken.None)).ReturnsAsync(damages);
 
         var service = new GeneralFilterService<DamageDoneDto, DamageDone>(mockRepository.Object, mockMapper.Object);
 
         // Act and Assert
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.GetBySpellAsync(combatPlayerId, spell, page, pageSize));
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.GetBySpellAsync(combatPlayerId, spell, page, pageSize, CancellationToken.None));
 
         // Verify correct method calls
-        mockRepository.Verify(r => r.GetBySpellAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+        mockRepository.Verify(r => r.GetBySpellAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }

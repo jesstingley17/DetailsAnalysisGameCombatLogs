@@ -6,15 +6,21 @@ public class SpecializationScore : IEntity
 {
     public int Id { get; set; }
 
-    public int SpecId { get; set; }
+    public double DamageScore { get; set; }
 
-    public int BossId { get; set; }
+    public int DamageDone { get; set; }
 
-    public int Difficult { get; set; }
+    public double HealScore { get; set; }
 
-    public int Damage { get; set; }
-
-    public int Heal { get; set; }
+    public int HealDone { get; set; }
 
     public DateTimeOffset? Updated { get; set; }
+
+    public Specialization Specialization { get; set; }
+
+    public int SpecializationId { get; set; }
+
+    public CombatPlayer CombatPlayer { get; set; }
+
+    public int CombatPlayerId { get; set; }
 }

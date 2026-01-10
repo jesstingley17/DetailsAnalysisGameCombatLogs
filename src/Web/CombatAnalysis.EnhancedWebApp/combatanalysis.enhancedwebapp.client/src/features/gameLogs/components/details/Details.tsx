@@ -47,7 +47,7 @@ const Details: React.FC<DetailsProps> = ({ combatPlayers, details, getValueShort
             result = [...combatPlayers].sort(compare);
         }
         else {
-            result = [...combatPlayers].sort((a: CombatPlayerModel, b: CombatPlayerModel) => a.username.localeCompare(b.username));
+            result = [...combatPlayers].sort((a: CombatPlayerModel, b: CombatPlayerModel) => a.player.username.localeCompare(b.player.username));
         }
 
         setFilteredCombatPlayers(result);
@@ -72,13 +72,13 @@ const Details: React.FC<DetailsProps> = ({ combatPlayers, details, getValueShort
                 </span>
             </div>
             <ul>
-                {filteredCombatPlayers?.map((player) => (
-                    <li key={player.id} className="card">
+                {filteredCombatPlayers?.map((combatPlayer) => (
+                    <li key={combatPlayer.id} className="card">
                         <div className="card-body">
-                            <h5 className="card-title">{player.username}</h5>
+                            <h5 className="card-title">{combatPlayer.player.username}</h5>
                         </div>
                         <DetailsItem
-                            player={player}
+                            player={combatPlayer}
                             details={details}
                             getValueShortName={getValueShortName}
                         />

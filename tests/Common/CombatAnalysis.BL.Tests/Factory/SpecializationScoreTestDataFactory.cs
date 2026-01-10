@@ -5,32 +5,28 @@ namespace CombatAnalysis.BL.Tests.Factory;
 
 internal class SpecializationScoreTestDataFactory
 {
-    public static SpecializationScore Create(int id = 1, int difficult = 0)
+    public static SpecializationScore Create(int id = 1, int damage = 0)
     {
         var entity = new SpecializationScore
         {
             Id = id,
-            SpecId = 1,
-            BossId = 1,
-            Difficult = difficult,
-            Damage = 30345,
-            Heal = 23412,
+            SpecializationId = 1,
+            DamageDone = damage,
+            HealDone = 23412,
             Updated = DateTimeOffset.UtcNow,
         };
 
         return entity;
     }
 
-    public static SpecializationScoreDto CreateDto(int id = 1, int difficult = 0)
+    public static SpecializationScoreDto CreateDto(int id = 1, int damage = 0)
     {
         var entityDto = new SpecializationScoreDto
         {
             Id = id,
-            SpecId = 1,
-            BossId = 1,
-            Difficult = difficult,
-            Damage = 30345,
-            Heal = 23412,
+            SpecializationId = 1,
+            DamageDone = damage,
+            HealDone = 23412,
             Updated = DateTimeOffset.UtcNow,
         };
 
@@ -43,29 +39,23 @@ internal class SpecializationScoreTestDataFactory
         {
             new () {
                 Id = 1,
-                SpecId = 1,
-                BossId = 1,
-                Difficult = 0,
-                Damage = 30345,
-                Heal = 23412,
+                SpecializationId = 1,
+                DamageDone = 30345,
+                HealDone = 23412,
                 Updated = DateTimeOffset.UtcNow,
             },
             new () {
                 Id = 2,
-                SpecId = 1,
-                BossId = 2,
-                Difficult = 0,
-                Damage = 20345,
-                Heal = 33412,
+                SpecializationId = 1,
+                DamageDone = 20345,
+                HealDone = 33412,
                 Updated = DateTimeOffset.UtcNow,
             },
             new () {
                 Id = 3,
-                SpecId = 1,
-                BossId = 3,
-                Difficult = 0,
-                Damage = 31345,
-                Heal = 23562,
+                SpecializationId = 1,
+                DamageDone = 31345,
+                HealDone = 23562,
                 Updated = DateTimeOffset.UtcNow,
             }
         };
@@ -79,29 +69,23 @@ internal class SpecializationScoreTestDataFactory
         {
             new () {
                 Id = 1,
-                SpecId = 1,
-                BossId = 1,
-                Difficult = 0,
-                Damage = 30345,
-                Heal = 23412,
+                SpecializationId = 1,
+                DamageDone = 30345,
+                HealDone = 23412,
                 Updated = DateTimeOffset.UtcNow,
             },
             new () {
                 Id = 2,
-                SpecId = 1,
-                BossId = 2,
-                Difficult = 0,
-                Damage = 20345,
-                Heal = 33412,
+                SpecializationId = 1,
+                DamageDone = 20345,
+                HealDone = 33412,
                 Updated = DateTimeOffset.UtcNow,
             },
             new () {
                 Id = 3,
-                SpecId = 1,
-                BossId = 3,
-                Difficult = 0,
-                Damage = 31345,
-                Heal = 23562,
+                SpecializationId = 1,
+                DamageDone = 31345,
+                HealDone = 23562,
                 Updated = DateTimeOffset.UtcNow,
             }
         };

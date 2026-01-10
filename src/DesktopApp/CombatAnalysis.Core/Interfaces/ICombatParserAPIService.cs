@@ -1,25 +1,23 @@
 ﻿using CombatAnalysis.Core.Enums;
-using CombatAnalysis.Core.Models;
+using CombatAnalysis.Core.Models.GameLogs;
 
 namespace CombatAnalysis.Core.Interfaces;
 
 public interface ICombatParserAPIService
 {
-    void SetUpPort();
+    Task SaveAsync(List<CombatModel> combats, CombatLogModel combatLog, Action<string, string> combatUploaded, Func<CancellationToken> requestCancelationToken);
 
-    Task<bool> SaveAsync(List<CombatModel> combats, CombatLogModel combatLog, Action<int, string, string> combatUploaded, CancellationToken cancellationToken);
+    Task DeleteCombatLogByUserAsync(int id, CancellationToken cancellationToken);
 
-    Task DeleteCombatLogByUserAsync(int id);
+    Task<IEnumerable<CombatLogModel>> LoadCombatLogsAsync(CancellationToken cancellationToken);
 
-    Task<IEnumerable<CombatLogModel>> LoadCombatLogsAsync();
+    Task<IEnumerable<CombatModel>> LoadCombatsAsync(int combatLogId, CancellationToken cancellationToken);
 
-    Task<IEnumerable<CombatLogModel>> LoadCombatLogsAsync(List<int> combatLogsId);
-
-    Task<IEnumerable<CombatModel>> LoadCombatsAsync(int combatLogId);
-
-    Task<IEnumerable<CombatPlayerModel>> LoadCombatPlayersAsync(int combatId);
+    Task<IEnumerable<CombatPlayerModel>> LoadCombatPlayersAsync(int combatId, CancellationToken cancellationToke);
 
     Task<int> LoadCountAsync(string address, CancellationToken cancellationToken);
 
     Task<CombatLogModel> SaveCombatLogAsync(List<CombatModel> combats, LogType logType, CancellationToken cancellationToken);
+
+    Task GetBossAsync(List<CombatModel> combats, CancellationToken cancellationToken);
 }

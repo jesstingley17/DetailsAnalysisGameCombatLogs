@@ -54,9 +54,9 @@ const GeneralAnalysis: React.FC = () => {
         const sortedCombats: CombatModel[] = umblockedCombatsArray.sort((a: CombatModel, b: CombatModel) => a.startDate.localeCompare(b.startDate));
 
         sortedCombats.forEach((combat: CombatModel) => {
-            if (!uniqueNames.has(combat.name)) {
-                uniqueNames.add(combat.name);
-                const foundCombats: CombatModel[] = sortedCombats.filter(x => x.name === combat.name);
+            if (!uniqueNames.has(combat.boss.name)) {
+                uniqueNames.add(combat.boss.name);
+                const foundCombats: CombatModel[] = sortedCombats.filter(x => x.boss.name === combat.boss.name);
                 uniqueCombatList.push(foundCombats);
             }
         });

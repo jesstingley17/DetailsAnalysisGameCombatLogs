@@ -4,6 +4,8 @@ namespace CombatAnalysis.CombatParser.Entities;
 
 public class DamageTaken : ICombatPlayerEntity
 {
+    public int GameSpellId { get; set; }
+
     public string Spell { get; set; }
 
     public int Value { get; set; }

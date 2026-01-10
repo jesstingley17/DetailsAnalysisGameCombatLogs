@@ -2,7 +2,7 @@
   "Damage": "Damage",
   "Healing": "Healing",
   "DamageTaken": "Damage taken",
-  "EnergyRecovery": "Resources recovery",
+  "ResourcesRecovery": "Resources recovery",
   "Deaths": "Deaths",
   "Buffs": "Buffs",
   "CombatStatus": "Combat status",

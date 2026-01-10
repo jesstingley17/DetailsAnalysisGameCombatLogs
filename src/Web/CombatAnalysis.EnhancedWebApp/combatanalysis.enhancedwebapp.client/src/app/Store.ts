@@ -9,6 +9,7 @@ import { UserApi } from '../features/user/api/User.api';
 import customerReducer from '../features/user/store/CustomerSlice';
 import userPrivacyReducer from '../features/user/store/UserPrivacySlice';
 import userReducer from '../features/user/store/UserSlice';
+import groupChatUserReducer from '../features/chat/store/GroupChatUserSlice';
 import { VoiceChatApi } from '../features/voiceChat/api/VoiceChat.api';
 import authenticationMiddleware from '../middleware/authenticationMiddleware';
 
@@ -16,6 +17,7 @@ const reducers = combineReducers({
     customer: customerReducer,
     user: userReducer,
     userPrivacy: userPrivacyReducer,
+    groupChatUser: groupChatUserReducer,
     communityMenu: communityMenuReducer,
     [UserApi.reducerPath]: UserApi.reducer,
     [ChatApi.reducerPath]: ChatApi.reducer,

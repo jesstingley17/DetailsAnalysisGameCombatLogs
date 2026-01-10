@@ -1,18 +1,20 @@
+import type { RootState } from '@/app/Store';
 import { useState, type ChangeEvent, type JSX, type SetStateAction } from 'react';
+import { useSelector } from 'react-redux';
 import type { CommunityUserModel } from '../../../community/types/CommunityUserModel';
 import User from '../../../user/components/User';
-import type { AppUserModel } from '../../../user/types/AppUserModel';
 import type { GroupChatUserModel } from '../../types/GroupChatUserModel';
 
 interface GroupChatMembersItemProps {
-    myself: AppUserModel;
     user: GroupChatUserModel | CommunityUserModel;
     usersToRemove: (GroupChatUserModel | CommunityUserModel)[];
     setUsersToRemove: (value: SetStateAction<(GroupChatUserModel | CommunityUserModel)[]>) => void;
     showRemoveUser: boolean;
 }
 
-const GroupChatMembersItem: React.FC<GroupChatMembersItemProps> = ({ myself, user, usersToRemove, setUsersToRemove, showRemoveUser }) => {
+const GroupChatMembersItem: React.FC<GroupChatMembersItemProps> = ({ user, usersToRemove, setUsersToRemove, showRemoveUser }) => {
+    const myself = useSelector((state: RootState) => state.user.value);
+
     const [userInformation, setUserInformation] = useState<JSX.Element | null>(null);
 
     const addUserToUsersToRemove = (user: GroupChatUserModel | CommunityUserModel) => {
@@ -47,7 +49,7 @@ const GroupChatMembersItem: React.FC<GroupChatMembersItemProps> = ({ myself, use
                     targetUsername={user.username}
                     setUserInformation={setUserInformation}
                 />
-                {(myself.id !== user.appUserId && showRemoveUser) &&
+                {(myself?.id !== user.appUserId && showRemoveUser) &&
                     <input className="form-check-input" type="checkbox" onChange={(e) => handleRemoveUser(e, user)} />
                 }
             </div>

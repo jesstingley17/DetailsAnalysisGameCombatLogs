@@ -111,7 +111,7 @@ internal class IdentityService(IMemoryCache memoryCache, IHttpClientHelper httpC
 
     private async Task SaveAccountDataAsync(TokenResponseModel token)
     {
-        _securityStorage.SaveTokens(token);
+        _securityStorage.SaveAccessToken(token);
         await _securityStorage.GetUserAsync();
     }
 }

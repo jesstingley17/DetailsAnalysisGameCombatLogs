@@ -6,6 +6,8 @@ public class HealDoneDto : Interfaces.Entity.ICombatPlayerEntity, IGeneralFilter
 {
     public int Id { get; set; }
 
+    public int GameSpellId { get; set; }
+
     public string Spell { get; set; }
 
     public int Value { get; set; }

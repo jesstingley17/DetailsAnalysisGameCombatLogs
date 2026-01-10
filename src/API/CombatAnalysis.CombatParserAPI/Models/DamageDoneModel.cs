@@ -8,6 +8,9 @@ public class DamageDoneModel
     public int Id { get; set; }
 
     [Required]
+    public int GameSpellId { get; set; }
+
+    [Required]
     public string Spell { get; set; }
 
     [Range(0, int.MaxValue)]
@@ -22,11 +25,17 @@ public class DamageDoneModel
     [Required]
     public string Target { get; set; }
 
+    [Required]
+    public bool IsTargetBoss { get; set; }
+
     [Range(0, int.MaxValue)]
     public int DamageType { get; set; }
 
     [Required]
     public bool IsPeriodicDamage { get; set; }
+
+    [Required]
+    public bool IsSingleTarget { get; set; }
 
     [Required]
     public bool IsPet { get; set; }

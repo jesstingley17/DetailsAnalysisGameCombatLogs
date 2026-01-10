@@ -55,7 +55,6 @@ public class GroupChatMessage : IRepositoryEntity<GroupChatMessageId>, IChatEnti
 
     public void EditMessage(string newMessage)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(newMessage, nameof(newMessage));
         ArgumentOutOfRangeException.ThrowIfGreaterThan(newMessage.Length, MESSAGE_MAX_LENGTH, nameof(newMessage));
 
         if (!string.Equals(Message, newMessage, StringComparison.Ordinal))

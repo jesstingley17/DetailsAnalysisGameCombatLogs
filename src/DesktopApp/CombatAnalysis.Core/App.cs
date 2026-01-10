@@ -19,6 +19,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MvvmCross;
 using MvvmCross.ViewModels;
+using IHttpClientHelper = CombatAnalysis.Core.Interfaces.IHttpClientHelper;
 
 namespace CombatAnalysis.Core;
 

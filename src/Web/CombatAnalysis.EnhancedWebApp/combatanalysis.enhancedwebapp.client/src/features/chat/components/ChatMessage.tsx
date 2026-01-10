@@ -1,7 +1,6 @@
 import * as signalR from '@microsoft/signalr';
 import type { GroupChatMessageModel } from '../types/GroupChatMessageModel';
-import type { GroupChatMessagePatch } from '../types/patches/GroupChatMessagePatch';
-import type { PersonalChatMessagePatch } from '../types/patches/PersonalChatMessagePatch';
+import type { ChatMessagePatch } from '../types/patches/ChatMessagePatch';
 import type { PersonalChatMessageModel } from '../types/PersonalChatMessageModel';
 import DefaultChatMessage from './DefaultChatMessage';
 import LogChatMessage from './LogChatMessage';
@@ -16,26 +15,18 @@ const messageType = {
 };
 
 interface ChatMessageProps {
-    reviewerId: string;
-    chatUserAsUserId: string;
-    chatUserUsername: string;
-    messageOwnerId: string;
     message: PersonalChatMessageModel | GroupChatMessageModel;
-    updateMessageAsync: (message: GroupChatMessagePatch | PersonalChatMessagePatch) => Promise<void>;
+    updateMessageAsync: (message: ChatMessagePatch) => Promise<void>;
     hubConnection: signalR.HubConnection | null;
     subscribeToChatMessageHasBeenRead: (callback: (messageId: number) => void) => void;
     lastReadMessageId?: number;
 }
 
-const ChatMessage: React.FC<ChatMessageProps> = ({ reviewerId, chatUserAsUserId, chatUserUsername, messageOwnerId, message, updateMessageAsync, hubConnection, subscribeToChatMessageHasBeenRead, lastReadMessageId }) => {
+const ChatMessage: React.FC<ChatMessageProps> = ({ message, updateMessageAsync, hubConnection, subscribeToChatMessageHasBeenRead, lastReadMessageId }) => {
     return (
         <>
             {message.type === messageType["default"]
                 ? <DefaultChatMessage
-                    chatUserAsUserId={chatUserAsUserId}
-                    chatUserUsername={chatUserUsername}
-                    reviewerId={reviewerId}
-                    messageOwnerId={messageOwnerId}
                     message={message}
                     updateMessageAsync={updateMessageAsync}
                     subscribeToChatMessageHasBeenRead={subscribeToChatMessageHasBeenRead}

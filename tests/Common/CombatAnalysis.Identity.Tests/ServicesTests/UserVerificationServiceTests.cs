@@ -80,7 +80,7 @@ public class UserVerificationServiceTests
         const int resetTokenId = 1;
         const string email = "testEmail";
         const string token = "token eka9p";
-        DateTime expirationTime = DateTime.Parse("11/30/2025");
+        DateTime expirationTime = DateTime.UtcNow.AddDays(1);
 
         var entity = ResetTokenTestDataFactory.Create(id: resetTokenId, email: email, token: token, expirationTime: expirationTime);
         var entityIdentityUserDto = IdentityUserTestDataFactory.CreateDto(id: identityUserId);
@@ -119,7 +119,7 @@ public class UserVerificationServiceTests
         const int tokenId = 1;
         const string email = "testEmail";
         const string token = "token eka9p";
-        DateTime expirationTime = DateTime.Parse("11/30/2025");
+        DateTime expirationTime = DateTime.UtcNow.AddDays(1);
 
         var entity = VerifyEmailTokenTestDataFactory.Create(id: tokenId, email: email, token: token, expirationTime: expirationTime);
         var entityIdentityUserDto = IdentityUserTestDataFactory.CreateDto(id: identityUserId, email: email);

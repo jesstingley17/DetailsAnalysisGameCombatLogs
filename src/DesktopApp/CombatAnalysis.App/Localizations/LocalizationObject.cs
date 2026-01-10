@@ -11,10 +11,7 @@ public class LocalizationObject : DependencyObject
 
     public static ResourceManager GetResourceManager(DependencyObject dependencyObject)
     {
-        if (dependencyObject == null)
-        {
-            throw new ArgumentNullException(nameof(dependencyObject));
-        }
+        ArgumentNullException.ThrowIfNull(dependencyObject);
 
         var value = (ResourceManager)dependencyObject.GetValue(ResourceManagerProperty);
         return value;

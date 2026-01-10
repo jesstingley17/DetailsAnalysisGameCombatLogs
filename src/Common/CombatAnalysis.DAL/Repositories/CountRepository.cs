@@ -10,10 +10,10 @@ internal class CountRepository<TModel>(CombatParserContext context) : ICountRepo
 {
     private readonly CombatParserContext _context = context;
 
-    public async Task<int> CountByCombatPlayerIdAsync(int combatPlayerId)
+    public async Task<int> CountByCombatPlayerIdAsync(int combatPlayerId, CancellationToken cancellationToken)
     {
         var count = await _context.Set<TModel>()
-                     .CountAsync(x => x.CombatPlayerId == combatPlayerId);
+                     .CountAsync(x => x.CombatPlayerId == combatPlayerId, cancellationToken);
 
         return count;
     }
