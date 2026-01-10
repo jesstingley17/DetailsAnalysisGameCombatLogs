@@ -11,7 +11,7 @@ namespace CombatAnalysis.BL.Tests.ServicesTests;
 public class CombatPlayerServiceTests
 {
     [Fact]
-    public async Task CreateAsync_CreatedEntity_ShouldCreateEntityAndReturnCreatedEntity()
+    public async Task CreateBatchAsync_ShouldCreateCollectionOfEntity()
     {
         // Arrange
         var entityDtoCollection = CombatPlayerTestDataFactory.CreateDtoCollection();
@@ -21,7 +21,6 @@ public class CombatPlayerServiceTests
         var mockRepository = new Mock<ICombatPlayerRepository>();
 
         mockMapper.Setup(m => m.Map<IEnumerable<CombatPlayer>>(entityDtoCollection)).Returns(entityCollection);
-        mockMapper.Setup(m => m.Map<IEnumerable<CombatPlayerDto>>(entityCollection)).Returns(entityDtoCollection);
 
         mockRepository.Setup(m => m.CreateBatchAsync(entityCollection, CancellationToken.None)).Returns(Task.CompletedTask);
 
@@ -33,7 +32,6 @@ public class CombatPlayerServiceTests
         // Assert and Verify correct method calls
         mockMapper.Verify(m => m.Map<IEnumerable<CombatPlayer>>(It.IsAny<IEnumerable<CombatPlayerDto>>()), Times.Once);
         mockRepository.Verify(r => r.CreateBatchAsync(It.IsAny<IEnumerable<CombatPlayer>>(), It.IsAny<CancellationToken>()), Times.Once);
-        mockMapper.Verify(m => m.Map<IEnumerable<CombatPlayerDto>>(It.IsAny<IEnumerable<CombatPlayer>>()), Times.Once);
     }
 
     [Fact]

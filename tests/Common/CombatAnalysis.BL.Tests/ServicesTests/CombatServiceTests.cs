@@ -63,7 +63,7 @@ public class CombatServiceTests
         var service = new CombatService(mockRepository.Object, mockMapper.Object);
 
         // Act and Assert
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.CreateAsync(entityDto, CancellationToken.None));
+        await Assert.ThrowsAsync<ArgumentException>(() => service.CreateAsync(entityDto, CancellationToken.None));
 
         // Verify correct method calls
         mockRepository.Verify(r => r.CreateAsync(It.IsAny<Combat>(), It.IsAny<CancellationToken>()), Times.Never);

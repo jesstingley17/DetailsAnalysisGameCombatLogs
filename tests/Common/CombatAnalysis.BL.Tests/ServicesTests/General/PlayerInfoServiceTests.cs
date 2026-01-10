@@ -25,7 +25,7 @@ public class PlayerInfoServiceTests
 
         mockMapper.Setup(m => m.Map<IEnumerable<DamageDoneDto>>(damages)).Returns(damagesDto);
 
-        mockPaginationRepository.Setup(m => m.GetByCombatPlayerIdAsync(combatPlayerId, CancellationToken.None)).ReturnsAsync(damages);
+        mockRepository.Setup(m => m.GetByCombatPlayerIdAsync(combatPlayerId, CancellationToken.None)).ReturnsAsync(damages);
 
         var service = new PlayerInfoPaginationService<DamageDoneDto, DamageDone>(mockPaginationRepository.Object, mockRepository.Object, mockMapper.Object);
 
@@ -38,7 +38,7 @@ public class PlayerInfoServiceTests
         Assert.Equal(3, result.Count());
 
         // Verify correct method calls
-        mockPaginationRepository.Verify(r => r.GetByCombatPlayerIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Once);
+        mockRepository.Verify(r => r.GetByCombatPlayerIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

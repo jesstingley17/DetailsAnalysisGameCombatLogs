@@ -11,7 +11,7 @@ namespace CombatAnalysis.BL.Tests.ServicesTests;
 public class ResourceRecoveryGeneralServiceTests
 {
     [Fact]
-    public async Task CreateAsync_CreatedEntity_ShouldCreateEntityAndReturnCreatedEntity()
+    public async Task CreateBatchAsync_ShouldCreateCollectionOfEntity()
     {
         // Arrange
         var entityTakenDtoCollection = ResourceRecoveryGeneralTestDataFactory.CreateDtoCollection();
@@ -21,7 +21,6 @@ public class ResourceRecoveryGeneralServiceTests
         var mockRepository = new Mock<ICreateBatchRepository<ResourceRecoveryGeneral>>();
 
         mockMapper.Setup(m => m.Map<IEnumerable<ResourceRecoveryGeneral>>(entityTakenDtoCollection)).Returns(entityCollection);
-        mockMapper.Setup(m => m.Map<IEnumerable<ResourceRecoveryGeneralDto>>(entityCollection)).Returns(entityTakenDtoCollection);
 
         mockRepository.Setup(m => m.CreateBatchAsync(entityCollection, CancellationToken.None)).Returns(Task.CompletedTask);
 
@@ -33,6 +32,5 @@ public class ResourceRecoveryGeneralServiceTests
         // Assert and Verify correct method calls
         mockMapper.Verify(m => m.Map<IEnumerable<ResourceRecoveryGeneral>>(It.IsAny<IEnumerable<ResourceRecoveryGeneralDto>>()), Times.Once);
         mockRepository.Verify(r => r.CreateBatchAsync(It.IsAny<IEnumerable<ResourceRecoveryGeneral>>(), It.IsAny<CancellationToken>()), Times.Once);
-        mockMapper.Verify(m => m.Map<IEnumerable<ResourceRecoveryGeneralDto>>(It.IsAny<IEnumerable<ResourceRecoveryGeneral>>()), Times.Once);
     }
 }

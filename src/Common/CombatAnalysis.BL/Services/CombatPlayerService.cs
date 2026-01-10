@@ -21,6 +21,8 @@ internal class CombatPlayerService(ICombatPlayerRepository repository, IMapper m
 
     public async Task<IEnumerable<CombatPlayerDto>> GetByCombatIdAsync(int combatId, CancellationToken cancellationToken)
     {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(combatId, nameof(combatId));
+
         var combatPlayers = await _repository.GetByCombatIdAsync(combatId, cancellationToken);
         var map = _mapper.Map<IEnumerable<CombatPlayerDto>>(combatPlayers);
 

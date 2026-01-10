@@ -17,7 +17,7 @@ public class DamageFilterRepositoryTests : RepositoryTestsBase
 
         using var context = CreateInMemoryContext(nameof(GetDamageByEachTargetAsync_Collection_ShouldReturnCombatTargetsByCombatId));
 
-        context.Set<Combat>().Add(new Combat
+        await context.Set<Combat>().AddAsync(new Combat
         {
             Id = combatId,
             DungeonName = "Dung",
@@ -31,7 +31,7 @@ public class DamageFilterRepositoryTests : RepositoryTestsBase
             IsReady = true,
             CombatLogId = combatLogId
         });
-        context.Set<CombatPlayer>().Add(new CombatPlayer
+        await context.Set<CombatPlayer>().AddAsync(new CombatPlayer
         {
             Id = 1,
             PlayerId = "uid-22",
@@ -42,7 +42,7 @@ public class DamageFilterRepositoryTests : RepositoryTestsBase
             DamageTaken = 0,
             CombatId = combatId,
         });
-        context.Set<DamageDone>().Add(new DamageDone
+        await context.Set<DamageDone>().AddAsync(new DamageDone
         {
             Id = 1,
             Creator = "Solinx",
@@ -63,10 +63,7 @@ public class DamageFilterRepositoryTests : RepositoryTestsBase
         var result = await repo.GetDamageByEachTargetAsync(combatId, CancellationToken.None);
 
         // Assert
-        Assert.NotNull(result);
         Assert.NotEmpty(result);
         Assert.Single(result);
-        Assert.NotEmpty(result.First());
-        Assert.Single(result.First());
     }
 }

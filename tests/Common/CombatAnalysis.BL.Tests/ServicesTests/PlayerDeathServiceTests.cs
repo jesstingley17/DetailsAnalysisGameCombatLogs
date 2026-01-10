@@ -11,7 +11,7 @@ namespace CombatAnalysis.BL.Tests.ServicesTests;
 public class PlayerDeathServiceTests
 {
     [Fact]
-    public async Task CreateAsync_CreatedEntity_ShouldCreateEntityAndReturnCreatedEntity()
+    public async Task CreateBatchAsync_ShouldCreateCollectionOfEntity()
     {
         // Arrange
         var entityDtoCollection = PlayerDeathTestDataFactory.CreateDtoCollection();
@@ -21,7 +21,6 @@ public class PlayerDeathServiceTests
         var mockRepository = new Mock<ICreateBatchRepository<CombatPlayerDeath>>();
 
         mockMapper.Setup(m => m.Map<IEnumerable<CombatPlayerDeath>>(entityDtoCollection)).Returns(entityCollection);
-        mockMapper.Setup(m => m.Map<IEnumerable<CombatPlayerDeathDto>>(entityCollection)).Returns(entityDtoCollection);
 
         mockRepository.Setup(m => m.CreateBatchAsync(entityCollection, CancellationToken.None)).Returns(Task.CompletedTask);
 
@@ -33,6 +32,5 @@ public class PlayerDeathServiceTests
         // Assert and Verify correct method calls
         mockMapper.Verify(m => m.Map<IEnumerable<CombatPlayerDeath>>(It.IsAny<IEnumerable<CombatPlayerDeathDto>>()), Times.Once);
         mockRepository.Verify(r => r.CreateBatchAsync(It.IsAny<IEnumerable<CombatPlayerDeath>>(), It.IsAny<CancellationToken>()), Times.Once);
-        mockMapper.Verify(m => m.Map<IEnumerable<CombatPlayerDeathDto>>(It.IsAny<IEnumerable<CombatPlayerDeath>>()), Times.Once);
     }
 }

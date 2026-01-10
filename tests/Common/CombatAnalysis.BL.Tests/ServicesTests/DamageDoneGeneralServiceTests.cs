@@ -11,7 +11,7 @@ namespace CombatAnalysis.BL.Tests.ServicesTests;
 public class DamageDoneGeneralServiceTests
 {
     [Fact]
-    public async Task CreateAsync_CreatedEntity_ShouldCreateEntityAndReturnCreatedEntity()
+    public async Task CreateBatchAsync_ShouldCreateCollectionOfEntity()
     {
         // Arrange
         var entityGeneralDtoCollection = DamageDoneGeneralTestDataFactory.CreateDtoCollection();
@@ -21,7 +21,6 @@ public class DamageDoneGeneralServiceTests
         var mockRepository = new Mock<ICreateBatchRepository<DamageDoneGeneral>>();
 
         mockMapper.Setup(m => m.Map<IEnumerable<DamageDoneGeneral>>(entityGeneralDtoCollection)).Returns(entityCollection);
-        mockMapper.Setup(m => m.Map<IEnumerable<DamageDoneGeneralDto>>(entityCollection)).Returns(entityGeneralDtoCollection);
 
         mockRepository.Setup(m => m.CreateBatchAsync(entityCollection, CancellationToken.None)).Returns(Task.CompletedTask);
 
@@ -33,6 +32,5 @@ public class DamageDoneGeneralServiceTests
         // Assert and Verify correct method calls
         mockMapper.Verify(m => m.Map<IEnumerable<DamageDoneGeneral>>(It.IsAny<IEnumerable<DamageDoneGeneralDto>>()), Times.Once);
         mockRepository.Verify(r => r.CreateBatchAsync(It.IsAny<IEnumerable<DamageDoneGeneral>>(), It.IsAny<CancellationToken>()), Times.Once);
-        mockMapper.Verify(m => m.Map<IEnumerable<DamageDoneGeneralDto>>(It.IsAny<IEnumerable<DamageDoneGeneral>>()), Times.Once);
     }
 }

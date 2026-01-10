@@ -11,7 +11,7 @@ namespace CombatAnalysis.BL.Tests.ServicesTests;
 public class HealDoneGeneralServiceTests
 {
     [Fact]
-    public async Task CreateAsync_CreatedEntity_ShouldCreateEntityAndReturnCreatedEntity()
+    public async Task CreateBatchAsync_ShouldCreateCollectionOfEntity()
     {
         // Arrange
         var entityTakenDtoCollection = HealDoneGeneralTestDataFactory.CreateDtoCollection();
@@ -21,7 +21,6 @@ public class HealDoneGeneralServiceTests
         var mockRepository = new Mock<ICreateBatchRepository<HealDoneGeneral>>();
 
         mockMapper.Setup(m => m.Map<IEnumerable<HealDoneGeneral>>(entityTakenDtoCollection)).Returns(entityCollection);
-        mockMapper.Setup(m => m.Map<IEnumerable<HealDoneGeneralDto>>(entityCollection)).Returns(entityTakenDtoCollection);
 
         mockRepository.Setup(m => m.CreateBatchAsync(entityCollection, CancellationToken.None)).Returns(Task.CompletedTask);
 
@@ -33,6 +32,5 @@ public class HealDoneGeneralServiceTests
         // Assert and Verify correct method calls
         mockMapper.Verify(m => m.Map<IEnumerable<HealDoneGeneral>>(It.IsAny<IEnumerable<HealDoneGeneralDto>>()), Times.Once);
         mockRepository.Verify(r => r.CreateBatchAsync(It.IsAny<IEnumerable<HealDoneGeneral>>(), It.IsAny<CancellationToken>()), Times.Once);
-        mockMapper.Verify(m => m.Map<IEnumerable<HealDoneGeneralDto>>(It.IsAny<IEnumerable<HealDoneGeneral>>()), Times.Once);
     }
 }

@@ -11,7 +11,7 @@ namespace CombatAnalysis.BL.Tests.ServicesTests;
 public class CombatAuraServiceTests
 {
     [Fact]
-    public async Task CreateAsync_CreatedEntity_ShouldCreateEntityAndReturnCreatedEntity()
+    public async Task CreateBatchAsync_ShouldCreateCollectionOfEntity()
     {
         // Arrange
         var entityDtoCollection = CombatAuraTestDataFactory.CreateDtoCollection();
@@ -21,7 +21,6 @@ public class CombatAuraServiceTests
         var mockRepository = new Mock<ICreateBatchRepository<CombatAura>>();
 
         mockMapper.Setup(m => m.Map<IEnumerable<CombatAura>>(entityDtoCollection)).Returns(entityCollection);
-        mockMapper.Setup(m => m.Map<IEnumerable<CombatAuraDto>>(entityCollection)).Returns(entityDtoCollection);
 
         mockRepository.Setup(m => m.CreateBatchAsync(entityCollection, CancellationToken.None)).Returns(Task.CompletedTask);
 
@@ -31,8 +30,7 @@ public class CombatAuraServiceTests
         await service.CreateBatchAsync(entityDtoCollection, CancellationToken.None);
 
         // Assert and Verify correct method calls
-        mockMapper.Verify(m => m.Map<CombatAura>(It.IsAny<IEnumerable<CombatAuraDto>>()), Times.Once);
+        mockMapper.Verify(m => m.Map<IEnumerable<CombatAura>>(It.IsAny<IEnumerable<CombatAuraDto>>()), Times.Once);
         mockRepository.Verify(r => r.CreateBatchAsync(It.IsAny<IEnumerable<CombatAura>>(), It.IsAny<CancellationToken>()), Times.Once);
-        mockMapper.Verify(m => m.Map<IEnumerable<CombatAuraDto>>(It.IsAny<IEnumerable<CombatAura>>()), Times.Once);
     }
 }
