@@ -77,7 +77,7 @@
             <TabItem Header="{loc:Loc DamageTaken}" Style="{StaticResource TabItemStyle1}">
                 <combatPlayersViews:DamageTakenScoreView DataContext="{Binding DamageTakenScoreVM}" />
             </TabItem>
-            <TabItem Header="{loc:Loc ResourcesRecovery}" Style="{StaticResource TabItemStyle1}">
+            <TabItem Header="{loc:Loc Resources}" Style="{StaticResource TabItemStyle1}">
                 <combatPlayersViews:ResourcesRecoveryScoreView DataContext="{Binding ResourcesRecoveryScoreVM}" />
             </TabItem>
         </TabControl>

@@ -106,20 +106,20 @@ namespace CombatAnalysis.App.Localizations.Resources.CombatLogs {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Create log.
+        /// </summary>
+        public static string CreateLog {
+            get {
+                return ResourceManager.GetString("CreateLog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Dungeon.
         /// </summary>
         public static string Dungeon {
             get {
                 return ResourceManager.GetString("Dungeon", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Empty.
-        /// </summary>
-        public static string Empty {
-            get {
-                return ResourceManager.GetString("Empty", resourceCulture);
             }
         }
         
@@ -169,20 +169,11 @@ namespace CombatAnalysis.App.Localizations.Resources.CombatLogs {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Prepare pets.
+        ///   Looks up a localized string similar to Private logs.
         /// </summary>
-        public static string PreparePets {
+        public static string PrivateLogs {
             get {
-                return ResourceManager.GetString("PreparePets", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Private.
-        /// </summary>
-        public static string Private {
-            get {
-                return ResourceManager.GetString("Private", resourceCulture);
+                return ResourceManager.GetString("PrivateLogs", resourceCulture);
             }
         }
         
