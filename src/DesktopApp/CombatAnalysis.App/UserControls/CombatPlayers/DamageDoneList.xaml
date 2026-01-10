@@ -42,7 +42,7 @@
                     </DataGridTemplateColumn.CellTemplate>
                     <DataGridTemplateColumn.HeaderTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{loc:Loc Player}" TextAlignment="Center" FontSize="12" Foreground="White" />
+                            <TextBlock Text="{loc:Loc Player}" TextAlignment="Center" FontSize="14" Foreground="White" />
                         </DataTemplate>
                     </DataGridTemplateColumn.HeaderTemplate>
                 </DataGridTemplateColumn>
@@ -69,7 +69,7 @@
                     </DataGridTemplateColumn.CellTemplate>
                     <DataGridTemplateColumn.HeaderTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{loc:Loc DamageDone}" TextAlignment="Center" FontSize="12" Foreground="White" />
+                            <TextBlock Text="{loc:Loc DamageDone}" TextAlignment="Center" FontSize="14" Foreground="White" />
                         </DataTemplate>
                     </DataGridTemplateColumn.HeaderTemplate>
                 </DataGridTemplateColumn>
@@ -84,7 +84,7 @@
                     </DataGridTemplateColumn.CellTemplate>
                     <DataGridTemplateColumn.HeaderTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{loc:Loc DPS}" TextAlignment="Center" FontSize="12" Foreground="White" />
+                            <TextBlock Text="{loc:Loc DPS}" TextAlignment="Center" FontSize="14" Foreground="White" />
                         </DataTemplate>
                     </DataGridTemplateColumn.HeaderTemplate>
                 </DataGridTemplateColumn>
@@ -99,7 +99,7 @@
                     </DataGridTemplateColumn.CellTemplate>
                     <DataGridTemplateColumn.HeaderTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{loc:Loc AverageItemLevel}" TextAlignment="Center" FontSize="12" Foreground="White" />
+                            <TextBlock Text="{loc:Loc AverageItemLevel}" TextAlignment="Center" FontSize="14" Foreground="White" />
                         </DataTemplate>
                     </DataGridTemplateColumn.HeaderTemplate>
                 </DataGridTemplateColumn>

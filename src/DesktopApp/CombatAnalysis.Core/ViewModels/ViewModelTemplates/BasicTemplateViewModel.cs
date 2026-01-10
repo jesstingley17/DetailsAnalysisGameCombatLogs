@@ -331,13 +331,12 @@ public class BasicTemplateViewModel : MvxViewModel, IImprovedMvxViewModel, IVMDa
     public async Task UploadCombatLogsAsync()
     {
         Step = 0;
-        await _mvvmNavigation.Navigate<CombatLogInformationViewModel>();
+        await _mvvmNavigation.Navigate<CombatLogsViewModel>();
     }
 
     public async Task GeneralAnalysisAsync()
     {
-        var dataForGeneralAnalysis = Tuple.Create(Combats, LogType);
-        await _mvvmNavigation.Navigate<CombatsViewModel, Tuple<List<CombatModel>, LogType>>(dataForGeneralAnalysis);
+        await _mvvmNavigation.Navigate<CombatsViewModel, List<CombatModel>>(Combats);
     }
 
     public async Task DetailsSpecificalCombatAsync()

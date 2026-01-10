@@ -1,24 +1,24 @@
 ﻿using CombatAnalysis.Core.Consts;
 using CombatAnalysis.Core.Settings;
-using CombatAnalysis.Core.ViewModels;
+using CombatAnalysis.Core.ViewModels.CombatLogs;
 using Microsoft.Win32;
 using MvvmCross.Platforms.Wpf.Views;
 using System;
 using System.IO;
 using System.Text.Json;
 
-namespace CombatAnalysis.App.Views;
+namespace CombatAnalysis.App.Views.CombatLogs;
 
-public partial class CombatLogInformationView : MvxWpfView
+public partial class ParsingCombatLogsView : MvxWpfView
 {
-    public CombatLogInformationView()
+    public ParsingCombatLogsView()
     {
         InitializeComponent();
     }
 
     private void SelectCmbatLogFiles(object sender, System.Windows.RoutedEventArgs e)
     {
-        var viewModel = (CombatLogInformationViewModel)ViewModel;
+        var viewModel = (ParsingCombatLogsViewModel)DataContext;
 
         var userSettings = ReadUserSettings("user.json");
 
@@ -40,7 +40,7 @@ public partial class CombatLogInformationView : MvxWpfView
 
     private void SelectMoreCmbatLogFiles(object sender, System.Windows.RoutedEventArgs e)
     {
-        var viewModel = (CombatLogInformationViewModel)ViewModel;
+        var viewModel = (ParsingCombatLogsViewModel)DataContext;
 
         var userSettings = ReadUserSettings("user.json");
 

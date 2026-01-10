@@ -13,11 +13,10 @@ using System.Collections.ObjectModel;
 
 namespace CombatAnalysis.Core.ViewModels;
 
-public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>>, IResponseStatusObserver
+public class CombatsViewModel : ParentTemplate<List<CombatModel>>, IResponseStatusObserver
 {
     private readonly IMvxNavigationService _mvvmNavigation;
     private readonly CombatParserAPIService _combatParserAPIService;
-    private readonly int _maxCombatInformationStepIndex = 4;
 
     private ObservableCollection<CombatModel>? _uniqueCombats;
     private ObservableCollection<CombatModel>? _allCombats;
@@ -30,25 +29,6 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
     private string? _name;
     private LoadingStatus _status;
     private int _currentCombatNumber;
-    private double _averageDamagePerSecond;
-    private double _averageHealPerSecond;
-    private double _averageResourcesPerSecond;
-    private double _averageDamageTakenPerSecond;
-    private double _maxDamagePerSecond;
-    private double _maxHealPerSecond;
-    private double _maxResourcesPerSecond;
-    private double _maxDamageTakenPerSecond;
-    private double _averageDamage;
-    private double _averageHeal;
-    private double _averageResources;
-    private double _averageDamageTaken;
-    private double _maxDamage;
-    private double _maxHeal;
-    private double _maxResources;
-    private double _maxDamageTaken;
-    private double _indexOfDeath;
-    private int _combatInformationStep;
-    private bool _showAverageInformation;
 
     private int _sortedByName = -1;
     private int _sortedByDamageDone = -1;
@@ -66,10 +46,7 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
         RepeatSaveCommand = new MvxAsyncCommand(SaveCombatsAsync);
         CancelCommand = new MvxCommand(UploadingCancel);
         ShowDetailsCommand = new MvxAsyncCommand(ShowDetailsAsync);
-        SortCommand = new MvxCommand<int>(CombatsSort);
-
-        LastCombatInfromationStep = new MvxCommand(LastStep);
-        NextCombatInfromationStep = new MvxCommand(NextStep);
+        CombatSortCommand = new MvxCommand<int>(CombatsSort);
 
         Basic.Parent = this;
         Basic.SavedViewModel = this;
@@ -83,17 +60,13 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
 
     #region Commands
 
-    public IMvxAsyncCommand RepeatSaveCommand { get; set; }
+    public IMvxAsyncCommand RepeatSaveCommand { get; }
 
-    public IMvxCommand CancelCommand { get; set; }
+    public IMvxCommand CancelCommand { get; }
 
-    public IMvxCommand LastCombatInfromationStep { get; set; }
+    public IMvxAsyncCommand ShowDetailsCommand { get; }
 
-    public IMvxCommand NextCombatInfromationStep { get; set; }
-
-    public IMvxAsyncCommand ShowDetailsCommand { get; set; }
-
-    public IMvxCommand SortCommand { get; set; }
+    public IMvxCommand CombatSortCommand { get; }
 
     #endregion
 
@@ -199,177 +172,6 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
         }
     }
 
-    public double AverageDamagePerSecond
-    {
-        get { return _averageDamagePerSecond; }
-        set
-        {
-            SetProperty(ref _averageDamagePerSecond, value);
-        }
-    }
-
-    public double AverageHealPerSecond
-    {
-        get { return _averageHealPerSecond; }
-        set
-        {
-            SetProperty(ref _averageHealPerSecond, value);
-        }
-    }
-
-    public double AverageResourcesPerSecond
-    {
-        get { return _averageResourcesPerSecond; }
-        set
-        {
-            SetProperty(ref _averageResourcesPerSecond, value);
-        }
-    }
-
-    public double AverageDamageTakenPerSecond
-    {
-        get { return _averageDamageTakenPerSecond; }
-        set
-        {
-            SetProperty(ref _averageDamageTakenPerSecond, value);
-        }
-    }
-
-    public double MaxDamagePerSecond
-    {
-        get { return _maxDamagePerSecond; }
-        set
-        {
-            SetProperty(ref _maxDamagePerSecond, value);
-        }
-    }
-
-    public double MaxHealPerSecond
-    {
-        get { return _maxHealPerSecond; }
-        set
-        {
-            SetProperty(ref _maxHealPerSecond, value);
-        }
-    }
-
-    public double MaxResourcesPerSecond
-    {
-        get { return _maxResourcesPerSecond; }
-        set
-        {
-            SetProperty(ref _maxResourcesPerSecond, value);
-        }
-    }
-
-    public double MaxDamageTakenPerSecond
-    {
-        get { return _maxDamageTakenPerSecond; }
-        set
-        {
-            SetProperty(ref _maxDamageTakenPerSecond, value);
-        }
-    }
-
-    public double AverageDamage
-    {
-        get { return _averageDamage; }
-        set
-        {
-            SetProperty(ref _averageDamage, value);
-        }
-    }
-
-    public double AverageHeal
-    {
-        get { return _averageHeal; }
-        set
-        {
-            SetProperty(ref _averageHeal, value);
-        }
-    }
-
-    public double AverageResources
-    {
-        get { return _averageResources; }
-        set
-        {
-            SetProperty(ref _averageResources, value);
-        }
-    }
-
-    public double AverageDamageTaken
-    {
-        get { return _averageDamageTaken; }
-        set
-        {
-            SetProperty(ref _averageDamageTaken, value);
-        }
-    }
-
-    public double MaxDamage
-    {
-        get { return _maxDamage; }
-        set
-        {
-            SetProperty(ref _maxDamage, value); ;
-        }
-    }
-
-    public double MaxHeal
-    {
-        get { return _maxHeal; }
-        set
-        {
-            SetProperty(ref _maxHeal, value);
-        }
-    }
-
-    public double MaxResources
-    {
-        get { return _maxResources; }
-        set
-        {
-            SetProperty(ref _maxResources, value);
-        }
-    }
-
-    public double IndexOfDeath
-    {
-        get { return _indexOfDeath; }
-        set
-        {
-            SetProperty(ref _indexOfDeath, value);
-        }
-    }
-
-    public double MaxDamageTaken
-    {
-        get { return _maxDamageTaken; }
-        set
-        {
-            SetProperty(ref _maxDamageTaken, value);
-        }
-    }
-
-    public int CombatInformationStep
-    {
-        get { return _combatInformationStep; }
-        set
-        {
-            SetProperty(ref _combatInformationStep, value);
-        }
-    }
-
-    public bool ShowAverageInformation
-    {
-        get { return _showAverageInformation; }
-        set
-        {
-            SetProperty(ref _showAverageInformation, value);
-        }
-    }
-
     #endregion
 
     #region Sort properties
@@ -441,14 +243,14 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
         await base.Initialize();
     }
 
-    public override void Prepare(Tuple<List<CombatModel>, LogType> parameter)
+    public override void Prepare(List<CombatModel> parameter)
     {
-        if (parameter == null || parameter.Item1.Count == 0)
+        if (parameter == null || parameter.Count == 0)
         {
             return;
         }
 
-        _allCombats = new ObservableCollection<CombatModel>(parameter.Item1);
+        _allCombats = new ObservableCollection<CombatModel>(parameter);
         CombatsNumber = _allCombats.Count;
 
         var uniqueCombats = _allCombats
@@ -474,36 +276,7 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
             .ToList();
         UniqueCombats = new ObservableCollection<CombatModel>(uniqueCombats);
 
-        GetUniqueDungeonNames(parameter.Item1);
-
-        GetAverageInformationPerSecond(parameter.Item1);
-        GetMaxInformationPerSecond(parameter.Item1);
-        GetAverageInformation(parameter.Item1);
-        GetMaxInformation(parameter.Item1);
-    }
-
-    public void NextStep()
-    {
-        if (CombatInformationStep + 1 > _maxCombatInformationStepIndex)
-        {
-            CombatInformationStep = 0;
-        }
-        else
-        {
-            CombatInformationStep++;
-        }
-    }
-
-    public void LastStep()
-    {
-        if (CombatInformationStep - 1 < 0)
-        {
-            CombatInformationStep = _maxCombatInformationStepIndex;
-        }
-        else
-        {
-            CombatInformationStep--;
-        }
+        GetUniqueDungeonNames(parameter);
     }
 
     public override void ViewDestroy(bool viewFinishing = true)
@@ -517,7 +290,7 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
         base.ViewDestroy(viewFinishing);
     }
 
-    public async Task ShowDetailsAsync()
+    private async Task ShowDetailsAsync()
     {
         if (SelectedCombat == null)
         {
@@ -529,7 +302,7 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
         await _mvvmNavigation.Navigate<CombatPlayersViewModel, CombatModel>(SelectedCombat);
     }
 
-    public async Task SaveCombatsAsync()
+    private async Task SaveCombatsAsync()
     {
         try
         {
@@ -557,7 +330,7 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
         ResponseStatus = status;
     }
 
-    public void CombatsSort(int sortNumber)
+    private void CombatsSort(int sortNumber)
     {
         if (UniqueCombats == null)
         {
@@ -649,141 +422,5 @@ public class CombatsViewModel : ParentTemplate<Tuple<List<CombatModel>, LogType>
         Name = name;
 
         CurrentCombatNumber++;
-    }
-
-    private void GetAverageInformationPerSecond(List<CombatModel> combats)
-    {
-        var averageDPS = new List<double>();
-        var averageHPS = new List<double>();
-        var averageRPS = new List<double>();
-        var averageDTPS = new List<double>();
-
-        foreach (var combat in combats)
-        {
-            GetCombatAverageInformation(combat);
-
-            var averageCombatPlayerDPS = combat.CombatPlayers.Count != 0 ? combat.CombatPlayers.Average(x => x.DamageDonePerSecond) : 0;
-            averageDPS.Add(averageCombatPlayerDPS);
-
-            var averageCombatPlayerHPS = combat.CombatPlayers.Count != 0 ? combat.CombatPlayers.Average(x => x.HealDonePerSecond) : 0;
-            averageHPS.Add(averageCombatPlayerHPS);
-
-            var averageCombatPlayerRPS = combat.CombatPlayers.Count != 0 ? combat.CombatPlayers.Average(x => x.ResourcesRecoveryPerSecond) : 0;
-            averageRPS.Add(averageCombatPlayerRPS);
-
-            var averageCombatPlayerDTPS = combat.CombatPlayers.Count != 0 ? combat.CombatPlayers.Average(x => x.DamageTakenPerSecond) : 0;
-            averageDTPS.Add(averageCombatPlayerDTPS);
-        }
-
-        AverageDamagePerSecond = averageDPS.Average();
-        AverageHealPerSecond = averageHPS.Average();
-        AverageResourcesPerSecond = averageRPS.Average();
-        AverageDamageTakenPerSecond = averageDTPS.Average();
-    }
-
-    private void GetMaxInformationPerSecond(List<CombatModel> combats)
-
-    {
-        var maxDPS = new List<double>();
-        var maxHPS = new List<double>();
-        var maxRPS = new List<double>();
-        var maxDTPS = new List<double>();
-
-        foreach (var combat in combats)
-        {
-            var maxCombatPlayerDPS = combat.CombatPlayers.Any() ? combat.CombatPlayers.Max(x => x.DamageDonePerSecond) : 0;
-            maxDPS.Add(maxCombatPlayerDPS);
-
-            var maxCombatPlayerHPS = combat.CombatPlayers.Any() ? combat.CombatPlayers.Max(x => x.HealDonePerSecond) : 0;
-            maxHPS.Add(maxCombatPlayerHPS);
-
-            var maxCombatPlayerRPS = combat.CombatPlayers.Any() ? combat.CombatPlayers.Max(x => x.ResourcesRecoveryPerSecond) : 0;
-            maxRPS.Add(maxCombatPlayerRPS);
-
-            var maxCombatPlayerDTPS = combat.CombatPlayers.Any() ? combat.CombatPlayers.Max(x => x.DamageTakenPerSecond) : 0;
-            maxDTPS.Add(maxCombatPlayerDTPS);
-        }
-
-        MaxDamagePerSecond = maxDPS.Max();
-        MaxHealPerSecond = maxHPS.Max();
-        MaxResourcesPerSecond = maxRPS.Max();
-        MaxDamageTakenPerSecond = maxDTPS.Max();
-    }
-
-    private void GetAverageInformation(List<CombatModel> combats)
-    {
-        var averageDamage = new List<double>();
-        var averageHeal = new List<double>();
-        var averageResources = new List<double>();
-        var averageDamageTaken = new List<double>();
-
-        foreach (var combat in combats)
-        {
-            var averageCombatPlayerDamage = combat.CombatPlayers.Any() ? combat.CombatPlayers.Average(x => x.DamageDone) : 0;
-            averageDamage.Add(averageCombatPlayerDamage);
-
-            var averageCombatPlayerHeal = combat.CombatPlayers.Any() ? combat.CombatPlayers.Average(x => x.HealDone) : 0;
-            averageHeal.Add(averageCombatPlayerHeal);
-
-            var averageCombatPlayerResources = combat.CombatPlayers.Any() ? combat.CombatPlayers.Average(x => x.ResourcesRecovery) : 0;
-            averageResources.Add(averageCombatPlayerResources);
-
-            var averageCombatPlayerDamageTaken = combat.CombatPlayers.Any() ? combat.CombatPlayers.Average(x => x.DamageTaken) : 0;
-            averageDamageTaken.Add(averageCombatPlayerDamageTaken);
-        }
-
-        AverageDamage = averageDamage.Average();
-        AverageHeal = averageHeal.Average();
-        AverageResources = averageResources.Average();
-        AverageDamageTaken = averageDamageTaken.Average();
-    }
-
-    private void GetMaxInformation(List<CombatModel> combats)
-    {
-        var maxDamage = new List<double>();
-        var maxHeal = new List<double>();
-        var maxResources = new List<double>();
-        var maxDamageTaken = new List<double>();
-
-        foreach (var combat in combats)
-        {
-            GetCombatAverageInformation(combat);
-
-            var maxCombatPlayerDamage = combat.CombatPlayers.Any() ? combat.CombatPlayers.Max(x => x.DamageDone) : 0;
-            maxDamage.Add(maxCombatPlayerDamage);
-
-            var maxCombatPlayerHeal = combat.CombatPlayers.Any() ? combat.CombatPlayers.Max(x => x.HealDone) : 0;
-            maxHeal.Add(maxCombatPlayerHeal);
-
-            var maxCombatPlayerResources = combat.CombatPlayers.Any() ? combat.CombatPlayers.Max(x => x.ResourcesRecovery) : 0;
-            maxResources.Add(maxCombatPlayerResources);
-
-            var maxCombatPlayerDamageTaken = combat.CombatPlayers.Any() ? combat.CombatPlayers.Max(x => x.DamageTaken) : 0;
-            maxDamageTaken.Add(maxCombatPlayerDamageTaken);
-        }
-
-        MaxDamage = maxDamage.Max();
-        MaxHeal = maxHeal.Max();
-        MaxResources = maxResources.Max();
-        MaxDamageTaken = maxDamageTaken.Max();
-    }
-
-    private static void GetCombatAverageInformation(CombatModel combat)
-    {
-        TimeSpan duration;
-        if (!TimeSpan.TryParse(combat.Duration, out duration))
-        {
-            duration = TimeSpan.Zero;
-
-            return;
-        }
-
-        foreach (var player in combat.CombatPlayers)
-        {
-            player.DamageDonePerSecond = player.DamageDone / duration.TotalSeconds;
-            player.HealDonePerSecond = player.HealDone / duration.TotalSeconds;
-            player.ResourcesRecoveryPerSecond = player.ResourcesRecovery / duration.TotalSeconds;
-            player.DamageTakenPerSecond = player.DamageTaken / duration.TotalSeconds;
-        }
     }
 }

@@ -4,26 +4,22 @@ using CombatAnalysis.CombatParser.Interfaces;
 using CombatAnalysis.Core.Consts;
 using CombatAnalysis.Core.Enums;
 using CombatAnalysis.Core.Interfaces;
-using CombatAnalysis.Core.Interfaces.Observers;
 using CombatAnalysis.Core.Models.GameLogs;
-using CombatAnalysis.Core.Models.User;
 using CombatAnalysis.Core.ViewModels.Base;
 using CombatAnalysis.Core.ViewModels.ViewModelTemplates;
-using Microsoft.Extensions.Caching.Memory;
 using MvvmCross.Commands;
 using MvvmCross.Navigation;
 using System.Collections.ObjectModel;
 
-namespace CombatAnalysis.Core.ViewModels;
+namespace CombatAnalysis.Core.ViewModels.CombatLogs;
 
-public class CombatLogInformationViewModel : ParentTemplate, IAuthObserver
+public class ParsingCombatLogsViewModel : ParentTemplate
 {
     private readonly IMvxNavigationService _mvvmNavigation;
     private readonly IMapper _mapper;
     private readonly ICacheService _cacheService;
     private readonly ICombatParserService _parser;
     private readonly ICombatParserAPIService _combatParserAPIService;
-    private readonly IMemoryCache _memoryCache;
 
     private ObservableCollection<string> _combatLogNames = [];
     private string? _dungeonName;
@@ -36,36 +32,26 @@ public class CombatLogInformationViewModel : ParentTemplate, IAuthObserver
     private CancellationTokenSource _cancellationTokenSource = new();
 
     private bool _fileIsCorrect = true;
-    private bool _openUploadedLogs;
     private bool _isParsing;
     private bool _combatLogUploadingFailed;
-    private int _combatListSelectedIndex;
-    private int _selectedCombatLogTypeTabItem;
     private bool _isAuth;
     private LogType _logType;
     private LoadingStatus _combatLogLoadingStatus;
-    private bool _removingInProgress;
     private bool _uploadingLogs;
     private bool _noCombatsUploaded;
     private bool _processAborted;
     private bool _showConnectMore;
 
-    public CombatLogInformationViewModel(IMapper mapper, IMvxNavigationService mvvmNavigation, ICombatParserService parser,
-        IMemoryCache memoryCache, ICacheService cacheService, ICombatParserAPIService combatParserAPIService)
+    public ParsingCombatLogsViewModel(IMapper mapper, IMvxNavigationService mvvmNavigation, ICombatParserService parser,
+        ICacheService cacheService, ICombatParserAPIService combatParserAPIService)
     {
         _mapper = mapper;
         _mvvmNavigation = mvvmNavigation;
         _parser = parser;
-        _memoryCache = memoryCache;
         _cacheService = cacheService;
         _combatParserAPIService = combatParserAPIService;
 
-        OpenUploadedLogsCommand = new MvxCommand(() => OpenUploadedLogs = !OpenUploadedLogs);
         OpenPlayerAnalysisCommand = new MvxAsyncCommand(OpenPlayerAnalysisAsync);
-        LoadCombatsCommand = new MvxAsyncCommand(() => LoadCombatsAsync(CombatLogs));
-        LoadCombatsByUserCommand = new MvxAsyncCommand(() => LoadCombatsAsync(CombatLogsForTargetUser));
-        ReloadCombatsCommand = new MvxAsyncCommand(LoadCombatLogsAsync);
-        DeleteCombatCommand = new MvxAsyncCommand(DeleteAsync);
         CancelParsingCommand = new MvxCommand(CancelParsing);
 
         GetLogTypeCommand = new MvxCommand<int>(GetLogType);
@@ -73,24 +59,9 @@ public class CombatLogInformationViewModel : ParentTemplate, IAuthObserver
         Basic.Parent = this;
         Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.Step), 0);
         Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.LogPanelStatusIsVisibly), true);
-
-        var authObservable = Basic as IAuthObservable;
-        authObservable?.AddObserver(this);
-
-        IsAuth = false;
     }
 
     #region Commands
-
-    public IMvxCommand OpenUploadedLogsCommand { get; private set; }
-
-    public IMvxAsyncCommand LoadCombatsCommand { get; private set; }
-
-    public IMvxAsyncCommand LoadCombatsByUserCommand { get; private set; }
-
-    public IMvxAsyncCommand ReloadCombatsCommand { get; private set; }
-
-    public IMvxAsyncCommand DeleteCombatCommand { get; private set; }
 
     public IMvxAsyncCommand OpenPlayerAnalysisCommand { get; private set; }
 
@@ -101,15 +72,6 @@ public class CombatLogInformationViewModel : ParentTemplate, IAuthObserver
     #endregion
 
     #region View model properties
-
-    public bool OpenUploadedLogs
-    {
-        get { return _openUploadedLogs; }
-        set
-        {
-            SetProperty(ref _openUploadedLogs, value);
-        }
-    }
 
     public bool NoCombatsUploaded
     {
@@ -172,10 +134,6 @@ public class CombatLogInformationViewModel : ParentTemplate, IAuthObserver
         set
         {
             SetProperty(ref _isParsing, value);
-            if (value)
-            {
-                OpenUploadedLogs = false;
-            }
         }
     }
 
@@ -224,24 +182,6 @@ public class CombatLogInformationViewModel : ParentTemplate, IAuthObserver
         }
     }
 
-    public int CombatListSelectedIndex
-    {
-        get { return _combatListSelectedIndex; }
-        set
-        {
-            SetProperty(ref _combatListSelectedIndex, value);
-        }
-    }
-
-    public int SelectedCombatLogTypeTabItem
-    {
-        get { return _selectedCombatLogTypeTabItem; }
-        set
-        {
-            SetProperty(ref _selectedCombatLogTypeTabItem, value);
-        }
-    }
-
     public bool IsAllowSaveLogs
     {
         get { return _isAllowSaveLogs; }
@@ -279,15 +219,6 @@ public class CombatLogInformationViewModel : ParentTemplate, IAuthObserver
         }
     }
 
-    public bool RemovingInProgress
-    {
-        get { return _removingInProgress; }
-        set
-        {
-            SetProperty(ref _removingInProgress, value);
-        }
-    }
-
     public bool ShowConnectMore
     {
         get { return _showConnectMore; }
@@ -298,16 +229,6 @@ public class CombatLogInformationViewModel : ParentTemplate, IAuthObserver
     }
 
     #endregion
-
-    public void AuthUpdate(bool isAuth)
-    {
-        IsAuth = isAuth;
-        if (!isAuth)
-        {
-            LogType = LogType.Public;
-            SelectedCombatLogTypeTabItem = 0;
-        }
-    }
 
     #region Ovveride methods
 
@@ -320,27 +241,6 @@ public class CombatLogInformationViewModel : ParentTemplate, IAuthObserver
 
         ShowConnectMore = CombatLogPaths.Count > 0;
         GetCombatLogNames();
-    }
-
-    public override void ViewAppeared()
-    {
-        IsParsing = false;
-
-        CombatLogs?.Clear();
-        CheckAuth();
-    }
-
-    public override void ViewDestroy(bool viewFinishing = true)
-    {
-        base.ViewDestroy(viewFinishing);
-    }
-
-    public override async Task Initialize()
-    {
-        await base.Initialize();
-
-        var token = ((BasicTemplateViewModel)Basic).RequestCancelationToken();
-        await LoadCombatLogsAsync(token);
     }
 
     #endregion
@@ -381,69 +281,10 @@ public class CombatLogInformationViewModel : ParentTemplate, IAuthObserver
         await CombatLogFileValidateAsync(CombatLogPaths.ToList() ?? []);
     }
 
-    private async Task LoadCombatsAsync(ObservableCollection<CombatLogModel> combatCollection)
-    {
-        NoCombatsUploaded = false;
-
-        var combatLog = combatCollection[CombatListSelectedIndex];
-        if (combatLog.NumberReadyCombats == 0)
-        {
-            NoCombatsUploaded = true;
-
-            return;
-        }
-
-        UploadingLogs = true;
-
-        var token = ((BasicTemplateViewModel)Basic).RequestCancelationToken();
-        var loadedCombats = await _combatParserAPIService.LoadCombatsAsync(combatLog.Id, token);
-        if (loadedCombats == null)
-        {
-            return;
-        }
-
-        Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.AllowStep), 1);
-
-        var dataForGeneralAnalysis = Tuple.Create(loadedCombats.ToList(), LogType);
-        await _mvvmNavigation.Navigate<CombatsViewModel, Tuple<List<CombatModel>, LogType>>(dataForGeneralAnalysis);
-
-        Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.CombatLog), combatLog);
-        Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.Combats), loadedCombats.ToList());
-    }
-
-    private async Task DeleteAsync()
-    {
-        if (CombatListSelectedIndex < 0)
-        {
-            return;
-        }
-
-        DungeonName = string.Empty;
-        CombatName = string.Empty;
-        RemovingInProgress = true;
-
-        var token = ((BasicTemplateViewModel)Basic).RequestCancelationToken();
-        var selectedCombatLogByUser = _combatLogs.FirstOrDefault(x => x.Id == CombatLogsForTargetUser[CombatListSelectedIndex].Id);
-        if (selectedCombatLogByUser != null)
-        {
-            await _combatParserAPIService.DeleteCombatLogByUserAsync(selectedCombatLogByUser.Id, token);
-        }
-
-        await LoadCombatLogsAsync(token);
-
-        RemovingInProgress = false;
-    }
-
     private void CancelParsing()
     {
         _processAborted = true;
         _cancellationTokenSource?.Cancel();
-    }
-
-    private void CheckAuth()
-    {
-        var user = _memoryCache.Get<AppUserModel>(nameof(MemoryCacheValue.User));
-        IsAuth = user != null;
     }
 
     private async Task CombatLogFileValidateAsync(List<string> combatLogPaths)
@@ -484,8 +325,6 @@ public class CombatLogInformationViewModel : ParentTemplate, IAuthObserver
 
         _parser.Clear();
 
-        var dataForGeneralAnalysis = Tuple.Create(combatsList, LogType);
-
         if (_processAborted)
         {
             _processAborted = false;
@@ -498,13 +337,13 @@ public class CombatLogInformationViewModel : ParentTemplate, IAuthObserver
             Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.AllowStep), 1);
             Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.ResponseStatus), LoadingStatus.None);
 
-            await _mvvmNavigation.Navigate<CombatsViewModel, Tuple<List<CombatModel>, LogType>>(dataForGeneralAnalysis);
+            await _mvvmNavigation.Navigate<CombatsViewModel, List<CombatModel>>(combatsList);
             Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.Combats), combatsList);
 
             return;
         }
 
-        await UploadingCombatLogAsync(combatsList, dataForGeneralAnalysis);
+        await UploadingCombatLogAsync(combatsList, combatsList);
     }
 
     private void ClearCache()
@@ -541,9 +380,10 @@ public class CombatLogInformationViewModel : ParentTemplate, IAuthObserver
         }
     }
 
-    private async Task UploadingCombatLogAsync(List<CombatModel> combatList, Tuple<List<CombatModel>, LogType> dataForGeneralAnalysis)
+    private async Task UploadingCombatLogAsync(List<CombatModel> combatList, List<CombatModel> combats)
     {
-        var createdCombatLog = await _combatParserAPIService.SaveCombatLogAsync(combatList, LogType, CancellationToken.None);
+        var token = ((BasicTemplateViewModel)Basic).RequestCancelationToken();
+        var createdCombatLog = await _combatParserAPIService.SaveCombatLogAsync(combatList, LogType, token);
         if (createdCombatLog.AppUserId == null)
         {
             Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.ResponseStatus), LoadingStatus.Failed);
@@ -560,53 +400,6 @@ public class CombatLogInformationViewModel : ParentTemplate, IAuthObserver
 
         Basic.Handler.BasicPropertyUpdate(nameof(BasicTemplateViewModel.IsCombatLogsMustSave), true);
 
-        await _mvvmNavigation.Navigate<CombatsViewModel, Tuple<List<CombatModel>, LogType>>(dataForGeneralAnalysis);
-    }
-
-    private async Task LoadCombatLogsAsync(CancellationToken cancellationToken)
-    {
-        NoCombatsUploaded = false;
-
-        CombatLogLoadingStatus = LoadingStatus.Pending;
-
-        var combatLogsData = await _combatParserAPIService.LoadCombatLogsAsync(cancellationToken);
-        if (combatLogsData == null)
-        {
-            CombatLogLoadingStatus = LoadingStatus.Failed;
-            CombatLogs = [];
-
-            return;
-        }
-
-        var readyCombatLogData = new List<CombatLogModel>();
-
-        foreach (var item in combatLogsData)
-        {
-            if (item.IsReady)
-            {
-                readyCombatLogData.Add(item);
-            }
-        }
-
-        var publicLogs = readyCombatLogData.Where(x => x.LogType == (int)LogType.Public).ToList();
-        CombatLogs = new ObservableCollection<CombatLogModel>(publicLogs);
-
-        CombatLogLoadingStatus = LoadingStatus.Successful;
-
-        LoadCombatLogsForTargetUser(readyCombatLogData);
-    }
-
-    private void LoadCombatLogsForTargetUser(List<CombatLogModel> combatLogs)
-    {
-        var user = _memoryCache.Get<AppUserModel>(nameof(MemoryCacheValue.User));
-        if (user == null)
-        {
-            CombatLogsForTargetUser = [];
-
-            return;
-        }
-
-        var combatLogsForTargetUser = combatLogs.Where(x => x.AppUserId == user.Id).ToList();
-        CombatLogsForTargetUser = new ObservableCollection<CombatLogModel>(combatLogsForTargetUser);
+        await _mvvmNavigation.Navigate<CombatsViewModel, List<CombatModel>>(combats);
     }
 }

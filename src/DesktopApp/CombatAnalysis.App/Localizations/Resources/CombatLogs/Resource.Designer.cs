@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace CombatAnalysis.App.Localizations.Resources.CombatLogInformation {
+namespace CombatAnalysis.App.Localizations.Resources.CombatLogs {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace CombatAnalysis.App.Localizations.Resources.CombatLogInformation {
         public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("CombatAnalysis.App.Localizations.Resources.CombatLogInformation.Resource", typeof(Resource).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("CombatAnalysis.App.Localizations.Resources.CombatLogs.Resource", typeof(Resource).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -313,7 +313,7 @@ namespace CombatAnalysis.App.Localizations.Resources.CombatLogInformation {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Get information about combats.
+        ///   Looks up a localized string similar to Information about combats.
         /// </summary>
         public static string Title {
             get {
@@ -349,7 +349,7 @@ namespace CombatAnalysis.App.Localizations.Resources.CombatLogInformation {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Upload file with combat data.
+        ///   Looks up a localized string similar to Upload combat logs file(s).
         /// </summary>
         public static string UploadFile {
             get {
