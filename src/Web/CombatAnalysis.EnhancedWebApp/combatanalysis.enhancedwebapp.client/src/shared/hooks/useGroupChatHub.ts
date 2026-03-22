@@ -1,4 +1,5 @@
 import { APP_CONFIG } from '@/config/appConfig';
+import type { ChatMessagePatch } from '@/features/chat/types/patches/ChatMessagePatch';
 import type { GroupChatMessageModel } from '@/features/chat/types/GroupChatMessageModel';
 import type { GroupChatUserModel } from '@/features/chat/types/GroupChatUserModel';
 import type { AppUserModel } from '@/features/user/types/AppUserModel';
@@ -81,9 +82,9 @@ const useGroupChatHub = (
         });
     }
 
-    const subscribeToGroupChatMessageEdit = (callback: (messageId: number) => void) => {
-        groupChatMessagesHubConnectionRef.current?.on("ReceiveEditedMessage", (messageId: number) => {
-            callback(messageId);
+    const subscribeToGroupChatMessageEdit = (callback: (messagePatch: ChatMessagePatch) => void) => {
+        groupChatMessagesHubConnectionRef.current?.on("ReceiveEditedMessage", (messagePatch: ChatMessagePatch) => {
+            callback(messagePatch);
         });
     }
 

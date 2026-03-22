@@ -2,6 +2,7 @@ import { APP_CONFIG } from '@/config/appConfig';
 import logger from '@/utils/Logger';
 import * as signalR from '@microsoft/signalr';
 import type { RefObject } from 'react';
+import type { ChatMessagePatch } from '../../features/chat/types/patches/ChatMessagePatch';
 import type { PersonalChatMessageModel } from '../../features/chat/types/PersonalChatMessageModel';
 import type { PersonalChatModel } from '../../features/chat/types/PersonalChatModel';
 import type { AppUserModel } from '../../features/user/types/AppUserModel';
@@ -81,9 +82,9 @@ const usePersonalChatHub = (
         });
     }
 
-    const subscribeToPersonalChatMessageEdit = (callback: (messageId: number) => void) => {
-        personalChatMessagesHubConnectionRef.current?.on("ReceiveEditedMessage", (messageId: number) => {
-            callback(messageId);
+    const subscribeToPersonalChatMessageEdit = (callback: (messagePatch: ChatMessagePatch) => void) => {
+        personalChatMessagesHubConnectionRef.current?.on("ReceiveEditedMessage", (messagePatch: ChatMessagePatch) => {
+            callback(messagePatch);
         });
     }
 

@@ -1,6 +1,6 @@
+import type { ChatMessagePatch } from '@/features/chat/types/patches/ChatMessagePatch';
 import type { GroupChatMessageModel } from '@/features/chat/types/GroupChatMessageModel';
 import type { GroupChatUserModel } from '@/features/chat/types/GroupChatUserModel';
-import type { ChatMessagePatch } from '@/features/chat/types/patches/ChatMessagePatch';
 import type { PersonalChatMessageModel } from '@/features/chat/types/PersonalChatMessageModel';
 import type { PersonalChatModel } from '@/features/chat/types/PersonalChatModel';
 import * as signalR from '@microsoft/signalr';

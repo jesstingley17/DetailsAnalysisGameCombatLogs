@@ -1,4 +1,4 @@
-﻿import Store, { type RootState } from '@/app/Store';
+import Store, { type RootState } from '@/app/Store';
 import { APP_CONFIG } from '@/config/appConfig';
 import Loading from '@/shared/components/Loading';
 import { useChatHub } from '@/shared/hooks/useChatHub';
@@ -67,7 +67,7 @@ const PersonalChat: React.FC<PersonalChatProps> = ({ chat, setSelectedChat, comp
                 Store.dispatch(
                     ChatApi.util.updateQueryData(
                         'getMessagesByPersonalChatId',
-                        { chatId: chat.id },
+                        { chatId: chat.id, page, pageSize: pageSizeRef.current },
                         draft => {
                             draft.unshift(message);
                         }
@@ -79,7 +79,7 @@ const PersonalChat: React.FC<PersonalChatProps> = ({ chat, setSelectedChat, comp
                 Store.dispatch(
                     ChatApi.util.updateQueryData(
                         'getMessagesByPersonalChatId',
-                        { chatId: chat.id },
+                        { chatId: chat.id, page, pageSize: pageSizeRef.current },
                         draft => {
                             const message = draft.find(m => m.id === messagePatch.id);
                             if (message && messagePatch) {
