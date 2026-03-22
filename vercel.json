@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "vite",
-  "installCommand": "npm install --prefix src/Web/CombatAnalysis.EnhancedWebApp/combatanalysis.enhancedwebapp.client",
+  "installCommand": "npm ci --prefix src/Web/CombatAnalysis.EnhancedWebApp/combatanalysis.enhancedwebapp.client",
   "buildCommand": "npm run build --prefix src/Web/CombatAnalysis.EnhancedWebApp/combatanalysis.enhancedwebapp.client",
   "outputDirectory": "src/Web/CombatAnalysis.EnhancedWebApp/combatanalysis.enhancedwebapp.client/dist"
 }
