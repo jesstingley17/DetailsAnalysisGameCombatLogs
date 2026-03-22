@@ -1,0 +1,22 @@
+{
+  "PageTitle": "Sample encounter",
+  "PageSubtitle": "Static demo — no upload, no backend. This is the coaching layer we want next to raw meters.",
+  "Duration": "Duration",
+  "Role": "Role",
+  "Spec": "Specialization",
+  "Player": "Player",
+  "ScoresTitle": "Spec scores",
+  "DamageScore": "Damage score",
+  "HealScore": "Heal score",
+  "InsightsTitle": "Three things to look at next",
+  "CtaCombatLogs": "Open Combat Logs (live parse)",
+  "CtaHome": "Back to home",
+  "Disclaimer": "Real runs use your uploaded WoW combat log through the parser API. This page is a product preview only.",
+  "LoadError": "Could not load demo data.",
+  "insightDeaths": "You died {{count}} time(s) — every death wipes throughput. Fix mechanics before chasing perfect rotation.",
+  "insightNoDeaths": "No deaths in this snapshot — survivability looks stable; next optimize burst windows.",
+  "insightDamageTakenHigh": "Damage taken is high versus your throughput — review positioning, avoidable hits, and defensive cooldowns.",
+  "insightDamageTakenOk": "Damage taken looks reasonable versus output — good baseline to push meters higher.",
+  "insightScoreStrong": "Primary score is strong for this fight — drill into timelines to align cooldowns and procs.",
+  "insightScoreGrow": "Primary score has room to grow — compare spell mix and uptime to top performers on the same encounter."
+}

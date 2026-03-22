@@ -216,6 +216,16 @@ $mobile-max-width: 640px;
                 background: rgba($home-ember, 0.14);
             }
         }
+
+        &--teal {
+            color: $home-text;
+            background: rgba($home-teal, 0.12);
+            border-color: rgba($home-teal, 0.4);
+
+            &:hover {
+                background: rgba($home-teal, 0.2);
+            }
+        }
     }
 
     &__btnIcon {

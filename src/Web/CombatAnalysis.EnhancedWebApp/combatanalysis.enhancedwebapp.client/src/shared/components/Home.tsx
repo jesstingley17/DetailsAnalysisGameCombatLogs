@@ -74,6 +74,7 @@ const Home: React.FC = () => {
 
     const navigateToFeed = () => navigate("/feed");
     const navigateToGameCombatLogs = () => navigate("/game-combat-logs");
+    const navigateToDemo = () => navigate("/demo");
 
     return (
         <div className="home">
@@ -88,6 +89,14 @@ const Home: React.FC = () => {
                     <h1 className="home__headline">{t("HeroHeadline")}</h1>
                     <p className="home__sub">{t("HeroSub")}</p>
                     <div className="home__heroActions">
+                        <button
+                            type="button"
+                            className="home__btn home__btn--teal"
+                            onClick={navigateToDemo}
+                        >
+                            {t("TryDemo")}
+                            <FontAwesomeIcon icon={faArrowRight} className="home__btnArrow" />
+                        </button>
                         {!myself && (
                             <button
                                 type="button"

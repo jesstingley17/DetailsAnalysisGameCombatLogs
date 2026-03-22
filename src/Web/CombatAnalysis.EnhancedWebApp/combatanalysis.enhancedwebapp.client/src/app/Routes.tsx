@@ -6,6 +6,7 @@ import Feed from '../features/feed/components/Feed';
 import CombatAuras from '../features/gameLogs/components/actions/CombatAuras';
 import CombatDetails from '../features/gameLogs/components/CombatDetails';
 import SelectedCombat from '../features/gameLogs/components/SelectedCombat';
+import DemoEncounterPage from '../features/gameLogs/components/DemoEncounterPage';
 import GameCombatLogs from '../features/gameLogs/components/GameCombatLogs';
 import GeneralAnalysis from '../features/gameLogs/components/GeneralAnalysis';
 import AuthorizationCallback from '../features/user/components/identity/AuthorizationCallback';
@@ -31,6 +32,10 @@ const AppRoutes: Route[] = [
     {
         path: '/callback',
         element: <AuthorizationCallback />
+    },
+    {
+        path: '/demo',
+        element: <DemoEncounterPage />
     },
     {
         path: '/game-combat-logs',

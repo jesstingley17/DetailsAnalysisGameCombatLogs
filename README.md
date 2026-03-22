@@ -52,6 +52,16 @@ Upstream project: [Solinx97/DetailsAnalysisGameCombatLogs](https://github.com/So
 
 ---
 
+## Quick preview (no backend)
+
+The Enhanced Web App includes a **`/demo`** route: a static sample encounter, **damage and heal spec scores**, and **three coaching-style insights** (deaths, damage taken versus output, score interpretation). It works on static hosting (for example Vercel) **without** running Identity or the parser API.
+
+**Media:** Record a short GIF (home → “Try demo” → scroll insights) and link it here or commit under `docs/` when you have one. A full **upload → parse** recording belongs next to a running backend.
+
+**Sample logs (for dev uploads):** see `src/Web/CombatAnalysis.EnhancedWebApp/combatanalysis.enhancedwebapp.client/public/samples/README.txt`.
+
+---
+
 ## Fastest path for developers (today)
 
 There is **no** single-command Docker bootstrap in this repo yet; local setup is still **.NET + SQL Server + multiple processes**. The shortest honest path:

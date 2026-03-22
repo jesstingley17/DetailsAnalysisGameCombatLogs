@@ -1,0 +1,274 @@
+$demo-font-display: "Syne", system-ui, sans-serif;
+$demo-font-body: "DM Sans", system-ui, sans-serif;
+$demo-bg: #07090e;
+$demo-card: rgba(16, 20, 32, 0.85);
+$demo-border: rgba(255, 255, 255, 0.08);
+$demo-text: #e8ecf4;
+$demo-muted: #8b95a8;
+$demo-gold: #e8c066;
+$demo-teal: #2dd4bf;
+
+.demo-page {
+    position: relative;
+    min-height: calc(100vh - 80px);
+    padding: clamp(1.25rem, 4vw, 2.5rem);
+    font-family: $demo-font-body;
+    color: $demo-text;
+
+    &--loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    &__bg {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        background:
+            radial-gradient(ellipse 100% 80% at 50% -30%, rgba(124, 108, 240, 0.2), transparent 55%),
+            linear-gradient(180deg, #05060a 0%, $demo-bg 45%);
+    }
+
+    &__inner {
+        position: relative;
+        z-index: 1;
+        max-width: 720px;
+        margin: 0 auto;
+    }
+
+    &__error {
+        color: #f87171;
+        margin-bottom: 1rem;
+    }
+
+    &__spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid rgba($demo-teal, 0.25);
+        border-top-color: $demo-teal;
+        border-radius: 50%;
+        animation: demo-spin 0.8s linear infinite;
+    }
+
+    &__badge {
+        display: inline-block;
+        padding: 0.3rem 0.75rem;
+        margin-bottom: 0.75rem;
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: rgba($demo-gold, 0.95);
+        border: 1px solid rgba($demo-gold, 0.35);
+        border-radius: 999px;
+    }
+
+    &__title {
+        margin: 0 0 0.75rem;
+        font-family: $demo-font-display;
+        font-weight: 800;
+        font-size: clamp(1.5rem, 4vw, 2rem);
+        letter-spacing: -0.02em;
+        line-height: 1.15;
+    }
+
+    &__sub {
+        margin: 0;
+        font-size: 0.95rem;
+        line-height: 1.55;
+        color: $demo-muted;
+    }
+
+    &__header {
+        margin-bottom: 2rem;
+    }
+
+    &__meta {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-bottom: 2rem;
+        padding: 1rem 1.25rem;
+        border-radius: 14px;
+        background: $demo-card;
+        border: 1px solid $demo-border;
+        backdrop-filter: blur(12px);
+    }
+
+    &__metaLabel {
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: $demo-muted;
+        margin-bottom: 0.25rem;
+    }
+
+    &__metaValue {
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    &__sectionTitle {
+        margin: 0 0 1rem;
+        font-family: $demo-font-display;
+        font-size: 1.1rem;
+        font-weight: 700;
+    }
+
+    &__scores {
+        margin-bottom: 2rem;
+    }
+
+    &__scoreGrid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    &__scoreCard {
+        padding: 1.1rem 1rem;
+        border-radius: 14px;
+        background: $demo-card;
+        border: 1px solid $demo-border;
+        text-align: center;
+    }
+
+    &__scoreIcon {
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+        color: $demo-gold;
+
+        &--heal {
+            color: #4ade80;
+        }
+    }
+
+    &__scoreLabel {
+        font-size: 0.75rem;
+        color: $demo-muted;
+        margin-bottom: 0.35rem;
+    }
+
+    &__scoreNumber {
+        font-family: $demo-font-display;
+        font-weight: 800;
+        font-size: 1.65rem;
+        color: $demo-text;
+    }
+
+    &__insights {
+        margin-bottom: 1.5rem;
+    }
+
+    &__insightList {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        counter-reset: demo-insight;
+    }
+
+    &__insightItem {
+        display: flex;
+        gap: 0.85rem;
+        align-items: flex-start;
+        margin-bottom: 0.85rem;
+        padding: 0.9rem 1rem;
+        border-radius: 12px;
+        background: rgba(45, 212, 191, 0.06);
+        border: 1px solid rgba($demo-teal, 0.2);
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    &__insightIndex {
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.65rem;
+        height: 1.65rem;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        background: rgba($demo-teal, 0.2);
+        color: $demo-teal;
+    }
+
+    &__insightText {
+        margin: 0;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        color: rgba($demo-text, 0.92);
+    }
+
+    &__disclaimer {
+        margin: 0 0 1.5rem;
+        font-size: 0.8rem;
+        line-height: 1.45;
+        color: $demo-muted;
+    }
+
+    &__actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    &__btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.65rem 1.1rem;
+        font-family: inherit;
+        font-size: 0.9rem;
+        font-weight: 600;
+        border-radius: 10px;
+        cursor: pointer;
+        border: 1px solid transparent;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+        &:hover {
+            transform: translateY(-2px);
+        }
+
+        &--primary {
+            color: #0a0c10;
+            background: linear-gradient(135deg, $demo-gold, #f0d080);
+            box-shadow: 0 8px 24px rgba($demo-gold, 0.3);
+        }
+
+        &--ghost {
+            color: $demo-text;
+            background: rgba(255, 255, 255, 0.06);
+            border-color: $demo-border;
+        }
+    }
+}
+
+@keyframes demo-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 520px) {
+    .demo-page__scoreGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .demo-page__meta {
+        grid-template-columns: 1fr;
+    }
+
+    .demo-page__actions {
+        flex-direction: column;
+
+        .demo-page__btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+}
