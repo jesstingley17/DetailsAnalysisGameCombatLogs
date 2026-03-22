@@ -1,8 +1,14 @@
-﻿import type { RootState } from '@/app/Store';
+import type { RootState } from '@/app/Store';
 import { APP_CONFIG } from '@/config/appConfig';
 import { useLazyAuthorizationQuery } from '@/features/user/api/User.api';
 import logger from '@/utils/Logger';
-import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
+import {
+    faArrowRight,
+    faChartLine,
+    faCheck,
+    faComments,
+    faTriangleExclamation,
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -71,71 +77,113 @@ const Home: React.FC = () => {
 
     return (
         <div className="home">
-            <div className="home__item">
-                <div className="title">
-                    <div>{t("Communication")}</div>
-                    {!myself &&
-                        <div className="btn-shadow authorize-alert" onClick={loginHandle} title={t("GoToLogin") || ""}>
-                            <FontAwesomeIcon
-                                icon={faTriangleExclamation}
-                            />
-                            <div>{t("ShouldAuthorize")}</div>
-                        </div>
-                    }
-                </div>
-                <div className="preview">
-                    <div className="preview__title">{t("Communication")}</div>
-                    <div className="preview__responsibilities">
-                        <div className="form-check">
-                            <input className="form-check-input" type="checkbox" name="communication-reason-1" id="communication-reason-1" defaultChecked disabled />
-                            <label className="form-check-label" htmlFor="communication-reason-1">{t("ExploreFeed")}</label>
-                        </div>
-                        <div className="form-check">
-                            <input className="form-check-input" type="checkbox" name="communication-reason-2" id="communication-reason-2" defaultChecked disabled />
-                            <label className="form-check-label" htmlFor="communication-reason-2">{t("ChattingWithFriends")}</label>
-                        </div>
-                        <div className="form-check">
-                            <input className="form-check-input" type="checkbox" name="communication-reason-3" id="communication-reason-3" defaultChecked disabled />
-                            <label className="form-check-label" htmlFor="communication-reason-3">{t("CreateJoinCommunity")}</label>
-                        </div>
-                        <div className="form-check">
-                            <input className="form-check-input" type="checkbox" name="communication-reason-4" id="communication-reason-4" defaultChecked disabled />
-                            <label className="form-check-label" htmlFor="communication-reason-4">{t("AddFriedns")}</label>
-                        </div>
+            <div className="home__bg" aria-hidden />
+            <div className="home__grain" aria-hidden />
+
+            <header className="home__hero">
+                <div className="home__heroGlow home__heroGlow--a" aria-hidden />
+                <div className="home__heroGlow home__heroGlow--b" aria-hidden />
+                <div className="home__heroInner">
+                    <span className="home__badge">{t("HeroBadge")}</span>
+                    <h1 className="home__headline">{t("HeroHeadline")}</h1>
+                    <p className="home__sub">{t("HeroSub")}</p>
+                    <div className="home__heroActions">
+                        {!myself && (
+                            <button
+                                type="button"
+                                className="home__btn home__btn--ghost"
+                                onClick={loginHandle}
+                                title={t("GoToLogin") || ""}
+                            >
+                                <FontAwesomeIcon icon={faTriangleExclamation} className="home__btnIcon" />
+                                {t("ShouldAuthorize")}
+                            </button>
+                        )}
+                        <button
+                            type="button"
+                            className="home__btn home__btn--primary"
+                            onClick={navigateToGameCombatLogs}
+                        >
+                            {t("Analyzing")}
+                            <FontAwesomeIcon icon={faArrowRight} className="home__btnArrow" />
+                        </button>
+                        {myself !== null && (
+                            <button
+                                type="button"
+                                className="home__btn home__btn--secondary"
+                                onClick={navigateToFeed}
+                            >
+                                {t("Communication")}
+                                <FontAwesomeIcon icon={faArrowRight} className="home__btnArrow" />
+                            </button>
+                        )}
                     </div>
                 </div>
-                {myself !== null &&
-                    <div className="go-to-communication" data-testid="go-to-communication" onClick={navigateToFeed}>{t("Open")}</div>
-                }
-            </div>
-            <div className="home__item">
-                <div className="title">{t("Analyzing")}</div>
-                <div className="preview">
-                    <div className="preview__title">{t("Analyzing")}</div>
-                    <div className="preview__responsibilities">
-                        <div className="form-check">
-                            <input className="form-check-input" type="checkbox" name="combat-logs-reason-1" id="combat-logs-reason-1" defaultChecked disabled />
-                            <label className="form-check-label" htmlFor="combat-logs-reason-1">{t("SaveAnalyzing")}</label>
-                        </div>
-                        <div className="form-check">
-                            <input className="form-check-input" type="checkbox" name="combat-logs-reason-2" id="combat-logs-reason-2" defaultChecked disabled />
-                            <label className="form-check-label" htmlFor="combat-logs-reason-2">{t("ExploreAnalyzing")}</label>
-                        </div>
-                        <div className="form-check">
-                            <input className="form-check-input" type="checkbox" name="combat-logs-reason-3" id="combat-logs-reason-3" defaultChecked disabled />
-                            <label className="form-check-label" htmlFor="combat-logs-reason-3">{t("ShareAnalyzing")}</label>
-                        </div>
+            </header>
+
+            <section className="home__cards" aria-label="Features">
+                <article className="homeCard homeCard--social">
+                    <div className="homeCard__iconWrap">
+                        <FontAwesomeIcon icon={faComments} className="homeCard__icon" />
+                    </div>
+                    <h2 className="homeCard__title">{t("Communication")}</h2>
+                    <ul className="homeCard__list">
+                        <li><FontAwesomeIcon icon={faCheck} className="homeCard__check" />{t("ExploreFeed")}</li>
+                        <li><FontAwesomeIcon icon={faCheck} className="homeCard__check" />{t("ChattingWithFriends")}</li>
+                        <li><FontAwesomeIcon icon={faCheck} className="homeCard__check" />{t("CreateJoinCommunity")}</li>
+                        <li><FontAwesomeIcon icon={faCheck} className="homeCard__check" />{t("AddFriedns")}</li>
+                    </ul>
+                    {myself !== null ? (
+                        <button
+                            type="button"
+                            className="homeCard__cta"
+                            onClick={navigateToFeed}
+                            data-testid="go-to-communication"
+                        >
+                            {t("Open")}
+                            <FontAwesomeIcon icon={faArrowRight} />
+                        </button>
+                    ) : (
+                        <button type="button" className="homeCard__cta homeCard__cta--muted" onClick={loginHandle}>
+                            {t("Login")}
+                            <FontAwesomeIcon icon={faArrowRight} />
+                        </button>
+                    )}
+                </article>
+
+                <article className="homeCard homeCard--logs">
+                    <div className="homeCard__iconWrap homeCard__iconWrap--accent">
+                        <FontAwesomeIcon icon={faChartLine} className="homeCard__icon" />
+                    </div>
+                    <h2 className="homeCard__title">{t("Analyzing")}</h2>
+                    <ul className="homeCard__list">
+                        <li><FontAwesomeIcon icon={faCheck} className="homeCard__check" />{t("SaveAnalyzing")}</li>
+                        <li><FontAwesomeIcon icon={faCheck} className="homeCard__check" />{t("ExploreAnalyzing")}</li>
+                        <li><FontAwesomeIcon icon={faCheck} className="homeCard__check" />{t("ShareAnalyzing")}</li>
+                    </ul>
+                    <button
+                        type="button"
+                        className="homeCard__cta homeCard__cta--accent"
+                        onClick={navigateToGameCombatLogs}
+                        data-testid="go-to-combat-logs"
+                    >
+                        {t("Open")}
+                        <FontAwesomeIcon icon={faArrowRight} />
+                    </button>
+                </article>
+            </section>
+
+            {shouldBeAuthorize && (
+                <div className="home__toast" data-testid="should-be-authorize" role="status">
+                    <div className="home__toastInner">
+                        {t("YouNeed")}{' '}
+                        <button type="button" className="home__toastLink" onClick={loginHandle}>
+                            {t("Login")}
+                        </button>{' '}
+                        {t("InApp")}
                     </div>
                 </div>
-                <div className="go-to-combat-logs" data-testid="go-to-combat-logs" onClick={navigateToGameCombatLogs}>{t("Open")}</div>
-            </div>
-            {shouldBeAuthorize &&
-                <div className="should-be-authorize" data-testid="should-be-authorize">
-                    <div className="alert alert-success" role="alert">
-                        {t("YouNeed")} <span onClick={loginHandle}>{t("Login")}</span> {t("InApp")}
-                    </div>
-                </div>
-            }
+            )}
         </div>
     );
 }

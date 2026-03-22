@@ -1,77 +1,422 @@
-$primary-color: #5BBCFF;
-$border-radius: 10px;
-$box-shadow: 2px 2px 2px 2px $primary-color;
-$font-size: 0.9em;
-$gap-large: 50px;
-$gap-medium: 25px;
-$padding: 10px 20px;
-$mobile-max-width: 425px;
+// Landing — dark fantasy / raid board aesthetic (Syne + DM Sans from index.html)
+$home-font-display: "Syne", system-ui, sans-serif;
+$home-font-body: "DM Sans", system-ui, sans-serif;
+
+$home-bg: #080a0e;
+$home-surface: rgba(18, 22, 32, 0.72);
+$home-border: rgba(255, 255, 255, 0.08);
+$home-text: #e8ecf4;
+$home-muted: #8b95a8;
+
+$home-gold: #e8c066;
+$home-ember: #ff6b35;
+$home-teal: #2dd4bf;
+$home-violet: #7c6cf0;
+
+$home-radius: 20px;
+$home-radius-sm: 12px;
+$mobile-max-width: 640px;
+
+@keyframes home-fade-up {
+    from {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes home-glow-drift {
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0.55;
+    }
+    50% {
+        transform: translate(4%, -3%) scale(1.05);
+        opacity: 0.75;
+    }
+}
+
+@keyframes home-shimmer {
+    0% {
+        background-position: 0% 50%;
+    }
+    100% {
+        background-position: 100% 50%;
+    }
+}
 
 .home {
-    display: flex;
-    justify-content: center;
-    gap: $gap-large;
-    margin-bottom: 10px;
+    position: relative;
+    min-height: calc(100vh - 80px);
+    padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 4vw, 2.5rem) 3rem;
+    font-family: $home-font-body;
+    color: $home-text;
+    overflow: hidden;
 
-    &__item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: $gap-medium;
+    &__bg {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        background:
+            radial-gradient(ellipse 120% 80% at 50% -20%, rgba($home-violet, 0.35), transparent 55%),
+            radial-gradient(ellipse 90% 60% at 100% 30%, rgba($home-ember, 0.12), transparent 50%),
+            radial-gradient(ellipse 70% 50% at 0% 80%, rgba($home-teal, 0.1), transparent 45%),
+            linear-gradient(180deg, #06080d 0%, $home-bg 40%, #030406 100%);
+    }
 
-        .go-to-communication, .go-to-combat-logs {
-            padding: $padding;
-            border-radius: $border-radius;
-            box-shadow: $box-shadow;
-            font-size: $font-size;
-            cursor: pointer;
+    &__grain {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        opacity: 0.35;
+        pointer-events: none;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+        mix-blend-mode: overlay;
+    }
+
+    &__hero {
+        position: relative;
+        z-index: 1;
+        max-width: 920px;
+        margin: 0 auto 2.5rem;
+        padding: clamp(1.5rem, 5vw, 3rem) 0 0;
+    }
+
+    &__heroGlow {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        pointer-events: none;
+        animation: home-glow-drift 14s ease-in-out infinite;
+
+        &--a {
+            width: min(420px, 70vw);
+            height: min(420px, 70vw);
+            top: -120px;
+            left: -80px;
+            background: radial-gradient(circle, rgba($home-gold, 0.25), transparent 65%);
+        }
+
+        &--b {
+            width: min(360px, 60vw);
+            height: min(360px, 60vw);
+            top: -40px;
+            right: -100px;
+            background: radial-gradient(circle, rgba($home-teal, 0.2), transparent 65%);
+            animation-delay: -7s;
         }
     }
 
-    .should-be-authorize {
-        position: fixed;
-        display: flex;
-        justify-content: center;
+    &__heroInner {
+        position: relative;
         text-align: center;
-        left: 35%;
-        top: 0;
-        width: 500px;
-
-        span {
-            font-weight: bold;
-            cursor: pointer;
-        }
+        animation: home-fade-up 0.85s ease-out both;
     }
 
-    .title {
-        display: flex;
-        align-items: center;
-        gap: $gap-medium;
+    &__badge {
+        display: inline-block;
+        padding: 0.35rem 0.9rem;
+        margin-bottom: 1.25rem;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: rgba($home-gold, 0.95);
+        border: 1px solid rgba($home-gold, 0.35);
+        border-radius: 999px;
+        background: linear-gradient(135deg, rgba($home-gold, 0.12), rgba($home-ember, 0.06));
+        box-shadow: 0 0 24px rgba($home-gold, 0.12);
+    }
 
-        .authorize-alert {
-            width: 35px;
-            overflow: hidden;
-            white-space: nowrap;
-            font-size: 0.9em;
+    &__headline {
+        margin: 0 0 1rem;
+        font-family: $home-font-display;
+        font-weight: 800;
+        font-size: clamp(2rem, 5.5vw, 3.35rem);
+        line-height: 1.08;
+        letter-spacing: -0.03em;
+        background: linear-gradient(120deg, #fff 0%, rgba($home-text, 0.92) 45%, $home-gold 100%);
+        background-size: 200% auto;
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        animation: home-shimmer 8s ease-in-out infinite alternate;
+    }
+
+    &__sub {
+        margin: 0 auto 1.75rem;
+        max-width: 560px;
+        font-size: clamp(0.95rem, 2vw, 1.1rem);
+        line-height: 1.65;
+        color: $home-muted;
+    }
+
+    &__heroActions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        justify-content: center;
+        align-items: center;
+    }
+
+    &__btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.65rem 1.25rem;
+        font-family: inherit;
+        font-size: 0.9rem;
+        font-weight: 600;
+        border-radius: $home-radius-sm;
+        border: 1px solid transparent;
+        cursor: pointer;
+        transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease,
+            background 0.2s ease;
+
+        &:hover {
+            transform: translateY(-2px);
+        }
+
+        &:active {
+            transform: translateY(0);
+        }
+
+        &--primary {
+            color: #0a0c10;
+            background: linear-gradient(135deg, $home-gold 0%, #f0d080 100%);
+            box-shadow: 0 8px 28px rgba($home-gold, 0.35);
 
             &:hover {
-                animation-name: need-be-authorize;
-                animation-duration: 0.5s;
-                animation-fill-mode: forwards;
-            }
-
-            svg {
-                color: orange;
+                box-shadow: 0 12px 36px rgba($home-gold, 0.45);
             }
         }
 
-        @keyframes need-be-authorize {
-            from {
-                width: 35px;
-            }
+        &--secondary {
+            color: $home-text;
+            background: rgba(255, 255, 255, 0.06);
+            border-color: $home-border;
 
-            to {
-                width: 275px;
+            &:hover {
+                background: rgba(255, 255, 255, 0.1);
+            }
+        }
+
+        &--ghost {
+            color: $home-ember;
+            background: rgba($home-ember, 0.08);
+            border-color: rgba($home-ember, 0.35);
+
+            &:hover {
+                background: rgba($home-ember, 0.14);
+            }
+        }
+    }
+
+    &__btnIcon {
+        font-size: 0.95em;
+    }
+
+    &__btnArrow {
+        font-size: 0.85em;
+        opacity: 0.9;
+    }
+
+    &__cards {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: clamp(1rem, 3vw, 1.75rem);
+        max-width: 1040px;
+        margin: 0 auto;
+        animation: home-fade-up 0.85s ease-out 0.12s both;
+    }
+
+    &__toast {
+        position: fixed;
+        z-index: 50;
+        left: 50%;
+        bottom: 1.5rem;
+        transform: translateX(-50%);
+        max-width: min(480px, calc(100% - 2rem));
+        animation: home-fade-up 0.4s ease-out both;
+    }
+
+    &__toastInner {
+        padding: 0.85rem 1.25rem;
+        font-size: 0.9rem;
+        line-height: 1.45;
+        color: $home-text;
+        background: rgba(12, 18, 28, 0.92);
+        border: 1px solid rgba($home-teal, 0.35);
+        border-radius: $home-radius-sm;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+        backdrop-filter: blur(12px);
+    }
+
+    &__toastLink {
+        padding: 0;
+        font: inherit;
+        font-weight: 700;
+        color: $home-teal;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+        background: none;
+        border: none;
+        cursor: pointer;
+    }
+}
+
+.homeCard {
+    position: relative;
+    padding: clamp(1.25rem, 3vw, 1.75rem);
+    border-radius: $home-radius;
+    background: $home-surface;
+    border: 1px solid $home-border;
+    backdrop-filter: blur(16px);
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
+    transition:
+        transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+        border-color 0.25s ease,
+        box-shadow 0.35s ease;
+    overflow: hidden;
+
+    &::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        opacity: 0;
+        transition: opacity 0.35s ease;
+        pointer-events: none;
+    }
+
+    &--social::before {
+        background: radial-gradient(120% 80% at 100% 0%, rgba($home-violet, 0.2), transparent 55%);
+    }
+
+    &--logs::before {
+        background: radial-gradient(120% 80% at 0% 100%, rgba($home-teal, 0.15), transparent 55%);
+    }
+
+    &:hover {
+        transform: translateY(-6px);
+        border-color: rgba(255, 255, 255, 0.14);
+        box-shadow: 0 32px 56px rgba(0, 0, 0, 0.45);
+
+        &::before {
+            opacity: 1;
+        }
+    }
+
+    &__iconWrap {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 52px;
+        height: 52px;
+        margin-bottom: 1rem;
+        border-radius: 14px;
+        background: linear-gradient(145deg, rgba($home-violet, 0.35), rgba($home-violet, 0.08));
+        border: 1px solid rgba($home-violet, 0.35);
+
+        &--accent {
+            background: linear-gradient(145deg, rgba($home-teal, 0.35), rgba($home-teal, 0.08));
+            border-color: rgba($home-teal, 0.35);
+        }
+    }
+
+    &__icon {
+        font-size: 1.35rem;
+        color: $home-text;
+    }
+
+    &__title {
+        margin: 0 0 1rem;
+        font-family: $home-font-display;
+        font-weight: 700;
+        font-size: 1.35rem;
+        letter-spacing: -0.02em;
+    }
+
+    &__list {
+        margin: 0 0 1.35rem;
+        padding: 0;
+        list-style: none;
+        font-size: 0.88rem;
+        line-height: 1.55;
+        color: $home-muted;
+
+        li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.55rem;
+            margin-bottom: 0.55rem;
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+        }
+    }
+
+    &__check {
+        flex-shrink: 0;
+        margin-top: 0.2rem;
+        font-size: 0.7rem;
+        color: $home-teal;
+    }
+
+    &__cta {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+        padding: 0.7rem 1rem;
+        font-family: inherit;
+        font-size: 0.92rem;
+        font-weight: 600;
+        color: #0a0c10;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(230, 235, 245, 0.9));
+        border: none;
+        border-radius: $home-radius-sm;
+        cursor: pointer;
+        transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
+
+        &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
+        }
+
+        svg {
+            font-size: 0.85em;
+        }
+
+        &--muted {
+            color: $home-text;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid $home-border;
+
+            &:hover {
+                background: rgba(255, 255, 255, 0.12);
+            }
+        }
+
+        &--accent {
+            color: #04120f;
+            background: linear-gradient(135deg, $home-teal, #24b8a6);
+            box-shadow: 0 8px 24px rgba($home-teal, 0.25);
+
+            &:hover {
+                box-shadow: 0 12px 32px rgba($home-teal, 0.35);
             }
         }
     }
@@ -79,38 +424,26 @@ $mobile-max-width: 425px;
 
 @media (max-width: $mobile-max-width) {
     .home {
-        flex-direction: column;
-        gap: $gap-medium;
-
-        &__item {
-            gap: $gap-medium;
-
-            .go-to-communication, .go-to-combat-logs {
-                font-size: $font-size;
-                padding: 8px 16px;
-            }
+        &__cards {
+            grid-template-columns: 1fr;
         }
 
-        .should-be-authorize {
-            left: 10%;
-            width: 80%;
+        &__headline {
+            font-size: 1.85rem;
         }
 
-        .title {
-            display: flex;
+        &__heroActions {
             flex-direction: column;
-            gap: 5px;
+            width: 100%;
 
-            .authorize-alert {
-                width: auto;
-                overflow: auto;
-                white-space: normal;
-                height: 30px;
-
-                &:hover {
-                    animation: none;
-                }
+            .home__btn {
+                width: 100%;
+                justify-content: center;
             }
         }
+    }
+
+    .homeCard:hover {
+        transform: none;
     }
 }
