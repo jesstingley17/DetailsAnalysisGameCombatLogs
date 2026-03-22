@@ -60,6 +60,17 @@ The Enhanced Web App includes a **`/demo`** route: a static sample encounter, **
 
 **Sample logs (for dev uploads):** see `src/Web/CombatAnalysis.EnhancedWebApp/combatanalysis.enhancedwebapp.client/public/samples/README.txt`.
 
+### Discord
+
+The web client can surface **optional** Discord links (env-driven, no secrets in the bundle):
+
+| Variable | Purpose |
+|----------|---------|
+| `VITE_DISCORD_INVITE_URL` | Permanent invite to your community server (e.g. `https://discord.gg/...`) — **Join server** button on the home page. |
+| `VITE_DISCORD_CLIENT_ID` + `VITE_DISCORD_REDIRECT_URI` | Builds Discord’s **OAuth2 authorize** URL for “Connect Discord”. You must register the same redirect URL in the [Discord Developer Portal](https://discord.com/developers/applications) and implement a **server-side** callback to exchange `code` for tokens and map the user to your Identity/app user — not included here. |
+
+For **Sign in with Discord** as a first-class login provider, configure **Duende IdentityServer** external authentication (or your IdP) to trust Discord — see [Discord OAuth2 documentation](https://discord.com/developers/docs/topics/oauth2).
+
 ---
 
 ## Fastest path for developers (today)

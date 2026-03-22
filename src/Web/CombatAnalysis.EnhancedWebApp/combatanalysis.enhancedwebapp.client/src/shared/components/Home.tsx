@@ -15,6 +15,7 @@ import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import DiscordCommunityLinks from './DiscordCommunityLinks';
 
 import './Home.scss';
 
@@ -181,6 +182,8 @@ const Home: React.FC = () => {
                     </button>
                 </article>
             </section>
+
+            <DiscordCommunityLinks />
 
             {shouldBeAuthorize && (
                 <div className="home__toast" data-testid="should-be-authorize" role="status">
