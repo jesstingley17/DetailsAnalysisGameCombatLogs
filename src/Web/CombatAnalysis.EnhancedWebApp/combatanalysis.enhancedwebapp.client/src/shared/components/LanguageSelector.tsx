@@ -1,13 +1,14 @@
-﻿import { useCallback } from 'react';
+import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
-const supportedLanguages = [
-    "en",
-    "ru"
-];
+const supportedLanguages = ['en'];
 
 const LanguageSelector: React.FC = () => {
     const { i18n } = useTranslation('translate');
+
+    if (supportedLanguages.length <= 1) {
+        return null;
+    }
 
     const selectedLang = i18n.language;
 
